@@ -56,7 +56,7 @@ public class PublishVersion extends AbstractAction {
         if (((null==contactsIn) || contactsIn.isEmpty()) &&
             ((null==teamMembersIn) || teamMembersIn.isEmpty())) {
                 // Launch publish dialog
-                browser.displayPublishContainerDialog(containerId, versionId);
+                browser.displayPublishContainerDialog(containerId, versionId, Boolean.FALSE);
         } else {
             final Profile profile = getProfileModel().read();
             final ArrayList<TeamMember> teamMembers = new ArrayList<TeamMember>();

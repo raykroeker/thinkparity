@@ -347,30 +347,35 @@ public class Browser extends AbstractApplication {
      * If the user presses OK, the CONTAINER_PUBLISH action is invoked.
      * 
      * @param containerId
-     *            The container id.
+     *            The container id.        
      */
     public void displayPublishContainerDialog(final Long containerId) {
-        final Data input = new Data(2);
+        final Data input = new Data(3);
         input.set(PublishContainerAvatar.DataKey.PUBLISH_TYPE, PublishContainerAvatar.PublishType.PUBLISH);
         input.set(PublishContainerAvatar.DataKey.CONTAINER_ID, containerId);
+        input.set(PublishContainerAvatar.DataKey.DELETE_DRAFT, Boolean.FALSE);
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
 
     /**
      * Display the "publish container" dialog for a version.
-     * If the user presses OK, the CONTAINER_PUBLISH action is invoked.
+     * If the user presses OK, the CONTAINER_PUBLISH_VERSION action is invoked.
      * 
      * @param containerId
      *            The container id.
      * @param versionId
-     *            A version id.        
+     *            A version id.
+     * @param deleteDraft
+     *            Flag indicating if the draft should be deleted after.                
      */
-    public void displayPublishContainerDialog(final Long containerId, final Long versionId) {
-        final Data input = new Data(3);
+    public void displayPublishContainerDialog(final Long containerId, final Long versionId,
+            final Boolean deleteDraft) {
+        final Data input = new Data(4);
         input.set(PublishContainerAvatar.DataKey.PUBLISH_TYPE, PublishContainerAvatar.PublishType.PUBLISH_VERSION);
         input.set(PublishContainerAvatar.DataKey.CONTAINER_ID, containerId);
         input.set(PublishContainerAvatar.DataKey.VERSION_ID, versionId);
+        input.set(PublishContainerAvatar.DataKey.DELETE_DRAFT, deleteDraft);
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
@@ -1143,6 +1148,21 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(Delete.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_DELETE, data);        
+    }    
+    
+    /**
+     * Delete the draft for the container.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param confirm
+     *            Flag indicating if a confirm dialog is displayed.           
+     */
+    public void runDeleteContainerDraft(final Long containerId, final Boolean confirm) {
+        final Data data = new Data(2);
+        data.set(DeleteDraft.DataKey.CONTAINER_ID, containerId);
+        data.set(DeleteDraft.DataKey.CONFIRM, confirm);
+        invoke(ActionId.CONTAINER_DELETE_DRAFT, data);         
     }
     
     /**
@@ -1273,11 +1293,11 @@ public class Browser extends AbstractApplication {
      *  @param contacts
      *              The contacts. 
      *  @param comment
-     *              The comment.                 
+     *              The comment.                             
      */
     public void runPublishContainerVersion(final ThinkParitySwingMonitor monitor, final Long containerId, final Long versionId,
             final List<TeamMember> teamMembers, final List<Contact> contacts) {
-        final Data data = new Data(6);
+        final Data data = new Data(5);
         data.set(PublishVersion.DataKey.CONTAINER_ID, containerId);
         data.set(PublishVersion.DataKey.VERSION_ID, versionId);
         data.set(PublishVersion.DataKey.CONTACTS, contacts);

@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 
 import com.thinkparity.codebase.model.container.Container;
 
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -38,14 +37,23 @@ public class DeleteDraft extends AbstractAction {
     @Override
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
+        final Boolean confirm = (Boolean) data.get(DataKey.CONFIRM);
 
         final Container container = getContainerModel().read(containerId);
-        if (browser.confirm(
-                "ContainerDeleteDraft.ConfirmDeleteDraftMessage",
-                new Object[] { container.getName() })) {
+        
+        final Boolean proceed;
+        if (confirm) {
+            proceed = browser.confirm(
+                    "ContainerDeleteDraft.ConfirmDeleteDraftMessage",
+                    new Object[] { container.getName() });
+        } else {
+            proceed = Boolean.TRUE;
+        }
+        
+        if (proceed) {
             getContainerModel().deleteDraft(containerId);
         }
     }
 
-    public enum DataKey { CONTAINER_ID }
+    public enum DataKey { CONTAINER_ID, CONFIRM }
 }

@@ -17,6 +17,7 @@ import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
@@ -238,6 +239,19 @@ public final class PublishContainerAvatar extends Avatar implements
     private Long getInputContainerId() {
         if (input!=null) {
             return (Long) ((Data) input).get(DataKey.CONTAINER_ID);
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Obtain the input delete draft flag.
+     *
+     * @return A Boolean.
+     */
+    private Boolean getInputDeleteDraft() {
+        if (input!=null) {
+            return (Boolean) ((Data) input).get(DataKey.DELETE_DRAFT);
         } else {
             return null;
         }
@@ -490,6 +504,13 @@ public final class PublishContainerAvatar extends Avatar implements
         final PublishContainerAvatarUserListModel model = (PublishContainerAvatarUserListModel) namesJList.getModel();
         final List<TeamMember> teamMembers = model.getSelectedTeamMembers();
         final List<Contact> contacts = model.getSelectedContacts();
+        
+        // Maybe delete the draft
+        if (getInputDeleteDraft()) {
+            getController().runDeleteContainerDraft(containerId, Boolean.FALSE);
+        }
+        
+        // Publish
         if (publishType == PublishType.PUBLISH_VERSION) {
             final Long versionId = getInputVersionId();
             getController().runPublishContainerVersion(createMonitor(),
@@ -638,31 +659,47 @@ public final class PublishContainerAvatar extends Avatar implements
     private void reloadJList() {
         final List<TeamMember> teamMembers;
         final List<Contact> contacts;
-        final Map<User, ArtifactReceipt> versionUsers;
-        final User publisher;
-        Boolean needSpacer;
+        final Boolean selectLatestVersionUsers;
         
-        if (getPublishTypeSpecific() == PublishTypeSpecific.PUBLISH_NOT_FIRST_TIME) {
-            teamMembers = readTeamMembers();
-            versionUsers = readLatestVersionUsers();
-            publisher = readLatestPublisher();
-            needSpacer = !teamMembers.isEmpty();
-        } else {
+        switch (getPublishTypeSpecific()) {
+        case PUBLISH_FIRST_TIME:
+            selectLatestVersionUsers = Boolean.FALSE;            
             teamMembers = Collections.emptyList();
-            versionUsers = null;
-            publisher = null;
-            needSpacer = Boolean.FALSE;
-        }     
-        contacts = readContacts(teamMembers);
-        
-        namesListModel.clear();
-        for (final TeamMember teamMember : teamMembers) {
-            namesListModel.addElement(new PublishContainerAvatarUser(teamMember,
-                    isVersionUser(teamMember, publisher, versionUsers)));
+            break;
+        case PUBLISH_NOT_FIRST_TIME:
+            selectLatestVersionUsers = Boolean.TRUE;            
+            teamMembers = readTeamMembers();
+            break;
+        case PUBLISH_VERSION:
+            selectLatestVersionUsers = Boolean.FALSE;            
+            teamMembers = readTeamMembers();
+            break;
+        default:
+            throw Assert.createUnreachable("Unknown publish type");
         }
-        if (needSpacer) {
+         
+        contacts = readContacts(teamMembers);        
+        namesListModel.clear();
+        
+        // Populate team members
+        if (selectLatestVersionUsers) {
+            final User publisher = readLatestPublisher();
+            final Map<User, ArtifactReceipt> versionUsers = readLatestVersionUsers();
+            for (final TeamMember teamMember : teamMembers) {
+                namesListModel.addElement(new PublishContainerAvatarUser(
+                        teamMember, isVersionUser(teamMember, publisher, versionUsers)));
+            }
+        } else {
+            for (final TeamMember teamMember : teamMembers) {
+                namesListModel.addElement(new PublishContainerAvatarUser(
+                        teamMember, Boolean.FALSE));
+            }
+        }
+        // Add a spacer if necessary to separate team members from contacts
+        if (!teamMembers.isEmpty()) {
             namesListModel.addElement(new PublishContainerAvatarUser(null, Boolean.FALSE));
         }
+        // Populate contacts
         for (final Contact contact : contacts) {
             namesListModel.addElement(new PublishContainerAvatarUser(contact, Boolean.FALSE));
         }
@@ -755,7 +792,7 @@ public final class PublishContainerAvatar extends Avatar implements
         }
     }
         
-    public enum DataKey { CONTAINER_ID, PUBLISH_TYPE, VERSION_ID }    
+    public enum DataKey { CONTAINER_ID, DELETE_DRAFT, PUBLISH_TYPE, VERSION_ID }    
     public enum PublishType { PUBLISH, PUBLISH_VERSION }
     private enum PublishTypeSpecific { PUBLISH_FIRST_TIME, PUBLISH_NOT_FIRST_TIME, PUBLISH_VERSION }
 }

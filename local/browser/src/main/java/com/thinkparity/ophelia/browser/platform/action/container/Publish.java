@@ -87,8 +87,10 @@ public class Publish extends AbstractAction {
             browser.displayErrorDialog("ErrorNoDocumentToPublish",
                     new Object[] {container.getName()});
         } else if (!changes) {
-            browser.displayErrorDialog("ErrorNoChangedDocumentToPublish",
-                    new Object[] {container.getName()});
+            // In this case, publish the most recent version.
+            // After publishing we want to delete the draft.
+            long versionId = getContainerModel().readLatestVersion(containerId).getVersionId();
+            browser.displayPublishContainerDialog(containerId, versionId, Boolean.TRUE);
         } else if ((null == contactsIn || contactsIn.isEmpty()) &&
             (null == teamMembersIn || teamMembersIn.isEmpty())) {
             // TODO raymond@thinkparity.com - Adjust such that the list input is never null 

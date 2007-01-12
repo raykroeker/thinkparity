@@ -84,8 +84,9 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
                 needSeparator = true;
             }
             if (container.isLocalDraft()) {
-                final Data deleteDraftData = new Data(1);
+                final Data deleteDraftData = new Data(2);
                 deleteDraftData.set(DeleteDraft.DataKey.CONTAINER_ID, container.getId());
+                deleteDraftData.set(DeleteDraft.DataKey.CONFIRM, Boolean.TRUE);
                 add(ActionId.CONTAINER_DELETE_DRAFT, deleteDraftData);
                 needSeparator = true;
             }
@@ -185,8 +186,9 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             publishData.set(Publish.DataKey.CONTAINER_ID, draft.getContainerId());
             add(ActionId.CONTAINER_PUBLISH, publishData);
 
-            final Data deleteData = new Data(1);
+            final Data deleteData = new Data(2);
             deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, draft.getContainerId());
+            deleteData.set(DeleteDraft.DataKey.CONFIRM, Boolean.TRUE);
             add(ActionId.CONTAINER_DELETE_DRAFT, deleteData);
 
             addSeparator();

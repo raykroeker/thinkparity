@@ -40,6 +40,16 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
                     }
                 });
     }
+    
+    /**
+     * Notify the avatar that a container has been archived.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void fireArchived(final ContainerEvent e) {
+        sync(e);
+    }
 
     /**
      * Notify the avatar that a container has been created.
@@ -139,6 +149,19 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     }
     
     /**
+     * Notify the avatar that a container has been restored.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void fireRestored(final ContainerEvent e) {
+        if (e.isRemote()) {
+            removeFlagSeen(e);
+        }
+        sync(e);
+    }
+    
+    /**
      * Notify the avatar that a "seen" flag has been updated.
      * 
      * @param artifactId
@@ -175,9 +198,6 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A <code>ContainerEvent</code>.     
      */
     public void fireUpdated(final ContainerEvent e) {
-        if (e.isRemote()) {
-            removeFlagSeen(e);
-        }
         sync(e);
     }
     

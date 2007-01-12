@@ -46,7 +46,7 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
         containerListener = new ContainerAdapter() {
             @Override
             public void containerArchived(final ContainerEvent e) {
-                avatar.fireUpdated(e);
+                avatar.fireArchived(e);
             }
             @Override
             public void containerCreated(final ContainerEvent e) {
@@ -58,7 +58,7 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
             }
             @Override
             public void containerRestored(final ContainerEvent e) {
-                avatar.fireUpdated(e);
+                avatar.fireRestored(e);
             }
             @Override
             public void containerUpdated(final ContainerEvent e) {

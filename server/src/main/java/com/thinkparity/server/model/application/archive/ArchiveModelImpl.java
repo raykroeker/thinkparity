@@ -229,16 +229,13 @@ class ArchiveModelImpl extends AbstractModelImpl {
      * @return An <code>ArchiveReader&lt;Document, DocumentVersion&gt;</code>.
      */
     ArchiveReader<Document, DocumentVersion> getDocumentReader(
-            final JabberId userId, final UUID containerUniqueId,
-            final Long containerVersionId) {
+            final JabberId userId, final UUID containerUniqueId) {
         logApiId();
         logVariable("userId", userId);
         logVariable("containerUniqueId", containerUniqueId);
-        logVariable("containerVersionId", containerVersionId);
         try {
             assertIsAuthenticatedUser(userId);
-            return createDocumentReader(userId, containerUniqueId,
-                    containerVersionId);
+            return createDocumentReader(userId, containerUniqueId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -254,13 +251,16 @@ class ArchiveModelImpl extends AbstractModelImpl {
      * @return An <code>ArchiveReader&lt;Document, DocumentVersion&gt;</code>.
      */
     ArchiveReader<Document, DocumentVersion> getDocumentReader(
-            final JabberId userId, final UUID containerUniqueId) {
+            final JabberId userId, final UUID containerUniqueId,
+            final Long containerVersionId) {
         logApiId();
         logVariable("userId", userId);
         logVariable("containerUniqueId", containerUniqueId);
+        logVariable("containerVersionId", containerVersionId);
         try {
             assertIsAuthenticatedUser(userId);
-            return createDocumentReader(userId, containerUniqueId);
+            return createDocumentReader(userId, containerUniqueId,
+                    containerVersionId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -561,7 +561,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
      */
     private Workspace readWorkspace(final Environment environment,
             final FileSystem archiveFileSystem) {
-        final WorkspaceModel workspaceModel = WorkspaceModel.getModel(environment);
+        final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
         return workspaceModel.getWorkspace(archiveFileSystem.getRoot());
     }
 
@@ -578,7 +578,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         final Environment environment = readEnvironment();
         final Workspace workspace = readWorkspace(environment, archiveFileSystem);
         createContext(archiveId, environment, workspace);
-        final WorkspaceModel workspaceModel = WorkspaceModel.getModel(environment);
+        final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
         if (!workspaceModel.isInitialized(workspace)) {
             workspaceModel.initialize(workspace, new DefaultLoginMonitor() {
                 @Override

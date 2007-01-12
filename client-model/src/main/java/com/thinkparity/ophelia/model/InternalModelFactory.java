@@ -52,7 +52,7 @@ public final class InternalModelFactory {
      *            A thinkParity <code>Workspace</code>.
      * @return A <code>InternalModelFactory</code>.
      */
-    static InternalModelFactory getInstance(final Context context,
+    public static InternalModelFactory getInstance(final Context context,
             final Environment environment, final Workspace workspace) {
         return new InternalModelFactory(context, environment, workspace);
     }

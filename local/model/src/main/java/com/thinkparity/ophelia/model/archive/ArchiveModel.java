@@ -10,7 +10,7 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.filter.Filter;
 
-import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
@@ -19,98 +19,92 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 
-import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.archive.monitor.OpenMonitor;
 import com.thinkparity.ophelia.model.util.Opener;
-import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
  * <b>Title:</b>thinkParity Archive Model<br>
  * <b>Description:</b><br>
- *
- * @author CreateModel.groovy
- * @version 1.1.2.1
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.12
  */
-public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
-
-	/**
-	 * Create a thinkParity Archive interface.
-	 * 
-	 * @param context
-	 *            A thinkParity model context.
-	 * @return A thinkParity Archive interface.
-	 */
-	public static InternalArchiveModel getInternalModel(final Context context,
-            final Environment environment, final Workspace workspace) {
-		return new InternalArchiveModel(context, environment, workspace);
-	}
-
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface ArchiveModel {
 
     /**
-	 * Create a thinkParity Archive interface.
-	 * 
-	 * @return A thinkParity Archive interface.
-	 */
-	public static ArchiveModel getModel(final Environment environment,
-            final Workspace workspace) {
-		return new ArchiveModel(environment, workspace);
-	}
-
-    /**
-	 * Create ArchiveTabModel.
-	 *
-	 * @param workspace
-	 *		The thinkParity workspace.
-	 */
-	protected ArchiveModel(final Environment environment,
-            final Workspace workspace) {
-		super(new ArchiveModelImpl(environment, workspace));
-	}
-
+     * Open a document version.
+     * 
+     * @param monitor
+     *            An <code>OpenMonitor</code> that will receive progress
+     *            updates.
+     * @param uniqueId
+     *            A document unique id <code>UUID</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param versionName
+     *            A version name <code>String</code>.
+     * @param versionSize
+     *            A version size <code>Long</code>.
+     * @param opener
+     *            A document <code>Opener</code>.
+     */
     public void openDocumentVersion(final OpenMonitor monitor,
             final UUID uniqueId, final Long versionId,
-            final String versionName, final long versionSize,
-            final Opener opener) {
-        synchronized (getImplLock()) {
-            getImpl().openDocumentVersion(monitor, uniqueId, versionId,
-                    versionName, versionSize, opener);
-        }
-    }
+            final String versionName, final Long versionSize,
+            final Opener opener);
 
-    public Container readContainer(final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainer(uniqueId);
-        }
-    }
+    /**
+     * Read a container.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>Container</code>.
+     */
+    public Container readContainer(final UUID uniqueId);
 
-	public List<Container> readContainers() {
-        synchronized (getImplLock()) {
-            return getImpl().readContainers();
-        }
-    }
+    /**
+     * Read containers.
+     * 
+     * @return A <code>List</code> of <code>Container</code>s.
+     */
+	public List<Container> readContainers();
 
-	public List<Container> readContainers(final Comparator<Artifact> comparator) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainers(comparator);
-        }
-    }
+    /**
+     * Read containers.
+     * 
+     * @param comparator
+     *            An <code>Artifact</code> <code>Comparator</code> used to
+     *            achieve ordering.
+     * @return A <code>List</code> of <code>Container</code>s.
+     */
+	public List<Container> readContainers(final Comparator<Artifact> comparator);
 
+    /**
+     * Read containers.
+     * 
+     * @param comparator
+     *            An <code>Artifact</code> <code>Comparator</code> used to
+     *            achieve ordering.
+     * @param filter An <code>Artifact</code> <code>Filter</code> used to limit
+     *         scope.
+     * @return A <code>List</code> of <code>Container</code>s.
+     */
     public List<Container> readContainers(final Comparator<Artifact> comparator,
-            final Filter<? super Artifact> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainers(comparator, filter);
-        }
-    }
+            final Filter<? super Artifact> filter);
 
-    public List<Container> readContainers(final Filter<? super Artifact> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainers(filter);
-        }
-    }
+    /**
+     * Read containers.
+     * 
+     * @param filter An <code>Artifact</code> <code>Filter</code> used to limit
+     *         scope.
+     * @return A <code>List</code> of <code>Container</code>s.
+     */
+    public List<Container> readContainers(final Filter<? super Artifact> filter);
 
     /**
      * Read a list of versions for a container.
@@ -119,122 +113,202 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
      *            A container unique id <code>UUID</code>.
      * @return A <code>List&lt;ContainerVersion&gt;</code>.
      */
-    public List<ContainerVersion> readContainerVersions(final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainerVersions(uniqueId);
-        }
-    }
+    public List<ContainerVersion> readContainerVersions(final UUID uniqueId);
 
+    /**
+     * Read a list of versions for a container.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param comaprator
+     *            An <code>ArtifactVersion</code> <code>Comparator</code>
+     *            used to order results.
+     * @return A <code>List&lt;ContainerVersion&gt;</code>.
+     */
     public List<ContainerVersion> readContainerVersions(final UUID uniqueId,
-            final Comparator<ArtifactVersion> comparator) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainerVersions(uniqueId, comparator);
-        }
-    }
+            final Comparator<ArtifactVersion> comparator);
 
+    /**
+     * Read a list of versions for a container.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param comaprator
+     *            An <code>ArtifactVersion</code> <code>Comparator</code>
+     *            used to order results.
+     * @param filter
+     *            An <code>ArtifactVersion</code> <code>Filter</code> used
+     *            to scope results.
+     * @return A <code>List&lt;ContainerVersion&gt;</code>.
+     */
     public List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Comparator<ArtifactVersion> comparator,
-            final Filter<? super ArtifactVersion> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainerVersions(uniqueId, comparator,
-                    filter);
-        }
-    }
+            final Filter<? super ArtifactVersion> filter);
 
+    /**
+     * Read a list of versions for a container.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param filter
+     *            An <code>ArtifactVersion</code> <code>Filter</code> used
+     *            to scope results.
+     * @return A <code>List&lt;ContainerVersion&gt;</code>.
+     */
     public List<ContainerVersion> readContainerVersions(final UUID uniqueId,
-            final Filter<? super ArtifactVersion> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainerVersions(uniqueId, filter);
-        }
-    }
+            final Filter<? super ArtifactVersion> filter);
 
+    /**
+     * Read a list of documents for a container version.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List&lt;ContainerVersion&gt;</code>.
+     */
     public List<Document> readDocuments(final UUID uniqueId,
-            final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocuments(uniqueId, versionId);
-        }
-    }
+            final Long versionId);
 
+    /**
+     * Read a list of documents for a container version.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param comaprator
+     *            An <code>Artifact</code> <code>Comparator</code>
+     *            used to order results.
+     * @return A <code>List&lt;ContainerVersion&gt;</code>.
+     */
     public List<Document> readDocuments(final UUID uniqueId,
-            final Long versionId, final Comparator<Artifact> comparator) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocuments(uniqueId, versionId, comparator);
-        }
-    }
+            final Long versionId, final Comparator<Artifact> comparator);
 
+    /**
+     * Read a list of documents for a container version.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param comaprator
+     *            An <code>Artifact</code> <code>Comparator</code>
+     *            used to order results.
+     * @param filter
+     *            An <code>Artifact</code> <code>Filter</code> used
+     *            to scope results.
+     * @return A <code>List&lt;ContainerVersion&gt;</code>.
+     */
     public List<Document> readDocuments(final UUID uniqueId,
             final Long versionId, final Comparator<Artifact> comparator,
-            final Filter<? super Artifact> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocuments(uniqueId, versionId, comparator,
-                    filter);
-        }
-    }
+            final Filter<? super Artifact> filter);
 
-    public List<Document> readDocuments(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId,
-            final Filter<? super Artifact> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocuments(uniqueId, versionId,
-                    documentUniqueId, filter);
-        }
-    }
-
+    /**
+     * Read a document version for a container.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param documentUniqueId
+     *            A document unique id <code>UUID</code>.
+     * @param documentVersionId
+     *            A document version id <code>Long</code>.
+     * @return A <code>DocumentVersion</code>.
+     */
     public DocumentVersion readDocumentVersion(final UUID uniqueId,
-            final UUID documentUniqueId, final Long documentVersionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersion(uniqueId, documentUniqueId,
-                    documentVersionId);
-        }
-    }
+            final UUID documentUniqueId, final Long documentVersionId);
 
+    /**
+     * Read a list of document versions and their delta information for a
+     * container version.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param compareVersionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>Map</code> of <code>DocumentVersion</code>s and
+     *         their <code>Delta<code>s.
+     */
     public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
-            final UUID uniqueId, final Long compareVersionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersionDeltas(uniqueId,
-                    compareVersionId);
-        }
-    }
+            final UUID uniqueId, final Long compareVersionId);
 
+    /**
+     * Read a list of document versions and their delta information for a
+     * container version.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param compareVersionId
+     *            A container version id <code>Long</code>.
+     * @param compareToVersionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>Map</code> of <code>DocumentVersion</code>s and
+     *         their <code>Delta<code>s.
+     */
     public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
             final UUID uniqueId, final Long compareVersionId,
-            final Long compareToVersionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersionDeltas(uniqueId,
-                    compareVersionId, compareToVersionId);
-        }
-    }
+            final Long compareToVersionId);
 
+    /**
+     * Read a list of document versions for a container version.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List</code> of <code>DocumentVersion</code>s.
+     */
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersions(uniqueId, versionId);
-        }
-    }
+            final Long versionId);
 
+    /**
+     * Read a list of document versions for a container version.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param comparator
+     *            An <code>ArtifactVersion</code> <code>Comparator</code>
+     *            used to order results.
+     * @return A <code>List</code> of <code>DocumentVersion</code>s.
+     */
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final Comparator<ArtifactVersion> comparator) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersions(uniqueId, versionId,
-                    comparator);
-        }
-    }
+            final Long versionId, final Comparator<ArtifactVersion> comparator);
 
+    /**
+     * Read a list of document versions for a container version.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param comparator
+     *            An <code>ArtifactVersion</code> <code>Comparator</code>
+     *            used to order results.
+     * @param filter
+     *            An <code>ArtifactVersion</code> <code>Filter</code> used
+     *            to filter results.
+     * @return A <code>List</code> of <code>DocumentVersion</code>s.
+     */
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId, final Comparator<ArtifactVersion> comparator,
-            final Filter<? super ArtifactVersion> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersions(uniqueId, versionId,
-                    comparator, filter);
-        }
-    }
+            final Filter<? super ArtifactVersion> filter);
 
+    /**
+     * Read a list of document versions for a container version.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param filter
+     *            An <code>ArtifactVersion</code> <code>Filter</code> used
+     *            to filter results.
+     * @return A <code>List</code> of <code>DocumentVersion</code>s.
+     */
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final Filter<? super ArtifactVersion> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersions(uniqueId, versionId, filter);
-        }
-    }
+            final Long versionId, final Filter<? super ArtifactVersion> filter);
 
     /**
      * Read a list of team members the container version was published to.
@@ -246,11 +320,7 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
      * @return A <code>List&lt;User&gt;</code>.
      */
     public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
-            final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readPublishedTo(uniqueId, versionId);
-        }
-    }
+            final Long versionId);
 
     /**
      * Read a list of team members the container version was published to.
@@ -264,11 +334,7 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
      * @return A <code>List&lt;User&gt;</code>.
      */
     public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
-            final Long versionId, final Comparator<User> comparator) {
-        synchronized (getImplLock()) {
-            return getImpl().readPublishedTo(uniqueId, versionId, comparator);
-        }
-    }
+            final Long versionId, final Comparator<User> comparator);
 
     /**
      * Read a list of team members the container version was published to.
@@ -285,11 +351,7 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
      */
     public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId, final Comparator<User> comparator,
-            final Filter<? super User> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readPublishedTo(uniqueId, versionId, comparator, filter);
-        }
-    }
+            final Filter<? super User> filter);
 
     /**
      * Read a list of team members the container version was published to.
@@ -303,15 +365,14 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
      * @return A <code>List&lt;User&gt;</code>.
      */
     public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
-            final Long versionId, final Filter<? super User> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readPublishedTo(uniqueId, versionId, filter);
-        }
-    }
+            final Long versionId, final Filter<? super User> filter);
 
-    public List<TeamMember> readTeam(final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readTeam(uniqueId);
-        }
-    }
+    /**
+     * Read the team for a container.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>List</code> of <code>TeamMember</code>s.
+     */
+    public List<TeamMember> readTeam(final UUID uniqueId);
 }

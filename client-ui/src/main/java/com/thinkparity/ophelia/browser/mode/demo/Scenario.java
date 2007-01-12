@@ -13,15 +13,17 @@ import java.util.Map;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
+
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.ophelia.browser.profile.ProfileManager;
+
+import com.thinkparity.ophelia.model.ModelFactory;
 import com.thinkparity.ophelia.model.script.Script;
-import com.thinkparity.ophelia.model.script.ScriptModel;
 import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
-import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
+
+import com.thinkparity.ophelia.browser.profile.ProfileManager;
 
 /**
  * @author raymond@thinkparity.com
@@ -197,7 +199,18 @@ public final class Scenario {
     private void execute(final Script script) {
         final List<Script> scripts = new ArrayList<Script>(1);
         scripts.add(script);
-        ScriptModel.getModel(environment, workspaces.get(script)).execute(scripts);
+        getModelFactory(script).getScriptModel().execute(scripts);
+    }
+
+    /**
+     * Obtain a model factory for a script.
+     * 
+     * @param script
+     *            A <code>Script</code>.
+     * @return A <code>ModelFactory</code>.
+     */
+    private ModelFactory getModelFactory(final Script script) {
+        return ModelFactory.getInstance(environment, workspaces.get(script));
     }
 
     /**
@@ -240,7 +253,7 @@ public final class Scenario {
      *            A <code>Script</code>.
      */
     private void initializeWorkspace(final Script script) {
-        final WorkspaceModel workspaceModel = WorkspaceModel.getModel(environment);
+        final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
         final Workspace workspace = workspaceModel.getWorkspace(profiles.get(script));
         workspaceModel.initialize(workspace, new DefaultLoginMonitor() {
             @Override
@@ -258,7 +271,7 @@ public final class Scenario {
      *            A <code>Script</code>.
      */
     private void login(final Script script) {
-        SessionModel.getModel(environment, workspaces.get(script)).login(new DefaultLoginMonitor());
+        getModelFactory(script).getSessionModel().login(new DefaultLoginMonitor());
     }
 
     /**
@@ -268,6 +281,6 @@ public final class Scenario {
      *            A <code>Script</code>.
      */
     private void logout(final Script script) {
-        SessionModel.getModel(environment, workspaces.get(script)).logout();
+        getModelFactory(script).getSessionModel().logout();
     }
 }

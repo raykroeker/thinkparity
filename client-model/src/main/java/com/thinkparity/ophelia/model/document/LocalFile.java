@@ -3,12 +3,20 @@
  */
 package com.thinkparity.ophelia.model.document;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
@@ -197,42 +205,16 @@ class LocalFile {
 
     /**
      * Write the input stream to the local file.
-     * The file date will be the specified time.
      * 
      * @param is
      *            The input stream containing new content.
-     * @param time
-     *            The modified date as a <code>Long</code> number of milliseconds.        
      * @throws FileNotFoundException
      * @throws IOException
      */
-    void write(final InputStream is, final Long time) throws FileNotFoundException, IOException {
+    void write(final InputStream is) throws FileNotFoundException, IOException {
         final OutputStream os = createOutputStream();
-        try {
-            StreamUtil.copy(is, os, IO.BUFFER_SIZE);
-        }
+        try { StreamUtil.copy(is, os, IO.BUFFER_SIZE); }
         finally { os.close(); }
-        setLastModified(time);
-    }
-
-    /**
-     * Write the input stream to the local file.
-     * The file date will match the date of the version.
-     * 
-     * @param is
-     *            The input stream containing new content.
-     * @param version
-     *            The version.     
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
-    void write(final InputStream is, final DocumentVersion version) throws FileNotFoundException, IOException {
-        final OutputStream os = createOutputStream();
-        try {
-            StreamUtil.copy(is, os, IO.BUFFER_SIZE);
-        }
-        finally { os.close(); }
-        setLastModified(version.getCreatedOn().getTimeInMillis());
     }
 
 	/**
@@ -296,15 +278,5 @@ class LocalFile {
 			Assert.assertTrue("getFileParent(Document)", parent.mkdir());
 		}
 		return parent;
-	}   
-
-    /**
-     * Set the last modified date of the file.
-     * 
-     * @param time
-     *            The last modified date as a <code>Long</code> number of milliseconds.
-     */
-    private void setLastModified(final Long time) {
-        file.setLastModified(time);
-    }
+	}
 }

@@ -44,7 +44,7 @@ public final class EngineFactory {
     private static Engine newInstance(final Class<?> clasz)
             throws NoSuchMethodException, InvocationTargetException,
             IllegalAccessException, InstantiationException {
-        final Constructor constructor = clasz.getConstructor(new Class[] {});
+        final Constructor constructor = clasz.getConstructor(new Class<?>[] {});
         return (Engine) constructor.newInstance(new Object[] {});
     }
 

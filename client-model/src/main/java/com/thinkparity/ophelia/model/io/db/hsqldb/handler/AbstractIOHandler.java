@@ -37,20 +37,18 @@ public abstract class AbstractIOHandler {
      */
     private MetaDataIOHandler metaDataIO;
 
-	/** A hypersonic <code>SessionManager</code>. */
+	/** A thinkParity hypersonic <code>SessionManager</code>. */
     private final SessionManager sessionManager;
 
     /**
      * Create AbstractIOHandler.
      * 
-     * @param sessionManager
-     *            A hypersonic <code>SessionManager</code>.
      */
-	protected AbstractIOHandler(final SessionManager sessionManager) {
-		super();
-		this.logger = new Log4JWrapper();
-        this.sessionManager = sessionManager;
-	}
+    protected AbstractIOHandler() {
+        super();
+        this.logger = new Log4JWrapper();
+        this.sessionManager = new SessionManager();
+    }
 
     protected void checkpoint() {
         final Session session = openSession();
@@ -84,7 +82,7 @@ public abstract class AbstractIOHandler {
      */
     protected ConfigurationIOHandler getConfigurationIO() {
         if(null == configurationIO) {
-            configurationIO = new ConfigurationIOHandler(sessionManager);
+            configurationIO = new ConfigurationIOHandler();
         }
         return configurationIO;
     }
@@ -96,7 +94,7 @@ public abstract class AbstractIOHandler {
      */
     protected MetaDataIOHandler getMetaDataIO() {
         if(null == metaDataIO) {
-            metaDataIO = new MetaDataIOHandler(sessionManager);
+            metaDataIO = new MetaDataIOHandler();
         }
         return metaDataIO;
     }

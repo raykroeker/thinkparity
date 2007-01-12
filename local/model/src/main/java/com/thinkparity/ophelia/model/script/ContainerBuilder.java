@@ -17,11 +17,11 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.model.ModelFactory;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
-import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -34,23 +34,20 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  */
 public class ContainerBuilder {
 
-    /** A thinkParity <code>Environment</code>. */
-    private final Environment environment;
-
     /** A container id. */
     private Long id;
 
     /** An apache logger. */
     private final Log4JWrapper logger;
 
+    /** A thinkParity <code>ModelFactory</code>. */
+    private final ModelFactory modelFactory;
+
     /** A container name. */
     private String name;
 
     /** A thinkParity <code>ScriptUtil</code>. */
     private final ScriptUtil scriptUtil;
-
-    /** A thinkparity <code>Workspace</code>. */
-    private final Workspace workspace;
 
     /**
      * Create ContainerBuilder.
@@ -65,10 +62,9 @@ public class ContainerBuilder {
     ContainerBuilder(final Environment environment, final Workspace workspace,
             final ScriptUtil scriptUtil) {
         super();
-        this.environment = environment;
         this.logger = new Log4JWrapper();
+        this.modelFactory = ModelFactory.getInstance(environment, workspace);
         this.scriptUtil = scriptUtil;
-        this.workspace = workspace;
     }
 
     /**
@@ -242,8 +238,7 @@ public class ContainerBuilder {
     private <U extends User> void filter(final List<U> users,
             final String... names) {
         UserUtils.getInstance().filter(users, names);
-        final Profile profile =
-            ProfileModel.getModel(environment, workspace).read();
+        final Profile profile = modelFactory.getProfileModel().read();
         for (int i = 0; i < users.size(); i++) {
             if (users.get(i).getId().equals(profile.getId())) {
                 users.remove(i);
@@ -275,7 +270,7 @@ public class ContainerBuilder {
      * @return A <code>ContactModel</code>.
      */
     private final ContactModel getContactModel() {
-        return ContactModel.getModel(environment, workspace);
+        return modelFactory.getContactModel();
     }
 
     /**
@@ -284,7 +279,7 @@ public class ContainerBuilder {
      * @return A <code>ContainerModel</code>.
      */
     private final ContainerModel getContainerModel() {
-        return ContainerModel.getModel(environment, workspace);
+        return modelFactory.getContainerModel();
     }
 
     /**
@@ -293,7 +288,7 @@ public class ContainerBuilder {
      * @return A <code>DocumentModel</code>.
      */
     private final DocumentModel getDocumentModel() {
-        return DocumentModel.getModel(environment, workspace);
+        return modelFactory.getDocumentModel();
     }
 
     /**

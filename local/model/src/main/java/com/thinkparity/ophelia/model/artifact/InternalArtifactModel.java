@@ -11,11 +11,11 @@ import java.util.UUID;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
-import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
@@ -24,26 +24,16 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEve
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
 
 import com.thinkparity.ophelia.model.ParityException;
-import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Internal Artifact Model<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.17
  */
-public class InternalArtifactModel extends ArtifactModel {
-
-    /**
-	 * Create a InternalArtifactModel.
-	 * 
-	 * @param context
-	 *            The parity context.
-	 * @param workspace
-	 *            The workspace.
-	 */
-	InternalArtifactModel(final Context context, final Environment environment,
-            final Workspace workspace) {
-		super(environment, workspace);
-	}
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface InternalArtifactModel extends ArtifactModel {
 
 	/**
      * Add the team member. Add the user to the local team data in a pending
@@ -55,11 +45,7 @@ public class InternalArtifactModel extends ArtifactModel {
      *            The user id.
      * @throws ParityException
      */
-    public TeamMember addTeamMember(final Long artifactId, final JabberId userId) {
-        synchronized(getImplLock()) {
-            return getImpl().addTeamMember(artifactId, userId);
-        }
-    }
+    public TeamMember addTeamMember(final Long artifactId, final JabberId userId);
 
     /**
      * Apply the archived flag.
@@ -67,11 +53,7 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param artifactId
      *            An artifact id.
      */
-    public void applyFlagArchived(final Long artifactId) {
-        synchronized (getImplLock()) {
-            getImpl().applyFlagArchived(artifactId);
-        }
-    }
+    public void applyFlagArchived(final Long artifactId);
 
     /**
      * Apply the archived flag.
@@ -79,11 +61,7 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param artifactId
      *            An artifact id.
      */
-    public void applyFlagBookmark(final Long artifactId) {
-        synchronized (getImplLock()) {
-            getImpl().applyFlagBookmark(artifactId);
-        }
-    }
+    public void applyFlagBookmark(final Long artifactId);
 
     /**
      * Apply the key flag.
@@ -91,11 +69,7 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param artifactId
      *            The artifact id.
      */
-    public void applyFlagKey(final Long artifactId) {
-        synchronized (getImplLock()) {
-            getImpl().applyFlagKey(artifactId);
-        }
-    }
+    public void applyFlagKey(final Long artifactId);
 
     /**
      * Apply the key flag.
@@ -103,32 +77,7 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param artifactId
      *            The artifact id.
      */
-    public void applyFlagLatest(final Long artifactId) {
-        synchronized (getImplLock()) {
-            getImpl().applyFlagLatest(artifactId);
-        }
-    }
-
-	/**
-	 * Audit the denial of a key request for an artifact.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @param createdBy
-	 *            The creator.
-	 * @param creatdOn
-	 *            The creation date.
-	 * @param deniedBy
-	 *            The user denying the request.
-	 */
-	public void auditKeyRequestDenied(final Long artifactId,
-			final JabberId createdBy, final Calendar createdOn,
-			final JabberId deniedBy) throws ParityException {
-		synchronized(getImplLock()) {
-			getImpl().auditKeyRequestDenied(artifactId, createdBy, createdOn,
-                    deniedBy);
-		}
-	}
+    public void applyFlagLatest(final Long artifactId);
 
     /**
      * Create the artifact's remote info.
@@ -141,11 +90,7 @@ public class InternalArtifactModel extends ArtifactModel {
      *            The last time the artifact was updated.
      */
 	public void createRemoteInfo(final Long artifactId,
-			final JabberId updatedBy, final Calendar updatedOn) {
-		synchronized(getImplLock()) {
-			getImpl().createRemoteInfo(artifactId, updatedBy, updatedOn);
-		}
-	}
+			final JabberId updatedBy, final Calendar updatedOn);
 
     /**
      * Create the team. This will add the current user to the team.
@@ -154,11 +99,7 @@ public class InternalArtifactModel extends ArtifactModel {
      *            An artifact id.
      * @return The new team.
      */
-    public List<TeamMember> createTeam(final Long artifactId) {
-        synchronized (getImplLock()) {
-            return getImpl().createTeam(artifactId);
-        }
-    }
+    public List<TeamMember> createTeam(final Long artifactId);
 
 	/**
      * Delete the artifact's remote info.
@@ -166,11 +107,7 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param artifactId
      *            The artifact id.
      */
-	public void deleteRemoteInfo(final Long artifactId) {
-		synchronized(getImplLock()) {
-			getImpl().deleteRemoteInfo(artifactId);
-		}
-	}
+	public void deleteRemoteInfo(final Long artifactId);
 
 	/**
      * Delete the team in its entirety.
@@ -180,9 +117,7 @@ public class InternalArtifactModel extends ArtifactModel {
      * @see InternalArtifactModel#addTeamMember(java.lang.Long,com.thinkparity.codebase.jabber.JabberId)
      * @see InternalArtifactModel#removeTeamMember(java.lang.Long,com.thinkparity.codebase.jabber.JabberId)
      */
-    public void deleteTeam(final Long artifactId) {
-        synchronized(getImplLock()) { getImpl().deleteTeam(artifactId); }
-    }
+    public void deleteTeam(final Long artifactId);
 
     /**
      * Determine if an artifact exists.
@@ -191,9 +126,7 @@ public class InternalArtifactModel extends ArtifactModel {
      *            The artifact id.
      * @return True if the artifact exists; false otherwise.
      */
-    public Boolean doesExist(final Long artifactId) {
-        synchronized(getImplLock()) { return getImpl().doesExist(artifactId); }
-    }
+    public Boolean doesExist(final Long artifactId);
 
     /**
      * Determine if an artifact exists.
@@ -202,9 +135,7 @@ public class InternalArtifactModel extends ArtifactModel {
      *            The unique id.
      * @return True if the artifact exists; false otherwise.
      */
-    public Boolean doesExist(final UUID uniqueId) {
-        synchronized(getImplLock()) { return getImpl().doesExist(uniqueId); }
-    }
+    public Boolean doesExist(final UUID uniqueId);
 
     /**
      * Determine if an artifact version exists.
@@ -213,11 +144,7 @@ public class InternalArtifactModel extends ArtifactModel {
      *            An artifact id.
      * @return True if the artifact version exists.
      */
-    public Boolean doesVersionExist(final Long artifactId) {
-        synchronized (getImplLock()) {
-            return getImpl().doesVersionExist(artifactId);
-        }
-    }
+    public Boolean doesVersionExist(final Long artifactId);
 
     /**
      * Determine if the artifact version exists.
@@ -228,55 +155,43 @@ public class InternalArtifactModel extends ArtifactModel {
      *            An artifact version id.
      * @return True if the artifact version exists.
      */
-    public Boolean doesVersionExist(final Long artifactId, final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().doesVersionExist(artifactId, versionId);
-        }
-    }
+    public Boolean doesVersionExist(final Long artifactId, final Long versionId);
 
     /**
      * Handle the remote event generated when a draft is created.
      * 
-     * @param uniqueId
-     *            An artifact unique id.
-     * @param createdBy
-     *            Who created the draft.
-     * @param createdOn
-     *            When the draft was created.
+     * @param event
+     *            An <code>ArtifactDraftCreatedEvent</code> remote event.
      */
-    public void handleDraftCreated(final ArtifactDraftCreatedEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().handleDraftCreated(event);
-        }
-    }
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    public void handleDraftCreated(final ArtifactDraftCreatedEvent event);
 
     /**
      * Handle the remote event generated when a draft is deleted.
      * 
-     * @param uniqueId
-     *            An artifact unique id.
-     * @param createdBy
-     *            Who deleted the draft.
-     * @param createdOn
-     *            When the draft was deleted.
+     * @param event
+     *            An <code>ArtifactDraftDeleted</code> remote event.
      */
-    public void handleDraftDeleted(final ArtifactDraftDeletedEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().handleDraftDeleted(event);
-        }
-    }
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    public void handleDraftDeleted(final ArtifactDraftDeletedEvent event);
 
-    public void handlePublished(final ArtifactPublishedEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().handlePublished(event);
-        }
-    }
+    /**
+     * Handle an artifact published remote event.
+     * 
+     * @param event
+     *            An <code>ArtifactPublishedEvent</code>.
+     */
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    public void handlePublished(final ArtifactPublishedEvent event);
 
-	public void handleReceived(final ArtifactReceivedEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().handleReceived(event);
-        }
-    }
+    /**
+     * Handle an artifact received remote event.
+     * 
+     * @param event
+     *            An <code>ArtifactReceivedEvent</code>.
+     */
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+	public void handleReceived(final ArtifactReceivedEvent event);
 
     /**
      * Handle the remote event generated when a team member is added. This will
@@ -287,11 +202,8 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param jabberId
      *            The user's jabber id.
      */
-    public void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event) {
-        synchronized(getImplLock()) {
-            getImpl().handleTeamMemberAdded(event);
-        }
-    }
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    public void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event);
     
     /**
      * Handle the team member removed remote event.
@@ -301,12 +213,9 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param jabberId
      *            A jabber id.
      */
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleTeamMemberRemoved(
-            final ArtifactTeamMemberRemovedEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().handleTeamMemberRemoved(event);
-        }
-    }
+            final ArtifactTeamMemberRemovedEvent event);
 
     /**
      * Read the earliest version id for an artifact.
@@ -315,11 +224,7 @@ public class InternalArtifactModel extends ArtifactModel {
      *            An artifact id.
      * @return A version id.
      */
-    public Long readEarliestVersionId(final Long artifactId) {
-        synchronized(getImplLock()) {
-            return getImpl().readEarliestVersionId(artifactId);
-        }
-    }
+    public Long readEarliestVersionId(final Long artifactId);
 
     /**
      * Read the artifact id.
@@ -328,9 +233,7 @@ public class InternalArtifactModel extends ArtifactModel {
      *            The artifact unique id.
      * @return The artifact id.
      */
-    public Long readId(final UUID uniqueId) {
-        synchronized(getImplLock()) { return getImpl().readId(uniqueId); }
-    }
+    public Long readId(final UUID uniqueId);
 
     /**
      * Read the latest version id for an artifact.
@@ -339,11 +242,7 @@ public class InternalArtifactModel extends ArtifactModel {
      *            An artifact id.
      * @return A version id.
      */
-    public Long readLatestVersionId(final Long artifactId) {
-        synchronized(getImplLock()) {
-            return getImpl().readLatestVersionId(artifactId);
-        }
-    }
+    public Long readLatestVersionId(final Long artifactId);
 
     /**
      * Read the team for an artifact.
@@ -358,11 +257,7 @@ public class InternalArtifactModel extends ArtifactModel {
      */
     public List<TeamMember> readTeam(final Long artifactId,
             final Comparator<? super User> comparator,
-            final Filter<? super User> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readTeam(artifactId, comparator, filter);
-        }
-    }
+            final Filter<? super User> filter);
 
     /**
      * Read the artifact team.
@@ -370,12 +265,7 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param artifactId
      *            An artifact id.
      */
-    public List<TeamMember> readTeam2(final Long artifactId) {
-        // TODO Rename to readTeam.
-        synchronized (getImplLock()) {
-            return getImpl().readTeam2(artifactId);
-        }
-    }
+    public List<TeamMember> readTeam2(final Long artifactId);
 
     /**
      * Read the artifact team.
@@ -383,11 +273,7 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param artifactId
      *            An artifact id.
      */
-    public List<JabberId> readTeamIds(final Long artifactId) {
-        synchronized (getImplLock()) {
-            return getImpl().readTeamIds(artifactId);
-        }
-    }
+    public List<JabberId> readTeamIds(final Long artifactId);
 
     /**
      * Read the artifact unique id.
@@ -396,9 +282,7 @@ public class InternalArtifactModel extends ArtifactModel {
      *            An artifact id.
      * @return An artifact unique id.
      */
-    public UUID readUniqueId(final Long artifactId) {
-        synchronized(getImplLock()) { return getImpl().readUniqueId(artifactId); }
-    }
+    public UUID readUniqueId(final Long artifactId);
 
     /**
      * Remove the archived flag.
@@ -406,11 +290,7 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param artifactId
      *            An artifact id.
      */
-    public void removeFlagArchived(final Long artifactId) {
-        synchronized (getImplLock()) {
-            getImpl().removeFlagArchived(artifactId);
-        }
-    }
+    public void removeFlagArchived(final Long artifactId);
 
     /**
      * Remove the bookmark flag.
@@ -418,15 +298,15 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param artifactId
      *            An artifact id.
      */
-    public void removeFlagBookmark(final Long artifactId) {
-        synchronized (getImplLock()) {
-            getImpl().removeFlagBookmark(artifactId);
-        }
-    }
+    public void removeFlagBookmark(final Long artifactId);
 
-    public void removeFlagKey(final Long artifactId) {
-		synchronized(getImplLock()) { getImpl().removeFlagKey(artifactId); }
-	}
+    /**
+     * Remove the key flag.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     */
+    public void removeFlagKey(final Long artifactId);
     
     /**
      * Remove the team member. Removes the user from the local team data.
@@ -434,9 +314,7 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param teamMember
      *            The team member.
      */
-    public void removeTeamMember(final Long artifactId, final JabberId userId) {
-        synchronized(getImplLock()) { getImpl().removeTeamMember(artifactId, userId); }
-    }
+    public void removeTeamMember(final Long artifactId, final JabberId userId);
 
     /**
      * Update the artifact's remote info.
@@ -449,11 +327,7 @@ public class InternalArtifactModel extends ArtifactModel {
      *            The last time the artifact was updated.
      */
 	public void updateRemoteInfo(final Long artifactId,
-			final JabberId updatedBy, final Calendar updatedOn) {
-		synchronized(getImplLock()) {
-			getImpl().updateRemoteInfo(artifactId, updatedBy, updatedOn);
-		}
-	}
+			final JabberId updatedBy, final Calendar updatedOn);
 
     /**
      * Update an artifact's state.
@@ -463,7 +337,5 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param state
      *            The artifact state.
      */
-	public void updateState(final Long artifactId, final ArtifactState state) {
-	    synchronized(getImplLock()) { getImpl().updateState(artifactId, state); }
-    }
+	public void updateState(final Long artifactId, final ArtifactState state);
 }

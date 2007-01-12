@@ -13,29 +13,6 @@ public class TestContext {
     public static Context CONTEXT;
 
     static {
-        CONTEXT = new Context(new TestModel());
+        CONTEXT = new Context();
     }
-
-    private static class TestModel extends AbstractModel<TestModelImpl> {
-
-        private TestModel() {
-            super(new TestModelImpl());
-        }
-
-        /**
-         * @see com.thinkparity.codebase.model.AbstractModel#getImplLock()
-         */
-        @Override
-        protected Object getImplLock() {
-            return this;
-        }
-    }
-
-    private static class TestModelImpl extends AbstractModelImpl {
-
-        private TestModelImpl() {
-            super();
-        }
-    }
-        
 }

@@ -3,53 +3,16 @@
  */
 package com.thinkparity.ophelia.model.audit;
 
-
-import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.session.Environment;
-
-import com.thinkparity.ophelia.model.AbstractModel;
-import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Audit Model<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.5
  */
-public class AuditModel extends AbstractModel<AuditModelImpl> {
-
-	/**
-	 * Obtain an internal audit model.
-	 * 
-     * @param workspace
-     *      A thinkParity <code>Workspace</code>.
-	 * @param context
-	 *            The parity model context.
-	 * @return An internal audit model.
-	 */
-	public static InternalAuditModel getInternalModel(final Context context,
-            final Environment environment, final Workspace workspace) {
-		return new InternalAuditModel(context, environment, workspace);
-	}
-
-	/**
-	 * Obtain an audit model.
-	 * 
-     * @param workspace
-     *      A thinkParity <code>Workspace</code>.
-	 * @return An audit model.
-	 */
-	public static AuditModel getModel(final Environment environment,
-            final Workspace workspace) {
-		return new AuditModel(environment, workspace);
-	}
-
-	/**
-	 * Create a AuditModel.
-	 * 
-	 * @param workspace
-	 *            The parity workspace.
-	 */
-	protected AuditModel(final Environment environment,
-            final Workspace workspace) {
-		super(new AuditModelImpl(environment, workspace));
-	}
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface AuditModel {
 }

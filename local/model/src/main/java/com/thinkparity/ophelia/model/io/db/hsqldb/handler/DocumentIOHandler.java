@@ -15,7 +15,6 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
-import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 
 /**
  * @author raykroeker@gmail.com
@@ -147,12 +146,10 @@ public class DocumentIOHandler extends AbstractIOHandler implements
     /**
      * Create a RemoteDocumentHandler.
      * 
-     * @param sessionManager
-     *            A hypersonic <code>SessionManager</code>.
      */
-	public DocumentIOHandler(final SessionManager sessionManager) {
-		super(sessionManager);
-		this.artifactIO = new ArtifactIOHandler(sessionManager);
+	public DocumentIOHandler() {
+		super();
+		this.artifactIO = new ArtifactIOHandler();
 	}
 
     /**
@@ -168,14 +165,9 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			session.setLong(1, document.getId());
 			if(1 != session.executeUpdate())
 				throw new HypersonicException("Could not create document.");
-
-			session.commit();
-		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
+		} finally {
+            session.close();
+        }
 	}
 
 	/**

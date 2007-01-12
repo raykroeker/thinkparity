@@ -29,7 +29,7 @@ public abstract class AbstractModelImpl {
      *
      * @param context The Context.
      */
-    void setContext(final Context context) {
+    public final void setContext(final Context context) {
         this.context = context;
     }
 }

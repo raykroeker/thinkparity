@@ -27,7 +27,6 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
-import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 
 /**
  * @author raymond@thinkparity.com
@@ -444,14 +443,12 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /**
      * Create ContainerIOHandler.
      * 
-     * @param sessionManager
-     *            A hypersonic <code>SessionManager</code>.
      */
-    public ContainerIOHandler(final SessionManager sessionManager) {
-        super(sessionManager);
-        this.artifactIO = new ArtifactIOHandler(sessionManager);
-        this.documentIO = new DocumentIOHandler(sessionManager);
-        this.userIO = new UserIOHandler(sessionManager);
+    public ContainerIOHandler() {
+        super();
+        this.artifactIO = new ArtifactIOHandler();
+        this.documentIO = new DocumentIOHandler();
+        this.userIO = new UserIOHandler();
     }
 
     /**
@@ -495,13 +492,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(1, container.getId());
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not create container.");
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
     
     /**
@@ -557,13 +550,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                 if(1 != session.executeUpdate())
                     throw new HypersonicException("Could not create draft artifact relationship.");
             }
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**

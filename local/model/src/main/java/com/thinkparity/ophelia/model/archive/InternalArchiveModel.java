@@ -3,62 +3,61 @@
  */
 package com.thinkparity.ophelia.model.archive;
 
-
 import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.session.Environment;
 
-import com.thinkparity.ophelia.model.InternalModel;
-import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 /**
  * <b>Title:</b>thinkParity Archive Internal Model<br>
  * <b>Description:</b><br>
- *
- * @author CreateModel.groovy
- * @version 1.1.2.1
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.7
  */
-public class InternalArchiveModel extends ArchiveModel implements InternalModel {
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface InternalArchiveModel extends ArchiveModel {
 
     /**
-     * Create InternalArchiveModel
+     * Archive an artifact.
      * 
-     * @param workspace
-     *            A thinkParity workspace.
-     * @param context
-     *            A thinkParity model context.
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
      */
-    InternalArchiveModel(final Context context, final Environment environment,
-            final Workspace workspace) {
-        super(environment, workspace);
-    }
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    public void archive(final Long artifactId);
 
-    public void archive(final Long artifactId) {
-        synchronized (getImplLock()) {
-            getImpl().archive(artifactId);
-        }
-    }
-
+    /**
+     * Open a document version input stream.
+     * 
+     * @param uniqueId
+     *            A document unique id <code>UUID</code>.
+     * @param versionId
+     *            A document version id <code>Long</code>.
+     * @return An <code>InputStream</code>.
+     */
     public InputStream openDocumentVersion(final UUID uniqueId,
-            final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().openDocumentVersion(uniqueId, versionId);
-        }
-    }
+            final Long versionId);
 
-    public List<JabberId> readTeamIds(final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readTeamIds(uniqueId);
-        }
-    }
+    /**
+     * Read the team ids.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return A <code>List</code> of <code>JabberId</code>s.
+     */
+    public List<JabberId> readTeamIds(final UUID uniqueId);
 
-    public void restore(final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().restore(uniqueId);
-        }
-    }
+    /**
+     * Restore an artifact.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     */
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    public void restore(final UUID uniqueId);
 }

@@ -44,7 +44,8 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author CreateModel.groovy
  * @version 1.1.2.1
  */
-final class BackupModelImpl extends AbstractModelImpl {
+public final class BackupModelImpl extends AbstractModelImpl implements
+        BackupModel, InternalBackupModel {
 
     /** A default artifact comparator. */
     private final Comparator<Artifact> defaultComparator;
@@ -67,13 +68,9 @@ final class BackupModelImpl extends AbstractModelImpl {
     /**
      * Create BackupModelImpl.
      *
-     * @param environment
-     *      A thinkParity <code>Environment</code>.
-     * @param workspace
-     *		The thinkParity <code>Workspace</code>.
      */
-    BackupModelImpl(final Environment environment, final Workspace workspace) {
-        super(environment, workspace);
+    public BackupModelImpl() {
+        super();
         this.defaultComparator = new ComparatorBuilder().createByName();
         this.defaultFilter = FilterManager.createDefault();
         this.defaultUserComparator = UserComparatorFactory.createOrganizationAndName(Boolean.TRUE);
@@ -91,7 +88,7 @@ final class BackupModelImpl extends AbstractModelImpl {
      *            A version id <code>Long</code>.
      * @return An <code>InputStream</code>.
      */
-    InputStream openDocumentVersion(final UUID uniqueId,
+    public InputStream openDocumentVersion(final UUID uniqueId,
             final Long versionId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -115,7 +112,7 @@ final class BackupModelImpl extends AbstractModelImpl {
         }
     }
 
-    Container readContainer(final UUID uniqueId) {
+    public Container readContainer(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         try {
@@ -131,7 +128,7 @@ final class BackupModelImpl extends AbstractModelImpl {
      * 
      * @return A <code>List&lt;Container&gt;</code>.
      */
-    List<Container> readContainers() {
+    public List<Container> readContainers() {
         logger.logApiId();
         return readContainers(defaultComparator);
     }
@@ -143,7 +140,7 @@ final class BackupModelImpl extends AbstractModelImpl {
      *            A <code>Comparator&lt;Artifact&gt;</code>.
      * @return A <code>List&lt;Container&gt;</code>.
      */
-    List<Container> readContainers(final Comparator<Artifact> comparator) {
+    public List<Container> readContainers(final Comparator<Artifact> comparator) {
         logger.logApiId();
         return readContainers(comparator, defaultFilter);
     }
@@ -157,7 +154,7 @@ final class BackupModelImpl extends AbstractModelImpl {
      *            A <code>Filter&lt;? super Artifact&gt;</code>.
      * @return A <code>List&lt;Container&gt;</code>.
      */
-    List<Container> readContainers(final Comparator<Artifact> comparator, final Filter<? super Artifact> filter) {
+    public List<Container> readContainers(final Comparator<Artifact> comparator, final Filter<? super Artifact> filter) {
         logger.logApiId();
         try {
             assertBackupOnline();
@@ -178,20 +175,19 @@ final class BackupModelImpl extends AbstractModelImpl {
      *            A <code>Filter&lt;Artifact&gt;</code>.
      * @return A <code>List&lt;Container&gt;</code>.
      */
-    List<Container> readContainers(final Filter<? super Artifact> filter) {
+    public List<Container> readContainers(final Filter<? super Artifact> filter) {
         logger.logApiId();
         return readContainers(defaultComparator, filter);
     }
 
-    List<ContainerVersion> readContainerVersions(final UUID uniqueId) {
+    public List<ContainerVersion> readContainerVersions(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         return readContainerVersions(uniqueId, defaultVersionComparator,
                 defaultVersionFilter);
     }
 
-
-    List<ContainerVersion> readContainerVersions(final UUID uniqueId,
+    public List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Comparator<ArtifactVersion> comparator) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -200,7 +196,7 @@ final class BackupModelImpl extends AbstractModelImpl {
                 defaultVersionFilter);
     }
 
-    List<ContainerVersion> readContainerVersions(final UUID uniqueId,
+    public List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter) {
         logger.logApiId();
@@ -220,7 +216,7 @@ final class BackupModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<ContainerVersion> readContainerVersions(final UUID uniqueId,
+    public List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Filter<? super ArtifactVersion> filter) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -229,7 +225,7 @@ final class BackupModelImpl extends AbstractModelImpl {
                 filter);
     }
 
-    List<Document> readDocuments(final UUID uniqueId,
+    public List<Document> readDocuments(final UUID uniqueId,
             final Long versionId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -238,7 +234,7 @@ final class BackupModelImpl extends AbstractModelImpl {
                 defaultFilter);
     }
 
-    List<Document> readDocuments(final UUID uniqueId,
+    public List<Document> readDocuments(final UUID uniqueId,
             final Long versionId, final Comparator<Artifact> comparator) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -247,7 +243,7 @@ final class BackupModelImpl extends AbstractModelImpl {
         return readDocuments(uniqueId, versionId, comparator, defaultFilter);
     }
 
-    List<Document> readDocuments(final UUID uniqueId,
+    public List<Document> readDocuments(final UUID uniqueId,
             final Long versionId, final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter) {
         logger.logApiId();
@@ -267,7 +263,7 @@ final class BackupModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<Document> readDocuments(final UUID uniqueId, final Long versionId,
+    public List<Document> readDocuments(final UUID uniqueId, final Long versionId,
             final UUID documentUniqueId, final Filter<? super Artifact> filter) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -276,7 +272,12 @@ final class BackupModelImpl extends AbstractModelImpl {
         return readDocuments(uniqueId, versionId, defaultComparator, filter);
     }
 
-    List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
+    /**
+     * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#readDocumentVersions(java.util.UUID,
+     *      java.lang.Long)
+     * 
+     */
+    public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -285,7 +286,7 @@ final class BackupModelImpl extends AbstractModelImpl {
                 defaultVersionComparator, defaultVersionFilter);
     }
 
-    List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
+    public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId, final Comparator<ArtifactVersion> comparator) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -295,7 +296,7 @@ final class BackupModelImpl extends AbstractModelImpl {
                 defaultVersionFilter);
     }
 
-    List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
+    public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId, final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter) {
         logger.logApiId();
@@ -315,7 +316,7 @@ final class BackupModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
+    public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId, final Filter<? super ArtifactVersion> filter) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -334,7 +335,7 @@ final class BackupModelImpl extends AbstractModelImpl {
      *            A version id <code>Long</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -354,7 +355,7 @@ final class BackupModelImpl extends AbstractModelImpl {
      *            A <code>Comparator&lt;User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId, final Comparator<User> comparator) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -377,7 +378,7 @@ final class BackupModelImpl extends AbstractModelImpl {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId, final Comparator<User> comparator,
             final Filter<? super User> filter) {
         logger.logApiId();
@@ -398,7 +399,6 @@ final class BackupModelImpl extends AbstractModelImpl {
         return sortedFilteredPublishedTo;
     }
 
-
     /**
      * Read a list of team members the container version was published to.
      * 
@@ -410,7 +410,7 @@ final class BackupModelImpl extends AbstractModelImpl {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId, final Filter<? super User> filter) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -420,7 +420,8 @@ final class BackupModelImpl extends AbstractModelImpl {
                 filter); 
     }
 
-    List<JabberId> readTeamIds(final UUID uniqueId) {
+
+    public List<JabberId> readTeamIds(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         try {
@@ -431,6 +432,14 @@ final class BackupModelImpl extends AbstractModelImpl {
             throw translateError(t);
         }
     }
+
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     *
+     */
+    @Override
+    protected void initializeModel(final Environment environment,
+            final Workspace workspace) {}
 
     /**
      * Assert that the backup server is online.

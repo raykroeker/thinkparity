@@ -19,7 +19,6 @@ import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.ParityErrorTranslator;
-import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.Constants.Image;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -27,11 +26,14 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-class InstallModelImpl extends AbstractModelImpl {
+public final class InstallModelImpl extends AbstractModelImpl implements InstallModel {
 
-    /** Create InstallModelImpl. */
-    InstallModelImpl(final Environment environment, final Workspace workspace) {
-        super(environment, workspace);
+    /**
+     * Create InstallModelImpl.
+     *
+     */
+    public InstallModelImpl() {
+        super();
     }
 
     /**
@@ -40,7 +42,7 @@ class InstallModelImpl extends AbstractModelImpl {
      * @param release
      *            A release.
      */
-    void install(final Release release) throws ParityException {
+    public void install(final Release release) {
         logger.logApiId();
         logger.logVariable("variable", release);
         try {
@@ -94,6 +96,15 @@ class InstallModelImpl extends AbstractModelImpl {
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     *
+     */
+    @Override
+    protected void initializeModel(final Environment environment,
+            final Workspace workspace) {
     }
 
     /**

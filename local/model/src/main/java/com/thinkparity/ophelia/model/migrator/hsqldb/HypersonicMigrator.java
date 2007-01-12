@@ -18,7 +18,6 @@ import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.md.MetaDataType;
 import com.thinkparity.ophelia.model.message.SystemMessageType;
-import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import org.apache.log4j.Logger;
 
@@ -122,10 +121,10 @@ public class HypersonicMigrator {
      * Create a HypersonicMigrator.
      * 
      */
-    public HypersonicMigrator(final Workspace workspace) {
+    public HypersonicMigrator() {
         super();
         this.logger = Logger.getLogger(getClass());
-        this.sessionManager = workspace.getSessionManager();
+        this.sessionManager = new SessionManager();
     }
 
     public void migrate() throws HypersonicException {

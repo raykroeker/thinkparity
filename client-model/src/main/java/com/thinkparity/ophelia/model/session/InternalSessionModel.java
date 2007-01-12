@@ -11,7 +11,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
@@ -22,31 +22,22 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
-import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 
-import com.thinkparity.ophelia.model.InternalModel;
 import com.thinkparity.ophelia.model.ParityException;
-import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Internal Session Model<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.28
  */
-public class InternalSessionModel extends SessionModel implements InternalModel {
-
-    /**
-	 * Create a InternalSessionModel.
-	 * 
-	 * @param context
-	 *            The model context.
-	 */
-	InternalSessionModel(final Environment environment,
-            final Workspace workspace, final Context context) {
-		super(environment, workspace);
-	}
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface InternalSessionModel extends SessionModel {
 
     /**
      * Accept the contact invitation.
@@ -59,11 +50,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            When the user accepted <code>Calendar</code>.
      */
     public void acceptContactInvitation(final JabberId userId,
-            final JabberId invitedBy, final Calendar acceptedOn) {
-        synchronized (getImplLock()) {
-            getImpl().acceptContactInvitation(userId, invitedBy, acceptedOn);
-        }
-    }
+            final JabberId invitedBy, final Calendar acceptedOn);
 
     /**
      * Add an email to a user's profile.
@@ -73,11 +60,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @param email
      *            A <code>ProfileEMail</code>.
      */
-    public void addProfileEmail(final JabberId userId, final ProfileEMail email) {
-        synchronized (getImplLock()) {
-            getImpl().addProfileEmail(userId, email);
-        }
-    }
+    public void addProfileEmail(final JabberId userId, final ProfileEMail email);
 
     /**
      * Add a team member. This will create the team member relationship in the
@@ -89,11 +72,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            A jabber id.
      */
     public void addTeamMember(final UUID uniqueId, final List<JabberId> team,
-            final JabberId jabberId) {
-        synchronized(getImplLock()) {
-            getImpl().addTeamMember(uniqueId, team, jabberId);
-        }
-    }
+            final JabberId jabberId);
 
     /**
      * Archive an artifact.
@@ -103,30 +82,16 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
      */
-    public void archiveArtifact(final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().archiveArtifact(userId, uniqueId);
-        }
-    }
+    public void archiveArtifact(final JabberId userId, final UUID uniqueId);
 
     public void confirmArtifactReceipt(final JabberId userId,
             final UUID uniqueId, final Long versionId,
             final JabberId publishedBy, final Calendar publishedOn,
             final List<JabberId> publishedTo, final JabberId receivedBy,
-            final Calendar receivedOn) {
-        synchronized(getImplLock()) {
-            getImpl().confirmArtifactReceipt(userId, uniqueId, versionId,
-                    publishedBy, publishedOn, publishedTo, receivedBy,
-                    receivedOn);
-        }
-    }
+            final Calendar receivedOn);
 
     public void createArchiveStream(final JabberId userId,
-            final String streamId, final UUID uniqueId, final Long versionId) {
-        synchronized (getImplLock()) {
-            getImpl().createArchiveStream(userId, streamId, uniqueId, versionId);
-        }
-    }
+            final String streamId, final UUID uniqueId, final Long versionId);
 
     /**
      * Send a creation packet to the parity server.
@@ -135,49 +100,29 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            An artifact unique id.
      */
 	public void createArtifact(final JabberId userId, final UUID uniqueId,
-            final Calendar createdOn) {
-		synchronized (getImplLock()) {
-            getImpl().createArtifact(userId, uniqueId, createdOn);
-		}
-	}
+            final Calendar createdOn);
 
     public void createBackupStream(final JabberId userId,
-            final String streamId, final UUID uniqueId, final Long versionId) {
-        synchronized (getImplLock()) {
-            getImpl().createBackupStream(userId, streamId, uniqueId, versionId);
-        }
-    }
+            final String streamId, final UUID uniqueId, final Long versionId);
 
-	/**
+    /**
      * Create a draft for an artifact.
      * 
      * @param uniqueId
      *            An artifact unique id.
      */
-    public void createDraft(final List<JabberId> team, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().createDraft(team, uniqueId);
-        }
-    }
+    public void createDraft(final List<JabberId> team, final UUID uniqueId);
 
-    public String createStream(final StreamSession session) {
-        synchronized (getImplLock()) {
-            return getImpl().createStream(session);
-        }
-    }
+	public String createStream(final StreamSession session);
 
-	/**
+    /**
      * Initialize a stream.
      * 
      * @return A <code>StreamSession</code>.
      */
-    public StreamSession createStreamSession() {
-        synchronized (getImplLock()) {
-            return getImpl().createStreamSession();
-        }
-    }
+    public StreamSession createStreamSession();
 
-    /**
+	/**
      * Deny the presence visibility request from user to the currently logged
      * in user.
      * 
@@ -187,9 +132,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @see SessionModel#acceptPresence(User)
      * @throws ParityException
      */
-    public void declineInvitation(final EMail invitedAs, final JabberId invitedBy) {
-        synchronized(getImplLock()) { getImpl().declineInvitation(invitedAs, invitedBy); }
-    }
+    public void declineInvitation(final EMail invitedAs, final JabberId invitedBy);
 
     /**
      * Delete a contact.
@@ -199,13 +142,9 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @param contactId
      *            A contact id <code>JabberId</code>.
      */
-    public void deleteContact(final JabberId userId, final JabberId contactId) {
-        synchronized (getImplLock()) {
-            getImpl().deleteContact(userId, contactId);
-        }
-    }
+    public void deleteContact(final JabberId userId, final JabberId contactId);
 
-	/**
+    /**
      * Delete a contact invitation.
      * 
      * @param userId
@@ -216,23 +155,15 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            The deletion <code>Calendar</code>.
      */
     public void deleteContactInvitation(final JabberId userId,
-            final EMail invitedAs, final Calendar deletedOn) {
-        synchronized (getImplLock()) {
-            getImpl().deleteContactInvitation(userId, invitedAs, deletedOn);
-        }
-    }
+            final EMail invitedAs, final Calendar deletedOn);
 
-    /**
+	/**
      * Delete a draft for an artifact.
      * 
      * @param uniqueId
      *            An artifact unique id.
      */
-    public void deleteDraft(final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().deleteDraft(uniqueId);
-        }
-    }
+    public void deleteDraft(final UUID uniqueId);
 
     /**
      * Delete a stream session.
@@ -240,11 +171,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @param session
      *            A <code>StreamSession</code>.
      */
-    public void deleteStreamSession(final StreamSession session) {
-        synchronized (getImplLock()) {
-            getImpl().deleteStreamSession(session);
-        }
-    }
+    public void deleteStreamSession(final StreamSession session);
 
     /**
      * Extend an invitation to a contact.
@@ -252,31 +179,19 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @param extendTo
      *            An <code>EMail</code> to invite.
      */
-    public void extendInvitation(final EMail extendTo) {
-        synchronized (getImplLock()) {
-            getImpl().extendInvitation(extendTo);
-        }
-    }
+    public void extendInvitation(final EMail extendTo);
 
     /**
      * Handle the remote session established event.
      *
      */
-    public void handleSessionEstablished() {
-        synchronized (getImplLock()) {
-            getImpl().handleSessionEstablished();
-        }
-    }
+    public void handleSessionEstablished();
 
     /**
      * Handle the remote session terminated event.
      *
      */
-    public void handleSessionTerminated() {
-        synchronized (getImplLock()) {
-            getImpl().handleSessionTerminated();
-        }
-    }
+    public void handleSessionTerminated();
 
     /**
      * Handle the remote session terminated event.
@@ -285,21 +200,14 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            The cause of the termination.
      * 
      */
-    public void handleSessionTerminated(final Exception cause) {
-        synchronized (getImplLock()) {
-            getImpl().handleSessionTerminated(cause);
-        }
-    }
+    public void handleSessionTerminated(final Exception cause);
 
     /**
      * Process the remote event queue.
      * 
      */
-    public void processQueue() {
-        synchronized (getImplLock()) {
-            getImpl().processQueue();
-        }
-    }
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    public void processQueue();
 
     /**
      * Publish a container version.
@@ -318,19 +226,10 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     public void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
             final List<TeamMember> team, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn) {
-        synchronized (getImplLock()) {
-            getImpl().publish(container, documents, team, publishTo,
-                    publishedBy, publishedOn);
-        }
-    }
+            final JabberId publishedBy, final Calendar publishedOn);
 
     public Container readArchiveContainer(final JabberId userId,
-            final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArchiveContainer(userId, uniqueId);
-        }
-    }
+            final UUID uniqueId);
 
     /**
      * Read the archived containers.
@@ -339,11 +238,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            A user id <code>JabberId</code>.
      * @return A list of conatiners.
      */
-    public List<Container> readArchiveContainers(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArchiveContainers(userId);
-        }
-    }
+    public List<Container> readArchiveContainers(final JabberId userId);
 
     /**
      * Read the archived containers.
@@ -355,11 +250,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @return A <code>List&lt;ContainerVersion&gt;</code>.
      */
     public List<ContainerVersion> readArchiveContainerVersions(
-            final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArchiveContainerVersions(userId, uniqueId);
-        }
-    }
+            final JabberId userId, final UUID uniqueId);
 
     /**
      * Read the archived containers.
@@ -373,38 +264,19 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @return A <code>List&lt;Document&gt;</code>.
      */
     public List<Document> readArchiveDocuments(final JabberId userId,
-            final UUID uniqueId, final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArchiveDocuments(userId, uniqueId, versionId);
-        }
-    }
+            final UUID uniqueId, final Long versionId);
 
     public DocumentVersion readArchiveDocumentVersion(final JabberId userId,
             final UUID uniqueId, final UUID documentUniqueId,
-            final Long documentVersionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArchiveDocumentVersion(userId, uniqueId,
-                    documentUniqueId, documentVersionId);
-        }
-    }
+            final Long documentVersionId);
 
     public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
             final JabberId userId, final UUID uniqueId,
-            final Long compareVersionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArchiveDocumentVersionDeltas(userId, uniqueId,
-                    compareVersionId);
-        }
-    }
+            final Long compareVersionId);
 
     public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
             final JabberId userId, final UUID uniqueId,
-            final Long compareVersionId, final Long compareToVersionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArchiveDocumentVersionDeltas(userId, uniqueId,
-                    compareVersionId, compareToVersionId);
-        }
-    }
+            final Long compareVersionId, final Long compareToVersionId);
 
     /**
      * Read the archived document versions.
@@ -420,26 +292,13 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
     public List<DocumentVersion> readArchiveDocumentVersions(
-            final JabberId userId, final UUID uniqueId, final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArchiveDocumentVersions(userId, uniqueId,
-                    versionId);
-        }
-    }
+            final JabberId userId, final UUID uniqueId, final Long versionId);
 
     public Map<User, ArtifactReceipt> readArchivePublishedTo(
-            final JabberId userId, final UUID uniqueId, final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArchivePublishedTo(userId, uniqueId, versionId);
-        }
-    }
+            final JabberId userId, final UUID uniqueId, final Long versionId);
 
     public List<TeamMember> readArchiveTeam(final JabberId userId,
-            final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArchiveTeam(userId, uniqueId);
-        }
-    }
+            final UUID uniqueId);
 
     /**
      * Read the archive team.
@@ -451,18 +310,10 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @return A list of jabber ids.
      */
     public List<JabberId> readArchiveTeamIds(final JabberId userId,
-            final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArchiveTeamIds(userId, uniqueId);
-        }
-    }
+            final UUID uniqueId);
 
     public Container readBackupContainer(final JabberId userId,
-            final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readBackupContainer(userId, uniqueId);
-        }
-    }
+            final UUID uniqueId);
 
     /**
      * Read the backup containers.
@@ -471,11 +322,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            A user id <code>JabberId</code>.
      * @return A <code>List&lt;Container&gt;</code>.
      */
-    public List<Container> readBackupContainers(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readBackupContainers(userId);
-        }
-    }
+    public List<Container> readBackupContainers(final JabberId userId);
 
     /**
      * Read the backup containers.
@@ -487,11 +334,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @return A <code>List&lt;ContainerVersion&gt;</code>.
      */
     public List<ContainerVersion> readBackupContainerVersions(
-            final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readBackupContainerVersions(userId, uniqueId);
-        }
-    }
+            final JabberId userId, final UUID uniqueId);
 
     /**
      * Read the backup containers.
@@ -505,11 +348,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @return A <code>List&lt;Document&gt;</code>.
      */
     public List<Document> readBackupDocuments(final JabberId userId,
-            final UUID uniqueId, final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readBackupDocuments(userId, uniqueId, versionId);
-        }
-    }
+            final UUID uniqueId, final Long versionId);
 
     /**
      * Read the backup document versions.
@@ -525,19 +364,10 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
     public List<DocumentVersion> readBackupDocumentVersions(
-            final JabberId userId, final UUID uniqueId, final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readBackupDocumentVersions(userId, uniqueId,
-                    versionId);
-        }
-    }
+            final JabberId userId, final UUID uniqueId, final Long versionId);
 
     public Map<User, ArtifactReceipt> readBackupPublishedTo(
-            final JabberId userId, final UUID uniqueId, final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readBackupPublishedTo(userId, uniqueId, versionId);
-        }
-    }
+            final JabberId userId, final UUID uniqueId, final Long versionId);
 
     /**
      * Read the backup team.
@@ -549,11 +379,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @return A list of jabber ids.
      */
     public List<JabberId> readBackupTeamIds(final JabberId userId,
-            final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readBackupTeamIds(userId, uniqueId);
-        }
-    }
+            final UUID uniqueId);
 
     /**
      * Read a contact.
@@ -562,23 +388,23 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            A contact id.
      * @return A contact.
      */
-    public Contact readContact(final JabberId userId, final JabberId contactId) {
-        synchronized (getImplLock()) {
-            return getImpl().readContact(userId, contactId);
-        }
-    }
+    public Contact readContact(final JabberId userId, final JabberId contactId);
 
     /**
-     * Read the user's contact list.
+     * Read the contacts.
      * 
-     * @return A list of contacts.
-     * @throws ParityException
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List</code> of <code>Contact</code>s.
      */
-    public List<Contact> readContactList(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readContacts(userId);
-        }
-    }
+    public List<Contact> readContactList(final JabberId userId);
+
+    /**
+     * Return the remote date and time.
+     * 
+     * @return A <code>Calendar</code>.
+     */
+    public Calendar readDateTime();
 
     /**
      * Read the artifact key holder.
@@ -588,33 +414,21 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @return The artifact key holder.
      * @throws ParityException
      */
-    public JabberId readKeyHolder(final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readKeyHolder(userId, uniqueId);
-        }
-    }
+    public JabberId readKeyHolder(final JabberId userId, final UUID uniqueId);
 
 	/**
      * Read the user's profile.
      * 
      * @return A profile.
      */
-    public Profile readProfile() {
-        synchronized (getImplLock()) {
-            return getImpl().readProfile();
-        }
-    }
+    public Profile readProfile();
 
     /**
      * Read the user's profile email addresses.
      * 
      * @return A list of profile email addresses.
      */
-    public List<EMail> readProfileEmails() {
-        synchronized (getImplLock()) {
-            return getImpl().readProfileEMails();
-        }
-    }
+    public List<EMail> readProfileEMails();
 
     /**
      * Read the user profile's security question.
@@ -623,41 +437,18 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            A user id <code>JabberId</code>.
      * @return A security question <code>String</code>.
      */
-    public String readProfileSecurityQuestion(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readProfileSecurityQuestion(userId);
-        }
-    }
+    public String readProfileSecurityQuestion(final JabberId userId);
 
-    public Integer readQueueSize() {
-        synchronized (getImplLock()) {
-            return getImpl().readQueueSize();
-        }
-    }
+    public Integer readQueueSize();
 
-    /**
+	/**
      * Read a thinkParity user from the server.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
      * @return A <code>User</code>
      */
-    public User readUser(final JabberId userId) {
-		synchronized (getImplLock()) {
-            return getImpl().readUser(userId);
-		}
-	}
-
-	/**
-     * Return the remote date and time.
-     * 
-     * @return A <code>Calendar</code>.
-     */
-    public Calendar readDateTime() {
-        synchronized (getImplLock()) {
-            return getImpl().readDateTime();
-        }
-    }
+    public User readUser(final JabberId userId);
 
     /**
      * Remove an email from a user's profile.
@@ -667,11 +458,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @param email
      *            A <code>ProfileEMail</code>.
      */
-    public void removeProfileEmail(final JabberId userId, final ProfileEMail email) {
-        synchronized (getImplLock()) {
-            getImpl().removeProfileEmail(userId, email);
-        }
-    }
+    public void removeProfileEmail(final JabberId userId, final ProfileEMail email);
 	
     /**
      * Remove a team member from the artifact team.
@@ -682,11 +469,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            A jabber id.
      */
     public void removeTeamMember(final UUID uniqueId,
-            final List<JabberId> team, final JabberId jabberId) {
-        synchronized (getImplLock()) {
-            getImpl().removeTeamMember(uniqueId, team, jabberId);
-        }
-    }
+            final List<JabberId> team, final JabberId jabberId);
 
     /**
      * Reset the user's authentication credentials.
@@ -698,17 +481,9 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @return A new password.
      */
     public String resetProfilePassword(final JabberId userId,
-            final String securityAnswer) {
-        synchronized (getImplLock()) {
-            return getImpl().resetProfilePassword(userId, securityAnswer);
-        }
-    }
+            final String securityAnswer);
 
-    public void restoreArtifact(final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().restoreArtifact(userId, uniqueId);
-        }
-    }
+    public void restoreArtifact(final JabberId userId, final UUID uniqueId);
 
     /**
      * Update the a user's profile.
@@ -718,11 +493,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @param profile
      *            The user's profile.
      */
-    public void updateProfile(final JabberId userId, final Profile profile) {
-        synchronized (getImplLock()) {
-            getImpl().updateProfile(userId, profile);
-        }
-    }
+    public void updateProfile(final JabberId userId, final Profile profile);
 
     /**
      * Update the profile's credentials.
@@ -733,11 +504,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            A user's <code>Credentials</code>.
      */
     public void updateProfileCredentials(final JabberId userId,
-            final Credentials credentials) {
-        synchronized (getImplLock()) {
-            getImpl().updateProfileCredentials(userId, credentials);
-        }
-    }
+            final Credentials credentials);
 
     /**
      * Verify an email in a user's profile.
@@ -750,9 +517,5 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            A verification key <code>String</code>.
      */
     public void verifyProfileEmail(final JabberId userId,
-            final ProfileEMail email, final String key) {
-        synchronized (getImplLock()) {
-            getImpl().verifyProfileEmail(userId, email, key);
-        }
-    }
+            final ProfileEMail email, final String key);
 }

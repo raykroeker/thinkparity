@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.index;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
@@ -19,31 +20,31 @@ import com.thinkparity.ophelia.model.index.document.DocumentIndexImpl;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Index Model<br>
+ * <b>Description:</b><br>
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
+ * 
+ * TODO Include the index within the transaction.
  */
-class IndexModelImpl extends AbstractModelImpl {
+public final class IndexModelImpl extends AbstractModelImpl implements
+        IndexModel, InternalIndexModel {
 
     /** A contact index implementation. */
-    private final IndexImpl<Contact, JabberId> contactIndex;
+    private IndexImpl<Contact, JabberId> contactIndex;
 
     /** A container index implementation. */
-    private final IndexImpl<Container, Long> containerIndex;
+    private IndexImpl<Container, Long> containerIndex;
 
     /** A document index implementation. */
-    private final IndexImpl<DocumentIndexEntry, Long> documentIndex;
+    private IndexImpl<DocumentIndexEntry, Long> documentIndex;
 
     /**
 	 * Create a IndexModelImpl.
 	 * 
-	 * @param workspace
-	 *            The parity workspace.
 	 */
-	IndexModelImpl(final Environment environment, final Workspace workspace) {
-		super(environment, workspace);
-        this.containerIndex = new ContainerIndexImpl(workspace, internalModelFactory);
-        this.documentIndex = new DocumentIndexImpl(workspace, internalModelFactory);
-        this.contactIndex = new ContactIndexImpl(workspace, internalModelFactory);
+	public IndexModelImpl() {
+		super();
 	}
 
 	/**
@@ -56,7 +57,7 @@ class IndexModelImpl extends AbstractModelImpl {
         logger.logApiId();
         logger.logVariable("contactId", contactId);
         try {
-            final Contact c = getInternalContactModel().read(contactId);
+            final Contact c = getContactModel().read(contactId);
             contactIndex.delete(c);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -80,34 +81,34 @@ class IndexModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
      * Delete a document from the index.
      * 
      * @param documentId
      *            A document id <code>Long</code>.
      */
-    void deleteDocument(final Long documentId) {
+    public void deleteDocument(final Long documentId) {
         logger.logApiId();
         logger.logVariable("documentId", documentId);
         try {
-            final Document d = getInternalDocumentModel().get(documentId);
+            final Document d = getDocumentModel().get(documentId);
             documentIndex.delete(new DocumentIndexEntry(d));
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
-    /**
+	/**
      * Create a index entry for a contact.
      * 
      * @param contactId
      *            A contact id <code>JabberId</code>.
      */
-    void indexContact(final JabberId contactId) {
+    public void indexContact(final JabberId contactId) {
         logger.logApiId();
         logger.logVariable("contactId", contactId);
         try {
-            final Contact contact = getInternalContactModel().read(contactId);
+            final Contact contact = getContactModel().read(contactId);
             contactIndex.index(contact);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -120,30 +121,30 @@ class IndexModelImpl extends AbstractModelImpl {
      * @param containerId
      *            A container id <code>Long</code>.
      */
-    void indexContainer(final Long containerId) {
+    public void indexContainer(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
             final Container container = getContainerModel().read(containerId);
             containerIndex.index(container);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
     /**
      * Create an index entry for a document.
      * 
-     * @parma containerId A container id ,code>Long</code>.
+     * @param containerId A container id ,code>Long</code>.
      * @param documentId
      *            A document id <code>Long</code>.
      */
-	void indexDocument(final Long containerId, final Long documentId) {
+	public void indexDocument(final Long containerId, final Long documentId) {
 		logger.logApiId();
         logger.logVariable("documentId", documentId);
         logger.logVariable("containerId", containerId);
         try {
-            final Document document = getInternalDocumentModel().get(documentId);
+            final Document document = getDocumentModel().get(documentId);
             documentIndex.index(new DocumentIndexEntry(containerId, document));
         } catch (final Throwable t) {
             throw translateError(t);
@@ -157,7 +158,7 @@ class IndexModelImpl extends AbstractModelImpl {
      *            A search expression.
      * @return A <code>List&lt;JabberId&gt;</code>.
      */
-    List<JabberId> searchContacts(final String expression) {
+    public List<JabberId> searchContacts(final String expression) {
         logger.logApiId();
         logger.logVariable("expression", expression);
         try {
@@ -174,7 +175,7 @@ class IndexModelImpl extends AbstractModelImpl {
      *            The search expression.
      * @return A <code>List&lt;Long&gt;</code>.
      */
-    List<Long> searchContainers(final String expression) {
+    public List<Long> searchContainers(final String expression) {
         logger.logApiId();
         logger.logVariable("expression", expression);
         try {
@@ -191,7 +192,7 @@ class IndexModelImpl extends AbstractModelImpl {
      *            The search expression.
      * @return A A <code>List&lt;Document&gt;</code>.
      */
-	List<Long> searchDocuments(final String expression) {
+	public List<Long> searchDocuments(final String expression) {
         logger.logApiId();
         logger.logVariable("expression", expression);
         try {
@@ -200,4 +201,16 @@ class IndexModelImpl extends AbstractModelImpl {
             throw translateError(t);
         }
 	}
+
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     *
+     */
+    @Override
+    protected void initializeModel(final Environment environment,
+            final Workspace workspace) {
+        this.containerIndex = new ContainerIndexImpl(workspace, modelFactory);
+        this.documentIndex = new DocumentIndexImpl(workspace, modelFactory);
+        this.contactIndex = new ContactIndexImpl(workspace, modelFactory);
+    }
 }

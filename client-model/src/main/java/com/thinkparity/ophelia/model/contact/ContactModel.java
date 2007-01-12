@@ -9,60 +9,23 @@ import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.session.Environment;
 
-import com.thinkparity.ophelia.model.AbstractModel;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
+
 import com.thinkparity.ophelia.model.events.ContactListener;
 import com.thinkparity.ophelia.model.util.filter.Filter;
-import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
  * <b>Title:</b>thinkParity Contact Model<br>
- * <b>Description:</b>
- *
- * @author CreateModel.groovy
- * @version $Revision$
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.5
  */
-public class ContactModel extends AbstractModel<ContactModelImpl> {
-
-    /**
-	 * Create a Contact interface.
-	 * 
-     * @param workspace
-     *      A thinkParity <code>Workspace</code>.
-	 * @param context
-	 *            A thinkParity internal context.
-	 * @return The internal Contact interface.
-	 */
-	public static InternalContactModel getInternalModel(final Context context,
-            final Environment environment, final Workspace workspace) {
-		return new InternalContactModel(context, environment, workspace);
-	}
-
-    /**
-	 * Create a Contact interface.
-	 * 
-     * @param workspace
-     *      A thinkParity <code>Workspace</code>.
-	 * @return The Contact interface.
-	 */
-	public static ContactModel getModel(final Environment environment,
-            final Workspace workspace) {
-		return new ContactModel(environment, workspace);
-	}
-
-    /**
-	 * Create ContactModel.
-	 *
-	 * @param workspace
-	 *		The thinkParity workspace.
-	 */
-	protected ContactModel(final Environment environment,
-            final Workspace workspace) {
-		super(new ContactModelImpl(environment, workspace));
-	}
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface ContactModel {
 
 	/**
      * Accept the incoming invitation.
@@ -70,11 +33,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      * @param invitationId
      *            An invitation id.
      */
-    public void acceptIncomingInvitation(final Long invitationId) {
-        synchronized (getImplLock()) {
-            getImpl().acceptIncomingInvitation(invitationId);
-        }
-    }
+    public void acceptIncomingInvitation(final Long invitationId);
 
     /**
      * Add a contact listener.
@@ -82,11 +41,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      * @param listener
      *            A contact listener.
      */
-    public void addListener(final ContactListener listener) {
-        synchronized (getImplLock()) {
-            getImpl().addListener(listener);
-        }
-    }
+    public void addListener(final ContactListener listener);
 
     /**
      * Create an e-mail contact invitation.
@@ -95,9 +50,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            An e-mail address.
      * @return The new contact invitation.
      */
-    public OutgoingInvitation createOutgoingInvitation(final EMail email) {
-        synchronized(getImplLock()) { return getImpl().createOutgoingInvitation(email); }
-    }
+    public OutgoingInvitation createOutgoingInvitation(final EMail email);
 
 	/**
      * Accept the incoming invitation.
@@ -105,11 +58,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      * @param invitationId
      *            An invitation id.
      */
-    public void declineIncomingInvitation(final Long invitationId) {
-        synchronized (getImplLock()) {
-            getImpl().declineIncomingInvitation(invitationId);
-        }
-    }
+    public void declineIncomingInvitation(final Long invitationId);
 
 	/**
      * Delete a contact.
@@ -118,38 +67,27 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            A contact jabber id.
      * @return A contact.
      */
-    public void delete(final JabberId contactId) {
-        synchronized(getImplLock()) { getImpl().delete(contactId); }
-    }
-
+    public void delete(final JabberId contactId);
 	/**
      * Delete an outgoing invitation.
      * 
      * @param invitationId
      *            An invitation id.
      */
-    public void deleteOutgoingInvitation(final Long invitationId) {
-        synchronized (getImplLock()) {
-            getImpl().deleteOutgoingInvitation(invitationId);
-        }
-    }
+    public void deleteOutgoingInvitation(final Long invitationId);
 
     /**
      * Download the contacts from the server and create local contacts.
      *
      */
-    public void download() {
-        synchronized(getImplLock()) { getImpl().download(); }
-    }
+    public void download();
 
     /**
      * Read a list of contacts.
      * 
      * @return A list of contacts.
      */
-    public List<Contact> read() {
-        synchronized(getImplLock()) { return getImpl().read(); }
-    }
+    public List<Contact> read();
 
     /**
      * Read a list of contacts.
@@ -158,9 +96,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            A contact comparator to sort the contacts.
      * @return A list of contacts.
      */
-    public List<Contact> read(final Comparator<Contact> comparator) {
-        synchronized(getImplLock()) { return getImpl().read(comparator); }
-    }
+    public List<Contact> read(final Comparator<Contact> comparator);
 
     /**
      * Read a list of contacts.
@@ -172,9 +108,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      * @return A list of contacts.
      */
     public List<Contact> read(final Comparator<Contact> comparator,
-            final Filter<? super Contact> filter) {
-        synchronized(getImplLock()) { return getImpl().read(comparator, filter); }
-    }
+            final Filter<? super Contact> filter);
 
     /**
      * Read a list of contacts.
@@ -183,9 +117,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            A contact filter to scope the contacts.
      * @return A list of contacts.
      */
-    public List<Contact> read(final Filter<Contact> filter) {
-        synchronized(getImplLock()) { return getImpl().read(filter); }
-    }
+    public List<Contact> read(final Filter<? super Contact> filter);
 
     /**
      * Read a contact.
@@ -194,9 +126,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            A contact jabber id.
      * @return A contact.
      */
-    public Contact read(final JabberId contactId) {
-        synchronized(getImplLock()) { return getImpl().read(contactId); }
-    }
+    public Contact read(final JabberId contactId);
 
     /**
      * Read an outgoing invitation.
@@ -205,22 +135,14 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            An invitation id.
      * @return An outgoing invitation.
      */
-    public IncomingInvitation readIncomingInvitation(final Long invitationId) {
-        synchronized (getImplLock()) {
-            return getImpl().readIncomingInvitation(invitationId);
-        }
-    }
+    public IncomingInvitation readIncomingInvitation(final Long invitationId);
 
     /**
      * Read a list of incoming invitations.
      * 
      * @return A list of incoming invitations.
      */
-    public List<IncomingInvitation> readIncomingInvitations() {
-        synchronized (getImplLock()) {
-            return getImpl().readIncomingInvitations();
-        }
-    }
+    public List<IncomingInvitation> readIncomingInvitations();
 
     /**
      * Read a list of incoming invitations.
@@ -228,11 +150,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      * @return A list of incoming invitations.
      */
     public List<IncomingInvitation> readIncomingInvitations(
-            final Comparator<ContactInvitation> comparator) {
-        synchronized (getImplLock()) {
-            return getImpl().readIncomingInvitations(comparator);
-        }
-    }
+            final Comparator<ContactInvitation> comparator);
 
     /**
      * Read a list of incoming invitations.
@@ -241,11 +159,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      */
     public List<IncomingInvitation> readIncomingInvitations(
             final Comparator<ContactInvitation> comparator,
-            final Filter<? super ContactInvitation> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readIncomingInvitations(comparator, filter);
-        }
-    }
+            final Filter<? super ContactInvitation> filter);
 
     /**
      * Read a list of incoming invitations.
@@ -253,11 +167,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      * @return A list of incoming invitations.
      */
     public List<IncomingInvitation> readIncomingInvitations(
-            final Filter<? super ContactInvitation> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readIncomingInvitations(filter);
-        }
-    }
+            final Filter<? super ContactInvitation> filter);
 
 
     /**
@@ -267,22 +177,14 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            An invitation id.
      * @return An outgoing invitation.
      */
-    public OutgoingInvitation readOutgoingInvitation(final Long invitationId) {
-        synchronized (getImplLock()) {
-            return getImpl().readOutgoingInvitation(invitationId);
-        }
-    }
+    public OutgoingInvitation readOutgoingInvitation(final Long invitationId);
 
     /**
      * Read a list of outgoing invitations.
      * 
      * @return A list of outgoing invitations.
      */
-    public List<OutgoingInvitation> readOutgoingInvitations() {
-        synchronized (getImplLock()) {
-            return getImpl().readOutgoingInvitations();
-        }
-    }
+    public List<OutgoingInvitation> readOutgoingInvitations();
 
     /**
      * Read a list of outgoing invitations.
@@ -290,11 +192,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      * @return A list of outgoing invitations.
      */
     public List<OutgoingInvitation> readOutgoingInvitations(
-            final Comparator<ContactInvitation> comparator) {
-        synchronized (getImplLock()) {
-            return getImpl().readOutgoingInvitations(comparator);
-        }
-    }
+            final Comparator<ContactInvitation> comparator) ;
 
     /**
      * Read a list of outgoing invitations.
@@ -303,11 +201,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      */
     public List<OutgoingInvitation> readOutgoingInvitations(
             final Comparator<ContactInvitation> comparator,
-            final Filter<? super ContactInvitation> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readOutgoingInvitations(comparator, filter);
-        }
-    }
+            final Filter<? super ContactInvitation> filter);
 
 
     /**
@@ -316,11 +210,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      * @return A list of outgoing invitations.
      */
     public List<OutgoingInvitation> readOutgoingInvitations(
-            final Filter<? super ContactInvitation> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readOutgoingInvitations(filter);
-        }
-    }
+            final Filter<? super ContactInvitation> filter);
 
     /**
      * Remove a contact listener.
@@ -328,11 +218,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      * @param listener
      *            A contact listener.
      */
-    public void removeListener(final ContactListener listener) {
-        synchronized (getImplLock()) {
-            getImpl().removeListener(listener);
-        }
-    }
+    public void removeListener(final ContactListener listener);
 
     /**
      * Search for contacts.
@@ -341,9 +227,5 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            A search expression.
      * @return A <code>List&lt;JabberId&gt;</code>.
      */
-    public List<JabberId> search(final String expression) {
-        synchronized (getImplLock()) {
-            return getImpl().search(expression);
-        }
-    }
+    public List<JabberId> search(final String expression);
 }

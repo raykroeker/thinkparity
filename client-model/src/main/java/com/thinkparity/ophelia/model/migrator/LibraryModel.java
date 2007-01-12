@@ -5,52 +5,19 @@
 package com.thinkparity.ophelia.model.migrator;
 
 
-import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.migrator.Library;
-import com.thinkparity.codebase.model.session.Environment;
-
-import com.thinkparity.ophelia.model.AbstractModel;
-import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 /**
- * The parity bootstrap library interface.
+ * <b>Title:</b>thinkParity Library Model<br>
+ * <b>Description:</b><br>
  * 
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.4
  */
-public class LibraryModel extends AbstractModel<LibraryModelImpl> {
-
-    /**
-     * Obtain the internal parity library interface.
-     * 
-     * @param workspace
-     *      A thinkParity <code>Workspace</code>.
-     * @param context
-     *            A parity calling context.
-     * @return The internal parity library interface.
-     */
-    public static InternalLibraryModel getInternalModel(final Context context,
-            final Environment environment, final Workspace workspace) {
-        return new InternalLibraryModel(context, environment, workspace);
-    }
-
-    /**
-     * Obtain the parity library interface.
-     * 
-     * @param workspace
-     *      A thinkParity <code>Workspace</code>.
-     * @return The parity library interface.
-     */
-    public static LibraryModel getModel(final Environment environment,
-            final Workspace workspace) {
-        return new LibraryModel(environment, workspace);
-    }
-
-    /** Create LibraryModel. */
-    protected LibraryModel(final Environment environment,
-            final Workspace workspace) {
-        super(new LibraryModelImpl(environment, workspace));
-    }
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface LibraryModel {
 
     /**
      * Create a library.
@@ -71,11 +38,7 @@ public class LibraryModel extends AbstractModel<LibraryModelImpl> {
      */
     public Library create(final String artifactId, final String groupId,
             final String path, final Library.Type type, final String version,
-            final byte[] bytes) {
-        synchronized(getImplLock()) {
-            return getImpl().create(artifactId, groupId, path, type, version, bytes);
-        }
-    }
+            final byte[] bytes);
 
     /**
      * Read a library.
@@ -91,9 +54,5 @@ public class LibraryModel extends AbstractModel<LibraryModelImpl> {
      * @return A library.
      */
     public Library read(final String artifactId, final String groupId,
-            final Library.Type type, final String version) {
-        synchronized(getImplLock()) {
-            return getImpl().read(artifactId, groupId, type, version);
-        }
-    }
+            final Library.Type type, final String version);
 }

@@ -4,11 +4,31 @@
 package com.thinkparity.ophelia.model.workspace;
 
 import java.io.File;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.ErrorHelper;
+import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.assertion.Assertion;
+
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+
+import com.thinkparity.ophelia.model.ModelFactory;
+import com.thinkparity.ophelia.model.ParityErrorTranslator;
+import com.thinkparity.ophelia.model.ParityUncheckedException;
+import com.thinkparity.ophelia.model.Constants.ShutdownHookNames;
+import com.thinkparity.ophelia.model.Constants.ShutdownHookPriorities;
+import com.thinkparity.ophelia.model.Constants.ThreadNames;
 import com.thinkparity.ophelia.model.session.LoginMonitor;
+import com.thinkparity.ophelia.model.session.SessionModel;
+import com.thinkparity.ophelia.model.util.ShutdownHook;
+import com.thinkparity.ophelia.model.workspace.impl.WorkspaceImpl;
+
+import org.apache.log4j.Logger;
 
 /**
  * WorkspaceModel
@@ -25,42 +45,72 @@ import com.thinkparity.ophelia.model.session.LoginMonitor;
  */
 public class WorkspaceModel {
 
-    /** The workspace implementation synchronization lock. */
-    private static final Object IMPL_LOCK;
+    /** A list of workspaces. */
+    private static final Map<File, WorkspaceImpl> WORKSPACES;
 
     static {
-        IMPL_LOCK = new Object();
+        WORKSPACES = new HashMap<File, WorkspaceImpl>(1, 0.75F);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(ThreadNames.SHUTDOWN_HOOK) {
+            @Override
+            public void run() {
+                Logger.getLogger(getClass()).trace("Runtime shutting down.");
+                synchronized (WORKSPACES) {
+                    List<ShutdownHook> shutdownHooks;
+                    for (final WorkspaceImpl workspace : WORKSPACES.values()) {
+                        Logger.getLogger(getClass()).trace(
+                                MessageFormat.format("Workspace {0} shutting down.", workspace.getName()));
+                        shutdownHooks = workspace.getShutdownHooks();
+                        for(final ShutdownHook shutdownHook : shutdownHooks) {
+                            Logger.getLogger(getClass()).trace(
+                                    MessageFormat.format("Workspace {0} priority {1} hook {2} shutting down.",
+                                            workspace.getName(), shutdownHook.getPriority(),
+                                            shutdownHook.getName()));
+                            shutdownHook.run();
+                        }
+                    }
+                }
+            }
+        });
     }
 
     /**
-     * Obtain a handle to a workspace model.
+     * Obtain an instance of a workspace model.
      * 
-     * @return The workspace model interface.
+     * @param environment
+     *            A thinkParity <code>Environment</code>.
+     * @return A <code>WorkspaceModel</code>.
      */
-    public static InternalWorkspaceModel getInternalModel(
-            final Context context, final Environment environment) {
-        return new InternalWorkspaceModel(context, environment);
-    }
-
-    /**
-     * Obtain a handle to a workspace model.
-     * 
-     * @return The workspace model interface.
-     */
-    public static WorkspaceModel getModel(final Environment environment) {
+    public static WorkspaceModel getInstance(final Environment environment) {
         return new WorkspaceModel(environment);
     }
 
-    /** The thinkParity workspace interface implementation. */
-    private final WorkspaceModelImpl impl;
+    /** A thinkParity <code>Environment</code>. */
+    private final Environment environment;
 
     /**
-	 * Create a WorkspaceModel
-	 */
-	protected WorkspaceModel(final Environment environment) {
-		super();
-        this.impl = new WorkspaceModelImpl(environment);
-	}
+     * Create a WorkspaceModelImpl.
+     * 
+     */
+    protected WorkspaceModel(final Environment environment) {
+        super();
+        this.environment = environment;
+    }
+
+    /**
+     * Close a workspace.
+     * 
+     * @param workspace
+     *            A <code>Workspace</code>.
+     */
+    public void close(final Workspace workspace) {
+        final WorkspaceImpl impl = findImpl(workspace);
+        Assert.assertNotNull(impl, "Workspace {0} has is not open.", workspace);
+        impl.close();
+        synchronized (WORKSPACES) {
+            WORKSPACES.remove(workspace.getWorkspaceDirectory());
+        }
+    }
 
     /**
      * Delete a workspace.
@@ -69,24 +119,49 @@ public class WorkspaceModel {
      *            A thinkParity <code>Workspace</code>.
      */
     public void delete(final Workspace workspace) {
-        synchronized (getImplLock()) {
-            getImpl().delete(workspace);
+        final WorkspaceImpl impl = findImpl(workspace);
+        final File workspaceDirectory = impl.getWorkspaceDirectory();
+        impl.addShutdownHook(new ShutdownHook() {
+            @Override
+            public String getDescription() {
+                return ShutdownHookNames.WORKSPACE_DELETE;
+            }
+            @Override
+            public String getName() {
+                return ShutdownHookNames.WORKSPACE_DELETE;
+            }
+            @Override
+            public Integer getPriority() {
+                return ShutdownHookPriorities.WORKSPACE_DELETE;
+            }
+            @Override
+            public void run() {
+                FileUtil.deleteTree(workspaceDirectory);
+            }
+        });
+    }
+
+    /**
+     * Obtain the workspace for the parity model software.
+     * 
+     * @return The workspace.
+     */
+    public Workspace getWorkspace(final File workspace) {
+        synchronized (WORKSPACES) {
+            if (WORKSPACES.containsKey(workspace)) {
+                return WORKSPACES.get(workspace);
+            } else {
+                final WorkspaceImpl impl = new WorkspaceImpl(workspace);
+                impl.open();
+                WORKSPACES.put(workspace, impl);
+                return getWorkspace(workspace);
+            }
         }
     }
 
     /**
-	 * Obtain the handle to a workspace.
-	 * 
-	 * @return The handle to the workspace.
-	 */
-	public Workspace getWorkspace(final File workspace) {
-		synchronized (getImplLock()) {
-            return getImpl().getWorkspace(workspace);
-		}
-	}
-
-    /**
-     * Initialize a workspace.
+     * Initialize the workspace. If the workspace fails to initialize; it will
+     * be deleted.
      * 
      * @param workspace
      *            A thinkParity <code>Workspace</code>.
@@ -95,39 +170,81 @@ public class WorkspaceModel {
      */
     public void initialize(final Workspace workspace,
             final LoginMonitor loginMonitor, final Credentials credentials) {
-        synchronized (getImplLock()) {
-            getImpl().initialize(workspace, loginMonitor, credentials);
+        try {
+            final ModelFactory modelFactory = ModelFactory.getInstance(environment, workspace);
+            final SessionModel sessionModel = modelFactory.getSessionModel();
+            sessionModel.login(loginMonitor, credentials);
+            Assert.assertTrue("User was not logged in.", sessionModel.isLoggedIn());            
+            modelFactory.getContactModel().download();
+            findImpl(workspace).initialize();
+        } catch (final Throwable t) {
+            final WorkspaceImpl impl = findImpl(workspace);
+            final File workspaceDirectory = impl.getWorkspaceDirectory();
+            impl.addShutdownHook(new ShutdownHook() {
+                @Override
+                public String getDescription() {
+                    return ShutdownHookNames.WORKSPACE_DELETE;
+                }
+                @Override
+                public String getName() {
+                    return ShutdownHookNames.WORKSPACE_DELETE;
+                }
+                @Override
+                public Integer getPriority() {
+                    return ShutdownHookPriorities.WORKSPACE_DELETE;
+                }
+                @Override
+                public void run() {
+                    FileUtil.deleteTree(workspaceDirectory);
+                }
+            });
+            throw translateError(workspace, t);
         }
     }
 
     /**
-     * Determine if the workspace has been initialized.
+     * Determine if this is the first run of the workspace.
      * 
-     * @param workspace
-     *            A thinkParity <code>Workspace</code>.
-     * @return True if the workspace has been initialized.
+     * @return True if this is the first run of the workspace; false otherwise.
      */
     public Boolean isInitialized(final Workspace workspace) {
-        synchronized (getImplLock()) {
-            return getImpl().isInitialized(workspace);
-        }
+        return findImpl(workspace).isInitialized();
     }
 
     /**
-     * Obtain the impl
-     *
-     * @return The WorkspaceModelImpl.
-     */
-    protected WorkspaceModelImpl getImpl() {
-        return impl;
-    }
-
-    /**
-     * Obtain the implementation synchroinization lock.
+     * Find the workspace implementation for a workspace.
      * 
-     * @return An implementation synchroinization lock.
+     * @param workspace
+     *            A <code>Workspace</code>.
+     * @return A <code>WorkspaceImpl</code>.
      */
-	protected Object getImplLock() {
-        return IMPL_LOCK;
+    protected final WorkspaceImpl findImpl(final Workspace workspace) {
+        synchronized (WORKSPACES) {
+            for (final WorkspaceImpl impl : WORKSPACES.values()) {
+                if (impl.getWorkspaceDirectory().equals(workspace.getWorkspaceDirectory())) {
+                    return impl;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Translate an error into a parity unchecked error.
+     * 
+     * @param t
+     *            An error.
+     */
+    private RuntimeException translateError(final Workspace workspace,
+            final Throwable t) {
+        if (ParityUncheckedException.class.isAssignableFrom(t.getClass())) {
+            return (ParityUncheckedException) t;
+        } else if (Assertion.class.isAssignableFrom(t.getClass())) {
+            return (Assertion) t;
+        }
+        else {
+            final String errorId = new ErrorHelper().getErrorId(t);
+            return ParityErrorTranslator.translateUnchecked(workspace, errorId, t);
+        }
     }
 }

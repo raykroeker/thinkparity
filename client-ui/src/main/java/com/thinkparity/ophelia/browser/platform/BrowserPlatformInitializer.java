@@ -10,59 +10,50 @@ import java.io.PrintStream;
 import java.text.MessageFormat;
 import java.util.Properties;
 
-import com.thinkparity.codebase.Mode;
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.profile.Profile;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Browser Platform Initializer<br>
+ * <b>Description:</b>The browser platform initializer is responsible for
+ * bringing the model online as well as any other browser related services.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class BrowserPlatformInitializer {
+class BrowserPlatformInitializer {
 
-    /** A thinkParity <code>Environment</code>. */
-    private final Environment environment;
-
-    /** A thinkParity browser platform <code>Profile</code>. */
-    private final Profile profile;
+    /** The thinkParity <code>BrowserPlatform</code>. */
+    private final BrowserPlatform platform;
 
     /**
      * Create BrowserPlatformInitializer.
      * 
-     * @param profile
-     *            A browser profile to initialize.
+     * @param platform
+     *            The thinkParity <code>BrowserPlatform</code>.
      */
-    BrowserPlatformInitializer(final Environment environment,
-            final Profile profile) {
+    BrowserPlatformInitializer(final BrowserPlatform platform) {
         super();
-        this.environment = environment;
-        this.profile = profile;
+        this.platform = platform;
     }
 
     /**
-	 * Initialize the browser2 platform.
+	 * Initialize the platform.
 	 *
 	 */
-	void initialize(final Mode mode) {
-        // init model
-        final Workspace workspace =
-            WorkspaceModel.getModel(environment).getWorkspace(
-                    new File(profile.getParityWorkspace()));
+	void initialize(final Workspace workspace) {
+	    final Environment environment = platform.getEnvironment();
         ModelFactory.getInstance().initialize(environment, workspace);
 
         initLogging(workspace);
-        redirectStreams(mode, workspace);
+        redirectStreams(workspace);
 
         final Properties properties = System.getProperties();
         for(final Object key : properties.keySet()) {
@@ -90,28 +81,21 @@ public class BrowserPlatformInitializer {
      * Redirect the output and err streams.
      *
      */
-    private void redirectStreams(final Mode mode, final Workspace workspace) {
+    private void redirectStreams(final Workspace workspace) {
         final File output = new File(MessageFormat.format(
                 "{0}{1}{2}", workspace.getLogDirectory().getAbsolutePath(),
                 File.separatorChar, "System.out.log"));
         final File err = new File(MessageFormat.format(
                 "{0}{1}{2}", workspace.getLogDirectory().getAbsolutePath(),
                 File.separatorChar, "System.err.log"));
-        switch (mode) {
-        case DEMO:
-        case PRODUCTION:
-        case TESTING:       // redirect output\err streams
+        if (!platform.isDevelopmentMode().booleanValue()) {
+            // redirect output\err streams
             try {
                 System.setOut(new PrintStream(new FileOutputStream(output)));
                 System.setErr(new PrintStream(new FileOutputStream(err)));
             } catch (final IOException iox) {
                 throw new BrowserException("", iox);
             }
-            break;
-        case DEVELOPMENT:   // do not redirect output\err streams
-            break;
-        default:
-            throw Assert.createUnreachable("Unknown mode.");
         }
     }
 }

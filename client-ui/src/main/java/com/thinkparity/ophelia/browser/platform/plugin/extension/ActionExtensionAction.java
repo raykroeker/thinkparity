@@ -8,7 +8,6 @@ import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
-import com.thinkparity.ophelia.model.index.IndexModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.UserModel;
@@ -105,15 +104,6 @@ public abstract class ActionExtensionAction extends AbstractAction {
      */
     @Override
     protected final DocumentModel getDocumentModel() {
-        // HACK This seems wierd.  Maybe obtaining a model from the action abstraction isn't correct.
-        return null;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.action.AbstractAction#getIndexModel()
-     */
-    @Override
-    protected final IndexModel getIndexModel() {
         // HACK This seems wierd.  Maybe obtaining a model from the action abstraction isn't correct.
         return null;
     }

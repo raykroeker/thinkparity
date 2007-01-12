@@ -4,8 +4,8 @@
  */
 package com.thinkparity.ophelia.model.contact;
 
-import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedEvent;
@@ -13,30 +13,14 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEv
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 
-import com.thinkparity.ophelia.model.InternalModel;
-import com.thinkparity.ophelia.model.workspace.Workspace;
-
 /**
- * <b>Title:</b>thinkParity Contact Internal Model<br>
- * <b>Description:</b>
- *
- * @author CreateModel.groovy
- * @version $Revision$
+ * <b>Title:</b>thinkParity Internal Contact Model<br>
+ * <b>Description:</b><br>
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.5
  */
-public class InternalContactModel extends ContactModel implements InternalModel {
-
-    /**
-     * Create InternalContactModel
-     *
-     * @param workspace
-     *		A thinkParity workspace.
-     * @param context
-     *		A thinkParity internal context.
-     */
-    InternalContactModel(final Context context, final Environment environment,
-            final Workspace workspace) {
-        super(environment, workspace);
-    }
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface InternalContactModel extends ContactModel {
 
     /**
      * Handle the remote event generated when a contact is deleted.
@@ -46,11 +30,8 @@ public class InternalContactModel extends ContactModel implements InternalModel 
      * @param deletedOn
      *            When the contact was deleted <code>Calendar</code>.
      */
-    public void handleContactDeleted(final ContactDeletedEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().handleContactDeleted(event);
-        }
-    }
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    public void handleContactDeleted(final ContactDeletedEvent event);
 
     /**
      * Handle the remote event generated when a contact is updated.
@@ -60,11 +41,8 @@ public class InternalContactModel extends ContactModel implements InternalModel 
      * @param updatedOn
      *            When the contact was updated <code>Calendar</code>.
      */
-    public void handleContactUpdated(final ContactUpdatedEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().handleContactUpdated(event);
-        }
-    }
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    public void handleContactUpdated(final ContactUpdatedEvent event);
 
     /**
      * Handle the invitation extended remote event.
@@ -74,12 +52,9 @@ public class InternalContactModel extends ContactModel implements InternalModel 
      * @param acceptedOn
      *            When the invitation was accepted.
      */
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleInvitationAccepted(
-            final ContactInvitationAcceptedEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().handleInvitationAccepted(event);
-        }
-    }
+            final ContactInvitationAcceptedEvent event);
 
     /**
      * Handle the invitation extended remote event.
@@ -91,12 +66,9 @@ public class InternalContactModel extends ContactModel implements InternalModel 
      * @param declinedOn
      *            When the invitation was declined.
      */
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleInvitationDeclined(
-            final ContactInvitationDeclinedEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().handleInvitationDeclined(event);
-        }
-    }
+            final ContactInvitationDeclinedEvent event);
 
     /**
      * Handle the remote contact invitation deleted remote event.
@@ -108,12 +80,9 @@ public class InternalContactModel extends ContactModel implements InternalModel 
      * @param deletedOn
      *            When the invitation was deleted.
      */
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleInvitationDeleted(
-            final ContactInvitationDeletedEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().handleInvitationDeleted(event);
-        }
-    }
+            final ContactInvitationDeletedEvent event);
 
     /**
      * Handle the invitation extended remote event.
@@ -123,10 +92,7 @@ public class InternalContactModel extends ContactModel implements InternalModel 
      * @param invitedOn
      *            When the invitation was extended.
      */
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleInvitationExtended(
-            final ContactInvitationExtendedEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().handleInvitationExtended(event);
-        }
-    }
+            final ContactInvitationExtendedEvent event);
 }

@@ -6,20 +6,42 @@ package com.thinkparity.ophelia.model.workspace;
 import java.util.List;
 
 import com.thinkparity.codebase.event.EventListener;
+
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
-import com.thinkparity.ophelia.model.InternalModel;
 
 /**
+ * <b>Title:</b>thinkParity Internal Workspace Model<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.6
  */
-public class InternalWorkspaceModel extends WorkspaceModel implements InternalModel {
+public final class InternalWorkspaceModel extends WorkspaceModel {
 
-    /** Create InternalWorkspaceModel. */
-    InternalWorkspaceModel(final Context context, final Environment environment) {
+    /**
+     * Obtain an internal workspace model.
+     * 
+     * @param context
+     *            A thinkParity <code>Context</code>.
+     * @param environment
+     *            A thinkParity <code>Environment</code>.
+     * @return A <code>InternalWorkspaceModel</code>.
+     */
+    public static InternalWorkspaceModel getInstance(final Context context,
+            final Environment environment) {
+        return new InternalWorkspaceModel(environment);
+    }
+
+    /**
+     * Create InternalWorkspaceModel.
+     * 
+     * @param environment
+     *            A thinkParity <code>Environment</code>.
+     */
+    private InternalWorkspaceModel(final Environment environment) {
         super(environment);
     }
 
@@ -33,11 +55,10 @@ public class InternalWorkspaceModel extends WorkspaceModel implements InternalMo
      * @param listener
      *            A thinkParity event listener.
      */
-    public <T extends EventListener> boolean addListener(final Workspace workspace,
-            final AbstractModelImpl impl, final T listener) {
-        synchronized (getImplLock()) {
-            return getImpl().addListener(workspace, impl, listener);
-        }
+    public <T extends EventListener> boolean addListener(
+            final Workspace workspace, final AbstractModelImpl impl,
+            final T listener) {
+        return findImpl(workspace).addListener(impl, listener);
     }
 
     /**
@@ -47,11 +68,9 @@ public class InternalWorkspaceModel extends WorkspaceModel implements InternalMo
      *            A thinkParity event listener type.
      * @return A list of typed thinkParity event listeners.
      */
-    public <T extends EventListener> List<T> getListeners(final Workspace workspace,
-            final AbstractModelImpl<T> impl) {
-        synchronized (getImplLock()) {
-            return getImpl().getListeners(workspace, impl);
-        }
+    public <T extends EventListener> List<T> getListeners(
+            final Workspace workspace, final AbstractModelImpl<T> impl) {
+        return findImpl(workspace).getListeners(workspace, impl);
     }
 
     /**
@@ -62,10 +81,9 @@ public class InternalWorkspaceModel extends WorkspaceModel implements InternalMo
      * @param listener
      *            A thinkParity event listener.
      */
-    public <T extends EventListener> boolean removeListener(final Workspace workspace,
-            final AbstractModelImpl impl, final T listener) {
-        synchronized (getImplLock()) {
-            return getImpl().removeListener(workspace, impl, listener);
-        }
+    public <T extends EventListener> boolean removeListener(
+            final Workspace workspace, final AbstractModelImpl impl,
+            final T listener) {
+        return findImpl(workspace).removeListener(impl, listener);
     }
 }

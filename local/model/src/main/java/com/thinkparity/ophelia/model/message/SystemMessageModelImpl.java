@@ -17,10 +17,17 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 	/**
      * Create SystemMessageModelImpl.
      * 
-     * @param workspace
-     *            A thinkParity <code>Workspace</code>.
      */
-	SystemMessageModelImpl(final Environment environment, final Workspace workspace) {
-		super(environment, workspace);
+	public SystemMessageModelImpl() {
+		super();
 	}
+
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     *
+     */
+    @Override
+    protected void initializeModel(final Environment environment,
+            final Workspace workspace) {
+    }
 }

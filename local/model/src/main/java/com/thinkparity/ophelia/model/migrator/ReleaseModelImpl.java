@@ -22,16 +22,21 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-class ReleaseModelImpl extends AbstractModelImpl {
+public final class ReleaseModelImpl extends AbstractModelImpl implements
+        ReleaseModel, InternalReleaseModel {
 
     /** The release xmpp io interface. */
-    private final ReleaseIOHandler releaseIO;
+    private ReleaseIOHandler releaseIO;
 
-    /** Create ReleaseModelImpl. */
-    ReleaseModelImpl(final Environment environment, final Workspace workspace) {
-        super(environment, workspace);
-        this.releaseIO = IOFactory.getXMPP(workspace).createReleaseHandler();
+    /**
+     * Create ReleaseModelImpl.
+     *
+     */
+    public ReleaseModelImpl() {
+        super();
     }
+
+    
     /**
      * Create a release.
      * 
@@ -45,7 +50,7 @@ class ReleaseModelImpl extends AbstractModelImpl {
      *            A list of libraries.
      * @return A release.
      */
-    Release create(final String artifactId, final String groupId,
+    public Release create(final String artifactId, final String groupId,
             final String version, final List<Library> libraries) {
         logger.logApiId();
         logger.logVariable("variable", artifactId);
@@ -68,7 +73,7 @@ class ReleaseModelImpl extends AbstractModelImpl {
      *      A version.
      * @return A release.
      */
-    Release read(final String artifactId, final String groupId,
+    public Release read(final String artifactId, final String groupId,
             final String version) {
         return releaseIO.read(artifactId, groupId, version);
     }
@@ -78,7 +83,7 @@ class ReleaseModelImpl extends AbstractModelImpl {
      * 
      * @return A list of releases.
      */
-    List<Release> readAll() {
+    public List<Release> readAll() {
         return releaseIO.readAll();
     }
 
@@ -91,7 +96,7 @@ class ReleaseModelImpl extends AbstractModelImpl {
      *            A group id.
      * @return A release.
      */
-    Release readLatest(final String artifactId, final String groupId) {
+    public Release readLatest(final String artifactId, final String groupId) {
         return releaseIO.readLatest(artifactId, groupId);
     }
 
@@ -102,8 +107,18 @@ class ReleaseModelImpl extends AbstractModelImpl {
      *            A release id.
      * @return A list of libraries belonging to the release.
      */
-    List<Library> readLibraries(final Long releaseId) {
+    public List<Library> readLibraries(final Long releaseId) {
         return releaseIO.readLibraries(releaseId);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     *
+     */
+    @Override
+    protected void initializeModel(final Environment environment,
+            final Workspace workspace) {
+        this.releaseIO = IOFactory.getXMPP(workspace).createReleaseHandler();
     }
 
     /**

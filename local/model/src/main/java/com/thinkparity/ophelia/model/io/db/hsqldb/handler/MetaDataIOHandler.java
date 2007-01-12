@@ -12,7 +12,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
-import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.md.MetaData;
 import com.thinkparity.ophelia.model.io.md.MetaDataType;
 
@@ -62,11 +61,9 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 	/**
      * Create a MetaDataIOHandler.
      * 
-     * @param sessionManager
-     *            A hypersonic <code>SessionManager</code>.
      */
-	public MetaDataIOHandler(final SessionManager sessionManager) {
-        super(sessionManager);
+	public MetaDataIOHandler() {
+        super();
 	}
 
 	/**

@@ -14,10 +14,26 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.ophelia.model.audit.AuditEventType;
-import com.thinkparity.ophelia.model.audit.event.*;
+import com.thinkparity.ophelia.model.audit.event.AddTeamMemberConfirmEvent;
+import com.thinkparity.ophelia.model.audit.event.AddTeamMemberEvent;
+import com.thinkparity.ophelia.model.audit.event.ArchiveEvent;
+import com.thinkparity.ophelia.model.audit.event.AuditEvent;
+import com.thinkparity.ophelia.model.audit.event.CloseEvent;
+import com.thinkparity.ophelia.model.audit.event.CreateEvent;
+import com.thinkparity.ophelia.model.audit.event.CreateRemoteEvent;
+import com.thinkparity.ophelia.model.audit.event.KeyRequestDeniedEvent;
+import com.thinkparity.ophelia.model.audit.event.KeyResponseDeniedEvent;
+import com.thinkparity.ophelia.model.audit.event.PublishEvent;
+import com.thinkparity.ophelia.model.audit.event.ReactivateEvent;
+import com.thinkparity.ophelia.model.audit.event.ReceiveEvent;
+import com.thinkparity.ophelia.model.audit.event.ReceiveKeyEvent;
+import com.thinkparity.ophelia.model.audit.event.RenameEvent;
+import com.thinkparity.ophelia.model.audit.event.RequestKeyEvent;
+import com.thinkparity.ophelia.model.audit.event.SendConfirmEvent;
+import com.thinkparity.ophelia.model.audit.event.SendEvent;
+import com.thinkparity.ophelia.model.audit.event.SendKeyEvent;
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
-import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.md.MetaData;
 import com.thinkparity.ophelia.model.io.md.MetaDataType;
 
@@ -108,12 +124,10 @@ public class AuditIOHandler extends AbstractIOHandler implements
     /**
      * Create AuditIOHandler.
      * 
-     * @param sessionManager
-     *            A hypersonic <code>SessionManager</code>.
      */
-	public AuditIOHandler(SessionManager sessionManager) {
-        super(sessionManager);
-        this.userIO = new UserIOHandler(sessionManager);
+	public AuditIOHandler() {
+        super();
+        this.userIO = new UserIOHandler();
 	}
 
 	public void audit(final AddTeamMemberConfirmEvent event)
@@ -550,16 +564,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		auditEvent.setId(session.getIdentity());
 	}
 
-    private Long readLocalId(final JabberId userId) {
-        final Session session = openSession();
-        try {
-            return userIO.readLocalId(session, userId);
-        } finally {
-            session.close();
-        }
-    }
-
-	private void auditMetaData(final Session session,
+    private void auditMetaData(final Session session,
 			final AuditEvent auditEvent, final MetaDataType metaDataType,
 			final MetaDataKey metaDataKey, final Object metaDataValue) {
 		final Long metaDataId = getMetaDataIO().create(session, metaDataType,
@@ -658,7 +663,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
         return event;
     }
 
-    private ArchiveEvent extractArchive(final Session session) {
+	private ArchiveEvent extractArchive(final Session session) {
 		final ArchiveEvent event = new ArchiveEvent();
         event.setArtifactId(session.getLong("ARTIFACT_ID"));
         event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
@@ -703,7 +708,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		return event;
 	}
 
-	private KeyRequestDeniedEvent extractKeyRequestDenied(final Session session) {
+    private KeyRequestDeniedEvent extractKeyRequestDenied(final Session session) {
 		final KeyRequestDeniedEvent event = new KeyRequestDeniedEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
 		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
@@ -716,7 +721,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		return event;
 	}
 
-    private KeyResponseDeniedEvent extractKeyResponseDenied(final Session session) {
+	private KeyResponseDeniedEvent extractKeyResponseDenied(final Session session) {
 		final KeyResponseDeniedEvent event = new KeyResponseDeniedEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
 		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
@@ -729,7 +734,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		return event;
 	}
 
-	private AuditEvent extractPublish(final Session session) {
+    private AuditEvent extractPublish(final Session session) {
         final PublishEvent event = new PublishEvent();
         event.setArtifactId(session.getLong("ARTIFACT_ID"));
         event.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
@@ -759,7 +764,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
         return event;
     }
 
-    private ReceiveEvent extractReceive(final Session session) {
+	private ReceiveEvent extractReceive(final Session session) {
 		final ReceiveEvent event = new ReceiveEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
 		event.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
@@ -775,7 +780,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		return event;
 	}
 
-	private ReceiveKeyEvent extractReceiveKey(final Session session) {
+    private ReceiveKeyEvent extractReceiveKey(final Session session) {
 		final ReceiveKeyEvent event = new ReceiveKeyEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
 		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
@@ -804,7 +809,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
         return event;
     }
 
-    private RequestKeyEvent extractRequestKey(final Session session) {
+	private RequestKeyEvent extractRequestKey(final Session session) {
 		final RequestKeyEvent event = new RequestKeyEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
 		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
@@ -820,7 +825,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		return event;
 	}
 
-	private SendEvent extractSend(final Session session) {
+    private SendEvent extractSend(final Session session) {
 		final SendEvent event = new SendEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
 		event.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
@@ -855,7 +860,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
         return event;
     }
 
-    private SendKeyEvent extractSendKey(final Session session) {
+	private SendKeyEvent extractSendKey(final Session session) {
 		final SendKeyEvent event = new SendKeyEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
 		event.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
@@ -881,7 +886,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		return auditIds.toArray(new Long[] {});
 	}
 
-	private Long[] listMetaDataIds(final Session session, final Long[] auditIds)
+    private Long[] listMetaDataIds(final Session session, final Long[] auditIds)
 			throws HypersonicException {
 		session.prepareStatement(SQL_LIST_META_DATA_IDS);
 		final Set<Long> metaDataIds = new HashSet<Long>();
@@ -894,6 +899,15 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		}
 		return metaDataIds.toArray(new Long[] {});
 	}
+
+	private Long readLocalId(final JabberId userId) {
+        final Session session = openSession();
+        try {
+            return userIO.readLocalId(session, userId);
+        } finally {
+            session.close();
+        }
+    }
 
     /**
      * Read a local user id.

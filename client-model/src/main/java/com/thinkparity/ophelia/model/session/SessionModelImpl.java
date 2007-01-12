@@ -37,13 +37,13 @@ import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
- * The implementation of the parity session interface.
- *
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
- * @version 1.1.2.37
+ * @version 1.1.2.40
  */
-final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
-
+public final class SessionModelImpl extends AbstractModelImpl<SessionListener>
+        implements SessionModel, InternalSessionModel {
 
     /**
 	 * Create a SessionModelImpl
@@ -51,27 +51,11 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	 * @param workspace
 	 *            The parity workspace.
 	 */
-	SessionModelImpl(final Environment environment, final Workspace workspace) {
-		super(environment, workspace);
+	public SessionModelImpl() {
+		super();
 	}
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#addListener(com.thinkparity.ophelia.model.util.EventListener)
-     */
-    @Override
-    protected boolean addListener(final SessionListener listener) {
-        return super.addListener(listener);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#removeListener(com.thinkparity.ophelia.model.util.EventListener)
-     */
-    @Override
-    protected boolean removeListener(final SessionListener listener) {
-        return super.removeListener(listener);
-    }
-
-	/**
      * Accept the contact invitation.
      * 
      * @param userId
@@ -81,7 +65,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param acceptedOn
      *            When the user accepted <code>Calendar</code>.
      */
-    void acceptContactInvitation(final JabberId userId, final JabberId invitedBy,
+    public void acceptContactInvitation(final JabberId userId, final JabberId invitedBy,
             final Calendar acceptedOn) {
 	    try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
@@ -93,13 +77,21 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	    }
 	}
 
-	/**
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#addListener(com.thinkparity.ophelia.model.util.EventListener)
+     */
+    @Override
+    public void addListener(final SessionListener listener) {
+        super.addListener(listener);
+    }
+
+    /**
      * Add an email to a user's profile.
      * 
      * @param email
      *            A <code>ProfileEMail</code>.
      */
-    void addProfileEmail(final JabberId userId, final ProfileEMail email) {
+    public void addProfileEmail(final JabberId userId, final ProfileEMail email) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("email", email);
@@ -113,7 +105,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    /**
+	/**
      * Add a team member. This will create the team member relationship in the
      * distributed network with a pending state.
      * 
@@ -122,7 +114,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param jabberId
      *            A jabber id.
      */
-    void addTeamMember(final UUID uniqueId, final List<JabberId> team,
+    public void addTeamMember(final UUID uniqueId, final List<JabberId> team,
             final JabberId teamMemberId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -139,7 +131,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    /**
+	/**
      * Archive an artifact.
      * 
      * @param userId
@@ -147,7 +139,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
      */
-    void archiveArtifact(final JabberId userId, final UUID uniqueId) {
+    public void archiveArtifact(final JabberId userId, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
@@ -161,7 +153,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-	void confirmArtifactReceipt(final JabberId userId, final UUID uniqueId,
+    public void confirmArtifactReceipt(final JabberId userId, final UUID uniqueId,
             final Long versionId, final JabberId publishedBy,
             final Calendar publishedOn, final List<JabberId> publishedTo,
             final JabberId receivedBy, final Calendar receivedOn) {
@@ -186,7 +178,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
 	}
 
-    void createArchiveStream(final JabberId userId, final String streamId,
+    public void createArchiveStream(final JabberId userId, final String streamId,
             final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -208,7 +200,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param uniqueId
      *            An artifact unique id.
      */
-	void createArtifact(final JabberId userId, final UUID uniqueId,
+    public void createArtifact(final JabberId userId, final UUID uniqueId,
             final Calendar createdOn) {
 		logger.logApiId();
         logger.logVariable("userId", userId);
@@ -224,7 +216,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
 	}
 
-    void createBackupStream(final JabberId userId, final String streamId,
+    public void createBackupStream(final JabberId userId, final String streamId,
             final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -247,7 +239,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param uniqueId
      *            An artifact unique id.
      */
-    void createDraft(final List<JabberId> team, final UUID uniqueId) {
+    public void createDraft(final List<JabberId> team, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("team", team);
@@ -261,7 +253,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-	String createStream(final StreamSession session) {
+    public String createStream(final StreamSession session) {
         logger.logApiId();
         logger.logVariable("session", session);
         try {
@@ -274,12 +266,12 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-	/**
+    /**
      * Create a stream session.
      * 
      * @return A <code>StreamSession</code>.
      */
-    StreamSession createStreamSession() {
+    public StreamSession createStreamSession() {
         logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
@@ -298,7 +290,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	 *            The user's jabber id.
 	 * @throws ParityException
 	 */
-	void declineInvitation(final EMail invitedAs, final JabberId invitedBy) {
+    public void declineInvitation(final EMail invitedAs, final JabberId invitedBy) {
         logger.logApiId();
         logger.logVariable("invitedAs", invitedAs);
         logger.logVariable("invitedBy", invitedBy);
@@ -320,7 +312,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param contactId
      *            A contact id <code>JabberId</code>.
      */
-    void deleteContact(final JabberId userId, final JabberId contactId) {
+    public void deleteContact(final JabberId userId, final JabberId contactId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("contactId", contactId);
@@ -344,7 +336,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param deletedOn
      *            The deletion <code>Calendar</code>.
      */
-    void deleteContactInvitation(final JabberId userId, final EMail invitedAs,
+    public void deleteContactInvitation(final JabberId userId, final EMail invitedAs,
             final Calendar deletedOn) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -360,13 +352,13 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    /**
+	/**
      * Delete a draft for an artifact.
      * 
      * @param uniqueId
      *            An artifact unique id.
      */
-    void deleteDraft(final UUID uniqueId) {
+    public void deleteDraft(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         try {
@@ -388,7 +380,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param session
      *            A <code>StreamSession</code>.
      */
-    void deleteStreamSession(final StreamSession session) {
+    public void deleteStreamSession(final StreamSession session) {
         logger.logApiId();
         logger.logVariable("session", session);
         try {
@@ -407,7 +399,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	 * @param extendTo
 	 *            An <code>EMail</code> to invite.
 	 */
-	void extendInvitation(final EMail extendTo) {
+    public void extendInvitation(final EMail extendTo) {
         logger.logApiId();
         logger.logVariable("extendTo", extendTo);
 		try {
@@ -421,11 +413,11 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 		}
 	}
 
-    /**
+	/**
      * Handle the session established remote event.
      *
      */
-    void handleSessionEstablished() {
+    public void handleSessionEstablished() {
         logger.logApiId();
         try {
             notifyListeners(new EventNotifier<SessionListener>() {
@@ -442,7 +434,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * Handle the remote session terminated event.
      *
      */
-    void handleSessionTerminated() {
+    public void handleSessionTerminated() {
         logger.logApiId();
         try {
             notifyListeners(new EventNotifier<SessionListener>() {
@@ -462,7 +454,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            The cause of the termination.
      * 
      */
-    void handleSessionTerminated(final Exception cause) {
+    public void handleSessionTerminated(final Exception cause) {
         logger.logApiId();
         try {
             notifyListeners(new EventNotifier<SessionListener>() {
@@ -480,7 +472,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	 * 
 	 * @return True if the user is logged in, false otherwise.
 	 */
-	Boolean isLoggedIn() {
+    public Boolean isLoggedIn() {
         logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
@@ -499,7 +491,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A <code>LoginMonitor</code>.
      * @throws ParityException
      */
-    void login(final LoginMonitor monitor) {
+    public void login(final LoginMonitor monitor) {
         logger.logApiId();
         logger.logVariable("monitor", monitor);
         try {
@@ -518,7 +510,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            The user's credentials.
      * @throws ParityException
      */
-    void login(final LoginMonitor monitor, final Credentials credentials) {
+    public void login(final LoginMonitor monitor, final Credentials credentials) {
         logger.logApiId();
         logger.logVariable("monitor", monitor);
         logger.logVariable("credentials", credentials);
@@ -533,7 +525,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	 * Terminate the current session.
 	 * 
 	 */
-	void logout() {
+    public void logout() {
         logger.logApiId();
 		try {
             logger.logTraceId();
@@ -550,11 +542,11 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 		}
 	}
 
-	/**
+    /**
      * Process the remote event queue.
      * 
      */
-    void processQueue() {
+    public void processQueue() {
         logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
@@ -565,7 +557,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
             throw translateError(t);
         }
     }
-    
+
     /**
      * Publish a container.
      * 
@@ -580,7 +572,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param publishedOn
      *            When the container was published.
      */
-    void publish(final ContainerVersion container,
+    public void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
             final List<TeamMember> team, final List<JabberId> publishTo,
             final JabberId publishedBy, final Calendar publishedOn) {
@@ -601,8 +593,8 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
             throw translateError(t);
         }
     }
-    
-    Container readArchiveContainer(final JabberId userId, final UUID uniqueId) {
+
+	public Container readArchiveContainer(final JabberId userId, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
@@ -615,7 +607,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
             throw translateError(t);
         }
     }
-
+    
     /**
      * Read the archived containers.
      * 
@@ -623,7 +615,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A user id <code>JabberId</code>.
      * @return A list of conatiners.
      */
-    List<Container> readArchiveContainers(final JabberId userId) {
+    public List<Container> readArchiveContainers(final JabberId userId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         try {
@@ -635,7 +627,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
             throw translateError(t);
         }
     }
-
+    
     /**
      * Read the archived containers.
      * 
@@ -645,7 +637,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A container unique id <code>UUID</code>.
      * @return A <code>List&lt;ContainerVersion&gt;</code>.
      */
-    List<ContainerVersion> readArchiveContainerVersions(
+    public List<ContainerVersion> readArchiveContainerVersions(
             final JabberId userId, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -672,7 +664,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A container version id <code>Long</code>.
      * @return A <code>List&lt;Document&gt;</code>.
      */
-    List<Document> readArchiveDocuments(final JabberId userId,
+    public List<Document> readArchiveDocuments(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -689,7 +681,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    DocumentVersion readArchiveDocumentVersion(final JabberId userId,
+    public DocumentVersion readArchiveDocumentVersion(final JabberId userId,
             final UUID uniqueId, final UUID documentUniqueId,
             final Long documentVersionId) {
         logger.logApiId();
@@ -708,7 +700,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(final JabberId userId,
+    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(final JabberId userId,
             final UUID uniqueId, final Long compareVersionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -725,8 +717,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-
-    Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
+    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
             final JabberId userId, final UUID uniqueId,
             final Long compareVersionId, final Long compareToVersionId) {
         logger.logApiId();
@@ -758,7 +749,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A document unique id <code>UUID</code>.
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
-    List<DocumentVersion> readArchiveDocumentVersions(final JabberId userId,
+    public List<DocumentVersion> readArchiveDocumentVersions(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -775,7 +766,8 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    Map<User, ArtifactReceipt> readArchivePublishedTo(
+
+    public Map<User, ArtifactReceipt> readArchivePublishedTo(
             final JabberId userId, final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -792,7 +784,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    List<TeamMember> readArchiveTeam(final JabberId userId,
+    public List<TeamMember> readArchiveTeam(final JabberId userId,
             final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -816,7 +808,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            An artifact unique id <code>UUID</code>.
      * @return A list of jabber ids.
      */
-    List<JabberId> readArchiveTeamIds(final JabberId userId, final UUID uniqueId) {
+    public List<JabberId> readArchiveTeamIds(final JabberId userId, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
@@ -830,7 +822,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    Container readBackupContainer(final JabberId userId, final UUID uniqueId) {
+    public Container readBackupContainer(final JabberId userId, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
@@ -851,7 +843,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A user id <code>JabberId</code>.
      * @return A <code>List&lt;Container&gt;</code>.
      */
-    List<Container> readBackupContainers(final JabberId userId) {
+    public List<Container> readBackupContainers(final JabberId userId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         try {
@@ -873,7 +865,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A container unique id <code>UUID</code>.
      * @return A <code>List&lt;ContainerVersion&gt;</code>.
      */
-    List<ContainerVersion> readBackupContainerVersions(final JabberId userId,
+    public List<ContainerVersion> readBackupContainerVersions(final JabberId userId,
             final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -900,7 +892,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A container version id <code>Long</code>.
      * @return A <code>List&lt;Document&gt;</code>.
      */
-    List<Document> readBackupDocuments(final JabberId userId,
+    public List<Document> readBackupDocuments(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -930,7 +922,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A document unique id <code>UUID</code>.
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
-    List<DocumentVersion> readBackupDocumentVersions(final JabberId userId,
+    public List<DocumentVersion> readBackupDocumentVersions(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -947,7 +939,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    Map<User, ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
+    public Map<User, ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -973,7 +965,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            An artifact unique id <code>UUID</code>.
      * @return A list of jabber ids.
      */
-    List<JabberId> readBackupTeamIds(final JabberId userId, final UUID uniqueId) {
+    public List<JabberId> readBackupTeamIds(final JabberId userId, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
@@ -992,7 +984,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * 
      * @return The user's contact info.
      */
-    Contact readContact() {
+    public Contact readContact() {
         logger.logApiId();
         throw Assert.createNotYetImplemented("SessionModelImpl#readContact()");
     }
@@ -1004,7 +996,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A contact id.
      * @return A contact.
      */
-	Contact readContact(final JabberId userId, final JabberId contactId) {
+    public Contact readContact(final JabberId userId, final JabberId contactId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("contactId", contactId);
@@ -1018,13 +1010,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-	/**
-     * Read the logged in user's contacts.
-     * 
-     * @return A set of contacts.
-     * @throws ParityException
-     */
-	List<Contact> readContacts(final JabberId userId) {
+    public List<Contact> readContactList(final JabberId userId) {
 		try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
 		    synchronized(xmppSession) {
@@ -1035,6 +1021,23 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 		}
 	}
 
+    /**
+     * Return the remote date and time.
+     * 
+     * @return A <code>Calendar</code>.
+     */
+    public Calendar readDateTime() {
+        logger.logApiId();
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readDateTime(localUserId());
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
 	/**
      * Read the artifact key holder from the server.
      * 
@@ -1043,7 +1046,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @return The artifact key holder.
      * @throws ParityException
      */
-    JabberId readKeyHolder(final JabberId userId, final UUID uniqueId) {
+    public JabberId readKeyHolder(final JabberId userId, final UUID uniqueId) {
 		logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
@@ -1062,7 +1065,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * 
      * @return A profile.
      */
-    Profile readProfile() {
+    public Profile readProfile() {
         logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
@@ -1074,7 +1077,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    List<EMail> readProfileEMails() {
+	public List<EMail> readProfileEMails() {
         logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
@@ -1093,7 +1096,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A user id <code>JabberId</code>.
      * @return A security question <code>String</code>.
      */
-    String readProfileSecurityQuestion(final JabberId userId) {
+    public String readProfileSecurityQuestion(final JabberId userId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         try {
@@ -1106,7 +1109,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    Integer readQueueSize() {
+    public Integer readQueueSize() {
         logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
@@ -1125,7 +1128,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A user id <code>JabberId</code>.
      * @return A <code>User</code>.
      */
-	User readUser(final JabberId userId) {
+    public User readUser(final JabberId userId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         try {
@@ -1139,20 +1142,11 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	}
 
     /**
-     * Return the remote date and time.
-     * 
-     * @return A <code>Calendar</code>.
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#removeListener(com.thinkparity.ophelia.model.util.EventListener)
      */
-    Calendar readDateTime() {
-        logger.logApiId();
-        try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                return xmppSession.readDateTime(localUserId());
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
+    @Override
+    public void removeListener(final SessionListener listener) {
+        super.removeListener(listener);
     }
 
     /**
@@ -1163,7 +1157,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param email
      *            A <code>ProfileEMail</code>.
      */
-    void removeProfileEmail(final JabberId userId, final ProfileEMail email) {
+    public void removeProfileEmail(final JabberId userId, final ProfileEMail email) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("email", email);
@@ -1185,7 +1179,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param userId
      *            A user id <code>JabberId</code>.
      */
-    void removeTeamMember(final UUID uniqueId, final List<JabberId> team,
+    public void removeTeamMember(final UUID uniqueId, final List<JabberId> team,
             final JabberId teamMemberId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -1211,7 +1205,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A security question answer <code>String</code>.
      * @return A new password.
      */
-    String resetProfilePassword(final JabberId userId,
+    public String resetProfilePassword(final JabberId userId,
             final String securityAnswer) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -1234,7 +1228,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
      */
-    void restoreArtifact(final JabberId userId, final UUID uniqueId) {
+    public void restoreArtifact(final JabberId userId, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
@@ -1254,7 +1248,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	 * 
 	 * @throws ParityException
 	 */
-	void sendLogFileArchive() throws ParityException {
+    public void sendLogFileArchive() throws ParityException {
 	    throw Assert
                 .createNotYetImplemented("SessionModelImpl#sendLogFileArchive");
 	}
@@ -1265,7 +1259,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param contact
      *            The user's contact info.
      */
-    void updateContact(final Contact contact) {
+    public void updateContact(final Contact contact) {
         throw Assert.createNotYetImplemented("SessionModelImpl#updateContact(Contact)");
     }
 
@@ -1277,7 +1271,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param profile
      *            The user's <code>Profile</code>.
      */
-    void updateProfile(final JabberId userId, final Profile profile) {
+    public void updateProfile(final JabberId userId, final Profile profile) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("profile", profile);
@@ -1299,7 +1293,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param credentials
      *            A user's <code>Credentials</code>.
      */
-    void updateProfileCredentials(final JabberId userId,
+    public void updateProfileCredentials(final JabberId userId,
             final Credentials credentials) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -1324,7 +1318,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param key
      *            A verification key <code>String</code>.
      */
-    void verifyProfileEmail(final JabberId userId,
+    public void verifyProfileEmail(final JabberId userId,
             final ProfileEMail email, final String key) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -1338,6 +1332,15 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     *
+     */
+    @Override
+    protected void initializeModel(final Environment environment,
+            final Workspace workspace) {
     }
 
     /**
@@ -1374,7 +1377,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                     credentials.setResource(localCredentials.getResource());
                 }
                 // register with xmpp event listeners
-                new SessionModelEventDispatcher(workspace, internalModelFactory, xmppSession);
+                new SessionModelEventDispatcher(workspace, modelFactory, xmppSession);
 
                 // login
                 xmppSession.login(environment, credentials);

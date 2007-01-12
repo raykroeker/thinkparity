@@ -7,9 +7,12 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.TimeZone;
 
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 
+import com.thinkparity.ophelia.model.session.LoginMonitor;
 import com.thinkparity.ophelia.model.workspace.Preferences;
+import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
@@ -26,6 +29,28 @@ import org.apache.log4j.Logger;
  * @version 1.1
  */
 public interface Platform extends ApplicationListener {
+
+    /**
+     * Initialize a workspace.
+     * 
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>.
+     * @param loginMonitor
+     *            A <code>LoginMonitor</code>.
+     * @param credentials
+     *            A user's <code>Credentials</code>.
+     */
+    public void initializeWorkspace(final Workspace workspace,
+            final LoginMonitor loginMonitor, final Credentials credentials);
+
+    /**
+     * Determine if a workspace has been initialized.
+     * 
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>
+     * @return True if the workspace has already been initialized.
+     */
+    public Boolean isWorkspaceInitialized(final Workspace workspace);
 
     /**
      * Add a platform life cycle listener.

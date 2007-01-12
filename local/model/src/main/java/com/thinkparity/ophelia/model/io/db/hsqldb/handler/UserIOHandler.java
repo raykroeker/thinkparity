@@ -4,11 +4,11 @@
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
-import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 
 
 /**
@@ -63,11 +63,9 @@ public class UserIOHandler extends AbstractIOHandler implements
     /**
      * Create a UserIOHandler.
      * 
-     * @param sessionManager
-     *            A hypersonic <code>SessionManager</code>.
      */
-    public UserIOHandler(final SessionManager sessionManager) {
-        super(sessionManager);
+    public UserIOHandler() {
+        super();
     }
 
     /**

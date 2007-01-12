@@ -5,61 +5,18 @@ package com.thinkparity.ophelia.model.script;
 
 import java.util.List;
 
-import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.ophelia.model.AbstractModel;
-import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 /**
  * <b>Title:</b>thinkParity Script Model<br>
  * <b>Description:</b><br>
- *
+ * 
  * @author CreateModel.groovy
  * @version 1.1.2.1
  */
-public class ScriptModel extends AbstractModel<ScriptModelImpl> {
-
-	/**
-	 * Create a thinkParity Script interface.
-	 * 
-	 * @param context
-     *      A thinkParity model <code>Context</code>.
-     * @param environment
-     *      A thinkParity <code>Environment</code>.
-     * @param workspace
-     *      A thinkParity <code>Workspace</code>.
-	 * @return A thinkParity Script interface.
-	 */
-	public static InternalScriptModel getInternalModel(final Context context,
-            final Environment environment, final Workspace workspace) {
-		return new InternalScriptModel(context, environment, workspace);
-	}
-
-	/**
-	 * Create a thinkParity Script interface.
-	 * 
-     * @param environment
-     *      A thinkParity <code>Environment</code>.
-     * @param workspace
-     *      A thinkParity <code>Workspace</code>.
-	 * @return A thinkParity Script interface.
-	 */
-	public static ScriptModel getModel(final Environment environment,
-        final Workspace workspace) {
-		return new ScriptModel(environment, workspace);
-	}
-
-	/**
-	 * Create ScriptModel.
-	 *
-     * @param environment
-     *      A thinkParity <code>Environment</code>.
-	 * @param workspace
-	 *		The thinkParity <code>Workspace</code>.
-	 */
-	protected ScriptModel(final Environment environment, final Workspace workspace) {
-		super(new ScriptModelImpl(environment, workspace));
-	}
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface ScriptModel {
 
     /**
      * Execute a scripting scenario.
@@ -67,9 +24,5 @@ public class ScriptModel extends AbstractModel<ScriptModelImpl> {
      * @param scripts
      *            A list of thinkParity <code>Script</code>s.
      */
-    public void execute(final List<Script> scripts) {
-        synchronized (getImplLock()) {
-            getImpl().execute(scripts);
-        }
-    }
+    public void execute(final List<Script> scripts);
 }

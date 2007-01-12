@@ -32,5 +32,7 @@ public class Quit extends AbstractAction {
      * @see com.thinkparity.ophelia.browser.platform.action.AbstractAction#invoke(com.thinkparity.ophelia.browser.platform.action.Data)
      * 
      */
-    public void invoke(final Data data) { platform.end(); }
+    public void invoke(final Data data) {
+        platform.end();
+    }
 }

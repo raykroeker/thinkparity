@@ -7,7 +7,6 @@ import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
-import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 
 
 /**
@@ -39,11 +38,9 @@ class EmailIOHandler extends AbstractIOHandler {
     /**
      * Create EmailIOHandler.
      * 
-     * @param sessionManager
-     *            A hypersonic <code>SessionManager</code>.
      */
-    EmailIOHandler(final SessionManager sessionManager) {
-        super(sessionManager);
+    EmailIOHandler() {
+        super();
     }
 
     /**

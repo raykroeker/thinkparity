@@ -7,7 +7,6 @@ import com.thinkparity.codebase.model.session.Credentials;
 
 import com.thinkparity.ophelia.model.session.LoginMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 import com.thinkparity.ophelia.browser.platform.Platform;
 
@@ -25,15 +24,21 @@ public final class FirstRunHelper {
     /** The thinkParity <code>Workspace</code>. */
     private final Workspace workspace;
 
-    /** The thinkParity workspace model. */
-    private final WorkspaceModel workspaceModel;
+    /** The thinkParity <code>Platform</code>. */
+    private final Platform platform;
 
-    /** Create FirstRunHelper. */
+    /**
+     * Create FirstRunHelper.
+     * 
+     * @param platform
+     *            A thinkParity <code>Platform</code>.
+     */
     public FirstRunHelper(final Platform platform) {
         super();
+        this.platform = platform;
+
         this.logger = platform.getLogger(getClass());
         this.workspace = platform.getModelFactory().getWorkspace(getClass());
-        this.workspaceModel = platform.getModelFactory().getWorkspaceModel(getClass());
     }
 
     /**
@@ -52,7 +57,7 @@ public final class FirstRunHelper {
             credentials.setPassword(password);
             credentials.setUsername(username);
 
-            workspaceModel.initialize(workspace, new LoginMonitor() {
+            platform.initializeWorkspace(workspace, new LoginMonitor() {
                 public Boolean confirmSynchronize() {
                     final ConfirmSynchronizeWindow confirmWindow = new ConfirmSynchronizeWindow();
                     confirmWindow.setVisibleAndWait();
@@ -62,14 +67,5 @@ public final class FirstRunHelper {
                 }
             }, credentials);
         }
-    }
-
-    /**
-     * Determine if this is the first time the platform has been run.
-     * 
-     * @return True if this is the first time the platform has been run.
-     */
-    public Boolean isFirstRun() {
-        return !workspaceModel.isInitialized(workspace);
     }
 }

@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
-import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.md.MetaData;
 import com.thinkparity.ophelia.model.io.md.MetaDataType;
 
@@ -46,12 +45,10 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
     /**
      * Create ConfigurationIOHandler.
      * 
-     * @param sessionManager
-     *            A hypersonic <code>SessionManager</code>.
      */
-    public ConfigurationIOHandler(SessionManager sessionManager) {
-        super(sessionManager);
-        this.metaDataIO = new MetaDataIOHandler(sessionManager);
+    public ConfigurationIOHandler() {
+        super();
+        this.metaDataIO = new MetaDataIOHandler();
     }
 
     /**

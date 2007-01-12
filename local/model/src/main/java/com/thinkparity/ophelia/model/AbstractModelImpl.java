@@ -31,6 +31,7 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -49,38 +50,19 @@ import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.Constants.Versioning;
-import com.thinkparity.ophelia.model.archive.ArchiveModel;
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
-import com.thinkparity.ophelia.model.audit.AuditModel;
 import com.thinkparity.ophelia.model.audit.InternalAuditModel;
-import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
-import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
-import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
-import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
-import com.thinkparity.ophelia.model.download.DownloadModel;
-import com.thinkparity.ophelia.model.download.InternalDownloadModel;
-import com.thinkparity.ophelia.model.index.IndexModel;
 import com.thinkparity.ophelia.model.index.InternalIndexModel;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ConfigurationIOHandler;
-import com.thinkparity.ophelia.model.message.InternalSystemMessageModel;
-import com.thinkparity.ophelia.model.message.SystemMessageModel;
-import com.thinkparity.ophelia.model.migrator.InternalLibraryModel;
-import com.thinkparity.ophelia.model.migrator.InternalReleaseModel;
-import com.thinkparity.ophelia.model.migrator.LibraryModel;
-import com.thinkparity.ophelia.model.migrator.ReleaseModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
-import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
-import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
-import com.thinkparity.ophelia.model.user.UserModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.util.Base64;
 import com.thinkparity.ophelia.model.util.MD5Util;
@@ -89,12 +71,14 @@ import com.thinkparity.ophelia.model.util.localization.LocalizationContext;
 import com.thinkparity.ophelia.model.workspace.InternalWorkspaceModel;
 import com.thinkparity.ophelia.model.workspace.Preferences;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
- * AbstractModelImpl
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Abstract Model<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.39
+ * @param <T>
  */
 public abstract class AbstractModelImpl<T extends EventListener>
     extends com.thinkparity.codebase.model.AbstractModelImpl {
@@ -127,10 +111,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
     protected ConfigurationIOHandler configurationIO;
 
 	/** A thinkParity <code>Environment</code>. */
-    protected final Environment environment;
-
-	/** An internal model factory. */
-    protected final InternalModelFactory internalModelFactory;
+    protected Environment environment;
 
     /** A localization interface. */
 	protected final L18n l18n;
@@ -138,42 +119,35 @@ public abstract class AbstractModelImpl<T extends EventListener>
 	/** An apache logger. */
 	protected final Log4JWrapper logger;
 
-	/** The thinkParity workspace <code>Preferences</code>. */
-	protected final Preferences preferences;
+	/** A thinkParity <code>InternalModelFactory</code>. */
+    protected InternalModelFactory modelFactory;
+
+    /** The thinkParity workspace <code>Preferences</code>. */
+	protected Preferences preferences;
 
     /** A thinkParity <code>Workspace</code>. */
-	protected final Workspace workspace;
+	protected Workspace workspace;
 
     /** The decryption cipher. */
     private transient Cipher decryptionCipher;
 
-    /** The encryption cipher. */
+	/** The encryption cipher. */
     private transient Cipher encryptionCipher;
 
-	/** A quick-lookup for the local user id. */
+    /** A quick-lookup for the local user id. */
     private JabberId localUserId;
 
     /** The secret key spec. */
     private transient SecretKeySpec secretKeySpec;
 
-	/**
+    /**
      * Create an AbstractModelImpl
      * 
-     * @param environment
-     *            A thinkParity <code>Environment</code>.
-     * @param workspace
-     *            A thinkParity <code>Workspace</code>.
      */
-	protected AbstractModelImpl(final Environment environment,
-            final Workspace workspace) {
+	protected AbstractModelImpl() {
 		super();
-        this.environment = environment;
-        this.internalModelFactory = new InternalModelFactory(getContext(),
-                environment, workspace);
-		this.l18n = new Localization(LocalizationContext.MODEL);
+        this.l18n = new Localization(LocalizationContext.MODEL);
         this.logger = new Log4JWrapper(getClass());
-		this.workspace = workspace;
-		this.preferences = (null == workspace ? null : workspace.getPreferences());
 	}
 
     /**
@@ -184,8 +158,10 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return Whether or not the listener list was modified as a result of
      *         calling add.
      */
-    protected boolean addListener(final T listener) {
-        return getWorkspaceModel().addListener(workspace, this, listener);
+    protected void addListener(final T listener) {
+        final Context context = new Context();
+        InternalWorkspaceModel.getInstance(context, environment).addListener(
+                workspace, this, listener);
     }
 
     /**
@@ -215,7 +191,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
                 "Draft for container {0} already exists.", containerId);
     }
 
-    /**
+	/**
      * Assert a draft exists for the container.
      * 
      * @param assertion
@@ -227,7 +203,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertNotNull(assertion, getContainerModel().readDraft(containerId));
     }
 
-	/**
+    /**
      * Assert that a latest version exists.
      * 
      * @param assertion
@@ -257,7 +233,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, doesExistVersion(artifactId, versionId));
     }
 
-    /**
+	/**
      * Assert that the list of team members does not contain the user.
      * 
      * 
@@ -273,7 +249,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertNotTrue(assertion, contains(teamMembers, user));
     }
 
-	/**
+    /**
      * Assert that the artifact is closed.
      * 
      * @param assertion
@@ -301,7 +277,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, isKeyHolder(artifactId));
     }
 
-    /**
+	/**
      * Assert that the logged in user is not the key holder.
      * 
      * @param assertion
@@ -315,7 +291,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		Assert.assertNotTrue(assertion, isKeyHolder(artifactId));
 	}
 
-	/**
+    /**
      * Assert the user id does not match the local user id.
      * 
      * @param userId
@@ -359,7 +335,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertNotNull(assertion, reference);
     }
 
-    /**
+	/**
      * Assert that the user is not a team member.
      * 
      * @param assertion
@@ -371,7 +347,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected void assertNotTeamMember(final Object assertion, final Long artifactId, final JabberId userId) {
         final List<TeamMember> team = getArtifactModel().readTeam2(artifactId);
-        final User user = getInternalUserModel().read(userId);
+        final User user = getUserModel().read(userId);
         if (null != user)
             Assert.assertNotTrue(assertion, contains(team, user));
     }
@@ -384,7 +360,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         assertOnline("USER NOT ONLINE");
     }
 
-	/**
+    /**
      * Assert the user is online.
      *
      * @param assertion
@@ -398,7 +374,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         assertOnline(api.toString());
     }
 
-    /**
+	/**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.
 	 * 
@@ -428,7 +404,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		}
 	}
 
-	/**
+    /**
      * Assert that the user is a team member.
      * 
      * @param assertion
@@ -440,7 +416,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected void assertTeamMember(final Object assertion, final Long artifactId, final JabberId userId) {
         final List<TeamMember> team = getArtifactModel().readTeam2(artifactId);
-        Assert.assertNotTrue(assertion, contains(team, getInternalUserModel().read(userId)));
+        Assert.assertNotTrue(assertion, contains(team, getUserModel().read(userId)));
     }
 
     /**
@@ -691,122 +667,85 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return team.get(indexOf(team, user));
     }
 
-    protected InternalArchiveModel getArchiveModel() {
-        return ArchiveModel.getInternalModel(getContext(), environment, workspace);
+    /**
+     * Obtain an internal archive model.
+     * 
+     * @return An instance of <code>InternalArchiveModel</code>.
+     */
+    protected final InternalArchiveModel getArchiveModel() {
+        return modelFactory.getArchiveModel();
     }
 
     /**
-     * Obtain the internal thinkParity artifact model.
+     * Obtain an internal artifact model.
      * 
      * @return An <code>InternalArtifactModel</code>.
      */
-    protected InternalArtifactModel getArtifactModel() {
-        return ArtifactModel.getInternalModel(getContext(), environment, workspace);
-    }
-    protected InternalBackupModel getBackupModel() {
-        return BackupModel.getInternalModel(getContext(), environment, workspace);
+    protected final InternalArtifactModel getArtifactModel() {
+        return modelFactory.getArtifactModel();
     }
 
     /**
-     * Obtain the internal thinkParity container interface.
+     * Obtain an internal audit model.
      * 
-     * @return The internal thinkParity container interface.
+     * @return An instance of <code>InternalAuditModel</code>.
      */
-    protected InternalContainerModel getContainerModel() {
-        return ContainerModel.getInternalModel(getContext(), environment, workspace);
-    }
-
-    protected InternalIndexModel getIndexModel() {
-        return IndexModel.getInternalModel(getContext(), environment, workspace);
-    }
-
-    /**
-     * Obtain the internal parity audit interface.
-     * 
-     * @return The internal parity audit interface.
-     */
-    protected InternalAuditModel getInternalAuditModel() {
-		return AuditModel.getInternalModel(getContext(), environment, workspace);
+    protected final InternalAuditModel getAuditModel() {
+		return modelFactory.getAuditModel();
 	}
 
     /**
-     * Obtain the internal thinkParity contact interface.
+     * Obtain an internal backup model.
      * 
-     * @return The internal thinkParity contact interface.
+     * @return An instance of <code>InternalBackupModel</code>.
      */
-    protected InternalContactModel getInternalContactModel() {
-        return ContactModel.getInternalModel(getContext(), environment, workspace);
+    protected final InternalBackupModel getBackupModel() {
+        return modelFactory.getBackupModel();
     }
 
     /**
-     * Obtain the internal parity document interface.
+     * Obtain an internal contact model.
      * 
-     * @return The internal parity document interface.
+     * @return An instance of <code>InternalContactModel</code>.
      */
-	protected InternalDocumentModel getInternalDocumentModel() {
-		return DocumentModel.getInternalModel(getContext(), environment, workspace);
+    protected final InternalContactModel getContactModel() {
+        return modelFactory.getContactModel();
+    }
+
+    /**
+     * Obtain an internal container model.
+     * 
+     * @return An instance of <code>InternalContainerModel</code>.
+     */
+    protected final InternalContainerModel getContainerModel() {
+        return modelFactory.getContainerModel();
+    }
+
+    /**
+     * Obtain an internal document model.
+     * 
+     * @return An instance of <code>InternalDocumentModel</code>.
+     */
+	protected final InternalDocumentModel getDocumentModel() {
+		return modelFactory.getDocumentModel();
 	}
 
-	/**
-     * Obtain the internal parity download interface.
-     *
-     * @return The internal parity download interface.
-     */
-    protected InternalDownloadModel getInternalDownloadModel() {
-        return DownloadModel.getInternalModel(getContext(), environment, workspace);
-    }
-
     /**
-     * Obtain the internal parity library interface.
-     *
-     * @return The internal parity library interface.
+     * Obtain an internal index model.
+     * 
+     * @return An instance of <code>InternalIndexModel</code>.
      */
-    protected InternalLibraryModel getInternalLibraryModel() {
-        return LibraryModel.getInternalModel(getContext(), environment, workspace);
+    protected final InternalIndexModel getIndexModel() {
+        return modelFactory.getIndexModel();
     }
 
 	/**
-     * Obtain the thinkParity internal message interface.
-     * 
-     * @return The thinkParity internal message interface.
-     */
-    protected InternalSystemMessageModel getInternalMessageModel() {
-        return getInternalSystemMessageModel();
-    };
-
-	/**
-     * Obtain the internal parity release interface.
-     *
-     * @return The internal parity release interface.
-     */
-    protected InternalReleaseModel getInternalReleaseModel() {
-        return ReleaseModel.getInternalModel(getContext(), environment, workspace);
-    }
-
-	/**
-     * Obtain the internal parity system message interface.
-     * 
-     * @return The internal parity system message interface.
-     */
-	protected InternalSystemMessageModel getInternalSystemMessageModel() {
-		return SystemMessageModel.getInternalModel(getContext(), environment, workspace);
-	}
-
-	/**
-     * Obtain the internal parity user interface.
-     * 
-     * @return The internal parity user interface.
-     */
-    protected InternalUserModel getInternalUserModel() {
-        return UserModel.getInternalModel(getContext(), environment, workspace);
-    }
-
-    /**
 	 * Obtain the model's localization.
 	 * 
 	 * @return The model's localization.
 	 */
 	protected L18n getL18n() { return l18n; }
+
     protected StringBuffer getLogId(final Library library) {
         if(null == library) { return new StringBuffer("null"); }
         else {
@@ -834,21 +773,21 @@ public abstract class AbstractModelImpl<T extends EventListener>
     }
 
     /**
-     * Obtain the thinkParity internal profile interface.
+     * Obtain an internal profile model.
      * 
-     * @return A thinkParity internal profile interface.
+     * @return An instance of <code>InternalProfileModel</code>.
      */
-    protected InternalProfileModel getProfileModel() {
-        return ProfileModel.getInternalModel(getContext(), environment, workspace);
+    protected final InternalProfileModel getProfileModel() {
+        return modelFactory.getProfileModel();
     }
 
     /**
-     * Obtain the internal parity session interface.
+     * Obtain an internal session model.
      * 
-     * @return The internal parity session interface.
+     * @return An instance of <code>InternalSessionModel</code>.
      */
-	protected InternalSessionModel getSessionModel() {
-		return SessionModel.getInternalModel(getContext(), environment, workspace);
+	protected final InternalSessionModel getSessionModel() {
+		return modelFactory.getSessionModel();
 	}
 
     /**
@@ -867,8 +806,13 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return l18n.getString(localKey, arguments);
 	}
 
-    protected InternalUserModel getUserModel() {
-        return getInternalUserModel();
+    /**
+     * Obtain an internal user model.
+     * 
+     * @return An instance of <code>InternalUserModel</code>.
+     */
+    protected final InternalUserModel getUserModel() {
+        return modelFactory.getUserModel();
     }
 
     /**
@@ -885,6 +829,34 @@ public abstract class AbstractModelImpl<T extends EventListener>
             final JabberId userId) {
         return USER_UTILS.indexOf(users, userId);
     }
+
+    /**
+     * Initialize the model.
+     * 
+     * @param environment
+     *            A thinkParity <code>Environment</code>.
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>.
+     */
+    protected final void initialize(final Environment environment,
+            final Workspace workspace) {
+        this.environment = environment;
+        this.modelFactory = InternalModelFactory.getInstance(
+                getContext(), environment, workspace);
+        this.workspace = workspace;
+        this.preferences = (null == workspace ? null : workspace.getPreferences());
+    }
+
+    /**
+     * Intialize the model.
+     * 
+     * @param environment
+     *            A thinkParity <code>Environment</code>.
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>.
+     */
+    protected abstract void initializeModel(final Environment environment,
+            final Workspace workspace);
 
     /**
      * Determine whether or not the artifact is closed.
@@ -957,8 +929,11 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected User localUser() {
         final JabberId currentUserId = localUserId();
-        if(null == currentUserId) { return null; }
-        else { return getInternalUserModel().read(currentUserId); }
+        if (null == currentUserId) {
+            return null;
+        } else {
+            return getUserModel().read(currentUserId);
+        }
     }
 
     /**
@@ -990,7 +965,9 @@ public abstract class AbstractModelImpl<T extends EventListener>
      *            A thinkParity <code>EventNotifier</code>.
      */
     protected void notifyListeners(final EventNotifier<T> notifier) {
-        final List<T> listeners = getWorkspaceModel().getListeners(workspace, this);
+        final Context context = new Context();
+        final List<T> listeners = InternalWorkspaceModel.getInstance(context,
+                environment).getListeners(workspace, this);
         for (final T listener : listeners) {
             try {
                 notifier.notifyListener(listener);
@@ -998,6 +975,19 @@ public abstract class AbstractModelImpl<T extends EventListener>
                 logger.logWarning(t, "Event listener {0} failed.", listener);
             }
         }
+    }
+
+    /**
+     * Panic. Nothing can be done about the error that has been generated. An
+     * appropriate error is constructed suitable for throwing beyond the model
+     * interface.
+     * 
+     * @param t
+     *            A <code>Throwable</code>.
+     * @return A <code>RuntimeException</code>.
+     */
+    protected RuntimeException panic(final Throwable t) {
+        return translateError(t);
     }
 
     /**
@@ -1077,8 +1067,10 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return Whether or not the listener list was modified as a result of
      *         calling remove.
      */
-    protected boolean removeListener(final T listener) {
-        return getWorkspaceModel().removeListener(workspace, this, listener);
+    protected void removeListener(final T listener) {
+        final Context context = new Context();
+        InternalWorkspaceModel.getInstance(context, environment).removeListener(
+                workspace, this, listener);
     }
 
     /**
@@ -1363,15 +1355,6 @@ public abstract class AbstractModelImpl<T extends EventListener>
             secretKeySpec = new SecretKeySpec(rawKey, "AES");
         }
         return secretKeySpec;
-    }
-
-    /**
-     * Obtain an internal thinkParity workspace interface.
-     * 
-     * @return An <code>InternalWorkspaceModel</code>.
-     */
-    private InternalWorkspaceModel getWorkspaceModel() {
-        return WorkspaceModel.getInternalModel(getContext(), environment);
     }
 
     /**

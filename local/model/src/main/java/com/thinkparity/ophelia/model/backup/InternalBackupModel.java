@@ -12,7 +12,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
@@ -20,65 +20,45 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.InternalModel;
-import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 /**
- * <b>Title:</b>thinkParity Backup Internal Model<br>
+ * <b>Title:</b>thinkParity Internal Backup Model<br>
  * <b>Description:</b><br>
- *
- * @author CreateModel.groovy
- * @version 1.1.2.1
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.6
  */
-public class InternalBackupModel extends BackupModel implements InternalModel {
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface InternalBackupModel extends BackupModel {
 
     /**
-     * Create InternalBackupModel
-     *
-     * @param context
-     *		A thinkParity model <code>Context</code>.
-     * @param environment
-     *      A thinkParity <code>Environment</code>.
-     * @param workspace
-     *		A thinkParity <code>Workspace</code>.
-     */
-    InternalBackupModel(final Context context,
-            final Environment environment, final Workspace workspace) {
-        super(environment, workspace);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.archive.ArchiveReader#openDocumentVersion(java.util.UUID, java.lang.Long)
+     * Open a document version input stream.
+     * 
+     * @param uniqueId
+     *            A document unique id <code>UUID</code>.
+     * @param versionId
+     *            A document version id <code>Long</code>.
+     * @return An <code>InputStream</code>.
      */
     public InputStream openDocumentVersion(final UUID uniqueId,
-            final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().openDocumentVersion(uniqueId, versionId);
-        }
-    }
+            final Long versionId);
 
     /**
-     * @see com.thinkparity.ophelia.model.archive.ArchiveReader#readContainer(java.util.UUID)
+     * Read a container.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>Container</code>.
      */
-    public Container readContainer(final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainer(uniqueId);
-        }
-    }
+    public Container readContainer(final UUID uniqueId);
 
     /**
      * Read the containers from the backup.
      * 
-     * @return A <code>List&lt;Container&gt;</code>.
+     * @return A <code>List</code> of <code>Container</code>s.
      */
-    public List<Container> readContainers() {
-        synchronized (getImplLock()) {
-            return getImpl().readContainers();
-        }
-    }
+    public List<Container> readContainers();
 
     /**
      * Read the containers from the backup.
@@ -87,11 +67,7 @@ public class InternalBackupModel extends BackupModel implements InternalModel {
      *            A <code>Comparator&lt;Artifact&gt;</code>.
      * @return A <code>List&lt;Container&gt;</code>.
      */
-    public List<Container> readContainers(final Comparator<Artifact> comparator) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainers(comparator);
-        }
-    }
+    public List<Container> readContainers(final Comparator<Artifact> comparator);
 
     /**
      * Read the containers from the backup.
@@ -102,11 +78,9 @@ public class InternalBackupModel extends BackupModel implements InternalModel {
      *            A <code>Filter&lt;? super Artifact&gt;</code>.
      * @return A <code>List&lt;Container&gt;</code>.
      */
-    public List<Container> readContainers(final Comparator<Artifact> comparator, final Filter<? super Artifact> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainers(comparator, filter);
-        }
-    }
+    public List<Container> readContainers(
+            final Comparator<Artifact> comparator,
+            final Filter<? super Artifact> filter);
 
     /**
      * Read the containers from the backup.
@@ -115,116 +89,46 @@ public class InternalBackupModel extends BackupModel implements InternalModel {
      *            A <code>Filter&lt;Artifact&gt;</code>.
      * @return A <code>List&lt;Container&gt;</code>.
      */
-    public List<Container> readContainers(final Filter<? super Artifact> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainers(filter);
-        }
-    }
+    public List<Container> readContainers(final Filter<? super Artifact> filter);
 
-    public List<ContainerVersion> readContainerVersions(final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainerVersions(uniqueId);
-        }
-    }
+    public List<ContainerVersion> readContainerVersions(final UUID uniqueId);
 
     public List<ContainerVersion> readContainerVersions(final UUID uniqueId,
-            final Comparator<ArtifactVersion> comparator) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainerVersions(uniqueId, comparator);
-        }
-    }
+            final Comparator<ArtifactVersion> comparator);
 
     public List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Comparator<ArtifactVersion> comparator,
-            final Filter<? super ArtifactVersion> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainerVersions(uniqueId, comparator,
-                    filter);
-        }
-    }
+            final Filter<? super ArtifactVersion> filter);
 
     public List<ContainerVersion> readContainerVersions(final UUID uniqueId,
-            final Filter<? super ArtifactVersion> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainerVersions(uniqueId, filter);
-        }
-    }
+            final Filter<? super ArtifactVersion> filter);
 
     public List<Document> readDocuments(final UUID uniqueId,
-            final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocuments(uniqueId, versionId);
-        }
-    }
+            final Long versionId);
 
     public List<Document> readDocuments(final UUID uniqueId,
-            final Long versionId, final Comparator<Artifact> comparator) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocuments(uniqueId, versionId, comparator);
-        }
-    }
+            final Long versionId, final Comparator<Artifact> comparator);
 
     public List<Document> readDocuments(final UUID uniqueId,
             final Long versionId, final Comparator<Artifact> comparator,
-            final Filter<? super Artifact> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocuments(uniqueId, versionId, comparator,
-                    filter);
-        }
-    }
+            final Filter<? super Artifact> filter);
 
     public List<Document> readDocuments(final UUID uniqueId,
             final Long versionId, final UUID documentUniqueId,
-            final Filter<? super Artifact> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocuments(uniqueId, versionId,
-                    documentUniqueId, filter);
-        }
-    }
+            final Filter<? super Artifact> filter);
 
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersions(uniqueId, versionId);
-        }
-    }
+            final Long versionId);
 
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId,
-            final Comparator<ArtifactVersion> comparator) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersions(uniqueId, versionId,
-                    comparator);
-        }
-    }
+            final Long versionId, final Comparator<ArtifactVersion> comparator);
 
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId,
-            final Comparator<ArtifactVersion> comparator,
-            final Filter<? super ArtifactVersion> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersions(uniqueId, versionId,
-                    comparator, filter);
-        }
-    }
+            final Long versionId, final Comparator<ArtifactVersion> comparator,
+            final Filter<? super ArtifactVersion> filter);
 
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId,
-            final Filter<? super ArtifactVersion> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersions(uniqueId, versionId, filter);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.archive.ArchiveReader#readTeamIds(java.util.UUID)
-     */
-    public List<JabberId> readTeamIds(final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readTeamIds(uniqueId);
-        }
-    }
-
+            final Long versionId, final Filter<? super ArtifactVersion> filter);
 
     /**
      * Read a list of team members the container version was published to.
@@ -236,11 +140,7 @@ public class InternalBackupModel extends BackupModel implements InternalModel {
      * @return A <code>List&lt;User&gt;</code>.
      */
     public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
-            final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readPublishedTo(uniqueId, versionId);
-        }
-    }
+            final Long versionId);
 
     /**
      * Read a list of team members the container version was published to.
@@ -254,11 +154,7 @@ public class InternalBackupModel extends BackupModel implements InternalModel {
      * @return A <code>List&lt;User&gt;</code>.
      */
     public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
-            final Long versionId, final Comparator<User> comparator) {
-        synchronized (getImplLock()) {
-            return getImpl().readPublishedTo(uniqueId, versionId, comparator);
-        }
-    }
+            final Long versionId, final Comparator<User> comparator);
 
     /**
      * Read a list of team members the container version was published to.
@@ -275,11 +171,7 @@ public class InternalBackupModel extends BackupModel implements InternalModel {
      */
     public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId, final Comparator<User> comparator,
-            final Filter<? super User> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readPublishedTo(uniqueId, versionId, comparator, filter);
-        }
-    }
+            final Filter<? super User> filter);
 
     /**
      * Read a list of team members the container version was published to.
@@ -293,9 +185,10 @@ public class InternalBackupModel extends BackupModel implements InternalModel {
      * @return A <code>List&lt;User&gt;</code>.
      */
     public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
-            final Long versionId, final Filter<? super User> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readPublishedTo(uniqueId, versionId, filter);
-        }
-    }
+            final Long versionId, final Filter<? super User> filter);
+
+    /**
+     * @see com.thinkparity.ophelia.model.archive.ArchiveReader#readTeamIds(java.util.UUID)
+     */
+    public List<JabberId> readTeamIds(final UUID uniqueId);
 }

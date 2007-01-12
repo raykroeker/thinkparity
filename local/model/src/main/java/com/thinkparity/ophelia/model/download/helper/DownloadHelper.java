@@ -20,7 +20,6 @@ import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 
 import com.thinkparity.ophelia.model.AbstractModelImplHelper;
-import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.migrator.InternalLibraryModel;
 
 /**
@@ -47,14 +46,15 @@ public class DownloadHelper extends AbstractModelImplHelper {
     /** A parity release. */
     private final Release release;
 
-    public DownloadHelper(final InternalModelFactory modelFactory,
-            final Release release) throws IOException {
+    public DownloadHelper(final Release release, final File tempDirectory)
+            throws IOException {
         super();
-        this.fsHelper = FileSystemHelper.getDownloadHelper(
-                modelFactory.getWorkspace().createTempDirectory(), release);
-        this.ilModel = modelFactory.getLibraryModel();
+        this.fsHelper = FileSystemHelper.getDownloadHelper(tempDirectory, release);
+        this.ilModel = null;
         this.release = release;
         this.manifest = new Properties();
+        // raymond@thinkparity.com - 12-Jan-07 11:43:32 AM
+        throw Assert.createNotYetImplemented("");
     }
 
     /**

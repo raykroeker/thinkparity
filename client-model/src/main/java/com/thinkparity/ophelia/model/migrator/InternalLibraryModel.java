@@ -4,26 +4,26 @@
  */
 package com.thinkparity.ophelia.model.migrator;
 
-
-import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.migrator.LibraryBytes;
-import com.thinkparity.codebase.model.session.Environment;
-
-import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 /**
+ * <b>Title:</b>thinkParity Internal Library Model<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.4
  */
-public class InternalLibraryModel extends LibraryModel {
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface InternalLibraryModel extends LibraryModel {
 
-    /** Create InternalLibraryModel. */
-    InternalLibraryModel(final Context context, final Environment environment,
-            final Workspace workspace) {
-        super(environment, workspace);
-    }
-
-    public LibraryBytes readBytes(final Long libraryId) {
-        synchronized(getImplLock()) { return getImpl().readBytes(libraryId); }
-    }
+    /**
+     * Read the library bytes.
+     * 
+     * @param libraryId
+     *            A library id <code>Long</code>.
+     * @return A <code>LibraryBytes</code>.
+     */
+    public LibraryBytes readBytes(final Long libraryId);
 }

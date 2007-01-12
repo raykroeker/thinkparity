@@ -3,32 +3,14 @@
  */
 package com.thinkparity.ophelia.model.profile;
 
-
-import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.session.Environment;
-
-import com.thinkparity.ophelia.model.InternalModel;
-import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 /**
- * <b>Title:</b>thinkParity Profile Internal Model<br>
- * <b>Description:</b>
- *
- * @author CreateModel.groovy
- * @version 
+ * <b>Title:</b>thinkParity Internal Profile Model<br>
+ * <b>Description:</b><br>
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.6
  */
-public class InternalProfileModel extends ProfileModel implements InternalModel {
-
-    /**
-     * Create InternalProfileModel
-     *
-     * @param workspace
-     *		A thinkParity workspace.
-     * @param context
-     *		A thinkParity internal context.
-     */
-    InternalProfileModel(final Context context, final Environment environment,
-            final Workspace workspace) {
-        super(environment, workspace);
-    }
-}
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface InternalProfileModel extends ProfileModel {}

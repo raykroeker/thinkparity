@@ -6,137 +6,93 @@ package com.thinkparity.ophelia.model.audit;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.session.Environment;
+
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.ParityException;
-import com.thinkparity.ophelia.model.audit.event.*;
-import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.ophelia.model.audit.event.AddTeamMemberConfirmEvent;
+import com.thinkparity.ophelia.model.audit.event.AddTeamMemberEvent;
+import com.thinkparity.ophelia.model.audit.event.ArchiveEvent;
+import com.thinkparity.ophelia.model.audit.event.AuditEvent;
+import com.thinkparity.ophelia.model.audit.event.CloseEvent;
+import com.thinkparity.ophelia.model.audit.event.CreateEvent;
+import com.thinkparity.ophelia.model.audit.event.CreateRemoteEvent;
+import com.thinkparity.ophelia.model.audit.event.KeyRequestDeniedEvent;
+import com.thinkparity.ophelia.model.audit.event.KeyResponseDeniedEvent;
+import com.thinkparity.ophelia.model.audit.event.PublishEvent;
+import com.thinkparity.ophelia.model.audit.event.ReactivateEvent;
+import com.thinkparity.ophelia.model.audit.event.ReceiveEvent;
+import com.thinkparity.ophelia.model.audit.event.ReceiveKeyEvent;
+import com.thinkparity.ophelia.model.audit.event.RenameEvent;
+import com.thinkparity.ophelia.model.audit.event.RequestKeyEvent;
+import com.thinkparity.ophelia.model.audit.event.SendConfirmEvent;
+import com.thinkparity.ophelia.model.audit.event.SendEvent;
+import com.thinkparity.ophelia.model.audit.event.SendKeyEvent;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Internal Audit Model<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.6
  */
-public class InternalAuditModel extends AuditModel {
-
-	/**
-	 * Create a InternalAuditModel.
-	 * 
-	 * @param workspace
-	 *            The parity workspace.
-	 * @param context
-	 *            The parity model context.
-	 */
-	InternalAuditModel(final Context context, final Environment environment,
-            final Workspace workspace) {
-		super(environment, workspace);
-	}
-
-    public void audit(final AddTeamMemberEvent event,
-            final JabberId createdBy, final JabberId teamMember)
-            throws ParityException {
-        synchronized(getImplLock()) {
-                getImpl().audit(event, createdBy, teamMember);
-        }
-    }
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface InternalAuditModel extends AuditModel {
 
     public void audit(final AddTeamMemberConfirmEvent event,
             final JabberId createdBy, final JabberId teamMember)
-            throws ParityException {
-        synchronized(getImplLock()) {
-                getImpl().audit(event, createdBy, teamMember);
-        }
-    }
+            throws ParityException;
+
+    public void audit(final AddTeamMemberEvent event,
+            final JabberId createdBy, final JabberId teamMember)
+            throws ParityException;
 
 	public void audit(final ArchiveEvent event, final JabberId createdBy)
-            throws ParityException {
-		synchronized(getImplLock()) { getImpl().audit(event, createdBy); }
-	}
+            throws ParityException;
 
 	public void audit(final CloseEvent event, final JabberId createdBy,
-            final JabberId closedBy) throws ParityException {
-		synchronized(getImplLock()) { getImpl().audit(event, createdBy, closedBy); }
-	}
+            final JabberId closedBy) throws ParityException;
 
-	public void audit(final CreateEvent event) {
-		synchronized (getImplLock()) {
-            getImpl().audit(event);
-		}
-	}
+	public void audit(final CreateEvent event);
 
 	public void audit(final CreateRemoteEvent event, final JabberId createdBy,
-            final JabberId receivedFrom) throws ParityException {
-		synchronized(getImplLock()) {
-            getImpl().audit(event, createdBy, receivedFrom);
-        }
-	}
+            final JabberId receivedFrom) throws ParityException;
 
-    public void audit(final RenameEvent event, final JabberId createdBy)
-        throws ParityException {
-        synchronized(getImplLock()) { getImpl().audit(event, createdBy); }
-    }
-
-    public void audit(final SendConfirmEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().audit(event);
-        }
-    }
-
-	public void audit(final KeyRequestDeniedEvent event,
+    public void audit(final KeyRequestDeniedEvent event,
             final JabberId createdBy, final JabberId deniedBy)
-            throws ParityException {
-		synchronized(getImplLock()) { getImpl().audit(event, createdBy, deniedBy); }
-	}
+            throws ParityException;
 
-	public void audit(final KeyResponseDeniedEvent event,
+    public void audit(final KeyResponseDeniedEvent event,
             final JabberId createdBy, final JabberId requestedBy)
-            throws ParityException {
-		synchronized(getImplLock()) { getImpl().audit(event, createdBy, requestedBy); }
-	}
+            throws ParityException;
 
-    public void audit(final PublishEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().audit(event);
-        }
-    }
+	public void audit(final PublishEvent event);
 
-    public void audit(final ReactivateEvent event, final JabberId createdBy,
-            final JabberId reactivatedBy) throws ParityException {
-        synchronized(getImplLock()) { getImpl().audit(event, createdBy, reactivatedBy); }
-    }
+	public void audit(final ReactivateEvent event, final JabberId createdBy,
+            final JabberId reactivatedBy) throws ParityException;
 
-	public void audit(final ReceiveEvent event) {
-		synchronized (getImplLock()) {
-            getImpl().audit(event);
-		}
-	}
+    public void audit(final ReceiveEvent event);
 
-	public void audit(final ReceiveKeyEvent event, final JabberId createdBy,
-            final JabberId receivedFrom) throws ParityException {
-		synchronized(getImplLock()) { getImpl().audit(event, createdBy, receivedFrom); }
-	}
+    public void audit(final ReceiveKeyEvent event, final JabberId createdBy,
+            final JabberId receivedFrom) throws ParityException;
+
+	public void audit(final RenameEvent event, final JabberId createdBy)
+        throws ParityException;
 
 	public void audit(final RequestKeyEvent event, final JabberId createdBy,
             final JabberId requestedBy, final JabberId requestedFrom)
-            throws ParityException {
-		synchronized(getImplLock()) { getImpl().audit(event, createdBy, requestedBy, requestedFrom); }
-	}
+            throws ParityException;
+
+	public void audit(final SendConfirmEvent event);
 
 	public void audit(final SendEvent event, final JabberId createdBy,
-            final JabberId sentTo) throws ParityException {
-		synchronized(getImplLock()) { getImpl().audit(event, createdBy, sentTo); }
-	}
+            final JabberId sentTo) throws ParityException;
 
 	public void audit(final SendKeyEvent event, final JabberId createdBy,
-            final JabberId sentTo) throws ParityException {
-		synchronized(getImplLock()) { getImpl().audit(event, createdBy, sentTo); }
-	}
+            final JabberId sentTo) throws ParityException;
 
-	public void delete(final Long artifactId) {
-		synchronized(getImplLock()) { getImpl().delete(artifactId); }
-	}
+	public void delete(final Long artifactId);
 
-	public List<AuditEvent> read(final Long artifactId) {
-		synchronized(getImplLock()) { return getImpl().read(artifactId); }
-	}
+	public List<AuditEvent> read(final Long artifactId);
 }

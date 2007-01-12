@@ -11,7 +11,18 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.db.hsqldb.handler.AbstractIOHandler;
 import com.thinkparity.ophelia.model.io.db.hsqldb.util.HypersonicValidator;
-import com.thinkparity.ophelia.model.io.handler.*;
+import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
+import com.thinkparity.ophelia.model.io.handler.AuditIOHandler;
+import com.thinkparity.ophelia.model.io.handler.ConfigurationIOHandler;
+import com.thinkparity.ophelia.model.io.handler.ContactIOHandler;
+import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
+import com.thinkparity.ophelia.model.io.handler.DocumentHistoryIOHandler;
+import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
+import com.thinkparity.ophelia.model.io.handler.LibraryIOHandler;
+import com.thinkparity.ophelia.model.io.handler.ProfileIOHandler;
+import com.thinkparity.ophelia.model.io.handler.ReleaseIOHandler;
+import com.thinkparity.ophelia.model.io.handler.SystemMessageIOHandler;
+import com.thinkparity.ophelia.model.io.handler.UserIOHandler;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -26,7 +37,7 @@ public class HypersonicIOFactory extends IOFactory {
      */
     public HypersonicIOFactory(final Workspace workspace) {
         super(workspace);
-        new HypersonicValidator(workspace).validate();
+        new HypersonicValidator().validate();
     }
 
     /**
@@ -153,8 +164,8 @@ public class HypersonicIOFactory extends IOFactory {
                     new StringBuffer("com.thinkparity.ophelia.model.io.db.hsqldb.handler.")
                     .append(simpleName).toString();
             final Class<?> handlerClass = Class.forName(className);
-            final Class[] paramTypes = new Class[] { SessionManager.class };
-            final Object[] params = new Object[] { workspace.getSessionManager() };
+            final Class<?>[] paramTypes = new Class<?>[] {};
+            final Object[] params = new Object[] {};
             final Constructor constructor = handlerClass.getConstructor(paramTypes);
             final AbstractIOHandler handler =
                 (AbstractIOHandler) constructor.newInstance(params);

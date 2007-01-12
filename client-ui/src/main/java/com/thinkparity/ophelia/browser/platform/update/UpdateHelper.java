@@ -6,20 +6,19 @@ package com.thinkparity.ophelia.browser.platform.update;
 
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.ReleaseDateComparator;
 
-
-
-import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.Constants;
-import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.download.DownloadModel;
 import com.thinkparity.ophelia.model.install.InstallModel;
 import com.thinkparity.ophelia.model.migrator.ReleaseModel;
+
+import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.ophelia.browser.Constants;
+import com.thinkparity.ophelia.browser.platform.Platform;
+
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -32,10 +31,10 @@ public class UpdateHelper {
     private Release currentRelease;
 
     /** The parity download interface. */
-    private final DownloadModel dModel;
+    private final DownloadModel downloadModel;
 
     /** The parity install interface. */
-    private final InstallModel iModel;
+    private final InstallModel installModel;
 
     /** The latest release. */
     private Release latestRelease;
@@ -47,16 +46,22 @@ public class UpdateHelper {
     private Platform platform;
 
     /** The parity release interface. */
-    private final ReleaseModel rModel;
+    private final ReleaseModel releaseModel;
 
-    /** Create UpdateHelper. */
+    /**
+     * Create UpdateHelper.
+     * 
+     * @param platform
+     *            A thinkParity <code>Platform</code>.
+     */
     public UpdateHelper(final Platform platform) {
         super();
-        this.logger = platform.getLogger(getClass());
         this.platform = platform;
-        this.dModel = platform.getModelFactory().getDownloadModel(getClass());
-        this.iModel = platform.getModelFactory().getInstall(getClass());
-        this.rModel = platform.getModelFactory().getReleaseModel(getClass());
+
+        this.downloadModel = platform.getModelFactory().getDownloadModel(getClass());
+        this.installModel = platform.getModelFactory().getInstallModel(getClass());
+        this.releaseModel = platform.getModelFactory().getReleaseModel(getClass());
+        this.logger = platform.getLogger(getClass());
     }
 
     /**
@@ -81,12 +86,11 @@ public class UpdateHelper {
         final Release release = readLatestRelease();
 
         // download
-        try { if(!dModel.isComplete(release)) { dModel.download(release); } }
+        try { if(!downloadModel.isComplete(release)) { downloadModel.download(release); } }
         catch(final ParityException px) { throw new BrowserException("", px); }
 
         // install
-        try { iModel.install(release); }
-        catch(final ParityException px) { throw new BrowserException("", px); }
+        installModel.install(release);
 
         // set property for restart
         final Properties properties = new Properties();
@@ -108,7 +112,7 @@ public class UpdateHelper {
      */
     private Release readCurrentRelease() {
         if(null == currentRelease) {
-            currentRelease = rModel.read(
+            currentRelease = releaseModel.read(
                     Constants.Release.ARTIFACT_ID,
                     Constants.Release.GROUP_ID,
                     Constants.Release.VERSION);
@@ -123,7 +127,7 @@ public class UpdateHelper {
      */
     private Release readLatestRelease() {
         if(null == latestRelease) {
-            latestRelease = rModel.readLatest(
+            latestRelease = releaseModel.readLatest(
                     Constants.Release.ARTIFACT_ID, Constants.Release.GROUP_ID);
         }
         return latestRelease;

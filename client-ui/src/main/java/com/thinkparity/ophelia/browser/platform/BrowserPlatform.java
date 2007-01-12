@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.platform;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,9 +21,12 @@ import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.sort.StringComparator;
 
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 
+import com.thinkparity.ophelia.model.session.LoginMonitor;
 import com.thinkparity.ophelia.model.workspace.Preferences;
+import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 import com.thinkparity.ophelia.browser.BrowserException;
@@ -98,10 +102,10 @@ public class BrowserPlatform implements Platform {
     /** An application factory. */
     private final ApplicationFactory applicationFactory;
 
-	/** An application registry. */
+    /** An application registry. */
 	private final ApplicationRegistry applicationRegistry;
 
-	/** An avatar registry. */
+    /** An avatar registry. */
 	private final AvatarRegistry avatarRegistry;
 
 	/** The thinkParity <code>Environment</code>. */
@@ -110,25 +114,25 @@ public class BrowserPlatform implements Platform {
 	/** The platform's first run helper. */
     private final FirstRunHelper firstRunHelper;
 
-    /**
+	/**
      * The listener helper. Manages all listeners as well as the listener
      * notification.
      */
     private final ListenerHelper listenerHelper;
 
-    /** A thinkParity <code>Mode</code>. */
+	/** A thinkParity <code>Mode</code>. */
     private final Mode mode;
 
-	/** The parity model factory. */
+    /** The parity model factory. */
 	private final ModelFactory modelFactory;
 
-	/** The platform online helper. */
+    /** The platform online helper. */
     private final OnlineHelper onlineHelper;
 
 	/** The platform settings. */
 	private final BrowserPlatformPersistence persistence;
 
-    /** The platform plugin helper. */
+	/** The platform plugin helper. */
     private final PluginHelper pluginHelper;
 
 	/** The parity preferences. */
@@ -137,7 +141,7 @@ public class BrowserPlatform implements Platform {
     /** The platform update helper. */
     private final UpdateHelper updateHelper;
 
-    /** The thinkParity <code>WindowRegistry</code>. */
+	/** The thinkParity <code>WindowRegistry</code>. */
 	private final WindowRegistry windowRegistry;
 
     /**
@@ -148,17 +152,21 @@ public class BrowserPlatform implements Platform {
      */
 	private BrowserPlatform(final Mode mode, final Environment environment,
             final Profile profile) {
-        new BrowserPlatformInitializer(environment, profile).initialize(mode);
+        super();
+        this.environment = environment;
+        this.mode = mode;
+
+        final Workspace workspace = WorkspaceModel.getInstance(
+                environment).getWorkspace(new File(profile.getParityWorkspace()));
+        new BrowserPlatformInitializer(this).initialize(workspace);
         this.applicationFactory = ApplicationFactory.getInstance(this);
 		this.applicationRegistry = new ApplicationRegistry();
 		this.avatarRegistry = new AvatarRegistry();
-        this.environment = environment;
 		this.windowRegistry = new WindowRegistry();
 		this.modelFactory = ModelFactory.getInstance();
 		this.preferences = modelFactory.getPreferences(getClass());
 
 		this.logger = new Log4JWrapper();
-        this.mode = mode;
 		this.persistence = new BrowserPlatformPersistence(this);
 
         this.firstRunHelper = new FirstRunHelper(this);
@@ -175,15 +183,15 @@ public class BrowserPlatform implements Platform {
         listenerHelper.addListener(listener);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#end()
      * 
      */
     public void end() {
         notifyLifeCycleEnding();
-        logApiId();
         endApplications();
         endPlugins();
+        closeWorkspace();
         notifyLifeCycleEnded();
     }
 
@@ -261,7 +269,7 @@ public class BrowserPlatform implements Platform {
         return environment;
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getLocale()
      *
      */
@@ -269,7 +277,7 @@ public class BrowserPlatform implements Platform {
         return persistence.getLocale();
     }
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getLogger(java.lang.Class)
 	 * 
 	 */
@@ -291,7 +299,7 @@ public class BrowserPlatform implements Platform {
 		return persistence;
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getPluginRegistry()
      */
     public PluginRegistry getPluginRegistry() {
@@ -299,7 +307,7 @@ public class BrowserPlatform implements Platform {
         return null;
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getPreferences()
 	 * 
 	 */
@@ -313,7 +321,7 @@ public class BrowserPlatform implements Platform {
         return persistence.getTimeZone();
     }
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getWindowRegistry()
 	 * 
 	 */
@@ -327,7 +335,17 @@ public class BrowserPlatform implements Platform {
 		applicationRegistry.get(applicationId).hibernate(this);
 	}
 
-	/** @see com.thinkparity.ophelia.browser.platform.Platform#isDevelopmentMode() */
+	/**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#initializeWorkspace(com.thinkparity.ophelia.model.workspace.Workspace, com.thinkparity.ophelia.model.session.LoginMonitor, com.thinkparity.codebase.model.session.Credentials)
+     *
+     */
+    public void initializeWorkspace(final Workspace workspace,
+            final LoginMonitor loginMonitor, final Credentials credentials) {
+        WorkspaceModel.getInstance(environment).initialize(workspace,
+                loginMonitor, credentials);
+    }
+
+    /** @see com.thinkparity.ophelia.browser.platform.Platform#isDevelopmentMode() */
 	public Boolean isDevelopmentMode() {
         switch (mode) {
         case DEMO:
@@ -346,7 +364,7 @@ public class BrowserPlatform implements Platform {
         return onlineHelper.isOnline();
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.Platform#isTestingMode() */
+	/** @see com.thinkparity.ophelia.browser.platform.Platform#isTestingMode() */
 	public Boolean isTestingMode() {
         switch (mode) {
         case DEMO:
@@ -361,6 +379,14 @@ public class BrowserPlatform implements Platform {
 	}
 
 	/**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#isWorkspaceInitialized(com.thinkparity.ophelia.model.workspace.Workspace)
+     *
+     */
+    public Boolean isWorkspaceInitialized(final Workspace workspace) {
+        return WorkspaceModel.getInstance(environment).isInitialized(workspace);
+    }
+
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyEnd(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */
@@ -369,7 +395,7 @@ public class BrowserPlatform implements Platform {
         logVariable("application", application);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyHibernate(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */
@@ -378,7 +404,7 @@ public class BrowserPlatform implements Platform {
         logVariable("application", application);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyRestore(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */
@@ -396,7 +422,7 @@ public class BrowserPlatform implements Platform {
         logVariable("application", application);
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#removeListener(com.thinkparity.ophelia.browser.platform.event.LifeCycleListener)
      */
     public void removeListener(final LifeCycleListener listener) {
@@ -495,11 +521,21 @@ public class BrowserPlatform implements Platform {
     }
 
     /**
+     * Close the workspace.
+     *
+     */
+    private void closeWorkspace() {
+        WorkspaceModel.getInstance(environment).close(
+                modelFactory.getWorkspace(getClass()));
+    }
+
+    /**
      * Delete the workspace.
      *
      */
     private void deleteWorkspace() {
-        modelFactory.getWorkspaceModel(getClass()).delete(modelFactory.getWorkspace(getClass()));
+        WorkspaceModel.getInstance(environment).delete(
+                modelFactory.getWorkspace(getClass()));
     }
 
     /**
@@ -542,9 +578,8 @@ public class BrowserPlatform implements Platform {
      * @return True if the workspace has been initialized.
      */
     private Boolean isWorkspaceInitialized() {
-        final WorkspaceModel workspaceModel =
-            modelFactory.getWorkspaceModel(getClass());
-        return workspaceModel.isInitialized(modelFactory.getWorkspace(getClass()));
+        return WorkspaceModel.getInstance(environment).isInitialized(
+                modelFactory.getWorkspace(getClass()));
     }
 
 	private void notifyLifeCycleEnded() {

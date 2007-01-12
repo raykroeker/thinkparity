@@ -102,12 +102,19 @@ public class FileSystem {
         FileUtil.deleteTree(root);
     }
 
-    /** @see java.lang.Object#equals(java.lang.Object) */
-    public boolean equals(Object obj) {
-        if(null != obj && obj instanceof FileSystem) {
-            return root.equals(((FileSystem) obj).root);
-        }
-        else { return false; }
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     *
+     */
+    public boolean equals(final Object obj) {
+        if (null == obj)
+            return false;
+        if (this == obj)
+            return true;
+        if (FileSystem.class.isAssignableFrom(obj.getClass()))
+            return ((FileSystem) obj).root.equals(root);
+        else
+            return false;
     }
 
     /**

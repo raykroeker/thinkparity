@@ -3,10 +3,15 @@
  */
 package com.thinkparity.codebase.model;
 
-
 /**
+ * <b>Title:</b>thinkParity Model<br>
+ * <b>Description:</b>A thinkParity model defines the proxy interface to a
+ * business logic implementation.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
+ * @param <T>
+ *            A typed proxy implementation.
  */
 public abstract class AbstractModel<T extends AbstractModelImpl> {
 
@@ -16,11 +21,15 @@ public abstract class AbstractModel<T extends AbstractModelImpl> {
     /** A thinkParity model implementation. */
     private final T impl;
 
-    /** Create AbstractModel. */
+    /**
+     * Create AbstractModel.
+     * 
+     * @param impl
+     *            The abstract model implmentation.
+     */
     protected AbstractModel(final T impl) {
         super();
-        this.context = new Context(this);
-        this.context.assertIsValid();
+        this.context = new Context();
         this.impl = impl;
         this.impl.setContext(context);
     }

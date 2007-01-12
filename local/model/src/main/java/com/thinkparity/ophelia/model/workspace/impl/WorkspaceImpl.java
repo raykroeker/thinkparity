@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import javax.naming.NamingException;
+
 import com.thinkparity.codebase.Constants;
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
@@ -23,11 +25,12 @@ import com.thinkparity.codebase.config.ConfigFactory;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.util.jta.Transaction;
+
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.Constants.FileNames;
 import com.thinkparity.ophelia.model.Constants.Files;
-import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl;
@@ -54,11 +57,11 @@ public class WorkspaceImpl implements Workspace {
     /** The operating <code>Mode</code>. */
     private final Mode mode;
 
-    /** The workspace preferences. */
-    private PreferencesImpl preferencesImpl;
+    /** The persistence manager. */
+    private PersistenceManagerImpl persistenceManagerImpl;
 
-    /** The workspace database session manager. */
-    private SessionManagerImpl sessionManagerImpl;
+    /** The preferences. */
+    private PreferencesImpl preferencesImpl;
 
     /** A list of shutdown hooks to execute upon jvm termination. */
     private List<ShutdownHook> shutdownHooks;
@@ -119,8 +122,8 @@ public class WorkspaceImpl implements Workspace {
         preferencesImpl.save();
         preferencesImpl = null;
 
-        sessionManagerImpl.stop();
-        sessionManagerImpl = null;
+        persistenceManagerImpl.stop();
+        persistenceManagerImpl = null;
 
         xmppSessionImpl = null;
 
@@ -175,10 +178,14 @@ public class WorkspaceImpl implements Workspace {
      */
     @Override
     public boolean equals(final Object obj) {
-        if (null != obj && obj instanceof WorkspaceImpl) {
+        if (null == obj)
+            return false;
+        if (this == obj)
+            return true;
+        if (WorkspaceImpl.class.isAssignableFrom(obj.getClass()))
             return ((WorkspaceImpl) obj).workspace.equals(workspace);
-        }
-        return false;
+        else
+            return false;
     }
 
     /**
@@ -205,7 +212,7 @@ public class WorkspaceImpl implements Workspace {
     public <T extends EventListener> List<T> getListeners(final Workspace workspace,
             final AbstractModelImpl<T> impl) {
         return listenersImpl.get(impl);
-    }            
+    }
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getLog4JDirectory()
@@ -213,7 +220,7 @@ public class WorkspaceImpl implements Workspace {
      */
     public File getLogDirectory() {
         return initChild(DirectoryNames.Workspace.LOG);
-    }
+    }            
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getLogFile()
@@ -241,13 +248,6 @@ public class WorkspaceImpl implements Workspace {
     }
 
 	/**
-     * @see com.thinkparity.ophelia.model.workspace.Workspace#getSessionManager()
-     */
-    public SessionManager getSessionManager() {
-        return sessionManagerImpl;
-    }
-
-	/**
      * Obtain the shutdownHooks
      *
      * @return The List<ShutdownHook>.
@@ -256,7 +256,7 @@ public class WorkspaceImpl implements Workspace {
         return Collections.unmodifiableList(shutdownHooks);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getWorkspaceDirectory()
      */
     public File getWorkspaceDirectory() {
@@ -296,6 +296,14 @@ public class WorkspaceImpl implements Workspace {
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#lookupTransaction()
+     *
+     */
+    public Transaction lookupTransaction() throws NamingException {
+        return persistenceManagerImpl.lookupTransaction();
+    }
+
+    /**
      * Open the workspace.
      * 
      */
@@ -306,8 +314,8 @@ public class WorkspaceImpl implements Workspace {
         preferencesImpl = new PreferencesImpl(this);
         preferencesImpl.load();
 
-        sessionManagerImpl = new SessionManagerImpl(this);
-        sessionManagerImpl.start();
+        persistenceManagerImpl = new PersistenceManagerImpl(this);
+        persistenceManagerImpl.start();
 
         xmppSessionImpl = new XMPPSessionImpl(XMPPSessionDebugger.class);
 

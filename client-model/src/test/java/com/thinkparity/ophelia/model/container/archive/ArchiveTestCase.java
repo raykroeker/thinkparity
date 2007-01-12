@@ -3,8 +3,6 @@
  */
 package com.thinkparity.ophelia.model.container.archive;
 
-import java.util.List;
-
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -194,23 +192,6 @@ public abstract class ArchiveTestCase extends ContainerTestCase {
         assertNotNull(assertion + " [DOCUMENT VERSION UPDATED ON IS NULL]", version.getUpdatedBy());
         assertNotNull(assertion + " [DOCUMENT VERSION UPDATED BY IS NULL]", version.getUpdatedOn());
         assertNotNull(assertion + " [DOCUMENT VERSION VERSION ID IS NULL]", version.getVersionId());
-    }
-
-
-    /**
-     * Assert the container versions are not null.
-     * 
-     * @param assertion
-     *            An assertion.
-     * @param containers
-     *            A list of containers.
-     */
-    protected static void assertNotNull(final String assertion,
-            final List<ContainerVersion> versions) {
-        assertNotNull(assertion + " [VERSIONS IS NULL]", (Object) versions);
-        for(final ContainerVersion version : versions) {
-            assertNotNull(assertion, version);
-        }
     }
 
     /**

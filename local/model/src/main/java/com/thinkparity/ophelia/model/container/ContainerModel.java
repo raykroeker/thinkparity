@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.filter.Filter;
 
-import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
@@ -20,58 +20,24 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 
-import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
 import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.util.Printer;
-import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
  * <b>Title:</b>thinkParity Container Model<br>
  * <b>Description:</b>
  *
- * @author CreateModel.groovy
- * @version 1.1.2.3
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.28
  */
-public class ContainerModel extends AbstractModel<ContainerModelImpl> {
-
-    /**
-	 * Create a Container interface.
-	 * 
-	 * @param context
-	 *            A thinkParity internal context.
-	 * @return The internal Container interface.
-	 */
-	public static InternalContainerModel getInternalModel(
-            final Context context, final Environment environment,
-            final Workspace workspace) {
-		return new InternalContainerModel(context, environment, workspace);
-	}
-
-    /**
-	 * Create a Container interface.
-	 * 
-	 * @return The Container interface.
-	 */
-	public static ContainerModel getModel(final Environment environment,
-            final Workspace workspace) {
-		return new ContainerModel(environment, workspace);
-	}
-
-    /**
-	 * Create ContainerModel.
-	 *
-	 * @param workspace
-	 *		The thinkParity workspace.
-	 */
-	protected ContainerModel(final Environment environment, final Workspace workspace) {
-		super(new ContainerModelImpl(environment, workspace));
-	}
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface ContainerModel {
 
     /**
      * Apply a bookmark to a container.
@@ -79,11 +45,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param containerId
      *            A container id <code>Long</code>.
      */
-    public void addBookmark(final Long containerId) {
-        synchronized (getImplLock()) {
-            getImpl().addBookmark(containerId);
-        }
-    }
+    public void addBookmark(final Long containerId);
 
     /**
      * Add a document to a container.
@@ -93,11 +55,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param documentId
      *            A document id.
      */
-    public void addDocument(final Long containerId, final Long documentId) {
-        synchronized(getImplLock()) {
-            getImpl().addDocument(containerId, documentId);
-        }
-    }
+    public void addDocument(final Long containerId, final Long documentId);
 
     /**
      * Add a container listener.
@@ -105,11 +63,8 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param listener
      *            A container listener.
      */
-    public void addListener(final ContainerListener listener) {
-        synchronized(getImplLock()) {
-            getImpl().addListener(listener);
-        }
-    }
+    @ThinkParityTransaction(TransactionType.NEVER)
+    public void addListener(final ContainerListener listener);
 
     /**
      * Archive a container.
@@ -117,11 +72,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param containerId
      *            A container id <code>Long</code>.
      */
-    public void archive(final Long containerId) {
-        synchronized (getImplLock()) {
-            getImpl().archive(containerId);
-        }
-    }
+    public void archive(final Long containerId);
 
     /**
      * Create a container.
@@ -130,9 +81,8 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            The container name.
      * @return The new container.
      */
-    public Container create(final String name) {
-        synchronized(getImplLock()) { return getImpl().create(name); }
-    }
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    public Container create(final String name);
 
     /**
      * Create a container draft.
@@ -141,9 +91,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            The container id.
      * @return A container draft.
      */
-    public ContainerDraft createDraft(final Long containerId) {
-        synchronized(getImplLock()) { return getImpl().createDraft(containerId); }
-    }
+    public ContainerDraft createDraft(final Long containerId);
 
     /**
      * Delete a container.
@@ -151,9 +99,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param containerId
      *            A container id.
      */
-    public void delete(final Long containerId) {
-        synchronized(getImplLock()) { getImpl().delete(containerId); }
-    }
+    public void delete(final Long containerId);
 
     /**
      * Delete a draft.
@@ -161,11 +107,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param containerId
      *            A container id.
      */
-    public void deleteDraft(final Long containerId) {
-        synchronized (getImplLock()) {
-            getImpl().deleteDraft(containerId);
-        }
-    }
+    public void deleteDraft(final Long containerId);
 
     /**
      * Export a container version to a directory. The 
@@ -177,11 +119,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param versionId
      *            A container version id <code>Long</code>.
      */
-    public File export(final File exportDirectory, final Long containerId) {
-        synchronized (getImplLock()) {
-            return getImpl().export(exportDirectory, containerId);
-        }
-    }
+    public File export(final File exportDirectory, final Long containerId);
 
     /**
      * Export a container version to a directory. The 
@@ -194,11 +132,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A container version id <code>Long</code>.
      */
     public File exportVersion(final File exportDirectory, final Long containerId,
-            final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().exportVersion(exportDirectory, containerId, versionId);
-        }
-    }
+            final Long versionId);
 
     /**
      * Create a document monitor.
@@ -210,11 +144,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @return A <code>ContainerDraftMonitor</code>.
      */
     public ContainerDraftMonitor getDraftMonitor(final Long containerId,
-            final ContainerDraftListener listener) {
-        synchronized (getImplLock()) {
-            return getImpl().getDraftMonitor(containerId, listener);
-        }
-    }
+            final ContainerDraftListener listener);
 
 	/**
      * Determine whether or not the container has been distributed.
@@ -223,11 +153,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A container id <code>Long</code>.
      * @return True if the container has been distributed.
      */
-    public Boolean isDistributed(final Long containerId) {
-        synchronized (getImplLock()) {
-            return getImpl().isDistributed(containerId);
-        }
-    }
+    public Boolean isDistributed(final Long containerId);
 
 	/**
      * Print a container draft.
@@ -237,11 +163,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param printer
      *            An <code>Printer</code>.
      */
-    public void printDraft(final Long containerId, final Printer printer) {
-        synchronized (getImplLock()) {
-            getImpl().printDraft(containerId, printer);
-        }
-    }
+    public void printDraft(final Long containerId, final Printer printer);
 
     /**
      * Print a container version.
@@ -254,11 +176,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            An <code>Printer</code>.
      */
     public void printVersion(final Long containerId, final Long versionId,
-            final Printer printer) {
-        synchronized (getImplLock()) {
-            getImpl().printVersion(containerId, versionId, printer);
-        }
-    }
+            final Printer printer);
 
     /**
      * Publish the container.
@@ -271,11 +189,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A list of contacts to publish to.
      */
     public void publish(final Long containerId, final List<Contact> contacts,
-            final List<TeamMember> teamMembers) {
-        synchronized (getImplLock()) {
-            getImpl().publish(containerId, contacts, teamMembers);
-        }
-    }
+            final List<TeamMember> teamMembers);
 
     /**
      * Publish the container.
@@ -288,11 +202,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A list of contacts to publish to.
      */
     public void publish(final Long containerId, final String comment,
-            final List<Contact> contacts, final List<TeamMember> teamMembers) {
-        synchronized (getImplLock()) {
-            getImpl().publish(containerId, comment, contacts, teamMembers);
-        }
-    }
+            final List<Contact> contacts, final List<TeamMember> teamMembers);
 
     /**
      * Publish the container.
@@ -306,11 +216,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      */
     public void publish(final PublishMonitor monitor, final Long containerId,
             final String comment, final List<Contact> contacts,
-            final List<TeamMember> teamMembers) {
-        synchronized (getImplLock()) {
-            getImpl().publish(monitor, containerId, comment, contacts, teamMembers);
-        }
-    }
+            final List<TeamMember> teamMembers);
 
     /**
      * Publish the container version.
@@ -326,19 +232,14 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      */
     public void publishVersion(final PublishMonitor monitor,
             final Long containerId, final Long versionId,
-            final List<Contact> contacts, final List<TeamMember> teamMembers) {
-        synchronized (getImplLock()) {
-            getImpl().publishVersion(monitor, containerId, versionId, contacts,
-                    teamMembers);
-        }
-    }
+            final List<Contact> contacts, final List<TeamMember> teamMembers);
 
     /**
      * Read the containers.
      * 
      * @return A list of containers.
      */
-	public List<Container> read() { synchronized(getImplLock()) { return getImpl().read(); } }
+	public List<Container> read();
 
     /**
      * Read the containers.
@@ -347,9 +248,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A sort ordering to user.
      * @return A list of containers.
      */
-    public List<Container> read(final Comparator<Artifact> comparator) {
-        synchronized(getImplLock()) { return getImpl().read(comparator); }
-    }
+    public List<Container> read(final Comparator<Artifact> comparator);
 
     /**
      * Read the containers.
@@ -361,9 +260,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @return A list of containers.
      */
     public List<Container> read(final Comparator<Artifact> comparator,
-            final Filter<? super Artifact> filter) {
-        synchronized(getImplLock()) { return getImpl().read(comparator, filter); }
-    }
+            final Filter<? super Artifact> filter);
 
     /**
      * Read the containers.
@@ -372,9 +269,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A filter to apply.
      * @return A list of containers.
      */
-    public List<Container> read(final Filter<? super Artifact> filter) {
-        synchronized(getImplLock()) { return getImpl().read(filter); }
-    }
+    public List<Container> read(final Filter<? super Artifact> filter);
 
     /**
      * Read a container.
@@ -383,9 +278,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A container id.
      * @return A container.
      */
-    public Container read(final Long containerId) {
-        synchronized(getImplLock()) { return getImpl().read(containerId); }
-    }
+    public Container read(final Long containerId);
 
     /**
      * Read the delta between two versions.
@@ -398,12 +291,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *         <code>Delta</code>s.
      */
     public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
-            final Long containerId, final Long compareVersionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersionDeltas(containerId,
-                    compareVersionId);
-        }
-    }
+            final Long containerId, final Long compareVersionId);
 
     /**
      * Read the delta between two versions.
@@ -419,12 +307,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      */
     public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
             final Long containerId,
-            final Long compareVersionId, final Long compareToVersionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersionDeltas(containerId,
-                    compareVersionId, compareToVersionId);
-        }
-    }
+            final Long compareVersionId, final Long compareToVersionId);
 
     /**
      * Read the document versions for a container version.
@@ -436,11 +319,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @return A list of documents.
      */
     public List<DocumentVersion> readDocumentVersions(final Long containerId,
-            final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersions(containerId, versionId);
-        }
-    }
+            final Long versionId);
 
     /**
      * Read the document versions for a container version.
@@ -454,11 +333,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @return A list of documents.
      */
     public List<DocumentVersion> readDocumentVersions(final Long containerId,
-            final Long versionId, final Comparator<ArtifactVersion> comparator) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersions(containerId, versionId, comparator);
-        }
-    }
+            final Long versionId, final Comparator<ArtifactVersion> comparator);
 
     /**
      * Read the document versions for a container version.
@@ -475,12 +350,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      */
     public List<DocumentVersion> readDocumentVersions(final Long containerId,
             final Long versionId, final Comparator<ArtifactVersion> comparator,
-            final Filter<? super ArtifactVersion> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersions(containerId, versionId,
-                    comparator, filter);
-        }
-    }
+            final Filter<? super ArtifactVersion> filter);
 
     /**
      * Read the document versions for a container version.
@@ -494,11 +364,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @return A list of document versions.
      */
     public List<DocumentVersion> readDocumentVersions(final Long containerId,
-            final Long versionId, final Filter<? super ArtifactVersion> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocumentVersions(containerId, versionId, filter);
-        }
-    }
+            final Long versionId, final Filter<? super ArtifactVersion> filter);
 
     /**
      * Read a draft for the container.
@@ -507,9 +373,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            The container id.
      * @return A container draft; or null if none exists.
      */
-    public ContainerDraft readDraft(final Long containerId) {
-        synchronized(getImplLock()) { return getImpl().readDraft(containerId); }
-    }
+    public ContainerDraft readDraft(final Long containerId);
 
     /**
      * Read the latest container version.
@@ -518,11 +382,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A container id.
      * @return A container version.
      */
-    public ContainerVersion readLatestVersion(final Long containerId) {
-        synchronized (getImplLock()) {
-            return getImpl().readLatestVersion(containerId);
-        }
-    }
+    public ContainerVersion readLatestVersion(final Long containerId);
 
     /**
      * Read the next container version sequentially.
@@ -534,11 +394,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @return A <code>ContainerVersion</code>.
      */
     public ContainerVersion readNextVersion(final Long containerId,
-            final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readNextVersion(containerId, versionId);
-        }
-    }
+            final Long versionId);
 
     /**
      * Read the previous container version sequentially.
@@ -550,11 +406,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @return A <code>ContainerVersion</code>.
      */
     public ContainerVersion readPreviousVersion(final Long containerId,
-            final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readPreviousVersion(containerId, versionId);
-        }
-    }
+            final Long versionId);
 
     /**
      * Read a list of team members the container version was published to.
@@ -566,11 +418,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @return A <code>List&lt;User&gt;</code>.
      */
     public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
-            final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readPublishedTo(containerId, versionId);
-        }
-    }
+            final Long versionId);
 
     /**
      * Read a list of team members the container version was published to.
@@ -584,11 +432,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @return A <code>List&lt;User&gt;</code>.
      */
     public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
-            final Long versionId, final Comparator<User> comparator) {
-        synchronized (getImplLock()) {
-            return getImpl().readPublishedTo(containerId, versionId, comparator);
-        }
-    }
+            final Long versionId, final Comparator<User> comparator);
 
     /**
      * Read a list of team members the container version was published to.
@@ -605,11 +449,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      */
     public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId, final Comparator<User> comparator,
-            final Filter<? super User> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readPublishedTo(containerId, versionId, comparator, filter);
-        }
-    }
+            final Filter<? super User> filter);
 
     /**
      * Read a list of team members the container version was published to.
@@ -623,11 +463,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @return A <code>List&lt;User&gt;</code>.
      */
     public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
-            final Long versionId, final Filter<? super User> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readPublishedTo(containerId, versionId, filter);
-        }
-    }
+            final Long versionId, final Filter<? super User> filter);
 
     /**
      * Read the team for the container.
@@ -636,11 +472,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A container id.
      * @return A list of users.
      */
-    public List<TeamMember> readTeam(final Long containerId) {
-        synchronized (getImplLock()) {
-            return getImpl().readTeam(containerId);
-        }
-    }
+    public List<TeamMember> readTeam(final Long containerId);
 
 	/**
      * Read a container version.
@@ -652,9 +484,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @return A container version.
      */
     public ContainerVersion readVersion(final Long containerId,
-            final Long versionId) {
-        synchronized(getImplLock()) { return getImpl().readVersion(containerId, versionId); }
-    }
+            final Long versionId);
 
     /**
      * Read a list of versions for the container.
@@ -663,11 +493,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A container id.
      * @return A list of versions.
      */
-    public List<ContainerVersion> readVersions(final Long containerId) {
-        synchronized(getImplLock()) {
-            return getImpl().readVersions(containerId);
-        }
-    }
+    public List<ContainerVersion> readVersions(final Long containerId);
 
     /**
      * Read a list of versions for the container.
@@ -679,11 +505,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @return A list of versions.
      */
     public List<ContainerVersion> readVersions(final Long containerId,
-            final Comparator<ArtifactVersion> comparator) {
-        synchronized(getImplLock()) {
-            return getImpl().readVersions(containerId, comparator);
-        }
-    }
+            final Comparator<ArtifactVersion> comparator);
 
     /**
      * Read a list of versions for the container.
@@ -698,11 +520,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      */
     public List<ContainerVersion> readVersions(final Long containerId,
             final Comparator<ArtifactVersion> comparator,
-            final Filter<? super ArtifactVersion> filter) {
-        synchronized(getImplLock()) {
-            return getImpl().readVersions(containerId, comparator, filter);
-        }
-    }
+            final Filter<? super ArtifactVersion> filter);
 
     /**
      * Read a list of versions for the container.
@@ -715,11 +533,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @return A list of versions.
      */
     public List<ContainerVersion> readVersions(final Long containerId,
-            final Filter<? super ArtifactVersion> filter) {
-        synchronized(getImplLock()) {
-            return getImpl().readVersions(containerId, filter);
-        }
-    }
+            final Filter<? super ArtifactVersion> filter);
 
     /**
      * Remove a bookmark from a container.
@@ -727,11 +541,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param containerId
      *            A container id <code>Long</code>.
      */
-    public void removeBookmark(final Long containerId) {
-        synchronized (getImplLock()) {
-            getImpl().removeBookmark(containerId);
-        }
-    }
+    public void removeBookmark(final Long containerId);
 
     /**
      * Remove a document from a container.
@@ -741,9 +551,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param documentId
      *            A document id.
      */
-    public void removeDocument(final Long containerId, final Long documentId) {
-        synchronized(getImplLock()) { getImpl().removeDocument(containerId, documentId); }
-    }
+    public void removeDocument(final Long containerId, final Long documentId);
 
     /**
      * Remove a container listener.
@@ -751,9 +559,8 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param listener
      *            A container listener.
      */
-    public void removeListener(final ContainerListener listener) {
-        synchronized(getImplLock()) { getImpl().removeListener(listener); }
-    }
+    @ThinkParityTransaction(TransactionType.NEVER)
+    public void removeListener(final ContainerListener listener);
 
     /**
      * Rename the container.
@@ -763,11 +570,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param name
      *            The new container name.
      */
-    public void rename(final Long containerId, final String name) {
-        synchronized (getImplLock()) {
-            getImpl().rename(containerId, name);
-        }
-    }
+    public void rename(final Long containerId, final String name);
 
     /**
      * Restore a container from an archive.
@@ -775,11 +578,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param uniqueId
      *            A container unique id <code>UUID</code>.
      */
-    public void restore(final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().restore(uniqueId);
-        }
-    }
+    public void restore(final UUID uniqueId);
 
     /**
      * Revert a document to it's pre-draft state.
@@ -787,11 +586,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param documentId
      *            A document id.
      */
-    public void revertDocument(final Long containerId, final Long documentId) {
-        synchronized (getImplLock()) {
-            getImpl().revertDocument(containerId, documentId);
-        }
-    }
+    public void revertDocument(final Long containerId, final Long documentId);
 
     /**
      * Search for containers.
@@ -800,9 +595,5 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A search expression <code>String</code>.
      * @return A <code>List&lt;Long&gt;</code>.
      */
-    public List<Long> search(final String expression) {
-        synchronized (getImplLock()) {
-            return getImpl().search(expression);
-        }
-    }
+    public List<Long> search(final String expression);
 }

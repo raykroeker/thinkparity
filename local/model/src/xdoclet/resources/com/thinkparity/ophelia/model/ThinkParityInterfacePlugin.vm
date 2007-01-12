@@ -1,0 +1,16 @@
+/*
+ * Generated Source
+ * Generated On: ${tpi.getGeneratedOn()}
+ */
+package ${plugin.getDestinationPackage($class)};
+
+/**
+ * Generated interface for ${class.getName()}.
+ *
+ * @version ${class.getTagByName("version").getValue()}
+ */
+public interface ${plugin.getDestinationClassname($class)} {
+#foreach ($method in $plugin.getInterfaceMethods($class))
+    $method.getDeclarationSignature(true);
+#end
+}

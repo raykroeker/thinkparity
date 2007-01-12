@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
-import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Table;
 
 /**
@@ -19,11 +18,9 @@ public class TableIOHandler extends AbstractIOHandler {
     /**
      * Create TableIOHandler.
      * 
-     * @param sessionManager
-     *            A hypersonic <code>SessionManager</code>.
      */
-    public TableIOHandler(SessionManager sessionManager) {
-        super(sessionManager);
+    public TableIOHandler() {
+        super();
     }
 
     /**

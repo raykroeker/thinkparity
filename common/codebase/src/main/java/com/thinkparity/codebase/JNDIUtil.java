@@ -15,32 +15,42 @@ import javax.naming.NamingException;
  */
 public abstract class JNDIUtil {
 
-	/**
-	 * Create a new JNDIUtil [Singleton]
-	 */
-	private JNDIUtil() {super();}
-
-	/**
-	 * Lookup a JNDI reference in the tree.
-	 * @param reference <code>java.lang.String</code>
-	 * @return <code>java.lang.Object</code>
-	 * @throws NamingException
-	 */
-	public static synchronized Object lookup(String reference)
-		throws NamingException {
-		Context ic = new InitialContext();
-		return ic.lookup(reference);
-	}
-	
-	/**
-	 * Lookup a JNDI reference in the tree.
-	 * @param reference <code>java.lang.StringBuffer</code>
-	 * @return <code>java.lang.Object</code>
-	 * @throws NamingException
-	 */
-	public static synchronized Object lookup(StringBuffer reference)
-		throws NamingException {
-		return lookup(null == reference ? null : reference.toString());
+    /**
+     * Retrieves the named object.
+     * 
+     * @param name
+     *      the name of the object to look up
+     * @return  the object bound to <tt>name</tt>
+     * @throws  NamingException if a naming exception is encountered
+     */
+	public static Object lookup(final String name)
+            throws NamingException {
+		final Context c = new InitialContext();
+		return c.lookup(name);
 	}
 
+	/**
+     * Binds a name to an object, overwriting any existing binding.
+     *
+     * @param name
+     *      the name to bind; may not be empty
+     * @param obj
+     *      the object to bind; possibly null
+     * @throws  javax.naming.directory.InvalidAttributesException
+     *      if object did not supply all mandatory attributes
+     * @throws  NamingException if a naming exception is encountered
+     */
+    public static void rebind(final String name, final Object obj)
+            throws NamingException {
+        final Context c = new InitialContext();
+        c.rebind(name, obj);
+    }
+
+    /**
+     * Create JNDIUtil.
+     *
+     */
+	private JNDIUtil() {
+        super();
+	}
 }

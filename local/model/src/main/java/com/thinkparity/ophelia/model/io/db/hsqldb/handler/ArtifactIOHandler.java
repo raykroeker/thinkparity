@@ -26,7 +26,6 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
-import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 
 /**
  * @author raykroeker@gmail.com
@@ -266,7 +265,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
      * @see ArtifactIOHandler#SQL_READ_TEAM_REL
      */
     private static final String SQL_READ_TEAM_REL_BY_ARTIFACT_BY_USER =
-        new StringBuffer("select U.NAME,U.JABBER_ID,")
+		new StringBuffer("select U.NAME,U.JABBER_ID,")
         .append("U.USER_ID,U.ORGANIZATION,U.TITLE,ATR.ARTIFACT_ID ")
         .append("from ARTIFACT_TEAM_REL ATR ")
         .append("inner join USER U on ATR.USER_ID = U.USER_ID ")
@@ -324,12 +323,10 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 	/**
      * Create ArtifactIOHandler.
      * 
-     * @param sessionManager
-     *            A hypersonic <code>SessionManager</code>.
      */
-	public ArtifactIOHandler(final SessionManager sessionManager) {
-        super(sessionManager);
-        this.userIO = new UserIOHandler(sessionManager);
+	public ArtifactIOHandler() {
+        super();
+        this.userIO = new UserIOHandler();
 	}
 
     /**
@@ -348,14 +345,9 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 			session.setCalendar(3, updatedOn);
 			if(1 != session.executeUpdate())
 				throw new HypersonicException("Could not create remote info.");
-
-			session.commit();
-		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
+		} finally {
+            session.close();
+        }
 	}
 
 	/**
@@ -371,14 +363,9 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             session.setLong(2, userId);
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not create team relationship.");
-
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -783,13 +770,9 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		final Session session = openSession();
 		try {
 			setFlags(session, artifactId, flags);
-			session.commit();
-		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
+		} finally {
+            session.close();
+        }
 	}
 
 	/**

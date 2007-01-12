@@ -8,43 +8,29 @@ import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.document.Document;
-import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
-import com.thinkparity.ophelia.model.InternalModel;
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
-import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
  * <b>Title:</b>thinkParity Container Internal Model<br>
  * <b>Description:</b>A model internal interface to the container
  * implementation.<br>
  * 
- * @author CreateModel.groovy
- * @version 1.1.2.12
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.19
  */
-public class InternalContainerModel extends ContainerModel implements
-        InternalModel {
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface InternalContainerModel extends ContainerModel {
 
-    /**
-     * Create InternalContainerModel
-     *
-     * @param workspace
-     *		A thinkParity workspace.
-     * @param context
-     *		A thinkParity internal context.
-     */
-    InternalContainerModel(final Context context,
-            final Environment environment, final Workspace workspace) {
-        super(environment, workspace);
-    }
     /**
      * Determine whether or not a draft exists.
      * 
@@ -52,11 +38,7 @@ public class InternalContainerModel extends ContainerModel implements
      *            A container id <code>Long</code>.
      * @return True if a draft exists.
      */
-    public Boolean doesExistDraft(final Long containerId) {
-        synchronized (getImplLock()) {
-            return getImpl().doesExistDraft(containerId);
-        }
-    }
+    public Boolean doesExistDraft(final Long containerId);
 
     /**
      * Handle the container artifact published remote event. If the container
@@ -87,11 +69,8 @@ public class InternalContainerModel extends ContainerModel implements
      * @param publishedOn
      *            The publish date <code>Calendar</code>.
      */
-    public void handleArtifactPublished(final ContainerArtifactPublishedEvent event) {
-        synchronized(getImplLock()) {
-            getImpl().handleArtifactPublished(event);
-        }
-    }
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    public void handleArtifactPublished(final ContainerArtifactPublishedEvent event);
 
     /**
      * Handle the remote draft created event. A
@@ -106,12 +85,9 @@ public class InternalContainerModel extends ContainerModel implements
      * @param createdOn
      *            The creation date <code>Calendar</code>.
      */
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleDraftCreated(final Long containerId,
-            final JabberId createdBy, final Calendar createdOn) {
-        synchronized (getImplLock()) {
-            getImpl().handleDraftCreated(containerId, createdBy, createdOn);
-        }
-    }
+            final JabberId createdBy, final Calendar createdOn);
 
     /**
      * Handle the remote draft deleted event.
@@ -123,29 +99,17 @@ public class InternalContainerModel extends ContainerModel implements
      * @param deletedOn
      *            When the draft was deleted.
      */
-    public void handleDraftDeleted(final ArtifactDraftDeletedEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().handleDraftDeleted(event);
-        }
-    }
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    public void handleDraftDeleted(final ArtifactDraftDeletedEvent event);
 
-    public void handlePublished(final ArtifactPublishedEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().handlePublished(event);
-        }
-    }
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    public void handlePublished(final ArtifactPublishedEvent event);
 
-    public void handlePublished(final ContainerPublishedEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().handlePublished(event);
-        }
-    }
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    public void handlePublished(final ContainerPublishedEvent event);
 
-    public void handleReceived(final ArtifactReceivedEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().handleReceived(event);
-        }
-    }
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    public void handleReceived(final ArtifactReceivedEvent event);
 
     /**
      * Read the list of audit events for a container.
@@ -154,11 +118,7 @@ public class InternalContainerModel extends ContainerModel implements
      *            A container id.
      * @return A list of audit events.
      */
-    public List<AuditEvent> readAuditEvents(final Long containerId) {
-        synchronized(getImplLock()) {
-            return getImpl().readAuditEvents(containerId);
-        }
-    }
+    public List<AuditEvent> readAuditEvents(final Long containerId);
 
     /**
      * Read a list of of documents for a container version.
@@ -169,11 +129,7 @@ public class InternalContainerModel extends ContainerModel implements
      *            A version id <code>Long</code>.
      * @return A <code>List</code> of <code>Document</code>s.
      */
-    public List<Document> readDocuments(final Long containerId, final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readDocuments(containerId, versionId);
-        }
-    }
+    public List<Document> readDocuments(final Long containerId, final Long versionId);
 
     /**
      * Read the container draft.
@@ -182,9 +138,7 @@ public class InternalContainerModel extends ContainerModel implements
      *            A container id.
      * @return A container draft.
      */
-    public ContainerDraft readDraft(final Long containerId) {
-        synchronized(getImplLock()) { return getImpl().readDraft(containerId); }
-    }
+    public ContainerDraft readDraft(final Long containerId);
 
     /**
      * Read the list of published to artifact receipts.
@@ -196,19 +150,11 @@ public class InternalContainerModel extends ContainerModel implements
      * @return A <code>List</code> of <code>ArtifactReceipt</code>s.
      */
     public List<ArtifactReceipt> readPublishedTo2(final Long containerId,
-            final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readPublishedTo2(containerId, versionId);
-        }
-    }
+            final Long versionId);
 
     /**
      * Restore all containers from the backup.
      *
      */
-    public void restoreBackup() {
-        synchronized (getImplLock()) {
-            getImpl().restoreBackup();
-        }
-    }
+    public void restoreBackup();
 }

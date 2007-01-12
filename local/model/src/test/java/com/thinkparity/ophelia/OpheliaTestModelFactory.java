@@ -56,6 +56,10 @@ public class OpheliaTestModelFactory {
         return SINGLETON;
     }
 
+    /**
+     * Create OpheliaTestModelFactory.
+     *
+     */
     private OpheliaTestModelFactory() {
         super();
     }

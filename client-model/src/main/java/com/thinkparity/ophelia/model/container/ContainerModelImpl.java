@@ -1,5 +1,5 @@
 /*
- * Generated On: Jun 27 06 12:13:12 PM
+ * Created On: Jun 27 06 12:13:12 PM
  */
 package com.thinkparity.ophelia.model.container;
 
@@ -84,11 +84,13 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 /**
  * <b>Title:</b>thinkParity Container Model Implementation</br>
  * <b>Description:</b>
- *
- * @author CreateModel.groovy
- * @version 1.1.2.3
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.85
  */
-final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
+public final class ContainerModelImpl extends
+        AbstractModelImpl<ContainerListener> implements ContainerModel,
+        InternalContainerModel {
 
     private static final PublishMonitor PUBLISH_MONITOR;
 
@@ -105,13 +107,13 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /** The artifact io layer. */
-    private final ArtifactIOHandler artifactIO;
+    private ArtifactIOHandler artifactIO;
 
     /** A container audit generator. */
-    private final ContainerAuditor auditor;
+    private ContainerAuditor auditor;
 
     /** The container io layer. */
-    private final ContainerIOHandler containerIO;
+    private ContainerIOHandler containerIO;
 
     /** A default container comparator. */
     private final Comparator<Artifact> defaultComparator;
@@ -147,7 +149,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     private final Filter<? super ArtifactVersion> defaultVersionFilter;
 
     /** The document io layer. */
-    private final DocumentIOHandler documentIO;
+    private DocumentIOHandler documentIO;
 
     /** A local event generator. */
     private final ContainerEventGenerator localEventGenerator;
@@ -161,12 +163,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param workspace
      *      The thinkParity workspace.
      */
-    ContainerModelImpl(final Environment environment, final Workspace workspace) {
-        super(environment, workspace);
-        this.artifactIO = IOFactory.getDefault(workspace).createArtifactHandler();
-        this.auditor = new ContainerAuditor(internalModelFactory);
-        this.containerIO = IOFactory.getDefault(workspace).createContainerHandler();
-        this.documentIO = IOFactory.getDefault(workspace).createDocumentHandler();
+    public ContainerModelImpl() {
+        super();
         this.defaultComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
         this.defaultDocumentComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
         this.defaultDocumentFilter = FilterManager.createDefault();
@@ -183,28 +181,12 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#addListener(com.thinkparity.ophelia.model.util.EventListener)
-     */
-    @Override
-    protected boolean addListener(final ContainerListener listener) {
-        return super.addListener(listener);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#removeListener(com.thinkparity.ophelia.model.util.EventListener)
-     */
-    @Override
-    protected boolean removeListener(final ContainerListener listener) {
-        return super.removeListener(listener);
-    }
-
-    /**
      * Apply a bookmark to a container.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
      */
-    void addBookmark(final Long containerId) {
+    public void addBookmark(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
@@ -223,7 +205,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param documentId
      *            A document id.
      */
-    void addDocument(final Long containerId, final Long documentId) {
+    public void addDocument(final Long containerId, final Long documentId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         logger.logVariable("documentId", documentId);
@@ -233,7 +215,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             getIndexModel().indexDocument(containerId, documentId);
             final Container postAdditionContainer = read(containerId);        
             final ContainerDraft postAdditionDraft = readDraft(containerId);
-            final Document postAdditionDocument = getInternalDocumentModel().read(documentId);
+            final Document postAdditionDocument = getDocumentModel().read(documentId);
             notifyDocumentAdded(postAdditionContainer, postAdditionDraft,
                     postAdditionDocument, localEventGenerator);
         } catch (final Throwable t) {
@@ -242,12 +224,23 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
+     * Add a container listener to the model.
+     * 
+     * @param listener
+     *            A <code>ContainerListener</code>.
+     */
+    @Override
+    public void addListener(final ContainerListener listener) {
+        super.addListener(listener);
+    }
+
+    /**
      * Archive a container.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
      */
-    void archive(final Long containerId) {
+    public void archive(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         assertIsDistributed("Container has not been distributed.", containerId);
@@ -268,7 +261,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            The container name.
      * @return The new container.
      */
-    Container create(final String name) {
+    public Container create(final String name) {
         logger.logApiId();
         logger.logVariable("name", name);
         try {
@@ -297,7 +290,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             getIndexModel().indexContainer(container.getId());
     
             // create team
-            final TeamMember teamMember = createTeam(container.getId());
+            final TeamMember teamMember = getArtifactModel().createTeam(
+                    container.getId()).get(0);
     
             // create first draft
             createFirstDraft(container.getId(), teamMember);
@@ -308,7 +302,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             notifyContainerCreated(postCreation, localEventGenerator);
             return postCreation;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -333,7 +327,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @see #readLatestVersion(Long)
      * @see InternalSessionModel#createDraft(UUID)
      */
-    ContainerDraft createDraft(final Long containerId) {
+    public ContainerDraft createDraft(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
@@ -357,7 +351,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 final ContainerDraft draft = new ContainerDraft();
                 draft.setOwner(localTeamMember(containerId));
                 draft.setContainerId(containerId);
-                final InternalDocumentModel documentModel = getInternalDocumentModel();
+                final InternalDocumentModel documentModel = getDocumentModel();
                 for (final Document document : documents) {
                     draft.addDocument(document);
                     draft.putState(document, ContainerDraft.ArtifactState.NONE);
@@ -387,7 +381,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param containerId
      *            A container id.
      */
-    void delete(final Long containerId) {
+    public void delete(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
@@ -418,7 +412,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param containerId
      *            A container id.
      */
-    void deleteDraft(final Long containerId) {
+    public void deleteDraft(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
@@ -432,7 +426,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 }
             }
             // delete local data
-            final InternalDocumentModel documentModel = getInternalDocumentModel();
+            final InternalDocumentModel documentModel = getDocumentModel();
             final ContainerDraft draft = readDraft(containerId);
             for (final Artifact artifact : draft.getArtifacts()) {
                 documentModel.deleteDraft(artifact.getId());
@@ -452,7 +446,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container id <code>Long</code>.
      * @return True if a draft exists.
      */
-    Boolean doesExistDraft(final Long containerId) {
+    public Boolean doesExistDraft(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
@@ -470,7 +464,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param containerId
      *            The container id <code>Long</code>.
      */
-    File export(final File exportDirectory, final Long containerId) {
+    public File export(final File exportDirectory, final Long containerId) {
         logger.logApiId();
         logger.logVariable("exportDirectory", exportDirectory);
         logger.logVariable("containerId", containerId);
@@ -496,7 +490,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param versionId
      *            A container version id <code>Long</code>.
      */
-    File exportVersion(final File exportDirectory, final Long containerId,
+    public File exportVersion(final File exportDirectory, final Long containerId,
             final Long versionId) {
         logger.logApiId();
         logger.logVariable("exportDirectory", exportDirectory);
@@ -526,28 +520,14 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A <code>ContainerDraftListener</code>.
      * @return A <code>ContainerDraftMonitor</code>.
      */
-    ContainerDraftMonitor getDraftMonitor(final Long containerId,
+    public ContainerDraftMonitor getDraftMonitor(final Long containerId,
             final ContainerDraftListener listener) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         assertDraftExists("Cannot monitor a null draft.", containerId);
         try {
-            return new ContainerDraftMonitor(internalModelFactory,
+            return new ContainerDraftMonitor(modelFactory,
                     readDraft(containerId), localEventGenerator, listener);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Obtain a container name generator.
-     * 
-     * @return A <code>ContainerNameGenerator</code>.
-     */
-    ContainerNameGenerator getNameGenerator() {
-        logger.logApiId();
-        try {
-            return new ContainerNameGenerator(l18n);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -595,7 +575,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @see InternalArtifactModel#doesVersionExist(Long, Long)
      * @see InternalArtifactModel#readId(UUID)
      */
-    void handleArtifactPublished(final ContainerArtifactPublishedEvent event) {
+    public void handleArtifactPublished(final ContainerArtifactPublishedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
@@ -623,7 +603,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 doesVersionExist = false;
 
                 // ensure the published by user exists locally
-                getInternalUserModel().readLazyCreate(event.getPublishedBy());
+                getUserModel().readLazyCreate(event.getPublishedBy());
 
                 container = new Container();
                 container.setCreatedBy(event.getPublishedBy());
@@ -686,7 +666,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @see #notifyDraftCreated(Container, ContainerDraft, ContainerEventGenerator)
      * @see #readTeam(Long)
      */
-    void handleDraftCreated(final Long containerId,
+    public void handleDraftCreated(final Long containerId,
             final JabberId createdBy, final Calendar createdOn) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -717,7 +697,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param deletedOn
      *            When the draft was deleted.
      */
-    void handleDraftDeleted(final ArtifactDraftDeletedEvent event) {
+    public void handleDraftDeleted(final ArtifactDraftDeletedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
@@ -739,7 +719,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         }
     }
 
-    void handlePublished(final ArtifactPublishedEvent event) {
+    public void handlePublished(final ArtifactPublishedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
@@ -769,14 +749,14 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param publishedOn
      *            The published on date.
      */
-    void handlePublished(final ContainerPublishedEvent event) {
+    public void handlePublished(final ContainerPublishedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
             final InternalArtifactModel artifactModel = getArtifactModel();
             final Long containerId = artifactModel.readId(event.getUniqueId());
             // build published to list
-            final InternalUserModel userModel = getInternalUserModel();
+            final InternalUserModel userModel = getUserModel();
             final List<User> publishedToUsers = new ArrayList<User>();
             for (final JabberId publishedToId : event.getPublishedTo()) {
                 publishedToUsers.add(userModel.readLazyCreate(publishedToId));
@@ -845,7 +825,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         }
     }
 
-    void handleReceived(final ArtifactReceivedEvent event) {
+    public void handleReceived(final ArtifactReceivedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
@@ -876,7 +856,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container id <code>Long</code>.
      * @return True if the container has been distributed; false otherwise.
      */
-    Boolean isDistributed(final Long containerId) {
+    public Boolean isDistributed(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
@@ -894,13 +874,13 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param printer
      *            An <code>Printer</code>.
      */
-    void printDraft(final Long containerId, final Printer printer) {
+    public void printDraft(final Long containerId, final Printer printer) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         logger.logVariable("printer", printer);
         try {
             final ContainerDraft draft = readDraft(containerId);
-            final InternalDocumentModel documentModel = getInternalDocumentModel();
+            final InternalDocumentModel documentModel = getDocumentModel();
             for (final Document document : draft.getDocuments()) {
                 documentModel.printDraft(document.getId(), printer);
             }
@@ -919,14 +899,14 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param printer
      *            An <code>Printer</code>.
      */
-    void printVersion(final Long containerId, final Long versionId,
+    public void printVersion(final Long containerId, final Long versionId,
             final Printer printer) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         logger.logVariable("versionId", versionId);
         logger.logVariable("printer", printer);
         try {
-            final InternalDocumentModel documentModel = getInternalDocumentModel();
+            final InternalDocumentModel documentModel = getDocumentModel();
             final List<DocumentVersion> documentVersions =
                 containerIO.readDocumentVersions(containerId, versionId);
             for (final DocumentVersion documentVersion : documentVersions) {
@@ -950,7 +930,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param teamMembers
      *            A list of team members to publish to.
      */
-    void publish(final Long containerId, final List<Contact> contacts,
+    public void publish(final Long containerId, final List<Contact> contacts,
             final List<TeamMember> teamMembers) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -971,7 +951,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param teamMembers
      *            A list of team members to publish to.
      */
-    void publish(final Long containerId, final String comment,
+    public void publish(final Long containerId, final String comment,
             final List<Contact> contacts, final List<TeamMember> teamMembers) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -997,7 +977,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param teamMembers
      *            A list of team members to publish to.
      */
-    void publish(final PublishMonitor monitor, final Long containerId,
+    public void publish(final PublishMonitor monitor, final Long containerId,
             final String comment, final List<Contact> contacts,
             final List<TeamMember> teamMembers) {
         logger.logApiId();
@@ -1029,7 +1009,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     publishedOn);
 
             // attach artifacts to the version
-            final InternalDocumentModel documentModel = getInternalDocumentModel();
+            final InternalDocumentModel documentModel = getDocumentModel();
             final List<Document> draftDocuments = draft.getDocuments();
             DocumentVersion draftDocumentLatestVersion;
             for(final Document draftDocument : draftDocuments) {
@@ -1095,9 +1075,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param contacts
      *            A contact <code>List</code>.
      */
-    void publishVersion(final PublishMonitor monitor, final Long containerId,
-            final Long versionId, final List<Contact> contacts,
-            final List<TeamMember> teamMembers) {
+    public void publishVersion(final PublishMonitor monitor,
+            final Long containerId, final Long versionId,
+            final List<Contact> contacts, final List<TeamMember> teamMembers) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         logger.logVariable("versionId", versionId);
@@ -1165,7 +1145,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * 
      * @return A list of containers.
      */
-    List<Container> read() {
+    public List<Container> read() {
         logger.logApiId();
         return read(defaultComparator);
     }
@@ -1177,7 +1157,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A sort ordering to user.
      * @return A list of containers.
      */
-    List<Container> read(final Comparator<Artifact> comparator) {
+    public List<Container> read(final Comparator<Artifact> comparator) {
         logger.logApiId();
         logger.logVariable("comparator", comparator);
         return read(comparator, defaultFilter);
@@ -1192,7 +1172,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A filter to apply.
      * @return A list of containers.
      */
-    List<Container> read(final Comparator<Artifact> comparator,
+    public List<Container> read(final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter) {
         logger.logApiId();
         logger.logVariable("comparator", comparator);
@@ -1210,7 +1190,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A filter to apply.
      * @return A list of containers.
      */
-    List<Container> read(final Filter<? super Artifact> filter) {
+    public List<Container> read(final Filter<? super Artifact> filter) {
         logger.logApiId();
         logger.logVariable("filter", filter);
         return read(defaultComparator, filter);
@@ -1223,7 +1203,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container id.
      * @return A container.
      */
-    Container read(final Long containerId) {
+    public Container read(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         return containerIO.read(containerId, localUser());
@@ -1236,10 +1216,10 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container id.
      * @return A list of audit events.
      */
-    List<AuditEvent> readAuditEvents(final Long containerId) {
+    public List<AuditEvent> readAuditEvents(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
-        return getInternalAuditModel().read(containerId);
+        return getAuditModel().read(containerId);
     }
 
     /**
@@ -1251,83 +1231,12 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A version id.
      * @return A list of documents.
      */
-    List<Document> readDocuments(final Long containerId, final Long versionId) {
+    public List<Document> readDocuments(final Long containerId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         logger.logVariable("versionId", versionId);
         return readDocuments(containerId, versionId, defaultDocumentComparator,
                 defaultDocumentFilter);
-    }
-
-    /**
-     * Read the documents for the container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param versionId
-     *            A version id.
-     * @param comparator
-     *            A document comparator.
-     * @return A list of documents.
-     */
-    List<Document> readDocuments(final Long containerId, final Long versionId,
-            final Comparator<Artifact> comparator) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("comparator", comparator);
-        return readDocuments(containerId, versionId, comparator, defaultDocumentFilter);
-    }
-
-    /**
-     * Read the documents for the container.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param comparator
-     *            A document comparator <code>Comparator&lt;Artifact&gt;</code>.
-     * @param filter
-     *            A document filter <code>Filter&lt;? super Artifact&gt;</code>.
-     * @return A <code>List&gt;Document&gt;</code>.
-     * 
-     * @see FilterManager#filter(List, Filter)
-     * @see ModelSorter#sortDocuments(List, Comparator)
-     */
-    List<Document> readDocuments(final Long containerId, final Long versionId,
-            final Comparator<Artifact> comparator,
-            final Filter<? super Artifact> filter) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("comparator", comparator);
-        logger.logVariable("filter", filter);
-        final List<Document> documents =
-                containerIO.readDocuments(containerId, versionId);
-        FilterManager.filter(documents, filter);
-        ModelSorter.sortDocuments(documents, comparator);
-        return documents;
-    }
-
-    /**
-     * Read the documents for the container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param versionId
-     *            A version id.
-     * @param filter
-     *            A document filter.
-     * @return A list of documents.
-     */
-    List<Document> readDocuments(final Long containerId, final Long versionId,
-            final Filter<? super Artifact> filter) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("filter", filter);
-        return readDocuments(containerId, versionId, defaultDocumentComparator, filter);
     }
 
     /**
@@ -1339,7 +1248,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container compare version id <code>Long</code>.
      * @return A <code>ContainerVersionDelta</code>.
      */
-    Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+    public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
             final Long containerId, final Long compareVersionId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -1370,7 +1279,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container compare to version id <code>Long</code>.
      * @return A <code>ContainerVersionDelta</code>.
      */
-    Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+    public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
             final Long containerId, final Long compareVersionId,
             final Long compareToVersionId) {
         logger.logApiId();
@@ -1398,20 +1307,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
-     * Read a list of document versions for the latest container version.
-     * 
-     * @param containerId
-     *            The container id.
-     * @return A list of document versions.
-     */
-    List<DocumentVersion> readDocumentVersions(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        final ContainerVersion latestVersion = readLatestVersion(containerId);
-        return readDocumentVersions(containerId, latestVersion.getVersionId());
-    }
-
-    /**
      * Read the document versions for a container version.
      * 
      * @param containerId
@@ -1420,7 +1315,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A version id.
      * @return A list of documents.
      */
-    List<DocumentVersion> readDocumentVersions(final Long containerId,
+    public List<DocumentVersion> readDocumentVersions(final Long containerId,
             final Long versionId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -1440,7 +1335,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A document comparator.
      * @return A list of documents.
      */
-    List<DocumentVersion> readDocumentVersions(final Long containerId,
+    public List<DocumentVersion> readDocumentVersions(final Long containerId,
             final Long versionId, final Comparator<ArtifactVersion> comparator) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -1463,7 +1358,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A document filter.
      * @return A list of documents.
      */
-    List<DocumentVersion> readDocumentVersions(final Long containerId,
+    public List<DocumentVersion> readDocumentVersions(final Long containerId,
             final Long versionId, final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter) {
         logger.logApiId();
@@ -1493,7 +1388,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A document filter.
      * @return A list of document versions.
      */
-    List<DocumentVersion> readDocumentVersions(final Long containerId,
+    public List<DocumentVersion> readDocumentVersions(final Long containerId,
             final Long versionId, final Filter<? super ArtifactVersion> filter) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -1510,10 +1405,10 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container id.
      * @return A container draft.
      */
-    ContainerDraft readDraft(final Long containerId) {
+    public ContainerDraft readDraft(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
-        final InternalDocumentModel documentModel = getInternalDocumentModel();
+        final InternalDocumentModel documentModel = getDocumentModel();
         final ContainerDraft draft = containerIO.readDraft(containerId);
 
         // NOTE-Begin:this should be a parameterized comparator
@@ -1544,70 +1439,10 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container id.
      * @return A list of history items.
      */
-    List<ContainerHistoryItem> readHistory(final Long containerId) {
+    public List<ContainerHistoryItem> readHistory(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         return readHistory(containerId, defaultHistoryComparator, defaultHistoryFilter);
-    }
-
-    /**
-     * Read the container history.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param comparator
-     *            A history item comparator
-     * @return A list of history items.
-     */
-    List<ContainerHistoryItem> readHistory(final Long containerId,
-            final Comparator<? super HistoryItem> comparator) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("comparator", comparator);
-        return readHistory(containerId, comparator, defaultHistoryFilter);
-    }
-
-    /**
-     * Read the container history.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param comparator
-     *            A history item comparator
-     * @param filter
-     *            A history item filter.
-     * @return A list of history items.
-     */
-    List<ContainerHistoryItem> readHistory(final Long containerId,
-            final Comparator<? super HistoryItem> comparator,
-            final Filter<? super HistoryItem> filter) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("comparator", comparator);
-        logger.logVariable("filter", filter);
-        final ContainerHistoryBuilder historyBuilder =
-            new ContainerHistoryBuilder(getContainerModel(), l18n);
-        final List<ContainerHistoryItem> history = historyBuilder.createHistory(containerId);
-        FilterManager.filter(history, filter);
-        ModelSorter.sortHistory(history, defaultHistoryComparator);
-        return history;
-    }
-
-    /**
-     * Read the container history.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param filter
-     *            A history item filter.
-     * @return A list of history items.
-     */
-    List<ContainerHistoryItem> readHistory(final Long containerId,
-            final Filter<? super HistoryItem> filter) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("filter", filter);
-        return readHistory(containerId, defaultHistoryComparator, filter);
     }
 
     /**
@@ -1617,7 +1452,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container id.
      * @return A container version.
      */
-    ContainerVersion readLatestVersion(final Long containerId) {
+    public ContainerVersion readLatestVersion(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         if (doesExistLatestVersion(containerId)) {
@@ -1636,7 +1471,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container version id <code>Long</code>.
      * @return A <code>ContainerVersion</code>.
      */
-    ContainerVersion readNextVersion(final Long containerId,
+    public ContainerVersion readNextVersion(final Long containerId,
             final Long versionId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -1664,7 +1499,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container version id <code>Long</code>.
      * @return A <code>ContainerVersion</code>.
      */
-    ContainerVersion readPreviousVersion(final Long containerId,
+    public ContainerVersion readPreviousVersion(final Long containerId,
             final Long versionId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -1692,7 +1527,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A version id <code>Long</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -1709,62 +1544,10 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param versionId
      *            A version id <code>Long</code>.
      * @param comparator
-     *            A <code>User</code> <code>Comparator</code>.
-     * @param filter
-     *            A <code>User</code> <code>Filter</code>.
-     * @return A <code>List&lt;User&gt;</code>.
-     */
-    List<ArtifactReceipt> readPublishedTo2(final Long containerId,
-            final Long versionId, final Comparator<User> comparator,
-            final Filter<? super User> filter) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("comparator", comparator);
-        logger.logVariable("filter", filter);
-        try {
-            final Map<User, ArtifactReceipt> publishedTo =
-                containerIO.readPublishedTo(containerId, versionId);
-            final List<User> users = new ArrayList<User>(publishedTo.size());
-            for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
-                users.add(entry.getKey());
-            }
-            FilterManager.filter(users, filter);
-            Collections.sort(users, comparator);
-            final List<ArtifactReceipt> filteredPublishedTo = new ArrayList<ArtifactReceipt>();
-            for (final User user : users) {
-                filteredPublishedTo.add(publishedTo.get(user));
-            }
-            return filteredPublishedTo;
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    List<ArtifactReceipt> readPublishedTo2(final Long containerId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        try {
-            return readPublishedTo2(containerId, versionId,
-                    defaultUserComparator, defaultUserFilter);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Read a list of team members the container version was published to.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param comparator
      *            A <code>Comparator&lt;User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId, final Comparator<User> comparator) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -1787,7 +1570,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId, final Comparator<User> comparator,
             final Filter<? super User> filter) {
         logger.logApiId();
@@ -1820,7 +1603,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId, final Filter<? super User> filter) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -1830,6 +1613,18 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 filter); 
     }
 
+    public List<ArtifactReceipt> readPublishedTo2(final Long containerId, final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        try {
+            return readPublishedTo2(containerId, versionId,
+                    defaultUserComparator, defaultUserFilter);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     /**
      * Read the team for the container.
      * 
@@ -1837,7 +1632,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container id.
      * @return A list of users.
      */
-    List<TeamMember> readTeam(final Long containerId) {
+    public List<TeamMember> readTeam(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         return getArtifactModel().readTeam(containerId,
@@ -1854,7 +1649,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            The version id.
      * @return A container version.
      */
-    ContainerVersion readVersion(final Long containerId, final Long versionId) {
+    public ContainerVersion readVersion(final Long containerId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         logger.logVariable("versionId", versionId);
@@ -1868,7 +1663,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            The container id.
      * @return A list of container versions.
      */
-    List<ContainerVersion> readVersions(final Long containerId) {
+    public List<ContainerVersion> readVersions(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         return readVersions(containerId, defaultVersionComparator);
@@ -1883,7 +1678,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container version comparator.
      * @return A list of versions.
      */
-    List<ContainerVersion> readVersions(final Long containerId,
+    public List<ContainerVersion> readVersions(final Long containerId,
             final Comparator<ArtifactVersion> comparator) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -1902,7 +1697,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container version filter.
      * @return A list of versions.
      */
-    List<ContainerVersion> readVersions(final Long containerId,
+    public List<ContainerVersion> readVersions(final Long containerId,
             final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter) {
         logger.logApiId();
@@ -1925,7 +1720,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * 
      * @return A list of versions.
      */
-    List<ContainerVersion> readVersions(final Long containerId,
+    public List<ContainerVersion> readVersions(final Long containerId,
             final Filter<? super ArtifactVersion> filter) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -1939,7 +1734,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param containerId
      *            A container id <code>Long</code>.
      */
-    void removeBookmark(final Long containerId) {
+    public void removeBookmark(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
@@ -1958,7 +1753,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param documentId
      *            A document id.
      */
-    void removeDocument(final Long containerId, final Long documentId) {
+    public void removeDocument(final Long containerId, final Long documentId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         logger.logVariable("documentId", documentId);
@@ -1970,7 +1765,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         containerIO.deleteDraftArtifactRel(containerId, document.getId());
         switch (draft.getState(document.getId())) {
         case ADDED:     // delete the document
-            getInternalDocumentModel().delete(document.getId());
+            getDocumentModel().delete(document.getId());
             break;
         case NONE:
             containerIO.createDraftArtifactRel(
@@ -1987,6 +1782,17 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
+     * Remove a container listener.
+     * 
+     * @param listener
+     *            A <code>ContainerListener</code>.
+     */
+    @Override
+    public void removeListener(final ContainerListener listener) {
+        super.removeListener(listener);
+    }
+
+    /**
      * Rename the container.
      * 
      * @param containerId
@@ -1994,7 +1800,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param name
      *            The new container name.
      */
-    void rename(final Long containerId, final String name) {
+    public void rename(final Long containerId, final String name) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         logger.logVariable("name", name);
@@ -2014,7 +1820,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param uniqueId
      *            A container unique id <code>UUID</code>.
      */
-    void restore(final UUID uniqueId) {
+    public void restore(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         assertArtifactDoesNotExist(uniqueId,
@@ -2061,7 +1867,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * Restore all containers from the backup.
      *
      */
-    void restoreBackup() {
+    public void restoreBackup() {
         logger.logApiId();
         try {
             final List<Container> containers = read();
@@ -2115,7 +1921,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param documentId
      *            A document id <code>Long</code>.
      */
-    void revertDocument(final Long containerId, final Long documentId) {
+    public void revertDocument(final Long containerId, final Long documentId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         logger.logVariable("documentId", documentId);
@@ -2128,7 +1934,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         containerIO.deleteDraftArtifactRel(containerId, document.getId());
         containerIO.createDraftArtifactRel(containerId, document.getId(),
                 ContainerDraft.ArtifactState.NONE);
-        getInternalDocumentModel().revertDraft(documentId);
+        getDocumentModel().revertDraft(documentId);
 
         final Container postRevertContainer = read(containerId);        
         final ContainerDraft postRevertDraft = readDraft(containerId);
@@ -2144,7 +1950,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A search expression <code>String</code>.
      * @return A <code>List&lt;Long&gt;</code>.
      */
-    List<Long> search(final String expression) {
+    public List<Long> search(final String expression) {
         logger.logApiId();
         logger.logVariable("expression", expression);
         try {
@@ -2157,6 +1963,29 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     *
+     */
+    @Override
+    protected void initializeModel(final Environment environment,
+            final Workspace workspace) {
+        this.artifactIO = IOFactory.getDefault(workspace).createArtifactHandler();
+        this.auditor = new ContainerAuditor(modelFactory);
+        this.containerIO = IOFactory.getDefault(workspace).createContainerHandler();
+        this.documentIO = IOFactory.getDefault(workspace).createDocumentHandler();
+    }
+
+    /**
+     * Assert that a draft exists.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param assertMessage
+     *            An assertion message <code>String</code>.
+     * @param assertArguments
+     *            Optional assertion message argument <code>Object[]</code>.
+     */
     private void assertDoesExistDraft(final Long containerId,
             final String assertMessage, final Object... assertArguments) {
         Assert.assertTrue(doesExistDraft(containerId), assertMessage,
@@ -2460,20 +2289,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
-     * Create the team for a container. The team will consist of the local user
-     * only.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return The created <code>TeamMember</code>.
-     */
-    private TeamMember createTeam(final Long containerId) {
-        final List<TeamMember> team =
-            getArtifactModel().createTeam(containerId);
-        return team.get(0);
-    }
-
-    /**
      * Create a new container version.
      * 
      * @param containerId
@@ -2534,7 +2349,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 version.getArtifactId(), version.getVersionId());
     }
 
-
     /**
      * Delete the local info for this container.
      * 
@@ -2559,9 +2373,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         // delete the remote info
         artifactModel.deleteRemoteInfo(containerId);
         // delete the audit events
-        getInternalAuditModel().delete(containerId);
+        getAuditModel().delete(containerId);
         // delete versions
-        final InternalDocumentModel documentModel = getInternalDocumentModel();
+        final InternalDocumentModel documentModel = getDocumentModel();
         final List<ContainerVersion> versions = readVersions(containerId);
         List<Document> documents;
         for (final ContainerVersion version : versions) {
@@ -2669,7 +2483,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                         nameGenerator.exportDirectoryName(container)));
 
         try {
-            final InternalDocumentModel documentModel = getInternalDocumentModel();
+            final InternalDocumentModel documentModel = getDocumentModel();
             final DocumentNameGenerator documentNameGenerator = documentModel.getNameGenerator();
             final Map<ContainerVersion, User> versionsPublishedBy =
                 new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
@@ -2772,9 +2586,24 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         monitor.stageBegin(stage, data);
     }
 
+
     private void fireStageEnd(final PublishMonitor monitor,
             final PublishStage stage) {
         monitor.stageEnd(stage);
+    }
+
+    /**
+     * Obtain a container name generator.
+     * 
+     * @return A <code>ContainerNameGenerator</code>.
+     */
+    private ContainerNameGenerator getNameGenerator() {
+        logger.logApiId();
+        try {
+            return new ContainerNameGenerator(l18n);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -2802,7 +2631,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     private DocumentVersion handleDocumentPublished(
             final ContainerArtifactPublishedEvent event) throws IOException {
-        return getInternalDocumentModel().handleDocumentPublished(event);
+        return getDocumentModel().handleDocumentPublished(event);
     }
 
     /**
@@ -3138,9 +2967,40 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         fireStageEnd(monitor, PublishStage.PublishContainer);
     }
 
+    /**
+     * Read the documents for the container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param comparator
+     *            A document comparator <code>Comparator&lt;Artifact&gt;</code>.
+     * @param filter
+     *            A document filter <code>Filter&lt;? super Artifact&gt;</code>.
+     * @return A <code>List&gt;Document&gt;</code>.
+     * 
+     * @see FilterManager#filter(List, Filter)
+     * @see ModelSorter#sortDocuments(List, Comparator)
+     */
+    private List<Document> readDocuments(final Long containerId, final Long versionId,
+            final Comparator<Artifact> comparator,
+            final Filter<? super Artifact> filter) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
+        final List<Document> documents =
+                containerIO.readDocuments(containerId, versionId);
+        FilterManager.filter(documents, filter);
+        ModelSorter.sortDocuments(documents, comparator);
+        return documents;
+    }
+
     private Long readDocumentVersionSize(final Long documentId,
             final Long versionId) {
-        return getInternalDocumentModel().readVersionSize(documentId, versionId);
+        return getDocumentModel().readVersionSize(documentId, versionId);
     }
 
     /**
@@ -3154,7 +3014,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     private Map<DocumentVersion, InputStream> readDocumentVersionStreams(
             final Long containerId, final Long versionId) {
-        final InternalDocumentModel documentModel = getInternalDocumentModel();
+        final InternalDocumentModel documentModel = getDocumentModel();
         final Map<DocumentVersion, InputStream> documentVersionStreams =
             new HashMap<DocumentVersion, InputStream>();
         final List<Document> documents = readDocuments(containerId, versionId);
@@ -3170,6 +3030,72 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
+     * Read the container history.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param comparator
+     *            A history item comparator
+     * @param filter
+     *            A history item filter.
+     * @return A list of history items.
+     */
+    private List<ContainerHistoryItem> readHistory(final Long containerId,
+            final Comparator<? super HistoryItem> comparator,
+            final Filter<? super HistoryItem> filter) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
+        final ContainerHistoryBuilder historyBuilder =
+            new ContainerHistoryBuilder(getContainerModel(), l18n);
+        final List<ContainerHistoryItem> history = historyBuilder.createHistory(containerId);
+        FilterManager.filter(history, filter);
+        ModelSorter.sortHistory(history, defaultHistoryComparator);
+        return history;
+    }
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param comparator
+     *            A <code>User</code> <code>Comparator</code>.
+     * @param filter
+     *            A <code>User</code> <code>Filter</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    private List<ArtifactReceipt> readPublishedTo2(final Long containerId,
+            final Long versionId, final Comparator<User> comparator,
+            final Filter<? super User> filter) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
+        try {
+            final Map<User, ArtifactReceipt> publishedTo =
+                containerIO.readPublishedTo(containerId, versionId);
+            final List<User> users = new ArrayList<User>(publishedTo.size());
+            for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
+                users.add(entry.getKey());
+            }
+            FilterManager.filter(users, filter);
+            Collections.sort(users, comparator);
+            final List<ArtifactReceipt> filteredPublishedTo = new ArrayList<ArtifactReceipt>();
+            for (final User user : users) {
+                filteredPublishedTo.add(publishedTo.get(user));
+            }
+            return filteredPublishedTo;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Read a user.
      * 
      * @param userId
@@ -3177,7 +3103,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @return A <code>User</code>.
      */
     private User readUser(final JabberId userId) {
-        return getInternalUserModel().read(userId);
+        return getUserModel().read(userId);
     }
 
     /**
@@ -3191,7 +3117,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     private void restore(final Container container, final RestoreModel restoreModel)
             throws IOException {
-        final InternalUserModel userModel = getInternalUserModel();
+        final InternalUserModel userModel = getUserModel();
         userModel.readLazyCreate(container.getCreatedBy());
         userModel.readLazyCreate(container.getUpdatedBy());
         containerIO.create(container);

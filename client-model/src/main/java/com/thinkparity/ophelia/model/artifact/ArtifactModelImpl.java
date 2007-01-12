@@ -39,13 +39,17 @@ import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Artifact Model Implementation<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.26
  */
-final class ArtifactModelImpl extends AbstractModelImpl {
+public final class ArtifactModelImpl extends AbstractModelImpl implements
+        ArtifactModel, InternalArtifactModel {
 
     /** Artifact persistance io. */
-	private final ArtifactIOHandler artifactIO;
+	private ArtifactIOHandler artifactIO;
 
 	/** The artifact model's auditor. */
     private final ArtifactModelAuditor auditor;
@@ -56,10 +60,9 @@ final class ArtifactModelImpl extends AbstractModelImpl {
 	 * @param workspace
 	 *            The parity workspace
 	 */
-	ArtifactModelImpl(final Environment environment, final Workspace workspace) {
-		super(environment, workspace);
-		this.artifactIO = IOFactory.getDefault(workspace).createArtifactHandler();
-		this.auditor = new ArtifactModelAuditor(internalModelFactory);
+	public ArtifactModelImpl() {
+        super();
+		this.auditor = new ArtifactModelAuditor(modelFactory);
 	}
 
 	/**
@@ -72,14 +75,14 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param userId
      *            The user id <code>JabberId</code>.
      */
-	TeamMember addTeamMember(final Long artifactId, final JabberId userId) {
+	public TeamMember addTeamMember(final Long artifactId, final JabberId userId) {
 	    logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         logger.logVariable("artifactId", userId);
         assertNotTeamMember("TEAM MEMBER ALREADY ADDED", artifactId, userId);
         assertOnline("USER NOT ONLINE");
         // create local user data
-        final InternalUserModel userModel = getInternalUserModel();
+        final InternalUserModel userModel = getUserModel();
         User user = userModel.read(userId);
         if (null == user) {
             user = userModel.create(userId);
@@ -88,32 +91,13 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         return addTeamMember(artifactId, user.getLocalId());
     }
 
-	/**
-     * Add a team member. Since we are using a local user id instead of a remote
-     * one we know the user info has already been downloaded and the api does
-     * not require the user to be online.
-     * 
-     * @param artifactId
-     *            An artifact id.
-     * @param userId
-     *            A local user id.
-     * @return A team member.
-     */
-    TeamMember addTeamMember(final Long artifactId, final Long userId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
-        logger.logVariable("userId", userId);
-        artifactIO.createTeamRel(artifactId, userId);
-        return artifactIO.readTeamRel(artifactId, userId);
-    }
-
     /**
      * Apply the archived flag.
      * 
      * @param artifactId
      *            An artifact id.
      */
-    void applyFlagArchived(final Long artifactId) {
+    public void applyFlagArchived(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         try {
@@ -123,13 +107,13 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
      * Apply the bookmark flag.
      * 
      * @param artifactId
      *            An artifact id.
      */
-    void applyFlagBookmark(final Long artifactId) {
+    public void applyFlagBookmark(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         try {
@@ -145,9 +129,13 @@ final class ArtifactModelImpl extends AbstractModelImpl {
 	 * @param artifactId
 	 *            The artifact id.
 	 */
-	void applyFlagKey(final Long artifactId) {
+    public void applyFlagKey(final Long artifactId) {
 		logger.logApiId();
-		applyFlag(artifactId, ArtifactFlag.KEY);
+        try {
+            applyFlag(artifactId, ArtifactFlag.KEY);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
 	}
 
     /**
@@ -156,13 +144,13 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param artifactId
      *            An artifact id.
      */
-    void applyFlagLatest(final Long artifactId) {
+    public void applyFlagLatest(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         try {
             applyFlag(artifactId, ArtifactFlag.LATEST);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -172,27 +160,9 @@ final class ArtifactModelImpl extends AbstractModelImpl {
 	 * @param artifactId
 	 *            The artifact id.
 	 */
-	void applyFlagSeen(final Long artifactId) {
+    public void applyFlagSeen(final Long artifactId) {
 		logger.logApiId();
 		applyFlag(artifactId, ArtifactFlag.SEEN);
-	}
-
-    /**
-	 * Audit the denial of a key request for an artifact.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @param createdBy
-	 *            The creator.
-	 * @param creatdOn
-	 *            The creation date.
-	 * @param deniedBy
-	 *            The user denying the request.
-	 */
-	void auditKeyRequestDenied(final Long artifactId,
-			final JabberId createdBy, final Calendar createdOn,
-			final JabberId deniedBy) throws ParityException {
-		auditor.keyRequestDenied(artifactId, createdBy, createdOn, deniedBy);
 	}
 
     /**
@@ -205,13 +175,17 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param updatedOn
      *            The last time the artifact was updated.
      */
-	void createRemoteInfo(final Long artifactId, final JabberId updatedBy,
+    public void createRemoteInfo(final Long artifactId, final JabberId updatedBy,
 			final Calendar updatedOn) {
 		logger.logApiId();
 		logger.logVariable("variable", artifactId);
 		logger.logVariable("variable", updatedBy);
 		logger.logVariable("variable", updatedOn);
-		artifactIO.createRemoteInfo(artifactId, updatedBy, updatedOn);
+        try {
+            artifactIO.createRemoteInfo(artifactId, updatedBy, updatedOn);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
 	}
 
     /**
@@ -221,12 +195,16 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      *            An artifact id.
      * @return The single team member.
      */
-    List<TeamMember> createTeam(final Long artifactId) {
+    public List<TeamMember> createTeam(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
-        // note that we are calling the "offline" version of the api
-        addTeamMember(artifactId, localUser().getLocalId());
-        return readTeam2(artifactId);
+        try {
+            // note that we are calling the "offline" version of the api
+            addTeamMember(artifactId, localUser().getLocalId());
+            return readTeam2(artifactId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -235,19 +213,19 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param artifactId
      *            The artifact id.
      */
-	void deleteRemoteInfo(final Long artifactId) {
+    public void deleteRemoteInfo(final Long artifactId) {
 		logger.logApiId();
 		logger.logVariable("variable", artifactId);
 		artifactIO.deleteRemoteInfo(artifactId);
 	}
 
-    void deleteTeam(final Long artifactId) {
+    public void deleteTeam(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("variable", artifactId);
         artifactIO.deleteTeamRel(artifactId);
     }
 
-	Boolean doesExist(final Long artifactId) {
+    public Boolean doesExist(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         try {
@@ -257,7 +235,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    Boolean doesExist(final UUID uniqueId) {
+    public Boolean doesExist(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         try {
@@ -267,13 +245,13 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    Boolean doesVersionExist(final Long artifactId) {
+    public Boolean doesVersionExist(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         return artifactIO.doesVersionExist(artifactId);
     }
 
-	Boolean doesVersionExist(final Long artifactId, final Long versionId) {
+    public Boolean doesVersionExist(final Long artifactId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         logger.logVariable("versionId", versionId);
@@ -290,7 +268,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param createdOn
      *            When the draft was created.
      */
-    void handleDraftCreated(final ArtifactDraftCreatedEvent event) {
+    public void handleDraftCreated(final ArtifactDraftCreatedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
@@ -318,7 +296,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param createdOn
      *            When the draft was deleted.
      */
-    void handleDraftDeleted(final ArtifactDraftDeletedEvent event) {
+    public void handleDraftDeleted(final ArtifactDraftDeletedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
@@ -335,7 +313,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    void handlePublished(final ArtifactPublishedEvent event) {
+    public void handlePublished(final ArtifactPublishedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
@@ -364,7 +342,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    void handleReceived(final ArtifactReceivedEvent event) {
+    public void handleReceived(final ArtifactReceivedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
@@ -395,7 +373,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param jabberId
      *            The user's jabber id.
      */
-    void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event) {
+    public void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
@@ -419,7 +397,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param jabberId
      *            The user's jabber id.
      */
-    void handleTeamMemberRemoved(final ArtifactTeamMemberRemovedEvent event) {
+    public void handleTeamMemberRemoved(final ArtifactTeamMemberRemovedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
@@ -428,7 +406,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
                 logger.logWarning("Artifact {0} no longer exists.", event
                         .getUniqueId());
             } else {
-                final User user = getInternalUserModel().read(event.getJabberId());
+                final User user = getUserModel().read(event.getJabberId());
                 artifactIO.deleteTeamRel(artifactId, user.getLocalId());
             }
         } catch(final Throwable t) {
@@ -436,19 +414,19 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
 	 * Determine whether or not the artifact has been seen.
 	 * 
 	 * @param artifactId
 	 *            The artifact id.
 	 * @return True if the artifact has been seen.
 	 */
-	Boolean hasBeenSeen(final Long artifactId) {
+    public Boolean hasBeenSeen(final Long artifactId) {
 		logger.logApiId();
 		return isFlagApplied(artifactId, ArtifactFlag.SEEN);
 	}
 
-	/**
+    /**
 	 * Determine whether or not an artifact has a flag applied.
 	 * 
 	 * @param artifactId
@@ -457,7 +435,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
 	 *            The artifact flag.
 	 * @return True if the flag is applied; false otherwise.
 	 */
-	Boolean isFlagApplied(final Long artifactId, final ArtifactFlag flag) {
+    public Boolean isFlagApplied(final Long artifactId, final ArtifactFlag flag) {
 		logger.logApiId();
 		logger.logVariable("variable", artifactId);
 		logger.logVariable("variable", flag);
@@ -466,26 +444,39 @@ final class ArtifactModelImpl extends AbstractModelImpl {
 	}
 
     /**
+     * Read the earliest version id for an artifact.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return A version id.
+     */
+    public Long readEarliestVersionId(final Long artifactId) {
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
+        return artifactIO.readEarliestVersionId(artifactId);
+    }
+
+	/**
      * Read the artifact id.
      * 
      * @param uniqueId
      *            The artifact unique id.
      * @return The artifact id.
      */
-    Long readId(final UUID uniqueId) {
+    public Long readId(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         return artifactIO.readId(uniqueId);
     }
 
-    /**
+	/**
      * Read the artifact key holder.
      * 
      * @param artifactId
      *            The artifact id.
      * @return The artifact key holder.
      */
-    JabberId readKeyHolder(final Long artifactId) {
+    public JabberId readKeyHolder(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         assertOnline();
@@ -500,23 +491,10 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      *            An artifact id.
      * @return A version id.
      */
-    Long readLatestVersionId(final Long artifactId) {
+    public Long readLatestVersionId(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         return artifactIO.readLatestVersionId(artifactId);
-    }
-
-    /**
-     * Read the earliest version id for an artifact.
-     * 
-     * @param artifactId
-     *            An artifact id.
-     * @return A version id.
-     */
-    Long readEarliestVersionId(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
-        return artifactIO.readEarliestVersionId(artifactId);
     }
 
     /**
@@ -526,7 +504,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      *            An artifact id.
      * @return The artifact team.
      */
-    Set<User> readTeam(final Long artifactId) {
+    public Set<User> readTeam(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         return artifactIO.readTeamRel(artifactId);
@@ -543,7 +521,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      *            An artifact <code>Filter</code>.
      * @return A <code>TeamMember</code> <code>List</code>.
      */
-    List<TeamMember> readTeam(final Long artifactId,
+    public List<TeamMember> readTeam(final Long artifactId,
             final Comparator<? super User> comparator,
             final Filter<? super User> filter) {
         logger.logVariable("artifactId", artifactId);
@@ -565,7 +543,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param artifactId
      *            An artifact id.
      */
-    List<TeamMember> readTeam2(final Long artifactId) {
+    public List<TeamMember> readTeam2(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         return artifactIO.readTeamRel2(artifactId);
@@ -577,7 +555,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param artifactId
      *            An artifact id.
      */
-    List<JabberId> readTeamIds(final Long artifactId) {
+    public List<JabberId> readTeamIds(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         try {
@@ -599,7 +577,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      *            An artifact id.
      * @return An <code>ArtifactType</code>.
      */
-    ArtifactType readType(final Long artifactId) {
+    public ArtifactType readType(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         try {
@@ -616,7 +594,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      *            An artifact id.
      * @return An artifact unique id.
      */
-    UUID readUniqueId(final Long artifactId) {
+    public UUID readUniqueId(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("variable", artifactId);
         return artifactIO.readUniqueId(artifactId);
@@ -628,7 +606,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param artifactId
      *            An artifact id.
      */
-    void removeFlagArchived(final Long artifactId) {
+    public void removeFlagArchived(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         try {
@@ -644,7 +622,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param artifactId
      *            An artifact id.
      */
-    void removeFlagBookmark(final Long artifactId) {
+    public void removeFlagBookmark(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         try {
@@ -660,7 +638,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
 	 * @param artifactId
 	 *            The artifact id.
 	 */
-	void removeFlagKey(final Long artifactId) {
+    public void removeFlagKey(final Long artifactId) {
 		logger.logApiId();
 		removeFlag(artifactId, ArtifactFlag.KEY);
 	}
@@ -671,7 +649,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
 	 * @param artifactId
 	 *            The artifact id.
 	 */
-	void removeFlagSeen(final Long artifactId) {
+    public void removeFlagSeen(final Long artifactId) {
 		logger.logApiId();
 		removeFlag(artifactId, ArtifactFlag.SEEN);
 	}
@@ -686,12 +664,12 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param user
      *            The user.
      */
-	void removeTeamMember(final Long artifactId, final JabberId userId) {
+    public void removeTeamMember(final Long artifactId, final JabberId userId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         logger.logVariable("userId", userId);
         assertTeamMember("USER IS NOT A TEAM MEMBER", artifactId, userId);
-        final User user = getInternalUserModel().read(userId);
+        final User user = getUserModel().read(userId);
         artifactIO.deleteTeamRel(artifactId, user.getLocalId());
     }
 
@@ -705,7 +683,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param updatedOn
      *            The last time the artifact was remotely updated.
      */
-	void updateRemoteInfo(final Long artifactId, final JabberId updatedBy,
+    public void updateRemoteInfo(final Long artifactId, final JabberId updatedBy,
 			final Calendar updatedOn) {
 		logger.logApiId();
 		logger.logVariable("variable", artifactId);
@@ -722,7 +700,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param state
      *            The artifact state.
      */
-    void updateState(final Long artifactId, final ArtifactState state) {
+    public void updateState(final Long artifactId, final ArtifactState state) {
         logger.logApiId();
         logger.logVariable("variable", artifactId);
         logger.logVariable("variable", state);
@@ -730,7 +708,58 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         assertStateTransition(currentState, state);
         artifactIO.updateState(artifactId, state);
     }
+
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     *
+     */
+    @Override
+    protected void initializeModel(final Environment environment,
+            final Workspace workspace) {
+        this.artifactIO = IOFactory.getDefault(workspace).createArtifactHandler();
+    }
+
+    /**
+     * Add a team member. Since we are using a local user id instead of a remote
+     * one we know the user info has already been downloaded and the api does
+     * not require the user to be online.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param userId
+     *            A local user id.
+     * @return A team member.
+     */
+    TeamMember addTeamMember(final Long artifactId, final Long userId) {
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
+        logger.logVariable("userId", userId);
+        try {
+            artifactIO.createTeamRel(artifactId, userId);
+            return artifactIO.readTeamRel(artifactId, userId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
     
+    /**
+	 * Audit the denial of a key request for an artifact.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @param createdBy
+	 *            The creator.
+	 * @param creatdOn
+	 *            The creation date.
+	 * @param deniedBy
+	 *            The user denying the request.
+	 */
+	void auditKeyRequestDenied(final Long artifactId,
+			final JabberId createdBy, final Calendar createdOn,
+			final JabberId deniedBy) throws ParityException {
+		auditor.keyRequestDenied(artifactId, createdBy, createdOn, deniedBy);
+	}
+
     /**
 	 * Apply a flag to an artifact.
 	 * 

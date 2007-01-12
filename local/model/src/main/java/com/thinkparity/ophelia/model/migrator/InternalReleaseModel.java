@@ -4,23 +4,14 @@
  */
 package com.thinkparity.ophelia.model.migrator;
 
-
-import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.session.Environment;
-
-import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 /**
- * The parity bootstrap's internal release model.
- *
+ * <b>Title:</b>thinkParity Internal Release Model<br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.1
  */
-public class InternalReleaseModel extends ReleaseModel {
-
-    /** Create InternalReleaseModel. */
-    InternalReleaseModel(final Context context, final Environment environment,
-            final Workspace workspace) {
-        super(environment, workspace);
-    }
-}
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface InternalReleaseModel extends ReleaseModel {}

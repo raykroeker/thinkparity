@@ -3,15 +3,10 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.util;
 
-import java.io.File;
-
 import com.thinkparity.codebase.StackUtil;
 
-import com.thinkparity.ophelia.model.Constants.DirectoryNames;
-import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
-import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
+import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.migrator.hsqldb.HypersonicMigrator;
-import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
  * @author raykroeker@gmail.com
@@ -19,41 +14,28 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  */
 public class HypersonicValidator {
 
-	/** The database directory. */
-	private final File databaseDirectory;
-
-    /** A thinkParity <code>Workspace</code>. */
-    private final Workspace workspace;
-
 	/**
-	 * Create a HypersonicValidator.
+     * Create HypersonicValidator.
+     *
 	 */
-	public HypersonicValidator(final Workspace workspace) {
+	public HypersonicValidator() {
 		super();
-		this.workspace = workspace;
-        this.databaseDirectory = new File(
-				workspace.getDataDirectory(),
-                DirectoryNames.Workspace.Data.DB);
 	}
 
-	public void validate() throws HypersonicException {
-		validateDatabaseDirectory();
+    /**
+     * Validate the hypersonic schema.
+     *
+     */
+	public void validate() {
 		validateSession();
-		new HypersonicMigrator(workspace).migrate();
+		new HypersonicMigrator().migrate();
 	}
 
-	private void validateDatabaseDirectory() {
-		if(!databaseDirectory.exists())
-			if(!databaseDirectory.mkdir())
-				throw new HypersonicException(
-						"Could not create database directory:  " +
-						databaseDirectory.getAbsolutePath());
-	}
-
+    /**
+     * Validate that a session can be established.
+     * 
+     */
 	private void validateSession() {
-		final Session session =
-                workspace.getSessionManager().openSession(
-                        StackUtil.getExecutionPoint());
-		session.close();
+		new SessionManager().openSession(StackUtil.getExecutionPoint()).close();
 	}
 }

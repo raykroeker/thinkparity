@@ -3,8 +3,6 @@
  */
 package com.thinkparity.ophelia.model.container.backup;
 
-import java.util.List;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -202,23 +200,6 @@ public abstract class BackupTestCase extends ContainerTestCase {
         assertNotNull(assertion + " [DOCUMENT VERSION UPDATED BY IS NULL]", version.getUpdatedOn());
         assertNotNull(assertion + " [DOCUMENT VERSION VERSION ID IS NULL]", version.getVersionId());
     }
-
-    /**
-     * Assert the container versions are not null.
-     * 
-     * @param assertion
-     *            An assertion.
-     * @param containers
-     *            A list of containers.
-     */
-    protected static void assertNotNull(final String assertion,
-            final List<ContainerVersion> versions) {
-        assertNotNull(assertion + " [VERSIONS IS NULL]", (Object) versions);
-        for(final ContainerVersion version : versions) {
-            assertNotNull(assertion, version);
-        }
-    }
-
 
     /**
      * Assert that the user and all of the user required fields are not null.

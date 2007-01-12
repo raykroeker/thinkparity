@@ -13,7 +13,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
-import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.md.MetaData;
 import com.thinkparity.ophelia.model.io.md.MetaDataType;
 import com.thinkparity.ophelia.model.message.ContactInvitationMessage;
@@ -137,11 +136,9 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 	/**
      * Create SystemMessageIOHandler.
      * 
-     * @param sessionManager
-     *            A hypersonic <code>SessionManager</code>.
      */
-	public SystemMessageIOHandler(final SessionManager sessionManager) {
-        super(sessionManager);
+	public SystemMessageIOHandler() {
+        super();
 	}
 
 	/**

@@ -19,37 +19,23 @@ import com.thinkparity.ophelia.model.io.handler.ProfileIOHandler;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
- * <b>Title:</b>thinkParity Profile Model Implementation</br>
- * <b>Description:</b>
- *
- * @author CreateModel.groovy
- * @version 1.1.1.1
+ * <b>Title:</b>thinkParity Profile Model Implementation<br>
+ * <b>Description:</b><br>
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.10
  */
-final class ProfileModelImpl extends AbstractModelImpl {
+public final class ProfileModelImpl extends AbstractModelImpl implements
+        ProfileModel, InternalProfileModel {
 
     /** The profile db io. */
-    private final ProfileIOHandler profileIO;
+    private ProfileIOHandler profileIO;
 
     /**
      * Create ProfileModelImpl.
      *
-     * @param workspace
-     *      The thinkParity workspace.
      */
-    ProfileModelImpl(final Environment environment, final Workspace workspace) {
-        super(environment, workspace);
-        this.profileIO = IOFactory.getDefault(workspace).createProfileHandler();
-    }
-
-    /**
-     * Read the user's credentials.
-     * 
-     * @return The user's credentials.
-     */
-    @Override
-    protected Credentials readCredentials() {
-        logger.logApiId();
-        return super.readCredentials();
+    public ProfileModelImpl() {
+        super();
     }
 
     /**
@@ -58,7 +44,7 @@ final class ProfileModelImpl extends AbstractModelImpl {
      * @param email
      *            An <code>EMail</code>.
      */
-    void addEmail(final EMail email) {
+    public void addEmail(final EMail email) {
         logger.logApiId();
         logger.logVariable("email", email);
         try {
@@ -81,7 +67,7 @@ final class ProfileModelImpl extends AbstractModelImpl {
      * Create the user's profile.
      *
      */
-    Profile create() {
+    public Profile create() {
         logger.logApiId();
         try {
             final Profile remoteProfile = getSessionModel().readProfile();
@@ -90,7 +76,7 @@ final class ProfileModelImpl extends AbstractModelImpl {
              * profile.
              */
             final List<EMail> remoteEmails =
-                    getSessionModel().readProfileEmails();
+                    getSessionModel().readProfileEMails();
             profileIO.create(remoteProfile);
             ProfileEMail profileEmail;
             for (final EMail remoteEmail : remoteEmails) {
@@ -111,7 +97,7 @@ final class ProfileModelImpl extends AbstractModelImpl {
      * 
      * @return True if sign up is available.
      */
-    Boolean isSignUpAvailable() {
+    public Boolean isSignUpAvailable() {
         logger.logApiId();
         return Boolean.FALSE;
     }
@@ -123,7 +109,7 @@ final class ProfileModelImpl extends AbstractModelImpl {
      * 
      * @return A profile.
      */
-    Profile read() {
+    public Profile read() {
         logger.logApiId();
         try {
             return profileIO.read(localUserId());
@@ -132,6 +118,16 @@ final class ProfileModelImpl extends AbstractModelImpl {
         }
     }
 
+    /**
+     * Read the user's credentials.
+     * 
+     * @return The user's credentials.
+     */
+    @Override
+    public Credentials readCredentials() {
+        logger.logApiId();
+        return super.readCredentials();
+    }
 
     /**
      * Read a profile email.
@@ -140,7 +136,7 @@ final class ProfileModelImpl extends AbstractModelImpl {
      *            An email id <code>Long</code>.
      * @return A <code>ProfileEmail</code>.
      */
-    ProfileEMail readEmail(final Long emailId) {
+    public ProfileEMail readEmail(final Long emailId) {
         logger.logApiId();
         logger.logVariable("emailId", emailId);
         try {
@@ -151,12 +147,13 @@ final class ProfileModelImpl extends AbstractModelImpl {
         }
     }
 
+
     /**
      * Read a list of profile email addresses.
      * 
      * @return A list of email addresses.
      */
-    List<ProfileEMail> readEmails() {
+    public List<ProfileEMail> readEmails() {
         logger.logApiId();
         try {
             final Profile profile = read();
@@ -171,7 +168,7 @@ final class ProfileModelImpl extends AbstractModelImpl {
      * 
      * @return A security question.
      */
-    String readSecurityQuestion() {
+    public String readSecurityQuestion() {
         logger.logApiId();
         try {
             final Profile profile = read();
@@ -187,7 +184,7 @@ final class ProfileModelImpl extends AbstractModelImpl {
      * @param emailId
      *            An email id <code>Long</code>.
      */
-    void removeEmail(final Long emailId) {
+    public void removeEmail(final Long emailId) {
         logger.logApiId();
         logger.logVariable("emailId", emailId);
         try {
@@ -207,7 +204,7 @@ final class ProfileModelImpl extends AbstractModelImpl {
      * Reset the user's password.
      *
      */
-    void resetPassword(final String securityAnswer) {
+    public void resetPassword(final String securityAnswer) {
         logger.logApiId();
         try {
             // update remote data.
@@ -229,7 +226,7 @@ final class ProfileModelImpl extends AbstractModelImpl {
      * @param profile
      *            A profile.
      */
-    void update(final Profile profile) {
+    public void update(final Profile profile) {
         logger.logApiId();
         logger.logVariable("profile", profile);
         try {
@@ -249,7 +246,7 @@ final class ProfileModelImpl extends AbstractModelImpl {
      * @param newPassword
      *            The new password <code>String</code>.
      */
-    void updatePassword(final String password,
+    public void updatePassword(final String password,
             final String newPassword) {
         logger.logApiId();
         logger.logVariable("password", "XXXXX");
@@ -277,7 +274,7 @@ final class ProfileModelImpl extends AbstractModelImpl {
      * @param key
      *            A verification key <code>String</code>.
      */
-    void verifyEmail(final Long emailId, final String key) {
+    public void verifyEmail(final Long emailId, final String key) {
         logger.logApiId();
         logger.logVariable("emailId", emailId);
         logger.logVariable("key", key);
@@ -290,5 +287,15 @@ final class ProfileModelImpl extends AbstractModelImpl {
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     *
+     */
+    @Override
+    protected void initializeModel(final Environment environment,
+            final Workspace workspace) {
+        this.profileIO = IOFactory.getDefault(workspace).createProfileHandler();
     }
 }

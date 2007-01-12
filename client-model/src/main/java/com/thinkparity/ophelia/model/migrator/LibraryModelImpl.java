@@ -4,7 +4,6 @@
  */
 package com.thinkparity.ophelia.model.migrator;
 
-
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.LibraryBytes;
 import com.thinkparity.codebase.model.session.Environment;
@@ -15,18 +14,23 @@ import com.thinkparity.ophelia.model.io.handler.LibraryIOHandler;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
+ * <b>Title:</b>thinkParity Library Model Implementation<br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.1
  */
-class LibraryModelImpl extends AbstractModelImpl {
+public final class LibraryModelImpl extends AbstractModelImpl implements
+        LibraryModel, InternalLibraryModel {
 
     /** The library xmpp io. */
-    private final LibraryIOHandler libraryIO;
+    private LibraryIOHandler libraryIO;
 
-    /** Create LibraryModelImpl. */
-    LibraryModelImpl(final Environment environment, final Workspace workspace) {
-        super(environment, workspace);
-        this.libraryIO = IOFactory.getXMPP(workspace).createLibraryHandler();
+    /**
+     * Create LibraryModelImpl.
+     *
+     */
+    public LibraryModelImpl() {
+        super();
     }
 
     /**
@@ -46,7 +50,7 @@ class LibraryModelImpl extends AbstractModelImpl {
      *            A byte array.
      * @return A library.
      */
-    Library create(final String artifactId, final String groupId,
+    public Library create(final String artifactId, final String groupId,
             final String path, final Library.Type type, final String version,
             final byte[] bytes) {
         logger.logApiId();
@@ -76,7 +80,7 @@ class LibraryModelImpl extends AbstractModelImpl {
      *            A version.
      * @return A library.
      */
-    Library read(final String artifactId, final String groupId,
+    public Library read(final String artifactId, final String groupId,
             final Library.Type type, final String version) {
         logger.logApiId();
         logger.logVariable("variable", artifactId);
@@ -93,8 +97,18 @@ class LibraryModelImpl extends AbstractModelImpl {
      *            A library id.
      * @return A library's bytes.
      */
-    LibraryBytes readBytes(final Long libraryId) {
+    public LibraryBytes readBytes(final Long libraryId) {
         return libraryIO.readBytes(libraryId);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     *
+     */
+    @Override
+    protected void initializeModel(final Environment environment,
+            final Workspace workspace) {
+        this.libraryIO = IOFactory.getXMPP(workspace).createLibraryHandler();
     }
 
     /**

@@ -6,47 +6,19 @@ package com.thinkparity.ophelia.model.migrator;
 
 import java.util.List;
 
-import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
-import com.thinkparity.codebase.model.session.Environment;
-
-import com.thinkparity.ophelia.model.AbstractModel;
-import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 /**
- * The parity bootstrap's release model.
- *
+ * <b>Title:</b>thinkParity Release Model<br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.1
  */
-public class ReleaseModel extends AbstractModel<ReleaseModelImpl> {
-
-    /**
-     * Obtain the parity bootstrap's internal release model interface.
-     *
-     * @return The parity bootstrap's internal release model interface.
-     */
-    public static InternalReleaseModel getInternalModel(final Context context,
-            final Environment environment, final Workspace workspace) {
-        return new InternalReleaseModel(context, environment, workspace);
-    }
-
-    /**
-     * Obtain the parity bootstrap's release model interface.
-     *
-     * @return The parity bootstrap's release model interface.
-     */
-    public static ReleaseModel getModel(final Environment environment,
-            final Workspace workspace) {
-        return new ReleaseModel(environment, workspace);
-    }
-
-    /** Create ReleaseModel. */
-    protected ReleaseModel(final Environment environment,
-            final Workspace workspace) {
-        super(new ReleaseModelImpl(environment, workspace));
-    }
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface ReleaseModel {
 
     /**
      * Create a release.
@@ -62,11 +34,7 @@ public class ReleaseModel extends AbstractModel<ReleaseModelImpl> {
      * @return A release.
      */
     public Release create(final String artifactId, final String groupId,
-            final String version, final List<Library> libraries) {
-        synchronized(getImplLock()) {
-            return getImpl().create(artifactId, groupId, version, libraries);
-        }
-    }
+            final String version, final List<Library> libraries);
 
     /**
      * Read a release.
@@ -80,20 +48,14 @@ public class ReleaseModel extends AbstractModel<ReleaseModelImpl> {
      * @return A release.
      */
     public Release read(final String artifactId, final String groupId,
-            final String version) {
-        synchronized(getImplLock()) {
-            return getImpl().read(artifactId, groupId, version);
-        }
-    }
+            final String version);
 
     /**
      * Read all releases.
      * 
      * @return A list of all releases.
      */
-    public List<Release> readAll() {
-        synchronized(getImplLock()) { return getImpl().readAll(); }
-    }
+    public List<Release> readAll();
 
     /**
      * Read the latest release.
@@ -104,11 +66,7 @@ public class ReleaseModel extends AbstractModel<ReleaseModelImpl> {
      *            A group id.
      * @return A release.
      */
-    public Release readLatest(final String artifactId, final String groupId) {
-        synchronized(getImplLock()) {
-            return getImpl().readLatest(artifactId, groupId);
-        }
-    }
+    public Release readLatest(final String artifactId, final String groupId);
 
     /**
      * Read a list of libraries belonging to a release.
@@ -117,7 +75,5 @@ public class ReleaseModel extends AbstractModel<ReleaseModelImpl> {
      *            A release id.
      * @return A list of libraries.
      */
-    public List<Library> readLibraries(final Long releaseId) {
-        synchronized(getImplLock()) { return getImpl().readLibraries(releaseId); }
-    }
+    public List<Library> readLibraries(final Long releaseId);
 }

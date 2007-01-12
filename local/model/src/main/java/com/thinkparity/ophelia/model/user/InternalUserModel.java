@@ -4,26 +4,20 @@
 package com.thinkparity.ophelia.model.user;
 
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.InternalModel;
-import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Internal User Model<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.4
  */
-public class InternalUserModel extends UserModel implements InternalModel {
-
-    /**
-     * Create a InternalUserModel.
-     */
-    InternalUserModel(final Context context, final Environment environment,
-            final Workspace workspace) {
-        super(environment, workspace);
-    }
+@ThinkParityTransaction(TransactionType.REQUIRED)
+public interface InternalUserModel extends UserModel {
 
     /**
      * Create a user.  This api will download the user's info as set
@@ -33,9 +27,7 @@ public class InternalUserModel extends UserModel implements InternalModel {
      *      The user's jabber id.
      * @return The user.
      */
-    public User create(final JabberId jabberId) {
-        synchronized(getImplLock()) { return getImpl().create(jabberId); }
-    }
+    public User create(final JabberId jabberId);
 
     /**
      * Read a user.
@@ -44,9 +36,7 @@ public class InternalUserModel extends UserModel implements InternalModel {
      *      A user id.
      * @return A user.
      */
-    public User read(final Long userId) {
-        synchronized(getImplLock()) { return getImpl().read(userId); }
-    }
+    public User read(final Long userId);
 
     /**
      * Read a user. If the user does not exist then create the user.
@@ -55,9 +45,5 @@ public class InternalUserModel extends UserModel implements InternalModel {
      *            A user id <code>JabberId</code>.
      * @return A <code>User</code>.
      */
-    public User readLazyCreate(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readLazyCreate(userId);
-        }
-    }
+    public User readLazyCreate(final JabberId userId);
 }

@@ -48,10 +48,11 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * <b>Title:</b>thinkParity Archive Model Implementation</br>
  * <b>Description:</b><br>
  *
- * @author CreateModel.groovy
- * @version 1.1.2.1
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.15
  */
-class ArchiveModelImpl extends AbstractModelImpl {
+public final class ArchiveModelImpl extends AbstractModelImpl implements
+        ArchiveModel, InternalArchiveModel {
 
     private static final int STEP_SIZE = 1024;
 
@@ -79,8 +80,8 @@ class ArchiveModelImpl extends AbstractModelImpl {
      * @param workspace
      *		The thinkParity workspace.
      */
-    ArchiveModelImpl(final Environment environment, final Workspace workspace) {
-        super(environment, workspace);
+    public ArchiveModelImpl() {
+        super();
         this.defaultComparator = new ComparatorBuilder().createByName();
         this.defaultFilter = FilterManager.createDefault();
         this.defaultUserComparator = UserComparatorFactory.createOrganizationAndName(Boolean.TRUE);
@@ -89,7 +90,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         this.defaultVersionFilter = FilterManager.createDefault();
     }
 
-    void archive(final Long artifactId) {
+    public void archive(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         try {
@@ -101,9 +102,13 @@ class ArchiveModelImpl extends AbstractModelImpl {
         }
     }
 
-    void openDocumentVersion(final OpenMonitor monitor, final UUID uniqueId,
+    /**
+     * @see com.thinkparity.ophelia.model.archive.ArchiveModel#openDocumentVersion(com.thinkparity.ophelia.model.archive.monitor.OpenMonitor, java.util.UUID, java.lang.Long, java.lang.String, java.lang.Long, com.thinkparity.ophelia.model.util.Opener)
+     *
+     */
+    public void openDocumentVersion(final OpenMonitor monitor, final UUID uniqueId,
             final Long versionId, final String versionName,
-            final long versionSize, final Opener opener) {
+            final Long versionSize, final Opener opener) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
@@ -151,7 +156,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         }
     }
 
-    InputStream openDocumentVersion(final UUID uniqueId, final Long versionId) {
+    public InputStream openDocumentVersion(final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
@@ -177,7 +182,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         }
     }
 
-    Container readContainer(final UUID uniqueId) {
+    public Container readContainer(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         try {
@@ -194,18 +199,18 @@ class ArchiveModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<Container> readContainers() {
+    public List<Container> readContainers() {
         logger.logApiId();
         return readContainers(defaultComparator);
     }
 
-    List<Container> readContainers(final Comparator<Artifact> comparator) {
+    public List<Container> readContainers(final Comparator<Artifact> comparator) {
         logger.logApiId();
         logger.logVariable("comparator", comparator);
         return readContainers(comparator, defaultFilter);
     }
 
-    List<Container> readContainers(final Comparator<Artifact> comparator,
+    public List<Container> readContainers(final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter) {
         logger.logApiId();
         logger.logVariable("comparator", comparator);
@@ -222,20 +227,20 @@ class ArchiveModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<Container> readContainers(final Filter<? super Artifact> filter) {
+    public List<Container> readContainers(final Filter<? super Artifact> filter) {
         logger.logApiId();
         logger.logVariable("filter", filter);
         return readContainers(defaultComparator, filter);
     }
 
-    List<ContainerVersion> readContainerVersions(final UUID uniqueId) {
+    public List<ContainerVersion> readContainerVersions(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         return readContainerVersions(uniqueId, defaultVersionComparator,
                 defaultVersionFilter);
     }
 
-    List<ContainerVersion> readContainerVersions(final UUID uniqueId,
+    public List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Comparator<ArtifactVersion> comparator) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -244,7 +249,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
                 defaultVersionFilter);
     }
 
-    List<ContainerVersion> readContainerVersions(final UUID uniqueId,
+    public List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter) {
         logger.logApiId();
@@ -264,7 +269,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<ContainerVersion> readContainerVersions(final UUID uniqueId,
+    public List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Filter<? super ArtifactVersion> filter) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -273,7 +278,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
                 filter);
     }
 
-    List<Document> readDocuments(final UUID uniqueId,
+    public List<Document> readDocuments(final UUID uniqueId,
             final Long versionId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -282,7 +287,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
                 defaultFilter);
     }
 
-    List<Document> readDocuments(final UUID uniqueId,
+    public List<Document> readDocuments(final UUID uniqueId,
             final Long versionId, final Comparator<Artifact> comparator) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -291,7 +296,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         return readDocuments(uniqueId, versionId, comparator, defaultFilter);
     }
 
-    List<Document> readDocuments(final UUID uniqueId,
+    public List<Document> readDocuments(final UUID uniqueId,
             final Long versionId, final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter) {
         logger.logApiId();
@@ -311,16 +316,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<Document> readDocuments(final UUID uniqueId, final Long versionId,
-            final UUID documentUniqueId, final Filter<? super Artifact> filter) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("filter", filter);
-        return readDocuments(uniqueId, versionId, defaultComparator, filter);
-    }
-
-    DocumentVersion readDocumentVersion(final UUID uniqueId,
+    public DocumentVersion readDocumentVersion(final UUID uniqueId,
             final UUID documentUniqueId, final Long documentVersionId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -335,7 +331,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         }
     }
 
-    Map<DocumentVersion, Delta> readDocumentVersionDeltas(final UUID uniqueId,
+    public Map<DocumentVersion, Delta> readDocumentVersionDeltas(final UUID uniqueId,
             final Long compareVersionId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -352,7 +348,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         }
     }
 
-    Map<DocumentVersion, Delta> readDocumentVersionDeltas(final UUID uniqueId,
+    public Map<DocumentVersion, Delta> readDocumentVersionDeltas(final UUID uniqueId,
             final Long compareVersionId, final Long compareToVersionId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -371,8 +367,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         }
     }
 
-
-    List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
+    public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -381,7 +376,8 @@ class ArchiveModelImpl extends AbstractModelImpl {
                 defaultVersionComparator, defaultVersionFilter);
     }
 
-    List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
+
+    public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId, final Comparator<ArtifactVersion> comparator) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -391,7 +387,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
                 defaultVersionFilter);
     }
 
-    List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
+    public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId, final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter) {
         logger.logApiId();
@@ -411,7 +407,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
+    public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId, final Filter<? super ArtifactVersion> filter) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -430,7 +426,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
      *            A version id <code>Long</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -450,7 +446,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
      *            A <code>Comparator&lt;User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId, final Comparator<User> comparator) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -473,7 +469,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId, final Comparator<User> comparator,
             final Filter<? super User> filter) {
         logger.logApiId();
@@ -494,7 +490,6 @@ class ArchiveModelImpl extends AbstractModelImpl {
         return sortedFilteredPublishedTo;
     }
 
-
     /**
      * Read a list of team members the container version was published to.
      * 
@@ -506,7 +501,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId, final Filter<? super User> filter) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -516,7 +511,8 @@ class ArchiveModelImpl extends AbstractModelImpl {
                 filter); 
     }
 
-    List<TeamMember> readTeam(final UUID uniqueId) {
+
+    public List<TeamMember> readTeam(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         try {
@@ -526,7 +522,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<JabberId> readTeamIds(final UUID uniqueId) {
+    public List<JabberId> readTeamIds(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         try {
@@ -538,7 +534,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         }
     }
 
-    void restore(final UUID uniqueId) {
+    public void restore(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         try {
@@ -547,6 +543,15 @@ class ArchiveModelImpl extends AbstractModelImpl {
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     *
+     */
+    @Override
+    protected void initializeModel(final Environment environment,
+            final Workspace workspace) {
     }
 
     private void assertArchiveOnline() {

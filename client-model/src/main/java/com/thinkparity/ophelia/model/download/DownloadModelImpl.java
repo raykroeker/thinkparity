@@ -6,12 +6,13 @@ package com.thinkparity.ophelia.model.download;
 
 import java.util.List;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
-import com.thinkparity.ophelia.model.Constants;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.download.helper.DownloadHelper;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -22,13 +23,18 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-class DownloadModelImpl extends AbstractModelImpl {
+public final class DownloadModelImpl extends AbstractModelImpl implements
+        DownloadModel, InternalDownloadModel {
 
-    /** Create DownloadModelImpl. */
-    DownloadModelImpl(final Environment environment, final Workspace workspace) {
-        super(environment, workspace);
+    /**
+     * Create DownloadModelImpl.
+     *
+     */
+    public DownloadModelImpl() {
+        super();
     }
 
+    
     /**
      * Download a release.
      * 
@@ -36,12 +42,13 @@ class DownloadModelImpl extends AbstractModelImpl {
      *            A release.
      * @throws ParityException
      */
-    void download(final Release release) {
+    public void download(final Release release) {
         logger.logApiId();
         logger.logVariable("variable", release);
         try {
             final List<Library> libraries = readLibraries(release.getId());
-            final DownloadHelper helper = new DownloadHelper(internalModelFactory, release);
+            final DownloadHelper helper = new DownloadHelper(release,
+                    workspace.createTempDirectory());
             if (!helper.isStarted()) {
                 helper.start(libraries);
             }
@@ -58,13 +65,13 @@ class DownloadModelImpl extends AbstractModelImpl {
      *            A release.
      * @return True the download for the latest version is complete.
      */
-    Boolean isComplete(final Release release) {
+    public Boolean isComplete(final Release release) {
         logger.logApiId();
         logger.logVariable("variable", release);
         try {
             // check to see if the latest release has already been downloaded
-            final DownloadHelper download = new DownloadHelper(
-                    internalModelFactory, release);
+            final DownloadHelper download = new DownloadHelper(release,
+                    workspace.createTempDirectory());
             return download.isComplete();
         } catch (final Throwable t) {
             throw translateError(t);
@@ -76,11 +83,12 @@ class DownloadModelImpl extends AbstractModelImpl {
      * 
      * @return A release.
      */
-    Release read() {
+    public Release read() {
         logger.logApiId();
         try {
             final Release latest = readLatestRelease();
-            final DownloadHelper helper = new DownloadHelper(internalModelFactory, latest);
+            final DownloadHelper helper = new DownloadHelper(latest,
+                    workspace.createTempDirectory());
             if (helper.isComplete()) {
                 return latest;
             } else {
@@ -91,12 +99,22 @@ class DownloadModelImpl extends AbstractModelImpl {
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     *
+     */
+    @Override
+    protected void initializeModel(final Environment environment,
+            final Workspace workspace) {
+    }
+
     private Release readLatestRelease() {
-        return getInternalReleaseModel().readLatest(
-                Constants.Release.ARTIFACT_ID, Constants.Release.GROUP_ID);
+        // raymond@thinkparity.com - 12-Jan-07 11:40:32 AM
+        throw Assert.createNotYetImplemented("");
     }
 
     private List<Library> readLibraries(final Long releaseId) {
-        return getInternalReleaseModel().readLibraries(releaseId);
+        // raymond@thinkparity.com - 12-Jan-07 11:40:37 AM
+        throw Assert.createNotYetImplemented("");
     }
 }

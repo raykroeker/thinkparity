@@ -6,13 +6,18 @@ package com.thinkparity.ophelia.model.workspace;
 import java.io.File;
 import java.io.IOException;
 
-import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
+import javax.naming.NamingException;
+
+import com.thinkparity.codebase.model.util.jta.Transaction;
+
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 
 /**
- * Workspace
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Workspace<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.7
  */
 public interface Workspace {
 
@@ -68,14 +73,14 @@ public interface Workspace {
      */
 	public File getDataDirectory();
 
-	/**
+    /**
 	 * Obtain the index directory.
 	 * 
 	 * @return The index directory <code>File</code.
 	 */
 	public File getIndexDirectory();
 
-    /**
+	/**
      * Obtain the log directory.
      * 
      * @return A directory <code>File</code>.
@@ -97,13 +102,6 @@ public interface Workspace {
 	public Preferences getPreferences();
 
     /**
-     * Obtain the database session manager for the workspace.
-     * 
-     * @return A session manager.
-     */
-    public SessionManager getSessionManager();
-
-    /**
      * Obtain the workspace directory.
      * 
      * @return The workspace directory <code>File</code>.
@@ -116,4 +114,12 @@ public interface Workspace {
      * @return An <code>XMPPSession</code>.
      */
     public XMPPSession getXMPPSession();
+
+    /**
+     * Lookup a transaction.
+     * 
+     * @return A <code>Transaction</code>.
+     * @throws NamingException
+     */
+    public Transaction lookupTransaction() throws NamingException;
 }

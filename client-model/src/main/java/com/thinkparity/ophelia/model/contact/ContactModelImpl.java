@@ -39,16 +39,17 @@ import com.thinkparity.ophelia.model.util.sort.contact.NameComparator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
- * <b>Title:</b>thinkParity Contact Model Implementation</br>
- * <b>Description:</b>
- *
- * @author CreateModel.groovy; raymond@thinkparity.com
- * @version 1.1.2.12
+ * <b>Title:</b>thinkParity Contact Model Implementation<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.10
  */
-class ContactModelImpl extends AbstractModelImpl<ContactListener> {
+public final class ContactModelImpl extends AbstractModelImpl<ContactListener>
+        implements ContactModel, InternalContactModel {
 
     /** The contact db io. */
-    private final ContactIOHandler contactIO;
+    private ContactIOHandler contactIO;
 
     /** The default contact comparator. */
     private final Comparator<Contact> defaultComparator;
@@ -71,12 +72,9 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
     /**
      * Create ContactModelImpl.
      *
-     * @param workspace
-     *		The thinkParity workspace.
      */
-    ContactModelImpl(final Environment environment, final Workspace workspace) {
-        super(environment, workspace);
-        this.contactIO = IOFactory.getDefault(workspace).createContactHandler();
+    public ContactModelImpl() {
+        super();
         this.defaultComparator = new NameComparator(Boolean.TRUE);
         this.defaultFilter = new DefaultFilter();
         this.defaultInvitationComparator = new InvitationIdComparator();
@@ -86,30 +84,12 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#addListener(com.thinkparity.ophelia.model.util.EventListener)
-     * 
-     */
-    @Override
-    public boolean addListener(final ContactListener listener) {
-        return super.addListener(listener);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#removeListener(com.thinkparity.ophelia.model.util.EventListener)
-     * 
-     */
-    @Override
-    protected boolean removeListener(final ContactListener listener) {
-        return super.removeListener(listener);
-    }
-
-    /**
      * Accept the incoming invitation.
      * 
      * @param invitationId
      *            An invitation id.
      */
-    void acceptIncomingInvitation(final Long invitationId) {
+    public void acceptIncomingInvitation(final Long invitationId) {
         logger.logApiId();
         logger.logVariable("invitationId", invitationId);
         assertOnline();
@@ -132,12 +112,21 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#addListener(com.thinkparity.ophelia.model.util.EventListener)
+     * 
+     */
+    @Override
+    public void addListener(final ContactListener listener) {
+        super.addListener(listener);
+    }
+
+    /**
      * Create a contact invitation.
      * 
      * @param email
      *            An e-mail address.
      */
-    OutgoingInvitation createOutgoingInvitation(final EMail email) {
+    public OutgoingInvitation createOutgoingInvitation(final EMail email) {
         logger.logApiId();
         logger.logVariable("email", email);
         assertOnline();
@@ -164,7 +153,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * @param invitationId
      *            An invitation id.
      */
-    void declineIncomingInvitation(final Long invitationId) {
+    public void declineIncomingInvitation(final Long invitationId) {
         logger.logApiId();
         logger.logVariable("invitationId", invitationId);
         assertOnline();
@@ -189,7 +178,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      *            A contact jabber id.
      * @return A contact.
      */
-    void delete(final JabberId contactId) {
+    public void delete(final JabberId contactId) {
         logger.logApiId();
         logger.logVariable("contactId", contactId);
         assertOnline();
@@ -212,7 +201,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * @param invitationId
      *            An invitation id.
      */
-    void deleteOutgoingInvitation(final Long invitationId) {
+    public void deleteOutgoingInvitation(final Long invitationId) {
         logger.logApiId();
         logger.logVariable("invitationId", invitationId);
         assertOnline();
@@ -233,7 +222,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * Download the contacts from the server and create the local data.
      *
      */
-    void download() {
+    public void download() {
         logger.logApiId();
         assertOnline();
         try {
@@ -260,7 +249,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * @param deletedOn
      *            When the contact was deleted <code>Calendar</code>.
      */
-    void handleContactDeleted(final ContactDeletedEvent event) {
+    public void handleContactDeleted(final ContactDeletedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
@@ -282,7 +271,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * @param updatedOn
      *            When the contact was updated <code>Calendar</code>.
      */
-    void handleContactUpdated(final ContactUpdatedEvent event) {
+    public void handleContactUpdated(final ContactUpdatedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
@@ -322,7 +311,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * @param acceptedOn
      *            When the invitation was accepted.
      */
-    void handleInvitationAccepted(final ContactInvitationAcceptedEvent event) {
+    public void handleInvitationAccepted(final ContactInvitationAcceptedEvent event) {
        logger.logApiId();
        logger.logVariable("event", event);
        try {
@@ -353,7 +342,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * @param declinedOn
      *            When the invitation was declined.
      */
-    void handleInvitationDeclined(final ContactInvitationDeclinedEvent event) {
+    public void handleInvitationDeclined(final ContactInvitationDeclinedEvent event) {
        logger.logApiId();
        logger.logVariable("event", event);
        try {
@@ -378,7 +367,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * @param deletedOn
      *            When the invitation was deleted.
      */
-    void handleInvitationDeleted(final ContactInvitationDeletedEvent event) {
+    public void handleInvitationDeleted(final ContactInvitationDeletedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
@@ -409,12 +398,12 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * @param invitedOn
      *            When the invitation was extended.
      */
-    void handleInvitationExtended(final ContactInvitationExtendedEvent event) {
+    public void handleInvitationExtended(final ContactInvitationExtendedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
             // create user data
-            final InternalUserModel userModel = getInternalUserModel();
+            final InternalUserModel userModel = getUserModel();
             final User extendedByUser = userModel.readLazyCreate(event.getInvitedBy());
             final IncomingInvitation incoming = new IncomingInvitation();
             incoming.setCreatedBy(localUser().getLocalId());
@@ -435,7 +424,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * 
      * @return A list of contacts.
      */
-    List<Contact> read() {
+    public List<Contact> read() {
         logger.logApiId();
         return read(defaultComparator, defaultFilter);
     }
@@ -447,7 +436,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      *            A user comparator to sort the contacts.
      * @return A list of contacts.
      */
-    List<Contact> read(final Comparator<Contact> comparator) {
+    public List<Contact> read(final Comparator<Contact> comparator) {
         logger.logApiId();
         logger.logVariable("comparator", comparator);
         return read(comparator, defaultFilter);
@@ -462,7 +451,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      *            A user filter to scope the contacts.
      * @return A list of contacts.
      */
-    List<Contact> read(final Comparator<Contact> comparator,
+    public List<Contact> read(final Comparator<Contact> comparator,
             final Filter<? super Contact> filter) {
         logger.logApiId();
         logger.logVariable("comparator", comparator);
@@ -480,7 +469,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      *            A user filter to scope the contacts.
      * @return A list of contacts.
      */
-    List<Contact> read(final Filter<? super Contact> filter) {
+    public List<Contact> read(final Filter<? super Contact> filter) {
         logger.logApiId();
         logger.logVariable("filter", filter);
         return read(defaultComparator, filter);
@@ -493,7 +482,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      *            A contact jabber id.
      * @return A contact.
      */
-    Contact read(final JabberId contactId) {
+    public Contact read(final JabberId contactId) {
         logger.logApiId();
         return contactIO.read(contactId);
     }
@@ -505,7 +494,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      *            An invitation id.
      * @return An incoming invitation.
      */
-    IncomingInvitation readIncomingInvitation(final Long invitationId) {
+    public IncomingInvitation readIncomingInvitation(final Long invitationId) {
         logger.logApiId();
         logger.logVariable("invitationId", invitationId);
         return contactIO.readIncomingInvitation(invitationId);
@@ -516,7 +505,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * 
      * @return A list of incoming invitations.
      */
-    List<IncomingInvitation> readIncomingInvitations() {
+    public List<IncomingInvitation> readIncomingInvitations() {
         logger.logApiId();
         return readIncomingInvitations(defaultInvitationComparator, defaultInvitationFilter);
     }
@@ -526,7 +515,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * 
      * @return A list of incoming invitations.
      */
-    List<IncomingInvitation> readIncomingInvitations(
+    public List<IncomingInvitation> readIncomingInvitations(
             final Comparator<ContactInvitation> comparator) {
         logger.logApiId();
         logger.logVariable("comparator",comparator);
@@ -538,7 +527,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * 
      * @return A list of incoming invitations.
      */
-    List<IncomingInvitation> readIncomingInvitations(
+    public List<IncomingInvitation> readIncomingInvitations(
             final Comparator<ContactInvitation> comparator,
             final Filter<? super ContactInvitation> filter) {
         logger.logApiId();
@@ -556,14 +545,14 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * 
      * @return A list of incoming invitations.
      */
-    List<IncomingInvitation> readIncomingInvitations(
+    public List<IncomingInvitation> readIncomingInvitations(
             final Filter<? super ContactInvitation> filter) {
         logger.logApiId();
         logger.logVariable("filter", filter);
         return readIncomingInvitations(defaultInvitationComparator, filter);
     }
 
-    OutgoingInvitation readOutgoingInvitation(final Long invitationId) {
+    public OutgoingInvitation readOutgoingInvitation(final Long invitationId) {
         logger.logApiId();
         logger.logVariable("invitationId", invitationId);
         return contactIO.readOutgoingInvitation(invitationId);
@@ -574,7 +563,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * 
      * @return A list of outgoing invitations.
      */
-    List<OutgoingInvitation> readOutgoingInvitations() {
+    public List<OutgoingInvitation> readOutgoingInvitations() {
         logger.logApiId();
         return readOutgoingInvitations(defaultInvitationComparator, defaultInvitationFilter);
     }
@@ -584,7 +573,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * 
      * @return A list of outgoing invitations.
      */
-    List<OutgoingInvitation> readOutgoingInvitations(
+    public List<OutgoingInvitation> readOutgoingInvitations(
             final Comparator<ContactInvitation> comparator) {
         logger.logApiId();
         logger.logVariable("comparator",comparator);
@@ -596,7 +585,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * 
      * @return A list of outgoing invitations.
      */
-    List<OutgoingInvitation> readOutgoingInvitations(
+    public List<OutgoingInvitation> readOutgoingInvitations(
             final Comparator<ContactInvitation> comparator,
             final Filter<? super ContactInvitation> filter) {
         logger.logApiId();
@@ -614,11 +603,20 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * 
      * @return A list of outgoing invitations.
      */
-    List<OutgoingInvitation> readOutgoingInvitations(
+    public List<OutgoingInvitation> readOutgoingInvitations(
             final Filter<? super ContactInvitation> filter) {
         logger.logApiId();
         logger.logVariable("filter", filter);
         return readOutgoingInvitations(defaultInvitationComparator, filter);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#removeListener(com.thinkparity.ophelia.model.util.EventListener)
+     * 
+     */
+    @Override
+    public void removeListener(final ContactListener listener) {
+        super.removeListener(listener);
     }
 
     /**
@@ -628,7 +626,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      *            A search expression.
      * @return A <code>List&lt;JabberId&gt;</code>.
      */
-    List<JabberId> search(final String expression) {
+    public List<JabberId> search(final String expression) {
         logger.logApiId();
         logger.logVariable("expression", expression);
         try {
@@ -636,6 +634,16 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     *
+     */
+    @Override
+    protected void initializeModel(final Environment environment,
+            final Workspace workspace) {
+        this.contactIO = IOFactory.getDefault(workspace).createContactHandler();
     }
 
     /**
@@ -659,7 +667,7 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      */
     private Contact createLocal(final Contact contact) {
         // create the contact data
-        final InternalUserModel userModel = getInternalUserModel();
+        final InternalUserModel userModel = getUserModel();
         final User user = userModel.readLazyCreate(contact.getId());
         contact.setLocalId(user.getLocalId());
         contactIO.create(contact);

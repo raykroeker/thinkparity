@@ -27,19 +27,23 @@ public class TransactionManager {
      *            A thinkParity <code>Application</code>.
      * @return A <code>TransactionManager</code>.
      */
-    public static TransactionManager getInstance() {
-        return new TransactionManager();
+    public static TransactionManager getInstance(final String txName) {
+        return new TransactionManager(txName);
     }
 
     /** An objectweb <code>Jotm</code>. */
     private Jotm jotm;
 
+    /** The JNDI name to bind to. */
+    private final String txName;
+
     /**
      * Create TransactionManager.
      *
      */
-    private TransactionManager() {
+    private TransactionManager(final String txName) {
         super();
+        this.txName = txName;
     }
 
     /**
@@ -59,7 +63,7 @@ public class TransactionManager {
      *            A lookup key <code>String</code>.
      */
     public Transaction lookup() throws NamingException {
-        return (Transaction) JNDIUtil.lookup(getName());
+        return (Transaction) JNDIUtil.lookup(txName);
     }
 
     /**
@@ -81,15 +85,6 @@ public class TransactionManager {
     }
 
     /**
-     * Obtain the JNDI name for a transaction.
-     * 
-     * @return A JNDI name <code>String</code>.
-     */
-    private String getName() {
-        return "java:comp/thinkParity/tx/UserTransaction";
-    }
-
-    /**
      * Initialize the transaction manager. This will create an instance of the
      * underlying transaction manager.
      * 
@@ -97,6 +92,6 @@ public class TransactionManager {
      */
     private void initialize() throws NamingException {
         final Transaction transaction = new Transaction(jotm.getUserTransaction());
-        JNDIUtil.rebind(getName(), transaction);
+        JNDIUtil.rebind(txName, transaction);
     }
 }

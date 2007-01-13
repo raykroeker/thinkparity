@@ -53,6 +53,9 @@ class PersistenceManagerImpl {
     /** An apache logger. */
     private final Log4JWrapper logger;
 
+    /** A jndi naming prefix <code>String</code>. */
+    private final String namingPrefix;
+
     /** A <code>TransactionManager</code>. */
     private TransactionManager transactionManager;
 
@@ -80,6 +83,9 @@ class PersistenceManagerImpl {
             .append("TRUE")
             .toString();
         this.logger = new Log4JWrapper();
+        this.namingPrefix = new StringBuffer("java:comp/thinkParity/")
+            .append(workspace.getName())
+            .toString();
     }
 
     /**
@@ -98,8 +104,11 @@ class PersistenceManagerImpl {
      */
     void start() {
         try {
+            final String txName = new StringBuffer(namingPrefix)
+                .append("/tx/UserTransaction")
+                .toString();
             // create transaction manager
-            transactionManager = TransactionManager.getInstance();
+            transactionManager = TransactionManager.getInstance(txName);
             transactionManager.start();
             // create datasource
             dataSource = new StandardXADataSource(); 
@@ -110,7 +119,10 @@ class PersistenceManagerImpl {
             // bind the transaction manager to the data source
             transactionManager.bind(dataSource);
             // save the ds within jndi
-            JNDIUtil.rebind("java:comp/thinkParity/jdbc/DataSource", dataSource);
+            final String dsName = new StringBuffer(namingPrefix)
+                .append("/jdbc/DataSource")
+                .toString();
+            JNDIUtil.rebind(dsName, dataSource);
         } catch (final Throwable t) {
             throw new WorkspaceException("Cannot start persistence manager.", t);
         }

@@ -19,7 +19,7 @@
     <property name="cvs.compressionlevel" value="9"/>
     <property name="cvs.cvsroot" value=":pserver:${cvs.credentials}@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
-    <property name="cvs.modules" value="common/codebase common/junitx common/migrator common/model local/browser local/browser-plugins local/model local/thinkparity vendor/commons-codec/1.3 vendor/dom4j/1.6.1 vendor/fop/0.20.5 vendor/groovy/1.0-JSR06 vendor/hsqldb/1.8.0.2 vendor/jdic/0.9.1 vendor/jdic_icon/0.1.1 vendor/i686 vendor/junit/3.8.1 vendor/log4j/1.2.13 vendor/lucene/1.9.1 vendor/nativeskin/6.7 vendor/smack/2.2.1 vendor/smackx/2.2.1 vendor/swing-layout/1.0 vendor/xpp3/1.1.3.4.O vendor/xstream/1.2.1"/>
+    <property name="cvs.modules" value="common/codebase common/junitx common/migrator common/model local/browser local/browser-plugins local/model local/thinkparity vendor/commons-codec/1.3 vendor/dom4j/1.6.1 vendor/fop/0.20.5 vendor/groovy/1.0-JSR06 vendor/hsqldb/1.8.0.2 vendor/jdic/0.9.1 vendor/jdic_icon/0.1.1 vendor/i686 vendor/junit/3.8.1  vendor/jotm/2.0.10 vendor/log4j/1.2.13 vendor/lucene/1.9.1 vendor/nativeskin/6.7 vendor/smack/2.2.1 vendor/smackx/2.2.1 vendor/swing-layout/1.0 vendor/xpp3/1.1.3.4.O vendor/xstream/1.2.1"/>
 
     <!-- output directories -->
     <property name="target.dir" value="${basedir}/target"/>
@@ -38,7 +38,7 @@
         <include name="dom4j/1.6.1/dom4j.jar"/>
         <include name="fop/0.20.5/avalon-framework-cvs-20020806.jar"/>
         <include name="fop/0.20.5/fop.jar"/>
- 		<include name="fop/0.20.5/batik.jar"/>
+        <include name="fop/0.20.5/batik.jar"/>
         <include name="groovy/1.0-JSR06/groovy.jar"/>
         <include name="hsqldb/1.8.0.2/hsqldb.jar"/>
         <include name="jdic/0.9.1/${platform}/jdic.jar"/>
@@ -77,6 +77,19 @@
         <pathelement location="${basedir}/vendor/groovy/1.0-JSR06/groovy.jar"/>
         <pathelement location="${basedir}/vendor/log4j/1.2.13/log4j.jar"/>
         <pathelement location="${basedir}/vendor/lucene/1.9.1/lucene.jar"/>
+        <!-- jotm libraries -->
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/commons-cli-1.0.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/commons-logging.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/connector-1_5.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/howl.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/jotm.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/jotm_iiop_stubs.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/jotm_jrmp_stubs.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/jta-spec1_0_1.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/jts1_0.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/objectweb-datasource.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/ow_carol.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/xapool.jar"/>
         <!-- xmpp client libraries -->
         <pathelement location="${basedir}/vendor/smack/2.2.1/smack.jar"/>
         <pathelement location="${basedir}/vendor/smackx/2.2.1/smackx.jar"/>

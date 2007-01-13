@@ -492,6 +492,7 @@ public final class ContainerTabModel extends TabPanelModel implements
      * @return A <code>SortBy</code>.
      */
     private SortBy getInitialSort() {
+        // TODO figure out why this double cast needs to happen
         final SortBy sortBy = (SortBy)(Comparator<TabPanel>)persistence.get(sortByKey, SortBy.CREATED_ON);
         sortBy.ascending = persistence.get(sortAscendingKey, false);
         return sortBy;

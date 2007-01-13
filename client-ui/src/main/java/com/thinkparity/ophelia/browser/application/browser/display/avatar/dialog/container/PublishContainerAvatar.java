@@ -57,7 +57,7 @@ public final class PublishContainerAvatar extends Avatar implements
     private javax.swing.JTextArea commentJTextArea;
     private javax.swing.JLabel documentJLabel;
     private javax.swing.JLabel documentNameJLabel;
-    private javax.swing.JLabel filler1JLabel;
+    private javax.swing.JLabel fillerJLabel;
     private javax.swing.JList namesJList;
     private javax.swing.JScrollPane namesJScrollPane;
     private javax.swing.JPanel progressBarJPanel;
@@ -310,21 +310,16 @@ public final class PublishContainerAvatar extends Avatar implements
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        javax.swing.JLabel filler2JLabel;
-        javax.swing.JLabel titleJLabel;
-
         namesJScrollPane = new javax.swing.JScrollPane();
         namesJList = new javax.swing.JList();
         commentJLabel = new javax.swing.JLabel();
         commentJScrollPane = new javax.swing.JScrollPane();
         commentJTextArea = new javax.swing.JTextArea();
         buttonBarJPanel = new javax.swing.JPanel();
-        filler1JLabel = new javax.swing.JLabel();
-        filler2JLabel = new javax.swing.JLabel();
+        fillerJLabel = new javax.swing.JLabel();
         publishJButton = new javax.swing.JButton();
         cancelJButton = new javax.swing.JButton();
         progressBarJPanel = new javax.swing.JPanel();
-        titleJLabel = new javax.swing.JLabel();
         documentJLabel = new javax.swing.JLabel();
         documentNameJLabel = new javax.swing.JLabel();
         publishJProgressBar = new javax.swing.JProgressBar();
@@ -343,8 +338,7 @@ public final class PublishContainerAvatar extends Avatar implements
 
         namesJScrollPane.setViewportView(namesJList);
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        commentJLabel.setText(bundle.getString("PublishContainerDialog.Comment")); // NOI18N
+        commentJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("PublishContainerDialog.Comment"));
         commentJLabel.setFocusable(false);
 
         commentJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -354,18 +348,16 @@ public final class PublishContainerAvatar extends Avatar implements
         commentJScrollPane.setViewportView(commentJTextArea);
 
         buttonBarJPanel.setOpaque(false);
-        filler1JLabel.setPreferredSize(new java.awt.Dimension(3, 14));
+        fillerJLabel.setPreferredSize(new java.awt.Dimension(3, 14));
 
-        filler2JLabel.setText(" ");
-
-        publishJButton.setText(bundle.getString("PublishContainerDialog.publishJButton")); // NOI18N
+        publishJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("PublishContainerDialog.publishJButton"));
         publishJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 publishJButtonActionPerformed(evt);
             }
         });
 
-        cancelJButton.setText(bundle.getString("PublishContainerDialog.Cancel")); // NOI18N
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("PublishContainerDialog.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelJButtonActionPerformed(evt);
@@ -378,23 +370,18 @@ public final class PublishContainerAvatar extends Avatar implements
             buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(buttonBarJPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonBarJPanelLayout.createSequentialGroup()
-                        .add(publishJButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(cancelJButton))
-                    .add(filler1JLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 385, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, filler2JLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 385, Short.MAX_VALUE))
-                .addContainerGap())
+                .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(fillerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE)
+                    .add(publishJButton))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(cancelJButton))
         );
         buttonBarJPanelLayout.setVerticalGroup(
             buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(buttonBarJPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(filler1JLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(7, 7, 7)
-                .add(filler2JLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(fillerJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(cancelJButton)
                     .add(publishJButton))
@@ -402,8 +389,6 @@ public final class PublishContainerAvatar extends Avatar implements
         );
 
         progressBarJPanel.setOpaque(false);
-        titleJLabel.setText(bundle.getString("PublishContainerDialog.progressBarJPanel.titleJLabel")); // NOI18N
-
         documentJLabel.setText(getDocumentJLabelText());
 
         documentNameJLabel.setText("!My Document.doc!");
@@ -415,19 +400,15 @@ public final class PublishContainerAvatar extends Avatar implements
         progressBarJPanelLayout.setHorizontalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(progressBarJPanelLayout.createSequentialGroup()
-                .add(24, 24, 24)
-                .add(documentJLabel)
+                .add(documentJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(documentNameJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE))
-            .add(titleJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
+                .add(documentNameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 278, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            .add(publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
         );
         progressBarJPanelLayout.setVerticalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(progressBarJPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(titleJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(documentJLabel)
                     .add(documentNameJLabel))

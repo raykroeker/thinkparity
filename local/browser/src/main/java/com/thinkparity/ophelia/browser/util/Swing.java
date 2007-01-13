@@ -12,7 +12,6 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItemUI;
@@ -57,7 +56,7 @@ public class Swing {
         	final LookAndFeel laf;
         	switch (OSUtil.getOS()) {
         	case WINDOWS_XP:
-        		laf = new WindowsLookAndFeel();
+        		laf = new com.sun.java.swing.plaf.windows.WindowsLookAndFeel();
         		break;
         	case LINUX:
         		laf = new MetalLookAndFeel();

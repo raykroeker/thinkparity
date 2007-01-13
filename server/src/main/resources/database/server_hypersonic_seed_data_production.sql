@@ -1,7 +1,7 @@
 insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.auth.anonymous','true');
 insert into jiveProperty (NAME,PROPVALUE)
-    values('xmpp.domain','thinkparity.dyndns.org');
+    values('xmpp.domain','thinkparity.net');
 insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.server.socket.port','5269');
 insert into jiveProperty (NAME,PROPVALUE)

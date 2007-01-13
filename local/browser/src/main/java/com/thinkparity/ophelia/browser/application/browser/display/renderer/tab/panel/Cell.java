@@ -48,6 +48,13 @@ public interface Cell {
      * @return True if an action is available.
      */
     public Boolean isActionAvailable();
+    
+    /**
+     * Determine whether or not a popup is available for the cell.
+     * 
+     * @return True if a popup is available.
+     */
+    public Boolean isPopupAvailable();
 
     /**
      * Determine whether or not a cell is enabled.

@@ -851,13 +851,15 @@ public class ContainerPanel extends DefaultTabPanel {
     /** A west list cell. */
     private abstract class AbstractWestCell extends WestCell {
         /**
-         * Create AbstractEastCell.
-         *
+         * Create AbstractWestCell.
+         * 
+         * @param emptyEastCellPopupAvailable
+         *       A <code>Boolean</code> indicating if there is a popup in the empty east cell.
          */
-        private AbstractWestCell() {
+        private AbstractWestCell(final Boolean emptyEastCellPopupAvailable) {
             super();
             setEnabled(isLatest());
-            add(new EmptyEastCell(this));
+            add(new EmptyEastCell(this, emptyEastCellPopupAvailable));
         }
     }
 
@@ -871,6 +873,7 @@ public class ContainerPanel extends DefaultTabPanel {
                 final List<ContainerVersion> versions,
                 final Map<ContainerVersion, List<DocumentView>> documentViews,
                 final List<TeamMember> team) {
+            super(Boolean.TRUE);
             if (container.isLocalDraft()) {
                 addDraftDocumentCells(draftView);
             } else if (null != latestVersion) {
@@ -1067,7 +1070,7 @@ public class ContainerPanel extends DefaultTabPanel {
          *
          */
         private DraftCell() {
-            super();
+            super(Boolean.FALSE);
             for (final Document document : draft.getDocuments()) {
                 add(new DraftDocumentCell(this, document));
             }
@@ -1118,12 +1121,17 @@ public class ContainerPanel extends DefaultTabPanel {
         }
     }
         
-    private final class EmptyEastCell extends AbstractEastCell {        
+    private final class EmptyEastCell extends AbstractEastCell {
+        
+        /** A <code>Boolean</code> indicating if the popup is available. */
+        private final Boolean popupAvailable;
+        
         /**
          * Create EmptyEastCell.
          */
-        private EmptyEastCell(final WestCell parent) {
+        private EmptyEastCell(final WestCell parent, final Boolean popupAvailable) {
             super(parent);
+            this.popupAvailable = popupAvailable;
         }
 
         /**
@@ -1132,7 +1140,15 @@ public class ContainerPanel extends DefaultTabPanel {
         @Override
         public Boolean isActionAvailable() {
             return Boolean.FALSE;
-        }        
+        }
+        
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#isPopupAvailable()
+         */
+        @Override
+        public Boolean isPopupAvailable() {
+            return popupAvailable;
+        }
     }
 
     private enum ListType { EAST_LIST, WEST_LIST }
@@ -1297,6 +1313,7 @@ public class ContainerPanel extends DefaultTabPanel {
                 final List<DocumentView> documentViews,
                 final Map<User, ArtifactReceipt> publishedTo,
                 final User publishedBy) {
+            super(Boolean.FALSE);
             this.documentViews = documentViews;
             this.version = version;
             this.publishedBy = publishedBy;

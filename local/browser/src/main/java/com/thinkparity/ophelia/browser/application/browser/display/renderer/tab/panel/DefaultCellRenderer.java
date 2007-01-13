@@ -83,6 +83,14 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
                         cell.invokeAction();
                     }
                 }
+                if (!cell.isActionAvailable()) {
+                    maybeShowPopup(e);
+                }
+            }
+            public void mouseReleased(final java.awt.event.MouseEvent e) {
+                if (!cell.isActionAvailable()) {
+                    maybeShowPopup(e);
+                }
             }
             public void mouseEntered(final java.awt.event.MouseEvent e) {
                 if (cell.isActionAvailable()) {
@@ -110,7 +118,7 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
      * Maybe show a popup.
      */
     private void maybeShowPopup(final java.awt.event.MouseEvent e) {
-        if (e.isPopupTrigger()) {
+        if (e.isPopupTrigger() && cell.isPopupAvailable()) {
             if (null != tabPanel.getPopupDelegate()) {
                 tabPanel.getPopupDelegate().initialize((Component) e.getSource(), e.getX(), e.getY());
                 cell.showPopup();

@@ -76,6 +76,13 @@ public class DefaultCell implements Cell {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isPopupAvailable()
+     */
+    public Boolean isPopupAvailable() {
+        return Boolean.TRUE;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isEnabled()
      * 
      */

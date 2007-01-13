@@ -18,7 +18,7 @@
     <property name="cvs.compressionlevel" value="9"/>
     <property name="cvs.cvsroot" value=":pserver:${cvs.credentials}@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
-    <property name="cvs.modules" value="common/codebase common/junitx common/model common/xdoclet local/model remote/codebase remote/model vendor/fop/0.20.5 vendor/groovy vendor/xstream/1.2.1 lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/lucene lib/smack lib/smackx lib/swing-layout lib/wildfire lib/xdoclet"/>
+    <property name="cvs.modules" value="common/codebase common/junitx common/model common/xdoclet local/model remote/codebase remote/model vendor/fop/0.20.5 vendor/groovy vendor/xstream/1.2.1 lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/lucene lib/smack lib/smackx lib/swing-layout lib/wildfire lib/xdoclet vendor/jotm/2.0.10"/>
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
 
     <!-- local configuration  -->
@@ -47,6 +47,20 @@
     <property name="vendor.smackx.lib" value="${vendor.dir}/smackx/2.2.1/smackx.jar"/>
     <property name="vendor.xstream.lib" value="${vendor.dir}/xstream/1.2.1/xstream.jar"/>
 
+    <!-- jotm libs -->
+    <property name="vendor.jotm.commons-cli.lib" value="${vendor.dir}/jotm/2.0.10/commons-cli-1.0.jar"/>
+    <property name="vendor.jotm.commons-logging.lib" value="${vendor.dir}/jotm/2.0.10/commons-logging.jar"/>
+    <property name="vendor.jotm.connector.lib" value="${vendor.dir}/jotm/2.0.10/connector-1_5.jar"/>
+    <property name="vendor.jotm.howl.lib" value="${vendor.dir}/jotm/2.0.10/howl.jar"/>
+    <property name="vendor.jotm.lib" value="${vendor.dir}/jotm/2.0.10/jotm.jar"/>
+    <property name="vendor.jotm_iiop_stubs.lib" value="${vendor.dir}/jotm/2.0.10/jotm_iiop_stubs.jar"/>
+    <property name="vendor.jotm_jrmp_stubs.lib" value="${vendor.dir}/jotm/2.0.10/jotm_jrmp_stubs.jar"/>
+    <property name="vendor.jotm.jta.lib" value="${vendor.dir}/jotm/2.0.10/jta-spec1_0_1.jar"/>
+    <property name="vendor.jotm.jts.lib" value="${vendor.dir}/jotm/2.0.10/jts1_0.jar"/>
+    <property name="vendor.jotm.datasource.lib" value="${vendor.dir}/jotm/2.0.10/objectweb-datasource.jar"/>
+    <property name="vendor.jotm.carol.lib" value="${vendor.dir}/jotm/2.0.10/ow_carol.jar"/>
+    <property name="vendor.jotm.xapool.lib" value="${vendor.dir}/jotm/2.0.10/xapool.jar"/>
+
     <!-- classpath -->
     <path id="project.classpath">
         <pathelement location="${target.classes.dir}/common/codebase"/>
@@ -65,6 +79,21 @@
         <pathelement location="${basedir}/vendor/smack/2.2.1/smack.jar"/>
         <pathelement location="${basedir}/vendor/smackx/2.2.1/smackx.jar"/>
         <pathelement location="${basedir}/vendor/xstream/1.2.1/xstream.jar"/>
+
+        <!-- jotm libraries -->
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/commons-cli-1.0.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/commons-logging.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/connector-1_5.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/howl.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/jotm.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/jotm_iiop_stubs.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/jotm_jrmp_stubs.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/jta-spec1_0_1.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/jts1_0.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/objectweb-datasource.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/ow_carol.jar"/>
+        <pathelement location="${basedir}/vendor/jotm/2.0.10/xapool.jar"/>
+
         <pathelement location="${basedir}/vendor/wildfire/3.0.1/wildfire.jar"/>
         <pathelement location="${basedir}/vendor/wildfire/3.0.1/mail.jar"/>
     </path>

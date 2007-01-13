@@ -393,7 +393,7 @@ public final class PublishContainerAvatar extends Avatar implements
 
         documentNameJLabel.setText("!My Document.doc!");
 
-        publishJProgressBar.setBorder(new javax.swing.border.LineBorder(Colors.Browser.ProgressBar.BORDER, 1, true));
+        publishJProgressBar.setBorder(javax.swing.BorderFactory.createLineBorder(Colors.Browser.ProgressBar.BORDER));
 
         org.jdesktop.layout.GroupLayout progressBarJPanelLayout = new org.jdesktop.layout.GroupLayout(progressBarJPanel);
         progressBarJPanel.setLayout(progressBarJPanelLayout);

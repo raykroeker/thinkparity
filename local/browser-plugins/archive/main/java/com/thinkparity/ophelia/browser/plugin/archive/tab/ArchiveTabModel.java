@@ -310,7 +310,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
      * @return A <code>SortBy</code>.
      */
     private SortBy getInitialSort() {
-        final SortBy sortBy = (SortBy)persistence.get(sortByKey, SortBy.CREATED_ON);
+        final SortBy sortBy = (SortBy)(Comparator<TabPanel>)persistence.get(sortByKey, SortBy.CREATED_ON);
         sortBy.ascending = persistence.get(sortAscendingKey, false);
         return sortBy;
     }

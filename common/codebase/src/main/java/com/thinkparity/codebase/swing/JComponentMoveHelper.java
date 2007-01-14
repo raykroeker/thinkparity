@@ -43,9 +43,15 @@ final class JComponentMoveHelper {
         LISTENER_CLIENT_PROPERTY_KEY = new StringBuffer(JComponentMoveHelper.class.getName())
             .append("#mouseInputListener").toString();
     }
+    
+    /** The number of pixels from the edge of the component to interpret as valid for moving. */
+    private final int edgePixelBuffer;
 
     /** An apache logger wrapper. */
     private final Log4JWrapper logger;
+    
+    /** Flag indicating mouse move is in progress. */
+    private Boolean moving;
     
     /** The offset x and y coordinates the mouse was dragged. */
     private int offsetX, offsetY;
@@ -80,6 +86,7 @@ final class JComponentMoveHelper {
     private JComponentMoveHelper() {
         super();
         this.logger = new Log4JWrapper();
+        this.edgePixelBuffer = 6;
         this.stickyPixels = 25;
     }
 
@@ -137,6 +144,25 @@ final class JComponentMoveHelper {
             mouseInputListener = null;
         }        
     }
+    
+    /**
+     * Determine if the mouse press is on the edge of the component.
+     * 
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    private Boolean isOnEdgeOfComponent(final MouseEvent e) {
+        final Point p = e.getPoint();
+        final Dimension d = e.getComponent().getSize();
+        if ((p.getX() < edgePixelBuffer) ||
+            (p.getX() >= d.getWidth() - edgePixelBuffer) ||
+            (p.getY() < edgePixelBuffer) ||
+            (p.getY() >= d.getHeight() - edgePixelBuffer)) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
 
     /**
      * The component's mouse dragged event was fired.
@@ -144,12 +170,14 @@ final class JComponentMoveHelper {
      * @param e
      *            A <code>MouseEvent</code>.
      */
-    private void jComponentMouseDragged(final MouseEvent e) {        
-        final Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
-        final Point jComponentLocation = SwingUtilities.getWindowAncestor(((JComponent) e.getSource())).getLocation();
-        offsetX = mouseLocation.x - mouseOrigin.x - jComponentLocation.x + jComponentOrigin.x;
-        offsetY = mouseLocation.y - mouseOrigin.y - jComponentLocation.y + jComponentOrigin.y;
-        moveWindow(e);
+    private void jComponentMouseDragged(final MouseEvent e) {
+        if (moving) {
+            final Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
+            final Point jComponentLocation = SwingUtilities.getWindowAncestor(((JComponent) e.getSource())).getLocation();
+            offsetX = mouseLocation.x - mouseOrigin.x - jComponentLocation.x + jComponentOrigin.x;
+            offsetY = mouseLocation.y - mouseOrigin.y - jComponentLocation.y + jComponentOrigin.y;
+            moveWindow(e);
+        }
     }
 
     /**
@@ -159,8 +187,13 @@ final class JComponentMoveHelper {
      *            A <code>MouseEvent</code>.
      */
     private void jComponentMousePressed(final MouseEvent e) {
-        mouseOrigin = MouseInfo.getPointerInfo().getLocation();
-        jComponentOrigin = SwingUtilities.getWindowAncestor(((JComponent) e.getSource())).getLocation();
+        if (isOnEdgeOfComponent(e)) {
+            moving = Boolean.FALSE;
+        } else {
+            moving = Boolean.TRUE;
+            mouseOrigin = MouseInfo.getPointerInfo().getLocation();
+            jComponentOrigin = SwingUtilities.getWindowAncestor(((JComponent) e.getSource())).getLocation();
+        }
     }
 
     /**

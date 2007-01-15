@@ -85,7 +85,7 @@ public final class InternalModelFactory {
     }
 
     /**
-     * Obtain an internal archiive model.
+     * Obtain an internal archive model.
      * 
      * @return An instance of <code>InternalArchiveModel</code>.
      */

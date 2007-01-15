@@ -30,6 +30,7 @@ import org.jivesoftware.wildfire.IQRouter;
 import org.jivesoftware.wildfire.XMPPServer;
 import org.jivesoftware.wildfire.XMPPServerListener;
 import org.jivesoftware.wildfire.container.Plugin;
+import org.jivesoftware.wildfire.container.PluginClassLoader;
 import org.jivesoftware.wildfire.container.PluginManager;
 import org.jivesoftware.wildfire.handler.IQHandler;
 
@@ -77,6 +78,9 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 	 */
 	public void initializePlugin(final PluginManager manager,
             final File pluginDirectory) {
+        final PluginClassLoader pluginClassLoader = manager.getPluginClassloader(this);
+        Thread.currentThread().setContextClassLoader(pluginClassLoader.getClassLoader());
+
 	    final JiveProperties jiveProperties = JiveProperties.getInstance();
 	    final Mode mode = Mode.valueOf((String) jiveProperties.get("thinkparity.mode"));
         System.setProperty("thinkparity.mode", mode.toString());

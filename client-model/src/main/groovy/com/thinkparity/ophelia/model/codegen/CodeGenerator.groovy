@@ -1,3 +1,5 @@
+package com.thinkparity.ophelia.model.codegen;
+
 import java.io.*;
 import java.text.*;
 import java.util.*;

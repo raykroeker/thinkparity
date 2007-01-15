@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
@@ -443,12 +445,14 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /**
      * Create ContainerIOHandler.
      * 
+     * @param dataSource
+     *            An sql <code>DataSource</code>.
      */
-    public ContainerIOHandler() {
-        super();
-        this.artifactIO = new ArtifactIOHandler();
-        this.documentIO = new DocumentIOHandler();
-        this.userIO = new UserIOHandler();
+    public ContainerIOHandler(final DataSource dataSource) {
+        super(dataSource);
+        this.artifactIO = new ArtifactIOHandler(dataSource);
+        this.documentIO = new DocumentIOHandler(dataSource);
+        this.userIO = new UserIOHandler(dataSource);
     }
 
     /**

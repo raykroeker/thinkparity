@@ -12,10 +12,12 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 import com.thinkparity.codebase.Constants;
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.JNDIUtil;
 import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.StringUtil;
@@ -193,6 +195,19 @@ public class WorkspaceImpl implements Workspace {
      */
     public File getDataDirectory() {
         return initChild(DirectoryNames.Workspace.DATA);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getDataSource()
+     *
+     */
+    public DataSource getDataSource() {
+        try {
+            return (DataSource) JNDIUtil.lookup(
+                    persistenceManagerImpl.getDataSourceName());
+        } catch (final NamingException nx) {
+            throw new WorkspaceException("Could not obtain data source.", nx);
+        }
     }
 
     /**

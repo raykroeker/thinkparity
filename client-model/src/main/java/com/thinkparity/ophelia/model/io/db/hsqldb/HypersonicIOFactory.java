@@ -6,11 +6,12 @@ package com.thinkparity.ophelia.model.io.db.hsqldb;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.db.hsqldb.handler.AbstractIOHandler;
-import com.thinkparity.ophelia.model.io.db.hsqldb.util.HypersonicValidator;
 import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.ophelia.model.io.handler.AuditIOHandler;
 import com.thinkparity.ophelia.model.io.handler.ConfigurationIOHandler;
@@ -26,10 +27,16 @@ import com.thinkparity.ophelia.model.io.handler.UserIOHandler;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Hypersonic IO Factory<br>
+ * <b>Description:</b>Creates database io handlers.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
 public class HypersonicIOFactory extends IOFactory {
+
+    /** A sql <code>DataSource</code>. */
+    private final DataSource dataSource;
 
 	/**
      * Create a HypersonicIOFactory [Concrete Factory]
@@ -37,7 +44,7 @@ public class HypersonicIOFactory extends IOFactory {
      */
     public HypersonicIOFactory(final Workspace workspace) {
         super(workspace);
-        new HypersonicValidator().validate();
+        this.dataSource = workspace.getDataSource();
     }
 
     /**
@@ -164,8 +171,8 @@ public class HypersonicIOFactory extends IOFactory {
                     new StringBuffer("com.thinkparity.ophelia.model.io.db.hsqldb.handler.")
                     .append(simpleName).toString();
             final Class<?> handlerClass = Class.forName(className);
-            final Class<?>[] paramTypes = new Class<?>[] {};
-            final Object[] params = new Object[] {};
+            final Class<?>[] paramTypes = new Class<?>[] {DataSource.class};
+            final Object[] params = new Object[] {dataSource};
             final Constructor constructor = handlerClass.getConstructor(paramTypes);
             final AbstractIOHandler handler =
                 (AbstractIOHandler) constructor.newInstance(params);

@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.user.User;
@@ -63,9 +65,11 @@ public class UserIOHandler extends AbstractIOHandler implements
     /**
      * Create a UserIOHandler.
      * 
+     * @param dataSource
+     *            An sql <code>DataSource</code>.
      */
-    public UserIOHandler() {
-        super();
+    public UserIOHandler(final DataSource dataSource) {
+        super(dataSource);
     }
 
     /**

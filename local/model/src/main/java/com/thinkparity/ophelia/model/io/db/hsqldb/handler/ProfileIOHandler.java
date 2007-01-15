@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.profile.Profile;
@@ -95,11 +97,13 @@ public class ProfileIOHandler extends AbstractIOHandler implements
     /**
      * Create ProfileIOHandler.
      * 
+     * @param dataSource
+     *            An sql <code>DataSource</code>.
      */
-    public ProfileIOHandler() {
-        super();
-        this.userIO = new UserIOHandler();
-        this.emailIO = new EmailIOHandler();
+    public ProfileIOHandler(final DataSource dataSource) {
+        super(dataSource);
+        this.userIO = new UserIOHandler(dataSource);
+        this.emailIO = new EmailIOHandler(dataSource);
     }
 
     /**

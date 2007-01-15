@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -204,11 +206,13 @@ public class ContactIOHandler extends AbstractIOHandler implements
     /**
      * Create ContactIOHandler.
      * 
+     * @param dataSource
+     *            An sql <code>DataSource</code>.
      */
-    public ContactIOHandler() {
-        super();
-        this.emailIO = new EmailIOHandler();
-        this.userIO = new UserIOHandler();
+    public ContactIOHandler(final DataSource dataSource) {
+        super(dataSource);
+        this.emailIO = new EmailIOHandler(dataSource);
+        this.userIO = new UserIOHandler(dataSource);
     }
 
     /**

@@ -50,11 +50,17 @@ class PersistenceManagerImpl {
     /** The data source driver url. */
     private final String dsDriverURL;
 
+    /** The data source jndi name. */
+    private final String dsName;
+
     /** An apache logger. */
     private final Log4JWrapper logger;
 
     /** A jndi naming prefix <code>String</code>. */
     private final String namingPrefix;
+
+    /** A persistence <code>SessionManager</code>. */
+    private SessionManager sessionManager;
 
     /** A <code>TransactionManager</code>. */
     private TransactionManager transactionManager;
@@ -86,6 +92,17 @@ class PersistenceManagerImpl {
         this.namingPrefix = new StringBuffer("java:comp/thinkParity/")
             .append(workspace.getName())
             .toString();
+        this.dsName = new StringBuffer(namingPrefix).append("/jdbc/DataSource")
+                .toString();
+    }
+
+    /**
+     * Obtain the data source name.
+     * 
+     * @return The name of the datasource.
+     */
+    String getDataSourceName() {
+        return dsName;
     }
 
     /**
@@ -118,11 +135,9 @@ class PersistenceManagerImpl {
             dataSource.setUser(DS_USER);
             // bind the transaction manager to the data source
             transactionManager.bind(dataSource);
-            // save the ds within jndi
-            final String dsName = new StringBuffer(namingPrefix)
-                .append("/jdbc/DataSource")
-                .toString();
             JNDIUtil.rebind(dsName, dataSource);
+            sessionManager = new SessionManager(dataSource);
+            new PersistenceMigrator(sessionManager).migrate();
         } catch (final Throwable t) {
             throw new WorkspaceException("Cannot start persistence manager.", t);
         }
@@ -133,7 +148,6 @@ class PersistenceManagerImpl {
      *
      */
     void stop() {
-        final SessionManager sessionManager = new SessionManager();
         final List<Session> sessions = sessionManager.getSessions();
         if (0 < sessions.size())
             logger.logWarning("{0} abandoned database sessions.", sessions.size());
@@ -142,7 +156,7 @@ class PersistenceManagerImpl {
             session.close();
         }
 
-        final Session session = new SessionManager().openSession();
+        final Session session = sessionManager.openSession();
         try {
             session.execute("SHUTDOWN COMPACT");
         } finally {

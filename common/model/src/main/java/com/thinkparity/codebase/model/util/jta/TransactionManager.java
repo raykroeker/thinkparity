@@ -6,8 +6,11 @@ package com.thinkparity.codebase.model.util.jta;
 import javax.naming.NamingException;
 
 import com.thinkparity.codebase.JNDIUtil;
+import com.thinkparity.codebase.ResourceUtil;
 
 import org.enhydra.jdbc.standard.StandardXADataSource;
+import org.objectweb.carol.util.configuration.ConfigurationException;
+import org.objectweb.carol.util.configuration.ConfigurationRepository;
 import org.objectweb.jotm.Jotm;
 
 /**
@@ -71,7 +74,8 @@ public class TransactionManager {
      * 
      * @throws NamingException
      */
-    public void start() throws NamingException {
+    public void start() throws ConfigurationException, NamingException {
+        ConfigurationRepository.init(ResourceUtil.getURL("carol.properties"));
         this.jotm = new Jotm(true, false);
         initialize();
     }

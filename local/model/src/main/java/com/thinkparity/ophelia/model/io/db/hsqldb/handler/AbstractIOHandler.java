@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -21,33 +23,19 @@ public abstract class AbstractIOHandler {
 	/** An apache logger. */
 	protected final Log4JWrapper logger;
 
-    /**
-     * The configuration io. Since the IO handler is an abstract io handler; it is
-     * obtained using a lazy create pattern.
-     * 
-     * @see #getConfigurationIO()
-     */
-    private ConfigurationIOHandler configurationIO;
-
-    /**
-     * The meta data io. Since the IO handler is an abstract io handler; it is
-     * obtained using a lazy create pattern.
-     * 
-     * @see #getMetaDataIO()
-     */
-    private MetaDataIOHandler metaDataIO;
-
 	/** A thinkParity hypersonic <code>SessionManager</code>. */
     private final SessionManager sessionManager;
 
     /**
      * Create AbstractIOHandler.
      * 
+     * @param dataSource
+     *            An sql <code>DataSource</code>.
      */
-    protected AbstractIOHandler() {
+    protected AbstractIOHandler(DataSource dataSource) {
         super();
         this.logger = new Log4JWrapper();
-        this.sessionManager = new SessionManager();
+        this.sessionManager = new SessionManager(dataSource);
     }
 
     protected void checkpoint() {
@@ -66,38 +54,15 @@ public abstract class AbstractIOHandler {
 	 *            The database session.
 	 * @return The meta data object.
 	 */
-	protected MetaData extractMetaData(final Session session) {
+	protected MetaData extractMetaData(final Session session,
+            final MetaDataIOHandler metaDataIO) {
 		final MetaData metaData = new MetaData();
 		metaData.setId(session.getLong("META_DATA_ID"));
 		metaData.setKey(session.getString("KEY"));
 		metaData.setType(session.getMetaDataTypeFromInteger("META_DATA_TYPE_ID"));
-		metaData.setValue(getMetaDataIO().extractValue(session, metaData.getType(), "VALUE"));
+		metaData.setValue(metaDataIO.extractValue(session, metaData.getType(), "VALUE"));
 		return metaData;
 	}
-
-    /**
-     * Obtain the meta data io handler.
-     * 
-     * @return The meta data io handler.
-     */
-    protected ConfigurationIOHandler getConfigurationIO() {
-        if(null == configurationIO) {
-            configurationIO = new ConfigurationIOHandler();
-        }
-        return configurationIO;
-    }
-
-    /**
-     * Obtain the meta data io handler.
-     * 
-     * @return The meta data io handler.
-     */
-    protected MetaDataIOHandler getMetaDataIO() {
-        if(null == metaDataIO) {
-            metaDataIO = new MetaDataIOHandler();
-        }
-        return metaDataIO;
-    }
 
     /**
 	 * Open a database session.

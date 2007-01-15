@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
@@ -38,9 +40,11 @@ class EmailIOHandler extends AbstractIOHandler {
     /**
      * Create EmailIOHandler.
      * 
+     * @param dataSource
+     *            An sql <code>DataSource</code>.
      */
-    EmailIOHandler() {
-        super();
+    EmailIOHandler(final DataSource dataSource) {
+        super(dataSource);
     }
 
     /**

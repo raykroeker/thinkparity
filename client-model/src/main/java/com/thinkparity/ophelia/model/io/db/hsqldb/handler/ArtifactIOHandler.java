@@ -13,6 +13,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
@@ -323,10 +325,12 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 	/**
      * Create ArtifactIOHandler.
      * 
+     * @param dataSource
+     *            An sql <code>DataSource</code>.
      */
-	public ArtifactIOHandler() {
-        super();
-        this.userIO = new UserIOHandler();
+	public ArtifactIOHandler(final DataSource dataSource) {
+        super(dataSource);
+        this.userIO = new UserIOHandler(dataSource);
 	}
 
     /**

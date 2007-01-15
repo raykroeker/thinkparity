@@ -1,7 +1,7 @@
 /*
  * Created On: Feb 8, 2006
  */
-package com.thinkparity.ophelia.model.migrator.hsqldb;
+package com.thinkparity.ophelia.model.workspace.impl;
 
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.config.Config;
@@ -22,10 +22,14 @@ import com.thinkparity.ophelia.model.message.SystemMessageType;
 import org.apache.log4j.Logger;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1.2.17
+ * <b>Title:</b>thinkParity Workspace Persistence Migrator<br>
+ * <b>Description:</b>Migrates the workspace persistence schema/data from one
+ * version to the next.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class HypersonicMigrator {
+public class PersistenceMigrator {
 
     private static final Config CONFIG;
 
@@ -118,20 +122,23 @@ public class HypersonicMigrator {
     private final SessionManager sessionManager;
 
     /**
-     * Create a HypersonicMigrator.
+     * Create PersistenceMigrator.
      * 
+     * @param sessionManager
+     *            A <code>SessionManager</code>.
      */
-    public HypersonicMigrator() {
+    PersistenceMigrator(final SessionManager sessionManager) {
         super();
         this.logger = Logger.getLogger(getClass());
-        this.sessionManager = new SessionManager();
+        this.sessionManager = sessionManager;
     }
 
-    public void migrate() throws HypersonicException {
+    void migrate() throws HypersonicException {
         final String actualVersionId = Constants.Release.VERSION;
         final String expectedVersionId = getExpectedVersionId();
-        if(null == expectedVersionId) { initializeSchema(); }
-        else if(actualVersionId.equals(expectedVersionId)) {
+        if (null == expectedVersionId) {
+            initializeSchema();
+        } else if(actualVersionId.equals(expectedVersionId)) {
             migrateSchema(expectedVersionId, actualVersionId);
         }
     }

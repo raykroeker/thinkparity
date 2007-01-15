@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 import java.text.ParseException;
 import java.util.Calendar;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -61,9 +63,11 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 	/**
      * Create a MetaDataIOHandler.
      * 
+     * @param dataSource
+     *            An sql <code>DataSource</code>.
      */
-	public MetaDataIOHandler() {
-        super();
+	public MetaDataIOHandler(final DataSource dataSource) {
+        super(dataSource);
 	}
 
 	/**

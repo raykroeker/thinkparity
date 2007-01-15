@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 import com.thinkparity.codebase.model.util.jta.Transaction;
 
@@ -72,6 +73,13 @@ public interface Workspace {
      * @return The data directory <code>File</code>.
      */
 	public File getDataDirectory();
+
+    /**
+     * Obtain the data source for the workspace.
+     * 
+     * @return A <code>DataSource</code>.
+     */
+    public DataSource getDataSource();
 
     /**
 	 * Obtain the index directory.

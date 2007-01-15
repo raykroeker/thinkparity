@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -133,12 +135,18 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 		.append("where SYSTEM_MESSAGE_ID=?")
 		.toString();
 
+    /** A <code>MetaDataIOHandler</code>. */
+    private final MetaDataIOHandler metaDataIO;
+
 	/**
      * Create SystemMessageIOHandler.
      * 
+     * @param dataSource
+     *            An sql <code>DataSource</code>.
      */
-	public SystemMessageIOHandler() {
-        super();
+	public SystemMessageIOHandler(final DataSource dataSource) {
+        super(dataSource);
+        this.metaDataIO = new MetaDataIOHandler(dataSource);
 	}
 
 	/**
@@ -261,7 +269,7 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 
 			// delete all meta data
 			for(final Long metaDataId : metaDataIds)
-				getMetaDataIO().delete(session, metaDataId);
+				metaDataIO.delete(session, metaDataId);
 
 			// delete the message
 			session.prepareStatement(SQL_DELETE_MESSAGE);
@@ -412,7 +420,7 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 	private void createMetaData(final Session session,
 			final SystemMessage systemMessage, final MetaDataType metaDataType,
 			final MetaDataKey metaDataKey, final Object metaDataValue) {
-		final Long metaDataId = getMetaDataIO().create(session, metaDataType,
+		final Long metaDataId = metaDataIO.create(session, metaDataType,
 				metaDataKey.toString(), metaDataValue);
 
 		session.prepareStatement(SQL_CREATE_META_DATA);
@@ -544,7 +552,7 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 			session.executeQuery();
 			final List<MetaData> metaData = new LinkedList<MetaData>();
 			while(session.nextResult()) {
-				metaData.add(extractMetaData(session));
+				metaData.add(extractMetaData(session, metaDataIO));
 			}
 			return metaData.toArray(new MetaData[] {});
 		}

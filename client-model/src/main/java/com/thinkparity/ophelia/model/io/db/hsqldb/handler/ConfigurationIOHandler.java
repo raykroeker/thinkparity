@@ -4,6 +4,8 @@
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
 
+import javax.sql.DataSource;
+
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.md.MetaData;
@@ -45,10 +47,12 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
     /**
      * Create ConfigurationIOHandler.
      * 
+     * @param dataSource
+     *            An sql <code>DataSource</code>.
      */
-    public ConfigurationIOHandler() {
-        super();
-        this.metaDataIO = new MetaDataIOHandler();
+    public ConfigurationIOHandler(final DataSource dataSource) {
+        super(dataSource);
+        this.metaDataIO = new MetaDataIOHandler(dataSource);
     }
 
     /**
@@ -84,7 +88,7 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
             session.setString(1, key);
             session.executeQuery();
             if(session.nextResult()) {
-                final MetaData metaData = extractMetaData(session);
+                final MetaData metaData = extractMetaData(session, metaDataIO);
                 metaDataIO.delete(session, metaData.getId());
 
                 session.prepareStatement(SQL_DELETE);
@@ -130,7 +134,7 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
             session.setString(1, key);
             session.executeQuery();
             if (session.nextResult()) {
-                final MetaData metaData = extractMetaData(session);
+                final MetaData metaData = extractMetaData(session, metaDataIO);
                 updateMetaData(session, metaData.getId(), key, value);
             } else {
                 throw new HypersonicException("[CANNOT FIND CONFIGURATION]");
@@ -167,7 +171,7 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
      * @return The configuration value.
      */
     private String extractMetaDataValue(final Session session) {
-        return (String) extractMetaData(session).getValue();
+        return (String) extractMetaData(session, metaDataIO).getValue();
     }
 
     /**

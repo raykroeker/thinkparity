@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
@@ -144,12 +146,14 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	private final ArtifactIOHandler artifactIO;
 
     /**
-     * Create a RemoteDocumentHandler.
+     * Create a DocumentHandler.
      * 
+     * @param dataSource
+     *            An sql <code>DataSource</code>.
      */
-	public DocumentIOHandler() {
-		super();
-		this.artifactIO = new ArtifactIOHandler();
+	public DocumentIOHandler(final DataSource dataSource) {
+		super(dataSource);
+		this.artifactIO = new ArtifactIOHandler(dataSource);
 	}
 
     /**

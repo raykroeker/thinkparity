@@ -10,10 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import com.thinkparity.codebase.JNDIUtil;
 import com.thinkparity.codebase.StackUtil;
 
 /**
@@ -39,18 +37,15 @@ public final class SessionManager {
     /** A <code>DataSource</code>. */
     private final DataSource dataSource;
 
-	/**
+    /**
      * Create SessionManager.
-     *
-	 */
-	public SessionManager() {
+     * 
+     * @param dataSource
+     *            A sql <code>DataSource</code>.
+     */
+	public SessionManager(final DataSource dataSource) {
         super();
-        try {
-            this.dataSource = (DataSource)
-                JNDIUtil.lookup("java:comp/thinkParity/jdbc/DataSource");
-        } catch (final NamingException nx) {
-            throw new HypersonicException(nx);
-        }
+        this.dataSource = dataSource;
 	}
 
     /**

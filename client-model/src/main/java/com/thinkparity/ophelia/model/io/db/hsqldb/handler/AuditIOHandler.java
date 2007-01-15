@@ -10,6 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -118,16 +120,22 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		.append("where AA.ARTIFACT_AUDIT_ID=? and MD.KEY=?")
 		.toString();
 
-    /** User io. */
+    /** A <code>UserIOHandler</code>. */
     private final UserIOHandler userIO;
+
+    /** A <code>MetaDataIOHandler</code>. */
+    private final MetaDataIOHandler metaDataIO;
 
     /**
      * Create AuditIOHandler.
      * 
+     * @param dataSource
+     *            An sql <code>DataSource</code>.
      */
-	public AuditIOHandler() {
-        super();
-        this.userIO = new UserIOHandler();
+	public AuditIOHandler(final DataSource dataSource) {
+        super(dataSource);
+        this.metaDataIO = new MetaDataIOHandler(dataSource);
+        this.userIO = new UserIOHandler(dataSource);
 	}
 
 	public void audit(final AddTeamMemberConfirmEvent event)
@@ -503,7 +511,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			}
 
 			for(final Long metaDataId : metaDataIds)
-				getMetaDataIO().delete(session, metaDataId);
+				metaDataIO.delete(session, metaDataId);
 
 			session.prepareStatement(SQL_DELETE_AUDIT_VERSION);
 			session.setLong(1, artifactId);
@@ -567,7 +575,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
     private void auditMetaData(final Session session,
 			final AuditEvent auditEvent, final MetaDataType metaDataType,
 			final MetaDataKey metaDataKey, final Object metaDataValue) {
-		final Long metaDataId = getMetaDataIO().create(session, metaDataType,
+		final Long metaDataId = metaDataIO.create(session, metaDataType,
 				metaDataKey.toString(), metaDataValue);
 
 		session.prepareStatement(SQL_AUDIT_META_DATA);
@@ -932,7 +940,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			session.executeQuery();
 			final List<MetaData> metaData = new LinkedList<MetaData>();
 			while(session.nextResult()) {
-				metaData.add(extractMetaData(session));
+				metaData.add(extractMetaData(session, metaDataIO));
 			}
 			return metaData.toArray(new MetaData[] {});
 		}

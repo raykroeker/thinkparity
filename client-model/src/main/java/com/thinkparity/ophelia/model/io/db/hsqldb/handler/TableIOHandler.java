@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Table;
 
@@ -18,9 +20,11 @@ public class TableIOHandler extends AbstractIOHandler {
     /**
      * Create TableIOHandler.
      * 
+     * @param dataSource
+     *            An sql <code>DataSource</code>.
      */
-    public TableIOHandler() {
-        super();
+    public TableIOHandler(final DataSource dataSource) {
+        super(dataSource);
     }
 
     /**

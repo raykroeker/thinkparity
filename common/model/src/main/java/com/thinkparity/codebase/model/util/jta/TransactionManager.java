@@ -6,7 +6,6 @@ package com.thinkparity.codebase.model.util.jta;
 import javax.naming.NamingException;
 
 import com.thinkparity.codebase.JNDIUtil;
-import com.thinkparity.codebase.ResourceUtil;
 
 import org.enhydra.jdbc.standard.StandardXADataSource;
 import org.objectweb.carol.util.configuration.ConfigurationException;
@@ -22,6 +21,15 @@ import org.objectweb.jotm.Jotm;
  * @version 1.1.2.1
  */
 public class TransactionManager {
+
+    static {
+        // configure carol - the default configuration is fine
+        try {
+            ConfigurationRepository.init();
+        } catch (final ConfigurationException cx) {
+            throw new RuntimeException("Could not configure transaction server.", cx);
+        }
+    }
 
     /**
      * Obtain an instance of a transaction manager.
@@ -75,7 +83,6 @@ public class TransactionManager {
      * @throws NamingException
      */
     public void start() throws ConfigurationException, NamingException {
-        ConfigurationRepository.init(ResourceUtil.getURL("carol.properties"));
         this.jotm = new Jotm(true, false);
         initialize();
     }

@@ -24,6 +24,8 @@ import com.thinkparity.ophelia.model.index.IndexModelImpl;
 import com.thinkparity.ophelia.model.index.InternalIndexModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.profile.ProfileModelImpl;
+import com.thinkparity.ophelia.model.script.InternalScriptModel;
+import com.thinkparity.ophelia.model.script.ScriptModelImpl;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.session.SessionModelImpl;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
@@ -172,6 +174,16 @@ public final class InternalModelFactory {
     public final InternalProfileModel getProfileModel() {
         return (InternalProfileModel) newModelProxy(
                 InternalProfileModel.class, ProfileModelImpl.class);
+    }
+
+    /**
+     * Obtain an internal script model.
+     * 
+     * @return An instance of <code>InternalScriptModel</code>.
+     */
+    public final InternalScriptModel getScriptModel() {
+        return (InternalScriptModel) newModelProxy(
+                InternalScriptModel.class, ScriptModelImpl.class);
     }
 
     /**

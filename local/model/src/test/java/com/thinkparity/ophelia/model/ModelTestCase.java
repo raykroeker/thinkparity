@@ -56,9 +56,6 @@ import com.thinkparity.ophelia.model.document.DocumentHistoryItem;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerListener;
-import com.thinkparity.ophelia.model.message.InternalSystemMessageModel;
-import com.thinkparity.ophelia.model.migrator.InternalLibraryModel;
-import com.thinkparity.ophelia.model.migrator.InternalReleaseModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.script.InternalScriptModel;
 import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
@@ -66,10 +63,10 @@ import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.util.Opener;
+import com.thinkparity.ophelia.model.workspace.InternalWorkspaceModel;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 import com.thinkparity.ophelia.OpheliaTestCase;
-import com.thinkparity.ophelia.OpheliaTestModelFactory;
 import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
@@ -335,7 +332,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [CONTAINER'S UPDATED ON IS NULL]", container.getUpdatedOn());
     }
 
-    /**
+	/**
      * Assert the history item and all of its required memebers are not null.
      * 
      * @param assertion
@@ -370,7 +367,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [CONTAINER VERSION'S VERSION ID IS NULL]", version.getVersionId());
     }
 
-	/**
+    /**
      * Assert that the document and all of its required members are not null.
      * 
      * @param assertion
@@ -502,6 +499,23 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
+     * Assert that the expected artifact recceipt matches the actual; aside from
+     * the artifact id and received on date. This api is usd to compare receipts
+     * across users.
+     * 
+     * @param assertion
+     *            An assertion message.
+     * @param expected
+     *            The expected <code>ArtifactReceipt</code>.
+     * @param actual
+     *            The actual <code>ArtifactReceipt</code>.
+     */
+    protected static void assertSimilar(final String assertion, final ArtifactReceipt expected, final ArtifactReceipt actual) {
+        assertEquals(MessageFormat.format("{0}  Artifact receipt published on does not match expectation.", assertion), expected.getPublishedOn(), actual.getPublishedOn());
+        assertEquals(MessageFormat.format("{0}  Artifact receipt user id does not match expectation.", assertion), expected.getUserId(), actual.getUserId());
+    }
+
+    /**
      * Assert that the expected container matches the actual; aside from the local id
      * and dates.  This api is used to compare containers across users.
      * 
@@ -591,8 +605,26 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertEquals(assertion + " [VERSION ID DOES NOT MATCH EXPECTATION]", expected.getVersionId(), actual.getVersionId());
     }
 
-    /** A test model factory. */
-    private OpheliaTestModelFactory modelFactory;
+    /**
+     * Assert that the expected team member is simlar to the actual.  This will
+     * not compare the local user id as well as the artifact id.  This api is
+     * used to compare across users.
+     *
+     * @param assertion
+     *      An assertion <code>String</code>.
+     * @param expected
+     *      The expected <code>TeamMember</code>.
+     * @param actual
+     *      The actual <code>TeamMember</code>.
+     */
+    protected static void assertSimilar(final String assertion, final TeamMember expected, final TeamMember actual) {
+        assertEquals(MessageFormat.format("{0} Team member id does not match expectation.", assertion), expected.getId(), actual.getId());
+        assertEquals(MessageFormat.format("{0} Team member name does not match expectation.", assertion), expected.getName(), actual.getName());
+        assertEquals(MessageFormat.format("{0} Team member organization does not match expectation.", assertion), expected.getOrganization(), actual.getOrganization());
+        assertEquals(MessageFormat.format("{0} Team member simple username does not match expectation.", assertion), expected.getSimpleUsername(), actual.getSimpleUsername());
+        assertEquals(MessageFormat.format("{0} Team member title does not match expectation.", assertion), expected.getTitle(), actual.getTitle());
+        assertEquals(MessageFormat.format("{0} Team member username does not match expectation.", assertion), expected.getUsername(), actual.getUsername());
+    }
 
     /** A collection of user utility functions. */
     private final UserUtils userUtils;
@@ -659,6 +691,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return documents;
     }
 
+
     /**
      * Add documents.
      * 
@@ -690,45 +723,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         logger.logInfo("Archiving container \"{0}\" as \"{1}\".", container,
                 archiveAs.getSimpleUsername());
         getContainerModel(archiveAs).archive(localContainerId);
-    }
-
-
-    /**
-     * Assert that the expected artifact recceipt matches the actual; aside from
-     * the artifact id and received on date. This api is usd to compare receipts
-     * across users.
-     * 
-     * @param assertion
-     *            An assertion message.
-     * @param expected
-     *            The expected <code>ArtifactReceipt</code>.
-     * @param actual
-     *            The actual <code>ArtifactReceipt</code>.
-     */
-    protected static void assertSimilar(final String assertion, final ArtifactReceipt expected, final ArtifactReceipt actual) {
-        assertEquals(MessageFormat.format("{0}  Artifact receipt published on does not match expectation.", assertion), expected.getPublishedOn(), actual.getPublishedOn());
-        assertEquals(MessageFormat.format("{0}  Artifact receipt user id does not match expectation.", assertion), expected.getUserId(), actual.getUserId());
-    }
-
-    /**
-     * Assert that the expected team member is simlar to the actual.  This will
-     * not compare the local user id as well as the artifact id.  This api is
-     * used to compare across users.
-     *
-     * @param assertion
-     *      An assertion <code>String</code>.
-     * @param expected
-     *      The expected <code>TeamMember</code>.
-     * @param actual
-     *      The actual <code>TeamMember</code>.
-     */
-    protected static void assertSimilar(final String assertion, final TeamMember expected, final TeamMember actual) {
-        assertEquals(MessageFormat.format("{0} Team member id does not match expectation.", assertion), expected.getId(), actual.getId());
-        assertEquals(MessageFormat.format("{0} Team member name does not match expectation.", assertion), expected.getName(), actual.getName());
-        assertEquals(MessageFormat.format("{0} Team member organization does not match expectation.", assertion), expected.getOrganization(), actual.getOrganization());
-        assertEquals(MessageFormat.format("{0} Team member simple username does not match expectation.", assertion), expected.getSimpleUsername(), actual.getSimpleUsername());
-        assertEquals(MessageFormat.format("{0} Team member title does not match expectation.", assertion), expected.getTitle(), actual.getTitle());
-        assertEquals(MessageFormat.format("{0} Team member username does not match expectation.", assertion), expected.getUsername(), actual.getUsername());
     }
 
     /**
@@ -933,30 +927,64 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         getContainerModel(exportAs).exportVersion(exportTo, localContainerId, versionId);
     }
 
-    protected InternalArchiveModel getArchiveModel(final OpheliaTestUser testUser) {
-        return modelFactory.getArchiveModel(testUser);
-    }
-
-    protected InternalArtifactModel getArtifactModel(
+    /**
+     * Obtain an internal archive model.
+     * 
+     * @return An instance of <code>InternalArchiveModel</code>.
+     */
+    protected final InternalArchiveModel getArchiveModel(
             final OpheliaTestUser testUser) {
-        return modelFactory.getArtifactModel(testUser);
+        return testUser.getModelFactory().getArchiveModel();
     }
 
-    protected InternalBackupModel getBackupModel(final OpheliaTestUser testUser) {
-        return modelFactory.getBackupModel(testUser);
+    /**
+     * Obtain an internal artifact model.
+     * 
+     * @return An instance of <code>InternalArtifactModel</code>.
+     */
+    protected final InternalArtifactModel getArtifactModel(
+            final OpheliaTestUser testUser) {
+        return testUser.getModelFactory().getArtifactModel();
     }
 
-    protected InternalContactModel getContactModel(final OpheliaTestUser testUser) {
-        return modelFactory.getContactModel(testUser);
+    /**
+     * Obtain an internal backup model.
+     * 
+     * @return An instance of <code>InternalBackupModel</code>.
+     */
+    protected final InternalBackupModel getBackupModel(final OpheliaTestUser testUser) {
+        return testUser.getModelFactory().getBackupModel();
     }
 
-    protected InternalContainerModel getContainerModel(final OpheliaTestUser testUser) {
-        return modelFactory.getContainerModel(testUser);
+    /**
+     * Obtain an internal contact model.
+     * 
+     * @return An instance of <code>InternalContactModel</code>.
+     */
+    protected final InternalContactModel getContactModel(
+            final OpheliaTestUser testUser) {
+        return testUser.getModelFactory().getContactModel();
     }
 
-    protected InternalDocumentModel getDocumentModel(final OpheliaTestUser testUser) {
-        return modelFactory.getDocumentModel(testUser);
-   }
+    /**
+     * Obtain an internal container model.
+     * 
+     * @return An instance of <code>InternalContainerModel</code>.
+     */
+    protected final InternalContainerModel getContainerModel(
+            final OpheliaTestUser testUser) {
+        return testUser.getModelFactory().getContainerModel();
+    }
+
+    /**
+     * Obtain an internal document model.
+     * 
+     * @return An instance of <code>InternalDocumentModel</code>.
+     */
+    protected final InternalDocumentModel getDocumentModel(
+            final OpheliaTestUser testUser) {
+        return testUser.getModelFactory().getDocumentModel();
+    }
 
     /**
 	 * Obtain a single test file.
@@ -1003,52 +1031,62 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 		return inputFiles;
 	}
 
-    protected InternalLibraryModel getLibraryModel(
-            final OpheliaTestUser testUser) {
-        return modelFactory.getLibraryModel(testUser);
-    }
-
-    protected InternalSystemMessageModel getMessageModel(
-            OpheliaTestUser testUser) {
-        return modelFactory.getSystemMessageModel(testUser);
-    }
-
+    /**
+     * @see com.thinkparity.codebase.junitx.TestCase#getModFiles()
+     *
+     */
     protected File[] getModFiles() throws IOException {
         final File[] modFiles = new File[NUMBER_OF_INPUT_FILES];
         System.arraycopy(super.getModFiles(), 0, modFiles, 0, NUMBER_OF_INPUT_FILES);
         return modFiles;
     }
 
-    protected InternalProfileModel getProfileModel(
+    /**
+     * Obtain an internal profile model.
+     * 
+     * @return An instance of <code>InternalProfileModel</code>.
+     */
+    protected final InternalProfileModel getProfileModel(
             final OpheliaTestUser testUser) {
-        return modelFactory.getProfileModel(testUser);
+        return testUser.getModelFactory().getProfileModel();
     }
 
-    protected InternalReleaseModel getReleaseModel(
+    /**
+     * Obtain an internal script model.
+     * 
+     * @return An instance of <code>InternalScriptModel</code>.
+     */
+    protected final InternalScriptModel getScriptModel(final OpheliaTestUser testUser) {
+        return testUser.getModelFactory().getScriptModel();
+    }
+
+    /**
+     * Obtain an internal session model.
+     * 
+     * @return An instance of <code>InternalSessionModel</code>.
+     */
+	protected final InternalSessionModel getSessionModel(
             final OpheliaTestUser testUser) {
-        return modelFactory.getReleaseModel(testUser);
+        return testUser.getModelFactory().getSessionModel();
     }
 
-    protected InternalScriptModel getScriptModel(final OpheliaTestUser testUser) {
-        return modelFactory.getScriptModel(testUser);
+    /**
+     * Obtain an internal user model.
+     * 
+     * @return An instance of <code>InternalUserModel</code>.
+     */
+	protected final InternalUserModel getUserModel(final OpheliaTestUser testUser) {
+        return testUser.getModelFactory().getUserModel();
     }
 
-	protected InternalSessionModel getSessionModel(
-            final OpheliaTestUser user) {
-        return modelFactory.getSessionModel(user);
-    }
-
-	protected InternalUserModel getUserModel(final OpheliaTestUser testUser) {
-        return modelFactory.getUserModel(testUser);
-    }
-
-	/**
-	 * Obtain a handle to the parity workspace model.
-	 * 
-	 * @return A handle to the parity workspace model.
-	 */
-	protected WorkspaceModel getWorkspaceModel(final OpheliaTestUser testUser) {
-		return modelFactory.getWorkspaceModel(testUser);
+    /**
+     * Obtain an internal workspace model.
+     * 
+     * @return An instance of <code>InternalWorkspaceModel</code>.
+     */
+	protected final WorkspaceModel getWorkspaceModel(final OpheliaTestUser testUser) {
+		return InternalWorkspaceModel.getInstance(testUser.getContext(),
+                testUser.getEnvironment());
 	}
 
     /**
@@ -1645,7 +1683,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	 */
 	protected void setUp() throws Exception {
         super.setUp();
-        this.modelFactory = OpheliaTestModelFactory.getInstance(this);
+        
 	}
 
     /**
@@ -1653,7 +1691,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	 */
 	protected void tearDown() throws Exception {
         super.tearDown();
-        this.modelFactory = null;
 	}
 
     /**

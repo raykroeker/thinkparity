@@ -18,22 +18,6 @@ import com.thinkparity.ophelia.OpheliaTestUser;
  */
 public class ReadVersionTest extends DocumentTestCase {
 
-	private class Fixture {
-		private final Long documentId;
-		private final DocumentModel documentModel;
-		private final DocumentVersion documentVersion;
-		private final Long versionId;
-		private Fixture(final Long documentId,
-				final DocumentModel documentModel,
-				final DocumentVersion documentVersion, final Long versionId) {
-			super();
-			this.documentId = documentId;
-			this.documentModel = documentModel;
-			this.documentVersion = documentVersion;
-			this.versionId = versionId;
-		}
-	}
-
 	private Vector<Fixture> data;
 
 	/**
@@ -73,7 +57,7 @@ public class ReadVersionTest extends DocumentTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
+		final InternalDocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
 		data = new Vector<Fixture>(getInputFilesLength());
 
 		Document document;
@@ -95,5 +79,19 @@ public class ReadVersionTest extends DocumentTestCase {
 		data = null;
 	}
 
-
+	private class Fixture {
+		private final Long documentId;
+		private final InternalDocumentModel documentModel;
+		private final DocumentVersion documentVersion;
+		private final Long versionId;
+		private Fixture(final Long documentId,
+				final InternalDocumentModel documentModel,
+				final DocumentVersion documentVersion, final Long versionId) {
+			super();
+			this.documentId = documentId;
+			this.documentModel = documentModel;
+			this.documentVersion = documentVersion;
+			this.versionId = versionId;
+		}
+	}
 }

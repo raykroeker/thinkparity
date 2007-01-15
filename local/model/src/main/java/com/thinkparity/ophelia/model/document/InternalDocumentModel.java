@@ -4,9 +4,11 @@
 package com.thinkparity.ophelia.model.document;
 
 import java.io.InputStream;
+import java.util.Comparator;
 import java.util.List;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
@@ -40,7 +42,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public void delete(final Long documentId);
 
-	/**
+    /**
      * Delete the document draft.
      * 
      * @param documentId
@@ -48,7 +50,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public void deleteDraft(final Long documentId);
 
-    /**
+	/**
      * Determine whether or not a draft exists for a document.
      * 
      * @param documentId
@@ -63,7 +65,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public DocumentNameGenerator getNameGenerator();
 
-	/**
+    /**
      * Handle the receipt of a document from the thinkParity network.
      * 
      * @param uniqueId
@@ -83,7 +85,7 @@ public interface InternalDocumentModel extends DocumentModel {
     public DocumentVersion handleDocumentPublished(
             final ContainerArtifactPublishedEvent event);
 
-    /**
+	/**
      * Open an input stream to read a document version. Note: It is a good idea
      * to buffer the input stream.
      * 
@@ -111,6 +113,25 @@ public interface InternalDocumentModel extends DocumentModel {
      * @return A list of audit events.
      */
 	public List<AuditEvent> readAuditEvents(final Long documentId);
+
+    /**
+     * Read a list of document versions.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return A <code>List</code> of <code>DocumentVersion</code>s.
+     */
+    public List<DocumentVersion> readVersions(final Long documentId);
+
+    /**
+     * Read a list of document versions.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return A <code>List</code> of <code>DocumentVersion</code>s.
+     */
+    public List<DocumentVersion> readVersions(final Long documentId,
+            final Comparator<? super ArtifactVersion> comparator);
 
     /**
      * Read the version size.

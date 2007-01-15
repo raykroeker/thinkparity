@@ -13,8 +13,9 @@ import java.util.Vector;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
-import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.Constants.IO;
+
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * Test the document model create api.
@@ -54,7 +55,7 @@ public class CreateTest extends DocumentTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
+		final InternalDocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
 		data = new Vector<Fixture>(4);
 
         InputStream content;
@@ -81,10 +82,10 @@ public class CreateTest extends DocumentTestCase {
 	 */
 	private class Fixture extends DocumentTestCase.Fixture {
 		private final InputStream content;
-		private final DocumentModel documentModel;
+		private final InternalDocumentModel documentModel;
 		private final String name;
 		private Fixture(final InputStream content,
-                final DocumentModel documentModel, final String name) {
+                final InternalDocumentModel documentModel, final String name) {
 		    this.content = content;
 			this.documentModel = documentModel;
 			this.name = name;

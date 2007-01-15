@@ -686,6 +686,33 @@ public final class DocumentModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#readVersions(java.lang.Long)
+     *
+     */
+    public List<DocumentVersion> readVersions(final Long documentId) {
+        try {
+            return readVersions(documentId, defaultVersionComparator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#readVersions(java.lang.Long, java.util.Comparator)
+     *
+     */
+    public List<DocumentVersion> readVersions(Long documentId, Comparator<? super ArtifactVersion> comparator) {
+        try {
+            final List<DocumentVersion> versions =
+                documentIO.listVersions(documentId);
+            Collections.sort(versions, comparator);
+            return versions;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Read the version size.
      * 
      * @param documentId
@@ -740,7 +767,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * Revert a document from a previous version.
      * 
      * @param documentId
@@ -777,7 +804,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
@@ -787,6 +814,7 @@ public final class DocumentModelImpl extends
         this.documentIO = IOFactory.getDefault(workspace).createDocumentHandler();
         this.auditor = new DocumentModelAuditor(modelFactory);
     }
+
 
     /**
 	 * Audit a key received event.
@@ -819,7 +847,6 @@ public final class DocumentModelImpl extends
 		logger.logApiId();
 		return list(defaultComparator);
 	}
-
 
     /**
 	 * Obtain a list of sorted documents.
@@ -946,7 +973,7 @@ public final class DocumentModelImpl extends
                 assertArguments);
     }
 
-    /**
+	/**
      * Assert that the document's draft is modified.
      * 
      * @param documentId
@@ -989,7 +1016,7 @@ public final class DocumentModelImpl extends
         return read(document.getId());
     }
 
-	/**
+    /**
      * Create a document. Simply create the document and the artifact remote
      * info object in the database.
      * 
@@ -1131,7 +1158,7 @@ public final class DocumentModelImpl extends
 		return new LocalFile(workspace, document);
 	}
 
-    /**
+	/**
 	 * Create a document local file reference for a given version.
 	 * 
 	 * @param version
@@ -1160,7 +1187,7 @@ public final class DocumentModelImpl extends
 		});
 	}
 
-	/**
+    /**
 	 * Fire document deleted.
 	 * 
 	 * @param document

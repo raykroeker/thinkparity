@@ -13,8 +13,9 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
-import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
+
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * Test the document model listVersions api.
@@ -83,7 +84,7 @@ public class ReadVersionsTest extends DocumentTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
         final Integer VERSION_COUNT = 3;
-		final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
+		final InternalDocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
 
         data = new Vector<Fixture>(getInputFilesLength());
 		for(final File testFile : getInputFiles()) {
@@ -108,10 +109,11 @@ public class ReadVersionsTest extends DocumentTestCase {
 	/** Test datum definition. */
 	private class Fixture {
 		private final Document document;
-		private final DocumentModel documentModel;
+		private final InternalDocumentModel documentModel;
 		private final Integer numberOfVersions;
 		private Fixture(final Document document,
-				final DocumentModel documentModel, final Integer numberOfVersions) {
+                final InternalDocumentModel documentModel,
+                final Integer numberOfVersions) {
 			this.document = document;
 			this.documentModel = documentModel;
 			this.numberOfVersions = numberOfVersions;

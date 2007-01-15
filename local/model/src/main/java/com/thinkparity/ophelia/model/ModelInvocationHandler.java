@@ -68,15 +68,16 @@ final class ModelInvocationHandler implements InvocationHandler {
         LOGGER.logTrace("Invoking method {0} on {1} in workspace {2}.", method,
                 obj, workspace);
         synchronized (workspace) {
-            final Transaction transaction = workspace.lookupTransaction();
-            final TransactionContext transactionContext = newTransactionContext(method);
-            beginTransaction(transaction, transactionContext);
+            // NOCOMMIT:tx is turned off
+//            final Transaction transaction = workspace.lookupTransaction();
+//            final TransactionContext transactionContext = newTransactionContext(method);
+//            beginTransaction(transaction, transactionContext);
             try {
                 final Object result = method.invoke(obj, args);
-                commitTransaction(transaction, transactionContext);
+//                commitTransaction(transaction, transactionContext);
                 return result;
             } catch (final Throwable t) {
-                rollbackTransaction(transaction, transactionContext);
+//                rollbackTransaction(transaction, transactionContext);
                 throw t;
             }
         }

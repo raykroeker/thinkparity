@@ -66,7 +66,7 @@ public class WestCellRenderer extends DefaultCellRenderer implements PanelCellRe
         setPreferredSize(new java.awt.Dimension(20, 24));
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconDraft.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(0, 55, 0, 5);
+        gridBagConstraints.insets = new java.awt.Insets(0, 50, 0, 5);
         add(iconJLabel, gridBagConstraints);
 
         textJLabel.setText("!West Cell Text!");

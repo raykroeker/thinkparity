@@ -102,6 +102,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
         this.constraints = new GridBagConstraints();
         this.constraints.fill = GridBagConstraints.BOTH;
         this.constraints.weightx = this.constraints.weighty = 1.0F;
+        this.constraints.insets = new java.awt.Insets(0, 5, 0, 5);
         this.renderer = new TabRenderer();
 		this.id = JVMUniqueId.nextId();
         this.session = session;

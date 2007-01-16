@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
 import java.text.MessageFormat;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -62,6 +63,11 @@ public class ContactTabPanel extends DefaultTabPanel {
 
     /** An <code>ActionDelegate</code>. */
     private ActionDelegate actionDelegate;
+    
+    /**
+     * The inner <code>JPanel</code> <code>GridBagConstraints</code>.
+     */
+    private final GridBagConstraints innerConstraints;
 
     /** A <code>Contact</code>. */
     private Contact contact;
@@ -89,6 +95,9 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     public ContactTabPanel(final BrowserSession session) {
         super(session);
+        this.innerConstraints = new GridBagConstraints();
+        this.innerConstraints.fill = GridBagConstraints.BOTH;
+        this.innerConstraints.weightx = this.innerConstraints.weighty = 1.0F;
         initComponents();
     }
 
@@ -433,11 +442,11 @@ public class ContactTabPanel extends DefaultTabPanel {
     private void doExpand(final boolean animate) {
         expandedJPanel.removeAll();
         if (isSetContact())
-            expandedJPanel.add(contactJPanel, constraints.clone());
+            expandedJPanel.add(contactJPanel, innerConstraints.clone());
         else if (isSetIncoming())
-            expandedJPanel.add(incomingJPanel, constraints.clone());
+            expandedJPanel.add(incomingJPanel, innerConstraints.clone());
         else if (isSetOutgoing())
-            expandedJPanel.add(outgoingJPanel, constraints.clone());
+            expandedJPanel.add(outgoingJPanel, innerConstraints.clone());
         else
             Assert.assertUnreachable("Inconsistent contact tab panel state.");
 
@@ -576,7 +585,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.insets = new java.awt.Insets(4, 32, 0, 4);
+        gridBagConstraints.insets = new java.awt.Insets(4, 27, 0, 4);
         collapsedJPanel.add(collapsedIconJLabel, gridBagConstraints);
 
         collapsedTextJLabel.setText("!Contact Text!");
@@ -617,7 +626,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         contactIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconUser.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.insets = new java.awt.Insets(4, 32, 0, 4);
+        gridBagConstraints.insets = new java.awt.Insets(4, 27, 0, 4);
         contactJPanel.add(contactIconJLabel, gridBagConstraints);
 
         contactTextJLabel.setText("!Name!");
@@ -726,7 +735,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 44, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 39, 0, 0);
         contactJPanel.add(contactJScrollPane, gridBagConstraints);
 
         outgoingJPanel.setLayout(new java.awt.GridBagLayout());
@@ -747,7 +756,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         outgoingIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconUserNotReceived.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.insets = new java.awt.Insets(4, 32, 0, 4);
+        gridBagConstraints.insets = new java.awt.Insets(4, 27, 0, 4);
         outgoingJPanel.add(outgoingIconJLabel, gridBagConstraints);
 
         outgoingTextJLabel.setText("!Outgoing Text!");
@@ -809,7 +818,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 44, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 39, 0, 0);
         outgoingJPanel.add(outgoingNestedJPanel, gridBagConstraints);
 
         incomingJPanel.setLayout(new java.awt.GridBagLayout());
@@ -830,7 +839,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         incomingIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconUserNotReceived.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.insets = new java.awt.Insets(4, 32, 0, 4);
+        gridBagConstraints.insets = new java.awt.Insets(4, 27, 0, 4);
         incomingJPanel.add(incomingIconJLabel, gridBagConstraints);
 
         incomingTextJLabel.setText("!Incoming Text!");
@@ -901,7 +910,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 44, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 39, 0, 0);
         incomingJPanel.add(incomingNestedJPanel, gridBagConstraints);
 
         setLayout(new java.awt.GridBagLayout());

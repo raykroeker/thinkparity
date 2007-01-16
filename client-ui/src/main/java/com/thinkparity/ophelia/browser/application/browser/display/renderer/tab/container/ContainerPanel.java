@@ -607,7 +607,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.insets = new java.awt.Insets(4, 32, 0, 5);
+        gridBagConstraints.insets = new java.awt.Insets(4, 27, 0, 5);
         collapsedJPanel.add(iconJLabel, gridBagConstraints);
 
         textJLabel.setText("!Package Text!");
@@ -631,6 +631,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
         add(collapsedJPanel, gridBagConstraints);
 
         expandedJPanel.setLayout(new java.awt.GridLayout(1, 0));
@@ -652,7 +653,7 @@ public class ContainerPanel extends DefaultTabPanel {
 
         westListJPanel.setOpaque(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.gridwidth = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -719,7 +720,7 @@ public class ContainerPanel extends DefaultTabPanel {
 
         eastListJPanel.setOpaque(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.gridwidth = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -765,7 +766,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 0);
         eastJPanel.add(eastLastJLabel, gridBagConstraints);
 
         expandedJPanel.add(eastJPanel);
@@ -776,6 +777,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
         add(expandedJPanel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents

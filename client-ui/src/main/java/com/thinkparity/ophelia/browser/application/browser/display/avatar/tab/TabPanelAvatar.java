@@ -7,9 +7,14 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -66,6 +71,12 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
 
     /** A <code>TabAvatarSortByDelegate</code>. */
     private TabAvatarSortByDelegate sortByDelegate;
+    
+    /** The map of tab panel mouse listeners. */
+    private final Map<TabPanel, MouseAdapter> tabPanelMouseListeners;
+    
+    /** The map of tab panel mouse listeners. */
+    private final Map<TabPanel, MouseAdapter> tabPanelMouseMotionListeners;
 
     /**
      * Creates TabPanelAvatar.
@@ -73,6 +84,8 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
      */
     public TabPanelAvatar(final AvatarId id, final T model) {
     	super(id, model);
+        this.tabPanelMouseListeners = new HashMap<TabPanel, MouseAdapter>();
+        this.tabPanelMouseMotionListeners = new HashMap<TabPanel, MouseAdapter>();
         this.fillConstraints = new GridBagConstraints();
         this.fillConstraints.fill = GridBagConstraints.HORIZONTAL;
         this.fillConstraints.weightx = 1.0F;
@@ -136,6 +149,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
             }
         });
         tabJScrollPane.getVerticalScrollBar().setUnitIncrement(Constants.ScrollBar.UNIT_INCREMENT);
+        new Resizer(getController(), tabJScrollPane, Boolean.FALSE, Resizer.ResizeEdges.MIDDLE);
     }
 
     /**
@@ -216,6 +230,74 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
         }
         panelConstraints.gridy = index;
         tabJPanel.add((Component) panel, panelConstraints.clone(), index);
+        addTabPanelListeners(panel);
+    }
+    
+    /**
+     * Add listeners to a panel.
+     * 
+     * @param panel
+     *            A <code>TabPanel</code>.  
+     */
+    private void addTabPanelListeners(final TabPanel panel) {
+        addTabPanelMouseListener(panel, tabPanelMouseListeners);
+        addTabPanelMouseMotionListener(panel, tabPanelMouseMotionListeners);
+    }
+    
+    /**
+     * Add a MouseListener to a panel.
+     * 
+     * @param panel
+     *            A <code>TabPanel</code>.  
+     * @param listeners
+     *            A map of panels to listeners.
+     */
+    private void addTabPanelMouseListener(final TabPanel panel,
+            final Map<TabPanel, MouseAdapter> listeners) {
+        final java.awt.event.MouseAdapter mouseAdapter = new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                redispatch(e, TabPanelAvatar.this);
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                redispatch(e, TabPanelAvatar.this);
+            }
+            @Override
+            public void mousePressed(MouseEvent e) {
+                redispatch(e, TabPanelAvatar.this);
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                redispatch(e, TabPanelAvatar.this);
+            }           
+        };
+        ((Component)panel).addMouseListener(mouseAdapter);
+        listeners.put(panel, mouseAdapter);
+    }
+    
+    /**
+     * Add a MouseMotionListener to a panel.
+     * 
+     * @param panel
+     *            A <code>TabPanel</code>.  
+     * @param listeners
+     *            A map of panels to listeners.
+     */
+    private void addTabPanelMouseMotionListener(final TabPanel panel,
+            final Map<TabPanel, MouseAdapter> listeners) {
+        final java.awt.event.MouseAdapter mouseAdapter = new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                redispatch(e, TabPanelAvatar.this);
+            }
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                redispatch(e, TabPanelAvatar.this);
+            }          
+        };
+        ((Component)panel).addMouseMotionListener(mouseAdapter);
+        tabPanelMouseMotionListeners.put(panel, mouseAdapter);
     }
 
     /** This method is called from within the constructor to
@@ -304,7 +386,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
                 debug();
                 removeFill();
                 for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
-                    removePanel(i);
+                    removePanel(i, (TabPanel) listModel.get(i));
                     addPanel(i, (TabPanel) listModel.get(i));
                 }
                 addFill(listModel.size());
@@ -331,7 +413,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
                 debug();
                 removeFill();
                 for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
-                    removePanel(i);
+                    removePanel(i, (TabPanel) listModel.get(i));
                 }
                 addFill(listModel.size());
                 reloadPanels();
@@ -348,6 +430,19 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
                     orderByJLabel.getY() + orderByJLabel.getHeight() + 3);
         }
     }//GEN-LAST:event_orderByJLabelMousePressed
+    
+    /**
+     * Redispatch events to the destination component.
+     * 
+     * @param e
+     *            A <code>MouseEvent</code>.
+     * @param destination
+     *            A destination <code>Component</code>.          
+     */
+    private void redispatch(final MouseEvent e, final Component destination) {
+        Component source = e.getComponent(); 
+        destination.dispatchEvent(SwingUtilities.convertMouseEvent(source, e, destination));
+     }
 
     /**
      * Reload the panels display. The jpanel is revalidated.
@@ -379,8 +474,54 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
      * 
      * @param index
      *            An <code>int</code> index.
+     * @param panel
+     *            A <code>TabPanel</code>.          
      */
-    private void removePanel(final int index) {
+    private void removePanel(final int index, final TabPanel panel) {
+        removeTabPanelListeners(panel);
         tabJPanel.remove(index);
+    }
+    
+    /**
+     * Remove listeners from a panel.
+     * 
+     * @param panel
+     *            A <code>TabPanel</code>.  
+     */
+    private void removeTabPanelListeners(final TabPanel panel) {
+        removeTabPanelMouseListener(panel, tabPanelMouseListeners);
+        removeTabPanelMouseMotionListener(panel, tabPanelMouseMotionListeners);
+    }
+    
+    /**
+     * Remove the MouseListener from a panel.
+     * 
+     * @param panel
+     *            A <code>TabPanel</code>.  
+     * @param listeners
+     *            A map of panels to listeners.
+     */
+    private void removeTabPanelMouseListener(final TabPanel panel,
+            final Map<TabPanel, MouseAdapter> listeners) {
+        if (listeners.containsKey(panel)) {
+            ((Component) panel).removeMouseListener(listeners.get(panel));
+            listeners.remove(panel);
+        }
+    }
+
+    /**
+     * Remove the MouseMotionListener from a panel.
+     * 
+     * @param panel
+     *            A <code>TabPanel</code>.  
+     * @param listeners
+     *            A map of panels to listeners.
+     */
+    private void removeTabPanelMouseMotionListener(final TabPanel panel,
+            final Map<TabPanel, MouseAdapter> listeners) {
+        if (listeners.containsKey(panel)) {
+            ((Component) panel).removeMouseMotionListener(listeners.get(panel));
+            listeners.remove(panel);
+        }
     }
 }

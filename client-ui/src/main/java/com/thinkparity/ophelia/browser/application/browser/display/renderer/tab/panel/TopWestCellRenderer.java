@@ -68,7 +68,7 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
         setPreferredSize(new java.awt.Dimension(20, 24));
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(0, 32, 0, 5);
+        gridBagConstraints.insets = new java.awt.Insets(0, 27, 0, 5);
         add(iconJLabel, gridBagConstraints);
 
         textJLabel.setText("!Top West Cell Text!");

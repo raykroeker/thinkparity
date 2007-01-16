@@ -30,7 +30,6 @@ public interface InternalContactModel extends ContactModel {
      * @param deletedOn
      *            When the contact was deleted <code>Calendar</code>.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleContactDeleted(final ContactDeletedEvent event);
 
     /**
@@ -41,7 +40,6 @@ public interface InternalContactModel extends ContactModel {
      * @param updatedOn
      *            When the contact was updated <code>Calendar</code>.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleContactUpdated(final ContactUpdatedEvent event);
 
     /**
@@ -52,7 +50,6 @@ public interface InternalContactModel extends ContactModel {
      * @param acceptedOn
      *            When the invitation was accepted.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleInvitationAccepted(
             final ContactInvitationAcceptedEvent event);
 
@@ -66,7 +63,6 @@ public interface InternalContactModel extends ContactModel {
      * @param declinedOn
      *            When the invitation was declined.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleInvitationDeclined(
             final ContactInvitationDeclinedEvent event);
 
@@ -80,7 +76,6 @@ public interface InternalContactModel extends ContactModel {
      * @param deletedOn
      *            When the invitation was deleted.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleInvitationDeleted(
             final ContactInvitationDeletedEvent event);
 
@@ -92,7 +87,6 @@ public interface InternalContactModel extends ContactModel {
      * @param invitedOn
      *            When the invitation was extended.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleInvitationExtended(
             final ContactInvitationExtendedEvent event);
 }

@@ -102,6 +102,7 @@ final class ModelInvocationHandler implements InvocationHandler {
             throws NotSupportedException, SystemException {
         LOGGER.logVariable("transaction", transaction);
         LOGGER.logVariable("transaction.getContext()", transaction.getContext());
+        LOGGER.logVariable("transaction.getStatus()", transaction.getStatus());
         switch (transactionContext.getType()) {
         case REQUIRES_NEW:
             LOGGER.logTrace("New transaction required for context {0}.",

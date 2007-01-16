@@ -82,6 +82,16 @@ public final class Transaction {
     }
 
     /**
+     * Obtain the transaction status.
+     * 
+     * @return A integer representing the transaction status.
+     * @throws SystemException
+     */
+    public int getStatus() throws SystemException {
+        return userTransaction.getStatus();
+    }
+
+    /**
      * Determine if the transaction is active.
      * 
      * @return True if the transaction is active.

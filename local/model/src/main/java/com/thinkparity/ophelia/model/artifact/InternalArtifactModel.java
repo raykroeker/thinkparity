@@ -163,7 +163,6 @@ public interface InternalArtifactModel extends ArtifactModel {
      * @param event
      *            An <code>ArtifactDraftCreatedEvent</code> remote event.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleDraftCreated(final ArtifactDraftCreatedEvent event);
 
     /**
@@ -172,7 +171,6 @@ public interface InternalArtifactModel extends ArtifactModel {
      * @param event
      *            An <code>ArtifactDraftDeleted</code> remote event.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleDraftDeleted(final ArtifactDraftDeletedEvent event);
 
     /**
@@ -181,7 +179,6 @@ public interface InternalArtifactModel extends ArtifactModel {
      * @param event
      *            An <code>ArtifactPublishedEvent</code>.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handlePublished(final ArtifactPublishedEvent event);
 
     /**
@@ -190,7 +187,6 @@ public interface InternalArtifactModel extends ArtifactModel {
      * @param event
      *            An <code>ArtifactReceivedEvent</code>.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
 	public void handleReceived(final ArtifactReceivedEvent event);
 
     /**
@@ -202,7 +198,6 @@ public interface InternalArtifactModel extends ArtifactModel {
      * @param jabberId
      *            The user's jabber id.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event);
     
     /**
@@ -213,7 +208,6 @@ public interface InternalArtifactModel extends ArtifactModel {
      * @param jabberId
      *            A jabber id.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleTeamMemberRemoved(
             final ArtifactTeamMemberRemovedEvent event);
 

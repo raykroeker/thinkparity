@@ -56,8 +56,10 @@ final class XMPPEventDispatcher {
      */
     <T extends XMPPEvent> boolean addListener(final Class<T> eventClass,
             final XMPPEventListener<T> listener) {
-        final List<XMPPEventListener<T>> listeners = getListeners(eventClass);
-        return listeners.add(listener);
+        synchronized (eventClass) {
+            final List<XMPPEventListener<T>> listeners = getListeners(eventClass);
+            return listeners.add(listener);
+        }
     }
 
     /**
@@ -65,9 +67,10 @@ final class XMPPEventDispatcher {
      *
      */
     void clearListeners() {
-        for (final List<? extends XMPPEventListener<? extends XMPPEvent>> listeners :
-            this.listeners.values()) {
-            listeners.clear();
+        for (final Class eventClass : listeners.keySet()) {
+            synchronized (eventClass) {
+                getListeners(eventClass).clear();
+            }
         }
     }
 
@@ -81,12 +84,14 @@ final class XMPPEventDispatcher {
      */
     <T extends XMPPEvent> void handleEvent(final T xmppEvent) {
         logger.logVariable("xmppEvent", xmppEvent);
-        final List<XMPPEventListener<T>> listeners = getListeners(xmppEvent.getClass());
-        for (final XMPPEventListener<T> listener : listeners) {
-            try {
-                listener.handleEvent(xmppEvent);
-            } catch (final Throwable t) {
-                logger.logFatal(t, "Could not handle xmpp event {0}.", xmppEvent);
+        synchronized (xmppEvent.getClass()) {
+            final List<XMPPEventListener<T>> listeners = getListeners(xmppEvent.getClass());
+            for (final XMPPEventListener<T> listener : listeners) {
+                try {
+                    listener.handleEvent(xmppEvent);
+                } catch (final Throwable t) {
+                    logger.logFatal(t, "Could not handle xmpp event {0}.", xmppEvent);
+                }
             }
         }
     }
@@ -104,8 +109,10 @@ final class XMPPEventDispatcher {
      */
     <T extends XMPPEvent> boolean removeListener(final Class<T> eventClass,
             final XMPPEventListener<T> listener) {
-        final List<XMPPEventListener<T>> listeners = getListeners(eventClass);
-        return listeners.remove(listener);
+        synchronized (eventClass) {
+            final List<XMPPEventListener<T>> listeners = getListeners(eventClass);
+            return listeners.remove(listener);
+        }
     }
 
     /**

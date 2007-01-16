@@ -6,7 +6,7 @@ package com.thinkparity.codebase.model.util.jta;
 /**
  * <b>Title:</b>thinkParity Transaction Type<br>
  * <b>Description:</b>Defines enumerated transactional behaviour for
- * thinkParity model methods.<br> *
+ * thinkParity model methods.<br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1

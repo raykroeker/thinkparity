@@ -45,30 +45,9 @@ public interface InternalContainerModel extends ContainerModel {
      * artifact will then be passed off to the appropriate model then attached
      * to the version.
      * 
-     * @param uniqueId
-     *            The container <code>UUID</code>.
-     * @param versionId
-     *            The container version id <code>Long</code>.
-     * @param name
-     *            The container name <code>String</code>.
-     * @param artifactUniqueId
-     *            The artifact <code>UUID</code>
-     * @param artifactVersionId
-     *            The artifact version id <code>Long</code>.
-     * @param artifactName
-     *            The artifact name <code>String</code>.
-     * @param artifactType
-     *            The artifact's <code>ArtifactType</code>.
-     * @param artifactChecksum
-     *            The artifact checksum <code>String</code>.
-     * @param artifactStreamId
-     *            The stream id <code>String</code>.
-     * @param publishedBy
-     *            The publisher <code>JabberId</code>.
-     * @param publishedOn
-     *            The publish date <code>Calendar</code>.
+     * @param event
+     *            A <code>ContainerArtifactPublishedEvent</code>.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handleArtifactPublished(final ContainerArtifactPublishedEvent event);
 
     /**
@@ -84,7 +63,6 @@ public interface InternalContainerModel extends ContainerModel {
      * @param createdOn
      *            The creation date <code>Calendar</code>.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRED)
     public void handleDraftCreated(final Long containerId,
             final JabberId createdBy, final Calendar createdOn);
 
@@ -94,7 +72,6 @@ public interface InternalContainerModel extends ContainerModel {
      * @param event
      *            An <code>ArtifactDraftDeletedEvent</code>.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRED)
     public void handleDraftDeleted(final ArtifactDraftDeletedEvent event);
 
     /**
@@ -103,7 +80,6 @@ public interface InternalContainerModel extends ContainerModel {
      * @param event
      *            A <code>ContainerPublishedEvent</code>.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handlePublished(final ContainerPublishedEvent event);
 
     /**
@@ -112,7 +88,6 @@ public interface InternalContainerModel extends ContainerModel {
      * @param event
      *            An <code>ArtifactReceivedEvent</code>.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRED)
     public void handleReceived(final ArtifactReceivedEvent event);
 
     /**

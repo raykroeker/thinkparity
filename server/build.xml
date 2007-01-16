@@ -471,6 +471,7 @@ Local Configuration:
             <fileset dir="${target.classes.dir}/remote/model">
                 <include name="log4j.properties"/>
                 <include name="localization/*"/>
+		<include name="carol.properties"/>
             </fileset>
         </copy>
         <!-- ${target.release.plugin.dir}/lib -->
@@ -486,6 +487,19 @@ Local Configuration:
             <fileset file="${vendor.smack.lib}"/>
             <fileset file="${vendor.smackx.lib}"/>
             <fileset file="${vendor.xstream.lib}"/>
+
+            <fileset file="${vendor.jotm.commons-cli.lib}"/>
+            <fileset file="${vendor.jotm.commons-logging.lib}"/>
+            <fileset file="${vendor.jotm.connector.lib}"/>
+            <fileset file="${vendor.jotm.howl.lib}"/>
+            <fileset file="${vendor.jotm.lib}"/>
+            <fileset file="${vendor.jotm_iiop_stubs.lib}"/>
+            <fileset file="${vendor.jotm_jrmp_stubs.lib}"/>
+            <fileset file="${vendor.jotm.jta.lib}"/>
+            <fileset file="${vendor.jotm.jts.lib}"/>
+            <fileset file="${vendor.jotm.datasource.lib}"/>
+            <fileset file="${vendor.jotm.carol.lib}"/>
+            <fileset file="${vendor.jotm.xapool.lib}"/>
         </copy>
         <!-- local/model -->
         <jar destfile="${target.release.plugin.dir}/lib/model-ophelia.jar">

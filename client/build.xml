@@ -380,6 +380,7 @@ Examples:
                     <and>
                         <available file="${localconfig}"/>
                         <isset property="platform"/>
+			<isset property="release.version"/>
                         <isset property="scm.credentials"/>
 			<isset property="thinkparity.environment"/>
 			<isset property="thinkparity.mode"/>
@@ -390,10 +391,10 @@ Examples:
         <echo>
 Local Configuration:
     platform:                 ${platform}
+    release.version:          ${release.version}
     scm.credentials:          XXXXXXXXXXXX
     thinkparity.environment:  ${thinkparity.environment}
     thinkparity.mode:         ${thinkparity.mode}
-    compile.debug:            ${compile.innerDebug}
 </echo>
 
         <mkdir dir="${target.analyze-report.dir}"/>

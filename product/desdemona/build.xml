@@ -355,6 +355,7 @@ Examples:
                     <and>
                         <available file="${localconfig}"/>
                         <isset property="platform"/>
+			<isset property="release.version"/>
                         <isset property="scm.credentials"/>
                     </and>
                 </not>
@@ -363,6 +364,7 @@ Examples:
         <echo>
 Local Configuration:
     platform:           ${platform}
+    release.version:    ${release.version}
     scm.credentials:    XXXXXXXXXXXX
         </echo>
 

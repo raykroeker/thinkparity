@@ -323,6 +323,19 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
             } else {
                 removeFlagLatest(artifactId);
             }
+            /* update team definition */
+            final List<JabberId> localTeamIds = readTeamIds(artifactId);
+            final List<JabberId> eventTeamIds = event.getTeamUserIds();
+            for (final JabberId localTeamId : localTeamIds) {
+                if (!eventTeamIds.contains(localTeamId)) {
+                    removeTeamMember(artifactId, localTeamId);
+                }
+            }
+            for (final JabberId eventTeamId : eventTeamIds) {
+                if (!localTeamIds.contains(eventTeamId)) {
+                    addTeamMember(artifactId, eventTeamId);
+                }
+            }
             /* delete a draft - this will happen when an existing team member is
              * not published to */
             switch (readType(artifactId)) {

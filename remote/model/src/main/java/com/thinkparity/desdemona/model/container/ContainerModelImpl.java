@@ -101,6 +101,7 @@ class ContainerModelImpl extends AbstractModelImpl {
             artifactPublishedEvent.setPublishedOn(publishedOn);
             artifactPublishedEvent.setUniqueId(uniqueId);
             artifactPublishedEvent.setVersionId(versionId);
+            artifactPublishedEvent.setTeamUserIds(team);
             final List<JabberId> enqueueTo = new ArrayList<JabberId>(team.size() + publishedTo.size());
             for (final JabberId jabberId : team)
                 enqueueTo.add(jabberId);

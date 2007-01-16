@@ -3,7 +3,10 @@
  */
 package com.thinkparity.codebase.model.util.xmpp.event;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
@@ -22,6 +25,9 @@ public final class ArtifactPublishedEvent extends XMPPEvent {
     /** The published on <code>Calendar</code>. */
     private Calendar publishedOn;
 
+    /** A list of team member user id <code>JabberId</code>s. */
+    private final List<JabberId> teamUserIds;
+
     /** The artifact id <code>UUID</code>. */
     private UUID uniqueId;
 
@@ -34,7 +40,29 @@ public final class ArtifactPublishedEvent extends XMPPEvent {
      */
     public ArtifactPublishedEvent() {
         super();
+        this.teamUserIds = new ArrayList<JabberId>();
     }
+
+    /**
+     * Add a team id.
+     * 
+     * @param teamId
+     *            A team member's user id <code>JabberId</code>.
+     * @return True if the team id list is modified.
+     */
+    public boolean addTeamUserId(final JabberId teamId) {
+        return teamUserIds.add(teamId);
+    }
+
+
+    /**
+     * Clear all team user ids.
+     *
+     */
+    public void clearTeamUserIds() {
+        this.teamUserIds.clear();
+    }
+
 
     /**
      * Obtain publishedBy.
@@ -52,6 +80,15 @@ public final class ArtifactPublishedEvent extends XMPPEvent {
      */
     public Calendar getPublishedOn() {
         return publishedOn;
+    }
+
+    /**
+     * Obtain teamUserIds.
+     * 
+     * @return A <code>List</code> of user id <code>JabberId</code>s.
+     */
+    public List<JabberId> getTeamUserIds() {
+        return Collections.unmodifiableList(teamUserIds);
     }
 
     /**
@@ -73,6 +110,17 @@ public final class ArtifactPublishedEvent extends XMPPEvent {
     }
 
     /**
+     * Remove a team id.
+     * 
+     * @param teamId
+     *            A team member's user id <code>JabberId</code>.
+     * @return True if the team id list is modified.
+     */
+    public boolean removeTeamUserId(final JabberId teamId) {
+        return teamUserIds.remove(teamId);
+    }
+
+    /**
      * Set publishedBy.
      *
      * @param publishedBy
@@ -90,6 +138,17 @@ public final class ArtifactPublishedEvent extends XMPPEvent {
      */
     public void setPublishedOn(Calendar publishedOn) {
         this.publishedOn = publishedOn;
+    }
+
+    /**
+     * Set teamUserIds.
+     *
+     * @param teamUserIds
+     *		A List<JabberId>.
+     */
+    public void setTeamUserIds(final List<JabberId> teamUserIds) {
+        this.teamUserIds.clear();
+        this.teamUserIds.addAll(teamUserIds);
     }
 
     /**

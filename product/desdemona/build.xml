@@ -22,6 +22,9 @@
     <property name="cvs.modules" value="common/codebase common/junitx common/model common/xdoclet local/model remote/codebase remote/model vendor/fop/0.20.5 vendor/groovy vendor/xstream/1.2.1 lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/lucene lib/smack lib/smackx lib/swing-layout lib/wildfire lib/xdoclet vendor/jotm/2.0.10"/>
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
 
+    <!-- javac configuration -->
+    <property name="javac.compilerarg" value="-Xlint:deprecation -Xlint:unchecked"/>
+
     <!-- output directories -->
     <property name="target.dir" value="${basedir}/target"/>
     <property name="target.analyze-report.dir" value="${basedir}/target/analyze-report"/>
@@ -240,28 +243,33 @@
         <javac srcdir="common/codebase/src/main/java"
                 destdir="${target.classes.dir}/common/codebase" debug="${compile.innerDebug}">
             <classpath refid="project.classpath"/>
+	    <compilerarg line="${javac.compilerarg}"/>
         </javac>
         <!-- common/model -->
         <javac srcdir="common/model/src/main/java"
                 destdir="${target.classes.dir}/common/model" debug="${compile.innerDebug}">
             <classpath refid="project.classpath"/>
+	    <compilerarg line="${javac.compilerarg}"/>
         </javac>
         <!-- local/model -->
         <javac srcdir="local/model/src/main/java"
                 destdir="${target.classes.dir}/local/model" debug="${compile.innerDebug}">
             <classpath refid="project.classpath"/>
+	    <compilerarg line="${javac.compilerarg}"/>
         </javac>
         <!-- remote/codebase -->
-		<javac srcdir="remote/codebase/src/main/java"
+        <javac srcdir="remote/codebase/src/main/java"
                 destdir="${target.classes.dir}/remote/codebase" debug="${compile.innerDebug}">
-			<classpath refid="project.classpath"/>
-		</javac>
+            <classpath refid="project.classpath"/>
+	    <compilerarg line="${javac.compilerarg}"/>
+        </javac>
         <!-- remote/model -->
-		<javac srcdir="remote/model/src/main/java"
+        <javac srcdir="remote/model/src/main/java"
                 destdir="${target.classes.dir}/remote/model" debug="${compile.innerDebug}">
-			<classpath refid="project.classpath"/>
-		</javac>
-	</target>
+            <classpath refid="project.classpath"/>
+	    <compilerarg line="${javac.compilerarg}"/>
+        </javac>
+    </target>
 
     <target name="generate-compile">
         <!-- if the compile.debug is not set; use true as a default otherwise
@@ -271,10 +279,11 @@
         </condition>
 
         <!-- common/xdoclet -->
-		<javac srcdir="common/xdoclet/src/main/java"
+        <javac srcdir="common/xdoclet/src/main/java"
                 destdir="${target.classes.dir}/common/xdoclet" debug="${compile.innerDebug}">
-			<classpath refid="xdoclet.classpath"/>
-		</javac>
+            <classpath refid="xdoclet.classpath"/>
+            <compilerarg line="${javac.compilerarg}"/>
+        </javac>
     </target>
 
     <target name="generate-process-resources">
@@ -558,23 +567,27 @@ Local Configuration:
         <javac srcdir="common/junitx/src/main/java"
                 destdir="${target.test-classes.dir}/common/junitx" debug="${compile.innerDebug}">
             <classpath refid="project.test-classpath"/>
+            <compilerarg line="${javac.compilerarg}"/>
         </javac>
         <!-- common/codebase -->
         <javac srcdir="common/codebase/src/test/java"
                 destdir="${target.test-classes.dir}/common/codebase" debug="${compile.innerDebug}">
             <classpath refid="project.test-classpath"/>
+            <compilerarg line="${javac.compilerarg}"/>
         </javac>
         <!-- local/model -->
         <javac srcdir="local/model/src/test/java"
                 destdir="${target.test-classes.dir}/local/model" debug="${compile.innerDebug}">
             <classpath refid="project.test-classpath"/>
-        </javac>
+            <compilerarg line="${javac.compilerarg}"/>
+	</javac>
         <!-- remote/model -->
         <javac srcdir="remote/model/src/test/java"
                 destdir="${target.test-classes.dir}/remote/model" debug="${compile.innerDebug}">
             <classpath refid="project.test-classpath"/>
-        </javac>
-	</target>
+            <compilerarg line="${javac.compilerarg}"/>
+	</javac>
+    </target>
 
     <!-- process test resources -->
     <target name="test-process-resources">

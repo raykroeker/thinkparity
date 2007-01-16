@@ -239,6 +239,13 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A <code>ContainerEvent</code>.       
      */
     public void fireVersionPublished(final ContainerEvent e) {
+        if (e.isRemote()) {
+            removeFlagSeen(e);
+            // Display information when containers are seen for
+            // the first time. In this case we can't assume that
+            // fireSeenFlagUpdated() will be called.
+            getController().runDisplayContainerSeenFlagInfo();
+        }
         sync(e); 
     }
     

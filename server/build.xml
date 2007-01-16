@@ -9,7 +9,8 @@
         <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="PST"/>
     </tstamp>
     <!-- local configuration  -->
-    <property file="local.properties"/>
+    <property name="localconfig" value="${basedir}/local.properties"/>
+    <property file="${localconfig}"/>
 
     <!-- release configuration -->
     <property name="release.name" value="${ant.project.name}"/>
@@ -341,7 +342,24 @@ Examples:
     </target>
 
     <!-- initialize output -->
-	<target name="init">
+    <target name="init">
+    	<fail message="Please create local configuration.  Run ant help more information.">
+            <condition>
+                <not>
+                    <and>
+                        <available file="${localconfig}"/>
+                        <isset property="platform"/>
+                        <isset property="scm.credentials"/>
+                    </and>
+                </not>
+            </condition>
+        </fail>
+        <echo>
+Local Configuration:
+    platform:           ${platform}
+    scm.credentials:    XXXXXXXXXXXX
+        </echo>
+
         <!-- target/classes/* -->
         <mkdir dir="${target.classes.dir}/common/codebase"/>
         <mkdir dir="${target.classes.dir}/common/model"/>
@@ -356,7 +374,7 @@ Examples:
 
         <mkdir dir="${target.test-sessions.dir}"/>
         <mkdir dir="${target.analyze-report.dir}"/>
-	</target>
+    </target>
 
     <!-- document the source -->
     <target name="javadoc">

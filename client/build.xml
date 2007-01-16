@@ -365,6 +365,28 @@ Examples:
 
     <!-- initialize output -->
     <target name="init">
+        <fail message="Please create local configuration.  Run ant help more information.">
+            <condition>
+                <not>
+                    <and>
+                        <available file="${localconfig}"/>
+                        <isset property="platform"/>
+                        <isset property="scm.credentials"/>
+			<isset property="thinkparity.environment"/>
+			<isset property="thinkparity.mode"/>
+                    </and>
+                </not>
+            </condition>
+        </fail>
+        <echo>
+Local Configuration:
+    platform:                 ${platform}
+    scm.credentials:          XXXXXXXXXXXX
+    thinkparity.environment:  ${thinkparity.environment}
+    thinkparity.mode:         ${thinkparity.mode}
+    compile.debug:            ${compile.innerDebug}
+</echo>
+
         <mkdir dir="${target.analyze-report.dir}"/>
         <mkdir dir="${target.classes.dir}"/>
         <mkdir dir="${target.javadoc.dir}"/>
@@ -373,7 +395,6 @@ Examples:
                 <mkdir dir="${target.test-classes.dir}"/>
                 <mkdir dir="${target.test-report.dir}"/>
         <mkdir dir="${target.test-sessions.dir}"/>
-
 
         <condition property="thinkparity.innerEnvironment" value="${thinkparity.environment}"
                 else="PRODUCTION">
@@ -393,10 +414,6 @@ Examples:
                 <equals arg1="TESTING" arg2="${thinkparity.innerMode}"/>
             </or>
         </condition>
-        <echo>Build Configuration:
-    thinkparity.environment:  ${thinkparity.innerEnvironment}  [DEMO,DEMO_LOCALHOST,DEVELOPMENT_LOCALHOST,DEVELOPMENT_RAYMOND,DEVELOPMENT_ROBERT,PRODUCTION,TESTING,TESTING_LOCALHOST]
-    thinkparity.mode:         ${thinkparity.innerMode}  [DEMO,DEVELOPMENT,PRODUCTION,TESTING]
-    compile.debug:            ${compile.innerDebug}  [true,false]</echo>
         <sleep seconds="3"/>
     </target>
 

@@ -149,6 +149,27 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     }
     
     /**
+     * Notify the avatar that a container has been flagged.
+     * (ie. bookmark added or removed)
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.       
+     */
+    public void fireFlagged(final ContainerEvent e) {
+        sync(e);
+    }
+    
+    /**
+     * Notify the avatar that a container has been renamed.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.       
+     */
+    public void fireRenamed(final ContainerEvent e) {
+        sync(e); 
+    }
+    
+    /**
      * Notify the avatar that a container has been restored.
      * 
      * @param e
@@ -199,6 +220,16 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      */
     public void fireUpdated(final ContainerEvent e) {
         sync(e);
+    }
+    
+    /**
+     * Notify the avatar that a container version has been published.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.       
+     */
+    public void fireVersionPublished(final ContainerEvent e) {
+        sync(e); 
     }
     
     /**

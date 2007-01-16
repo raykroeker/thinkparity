@@ -57,6 +57,14 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
                 avatar.fireDeleted(e);
             }
             @Override
+            public void containerFlagged(ContainerEvent e) {
+                avatar.fireFlagged(e);
+            }
+            @Override
+            public void containerRenamed(ContainerEvent e) {
+                avatar.fireRenamed(e);
+            }
+            @Override
             public void containerRestored(final ContainerEvent e) {
                 avatar.fireRestored(e);
             }
@@ -95,6 +103,10 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
             @Override
             public void teamMemberRemoved(final ContainerEvent e) {
                 avatar.fireTeamMemberRemoved(e);
+            }
+            @Override
+            public void versionPublished(ContainerEvent e) {
+                avatar.fireVersionPublished(e);
             }
         };
         containerModel.addListener(containerListener);

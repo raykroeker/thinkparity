@@ -72,6 +72,7 @@ public class WestCellRenderer extends DefaultCellRenderer implements PanelCellRe
         textJLabel.setText("!West Cell Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
         add(textJLabel, gridBagConstraints);
 
@@ -80,7 +81,6 @@ public class WestCellRenderer extends DefaultCellRenderer implements PanelCellRe
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         add(additionalTextJLabel, gridBagConstraints);
 

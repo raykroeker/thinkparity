@@ -9,7 +9,8 @@
         <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="PST"/>
     </tstamp>
     <!-- local configuration  -->
-    <property file="local.properties"/>
+    <property name="localconfig" value="local.properties"/>
+    <property file="${localconfig}"/>
 
     <!-- release configuration -->
     <property name="release.name" value="${ant.project.name}"/>

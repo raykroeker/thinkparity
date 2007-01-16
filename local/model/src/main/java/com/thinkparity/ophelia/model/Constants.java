@@ -65,11 +65,6 @@ public final class Constants {
         public static final Integer BUFFER_SIZE = 512;
     }
 
-    public static final class Jabber {
-        public static final String DOMAIN = "thinkparity.dyndns.org";
-        public static final String RESOURCE = "parity";
-    }
-
     public static final class LibraryFileExtensions {
         public static final String JAVA = ".jar";
         public static final String NATIVE = ".dll";

@@ -139,6 +139,6 @@ public class JabberIdBuilder {
     }
 
     private static final class Constants {
-        private static final String SERVICE = "thinkparity.dyndns.org";
+        private static final String SERVICE = "thinkparity.net";
     }
 }

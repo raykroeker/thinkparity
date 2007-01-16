@@ -12,28 +12,28 @@ import com.thinkparity.codebase.NetworkUtil;
 public enum Environment {
 
     /** The demo environment. */
-    DEMO("thinkparity.dyndns.org", 5231, Boolean.TRUE, "thinkparity.dyndns.org", "thinkparity.dyndns.org", 20004, Boolean.TRUE),
+    DEMO("thinkparity.dyndns.org", 5231, Boolean.TRUE, "thinkparity.net", "thinkparity.dyndns.org", 20004, Boolean.TRUE),
 
     /** A localhost demo environment. */
-    DEMO_LOCALHOST("localhost", 5231, Boolean.TRUE, "thinkparity.dyndns.org", "localhost", 20004, Boolean.TRUE),
+    DEMO_LOCALHOST("localhost", 5231, Boolean.TRUE, "thinkparity.net", "localhost", 20004, Boolean.TRUE),
 
     /** A localhost development environment. */
-    DEVELOPMENT_LOCALHOST("localhost", 5226, Boolean.FALSE, "thinkparity.dyndns.org", "localhost", 20002, Boolean.FALSE),
+    DEVELOPMENT_LOCALHOST("localhost", 5226, Boolean.FALSE, "thinkparity.net", "localhost", 20002, Boolean.FALSE),
 
     /** Raymond's development environment. */
-    DEVELOPMENT_RAYMOND("thinkparity.dyndns.org", 5226, Boolean.FALSE, "thinkparity.dyndns.org", "thinkparity.dyndns.org", 20002, Boolean.TRUE),
+    DEVELOPMENT_RAYMOND("thinkparity.dyndns.org", 5226, Boolean.FALSE, "thinkparity.net", "thinkparity.dyndns.org", 20002, Boolean.TRUE),
 
     /** Robert's development environment. */
-    DEVELOPMENT_ROBERT("thinkparity.dyndns.org", 5228, Boolean.FALSE, "thinkparity.dyndns.org", "thinkparity.dyndns.org", 20003, Boolean.TRUE),
+    DEVELOPMENT_ROBERT("thinkparity.dyndns.org", 5228, Boolean.FALSE, "thinkparity.net", "thinkparity.dyndns.org", 20003, Boolean.TRUE),
 
     /** Production environment. */
-    PRODUCTION("thinkparity.net", 5223, Boolean.TRUE, "thinkparity.net", "thinkparity.dyndns.org", 20000, Boolean.TRUE),
+    PRODUCTION("thinkparity.net", 5223, Boolean.TRUE, "thinkparity.net", "yvr.thinkparity.net", 20000, Boolean.TRUE),
 
     /** Testing environment. */
-    TESTING("thinkparity.dyndns.org", 5225, Boolean.TRUE, "thinkparity.dyndns.org", "thinkparity.dyndns.org", 20001, Boolean.TRUE),
+    TESTING("thinkparity.dyndns.org", 5225, Boolean.TRUE, "thinkparity.net", "thinkparity.dyndns.org", 20001, Boolean.TRUE),
 
     /** A localhost testing environment. */
-    TESTING_LOCALHOST("localhost", 5225, Boolean.TRUE, "thinkparity.dyndns.org", "localhost", 20001, Boolean.TRUE);
+    TESTING_LOCALHOST("localhost", 5225, Boolean.TRUE, "thinkparity.net", "localhost", 20001, Boolean.TRUE);
 
     /** The stream server host. */
     private final transient String streamHost;

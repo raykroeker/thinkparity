@@ -945,9 +945,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         if (null == localUserId) {
             final Credentials credentials = readCredentials();
             if (null != credentials) {
-                localUserId = JabberIdBuilder.build(
-                        credentials.getUsername(), Constants.Jabber.DOMAIN,
-                        credentials.getResource());
+                localUserId = JabberIdBuilder.parseUsername(credentials.getUsername());
             }
         }
         return localUserId;

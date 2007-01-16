@@ -17,8 +17,6 @@ import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Credentials;
 
-import com.thinkparity.ophelia.model.Constants.Jabber;
-
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.XMPPConnection;
 
@@ -63,15 +61,8 @@ public class XMPPSession {
     XMPPSession(final String serverHost, final Integer serverPort,
             final Credentials credentials) {
         super();
-        try {
-            this.connection = new XMPPConnection(serverHost, serverPort);
-            this.connection.login(credentials.getUsername(), credentials.getPassword(), Jabber.RESOURCE);
-        }
-        catch(final org.jivesoftware.smack.XMPPException xmppx) {
-            throw new XMPPException(xmppx);
-        }
-        this.logger = Logger.getLogger(getClass());
-        this.uniqueId = JVMUniqueId.nextId();
+        // raymond@thinkparity.com - 15-Jan-07 7:14:35 PM
+        throw Assert.createNotYetImplemented("");
     }
 
     /** Close this session. */

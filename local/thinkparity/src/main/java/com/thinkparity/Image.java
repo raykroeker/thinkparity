@@ -97,7 +97,8 @@ public class Image {
         catch(final IOException iox) { throw new ThinkParityException("", iox); }
 
         // create class loader
-        final ClassLoader classLoader = URLClassLoader.newInstance(classPath, null);
+        final ClassLoader classLoader = URLClassLoader.newInstance(classPath,
+                Thread.currentThread().getContextClassLoader());
         Thread.currentThread().setContextClassLoader(classLoader);
         try {
             // execute

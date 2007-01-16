@@ -68,8 +68,9 @@ class ContainerEventGenerator {
      * @return A container event.
      */
     ContainerEvent generate(final Container container,
-            final ContainerDraft draft, final ContainerVersion version) {
-        return new ContainerEvent(source, container, draft, version);
+            final ContainerDraft draft, final ContainerVersion version,
+            final TeamMember teamMember) {
+        return new ContainerEvent(source, container, draft, version, teamMember);
     }
 
     /**

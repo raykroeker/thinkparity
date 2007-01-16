@@ -47,7 +47,6 @@ import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
@@ -191,7 +190,7 @@ public final class ContainerModelImpl extends
         logger.logVariable("containerId", containerId);
         try {
             getArtifactModel().applyFlagBookmark(containerId);
-            notifyContainerUpdated(read(containerId), localEventGenerator);
+            notifyContainerFlagged(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -719,17 +718,6 @@ public final class ContainerModelImpl extends
         }
     }
 
-    public void handlePublished(final ArtifactPublishedEvent event) {
-        logger.logApiId();
-        logger.logVariable("event", event);
-        try {
-            final Long containerId = getArtifactModel().readId(event.getUniqueId());
-            notifyContainerUpdated(read(containerId), remoteEventGenerator);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
     /**
      * Handle the container published event. The local team definition is built
      * from the publishedTo list. The published to list is also saved.
@@ -818,8 +806,13 @@ public final class ContainerModelImpl extends
             auditContainerPublished(postPublish, draft,
                     postPublishVersion, event.getPublishedBy(),
                     event.getPublishedTo(), event.getPublishedOn());
-            notifyContainerPublished(postPublish, publishedBy,
-                    postPublishVersion, remoteEventGenerator);
+            if (null == draft) {
+                notifyVersionPublished(postPublish, postPublishVersion,
+                        publishedBy, remoteEventGenerator);
+            } else {
+                notifyDraftPublished(postPublish, draft, postPublishVersion,
+                        publishedBy, remoteEventGenerator);
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -841,7 +834,6 @@ public final class ContainerModelImpl extends
             containerIO.updatePublishedTo(containerId, event.getVersionId(),
                     event.getPublishedOn(), event.getReceivedBy(),
                     event.getReceivedOn());
-            notifyContainerUpdated(read(containerId), remoteEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -1056,8 +1048,8 @@ public final class ContainerModelImpl extends
             final Container postPublish = read(container.getId());
             final ContainerVersion postPublishVersion = readVersion(
                     version.getArtifactId(), version.getVersionId());
-            notifyContainerPublished(postPublish, draft, postPublishVersion,
-                    localEventGenerator);
+            notifyDraftPublished(postPublish, draft, postPublishVersion,
+                    localTeamMember(container.getId()), localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         } finally {
@@ -1131,8 +1123,8 @@ public final class ContainerModelImpl extends
             final Container postPublish = read(containerId);
             final ContainerVersion postPublishVersion =
                 readVersion(containerId, versionId);
-            notifyContainerPublished(postPublish, postPublishVersion,
-                    localEventGenerator);
+            notifyVersionPublished(postPublish, postPublishVersion,
+                    localTeamMember(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         } finally {
@@ -1739,7 +1731,7 @@ public final class ContainerModelImpl extends
         logger.logVariable("containerId", containerId);
         try {
             getArtifactModel().removeFlagBookmark(containerId);
-            notifyContainerUpdated(read(containerId), localEventGenerator);
+            notifyContainerFlagged(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -1808,7 +1800,7 @@ public final class ContainerModelImpl extends
             assertIsNotDistributed("CONTAINER HAS BEEN DISTRIBUTED", containerId);
             containerIO.updateName(containerId, name);
             // fire event
-            notifyContainerUpdated(read(containerId), localEventGenerator);
+            notifyContainerRenamed(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -2586,7 +2578,6 @@ public final class ContainerModelImpl extends
         monitor.stageBegin(stage, data);
     }
 
-
     private void fireStageEnd(final PublishMonitor monitor,
             final PublishStage stage) {
         monitor.stageEnd(stage);
@@ -2605,6 +2596,7 @@ public final class ContainerModelImpl extends
             throw translateError(t);
         }
     }
+
 
     /**
      * Handle a document published remote event.
@@ -2709,67 +2701,35 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Fire a container published event.
+     * Notify that a container has been flagged.
+     * 
+     * @param container
+     *            A container.
+     * @param eventGenerator
+     *            A container event generator.
+     */
+    private void notifyContainerFlagged(final Container container,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerFlagged(eventGenerator.generate(container));
+            }
+        });
+    }
+
+    /**
+     * Fire a container renamed event.
      * 
      * @param container
      *            A <code>Container</code>.
-     * @param draft
-     *            A <code>ContainerDraft</code>.
-     * @param version
-     *            A <code>ContainerVersion</code>.
      * @param eventGenerator
      *            A <code>ContainerEventGenerator</code>.
      */
-    private void notifyContainerPublished(final Container container,
-            final ContainerDraft draft, final ContainerVersion version,
+    private void notifyContainerRenamed(final Container container,
             final ContainerEventGenerator eventGenerator) {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
-                listener.draftPublished(eventGenerator.generate(container,
-                        draft, version));
-            }
-        });
-    }
-
-    /**
-     * Fire a container published event.
-     * 
-     * @param container
-     *            A container.
-     * @param version
-     *            A container version.
-     * @param eventGenerator
-     *            A container event generator.
-     */
-    private void notifyContainerPublished(final Container container,
-            final ContainerVersion version,
-            final ContainerEventGenerator eventGenerator) {
-        notifyListeners(new EventNotifier<ContainerListener>() {
-            public void notifyListener(final ContainerListener listener) {
-                listener.draftPublished(eventGenerator.generate(container, version));
-            }
-        });
-    }
-
-    /**
-     * Fire a container published event.
-     * 
-     * @param container
-     *            A container.
-     * @param draft
-     *            A container draft.
-     * @param version
-     *            A container version.
-     * @param eventGenerator
-     *            A container event generator.
-     */
-    private void notifyContainerPublished(final Container container,
-            final TeamMember teamMember, final ContainerVersion version,
-            final ContainerEventGenerator eventGenerator) {
-        notifyListeners(new EventNotifier<ContainerListener>() {
-            public void notifyListener(final ContainerListener listener) {
-                listener.draftPublished(eventGenerator.generate(container,
-                        teamMember, version));
+                listener.containerRenamed(eventGenerator.generate(container));
             }
         });
     }
@@ -2787,23 +2747,6 @@ public final class ContainerModelImpl extends
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
                 listener.containerRestored(eventGenerator.generate(container));
-            }
-        });
-    }
-
-    /**
-     * Notify that a container has been updated.
-     * 
-     * @param container
-     *            A container.
-     * @param eventGenerator
-     *            A container event generator.
-     */
-    private void notifyContainerUpdated(final Container container,
-            final ContainerEventGenerator eventGenerator) {
-        notifyListeners(new EventNotifier<ContainerListener>() {
-            public void notifyListener(final ContainerListener listener) {
-                listener.containerUpdated(eventGenerator.generate(container));
             }
         });
     }
@@ -2912,6 +2855,51 @@ public final class ContainerModelImpl extends
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
                 listener.draftDeleted(eventGenerator.generate(container, draft));
+            }
+        });
+    }
+
+    /**
+     * Fire a container published event.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param eventGenerator
+     *            A <code>ContainerEventGenerator</code>.
+     */
+    private void notifyDraftPublished(final Container container,
+            final ContainerDraft draft, final ContainerVersion version,
+            final TeamMember teamMember,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.draftPublished(eventGenerator.generate(container,
+                        draft, version, teamMember));
+            }
+        });
+    }
+
+    /**
+     * Fire a version published event.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param eventGenerator
+     *            A <code>ContainerEventGenerator</code>.
+     */
+    private void notifyVersionPublished(final Container container,
+            final ContainerVersion version, final TeamMember teamMember,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.versionPublished(eventGenerator.generate(container,
+                        teamMember, version));
             }
         });
     }

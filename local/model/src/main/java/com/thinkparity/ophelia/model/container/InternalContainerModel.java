@@ -13,7 +13,6 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
@@ -97,15 +96,6 @@ public interface InternalContainerModel extends ContainerModel {
      */
     @ThinkParityTransaction(TransactionType.REQUIRED)
     public void handleDraftDeleted(final ArtifactDraftDeletedEvent event);
-
-    /**
-     * Handle the remove published event.
-     * 
-     * @param event
-     *            An <code>ArtifactPublishedEvent</code>.
-     */
-    @ThinkParityTransaction(TransactionType.REQUIRED)
-    public void handlePublished(final ArtifactPublishedEvent event);
 
     /**
      * Handle the container published remote event.

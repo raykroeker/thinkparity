@@ -136,6 +136,12 @@ public abstract class ContainerTestCase extends ModelTestCase {
         public void containerDeleted(ContainerEvent e) {
             fail(getName() + " - Container deleted event was fired.");
         }
+        public void containerFlagged(final ContainerEvent e) {
+            fail(getName() + " Container flagged event was fired.");
+        }
+        public void containerRenamed(ContainerEvent e) {
+            fail(getName() + " Container renamed event was fired.");
+        }
         public void containerRestored(ContainerEvent e) {
             fail(getName() + " - Container restored event was fired.");
         }
@@ -168,6 +174,9 @@ public abstract class ContainerTestCase extends ModelTestCase {
         }
         public void teamMemberRemoved(ContainerEvent e) {
             fail(getName() + " - Team member removed event was fired.");
+        }
+        public void versionPublished(ContainerEvent e) {
+            fail(getName() + " - Version published event was fired.");
         }
     }
 }

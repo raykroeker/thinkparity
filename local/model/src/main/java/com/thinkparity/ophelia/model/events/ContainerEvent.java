@@ -91,8 +91,9 @@ public class ContainerEvent {
      *            A container version.
      */
     public ContainerEvent(final Source source, final Container container,
-            final ContainerDraft draft, final ContainerVersion version) {
-        this(source, container, draft, version, null, null);
+            final ContainerDraft draft, final ContainerVersion version,
+            final TeamMember teamMember) {
+        this(source, container, draft, version, teamMember, null);
     }
 
     /**

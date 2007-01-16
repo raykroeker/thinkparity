@@ -344,7 +344,6 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
                 if (containerModel.doesExistDraft(artifactId)) {
                     containerModel.deleteDraft(artifactId);
                 }
-                containerModel.handlePublished(event);
                 break;
             case DOCUMENT:  // deliberate fall through
             default:

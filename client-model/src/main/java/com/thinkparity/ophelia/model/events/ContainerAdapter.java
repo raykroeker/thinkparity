@@ -19,9 +19,10 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
  * @see ContainerModel#addListener
  */
 public class ContainerAdapter implements ContainerListener {
-    
+
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerArchived(com.thinkparity.ophelia.model.events.ContainerEvent)
+     *
      */
     public void containerArchived(final ContainerEvent e) {}
 
@@ -38,12 +39,26 @@ public class ContainerAdapter implements ContainerListener {
     public void containerDeleted(final ContainerEvent e) {}
 
     /**
+     * @see com.thinkparity.ophelia.model.events.ContainerListener#containerFlagged(com.thinkparity.ophelia.model.events.ContainerEvent)
+     *
+     */
+    public void containerFlagged(final ContainerEvent e) {}
+
+    /**
+     * @see com.thinkparity.ophelia.model.events.ContainerListener#containerRenamed(com.thinkparity.ophelia.model.events.ContainerEvent)
+     *
+     */
+    public void containerRenamed(final ContainerEvent e) {}
+
+    /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerRestored(com.thinkparity.ophelia.model.events.ContainerEvent)
+     *
      */
     public void containerRestored(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerUpdated(com.thinkparity.ophelia.model.events.ContainerEvent)
+     *
      */
     public void containerUpdated(final ContainerEvent e) {}
 
@@ -90,6 +105,13 @@ public class ContainerAdapter implements ContainerListener {
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#teamMemberRemoved(com.thinkparity.ophelia.model.events.ContainerEvent)
+     *
      */
     public void teamMemberRemoved(final ContainerEvent e) {}
+
+    /**
+     * @see com.thinkparity.ophelia.model.events.ContainerListener#versionPublished(com.thinkparity.ophelia.model.events.ContainerEvent)
+     *
+     */
+    public void versionPublished(final ContainerEvent e) {}
 }

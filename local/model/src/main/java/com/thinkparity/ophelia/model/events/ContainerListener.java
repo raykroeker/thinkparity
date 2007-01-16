@@ -46,6 +46,22 @@ public interface ContainerListener extends EventListener {
     public void containerDeleted(final ContainerEvent e);
 
     /**
+     * A container has been flagged.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void containerFlagged(final ContainerEvent e);
+
+    /**
+     * A container was renamed.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void containerRenamed(final ContainerEvent e);
+
+    /**
      * A container was restored.
      * 
      * @param e
@@ -124,4 +140,12 @@ public interface ContainerListener extends EventListener {
      *            The container event.
      */
     public void teamMemberRemoved(final ContainerEvent e);
+
+    /**
+     * A container version was published.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void versionPublished(final ContainerEvent e);
 }

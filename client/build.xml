@@ -498,6 +498,7 @@ Local Configuration:
     <target name="process-resources" depends="init">
         <copy todir="${target.classes.dir}">
             <fileset dir="${basedir}/common/codebase/src/main/resources"/>
+            <fileset dir="${basedir}/common/model/src/main/resources"/>
             <fileset dir="${basedir}/local/browser/src/main/resources"/>
             <fileset dir="${basedir}/local/model/src/main/resources"/>
         </copy>

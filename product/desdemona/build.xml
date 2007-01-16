@@ -417,7 +417,10 @@ Local Configuration:
         <!-- common/codebase -->
         <copy todir="${target.classes.dir}/common/codebase">
             <fileset dir="${basedir}/common/codebase/src/main/resources"/>
-	    <fileset dir="${basedir}/common/model/src/main/resources"/>
+        </copy>
+        <!-- common/model -->
+        <copy todir="${target.classes.dir}/common/model">
+            <fileset dir="${basedir}/common/model/src/main/resources"/>
         </copy>
         <!-- local/model -->
         <copy todir="${target.classes.dir}/local/model">

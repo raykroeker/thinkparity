@@ -52,6 +52,14 @@ public interface ContainerListener extends EventListener {
      *            A <code>ContainerEvent</code>.
      */
     public void containerFlagged(final ContainerEvent e);
+    
+    /**
+     * A container has been received.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void containerReceived(final ContainerEvent e);
 
     /**
      * A container was renamed.

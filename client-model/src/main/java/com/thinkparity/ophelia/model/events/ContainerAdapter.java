@@ -43,6 +43,11 @@ public class ContainerAdapter implements ContainerListener {
      *
      */
     public void containerFlagged(final ContainerEvent e) {}
+    
+    /**
+     * @see com.thinkparity.ophelia.model.events.ContainerListener#containerReceived(com.thinkparity.ophelia.model.events.ContainerEvent)
+     */
+    public void containerReceived(ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerRenamed(com.thinkparity.ophelia.model.events.ContainerEvent)

@@ -834,6 +834,7 @@ public final class ContainerModelImpl extends
             containerIO.updatePublishedTo(containerId, event.getVersionId(),
                     event.getPublishedOn(), event.getReceivedBy(),
                     event.getReceivedOn());
+            notifyContainerReceived(read(containerId), remoteEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -2713,6 +2714,23 @@ public final class ContainerModelImpl extends
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
                 listener.containerFlagged(eventGenerator.generate(container));
+            }
+        });
+    }
+    
+    /**
+     * Notify that the container has been received.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param eventGenerator
+     *            A <code>ContainerEventGenerator</code>.
+     */
+    private void notifyContainerReceived(final Container container,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerReceived(eventGenerator.generate(container));
             }
         });
     }

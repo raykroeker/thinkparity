@@ -137,10 +137,13 @@ public abstract class ContainerTestCase extends ModelTestCase {
             fail(getName() + " - Container deleted event was fired.");
         }
         public void containerFlagged(final ContainerEvent e) {
-            fail(getName() + " Container flagged event was fired.");
+            fail(getName() + " - Container flagged event was fired.");
+        }
+        public void containerReceived(final ContainerEvent e) {
+            fail(getName() + " - Container received event was fired.");
         }
         public void containerRenamed(ContainerEvent e) {
-            fail(getName() + " Container renamed event was fired.");
+            fail(getName() + " - Container renamed event was fired.");
         }
         public void containerRestored(ContainerEvent e) {
             fail(getName() + " - Container restored event was fired.");

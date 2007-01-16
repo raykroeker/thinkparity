@@ -61,6 +61,10 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
                 avatar.fireFlagged(e);
             }
             @Override
+            public void containerReceived(ContainerEvent e) {
+                avatar.fireReceived(e);              
+            }
+            @Override
             public void containerRenamed(ContainerEvent e) {
                 avatar.fireRenamed(e);
             }

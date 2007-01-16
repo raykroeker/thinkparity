@@ -160,6 +160,16 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     }
     
     /**
+     * Notify the avatar that a container has been received.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.  
+     */
+    public void fireReceived(final ContainerEvent e) {
+        sync(e);
+    }
+    
+    /**
      * Notify the avatar that a container has been renamed.
      * 
      * @param e

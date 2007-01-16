@@ -30,6 +30,7 @@ import com.thinkparity.desdemona.wildfire.util.SessionUtil;
 
 import org.jivesoftware.wildfire.IQHandlerInfo;
 import org.jivesoftware.wildfire.auth.UnauthorizedException;
+import org.jivesoftware.wildfire.container.PluginClassLoader;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.PacketError;
 
@@ -62,8 +63,11 @@ public abstract class AbstractHandler extends
     /** An apache logger wrapper. */
     protected final Log4JWrapper logger;
 
-	/** The info. */
+    /** The info. */
 	private final IQHandlerInfo info;
+
+	/** A <code>PluginClassLoader</code>. */
+    private PluginClassLoader pluginClassLoader;
 
     /**
      * Create AbstractHandler2.
@@ -86,10 +90,21 @@ public abstract class AbstractHandler extends
 	}
     
     /**
+     * Obtain the plugin class loader.
+     *
+     * @return A <code>PluginClassLoader</code>.
+     */
+    public PluginClassLoader getPluginClassLoader() {
+        return pluginClassLoader;
+    }
+
+    /**
      * @see org.jivesoftware.wildfire.handler.IQHandler#handleIQ(org.xmpp.packet.IQ)
      * 
 	 */
     public IQ handleIQ(final IQ iq) throws UnauthorizedException {
+        Thread.currentThread().setContextClassLoader(pluginClassLoader.getClassLoader());
+
         final ServiceRequestReader reader = new IQReader(iq);
         final IQ response = createResponse(iq);
         final ServiceResponseWriter writer = new IQWriter(response);
@@ -139,6 +154,16 @@ public abstract class AbstractHandler extends
     }
 
     /**
+     * Set the plugin class loader.
+     * 
+     * @param pluginClassLoader
+     *            A <code>PluginClassLoader</code>.
+     */
+    public void setPluginClassLoader(final PluginClassLoader pluginClassLoader) {
+        this.pluginClassLoader = pluginClassLoader;
+    }
+
+	/**
      * Provides a thinkParity service.
      * 
      * @param provider
@@ -172,7 +197,7 @@ public abstract class AbstractHandler extends
         return errorResult;
     }
 
-	/**
+    /**
      * Create a response for the query.
      * 
      * @param iq

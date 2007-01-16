@@ -28,7 +28,6 @@ public interface InternalArchiveModel extends ArchiveModel {
      * @param artifactId
      *            An artifact id <code>Long</code>.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void archive(final Long artifactId);
 
     /**

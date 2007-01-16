@@ -72,6 +72,7 @@ public interface ContainerModel {
      * @param containerId
      *            A container id <code>Long</code>.
      */
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void archive(final Long containerId);
 
     /**

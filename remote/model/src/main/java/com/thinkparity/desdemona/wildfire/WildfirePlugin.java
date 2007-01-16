@@ -18,6 +18,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.desdemona.model.Version;
 import com.thinkparity.desdemona.model.archive.ArchiveModel;
 import com.thinkparity.desdemona.model.stream.StreamModel;
+import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.PropertyConfigurator;
@@ -95,7 +96,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 		logger.logInfo("{0}:{1}", "xmpp.socket.ssl.port", jiveProperties.get("xmpp.socket.ssl.port"));
         logger.logInfo("{0}:{1}", "thinkparity.environment", jiveProperties.get("thinkparity.environment"));
         logger.logInfo("{0}:{1}", "thinkparity.mode", jiveProperties.get("thinkparity.mode"));
-		initializeHandlers(pluginDirectory);
+		initializeHandlers(pluginClassLoader, pluginDirectory);
 		startStream();
         startArchive();
         final String message = getStartupMessage();
@@ -376,17 +377,18 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      * 
      * @param handlerName
      *            The handler name.
-
-     * @param controllerName
+     * 
      * @throws ClassNotFoundException
      * @throws IllegalAccessException
      * @throws InstantiationException
-	 */
-    private void initializeHandler(final String handlerName)
-            throws ClassNotFoundException, IllegalAccessException,
-            InstantiationException {
+     */
+    private void initializeHandler(final PluginClassLoader pluginClassLoader,
+            final String handlerName) throws ClassNotFoundException,
+            IllegalAccessException, InstantiationException {
         handlers.add((IQHandler) Class.forName(handlerName).newInstance());
-        final IQHandler controller = handlers.get(handlers.size() - 1);
+        final AbstractHandler controller =
+            (AbstractHandler) handlers.get(handlers.size() - 1);
+        controller.setPluginClassLoader(pluginClassLoader);
         router.addHandler(controller);
         logger.logInfo("{0} has been initialized.",
                 controller.getInfo().getNamespace());
@@ -396,13 +398,15 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 	 * Initialize the iq dispatcher.
 	 * 
 	 */
-    private void initializeHandlers(final File pluginDirectory) {
+    private void initializeHandlers(final PluginClassLoader pluginClassLoader,
+            final File pluginDirectory) {
         try {
             final Document document = new XPP3Reader().read(new File(pluginDirectory, "wildfire-handlers.xml"));
             final Element rootElement = document.getRootElement();
             final List elements = rootElement.elements("handler");
             for (final Object element : elements) {
-                initializeHandler(((Element) element).getText());
+                initializeHandler(pluginClassLoader,
+                        ((Element) element).getText());
             }
         } catch(final Throwable t) {
             logger.logFatal("Handler could not be initialized.", t);

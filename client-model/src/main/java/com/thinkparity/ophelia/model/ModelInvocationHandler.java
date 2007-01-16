@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import javax.naming.NamingException;
@@ -68,16 +69,18 @@ final class ModelInvocationHandler implements InvocationHandler {
         LOGGER.logTrace("Invoking method {0} on {1} in workspace {2}.", method,
                 obj, workspace);
         synchronized (workspace) {
-            // NOCOMMIT:tx is turned off
-//            final Transaction transaction = workspace.lookupTransaction();
-//            final TransactionContext transactionContext = newTransactionContext(method);
-//            beginTransaction(transaction, transactionContext);
+            final Transaction transaction = workspace.lookupTransaction();
+            final TransactionContext transactionContext = newTransactionContext(method);
+            beginTransaction(transaction, transactionContext);
             try {
                 final Object result = method.invoke(obj, args);
-//                commitTransaction(transaction, transactionContext);
+                commitTransaction(transaction, transactionContext);
                 return result;
+            } catch (final InvocationTargetException itx) {
+                rollbackTransaction(transaction, transactionContext);
+                throw itx.getTargetException();
             } catch (final Throwable t) {
-//                rollbackTransaction(transaction, transactionContext);
+                rollbackTransaction(transaction, transactionContext);
                 throw t;
             }
         }
@@ -97,6 +100,8 @@ final class ModelInvocationHandler implements InvocationHandler {
     private void beginTransaction(final Transaction transaction,
             final TransactionContext transactionContext)
             throws NotSupportedException, SystemException {
+        LOGGER.logVariable("transaction", transaction);
+        LOGGER.logVariable("transaction.getContext()", transaction.getContext());
         switch (transactionContext.getType()) {
         case REQUIRES_NEW:
             LOGGER.logTrace("New transaction required for context {0}.",

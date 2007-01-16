@@ -85,30 +85,44 @@ public interface InternalContainerModel extends ContainerModel {
      * @param createdOn
      *            The creation date <code>Calendar</code>.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    @ThinkParityTransaction(TransactionType.REQUIRED)
     public void handleDraftCreated(final Long containerId,
             final JabberId createdBy, final Calendar createdOn);
 
     /**
      * Handle the remote draft deleted event.
      * 
-     * @param containerId
-     *            A container id.
-     * @param deletedBy
-     *            Who deleted the draft.
-     * @param deletedOn
-     *            When the draft was deleted.
+     * @param event
+     *            An <code>ArtifactDraftDeletedEvent</code>.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    @ThinkParityTransaction(TransactionType.REQUIRED)
     public void handleDraftDeleted(final ArtifactDraftDeletedEvent event);
 
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    /**
+     * Handle the remove published event.
+     * 
+     * @param event
+     *            An <code>ArtifactPublishedEvent</code>.
+     */
+    @ThinkParityTransaction(TransactionType.REQUIRED)
     public void handlePublished(final ArtifactPublishedEvent event);
 
+    /**
+     * Handle the container published remote event.
+     * 
+     * @param event
+     *            A <code>ContainerPublishedEvent</code>.
+     */
     @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void handlePublished(final ContainerPublishedEvent event);
 
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    /**
+     * Handle the remove artifact received event.
+     * 
+     * @param event
+     *            An <code>ArtifactReceivedEvent</code>.
+     */
+    @ThinkParityTransaction(TransactionType.REQUIRED)
     public void handleReceived(final ArtifactReceivedEvent event);
 
     /**

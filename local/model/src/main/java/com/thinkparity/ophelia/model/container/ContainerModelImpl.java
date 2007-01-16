@@ -1804,13 +1804,13 @@ public final class ContainerModelImpl extends
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         logger.logVariable("name", name);
-        assertIsNotDistributed("CONTAINER HAS BEEN DISTRIBUTED", containerId);
         try {
+            assertIsNotDistributed("CONTAINER HAS BEEN DISTRIBUTED", containerId);
             containerIO.updateName(containerId, name);
             // fire event
             notifyContainerUpdated(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 

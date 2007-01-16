@@ -73,6 +73,15 @@ public final class Transaction {
     }
 
     /**
+     * Obtain context.
+     * 
+     * @return A <code>TransactionContext</code>.
+     */
+    public TransactionContext getContext() {
+        return context;
+    }
+
+    /**
      * Determine if the transaction is active.
      * 
      * @return True if the transaction is active.

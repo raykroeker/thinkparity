@@ -156,6 +156,7 @@
                 duplicate="fail" update="false" whenempty="fail">
             <fileset dir="${target.classes.dir}">
                 <include name="com/thinkparity/codebase/"/>
+		<include name="carol.properties"/>
             </fileset>
         </jar>
         <!-- /core/model.jar -->

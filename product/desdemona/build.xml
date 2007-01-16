@@ -475,8 +475,10 @@ Local Configuration:
             <fileset dir="${target.classes.dir}/remote/model">
                 <include name="log4j.properties"/>
                 <include name="localization/*"/>
-		<include name="carol.properties"/>
             </fileset>
+	    <fileset dir="${target.classes.dir}/common/model">
+	    	<include name="carol.properties"/>
+	    </fileset>
         </copy>
         <!-- ${target.release.plugin.dir}/lib -->
         <mkdir dir="${target.release.plugin.dir}/lib"/>

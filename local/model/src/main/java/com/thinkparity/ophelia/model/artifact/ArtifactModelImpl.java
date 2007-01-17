@@ -322,17 +322,11 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
         logger.logApiId();
         logger.logVariable("event", event);
         try {
-            final InternalContainerModel containerModel = getContainerModel();
-
             final Long artifactId = readId(event.getUniqueId());
             if (doesVersionExist(artifactId, event.getVersionId())) {
                 applyFlagLatest(artifactId);
-                containerModel.notifyContainerFlagged(artifactId,
-                        ContainerEvent.Source.REMOTE);
             } else {
                 removeFlagLatest(artifactId);
-                containerModel.notifyContainerFlagged(artifactId,
-                        ContainerEvent.Source.REMOTE);
             }
             /* update team definition */
             final List<JabberId> localTeamIds = readTeamIds(artifactId);
@@ -349,9 +343,12 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
             }
             /* delete a draft - this will happen when an existing team member is
              * not published to */
+            final InternalContainerModel containerModel = getContainerModel();
             switch (readType(artifactId)) {
             case CONTAINER:
                 if (containerModel.doesExistDraft(artifactId)) {
+                    containerModel.notifyContainerFlagged(artifactId,
+                            ContainerEvent.Source.REMOTE);
                     containerModel.deleteDraft(artifactId);
                 }
                 break;

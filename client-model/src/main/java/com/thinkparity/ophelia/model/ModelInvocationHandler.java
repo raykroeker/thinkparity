@@ -73,15 +73,15 @@ final class ModelInvocationHandler implements InvocationHandler {
             final TransactionContext transactionContext = newTransactionContext(method);
             beginTransaction(transaction, transactionContext);
             try {
-                final Object result = method.invoke(obj, args);
-                commitTransaction(transaction, transactionContext);
-                return result;
+                return method.invoke(obj, args);
             } catch (final InvocationTargetException itx) {
                 rollbackTransaction(transaction, transactionContext);
                 throw itx.getTargetException();
             } catch (final Throwable t) {
                 rollbackTransaction(transaction, transactionContext);
                 throw t;
+            } finally {
+                completeTransaction(transaction, transactionContext);
             }
         }
     }
@@ -112,10 +112,13 @@ final class ModelInvocationHandler implements InvocationHandler {
         case REQUIRED:
             LOGGER.logTrace("Transaction required for context {0}.",
                     transactionContext);
-            if (!transaction.isActive().booleanValue())
+            if (transaction.isRollbackOnly()) {
+                LOGGER.logTrace("Transaction marked for rollback.");
+            } else if (!transaction.isActive().booleanValue()) {
                 transaction.begin(transactionContext);
-            Assert.assertTrue(transaction.isActive(),
-                    "Transaction required for {0}.", transactionContext);
+                Assert.assertTrue(transaction.isActive(),
+                        "Transaction required for {0}.", transactionContext);
+            }
             break;
         case NEVER:
             LOGGER.logTrace("Transaction not supported for context {0}.",
@@ -131,8 +134,8 @@ final class ModelInvocationHandler implements InvocationHandler {
     }
 
     /**
-     * Commit a transaction. If the transaction belongs to the given transaction
-     * context a commit will be attempted.
+     * Complete a transaction. If the transaction belongs to the given
+     * transaction context a rollback/commit will be attempted.
      * 
      * @param transaction
      *            A <code>Transaction</code>.
@@ -143,14 +146,18 @@ final class ModelInvocationHandler implements InvocationHandler {
      * @throws RollbackException
      * @throws SystemException
      */
-    private void commitTransaction(final Transaction transaction,
+    private void completeTransaction(final Transaction transaction,
             final TransactionContext transactionContext)
             throws HeuristicMixedException, HeuristicRollbackException,
             RollbackException, SystemException {
         if (transaction.belongsTo(transactionContext)) {
-            LOGGER.logTrace("Commiting transaction for context {0}.",
-                    transactionContext);
-            transaction.commit();
+            if (transaction.isRollbackOnly()) {
+                LOGGER.logTrace("Rolling back for context {0}.", transactionContext);
+                transaction.rollback();
+            } else {
+                LOGGER.logTrace("Commiting for context {0}.", transactionContext);
+                transaction.commit();
+            }
         } else {
             switch (transactionContext.getType()) {
             case REQUIRES_NEW:
@@ -220,11 +227,7 @@ final class ModelInvocationHandler implements InvocationHandler {
      */
     private void rollbackTransaction(final Transaction transaction,
             final TransactionContext transactionContext) throws SystemException {
-        if (transaction.belongsTo(transactionContext)) {
-            LOGGER.logTrace("Rolling back transaction for context {0}.",
-                    transactionContext);
-            transaction.rollback();
-        } else {
+        if (!transaction.belongsTo(transactionContext).booleanValue()) {
             switch (transactionContext.getType()) {
             case REQUIRES_NEW:
             case REQUIRED:

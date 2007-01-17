@@ -57,6 +57,5 @@ public interface InternalArchiveModel extends ArchiveModel {
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void restore(final UUID uniqueId);
 }

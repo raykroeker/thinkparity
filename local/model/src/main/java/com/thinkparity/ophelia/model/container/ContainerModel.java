@@ -579,6 +579,7 @@ public interface ContainerModel {
      * @param uniqueId
      *            A container unique id <code>UUID</code>.
      */
+    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void restore(final UUID uniqueId);
 
     /**

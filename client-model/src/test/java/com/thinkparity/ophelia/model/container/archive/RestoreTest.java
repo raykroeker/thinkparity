@@ -66,43 +66,17 @@ public class RestoreTest extends ArchiveTestCase {
         restore(datum.junit_z, c.getUniqueId());
         datum.waitForEvents();
         // ensure exists locally
-        assertNull("Container has not been properly deleted.", readContainer(datum.junit_z, c.getUniqueId()));
-        assertNull("Document has not been properly deleted.", readDocument(datum.junit_z, d_doc.getUniqueId()));
-        assertNull("Document has not been properly deleted.", readDocument(datum.junit_z, d_pdf.getUniqueId()));
-        assertNull("Document has not been properly deleted.", readDocument(datum.junit_z, d_png.getUniqueId()));
-        assertEquals("Container versions have not been properly deleted.", 0, readContainerVersions(datum.junit_z, c.getId()).size());
+        final Container c_z = readContainer(datum.junit_z, c.getUniqueId());
+        assertNotNull("Container has not been properly restored.", c_z);
+        assertNotNull("Document has not been properly restored.", readDocument(datum.junit_z, d_doc.getUniqueId()));
+        assertNotNull("Document has not been properly restored.", readDocument(datum.junit_z, d_pdf.getUniqueId()));
+        assertNotNull("Document has not been properly restored.", readDocument(datum.junit_z, d_png.getUniqueId()));
+        assertEquals("Container versions have not been properly restored.", 2, readContainerVersions(datum.junit_z, c_z.getId()).size());
         // ensure archived remotely
         final Container c_archive = getArchiveModel(datum.junit_z).readContainer(c.getUniqueId());
-        assertNotNull("Container has not been properly archived.", c_archive);
-        final List<ContainerVersion> cv_list_archive = getArchiveModel(datum.junit_z).readContainerVersions(c.getUniqueId());
-        Map<User, ArtifactReceipt> pt_archive;
-        List<TeamMember> t_archive;
-        List<JabberId> t_id_list_archive;
-        List<Document> d_list_archive;
-        List<DocumentVersion> dv_list_archive;
-        for (final ContainerVersion cv_archive : cv_list_archive) {
-            t_archive = getArchiveModel(datum.junit_z).readTeam(c.getUniqueId());
-            for (final TeamMember t_member_archive : t_archive) {
-                assertNotNull("Team member has not been properly archived.", t_member_archive);
-            }
-            t_id_list_archive = getArchiveModel(datum.junit_z).readTeamIds(c.getUniqueId());
-            for (final JabberId t_id_archive : t_id_list_archive) {
-                assertNotNull("Team member id has not been properly archived.", t_id_archive);
-            }
-            pt_archive = getArchiveModel(datum.junit_z).readPublishedTo(c.getUniqueId(), cv_archive.getVersionId());
-            for (final Entry<User, ArtifactReceipt> entry : pt_archive.entrySet()) {
-                assertNotNull("Published to user has not been properly archived.", entry.getKey());
-                assertNotNull("Published to receipt has not been properly archived.", entry.getValue());
-            }
-            d_list_archive = getArchiveModel(datum.junit_z).readDocuments(c.getUniqueId(), cv_archive.getVersionId());
-            for (final Document d_archive : d_list_archive) {
-                assertNotNull("Document has not been properly archived.", d_archive);
-            }
-            dv_list_archive = getArchiveModel(datum.junit_z).readDocumentVersions(c.getUniqueId(), cv_archive.getVersionId());
-            for (final DocumentVersion dv_archive : dv_list_archive) {
-                assertNotNull("Document version has not been properly archived.", dv_archive);
-            }
-        }
+        assertNull("Container has not been properly restored.", c_archive);
+        assertEquals("Container versions have not been properly restored.", 0,
+                getArchiveModel(datum.junit_z).readContainerVersions(c.getUniqueId()).size());
     }
 
     /**

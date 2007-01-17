@@ -10,7 +10,7 @@ import com.thinkparity.ophelia.browser.util.Swing;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ThinkParityScrollBarUITest extends javax.swing.JFrame {
+public class ThinkParityScrollBarUIStub extends javax.swing.JFrame {
 
     static {
         Swing.init();
@@ -20,10 +20,10 @@ public class ThinkParityScrollBarUITest extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     /**
-     * Create ThinkParityScrollBarUITest.
+     * Create ThinkParityScrollBarUIStub.
      * 
      */
-    public ThinkParityScrollBarUITest() {
+    public ThinkParityScrollBarUIStub() {
         super();
         initComponents();
     }
@@ -35,7 +35,7 @@ public class ThinkParityScrollBarUITest extends javax.swing.JFrame {
     public void testScrollBar() {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new ThinkParityScrollBarUITest().setVisible(true);
+                new ThinkParityScrollBarUIStub().setVisible(true);
             }
         });
     }

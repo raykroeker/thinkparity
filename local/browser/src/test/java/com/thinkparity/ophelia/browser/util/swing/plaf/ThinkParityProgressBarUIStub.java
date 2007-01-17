@@ -1,5 +1,5 @@
 /*
- * ThinkParityProgressBarUITest.java
+ * ThinkParityProgressBarUIStub.java
  *
  * Created on November 18, 2006, 8:47 AM
  */
@@ -24,7 +24,7 @@ import com.thinkparity.ophelia.browser.util.Swing;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ThinkParityProgressBarUITest extends
+public final class ThinkParityProgressBarUIStub extends
         javax.swing.JFrame {
 
     static {
@@ -38,10 +38,10 @@ public final class ThinkParityProgressBarUITest extends
     // End of variables declaration//GEN-END:variables
 
     /**
-     * Create ThinkParityProgressBarUITest.
+     * Create ThinkParityProgressBarUIStub.
      *
      */
-    public ThinkParityProgressBarUITest() {
+    public ThinkParityProgressBarUIStub() {
         initComponents();
     }
 
@@ -52,7 +52,7 @@ public final class ThinkParityProgressBarUITest extends
     public void testProgressBar() {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new ThinkParityProgressBarUITest().setVisible(true);
+                new ThinkParityProgressBarUIStub().setVisible(true);
             }
         });
     }

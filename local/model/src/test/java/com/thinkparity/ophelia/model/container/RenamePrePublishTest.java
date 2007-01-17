@@ -5,8 +5,9 @@ package com.thinkparity.ophelia.model.container;
 
 import com.thinkparity.codebase.model.container.Container;
 
-import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
+
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * @author raymond@thinkparity.com
@@ -15,7 +16,7 @@ import com.thinkparity.ophelia.model.events.ContainerEvent;
 public class RenamePrePublishTest extends ContainerTestCase {
 
     /** The test name. */
-    private static final String NAME = "TEST RENAME PRE PUBLISH";
+    private static final String NAME = "Rename pre-publish test.";
 
     /** Test datum. */
     private Fixture datum;
@@ -69,13 +70,9 @@ public class RenamePrePublishTest extends ContainerTestCase {
             this.name = name;
         }
         @Override
-        public void containerUpdated(ContainerEvent e) {
+        public void containerRenamed(final ContainerEvent e) {
             didNotify = Boolean.TRUE;
             assertNotNull(NAME + " EVENT CONTAINER IS NULL", e.getContainer());
-            assertNull(NAME + " EVENT CONTAINER IS NOT NULL", e.getDocument());
-            assertNull(NAME + " EVENT CONTAINER IS NOT NULL", e.getDraft());
-            assertNull(NAME + " EVENT CONTAINER IS NOT NULL", e.getTeamMember());
-            assertNull(NAME + " EVENT CONTAINER IS NOT NULL", e.getVersion());
         }
     }
 }

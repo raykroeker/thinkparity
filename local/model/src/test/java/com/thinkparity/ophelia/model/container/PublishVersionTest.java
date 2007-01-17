@@ -6,7 +6,9 @@ package com.thinkparity.ophelia.model.container;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 
+import com.thinkparity.ophelia.model.events.ContainerAdapter;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.ophelia.model.events.ContainerListener;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 
@@ -33,11 +35,11 @@ public class PublishVersionTest extends ContainerTestCase {
         datum.waitForEvents();
 
         final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
-        datum.addListener(datum.junit);
+        addContainerListener(datum.junit, datum.listener);
         publishVersion(datum.junit, c.getId(), cv_latest.getVersionId(), "JUnit.Y thinkParity");
         datum.waitForEvents();
-        datum.removeListener(datum.junit);
-        assertTrue("The draft published event was not fired.", datum.didNotify);
+        removeContainerListener(datum.junit, datum.listener);
+        assertTrue("The draft published event was not fired.", datum.published);
     }
 
     /**
@@ -67,31 +69,30 @@ public class PublishVersionTest extends ContainerTestCase {
 
     /** Test datumn fixture. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private OpheliaTestUser junit;
-        private OpheliaTestUser junit_x;
-        private OpheliaTestUser junit_y;
-        private Boolean didNotify;
+        private boolean published;
+        private final OpheliaTestUser junit;
+        private final OpheliaTestUser junit_x;
+        private final OpheliaTestUser junit_y;
+        private final ContainerListener listener;
         private Fixture(final OpheliaTestUser junit,
                 final OpheliaTestUser junit_x, final OpheliaTestUser junit_y) {
-            this.didNotify = Boolean.FALSE;
             this.junit = junit;
             this.junit_x = junit_x;
             this.junit_y = junit_y;
+            this.listener = new ContainerAdapter() {
+                @Override
+                public void versionPublished(final ContainerEvent e) {
+                    published = true;
+                    assertNotNull("Container event is null.", e);
+                    assertNotNull("Container event container is null.", e.getContainer());
+                    assertNotNull("Container event version is null.", e.getVersion());
+                    assertNotNull("Container event team member is null.", e.getTeamMember());
+                }
+            };
+            this.published = false;
             addQueueHelper(junit);
             addQueueHelper(junit_x);
             addQueueHelper(junit_y);
-        }
-        private void addListener(final OpheliaTestUser addAs) {
-            getContainerModel(addAs).addListener(this);
-        }
-        private void removeListener(final OpheliaTestUser removeAs) {
-            getContainerModel(removeAs).removeListener(this);
-        }
-        @Override
-        public void containerUpdated(final ContainerEvent e) {}
-        @Override
-        public void draftPublished(ContainerEvent e) {
-            didNotify = Boolean.TRUE;
         }
     }
 }

@@ -39,7 +39,7 @@ public class Ticket437Test extends TicketTestCase {
      */
     public void testTicket() {
         // create a container; add a document; publish to first user
-        final Container c_initial = createContainer(datum.junit, "Ticket 410.");
+        final Container c_initial = createContainer(datum.junit, NAME);
         addDocuments(datum.junit, c_initial.getId());
         publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();

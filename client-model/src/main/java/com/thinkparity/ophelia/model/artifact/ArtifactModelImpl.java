@@ -32,6 +32,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedE
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
@@ -313,15 +314,25 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#handlePublished(com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent)
+     * 
+     */
     public void handlePublished(final ArtifactPublishedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
+            final InternalContainerModel containerModel = getContainerModel();
+
             final Long artifactId = readId(event.getUniqueId());
             if (doesVersionExist(artifactId, event.getVersionId())) {
                 applyFlagLatest(artifactId);
+                containerModel.notifyContainerFlagged(artifactId,
+                        ContainerEvent.Source.REMOTE);
             } else {
                 removeFlagLatest(artifactId);
+                containerModel.notifyContainerFlagged(artifactId,
+                        ContainerEvent.Source.REMOTE);
             }
             /* update team definition */
             final List<JabberId> localTeamIds = readTeamIds(artifactId);
@@ -340,7 +351,6 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
              * not published to */
             switch (readType(artifactId)) {
             case CONTAINER:
-                final InternalContainerModel containerModel = getContainerModel();
                 if (containerModel.doesExistDraft(artifactId)) {
                     containerModel.deleteDraft(artifactId);
                 }

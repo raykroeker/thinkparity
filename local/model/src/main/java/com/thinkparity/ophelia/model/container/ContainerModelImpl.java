@@ -860,6 +860,24 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#notifyContainerFlagged(java.lang.Long, com.thinkparity.ophelia.model.events.ContainerEvent.Source)
+     *
+     */
+    public void notifyContainerFlagged(final Long containerId,
+            final Source source) {
+        switch (source) {
+        case LOCAL:
+            notifyContainerFlagged(read(containerId), localEventGenerator);
+            break;
+        case REMOTE:
+            notifyContainerFlagged(read(containerId), remoteEventGenerator);
+            break;
+        default:
+            Assert.assertUnreachable("Unknown event source.");
+        }
+    }
+
+    /**
      * Print a container draft.
      * 
      * @param containerId

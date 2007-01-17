@@ -18,6 +18,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublished
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
+import com.thinkparity.ophelia.model.events.ContainerEvent.Source;
 
 /**
  * <b>Title:</b>thinkParity Container Internal Model<br>
@@ -89,6 +90,17 @@ public interface InternalContainerModel extends ContainerModel {
      *            An <code>ArtifactReceivedEvent</code>.
      */
     public void handleReceived(final ArtifactReceivedEvent event);
+
+    /**
+     * Notify that a container has been flagged.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param source
+     *            A container event <code>Source</code>.
+     */
+    public void notifyContainerFlagged(final Long containerId,
+            final Source source);
 
     /**
      * Read the list of audit events for a container.

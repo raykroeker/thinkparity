@@ -346,9 +346,9 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
             final InternalContainerModel containerModel = getContainerModel();
             switch (readType(artifactId)) {
             case CONTAINER:
+                containerModel.notifyContainerFlagged(artifactId,
+                        ContainerEvent.Source.REMOTE);
                 if (containerModel.doesExistDraft(artifactId)) {
-                    containerModel.notifyContainerFlagged(artifactId,
-                            ContainerEvent.Source.REMOTE);
                     containerModel.deleteDraft(artifactId);
                 }
                 break;

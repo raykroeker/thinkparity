@@ -1130,7 +1130,8 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      */
     protected void login(final OpheliaTestUser testUser) {
         if (isLoggedIn(testUser)) {
-            logWarning("{0} - User {1} already logged in.", testUser);
+            logWarning("{0} - User {1} already logged in.",
+                    getName().toUpperCase(), testUser.getSimpleUsername());
             logout(testUser);
         }
         logger.logInfo("Logging in user \"{0}.\"", testUser.getSimpleUsername());

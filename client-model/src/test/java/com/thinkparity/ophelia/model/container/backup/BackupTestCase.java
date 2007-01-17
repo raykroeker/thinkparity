@@ -213,7 +213,6 @@ public abstract class BackupTestCase extends ContainerTestCase {
         assertNotNull(assertion + " [USER IS NULL]", (Object) user);
         assertNotNull(assertion + " [USER'S LOCAL ID IS NULL]", user.getLocalId());
         assertNotNull(assertion + " [USER'S NAME IS NULL]", user.getName());
-        assertNotNull(assertion + " [USER'S ORGANIZATION IS NULL]", user.getOrganization());
     }
 
     /**

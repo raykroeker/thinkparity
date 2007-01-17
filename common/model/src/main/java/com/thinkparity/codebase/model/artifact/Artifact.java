@@ -250,6 +250,15 @@ public abstract class Artifact {
     }
 
     /**
+     * Determine whether or not the object has been archived.
+     * 
+     * @return True if it has been archived.
+     */
+    public Boolean isArchived() {
+        return flags.contains(ArtifactFlag.ARCHIVED);
+    }
+
+    /**
      * Determine whether or not the object has been bookmarked.
      * 
      * @return True if it has been bookmarked.

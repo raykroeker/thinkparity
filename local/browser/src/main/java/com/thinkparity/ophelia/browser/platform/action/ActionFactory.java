@@ -124,6 +124,9 @@ public class ActionFactory extends AbstractFactory {
         case CONTAINER_ADD_DOCUMENT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.AddDocument(browser);
             break;
+        case CONTAINER_ARCHIVE:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Archive(browser);
+            break;
 		case CONTAINER_CREATE:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Create(browser);
             break;
@@ -174,6 +177,9 @@ public class ActionFactory extends AbstractFactory {
             break;
         case CONTAINER_RENAME_DOCUMENT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.RenameDocument(browser);
+            break;
+        case CONTAINER_RESTORE:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Restore(browser);
             break;
         case CONTAINER_REVERT_DOCUMENT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.RevertDocument(browser);

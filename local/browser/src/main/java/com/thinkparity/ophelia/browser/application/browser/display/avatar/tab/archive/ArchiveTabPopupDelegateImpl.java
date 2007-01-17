@@ -1,7 +1,7 @@
 /*
- * Created On:  30-Nov-06 12:25:24 PM
+ * Created On:  2007-01-17 11:57:00
  */
-package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
+package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.archive;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -28,15 +28,14 @@ import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.archive.ArchiveTabPanel;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.archive.ArchiveTabPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Archive;
 import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
 import com.thinkparity.ophelia.browser.platform.action.container.Delete;
 import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
@@ -52,27 +51,29 @@ import com.thinkparity.ophelia.browser.platform.action.container.UndeleteDocumen
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
 
 /**
- * <b>Title:</b><br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity Archive Tab Popup Delegate Implementation<br>
+ * <b>Description:</b>Provides an archive tab popup implementation.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
-        TabPanelPopupDelegate, PopupDelegate {
+final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
+        TabPanelPopupDelegate, ArchiveTabPopupDelegate {
 
-    /** A <code>ContainerModel</code>. */
-    private final ContainerTabModel model;
+    /** A <code>ArchiveTabModel</code>. */
+    private final ArchiveTabModel model;
 
     /**
-     * Create ContainerTabPopupFactory.
+     * Create ArchiveTabPopupDelegateImpl.
      * 
      * @param model
-     *            The <code>ContainerModel</code>.
+     *            The <code>ArchiveTabModel</code>.
      */
-    ContainerTabPopupDelegate(final ContainerTabModel model) {
+    ArchiveTabPopupDelegateImpl(final ArchiveTabModel model) {
         super();
         this.model = model;
     }
@@ -124,11 +125,9 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             add(ActionId.CONTAINER_RENAME, renameData);
         }
 
-        if (isDistributed(container.getId()) && !container.isLocalDraft()) {
-            final Data archiveData = new Data(1);
-            archiveData.set(Archive.DataKey.CONTAINER_ID, container.getId());
-            add(ActionId.CONTAINER_ARCHIVE, archiveData);
-        }
+        // archive
+        if (isOnline() && isDistributed(container.getId()) && !container.isLocalDraft())
+            add(PluginId.ARCHIVE, "ArchiveAction", container);
 
         // delete
         final Data deleteData = new Data(1);
@@ -281,7 +280,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      *
      */
     public void showForPanel(final TabPanel tabPanel) {
-        showForContainer(((ContainerPanel) tabPanel).getContainer());
+        showForContainer(((ArchiveTabPanel) tabPanel).getContainer());
     }
 
     /**

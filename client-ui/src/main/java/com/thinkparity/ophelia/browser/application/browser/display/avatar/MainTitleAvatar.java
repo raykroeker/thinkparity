@@ -205,11 +205,14 @@ public class MainTitleAvatar extends Avatar {
         if (null != tabId) {
             tabPanel.selectTab(tabId);
             switch (tabId) {
+            case ARCHIVE:
+                getController().displayArchiveTabAvatar();
+                break;
             case CONTACT:
-                getController().displayTabContactAvatar();
+                getController().displayContactTabAvatar();
                 break;
             case CONTAINER:
-                getController().displayTabContainerAvatar();
+                getController().displayContainerTabAvatar();
                 break;
             default:
                 Assert.assertUnreachable("UNKNOWN TAB");
@@ -234,5 +237,5 @@ public class MainTitleAvatar extends Avatar {
 
     public enum DataKey { PROFILE, TAB_ID, TAB_LIST_EXTENSION, TAB_PANEL_EXTENSION }
 
-    public enum TabId { CONTACT, CONTAINER }
+    public enum TabId { ARCHIVE, CONTACT, CONTAINER }
 }

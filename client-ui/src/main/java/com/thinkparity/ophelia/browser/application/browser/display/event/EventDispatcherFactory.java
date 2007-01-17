@@ -8,6 +8,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.application.browser.display.event.tab.archive.ArchiveTabDispatcher;
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.container.ContainerTabDispatcher;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.EventDispatcher;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
@@ -62,6 +63,9 @@ public class EventDispatcherFactory {
     private EventDispatcher doGetDispatcher(final AvatarId avatarId) {
         final EventDispatcher eventDispatcher;
         switch (avatarId) {
+        case TAB_ARCHIVE:
+            eventDispatcher = new ArchiveTabDispatcher(containerModel);
+            break;
         case TAB_CONTAINER:
             eventDispatcher = new ContainerTabDispatcher(containerModel);
             break;

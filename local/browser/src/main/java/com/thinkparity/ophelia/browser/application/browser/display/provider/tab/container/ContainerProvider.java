@@ -9,8 +9,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -33,10 +35,10 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 
 /**
- * <b>Title:</b>thinkParity Container TabId Provider<br>
+ * <b>Title:</b>thinkParity Container Tab Provider<br>
  * <b>Description:</b>A thinkParity container tab provider reads from the
  * various thinkParity model interfaces to provide the container tab with its
- * data.
+ * data.  It stipulates that the containers must not be archived.
  * 
  * It currently provides both display and non-display data.
  * 
@@ -51,8 +53,33 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     /** A thinkParity document interface. */
     private final DocumentModel documentModel;
 
+    /** An <code>Artifact</code> <code>Filter</code>. */
+    private final Filter<? super Artifact> filter;
+
     /** A thinkParity user interface. */
     private final UserModel userModel;
+
+    /**
+     * Create ContainerProvider.
+     * 
+     * @param profile
+     *            The local user profile.
+     * @param containerModel
+     *            An instance of <code>ContainerModel</code>.
+     * @param documentModel
+     *            An instance of <code>DocumentModel</code>.
+     * @param userModel
+     *            An instance of <code>UserModel</code>.
+     */
+    public ContainerProvider(final Profile profile,
+            final ContainerModel containerModel,
+            final DocumentModel documentModel, final UserModel userModel) {
+        this(new Filter<Artifact>() {
+            public Boolean doFilter(final Artifact o) {
+                return o.isArchived();
+            }
+        }, profile, containerModel, documentModel, userModel);
+    }
 
     /**
      * Create ContainerProvider.
@@ -66,10 +93,11 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
      * @param userModel
      *            A thinkParity user interface.
      */
-    public ContainerProvider(final Profile profile,
-            final ContainerModel containerModel,
+    protected ContainerProvider(final Filter<? super Artifact> filter,
+            final Profile profile, final ContainerModel containerModel,
             final DocumentModel documentModel, final UserModel userModel) {
         super(profile);
+        this.filter = filter;
         this.containerModel = containerModel;
         this.documentModel = documentModel;
         this.userModel = userModel;
@@ -127,7 +155,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 	 * @return A list of containers.
 	 */
     public List<Container> read() {
-    	return containerModel.read();
+    	return containerModel.read(filter);
     }
     
     /**

@@ -295,9 +295,6 @@
 
     <!-- release -->
     <target name="release-impl-plugins" depends="release-impl">
-        <!-- archive -->
-        <ant antfile="build-plugin-archive.xml" inheritall="false"
-                inheritrefs="false" target="release-impl"/>
     </target>
 
     <!-- checkout -->
@@ -390,9 +387,6 @@
 
     <!-- compile -->
     <target name="compile-plugins" depends="compile">
-        <!-- archive -->
-        <ant antfile="build-plugin-archive.xml" inheritall="false"
-                inheritrefs="false" target="compile"/>
     </target>
 
     <!-- print help -->

@@ -147,6 +147,21 @@ public final class SessionModelImpl extends AbstractModelImpl<SessionListener>
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteArtifact(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
+     *
+     */
+    public void deleteArtifact(final JabberId userId, final UUID uniqueId) {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                xmppSession.deleteArtifact(userId, uniqueId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     public void confirmArtifactReceipt(final JabberId userId, final UUID uniqueId,
             final Long versionId, final JabberId publishedBy,
             final Calendar publishedOn, final List<JabberId> publishedTo,

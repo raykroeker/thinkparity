@@ -322,13 +322,14 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
         logger.logApiId();
         logger.logVariable("event", event);
         try {
+            // update latest flag
             final Long artifactId = readId(event.getUniqueId());
             if (doesVersionExist(artifactId, event.getVersionId())) {
                 applyFlagLatest(artifactId);
             } else {
                 removeFlagLatest(artifactId);
             }
-            /* update team definition */
+            // update team definition
             final List<JabberId> localTeamIds = readTeamIds(artifactId);
             final List<JabberId> eventTeamIds = event.getTeamUserIds();
             for (final JabberId localTeamId : localTeamIds) {
@@ -346,6 +347,9 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
             final InternalContainerModel containerModel = getContainerModel();
             switch (readType(artifactId)) {
             case CONTAINER:
+                // update archive flag
+                if (isFlagApplied(artifactId, ArtifactFlag.ARCHIVED))
+                    containerModel.restore(artifactId);
                 containerModel.notifyContainerFlagged(artifactId,
                         ContainerEvent.Source.REMOTE);
                 if (containerModel.doesExistDraft(artifactId)) {

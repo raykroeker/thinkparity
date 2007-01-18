@@ -66,6 +66,20 @@ public class BackupModel extends AbstractModel<BackupModelImpl> {
     }
 
     /**
+     * Delete an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     */
+    public void delete(final JabberId userId, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            getImpl().delete(userId, uniqueId);
+        }
+    }
+
+    /**
      * Open a document version's input stream.
      * 
      * @param userId

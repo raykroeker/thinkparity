@@ -275,9 +275,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
             if (userModel.isArchive(userId)) {
                 logInfo("Ignoring archive user {0}.", userId);
             } else {
-                // delete the artifact from the archive
-                getBackupModel().delete(teamMemberId, uniqueId);
-
                 final ArtifactTeamMemberRemovedEvent teamMemberRemoved = 
                     new ArtifactTeamMemberRemovedEvent();
                 teamMemberRemoved.setUniqueId(uniqueId);

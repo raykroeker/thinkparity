@@ -64,6 +64,24 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         execute(createStream);
     }
 
+    /**
+     * Delete an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     */
+    void delete(final JabberId userId, final UUID uniqueId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        final XMPPMethod delete = new XMPPMethod("backup:delete");
+        delete.setParameter("userId", userId);
+        delete.setParameter("uniqueId", uniqueId);
+        execute(delete);
+    }
+
     Container readContainer(final JabberId userId, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);

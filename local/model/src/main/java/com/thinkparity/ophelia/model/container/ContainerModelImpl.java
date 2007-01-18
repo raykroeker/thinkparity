@@ -244,6 +244,9 @@ public final class ContainerModelImpl extends
 
             getBackupModel().archive(containerId);
             getArtifactModel().applyFlagArchived(containerId);
+            getSessionModel().removeTeamMember(
+                    getArtifactModel().readUniqueId(containerId),
+                    getArtifactModel().readTeamIds(containerId), localUserId());
 
             notifyContainerArchived(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
@@ -392,6 +395,8 @@ public final class ContainerModelImpl extends
                     getSessionModel().removeTeamMember(
                             container.getUniqueId(), team, localTeamMember.getId());
                 }
+                getSessionModel().deleteArtifact(localUserId(),
+                        container.getUniqueId());
                 deleteLocal(container.getId());
             } else {
                 deleteLocal(container.getId());

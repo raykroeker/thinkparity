@@ -297,7 +297,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppBackup.createStream(userId, streamId, uniqueId, versionId);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createDraft(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.List, java.util.UUID)
      * 
@@ -307,7 +307,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppArtifact.createDraft(userId, team, uniqueId);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createStream(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.stream.StreamSession)
      * 
@@ -342,6 +342,14 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
             final JabberId invitedBy) {
 		xmppContact.decline(invitedAs, invitedBy);
 	}
+
+    /**
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteArtifact(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
+     *
+     */
+    public void deleteArtifact(final JabberId userId, final UUID uniqueId) {
+        xmppBackup.delete(userId, uniqueId);
+    }
 
 	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteArtifact(java.util.UUID)

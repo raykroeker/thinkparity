@@ -109,6 +109,17 @@ public interface XMPPSession {
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
      */
+    public void deleteArtifact(final JabberId userId, final UUID uniqueId);
+
+    /**
+     * Archive an artifact. This will simply apply the archived flag within the
+     * backup.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     */
     public void archiveArtifact(final JabberId userId, final UUID uniqueId);
 
     /**

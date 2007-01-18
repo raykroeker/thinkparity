@@ -136,6 +136,16 @@ public interface InternalSessionModel extends SessionModel {
     public void declineInvitation(final EMail invitedAs, final JabberId invitedBy);
 
     /**
+     * Delete an artifact from the backup.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     */
+    public void deleteArtifact(final JabberId userId, final UUID uniqueId);
+
+    /**
      * Delete a contact.
      * 
      * @param userId

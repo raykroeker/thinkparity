@@ -157,7 +157,7 @@ public final class DocumentModelImpl extends
             final InputStream versionStream = openVersionStream(
                     document.getId(), latestVersion.getVersionId());
             try {
-                draftFile.write(versionStream);
+                draftFile.write(versionStream, latestVersion);
             } finally {
                 versionStream.close();
             }
@@ -363,9 +363,19 @@ public final class DocumentModelImpl extends
                     readVersion(documentId, latestVersionId);
 
                 final LocalFile draftFile = getLocalFile(document);
-                draftFile.read();
-                final String draftChecksum = draftFile.getFileChecksum();
-                return !latestVersion.getChecksum().equals(draftChecksum);
+                final Long draftModifiedTime = draftFile.lastModified();
+                final Long latestVersionModifiedTime = latestVersion.getCreatedOn().getTimeInMillis();
+
+                /* the time stamp is checked first because it is fast;
+                 * however documents are considered different only if the
+                 * checksums are different */
+                if (draftModifiedTime.equals(latestVersionModifiedTime)) {
+                    return Boolean.FALSE;
+                } else {
+                    draftFile.read();
+                    final String draftChecksum = draftFile.getFileChecksum();
+                    return !latestVersion.getChecksum().equals(draftChecksum);
+                }
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -393,7 +403,7 @@ public final class DocumentModelImpl extends
                 final InputStream stream = openVersionStream(documentId,
                         latestVersion.getVersionId());
                 try {
-                    localFile.write(stream);
+                    localFile.write(stream, latestVersion);
                 } finally {
                     stream.close();
                 }
@@ -427,7 +437,7 @@ public final class DocumentModelImpl extends
                 final InputStream stream = openVersionStream(
                         documentId, versionId);
                 try {
-                    localFile.write(stream);
+                    localFile.write(stream, version);
                 } finally {
                     stream.close();
                 }
@@ -798,7 +808,7 @@ public final class DocumentModelImpl extends
         logger.logVariable("content", content);
         final LocalFile localFile = getLocalFile(read(documentId));
         try {
-            localFile.write(content);
+            localFile.write(content, currentDateTime().getTimeInMillis());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -1012,7 +1022,7 @@ public final class DocumentModelImpl extends
         final Document document = create(uniqueId, name, createdBy, createdOn);
         // create local file
         final LocalFile localFile = getLocalFile(document);
-        localFile.write(content);
+        localFile.write(content, createdOn.getTimeInMillis());
         return read(document.getId());
     }
 
@@ -1106,7 +1116,9 @@ public final class DocumentModelImpl extends
     		// write local version file
     		final LocalFile localFile = getLocalFile(document, version);
             final InputStream tempInput = new BufferedInputStream(new FileInputStream(tempContentFile));
-    		try { localFile.write(tempInput); }
+            try {
+                localFile.write(tempInput, version.getCreatedOn().getTimeInMillis());
+            }
             finally { tempInput.close(); }
     		localFile.lock();
     		// update document
@@ -1236,7 +1248,7 @@ public final class DocumentModelImpl extends
         draftFile.delete();
         final InputStream inputStream = openVersionStream(documentId, versionId);
         try {
-            draftFile.write(inputStream);
+            draftFile.write(inputStream, readVersion(documentId, versionId));
         } finally {
             inputStream.close();
         }

@@ -1,5 +1,5 @@
 /*
- * Nov 16, 2005
+ * Created On: Nov 16, 2005
  */
 package com.thinkparity.ophelia.model.document;
 
@@ -38,47 +38,47 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 class LocalFile {
 
     /** An apache logger. */
-	protected final Log4JWrapper logger;
+    protected final Log4JWrapper logger;
 
     /** The local <code>File</code>. */
-	private final File file;
+    private final File file;
 
-	/** The file content's checksum <code>String</code>. */
-	private String fileChecksum;
+    /** The file content's checksum <code>String</code>. */
+    private String fileChecksum;
 
     /** A document name generator. */ 
     private final DocumentNameGenerator nameGenerator;
 
-	/**
-	 * Create a LocalFile.
-	 * 
-	 * @param document
-	 *            The document the local file represents.
-	 */
-	LocalFile(final Workspace workspace, final Document document) {
-		super();
+    /**
+     * Create a LocalFile.
+     * 
+     * @param document
+     *            The document the local file represents.
+     */
+    LocalFile(final Workspace workspace, final Document document) {
+        super();
         this.logger = new Log4JWrapper();
         this.nameGenerator = new DocumentNameGenerator();
         this.file = getFile(workspace, document);
-	}
+    }
 
-	/**
-	 * Create a LocalFile.
-	 * 
-	 * @param workspace
-	 *            The workspace.
-	 * @param version
-	 *            The version.
-	 */
-	LocalFile(final Workspace workspace, final Document document,
-			final DocumentVersion version) {
-		super();
+    /**
+     * Create a LocalFile.
+     * 
+     * @param workspace
+     *            The workspace.
+     * @param version
+     *            The version.
+     */
+    LocalFile(final Workspace workspace, final Document document,
+            final DocumentVersion version) {
+        super();
         this.logger = new Log4JWrapper();
         this.nameGenerator = new DocumentNameGenerator();
-		this.file = getFile(workspace, document, version);
-	}
+        this.file = getFile(workspace, document, version);
+    }
 
-	/**
+    /**
      * Create a clone of the local file in the workspace's temp location.
      * 
      * @param workspace
@@ -99,26 +99,26 @@ class LocalFile {
         }
     }
 
-	/**
-	 * Delete the local file.
-	 *
-	 */
-	void delete() {
-		if(file.exists())
-			Assert.assertTrue("delete()", file.delete());
-	}
+    /**
+     * Delete the local file.
+     *
+     */
+    void delete() {
+        if(file.exists())
+            Assert.assertTrue("delete()", file.delete());
+    }
 
-	/**
-	 * Delete the local file's parent.
-	 * 
-	 */
-	void deleteParentTree() {
-		final File parent = file.getParentFile();
-		if(parent.exists())
+    /**
+     * Delete the local file's parent.
+     * 
+     */
+    void deleteParentTree() {
+        final File parent = file.getParentFile();
+        if(parent.exists())
             FileUtil.deleteTree(parent);
-	}
+    }
 
-	/**
+    /**
      * Determine whether or not the file exists.
      * 
      * @return True if the file exists.
@@ -127,14 +127,14 @@ class LocalFile {
         return file.exists();
     }
 
-	/**
-	 * Obtain the file checksum.
-	 * 
-	 * @return The file checksum.
-	 */
-	String getFileChecksum() { return fileChecksum; }
+    /**
+     * Obtain the file checksum.
+     * 
+     * @return The file checksum.
+     */
+    String getFileChecksum() { return fileChecksum; }
 
-	/**
+    /**
      * Obtain the last modified date of the file.
      * 
      * @return The last modified date as a <code>Long</code> number of
@@ -144,22 +144,22 @@ class LocalFile {
         return file.lastModified();
     }
 
-	/**
-	 * Lock the file.
-	 *
-	 */
-	void lock() { file.setReadOnly(); }
+    /**
+     * Lock the file.
+     *
+     */
+    void lock() { file.setReadOnly(); }
 
-	/**
-	 * Open the document local file.
-	 * 
-	 * @throws IOException
-	 */
-	void open(final Opener opener) {
+    /**
+     * Open the document local file.
+     * 
+     * @throws IOException
+     */
+    void open(final Opener opener) {
         opener.open(file);
-	}
+    }
 
-	/**
+    /**
      * Open the local file. Note that this stream is not buffered; and not
      * closed.
      * 
@@ -170,16 +170,16 @@ class LocalFile {
         return new FileInputStream(file);
     }
 
-	/**
-	 * Read the document local file into the bytes parameter. This will also
-	 * calculate the content's checksum.
-	 * 
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 * @see LocalFile#getFileBytes()
-	 * @see LocalFile#getFileChecksum()
-	 */
-	void read() throws FileNotFoundException, IOException {
+    /**
+     * Read the document local file into the bytes parameter. This will also
+     * calculate the content's checksum.
+     * 
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @see LocalFile#getFileBytes()
+     * @see LocalFile#getFileChecksum()
+     */
+    void read() throws FileNotFoundException, IOException {
         if (file.exists()) {
             final InputStream fileInputStream = openStream();
             try {
@@ -190,7 +190,7 @@ class LocalFile {
         } else {
             fileChecksum = null;
         }
-	}
+    }
 
     /**
      * Rename the file.
@@ -198,26 +198,52 @@ class LocalFile {
      * @param filename
      *            The new name.
      */
-	void rename(final String filename) {
-	    Assert.assertTrue("[CANNOT RENAME LOCAL FILE]",
+    void rename(final String filename) {
+        Assert.assertTrue("[CANNOT RENAME LOCAL FILE]",
                 file.renameTo(new File(file.getParentFile(), filename)));
     }
 
     /**
      * Write the input stream to the local file.
+     * The file date will be the specified time.
      * 
      * @param is
      *            The input stream containing new content.
+     * @param time
+     *            The modified date as a <code>Long</code> number of milliseconds.        
      * @throws FileNotFoundException
      * @throws IOException
      */
-    void write(final InputStream is) throws FileNotFoundException, IOException {
+    void write(final InputStream is, final Long time) throws FileNotFoundException, IOException {
         final OutputStream os = createOutputStream();
-        try { StreamUtil.copy(is, os, IO.BUFFER_SIZE); }
+        try {
+            StreamUtil.copy(is, os, IO.BUFFER_SIZE);
+        }
         finally { os.close(); }
+        setLastModified(time);
     }
 
-	/**
+    /**
+     * Write the input stream to the local file.
+     * The file date will match the date of the version.
+     * 
+     * @param is
+     *            The input stream containing new content.
+     * @param version
+     *            The version.     
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    void write(final InputStream is, final DocumentVersion version) throws FileNotFoundException, IOException {
+        final OutputStream os = createOutputStream();
+        try {
+            StreamUtil.copy(is, os, IO.BUFFER_SIZE);
+        }
+        finally { os.close(); }
+        setLastModified(version.getCreatedOn().getTimeInMillis());
+    }
+
+    /**
      * Create an output stream for the local file.
      * 
      * @return The output stream.
@@ -228,55 +254,65 @@ class LocalFile {
         return new BufferedOutputStream(new FileOutputStream(file));
     }
 
-	/**
-	 * Obtain the file for the document.
-	 * 
-	 * @param workspace
-	 *            The workspace.
-	 * @param document
-	 *            The document.
-	 * @return The file.
-	 */
-	private File getFile(final Workspace workspace, final Document document) {
+    /**
+     * Obtain the file for the document.
+     * 
+     * @param workspace
+     *            The workspace.
+     * @param document
+     *            The document.
+     * @return The file.
+     */
+    private File getFile(final Workspace workspace, final Document document) {
         final String child = nameGenerator.fileName(document);
-		return new File(getFileParent(workspace, document), child);
-	}
-
-	/**
-	 * Obtain the file for the version.
-	 * 
-	 * @param workspace
-	 *            The workspace.
-	 * @param document
-	 *            The document.
-	 * @param version
-	 *            The version.
-	 * @return The file.
-	 */
-	private File getFile(final Workspace workspace, final Document document,
-            final DocumentVersion version) {
-        final String child = nameGenerator.localFileName(version);
-		return new File(getFileParent(workspace, document), child);
-	}
+        return new File(getFileParent(workspace, document), child);
+    }
 
     /**
-	 * Obtain the parent file for the document.
-	 * 
-	 * @param document
-	 *            The document.
-	 * @return The parent file.
-	 */
-	private File getFileParent(final Workspace workspace,
+     * Obtain the file for the version.
+     * 
+     * @param workspace
+     *            The workspace.
+     * @param document
+     *            The document.
+     * @param version
+     *            The version.
+     * @return The file.
+     */
+    private File getFile(final Workspace workspace, final Document document,
+            final DocumentVersion version) {
+        final String child = nameGenerator.localFileName(version);
+        return new File(getFileParent(workspace, document), child);
+    }
+
+    /**
+     * Obtain the parent file for the document.
+     * 
+     * @param document
+     *            The document.
+     * @return The parent file.
+     */
+    private File getFileParent(final Workspace workspace,
             final Document document) {
-		final File cache = new File(workspace.getDataDirectory(),
+        final File cache = new File(workspace.getDataDirectory(),
                 DirectoryNames.Workspace.Data.LOCAL);
-		if(!cache.exists()) {
-			Assert.assertTrue("getFileParent(Document)", cache.mkdir());
-		}
-		final File parent = new File(cache, nameGenerator.localDirectoryName(document));
-		if(!parent.exists()) {
-			Assert.assertTrue("getFileParent(Document)", parent.mkdir());
-		}
-		return parent;
-	}
+        if(!cache.exists()) {
+            Assert.assertTrue("getFileParent(Document)", cache.mkdir());
+        }
+        final File parent = new File(cache, nameGenerator.localDirectoryName(document));
+        if(!parent.exists()) {
+            Assert.assertTrue("getFileParent(Document)", parent.mkdir());
+        }
+        return parent;
+    }   
+
+    /**
+     * Set the last modified date of the file.
+     * 
+     * @param time
+     *            The last modified date as a <code>Long</code> number of milliseconds.
+     */
+    private void setLastModified(final Long time) {
+        file.setLastModified(time);
+    }
 }

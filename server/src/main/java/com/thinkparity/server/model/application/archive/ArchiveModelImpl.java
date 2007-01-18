@@ -206,9 +206,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
      * @return An archive's <code>ClientModelFactory</code>.
      */
     ClientModelFactory getModelFactory(final JabberId archiveId) {
-        synchronized (ARCHIVE_CONTEXT_LOOKUP) {
-            return ((ArchiveContext) ARCHIVE_CONTEXT_LOOKUP.get(archiveId)).modelFactory;
-        }
+        return lookupContext(archiveId).modelFactory;
     }
 
     List<TeamMember> readTeam(final JabberId userId, final UUID uniqueId) {
@@ -405,6 +403,19 @@ class ArchiveModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Lookup the archive context for an archive.
+     * 
+     * @param archiveId
+     *            An archive id <code>JabberId</code>.
+     * @return An <code>ArchiveContext</code>.
+     */
+    private ArchiveContext lookupContext(final JabberId archiveId) {
+        synchronized (ARCHIVE_CONTEXT_LOOKUP) {
+            return ((ArchiveContext) ARCHIVE_CONTEXT_LOOKUP.get(archiveId));
+        }
+    }
+
+    /**
      * Read the login credentials for an archive.
      * 
      * @param archiveId
@@ -503,21 +514,26 @@ class ArchiveModelImpl extends AbstractModelImpl {
      *            An archive id <code>JabberId</code>.
      */
     private void stop(final JabberId archiveId) {
-        final FileSystem archiveFileSystem = readFileSystem(archiveId);
-        final Environment environment = readEnvironment();
-        final Workspace workspace = readWorkspace(environment, archiveFileSystem);
-        createContext(archiveId, environment, workspace);
-        final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
-        workspaceModel.close(workspace);
+        final ArchiveContext context = lookupContext(archiveId);
+        if (null == context) {
+            logger.logInfo("No archive exists for id {0}.", archiveId.getUsername());
+        } else {
+            final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(context.environment);
+            workspaceModel.close(context.workspace);
+        }
         deleteContext(archiveId);
     }
 
     private static class ArchiveContext {
+        private final Environment environment;
         private final ClientModelFactory modelFactory;
+        private final Workspace workspace;
         private ArchiveContext(final Context context,
                 final Environment environment, final Workspace workspace) {
             super();
             this.modelFactory = new ClientModelFactory(context, environment, workspace);
+            this.environment = environment;
+            this.workspace = workspace;
         }
     }
 

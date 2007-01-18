@@ -67,9 +67,11 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      * 
      */
 	public void destroyPlugin() {
-        stopArchive();
         stopStream();
 	    destroyHandlers();
+        final String message = getDestroyMessage();
+        new Log4JWrapper(getClass()).logInfo(message);
+        System.out.println(message);
 		destroyLogging();
 	}
 
@@ -367,7 +369,12 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 	 */
 	private void destroyLogging() { LogManager.shutdown(); }
 
-	private String getStartupMessage() {
+    private String getDestroyMessage() {
+        return MessageFormat.format("{0} - {1} - {2} is offline.",
+                Version.getName(), Version.getMode(), Version.getBuildId());
+    }
+
+    private String getStartupMessage() {
         return MessageFormat.format("{0} - {1} - {2} is online.",
                 Version.getName(), Version.getMode(), Version.getBuildId());
     }

@@ -41,7 +41,6 @@ import com.thinkparity.codebase.model.document.DocumentVersionContent;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
@@ -925,16 +924,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         logger.logInfo("Exporting container \"{0}\" version \"{1}\" as \"{2}\" to \"{3}\".",
                 container.getId(), versionId, exportAs.getSimpleUsername(), exportTo);
         getContainerModel(exportAs).exportVersion(exportTo, localContainerId, versionId);
-    }
-
-    /**
-     * Obtain an internal archive model.
-     * 
-     * @return An instance of <code>InternalArchiveModel</code>.
-     */
-    protected final InternalArchiveModel getArchiveModel(
-            final OpheliaTestUser testUser) {
-        return testUser.getModelFactory().getArchiveModel();
     }
 
     /**

@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.platform.plugin.extension;
 
-import com.thinkparity.ophelia.model.archive.ArchiveModel;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -65,16 +64,8 @@ public abstract class ActionExtensionAction extends AbstractAction {
     }
 
     /**
-     * Obtain A thinkParity <code>ArchiveModel</code> interface.
-     * 
-     * @return A thinkParity <code>ArchiveModel</code> interface.
-     */
-    protected final ArchiveModel getArchiveModel() {
-        return modelFactory.getArchiveModel();
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.platform.action.AbstractAction#getArtifactModel()
+     * 
      */
     @Override
     protected final ArtifactModel getArtifactModel() {

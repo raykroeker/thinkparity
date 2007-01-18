@@ -1842,6 +1842,10 @@ public final class ContainerModelImpl extends
 
             getBackupModel().restore(containerId);
             getArtifactModel().removeFlagArchived(containerId);
+            getArtifactModel().addTeamMember(containerId, localUserId());
+            getSessionModel().addTeamMember(
+                    getArtifactModel().readUniqueId(containerId),
+                    getArtifactModel().readTeamIds(containerId), localUserId());
 
             notifyContainerRestored(read(containerId), localEventGenerator);
         } catch (final Throwable t) {

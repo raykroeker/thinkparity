@@ -7,7 +7,6 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.profile.Profile;
 
-import com.thinkparity.ophelia.model.archive.ArchiveModel;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -55,9 +54,6 @@ public class ProviderFactory {
         return SINGLETON.doGetProvider(avatarId);
     }
 
-	/** A thinkParity archive interface. */
-    protected final ArchiveModel archiveModel;
-
     /** A thinkParity artifact interface. */
 	protected final ArtifactModel artifactModel;
 
@@ -89,7 +85,6 @@ public class ProviderFactory {
 	private ProviderFactory() {
 		super();
 		final ModelFactory modelFactory = ModelFactory.getInstance();
-        this.archiveModel = modelFactory.getArchiveModel(getClass());
 		this.artifactModel = modelFactory.getArtifactModel(getClass());
 		this.contactModel = modelFactory.getContactModel(getClass());
         this.containerModel = modelFactory.getContainerModel(getClass());

@@ -7,8 +7,6 @@ import java.lang.reflect.Proxy;
 
 import com.thinkparity.codebase.model.session.Environment;
 
-import com.thinkparity.ophelia.model.archive.ArchiveModel;
-import com.thinkparity.ophelia.model.archive.ArchiveModelImpl;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.artifact.ArtifactModelImpl;
 import com.thinkparity.ophelia.model.contact.ContactModel;
@@ -109,16 +107,6 @@ public final class ModelFactory {
         this.environment = environment;
         this.workspace = workspace;
         this.classLoader = workspace.getClass().getClassLoader();
-    }
-
-    /**
-     * Obtain an archive model.
-     * 
-     * @return An instance of <code>ArchiveModel</code>.
-     */
-    public final ArchiveModel getArchiveModel() {
-        return (ArchiveModel) newModelProxy(
-                ArchiveModel.class, ArchiveModelImpl.class);
     }
 
     /**

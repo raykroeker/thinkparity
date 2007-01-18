@@ -54,18 +54,19 @@ public class RestoreTest extends ArchiveTestCase {
         datum.waitForEvents();
         restore(datum.junit_z, c.getId());
         datum.waitForEvents();
-        // ensure exists locally
+        // ensure restored locally
         final Container c_z = readContainer(datum.junit_z, c.getUniqueId());
         assertNotNull("Container has not been properly restored.", c_z);
+        assertFalse("Container has not been properly restored.", c_z.isArchived());
         assertNotNull("Document has not been properly restored.", readDocument(datum.junit_z, d_doc.getUniqueId()));
         assertNotNull("Document has not been properly restored.", readDocument(datum.junit_z, d_pdf.getUniqueId()));
         assertNotNull("Document has not been properly restored.", readDocument(datum.junit_z, d_png.getUniqueId()));
         assertEquals("Container versions have not been properly restored.", 2, readContainerVersions(datum.junit_z, c_z.getId()).size());
-        // ensure archived remotely
-        final Container c_archive = getArchiveModel(datum.junit_z).readContainer(c.getUniqueId());
-        assertNull("Container has not been properly restored.", c_archive);
-        assertEquals("Container versions have not been properly restored.", 0,
-                getArchiveModel(datum.junit_z).readContainerVersions(c.getUniqueId()).size());
+        assertEquals("Team ids does not match expectation.", 2, getArtifactModel(datum.junit_z).readTeamIds(c_z.getId()).size());
+        // ensure restored remotely
+        final Container c_archive = getBackupModel(datum.junit_z).readContainer(c.getUniqueId());
+        assertNotNull("Container has not been properly restored.", c_archive);
+        assertFalse("Container has not been properly restored.", c_archive.isArchived());
     }
 
     /**

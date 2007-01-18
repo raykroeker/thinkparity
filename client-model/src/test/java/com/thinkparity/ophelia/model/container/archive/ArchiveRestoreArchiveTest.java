@@ -110,10 +110,10 @@ public class ArchiveRestoreArchiveTest extends ArchiveTestCase {
 
         archive(datum.junit_z, c_restore.getId());
 
-        final Container c_archive = getArchiveModel(datum.junit_z).readContainer(c.getUniqueId());
+        final Container c_archive = getContainerModel(datum.junit_z).read(c.getId());
         assertNotNull(NAME + " - Archived container is null.", c_archive);
         final List<ContainerVersion> cv_archive_list =
-            getArchiveModel(datum.junit_z).readContainerVersions(c.getUniqueId());
+            getContainerModel(datum.junit_z).readVersions(c.getId());
         assertNotNull(NAME + " - Archived container versions is null.", cv_archive_list);
         assertEquals(NAME + " - Archived container versions size is wrong.", 1, cv_archive_list.size());
     }

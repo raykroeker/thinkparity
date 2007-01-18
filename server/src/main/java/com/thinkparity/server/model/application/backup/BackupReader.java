@@ -8,10 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.thinkparity.codebase.filter.Filter;
-
 import com.thinkparity.codebase.model.artifact.Artifact;
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.user.User;
@@ -64,20 +61,12 @@ public abstract class BackupReader<T extends Artifact, U extends ArtifactVersion
     /** A thinkParity client artifact interface. */
     protected final InternalArtifactModel artifactModel;
 
-    /** An artifact backup filter. */
-    protected final Filter<Artifact> filter;
-
     /** A client model factory. */
     private final ClientModelFactory modelFactory;
 
     /** Create BackupReader. */
     protected BackupReader(final ClientModelFactory modelFactory) {
         super();
-        this.filter = new Filter<Artifact>() {
-            public Boolean doFilter(final Artifact o) {
-                return o.contains(ArtifactFlag.ARCHIVED);
-            }
-        };
         this.modelFactory = modelFactory;
         this.artifactModel = modelFactory.getArtifactModel(getClass());
     }
@@ -88,7 +77,6 @@ public abstract class BackupReader<T extends Artifact, U extends ArtifactVersion
      */
     private BackupReader() {
         super();
-        this.filter = null;
         this.modelFactory = null;
         this.artifactModel = null;
     }
@@ -168,11 +156,6 @@ public abstract class BackupReader<T extends Artifact, U extends ArtifactVersion
      * @return An artifact id <code>Long</code>.
      */
     protected Long readBackupArtifactId(final UUID uniqueId) {
-        final Long artifactId = readArtifactId(uniqueId);
-        if (null == artifactId || artifactModel.isFlagApplied(artifactId, ArtifactFlag.ARCHIVED)) {
-            return null;
-        } else {
-            return artifactId;
-        }
+        return readArtifactId(uniqueId);
     }
 }

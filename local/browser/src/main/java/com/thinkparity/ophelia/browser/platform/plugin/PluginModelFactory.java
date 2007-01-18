@@ -3,11 +3,11 @@
  */
 package com.thinkparity.ophelia.browser.platform.plugin;
 
-import com.thinkparity.ophelia.browser.platform.Platform;
-import com.thinkparity.ophelia.browser.util.ModelFactory;
-import com.thinkparity.ophelia.model.archive.ArchiveModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
+
+import com.thinkparity.ophelia.browser.platform.Platform;
+import com.thinkparity.ophelia.browser.util.ModelFactory;
 
 /**
  * <b>Title:</b>thinkParity Browser Platform Plugin Model Factory<br>
@@ -31,15 +31,6 @@ public final class PluginModelFactory {
     PluginModelFactory(final Platform platform) {
         super();
         this.factory = platform.getModelFactory();
-    }
-
-    /**
-     * Obtain A thinkParity <code>ArchiveModel</code> interface.
-     * 
-     * @return A thinkParity <code>ArchiveModel</code> interface.
-     */
-    public ArchiveModel getArchiveModel() {
-        return factory.getArchiveModel(getClass());
     }
 
     /**

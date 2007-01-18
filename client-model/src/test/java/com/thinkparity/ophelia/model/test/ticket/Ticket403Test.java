@@ -54,12 +54,12 @@ public class Ticket403Test extends TicketTestCase {
         archive(datum.junit_z, c_z.getId());
         datum.waitForEvents();
 
-        final List<ContainerVersion> cv_list_z = getArchiveModel(datum.junit_z).readContainerVersions(c_z.getUniqueId());
+        final List<ContainerVersion> cv_list_z = getContainerModel(datum.junit_z).readVersions(c_z.getId());
         final ContainerVersion cv_latest_z = cv_list_z.get(0);
         final ContainerVersion cv_previous_z = cv_list_z.get(1);
 
-        final List<DocumentVersion> dv_list_z = getArchiveModel(datum.junit_z).readDocumentVersions(c_z.getUniqueId(), cv_latest_z.getVersionId());
-        final Map<DocumentVersion, Delta> delta_z = getArchiveModel(datum.junit_z).readDocumentVersionDeltas(c_z.getUniqueId(), cv_latest_z.getVersionId(), cv_previous_z.getVersionId());
+        final List<DocumentVersion> dv_list_z = getContainerModel(datum.junit_z).readDocumentVersions(cv_latest_z.getArtifactId(), cv_latest_z.getVersionId());
+        final Map<DocumentVersion, Delta> delta_z = getContainerModel(datum.junit_z).readDocumentVersionDeltas(c_z.getId(), cv_latest_z.getVersionId(), cv_previous_z.getVersionId());
 
         final Delta delta_doc_z = delta_z.get(dv_list_z.get(0));
         assertEquals("Document delta does not match expectation.", Delta.NONE, delta_doc_z);

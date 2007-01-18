@@ -37,7 +37,7 @@ public class ContainerReader extends BackupReader<Container, ContainerVersion> {
      */
     @Override
     public List<Container> read() {
-        return containerModel.read(filter);
+        return containerModel.read();
     }
 
     /**

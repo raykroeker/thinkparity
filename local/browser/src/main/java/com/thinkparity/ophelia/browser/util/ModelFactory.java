@@ -8,7 +8,6 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.session.Environment;
 
-import com.thinkparity.ophelia.model.archive.ArchiveModel;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -56,10 +55,6 @@ public class ModelFactory {
 	private ModelFactory() {
 		super();
 	}
-
-    public ArchiveModel getArchiveModel(final Class clasz) {
-        return modelFactory.getArchiveModel();
-    }
 
     public ArtifactModel getArtifactModel(final Class clasz) {
         return modelFactory.getArtifactModel();

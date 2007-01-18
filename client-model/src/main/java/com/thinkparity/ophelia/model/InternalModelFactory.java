@@ -6,8 +6,6 @@ package com.thinkparity.ophelia.model;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.session.Environment;
 
-import com.thinkparity.ophelia.model.archive.ArchiveModelImpl;
-import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.ArtifactModelImpl;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.AuditModelImpl;
@@ -84,16 +82,6 @@ public final class InternalModelFactory {
         this.classLoader = workspace.getClass().getClassLoader();
         this.environment = environment;
         this.workspace = workspace;
-    }
-
-    /**
-     * Obtain an internal archive model.
-     * 
-     * @return An instance of <code>InternalArchiveModel</code>.
-     */
-    public final InternalArchiveModel getArchiveModel() {
-        return (InternalArchiveModel) newModelProxy(
-                InternalArchiveModel.class, ArchiveModelImpl.class);
     }
 
     /**

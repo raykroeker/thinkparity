@@ -50,7 +50,6 @@ import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.Constants.Versioning;
-import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.InternalAuditModel;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
@@ -665,15 +664,6 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected TeamMember get(final List<TeamMember> team, final User user) {
         return team.get(indexOf(team, user));
-    }
-
-    /**
-     * Obtain an internal archive model.
-     * 
-     * @return An instance of <code>InternalArchiveModel</code>.
-     */
-    protected final InternalArchiveModel getArchiveModel() {
-        return modelFactory.getArchiveModel();
     }
 
     /**

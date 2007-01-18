@@ -52,7 +52,7 @@ public final class XStreamMapTest extends XStreamTestCase {
         map.put("five", 5);
         map.put("nine", 9);
         map.put("two", 2);
-        map.put("siz", 6);
+        map.put("six", 6);
         map.put("five", 5);
         map.put("four", 4);
         datum = new Fixture(map);

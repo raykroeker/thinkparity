@@ -32,25 +32,22 @@ import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
  * @author raymond@thinkparity.com
  * @version 1.1.2.2
  */
-public abstract class TabPanelModel extends TabModel {
-    
-    /** A sort by persistence key */
-    // TODO use appropriate variable naming for constants
-    // TODO move the persistence key variables to the same scope as the persitence instance
-    protected static final String sortByKey;
+public abstract class TabPanelModel<T extends Object> extends TabModel {
     
     /** A sort ascending persistence key */
     // TODO use appropriate variable naming for constants
     // TODO move the persistence key variables to the same scope as the persitence instance
     protected static final String sortAscendingKey;
     
+    /** A sort by persistence key */
+    // TODO use appropriate variable naming for constants
+    // TODO move the persistence key variables to the same scope as the persitence instance
+    protected static final String sortByKey;
+    
     static {
         sortByKey = "sort.by";
         sortAscendingKey = "sort.ascending";
     }
-
-    /** An apache logger wrapper. */
-    protected final Log4JWrapper logger;
 
     /** The application. */
     protected final Browser browser;
@@ -67,6 +64,9 @@ public abstract class TabPanelModel extends TabModel {
     /** A <code>JPanelLocalization</code>. */
     protected JPanelLocalization localization;
 
+    /** An apache logger wrapper. */
+    protected final Log4JWrapper logger;
+
     /** A list of all panels. */
     protected final List<TabPanel> panels;
     
@@ -76,8 +76,8 @@ public abstract class TabPanelModel extends TabModel {
     /** A user search expression <code>String</code>. */
     protected String searchExpression;
     
-    /** A search result list of unique id <code>Object</code>. */
-    protected final List<Object> searchResults;
+    /** A search result list of unique id <code>T</code>s. */
+    protected final List<T> searchResults;
 
     /** A <code>BrowserSession</code>. */
     protected BrowserSession session;
@@ -98,25 +98,47 @@ public abstract class TabPanelModel extends TabModel {
         this.listModel = new DefaultListModel();
         this.panels = new ArrayList<TabPanel>();
         this.persistence = PersistenceFactory.getPersistence(getClass()); 
-        this.searchResults = new ArrayList<Object>();
+        this.searchResults = new ArrayList<T>();
         this.visiblePanels = new ArrayList<TabPanel>();
     }
        
     /**
      * Expand the panel.
      * 
-     * @param uniqueId
-     *            A unique id <code>Object</code>.
+     * @param panelId
+     *            A panel id <code>T</code>.
      * @param animate
      *            Animate flag <code>Boolean</code>.           
      */
-    public void expandPanel(final Object uniqueId, final Boolean animate) {
-        final TabPanel tabPanel = (TabPanel)lookupPanel(uniqueId);
+    public void expandPanel(final T panelId, final Boolean animate) {
+        final TabPanel tabPanel = (TabPanel)lookupPanel(panelId);
         if (!isExpanded(tabPanel)) {
             toggleExpansion(tabPanel, animate);
         }
     }
     
+    /**
+     * Sort and filter the ids according to the existing visible order. Visible
+     * elements are returned in the order they are currently displayed top to
+     * bottom. Elements that are not visible are not included in the returned
+     * list. This method assumes visiblePanels are already filtered and sorted
+     * correctly.
+     * 
+     * @param ids
+     *            A list of panel id <code>T</code>.
+     * @return A sorted list of panel id <code>T</code>s.
+     */
+    public List<T> getCurrentVisibleOrder(final List<T> panelIds) {
+        final List<T> sortedIds = new ArrayList<T>();
+        for (final TabPanel visiblePanel : visiblePanels) {
+            final T panelId = lookupId(visiblePanel);
+            if (panelIds.contains(panelId)) {
+                sortedIds.add(panelId);
+            }            
+        }
+        return sortedIds;
+    }
+
     /**
      * Determine whether or not thinkParity is running in development mode.
      * 
@@ -125,7 +147,7 @@ public abstract class TabPanelModel extends TabModel {
     public boolean isDevelopmentMode() {
         return browser.isDevelopmentMode();
     }
-
+    
     /**
      * Determine whether or not the user is online.
      * 
@@ -138,11 +160,11 @@ public abstract class TabPanelModel extends TabModel {
     /**
      * Scroll the panel so it is visible.
      * 
-     * @param uniqueId
-     *            A unique id <code>Object</code>.
+     * @param panelId
+     *            A panel id <code>T</code>.
      */
-    public void scrollPanelToVisible(final Object uniqueId) {
-        final JComponent panel = (JComponent)lookupPanel(uniqueId);
+    public void scrollPanelToVisible(final T panelId) {
+        final JComponent panel = (JComponent) lookupPanel(panelId);
         final Rectangle rectangle = panel.getBounds();
         rectangle.x = rectangle.y = 0;
         panel.scrollRectToVisible(rectangle);
@@ -166,30 +188,6 @@ public abstract class TabPanelModel extends TabModel {
      */
     public void setSession(final BrowserSession session) {
         this.session = session;
-    }
-    
-    /**
-     * Sort and filter the ids according to the existing visible order.
-     * Visible elements are returned in the order they
-     * are currently displayed top to bottom.
-     * Elements that are not visible are not included in the
-     * returned list.
-     * This method assumes visiblePanels are already filtered
-     * and sorted correctly.
-     * 
-     * @param ids
-     *          A list of unique id <code>Object</code>.
-     * @return A sorted list of unique id <code>Object</code>.
-     */
-    public List<Object> getCurrentVisibleOrder(final List<? extends Object> ids) {
-        final List<Object> sortedIds = new ArrayList<Object>();
-        for (final TabPanel visiblePanel : visiblePanels) {
-            final Object uniqueId = lookupId(visiblePanel);
-            if (ids.contains(uniqueId)) {
-                sortedIds.add(uniqueId);
-            }            
-        }
-        return sortedIds;
     }
     
     /**
@@ -221,7 +219,7 @@ public abstract class TabPanelModel extends TabModel {
         filteredPanels.clear();
         if (isSearchApplied()) {
             TabPanel searchResultPanel;
-            for (final Object searchResult : searchResults) {
+            for (final T searchResult : searchResults) {
                 searchResultPanel = lookupPanel(searchResult);
                 if (!filteredPanels.contains(searchResultPanel))
                     filteredPanels.add(searchResultPanel);
@@ -230,15 +228,6 @@ public abstract class TabPanelModel extends TabModel {
             // no filter is applied
             filteredPanels.addAll(panels);
         }
-    }
-    
-    /**
-     * Apply the search results.
-     *
-     */
-    private void applySearch() {
-        this.searchResults.clear();
-        this.searchResults.addAll(readSearchResults());
     }
     
     /**
@@ -256,7 +245,7 @@ public abstract class TabPanelModel extends TabModel {
             synchronize();
         }
     }
-       
+    
     /**
      * Clear all panels.
      *
@@ -264,7 +253,7 @@ public abstract class TabPanelModel extends TabModel {
     protected void clearPanels() {
         panels.clear();
     }
-   
+       
     /**
      * Toggle the expansion of a single panel.
      * 
@@ -316,7 +305,7 @@ public abstract class TabPanelModel extends TabModel {
             }
         }
     }
-    
+   
     /**
      * Obtain the swing list model.
      * 
@@ -343,7 +332,7 @@ public abstract class TabPanelModel extends TabModel {
             return isExpanded(tabPanel);
         }
     }
-        
+    
     /**
      * Determine if search is applied.
      * 
@@ -352,16 +341,16 @@ public abstract class TabPanelModel extends TabModel {
     protected boolean isSearchApplied() {
         return null != searchExpression;
     }
-        
+
     /**
-     * Lookup id of the object displayed in the tabPanel.
+     * Lookup the panel id for a panel.
      * 
      * @param tabPanel
      *            A <code>TabPanel</code>.
-     * @return A unique id <code>Object</code>.
+     * @return A panel id <code>T</code>.
      */
-    protected abstract Object lookupId(final TabPanel tabPanel);
-    
+    protected abstract T lookupId(final TabPanel tabPanel);
+        
     /**
      * Lookup the panel for the corresponding id.
      * 
@@ -369,14 +358,14 @@ public abstract class TabPanelModel extends TabModel {
      *          The id.
      * @return A <code>TabPanel</code>.
      */
-    protected abstract TabPanel lookupPanel(final Object uniqueId);
+    protected abstract TabPanel lookupPanel(final T panelId);
     
     /**
      * Search for a list of ids through the content provider.
      * 
      * @return A list of ids.
      */
-    protected abstract List<? extends Object> readSearchResults();
+    protected abstract List<T> readSearchResults();
     
     /**
      * Remove the search.
@@ -437,5 +426,14 @@ public abstract class TabPanelModel extends TabModel {
             }
         }
         debug();
+    }
+    
+    /**
+     * Apply the search results.
+     *
+     */
+    private void applySearch() {
+        this.searchResults.clear();
+        this.searchResults.addAll(readSearchResults());
     }
 }

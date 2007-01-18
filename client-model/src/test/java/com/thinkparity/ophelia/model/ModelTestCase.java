@@ -1662,10 +1662,10 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @param uniqueId
      *            A container unique id <code>UUID</code>.
      */
-    protected void restore(final OpheliaTestUser restoreAs, final UUID uniqueId) {
-        logger.logInfo("Restoring container \"{0}\" as \"{1}\".", uniqueId,
+    protected void restore(final OpheliaTestUser restoreAs, final Long containerId) {
+        logger.logInfo("Restoring container \"{0}\" as \"{1}\".", containerId,
                 restoreAs.getSimpleUsername());
-        getContainerModel(restoreAs).restore(uniqueId);
+        getContainerModel(restoreAs).restore(containerId);
     }
 
     protected Document revertDocument(final OpheliaTestUser revertAs,

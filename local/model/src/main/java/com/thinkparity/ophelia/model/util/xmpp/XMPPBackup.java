@@ -30,6 +30,25 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         super(core);
     }
 
+    /**
+     * Archive an artifact. This will simply apply the archived flag within the
+     * backup.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     */
+    void archive(final JabberId userId, final UUID uniqueId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        final XMPPMethod archive = new XMPPMethod("backup:archive");
+        archive.setParameter("userId", userId);
+        archive.setParameter("uniqueId", uniqueId);
+        execute(archive);
+    }
+
     void createStream(final JabberId userId, final String streamId,
             final UUID uniqueId, final Long versionId) {
         logger.logApiId();
@@ -74,6 +93,16 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         return execute(readContainerVersions, Boolean.TRUE).readResultContainerVersions("containerVersions");
     }
 
+    Document readDocument(final JabberId userId, final UUID uniqueId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("unqueId", uniqueId);
+        final XMPPMethod readDocument = new XMPPMethod("backup:readdocument");
+        readDocument.setParameter("userId", userId);
+        readDocument.setParameter("uniqueId", uniqueId);
+        return execute(readDocument, Boolean.TRUE).readResultDocument("document");
+    }
+
     List<Document> readDocuments(final JabberId userId, final UUID uniqueId,
             final Long versionId) {
         logger.logApiId();
@@ -85,16 +114,6 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         readDocuments.setParameter("uniqueId", uniqueId);
         readDocuments.setParameter("versionId", versionId);
         return execute(readDocuments, Boolean.TRUE).readResultDocuments("documents");
-    }
-
-    Document readDocument(final JabberId userId, final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("unqueId", uniqueId);
-        final XMPPMethod readDocument = new XMPPMethod("backup:readdocument");
-        readDocument.setParameter("userId", userId);
-        readDocument.setParameter("uniqueId", uniqueId);
-        return execute(readDocument, Boolean.TRUE).readResultDocument("document");
     }
 
     List<DocumentVersion> readDocumentVersions(final JabberId userId,
@@ -110,16 +129,6 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         return execute(readDocumentVersions, Boolean.TRUE).readResultDocumentVersions("documentVersions");
     }
 
-    List<JabberId> readTeamIds(final JabberId userId, final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod readTeam = new XMPPMethod("backup:readteamids");
-        readTeam.setParameter("userId", userId);
-        readTeam.setParameter("uniqueId", uniqueId);
-        return execute(readTeam, Boolean.TRUE).readResultJabberIds("teamIds");
-    }
-
     Map<User, ArtifactReceipt> readPublishedTo(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
         logger.logApiId();
@@ -131,6 +140,35 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         readDocumentVersions.setParameter("uniqueId", uniqueId);
         readDocumentVersions.setParameter("versionId", versionId);
         return execute(readDocumentVersions, Boolean.TRUE).readResultUserArtifactReceipts("publishedTo");
+    }
+
+    List<JabberId> readTeamIds(final JabberId userId, final UUID uniqueId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        final XMPPMethod readTeam = new XMPPMethod("backup:readteamids");
+        readTeam.setParameter("userId", userId);
+        readTeam.setParameter("uniqueId", uniqueId);
+        return execute(readTeam, Boolean.TRUE).readResultJabberIds("teamIds");
+    }
+
+    /**
+     * Restore an artifact. This will simply remove the archived flag within the
+     * backup.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>Long</code>.
+     */
+    void restore(final JabberId userId, final UUID uniqueId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        final XMPPMethod archive = new XMPPMethod("backup:restore");
+        archive.setParameter("userId", userId);
+        archive.setParameter("uniqueId", uniqueId);
+        execute(archive);
     }
 
 }

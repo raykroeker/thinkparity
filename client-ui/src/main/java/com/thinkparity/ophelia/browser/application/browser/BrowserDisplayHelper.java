@@ -134,7 +134,8 @@ final class BrowserDisplayHelper extends BrowserHelper {
         final Display display = browserWindow.getDisplay(displayId);
 
         if (null == input) {
-            logger.logWarning("Input for avatar {0} is null.", avatar);
+            logger.logWarning("Input for avatar {0} on display {1} is null.",
+                    avatar.getId(), displayId);
         } else {
             avatar.setInput(input);
         }

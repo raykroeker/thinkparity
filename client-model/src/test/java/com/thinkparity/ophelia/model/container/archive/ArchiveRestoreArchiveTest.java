@@ -97,7 +97,7 @@ public class ArchiveRestoreArchiveTest extends ArchiveTestCase {
 
         archive(datum.junit_z, c.getId());
         datum.waitForEvents();
-        restore(datum.junit_z, c.getUniqueId());
+        restore(datum.junit_z, c.getId());
         datum.waitForEvents();
 
         final Container c_restore = readContainer(datum.junit_z, c.getUniqueId());

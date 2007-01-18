@@ -1,7 +1,7 @@
 /*
  * Created On: Sep 17, 2006 2:28:00 PM
  */
-package com.thinkparity.desdemona.wildfire.handler.archive;
+package com.thinkparity.desdemona.wildfire.handler.backup;
 
 import java.util.UUID;
 
@@ -13,8 +13,9 @@ import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity Backup Restore Handler<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
@@ -25,7 +26,7 @@ public final class Restore extends AbstractHandler {
      *
      */
     public Restore() {
-        super("archive:restore");
+        super("backup:restore");
     }
 
     /**
@@ -49,6 +50,6 @@ public final class Restore extends AbstractHandler {
      */
     private void archive(final ServiceModelProvider provider,
             final JabberId userId, final UUID uniqueId) {
-        provider.getArtifactModel().restore(userId, uniqueId);
+        provider.getBackupModel().restore(userId, uniqueId);
     }
 }

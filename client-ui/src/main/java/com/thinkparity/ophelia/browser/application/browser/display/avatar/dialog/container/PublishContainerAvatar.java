@@ -487,6 +487,7 @@ public final class PublishContainerAvatar extends Avatar implements
         final List<Contact> contacts = model.getSelectedContacts();
         
         // Maybe delete the draft
+        // TODO move this to the publish action
         if (getInputDeleteDraft()) {
             getController().runDeleteContainerDraft(containerId, Boolean.FALSE);
         }

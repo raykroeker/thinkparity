@@ -970,7 +970,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
             try {
                 notifier.notifyListener(listener);
             } catch (final Throwable t) {
-                logger.logWarning(t, "Event listener {0} failed.", listener);
+                logger.logError(t, "Event listener {0} failed.", listener);
             }
         }
     }

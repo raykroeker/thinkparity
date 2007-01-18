@@ -222,11 +222,13 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	    xmppArtifact.addTeamMember(userId, team, uniqueId, teamMemberId);
 	}
 
-    /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#archiveArtifact(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
+	/**
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#archiveArtifact(com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.UUID)
+     * 
      */
     public void archiveArtifact(final JabberId userId, final UUID uniqueId) {
-        xmppArchive.archive(userId, uniqueId);
+        xmppBackup.archive(userId, uniqueId);
     }
 
 	/**
@@ -781,11 +783,12 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppProfile.resetPassword(userId, securityAnswer);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#restoreArtifact(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
+     *
      */
     public void restoreArtifact(final JabberId userId, final UUID uniqueId) {
-        xmppArchive.restore(userId, uniqueId);
+        xmppBackup.restore(userId, uniqueId);
     }
 
 	/**

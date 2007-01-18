@@ -51,7 +51,21 @@ public class BackupModel extends AbstractModel<BackupModelImpl> {
 		super(new BackupModelImpl(session));
 	}
 
-	/**
+    /**
+     * Archive an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     */
+    public void archive(final JabberId userId, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            getImpl().archive(userId, uniqueId);
+        }
+    }
+
+    /**
      * Open a document version's input stream.
      * 
      * @param userId
@@ -69,7 +83,7 @@ public class BackupModel extends AbstractModel<BackupModelImpl> {
         }
     }
 
-    /**
+	/**
      * Read the team for a backup artifact.
      * 
      * @param userId
@@ -81,6 +95,21 @@ public class BackupModel extends AbstractModel<BackupModelImpl> {
     public List<JabberId> readTeam(final JabberId userId, final UUID uniqueId) {
         synchronized (getImplLock()) {
             return getImpl().readTeam(userId, uniqueId);
+        }
+    }
+
+    /**
+     * Restore an artifact. This will simply remove the archived flag within the
+     * backup.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>Long</code>.
+     */
+    public void restore(final JabberId userId, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            getImpl().restore(userId, uniqueId);
         }
     }
 }

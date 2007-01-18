@@ -131,18 +131,12 @@ public final class SessionModelImpl extends AbstractModelImpl<SessionListener>
         }
     }
 
-	/**
-     * Archive an artifact.
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#archiveArtifact(com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.UUID)
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
      */
     public void archiveArtifact(final JabberId userId, final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -1221,17 +1215,10 @@ public final class SessionModelImpl extends AbstractModelImpl<SessionListener>
     }
 
     /**
-     * Restore an artifact from the archive.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#restoreArtifact(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
+     *
      */
     public void restoreArtifact(final JabberId userId, final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {

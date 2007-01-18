@@ -386,7 +386,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
                 debug();
                 removeFill();
                 for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
-                    removePanel(i, (TabPanel) listModel.get(i));
+                    removePanel(i);
                     addPanel(i, (TabPanel) listModel.get(i));
                 }
                 addFill(listModel.size());
@@ -413,7 +413,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
                 debug();
                 removeFill();
                 for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
-                    removePanel(i, (TabPanel) listModel.get(i));
+                    removePanel(i);
                 }
                 addFill(listModel.size());
                 reloadPanels();
@@ -474,11 +474,9 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
      * 
      * @param index
      *            An <code>int</code> index.
-     * @param panel
-     *            A <code>TabPanel</code>.          
      */
-    private void removePanel(final int index, final TabPanel panel) {
-        removeTabPanelListeners(panel);
+    private void removePanel(final int index) {
+        removeTabPanelListeners((TabPanel) tabJPanel.getComponent(index));
         tabJPanel.remove(index);
     }
     

@@ -64,7 +64,7 @@ import com.thinkparity.ophelia.browser.util.DocumentUtil;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ArchiveTabModel extends TabPanelModel implements
+public final class ArchiveTabModel extends TabPanelModel<Long> implements
         TabAvatarSortByDelegate {
 
     /** A session key for the draft monitor. */
@@ -283,19 +283,20 @@ public final class ArchiveTabModel extends TabPanelModel implements
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupId(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     * 
      */
     @Override
-    protected Object lookupId(final TabPanel tabPanel) {
+    protected Long lookupId(final TabPanel tabPanel) {
         return ((ArchiveTabPanel) tabPanel).getContainer().getId();
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupPanel(java.lang.Object)
+     * 
      */
     @Override
-    protected TabPanel lookupPanel(final Object uniqueId) {
-        final Long containerId = (Long)uniqueId;
-        final int panelIndex = lookupIndex(containerId); 
+    protected TabPanel lookupPanel(final Long panelId) {
+        final int panelIndex = lookupIndex(panelId); 
         if (-1 == panelIndex)
             return null;
         else
@@ -304,9 +305,10 @@ public final class ArchiveTabModel extends TabPanelModel implements
     
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readSearchResults()
+     * 
      */
     @Override
-    protected List<? extends Object> readSearchResults() {
+    protected List<Long> readSearchResults() {
         return getProvider().search(searchExpression);
     }
 

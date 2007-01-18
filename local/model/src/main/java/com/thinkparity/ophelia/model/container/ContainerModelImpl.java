@@ -53,7 +53,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.UploadMonitor;
-import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
@@ -240,14 +239,13 @@ public final class ContainerModelImpl extends
      *            A container id <code>Long</code>.
      */
     public void archive(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        assertIsDistributed("Container has not been distributed.", containerId);
         try {
-            final Container container = read(containerId);
-            getArchiveModel().archive(container.getId());
-            deleteLocal(container.getId());
-            notifyContainerArchived(container, localEventGenerator);
+            assertIsDistributed("Container has not been distributed.", containerId);
+
+            getBackupModel().archive(containerId);
+            getArtifactModel().applyFlagArchived(containerId);
+
+            notifyContainerArchived(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -1828,47 +1826,19 @@ public final class ContainerModelImpl extends
     /**
      * Restore a container from an archive.
      * 
-     * @param uniqueId
-     *            A container unique id <code>UUID</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
      */
-    public void restore(final UUID uniqueId) {
+    public void restore(final Long containerId) {
         logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        assertArtifactDoesNotExist(uniqueId,
-                "Cannot restore an artifact that still exists.");
+        logger.logVariable("containerId", containerId);
         try {
-            final InternalArchiveModel archiveModel = getArchiveModel();
-            // restore container info
-            final Container container = archiveModel.readContainer(uniqueId);
-            Assert.assertNotNull(container, "Container \"{0}\" has not been archived.", uniqueId);
-            restore(container, new RestoreModel() {
-                public InputStream openDocumentVersion(final UUID uniqueId,
-                        final Long versionId) {
-                    return archiveModel.openDocumentVersion(uniqueId, versionId);
-                }
-                public List<ContainerVersion> readContainerVersions(
-                        final UUID uniqueId) {
-                    return archiveModel.readContainerVersions(uniqueId);
-                }
-                public List<Document> readDocuments(final UUID uniqueId,
-                        final Long versionId) {
-                    return archiveModel.readDocuments(uniqueId, versionId);
-                }
-                public List<DocumentVersion> readDocumentVersions(
-                        final UUID uniqueId, final Long versionId) {
-                    return archiveModel.readDocumentVersions(uniqueId,
-                            versionId);
-                }
-                public Map<User, ArtifactReceipt> readPublishedTo(
-                        final UUID uniqueId, final Long versionId) {
-                    return archiveModel.readPublishedTo(uniqueId, versionId);
-                }
-                public List<JabberId> readTeamIds(final UUID uniqueId) {
-                    return archiveModel.readTeamIds(uniqueId);
-                }
-            });
-            archiveModel.restore(uniqueId);
-            notifyContainerRestored(read(container.getId()), localEventGenerator);
+            assertIsDistributed("Container has not been distributed.", containerId);
+
+            getBackupModel().restore(containerId);
+            getArtifactModel().removeFlagArchived(containerId);
+
+            notifyContainerRestored(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }

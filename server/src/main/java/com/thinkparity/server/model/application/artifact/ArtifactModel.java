@@ -55,20 +55,6 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
     }
 
     /**
-     * Archive an artifact for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     */
-    public void archive(final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().archive(userId, uniqueId);
-        }
-    }
-
-    /**
      * Confrim receipt of an artifact.
      * 
      * @param userId
@@ -177,20 +163,6 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
             final JabberId teamMemberId) {
         synchronized (getImplLock()) {
             getImpl().removeTeamMember(userId, team, uniqueId, teamMemberId);
-        }
-    }
-
-	/**
-     * Restore an artifact for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     */
-    public void restore(final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().restore(userId, uniqueId);
         }
     }
 }

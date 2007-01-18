@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.container.Container;
@@ -19,6 +20,7 @@ import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
+import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
@@ -47,42 +49,39 @@ final class BackupModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Obtain a container reader for the archive.
-     * 
-     * @return A container archive reader.
-     */
-    BackupReader<Container, ContainerVersion> getContainerReader(
-            final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
-        try {
-            assertIsAuthenticatedUser(userId);
-            return createContainerReader(userId);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-
-    }
-
-    /**
-     * Obtain a document archive reader.
+     * Archive an artifact. This will simply apply the archived flag within the
+     * backup.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
      * @param uniqueId
-     *            A container unique id <code>UUID</code>.
-     * @return An <code>ArchiveReader&lt;Document, DocumentVersion&gt;</code>.
+     *            An artifact unique id <code>Long</code>.
      */
-    BackupReader<Document, DocumentVersion> getDocumentReader(
-            final JabberId userId, final UUID containerUniqueId,
-            final Long containerVersionId) {
+    void archive(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
         try {
             assertIsAuthenticatedUser(userId);
-            return createDocumentReader(userId, containerUniqueId, containerVersionId);
+
+            final JabberId archiveId = readArchiveId(userId);
+            if (null == archiveId) {
+                logWarning("No archive exists for user {0}.", userId);
+            } else {
+                final InternalArtifactModel artifactModel =
+                    getModelFactory(archiveId).getArtifactModel(getClass());
+                Assert.assertTrue(artifactModel.doesExist(uniqueId),
+                        "Artifact {0} does not exist for user {1} in archive {2}.",
+                        uniqueId, userId.getUsername(),
+                        archiveId.getUsername());
+                final Long artifactId = artifactModel.readId(uniqueId);
+                artifactModel.applyFlagArchived(artifactId);
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
+
     /**
      * Open a document version's input stream.
      * 
@@ -134,6 +133,79 @@ final class BackupModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Delete an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     */
+    void delete(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        try {
+            assertIsAuthenticatedUser(userId);
+
+            final JabberId archiveId = readArchiveId(userId);
+            if (null == archiveId) {
+                logger.logInfo("No archive exists for user \"{0}\".", userId.getUsername());
+            } else {
+                final InternalArtifactModel artifactModel =
+                    getModelFactory(archiveId).getArtifactModel(getClass());
+                Assert.assertTrue(artifactModel.doesExist(uniqueId),
+                        "Artifact {0} does not exist for user {1} in archive {2}.",
+                        uniqueId, userId.getUsername(),
+                        archiveId.getUsername());
+                final Long artifactId = artifactModel.readId(uniqueId);
+                final InternalContainerModel containerModel =
+                    getModelFactory(archiveId).getContainerModel(getClass());
+                containerModel.delete(artifactId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+        
+    }
+
+    /**
+     * Obtain a container reader for the archive.
+     * 
+     * @return A container archive reader.
+     */
+    BackupReader<Container, ContainerVersion> getContainerReader(
+            final JabberId userId) {
+        logApiId();
+        logVariable("userId", userId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return createContainerReader(userId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+
+    }
+    /**
+     * Obtain a document archive reader.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return An <code>ArchiveReader&lt;Document, DocumentVersion&gt;</code>.
+     */
+    BackupReader<Document, DocumentVersion> getDocumentReader(
+            final JabberId userId, final UUID containerUniqueId,
+            final Long containerVersionId) {
+        try {
+            assertIsAuthenticatedUser(userId);
+            return createDocumentReader(userId, containerUniqueId, containerVersionId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Read the team for a backup artifact.
      * 
      * @param userId
@@ -167,6 +239,39 @@ final class BackupModelImpl extends AbstractModelImpl {
             throw translateError(t);
         }
 
+    }
+
+    /**
+     * Restore an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     */
+    void restore(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        try {
+            assertIsAuthenticatedUser(userId);
+
+            final JabberId archiveId = readArchiveId(userId);
+            if (null == archiveId) {
+                logWarning("No archive exists for user {0}.", userId);
+            } else {
+                final InternalArtifactModel artifactModel =
+                    getModelFactory(archiveId).getArtifactModel(getClass());
+                final Long artifactId = artifactModel.readId(uniqueId);
+                Assert.assertTrue(artifactModel.doesExist(uniqueId),
+                        "Artifact {0} does not exist for user {1} in archive {2}.",
+                        uniqueId, userId.getUsername(),
+                        archiveId.getUsername());
+                artifactModel.removeFlagArchived(artifactId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**

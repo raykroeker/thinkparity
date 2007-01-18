@@ -7,7 +7,6 @@ import java.io.File;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import com.thinkparity.codebase.filter.Filter;
 
@@ -576,11 +575,10 @@ public interface ContainerModel {
     /**
      * Restore a container from an archive.
      * 
-     * @param uniqueId
-     *            A container unique id <code>UUID</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
      */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
-    public void restore(final UUID uniqueId);
+    public void restore(final Long containerId);
 
     /**
      * Revert a document to it's pre-draft state.

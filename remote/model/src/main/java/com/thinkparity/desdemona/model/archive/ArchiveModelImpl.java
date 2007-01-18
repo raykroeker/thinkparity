@@ -28,7 +28,6 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
-import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -85,38 +84,6 @@ class ArchiveModelImpl extends AbstractModelImpl {
         this.fileSystem = readFileSystem();
     }
 
-    /**
-     * Archive an artifact.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     */
-    void archive(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        try {
-            assertIsAuthenticatedUser(userId);
-            final JabberId archiveId = readArchiveId(userId);
-            if (null == archiveId) {
-                logWarning("No archive exists for user {0}.", userId);
-            } else {
-                final InternalArtifactModel artifactModel =
-                    getModelFactory(archiveId).getArtifactModel(getClass());
-                Assert.assertTrue(artifactModel.doesExist(uniqueId),
-                        "Artifact {0} does not exist for user {1} in archive {2}.",
-                        uniqueId, userId.getUsername(),
-                        archiveId.getUsername());
-                final Long artifactId = artifactModel.readId(uniqueId);
-                artifactModel.applyFlagArchived(artifactId);
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-        
-    }
 
     /**
      * Open a document version's input stream.
@@ -165,41 +132,6 @@ class ArchiveModelImpl extends AbstractModelImpl {
         } catch (final Throwable t) {
             throw translateError(t);
         }
-    }
-
-    /**
-     * Delete an artifact.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     */
-    void delete(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        try {
-            assertIsAuthenticatedUser(userId);
-            final JabberId archiveId = readArchiveId(userId);
-            if (null == archiveId) {
-                logger.logInfo("No archive exists for user \"{0}\".", userId.getUsername());
-            } else {
-                final InternalArtifactModel artifactModel =
-                    getModelFactory(archiveId).getArtifactModel(getClass());
-                Assert.assertTrue(artifactModel.doesExist(uniqueId),
-                        "Artifact {0} does not exist for user {1} in archive {2}.",
-                        uniqueId, userId.getUsername(),
-                        archiveId.getUsername());
-                final Long artifactId = artifactModel.readId(uniqueId);
-                final InternalContainerModel containerModel =
-                    getModelFactory(archiveId).getContainerModel(getClass());
-                containerModel.delete(artifactId);
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-        
     }
 
     /**
@@ -322,38 +254,6 @@ class ArchiveModelImpl extends AbstractModelImpl {
                     teamIds.add(teamMember.getId());
                 }
                 return teamIds;
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Restore an artifact.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     */
-    void restore(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        try {
-            assertIsAuthenticatedUser(userId);
-            final JabberId archiveId = readArchiveId(userId);
-            if (null == archiveId) {
-                logWarning("No archive exists for user {0}.", userId);
-            } else {
-                final InternalArtifactModel artifactModel =
-                    getModelFactory(archiveId).getArtifactModel(getClass());
-                final Long artifactId = artifactModel.readId(uniqueId);
-                Assert.assertTrue(artifactModel.doesExist(uniqueId),
-                        "Artifact {0} does not exist for user {1} in archive {2}.",
-                        uniqueId, userId.getUsername(),
-                        archiveId.getUsername());
-                artifactModel.removeFlagArchived(artifactId);
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -603,7 +503,12 @@ class ArchiveModelImpl extends AbstractModelImpl {
      *            An archive id <code>JabberId</code>.
      */
     private void stop(final JabberId archiveId) {
-        getModelFactory(archiveId).getSessionModel(getClass()).logout();
+        final FileSystem archiveFileSystem = readFileSystem(archiveId);
+        final Environment environment = readEnvironment();
+        final Workspace workspace = readWorkspace(environment, archiveFileSystem);
+        createContext(archiveId, environment, workspace);
+        final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
+        workspaceModel.close(workspace);
         deleteContext(archiveId);
     }
 

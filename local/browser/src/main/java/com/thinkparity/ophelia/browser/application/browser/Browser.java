@@ -169,6 +169,9 @@ public class Browser extends AbstractApplication {
 	    if (null != expression)
 	        data.set(TabListAvatar.DataKey.SEARCH_EXPRESSION, expression);
         switch(getMainTitleAvatarTab()) {
+        case ARCHIVE:
+            setInput(AvatarId.TAB_ARCHIVE, data);
+            break;
         case CONTACT:
             setInput(AvatarId.TAB_CONTACT, data);
             runDisplayContactInvitationInfo(expression);

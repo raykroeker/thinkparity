@@ -80,6 +80,21 @@ public final class BackupModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#archive(java.lang.Long)
+     *
+     */
+    public void archive(final Long artifactId) {
+        try {
+            assertBackupOnline();
+
+            final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
+            getSessionModel().archiveArtifact(localUserId(), uniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Open a document version from the backup.
      * 
      * @param uniqueId
@@ -420,7 +435,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements
                 filter); 
     }
 
-
     public List<JabberId> readTeamIds(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -428,6 +442,22 @@ public final class BackupModelImpl extends AbstractModelImpl implements
             assertBackupOnline();
             return getSessionModel().readBackupTeamIds(localUserId(),
                     uniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+
+    /**
+     * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#restore(java.lang.Long)
+     *
+     */
+    public void restore(final Long artifactId) {
+        try {
+            assertBackupOnline();
+
+            final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
+            getSessionModel().restoreArtifact(localUserId(), uniqueId);
         } catch (final Throwable t) {
             throw translateError(t);
         }

@@ -52,7 +52,7 @@ public class RestoreTest extends ArchiveTestCase {
         datum.waitForEvents();
         archive(datum.junit_z, c.getId());
         datum.waitForEvents();
-        restore(datum.junit_z, c.getUniqueId());
+        restore(datum.junit_z, c.getId());
         datum.waitForEvents();
         // ensure exists locally
         final Container c_z = readContainer(datum.junit_z, c.getUniqueId());

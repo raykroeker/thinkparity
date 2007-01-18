@@ -101,7 +101,8 @@ public interface XMPPSession {
             final UUID uniqueId, final JabberId teamMemberId);
 
     /**
-     * Archive an artifact.
+     * Archive an artifact. This will simply apply the archived flag within the
+     * backup.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
@@ -638,12 +639,13 @@ public interface XMPPSession {
             final String securityAnswer);
 
     /**
-     * Restore an artifact.
+     * Restore an artifact. This will simply remove the archived flag within the
+     * backup.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
      * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
+     *            An artifact unique id <code>Long</code>.
      */
     public void restoreArtifact(final JabberId userId, final UUID uniqueId);
 

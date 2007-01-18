@@ -14,10 +14,14 @@ import javax.swing.Action;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.sort.DefaultComparator;
 import com.thinkparity.codebase.sort.StringComparator;
+
+import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.ophelia.model.contact.IncomingInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
@@ -26,16 +30,15 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactTabPanel;
-import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 /**
  * <b>Title:</b>thinkParity Contact Tab Model<br>
  * <b>Description:</b>The tab model for a contact<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ContactTabModel extends TabPanelModel implements
+public final class ContactTabModel extends TabPanelModel<ContactPanelId> implements
         TabAvatarSortByDelegate {
 
     /** The <code>ContactTabActionDelegate</code>. */
@@ -73,15 +76,46 @@ public final class ContactTabModel extends TabPanelModel implements
                         }
                     };
                 }
-                public String getText() {
-                    return getString(sortByValue);
-                }
                 public SortDirection getDirection() {
                     return getSortDirection(sortByValue);
+                }
+                public String getText() {
+                    return getString(sortByValue);
                 }
             });
         }
         return sortBy;
+    }
+
+    /**
+     * Get the sort direction.
+     * 
+     * @param sortBy
+     *            A <code>SortBy</code>.
+     * @return A <code>SortDirection</code>.        
+     */
+    public SortDirection getSortDirection(final SortBy sortBy) {
+        if (isSortApplied(sortBy)) {
+            if (sortBy.ascending) {
+                return SortDirection.ASCENDING;
+            } else {
+                return SortDirection.DESCENDING;
+            }
+        } else {
+            return SortDirection.NONE;
+        }
+    }
+
+    /**
+     * Apply the sort to the filtered list of panels.
+     *
+     */
+    protected void applySort() {
+        final DefaultComparator<TabPanel> comparator = new DefaultComparator<TabPanel>();
+        for (final SortBy sortBy : sortedBy) {
+            comparator.add(sortBy);
+        }
+        Collections.sort(filteredPanels, comparator);
     }
 
     /**
@@ -131,6 +165,52 @@ public final class ContactTabModel extends TabPanelModel implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupId(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    @Override
+    protected ContactPanelId lookupId(final TabPanel tabPanel) {
+        final ContactTabPanel panel = (ContactTabPanel) tabPanel;
+        if (panel.isSetContact()) {
+            return new ContactPanelId(panel.getContact().getId());
+        } else if (panel.isSetIncoming()) {
+            return new ContactPanelId(panel.getIncoming().getId());
+        } else if (panel.isSetOutgoing()) {
+            return new ContactPanelId(panel.getOutgoing().getId());
+        } else {
+            throw Assert.createUnreachable("Unknown contact panel type.");
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupPanel(java.lang.Object)
+     */
+    @Override
+    protected TabPanel lookupPanel(final ContactPanelId panelId) {
+        final int panelIndex;
+        if (panelId.isSetContactId()) {
+            panelIndex = lookupIndex(panelId.getContactId());
+        } else if (panelId.isSetInvitationId()) {
+            panelIndex = lookupIndex(panelId.getInvitationId());
+        } else {
+            throw Assert.createUnreachable("Unknown conatact panel id type.");
+        }
+        return -1 == panelIndex ? null : panels.get(panelIndex);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readSearchResults()
+     *
+     */
+    @Override
+    protected List<ContactPanelId> readSearchResults() {
+        final List<JabberId> contactIds = ((ContactProvider) contentProvider).search(searchExpression);
+        final List<ContactPanelId> panelIds = new ArrayList<ContactPanelId>(contactIds.size());
+        for (final JabberId contactId : contactIds)
+            panelIds.add(new ContactPanelId(contactId));
+        return panelIds;
+    }
+    
+    /**
      * Obtain the popup delegate.
      * 
      * @return A <code>ContainerTabPopupDelegate</code>.
@@ -138,7 +218,7 @@ public final class ContactTabModel extends TabPanelModel implements
     ContactTabPopupDelegate getPopupDelegate() {
         return popupDelegate;
     }
-
+    
     void syncContact(final JabberId contactId, final Boolean remote) {
         debug();
         final Contact contact = read(contactId);
@@ -217,52 +297,6 @@ public final class ContactTabModel extends TabPanelModel implements
         debug();
 
     }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupId(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
-     */
-    @Override
-    protected Object lookupId(final TabPanel tabPanel) {
-        final ContactTabPanel panel = (ContactTabPanel)tabPanel;
-        if (panel.isSetContact()) {
-            return panel.getContact().getId();
-        } else if (panel.isSetIncoming()) {
-            return panel.getIncoming().getId();
-        } else if (panel.isSetOutgoing()) {
-            return (panel.getOutgoing().getId());
-        } else {
-            throw Assert.createUnreachable("Unknown contact panel type.");
-        }
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupPanel(java.lang.Object)
-     */
-    @Override
-    protected TabPanel lookupPanel(final Object uniqueId) {
-        final int panelIndex;
-        if (uniqueId instanceof JabberId) {
-            final JabberId contactId = (JabberId)uniqueId;
-            panelIndex = lookupIndex(contactId); 
-        } else if (uniqueId instanceof Long) {
-            final Long invitationId = (Long)uniqueId;
-            panelIndex = lookupIndex(invitationId); 
-        } else {
-            throw Assert.createUnreachable("Unknown contact id type.");
-        }
-        if (-1 == panelIndex)
-            return null;
-        else
-            return panels.get(panelIndex);
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readSearchResults()
-     */
-    @Override
-    protected List<? extends Object> readSearchResults() {
-        return ((ContactProvider) contentProvider).search(searchExpression);
-    }
 
     /**
      * Add a contact to the end of the panels list.
@@ -295,7 +329,7 @@ public final class ContactTabModel extends TabPanelModel implements
     private void addPanel(final int index, final Contact contact) {
         panels.add(index, toDisplay(contact));
     }
-
+    
     /**
      * Add an incoming invitation to the panels list.
      * 
@@ -319,7 +353,7 @@ public final class ContactTabModel extends TabPanelModel implements
     private void addPanel(final int index, final OutgoingInvitation invitation) {
         panels.add(index, toDisplay(invitation));
     }
-    
+
     /**
      * Add an outgoing invitation to the end of the panels list.
      * 
@@ -331,19 +365,7 @@ public final class ContactTabModel extends TabPanelModel implements
     private void addPanel(final OutgoingInvitation invitation) {
         addPanel(panels.size() == 0 ? 0 : panels.size(), invitation);
     }
-
-    /**
-     * Apply the sort to the filtered list of panels.
-     *
-     */
-    protected void applySort() {
-        final DefaultComparator<TabPanel> comparator = new DefaultComparator<TabPanel>();
-        for (final SortBy sortBy : sortedBy) {
-            comparator.add(sortBy);
-        }
-        Collections.sort(filteredPanels, comparator);
-    }
-
+    
     /**
      * Apply an ordering to the panels.
      * 
@@ -371,25 +393,6 @@ public final class ContactTabModel extends TabPanelModel implements
         final SortBy sortBy = (SortBy)(Comparator<TabPanel>)persistence.get(sortByKey, SortBy.NAME);
         sortBy.ascending = persistence.get(sortAscendingKey, true);
         return sortBy;
-    }
-    
-    /**
-     * Get the sort direction.
-     * 
-     * @param sortBy
-     *            A <code>SortBy</code>.
-     * @return A <code>SortDirection</code>.        
-     */
-    public SortDirection getSortDirection(final SortBy sortBy) {
-        if (isSortApplied(sortBy)) {
-            if (sortBy.ascending) {
-                return SortDirection.ASCENDING;
-            } else {
-                return SortDirection.DESCENDING;
-            }
-        } else {
-            return SortDirection.NONE;
-        }
     }
 
     /**
@@ -590,19 +593,6 @@ public final class ContactTabModel extends TabPanelModel implements
         }
         
         /**
-         * Apply a default ordering.
-         */
-        private int compareDefault(final ContactTabPanel p1, final ContactTabPanel p2) {
-            return ascending
-                ? STRING_COMPARATOR_ASC.compare(
-                        p1.getContact().getName(),
-                        p2.getContact().getName())
-                : STRING_COMPARATOR_DESC.compare(
-                        p1.getContact().getName(),
-                        p2.getContact().getName());
-        }
-
-        /**
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          * 
          */
@@ -661,6 +651,19 @@ public final class ContactTabModel extends TabPanelModel implements
                     return 1;
                 }
             }
+        }
+
+        /**
+         * Apply a default ordering.
+         */
+        private int compareDefault(final ContactTabPanel p1, final ContactTabPanel p2) {
+            return ascending
+                ? STRING_COMPARATOR_ASC.compare(
+                        p1.getContact().getName(),
+                        p2.getContact().getName())
+                : STRING_COMPARATOR_DESC.compare(
+                        p1.getContact().getName(),
+                        p2.getContact().getName());
         }
     }
 }

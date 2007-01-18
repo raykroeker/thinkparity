@@ -32,24 +32,6 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         super(core);
     }
 
-    /**
-     * Archive an artifact.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     */
-    void archive(final JabberId userId, final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod archive = new XMPPMethod("archive:archive");
-        archive.setParameter("userId", userId);
-        archive.setParameter("uniqueId", uniqueId);
-        execute(archive);
-    }
-
     void createStream(final JabberId userId, final String streamId,
             final UUID uniqueId, final Long versionId) {
         logger.logApiId();
@@ -198,23 +180,5 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         readTeam.setParameter("userId", userId);
         readTeam.setParameter("uniqueId", uniqueId);
         return execute(readTeam, Boolean.TRUE).readResultJabberIds("teamIds");
-    }
-
-    /**
-     * Restore an artifact.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     */
-    void restore(final JabberId userId, final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod archive = new XMPPMethod("archive:restore");
-        archive.setParameter("userId", userId);
-        archive.setParameter("uniqueId", uniqueId);
-        execute(archive);
     }
 }

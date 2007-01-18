@@ -45,7 +45,7 @@ public class Restore extends AbstractAction {
 
         if (browser.confirm("ContainerRestore.ConfirmRestoreMessage",
                 new Object[] {container.getName()})) {
-            containerModel.restore(container.getUniqueId());
+            containerModel.restore(containerId);
         }
     }
 

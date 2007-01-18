@@ -5,9 +5,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.a
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.List;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
@@ -44,33 +41,34 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
                 });
     }
 
+    /**
+     * Fire an archived container event.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
     public void fireArchived(final ContainerEvent e) {
-        // NOCOMMIT NYI raymond@thinkparity.com - 17-Jan-07 12:15:10 PM
-        throw Assert.createNotYetImplemented("");
-    }
-
-    public void fireDeleted (final ContainerEvent e) {
-        // NOCOMMIT NYI raymond@thinkparity.com - 17-Jan-07 12:15:10 PM
-        throw Assert.createNotYetImplemented("");
-    }
-
-    public void fireRestored(final ContainerEvent e) {
-        // NOCOMMIT NYI raymond@thinkparity.com - 17-Jan-07 12:15:10 PM
-        throw Assert.createNotYetImplemented("");
+        syncContainer(e.getContainer().getId(), e.isRemote());
     }
 
     /**
-     * Show the container (expand the panel and scroll so it
-     * is visible).
+     * Fire an deleted container event.
      * 
-     * @param containerIds
-     *            A list of container id <code>Long</code>.
+     * @param e
+     *            A <code>ContainerEvent</code>.
      */
-    public void showContainer(final List<Long> containerIds) {
-        if (false)
-            showContainer(0L);
-        // NOCOMMIT NYI raymond@thinkparity.com - 17-Jan-07 11:52:57 AM
-        throw Assert.createNotYetImplemented("");
+    public void fireDeleted (final ContainerEvent e) {
+        syncContainer(e.getContainer().getId(), e.isRemote());
+    }
+
+    /**
+     * Fire a restored container event.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void fireRestored(final ContainerEvent e) {
+        syncContainer(e.getContainer().getId(), e.isRemote());
     }
 
     /**
@@ -81,31 +79,7 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
      * @param remote
      *            A remote event <code>Boolean</code> indicator.
      */
-    public void syncContainer(final Long containerId, final Boolean remote) {
+    private void syncContainer(final Long containerId, final Boolean remote) {
         model.syncContainer(containerId, remote);
-    }
-
-    /**
-     * Synchronize a document in the avatar.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @param remote
-     *            A remote event <code>Boolean</code> indicator.
-     */
-    public void syncDocument(final Long documentId, final Boolean remote) {
-        model.syncDocument(documentId, remote);
-    }
-
-    /**
-     * Show the container (expand the panel and scroll so it
-     * is visible).
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    private void showContainer(final Long containerId) {
-        model.expandPanel(containerId, Boolean.FALSE);
-        model.scrollPanelToVisible(containerId);
     }
 }

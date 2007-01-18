@@ -75,7 +75,8 @@ public interface InternalSessionModel extends SessionModel {
             final JabberId jabberId);
 
     /**
-     * Archive an artifact.
+     * Archive an artifact. This will simply apply the archived flag within the
+     * backup.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
@@ -483,6 +484,15 @@ public interface InternalSessionModel extends SessionModel {
     public String resetProfilePassword(final JabberId userId,
             final String securityAnswer);
 
+    /**
+     * Restore an artifact. This will simply remove the archived flag within the
+     * backup.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>Long</code>.
+     */
     public void restoreArtifact(final JabberId userId, final UUID uniqueId);
 
     /**

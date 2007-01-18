@@ -166,7 +166,12 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 	 * @return A <code>Container</code>.
 	 */
     public Container read(final Long containerId) {
-    	return containerModel.read(containerId);
+    	final Container container = containerModel.read(containerId);
+        if (null == container || filter.doFilter(container).booleanValue()) {
+            return null;
+        } else {
+            return container;
+        }
     }
 
     /**

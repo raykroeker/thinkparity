@@ -23,14 +23,6 @@ import com.thinkparity.codebase.model.util.jta.TransactionType;
 public interface InternalArchiveModel extends ArchiveModel {
 
     /**
-     * Archive an artifact.
-     * 
-     * @param artifactId
-     *            An artifact id <code>Long</code>.
-     */
-    public void archive(final Long artifactId);
-
-    /**
      * Open a document version input stream.
      * 
      * @param uniqueId
@@ -50,12 +42,4 @@ public interface InternalArchiveModel extends ArchiveModel {
      * @return A <code>List</code> of <code>JabberId</code>s.
      */
     public List<JabberId> readTeamIds(final UUID uniqueId);
-
-    /**
-     * Restore an artifact.
-     * 
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     */
-    public void restore(final UUID uniqueId);
 }

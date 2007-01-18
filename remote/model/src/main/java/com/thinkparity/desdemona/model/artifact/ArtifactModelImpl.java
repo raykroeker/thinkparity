@@ -81,21 +81,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
-     * Archive an artifact for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     */
-    void archive(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        getArchiveModel().archive(userId, uniqueId);
-    }
-
 	void confirmReceipt(final JabberId userId, final UUID uniqueId,
             final Long versionId, final JabberId publishedBy,
             final Calendar publishedOn, final List<JabberId> publishedTo,
@@ -291,7 +276,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
                 logInfo("Ignoring archive user {0}.", userId);
             } else {
                 // delete the artifact from the archive
-                getArchiveModel().delete(teamMemberId, uniqueId);
+                getBackupModel().delete(teamMemberId, uniqueId);
 
                 final ArtifactTeamMemberRemovedEvent teamMemberRemoved = 
                     new ArtifactTeamMemberRemovedEvent();
@@ -302,21 +287,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
         } catch (final Throwable t) {
             throw translateError(t);
         }
-    }
-
-	/**
-     * Restore an artifact for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     */
-    void restore(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        getArchiveModel().restore(userId, uniqueId);
     }
 
     /**

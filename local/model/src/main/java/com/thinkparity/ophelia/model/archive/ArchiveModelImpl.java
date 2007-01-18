@@ -90,18 +90,6 @@ public final class ArchiveModelImpl extends AbstractModelImpl implements
         this.defaultVersionFilter = FilterManager.createDefault();
     }
 
-    public void archive(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
-        try {
-            assertArchiveOnline();
-            final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
-            getSessionModel().archiveArtifact(localUserId(), uniqueId);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
     /**
      * @see com.thinkparity.ophelia.model.archive.ArchiveModel#openDocumentVersion(com.thinkparity.ophelia.model.archive.monitor.OpenMonitor, java.util.UUID, java.lang.Long, java.lang.String, java.lang.Long, com.thinkparity.ophelia.model.util.Opener)
      *
@@ -529,17 +517,6 @@ public final class ArchiveModelImpl extends AbstractModelImpl implements
             assertArchiveOnline();
             return getSessionModel().readArchiveTeamIds(localUserId(),
                     uniqueId);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    public void restore(final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        try {
-            assertArchiveOnline();
-            getSessionModel().restoreArtifact(localUserId(), uniqueId);
         } catch (final Throwable t) {
             throw translateError(t);
         }

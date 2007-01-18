@@ -9,13 +9,24 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.sort.DefaultComparator;
+import com.thinkparity.codebase.sort.StringComparator;
+import com.thinkparity.codebase.swing.dnd.TxUtils;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -23,9 +34,11 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.sort.DefaultComparator;
-import com.thinkparity.codebase.sort.StringComparator;
-import com.thinkparity.codebase.swing.dnd.TxUtils;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
+import com.thinkparity.ophelia.model.events.ContainerDraftListener;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
@@ -41,16 +54,12 @@ import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.application.Application;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
 import com.thinkparity.ophelia.browser.util.DocumentUtil;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
-import com.thinkparity.ophelia.model.events.ContainerDraftListener;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
  * @version 1.1.2.4
  */
-public final class ContainerTabModel extends TabPanelModel implements
+public final class ContainerTabModel extends TabPanelModel<Long> implements
         TabAvatarSortByDelegate {
 
     /** A session key for the draft monitor. */
@@ -101,17 +110,36 @@ public final class ContainerTabModel extends TabPanelModel implements
                         }
                     };
                 }
-                public String getText() {
-                    return getString(sortByValue);
-                }
                 public SortDirection getDirection() {
                     return getSortDirection(sortByValue);
+                }
+                public String getText() {
+                    return getString(sortByValue);
                 }
             });
         }
         return sortBy;
     }
    
+    /**
+     * Get the sort direction.
+     * 
+     * @param sortBy
+     *            A <code>SortBy</code>.
+     * @return A <code>SortDirection</code>.        
+     */
+    public SortDirection getSortDirection(final SortBy sortBy) {
+        if (isSortApplied(sortBy)) {
+            if (sortBy.ascending) {
+                return SortDirection.ASCENDING;
+            } else {
+                return SortDirection.DESCENDING;
+            }
+        } else {
+            return SortDirection.NONE;
+        }
+    }
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#toggleExpansion(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.lang.Boolean)
      */
@@ -127,7 +155,19 @@ public final class ContainerTabModel extends TabPanelModel implements
         
         super.toggleExpansion(containerPanel, animate);
     }
-    
+
+    /**
+     * Apply the sort to the filtered list of panels.
+     *
+     */
+    protected void applySort() {
+        final DefaultComparator<TabPanel> comparator = new DefaultComparator<TabPanel>();
+        for (final SortBy sortBy : sortedBy) {
+            comparator.add(sortBy);
+        }
+        Collections.sort(filteredPanels, comparator);
+    }
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#canImportData(java.awt.datatransfer.DataFlavor[])
      * 
@@ -174,7 +214,7 @@ public final class ContainerTabModel extends TabPanelModel implements
         logger.logDebug("Search expression:  {0}", searchExpression);
         logger.logDebug("{0} search result hits.", searchResults.size());
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#importData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.datatransfer.Transferable)
      *
@@ -218,7 +258,7 @@ public final class ContainerTabModel extends TabPanelModel implements
             browser.runCreateContainer(importFiles);
         }
     }
-    
+
     /**
      * Initialize the container model with containers; container versions;
      * documents and users from the provider.
@@ -237,6 +277,34 @@ public final class ContainerTabModel extends TabPanelModel implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupId(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     * 
+     */
+    @Override
+    protected Long lookupId(final TabPanel tabPanel) {
+        return ((ContainerPanel)tabPanel).getContainer().getId();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupPanel(java.lang.Object)
+     * 
+     */
+    @Override
+    protected TabPanel lookupPanel(final Long panelId) {
+        final int panelIndex = lookupIndex(panelId);
+        return -1 == panelIndex ? null : panels.get(panelIndex);
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readSearchResults()
+     *
+     */
+    @Override
+    protected List<Long> readSearchResults() {
+        return ((ContainerProvider) contentProvider).search(searchExpression);
+    }
+
+    /**
      * Obtain the popup delegate.
      * 
      * @return A <code>ContainerTabPopupDelegate</code>.
@@ -244,7 +312,7 @@ public final class ContainerTabModel extends TabPanelModel implements
     ContainerTabPopupDelegate getPopupDelegate() {
         return popupDelegate;
     }
-
+    
     /**
      * Determine if the container has been distributed.
      * 
@@ -279,7 +347,7 @@ public final class ContainerTabModel extends TabPanelModel implements
         if (isExpanded(tabPanel))
             ((ContainerPanel) tabPanel).setDraftSelection();
     }
-    
+
     /**
      * Synchronize the container in the display.
      * 
@@ -327,34 +395,20 @@ public final class ContainerTabModel extends TabPanelModel implements
     void syncDocument(final Long documentId, final Boolean remote) {
         syncContainer(containerIdLookup.get(documentId), remote);
     }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupId(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
-     */
-    @Override
-    protected Object lookupId(final TabPanel tabPanel) {
-        return ((ContainerPanel)tabPanel).getContainer().getId();
-    }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupPanel(java.lang.Object)
+     * Add an application listener. The session draft monitor is
+     * stopped before the application ends.
      */
-    @Override
-    protected TabPanel lookupPanel(final Object uniqueId) {
-        final Long containerId = (Long)uniqueId;
-        final int panelIndex = lookupIndex(containerId); 
-        if (-1 == panelIndex)
-            return null;
-        else
-            return panels.get(panelIndex);
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readSearchResults()
-     */
-    @Override
-    protected List<? extends Object> readSearchResults() {
-        return ((ContainerProvider) contentProvider).search(searchExpression);
+    private void addApplicationListener() {
+        browser.addListener(new ApplicationListener() {
+            public void notifyEnd(Application application) {
+                stopSessionDraftMonitor();
+            }
+            public void notifyHibernate(Application application) {}
+            public void notifyRestore(Application application) {}
+            public void notifyStart(Application application) {}           
+        });
     }
 
     /**
@@ -409,18 +463,6 @@ public final class ContainerTabModel extends TabPanelModel implements
     }
 
     /**
-     * Apply the sort to the filtered list of panels.
-     *
-     */
-    protected void applySort() {
-        final DefaultComparator<TabPanel> comparator = new DefaultComparator<TabPanel>();
-        for (final SortBy sortBy : sortedBy) {
-            comparator.add(sortBy);
-        }
-        Collections.sort(filteredPanels, comparator);
-    }
-
-    /**
      * Apply an ordering to the panels.
      * 
      * @param sortBy
@@ -456,7 +498,7 @@ public final class ContainerTabModel extends TabPanelModel implements
             return false;
         }
     }
-
+    
     /**
      * Extract a list of files from a transferable.
      * 
@@ -497,7 +539,7 @@ public final class ContainerTabModel extends TabPanelModel implements
         sortBy.ascending = persistence.get(sortAscendingKey, false);
         return sortBy;
     }
-
+    
     /**
      * Obtain the session draft monitor.
      * 
@@ -505,40 +547,6 @@ public final class ContainerTabModel extends TabPanelModel implements
      */
     private ContainerDraftMonitor getSessionDraftMonitor() {
         return (ContainerDraftMonitor) session.getAttribute(SK_DRAFT_MONITOR);        
-    }
-    
-    /**
-     * Get the sort direction.
-     * 
-     * @param sortBy
-     *            A <code>SortBy</code>.
-     * @return A <code>SortDirection</code>.        
-     */
-    public SortDirection getSortDirection(final SortBy sortBy) {
-        if (isSortApplied(sortBy)) {
-            if (sortBy.ascending) {
-                return SortDirection.ASCENDING;
-            } else {
-                return SortDirection.DESCENDING;
-            }
-        } else {
-            return SortDirection.NONE;
-        }
-    }
-    
-    /**
-     * Add an application listener. The session draft monitor is
-     * stopped before the application ends.
-     */
-    private void addApplicationListener() {
-        browser.addListener(new ApplicationListener() {
-            public void notifyEnd(Application application) {
-                stopSessionDraftMonitor();
-            }
-            public void notifyHibernate(Application application) {}
-            public void notifyRestore(Application application) {}
-            public void notifyStart(Application application) {}           
-        });
     }
     
     /**
@@ -966,7 +974,7 @@ public final class ContainerTabModel extends TabPanelModel implements
     /** An enumerated type defining the tab panel ordering. */
     private enum SortBy implements Comparator<TabPanel> {
 
-        BOOKMARK(true), CREATED_ON(false), UPDATED_ON(false), OWNER(true), NAME(true);
+        BOOKMARK(true), CREATED_ON(false), NAME(true), OWNER(true), UPDATED_ON(false);
 
         /** An ascending <code>StringComparator</code>. */
         private static final StringComparator STRING_COMPARATOR_ASC;
@@ -992,26 +1000,6 @@ public final class ContainerTabModel extends TabPanelModel implements
             this.ascending = ascending;
         }
         
-        /**
-         * Apply a default ordering.
-         */
-        private int compareDefault(final ContainerPanel p1, final ContainerPanel p2) {
-            return ascending
-                ? STRING_COMPARATOR_ASC.compare(
-                        p1.getContainer().getName(),
-                        p2.getContainer().getName())
-                : STRING_COMPARATOR_DESC.compare(
-                        p1.getContainer().getName(),
-                        p2.getContainer().getName());
-        }
-        
-        /**
-         * Determine if there is a visible draft.
-         */
-        private boolean isVisibleDraft(final ContainerPanel panel) {
-            return (panel.getContainer().isDraft() && panel.getContainer().isLatest());
-        }
-
         /**
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          * 
@@ -1081,6 +1069,26 @@ public final class ContainerTabModel extends TabPanelModel implements
             default:
                 return 0;
             }
+        }
+        
+        /**
+         * Apply a default ordering.
+         */
+        private int compareDefault(final ContainerPanel p1, final ContainerPanel p2) {
+            return ascending
+                ? STRING_COMPARATOR_ASC.compare(
+                        p1.getContainer().getName(),
+                        p2.getContainer().getName())
+                : STRING_COMPARATOR_DESC.compare(
+                        p1.getContainer().getName(),
+                        p2.getContainer().getName());
+        }
+
+        /**
+         * Determine if there is a visible draft.
+         */
+        private boolean isVisibleDraft(final ContainerPanel panel) {
+            return (panel.getContainer().isDraft() && panel.getContainer().isLatest());
         }
     }
 }

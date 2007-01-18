@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
@@ -39,23 +40,15 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            The index of the invitation to show (0 indicates the invitation displayed at top).   
      */
     public void showContactInvitation(final List<Long> invitationIds, final int index) {
-        final List<Object> sortedInvitationIds = model.getCurrentVisibleOrder(invitationIds);
+        final List<ContactPanelId> panelIds = new ArrayList<ContactPanelId>(invitationIds.size());
+        for (final Long invitationId : invitationIds)
+            panelIds.add(new ContactPanelId(invitationId));
+        final List<ContactPanelId> sortedInvitationIds = model.getCurrentVisibleOrder(panelIds);
         if (index < sortedInvitationIds.size()) {
-            final Long invitationId = (Long)sortedInvitationIds.get(index);
-            showContactInvitation(invitationId);
+            showPanel(sortedInvitationIds.get(index));
         }
     }
     
-    /**
-     * Show the contact invitation (scroll so it visible).
-     * 
-     * @param invitationId
-     *            An invitation id <code>Long</code>.
-     */
-    private void showContactInvitation(final Long invitationId) {
-        model.scrollPanelToVisible(invitationId); 
-    }
-
     /**
      * Synchronize the contact in the list, for example if it is deleted.
      * 
@@ -93,5 +86,15 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
     public void syncOutgoingInvitation(final Long invitationId,
             final Boolean remote) {
         model.syncOutgoingInvitation(invitationId, remote);
+    }
+
+    /**
+     * Show the contact panel.
+     * 
+     * @param panelId
+     *            A panel id <code>ContactPanelId</code>.
+     */
+    private void showPanel(final ContactPanelId panelId) {
+        model.scrollPanelToVisible(panelId); 
     }  
 }

@@ -7,10 +7,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 
+import com.thinkparity.ophelia.model.events.ContainerEvent;
+
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.container.ContainerTabDispatcher;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * <b>Title:</b>thinkParity Container Tab Avatar<br>
@@ -259,10 +260,9 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            The index of the container to show (0 indicates the container displayed at top). 
      */
     public void showContainer(final List<Long> containerIds, final int index) {
-        final List<Object> sortedContainerIds = model.getCurrentVisibleOrder(containerIds);
+        final List<Long> sortedContainerIds = model.getCurrentVisibleOrder(containerIds);
         if (index < sortedContainerIds.size()) {
-            final Long containerId = (Long)sortedContainerIds.get(index);
-            showContainer(containerId);
+            showContainer(sortedContainerIds.get(index));
         }
     }
 

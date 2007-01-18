@@ -69,34 +69,6 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
 	}
 
     /**
-     * Archive an artifact.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     */
-    public void archive(final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().archive(userId, uniqueId);
-        }
-    }
-
-    /**
-     * Delete an artifact.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     */
-    public void delete(final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().delete(userId, uniqueId);
-        }
-    }
-
-    /**
      * Open a document version's input stream.
      * 
      * @param userId
@@ -123,20 +95,6 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
     public List<JabberId> readTeamIds(final JabberId userId, final UUID uniqueId) {
         synchronized (getImplLock()) {
             return getImpl().readTeamIds(userId, uniqueId);
-        }
-    }
-
-    /**
-     * Restore an artifact.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     */
-    public void restore(final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().restore(userId, uniqueId);
         }
     }
 

@@ -6,6 +6,7 @@ package com.thinkparity.desdemona.model.backup;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -30,6 +31,20 @@ public class InternalBackupModel extends BackupModel {
      */
     InternalBackupModel(final Context context, final Session session) {
         super(session);
+    }
+
+    /**
+     * Delete an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     */
+    public void delete(final JabberId userId, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            getImpl().delete(userId, uniqueId);
+        }
     }
 
     /**

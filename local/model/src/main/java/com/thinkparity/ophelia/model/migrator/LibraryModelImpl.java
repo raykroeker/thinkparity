@@ -8,7 +8,7 @@ import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.LibraryBytes;
 import com.thinkparity.codebase.model.session.Environment;
 
-import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.LibraryIOHandler;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -19,7 +19,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class LibraryModelImpl extends AbstractModelImpl implements
+public final class LibraryModelImpl extends Model implements
         LibraryModel, InternalLibraryModel {
 
     /** The library xmpp io. */
@@ -102,7 +102,7 @@ public final class LibraryModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
     @Override

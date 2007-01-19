@@ -29,7 +29,7 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.DownloadMonitor;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
@@ -44,7 +44,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author CreateModel.groovy
  * @version 1.1.2.1
  */
-public final class BackupModelImpl extends AbstractModelImpl implements
+public final class BackupModelImpl extends Model implements
         BackupModel, InternalBackupModel {
 
     /** A default artifact comparator. */
@@ -464,7 +464,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
     @Override

@@ -22,7 +22,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEv
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 
-import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContactListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
@@ -45,7 +45,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version 1.1.2.10
  */
-public final class ContactModelImpl extends AbstractModelImpl<ContactListener>
+public final class ContactModelImpl extends Model<ContactListener>
         implements ContactModel, InternalContactModel {
 
     /** The contact db io. */
@@ -112,7 +112,7 @@ public final class ContactModelImpl extends AbstractModelImpl<ContactListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#addListener(com.thinkparity.ophelia.model.util.EventListener)
+     * @see com.thinkparity.ophelia.model.Model#addListener(com.thinkparity.ophelia.model.util.EventListener)
      * 
      */
     @Override
@@ -611,7 +611,7 @@ public final class ContactModelImpl extends AbstractModelImpl<ContactListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#removeListener(com.thinkparity.ophelia.model.util.EventListener)
+     * @see com.thinkparity.ophelia.model.Model#removeListener(com.thinkparity.ophelia.model.util.EventListener)
      * 
      */
     @Override
@@ -637,7 +637,7 @@ public final class ContactModelImpl extends AbstractModelImpl<ContactListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
     @Override

@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.model.session.Environment;
 
-import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.script.engine.EngineFactory;
 import com.thinkparity.ophelia.model.script.engine.EngineFactory.Framework;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -20,7 +20,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author CreateModel.groovy
  * @version 1.1.2.1
  */
-public final class ScriptModelImpl extends AbstractModelImpl implements
+public final class ScriptModelImpl extends Model implements
         ScriptModel, InternalScriptModel {
 
     /**
@@ -53,7 +53,7 @@ public final class ScriptModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
     @Override

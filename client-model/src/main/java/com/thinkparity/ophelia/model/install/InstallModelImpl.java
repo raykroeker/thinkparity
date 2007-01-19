@@ -17,7 +17,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Environment;
 
-import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.ParityErrorTranslator;
 import com.thinkparity.ophelia.model.Constants.Image;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -26,7 +26,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public final class InstallModelImpl extends AbstractModelImpl implements InstallModel {
+public final class InstallModelImpl extends Model implements InstallModel {
 
     /**
      * Create InstallModelImpl.
@@ -99,7 +99,7 @@ public final class InstallModelImpl extends AbstractModelImpl implements Install
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
     @Override

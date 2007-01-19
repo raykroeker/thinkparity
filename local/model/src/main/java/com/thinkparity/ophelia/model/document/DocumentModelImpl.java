@@ -32,7 +32,7 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 
-import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.DownloadMonitor;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.Constants.Compression;
@@ -64,7 +64,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @version $Revision$
  */
 public final class DocumentModelImpl extends
-        AbstractModelImpl<DocumentListener> implements DocumentModel,
+        Model<DocumentListener> implements DocumentModel,
         InternalDocumentModel {
 
     /** A document auditor. */
@@ -105,7 +105,7 @@ public final class DocumentModelImpl extends
 	}
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#addListener(com.thinkparity.codebase.event.EventListener)
+     * @see com.thinkparity.ophelia.model.Model#addListener(com.thinkparity.codebase.event.EventListener)
      *
 	 */
     @Override
@@ -743,7 +743,7 @@ public final class DocumentModelImpl extends
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#removeListener(com.thinkparity.ophelia.model.util.EventListener)
+     * @see com.thinkparity.ophelia.model.Model#removeListener(com.thinkparity.ophelia.model.util.EventListener)
      */
     @Override
     public void removeListener(final DocumentListener listener) {
@@ -815,7 +815,7 @@ public final class DocumentModelImpl extends
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
     @Override

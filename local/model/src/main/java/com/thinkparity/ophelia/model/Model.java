@@ -12,6 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
+import java.util.Vector;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -72,15 +73,15 @@ import com.thinkparity.ophelia.model.workspace.Preferences;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
- * <b>Title:</b>thinkParity Abstract Model<br>
+ * <b>Title:</b>thinkParity Model<br>
  * <b>Description:</b><br>
  * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.39
+ * @version 1.1.2.40
  * @param <T>
  */
-public abstract class AbstractModelImpl<T extends EventListener>
-    extends com.thinkparity.codebase.model.AbstractModelImpl {
+public abstract class Model<T extends EventListener> extends
+        com.thinkparity.codebase.model.AbstractModelImpl {
 
     /**
 	 * Assertion message to be displayed if the username is not set in the
@@ -136,17 +137,21 @@ public abstract class AbstractModelImpl<T extends EventListener>
     /** A quick-lookup for the local user id. */
     private JabberId localUserId;
 
+    /** A list of all pending <code>EventNotifier</code>s of <code>T</code>. */
+    private final List<EventNotifier<T>> notifiers;
+
     /** The secret key spec. */
     private transient SecretKeySpec secretKeySpec;
 
     /**
-     * Create an AbstractModelImpl
+     * Create an Model
      * 
      */
-	protected AbstractModelImpl() {
+	protected Model() {
 		super();
         this.l18n = new Localization(LocalizationContext.MODEL);
         this.logger = new Log4JWrapper(getClass());
+        this.notifiers = new Vector<EventNotifier<T>>(3);
 	}
 
     /**
@@ -179,7 +184,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
                 assertArguments);
     }
 
-    /**
+	/**
      * Assert a draft doesn't exist for the container.
      * 
      * @param containerId
@@ -190,7 +195,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
                 "Draft for container {0} already exists.", containerId);
     }
 
-	/**
+    /**
      * Assert a draft exists for the container.
      * 
      * @param assertion
@@ -216,7 +221,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, doesExistLatestVersion(artifactId));
     }
 
-    /**
+	/**
      * Assert that a version exists.
      * 
      * @param assertion
@@ -232,7 +237,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, doesExistVersion(artifactId, versionId));
     }
 
-	/**
+    /**
      * Assert that the list of team members does not contain the user.
      * 
      * 
@@ -261,7 +266,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, isClosed(artifact));
     }
 
-    /**
+	/**
      * Assert the user is the key holder. An assertion that the user is online
      * is also made.
      * 
@@ -276,7 +281,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, isKeyHolder(artifactId));
     }
 
-	/**
+    /**
      * Assert that the logged in user is not the key holder.
      * 
      * @param assertion
@@ -322,7 +327,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertNotTrue("USER IS ONLINE", isOnline());
     }
 
-    /**
+	/**
      * Assert that the reference is not null.
      * 
      * @param assertion
@@ -351,7 +356,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
             Assert.assertNotTrue(assertion, contains(team, user));
     }
 
-	/**
+    /**
      * Assert the user is online.
      *
      */
@@ -369,11 +374,11 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, isOnline());
     }
 
-    protected void assertOnline(final StringBuffer api) {
+	protected void assertOnline(final StringBuffer api) {
         assertOnline(api.toString());
     }
 
-	/**
+    /**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.
 	 * 
@@ -720,7 +725,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return modelFactory.getDocumentModel();
 	}
 
-    /**
+	/**
      * Obtain an internal index model.
      * 
      * @return An instance of <code>InternalIndexModel</code>.
@@ -729,7 +734,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return modelFactory.getIndexModel();
     }
 
-	/**
+    /**
 	 * Obtain the model's localization.
 	 * 
 	 * @return The model's localization.
@@ -948,21 +953,36 @@ public abstract class AbstractModelImpl<T extends EventListener>
 
     /**
      * Notify all event listeners.
+     *
+     */
+    protected void notifyListeners() {
+        final Context context = new Context();
+        final List<T> listeners = InternalWorkspaceModel.getInstance(context,
+                environment).getListeners(workspace, this);
+        try {
+            for (final EventNotifier<T> notifier : notifiers) {
+                for (final T listener : listeners) {
+                    try {
+                        notifier.notifyListener(listener);
+                    } catch (final Throwable t) {
+                        logger.logError(t, "Event notification {0}:{1} failed.",
+                            notifier, listener);
+                    }
+                }
+            }
+        } finally {
+            notifiers.clear();
+        }
+    }
+
+    /**
+     * Notify all event listeners.
      * 
      * @param notifier
      *            A thinkParity <code>EventNotifier</code>.
      */
     protected void notifyListeners(final EventNotifier<T> notifier) {
-        final Context context = new Context();
-        final List<T> listeners = InternalWorkspaceModel.getInstance(context,
-                environment).getListeners(workspace, this);
-        for (final T listener : listeners) {
-            try {
-                notifier.notifyListener(listener);
-            } catch (final Throwable t) {
-                logger.logError(t, "Event listener {0} failed.", listener);
-            }
-        }
+        notifiers.add(notifier);
     }
 
     /**

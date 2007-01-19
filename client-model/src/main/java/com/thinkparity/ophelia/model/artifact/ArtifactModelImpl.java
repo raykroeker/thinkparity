@@ -29,7 +29,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
 
-import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
@@ -46,7 +46,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version 1.1.2.26
  */
-public final class ArtifactModelImpl extends AbstractModelImpl implements
+public final class ArtifactModelImpl extends Model implements
         ArtifactModel, InternalArtifactModel {
 
     /** Artifact persistance io. */
@@ -733,7 +733,7 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
     @Override

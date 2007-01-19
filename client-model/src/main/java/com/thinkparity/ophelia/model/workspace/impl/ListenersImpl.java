@@ -11,7 +11,7 @@ import java.util.Map;
 
 import com.thinkparity.codebase.event.EventListener;
 
-import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.Model;
 
 
 /**
@@ -20,7 +20,7 @@ import com.thinkparity.ophelia.model.AbstractModelImpl;
  */
 class ListenersImpl {
 
-    private final Map<Class<? extends AbstractModelImpl>, List<EventListener>> listeners;
+    private final Map<Class<? extends Model>, List<EventListener>> listeners;
 
     /**
      * Create ListenersImpl.
@@ -30,7 +30,7 @@ class ListenersImpl {
      */
     ListenersImpl(final WorkspaceImpl workspace) {
         super();
-        this.listeners = new HashMap<Class<? extends AbstractModelImpl>, List<EventListener>>();
+        this.listeners = new HashMap<Class<? extends Model>, List<EventListener>>();
     }
 
     /**
@@ -44,7 +44,7 @@ class ListenersImpl {
      *            A thinkParity event listener.
      * @return Whether or not the listeners list was modified.
      */
-    <T extends EventListener> boolean add(final AbstractModelImpl impl,
+    <T extends EventListener> boolean add(final Model impl,
             final T listener) {
         final List<EventListener> listeners;
         if (this.listeners.containsKey(impl.getClass())) {
@@ -65,7 +65,7 @@ class ListenersImpl {
      * @return A list of event listeners.
      */
     @SuppressWarnings("unchecked")
-    <T extends EventListener> List<T> get(final AbstractModelImpl impl) {
+    <T extends EventListener> List<T> get(final Model impl) {
         final List<T> listeners;
         if (this.listeners.containsKey(impl.getClass())) {
             listeners = new ArrayList<T>();
@@ -87,7 +87,7 @@ class ListenersImpl {
      *            A thinkParity event listener.
      * @return Whether or not the listeners list was modified.
      */
-    <T extends EventListener> boolean remove(final AbstractModelImpl impl,
+    <T extends EventListener> boolean remove(final Model impl,
             final T listener) {
         final List<EventListener> listeners;
         if (this.listeners.containsKey(impl.getClass())) {

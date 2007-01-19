@@ -44,8 +44,8 @@ final class ModelInvocationHandler implements InvocationHandler {
         LOGGER = new Log4JWrapper(ModelInvocationHandler.class);
     }
 
-    /** The target <code>Object</code>. */
-    private final Object obj;
+    /** The target <code>Model</code>. */
+    private final Model model;
 
     /** A thinkParity <code>Workspace</code>. */
     private final Workspace workspace;
@@ -54,10 +54,10 @@ final class ModelInvocationHandler implements InvocationHandler {
      * Create ModelInvocationHandler.
      *
      */
-    ModelInvocationHandler(final Workspace workspace, final Object obj) {
+    ModelInvocationHandler(final Workspace workspace, final Model model) {
         super();
         this.workspace = workspace;
-        this.obj = obj;
+        this.model = model;
     }
 
     /**
@@ -67,13 +67,15 @@ final class ModelInvocationHandler implements InvocationHandler {
     public Object invoke(final Object proxy, final Method method,
             final Object[] args) throws Throwable {
         LOGGER.logTrace("Invoking method {0} on {1} in workspace {2}.", method,
-                obj, workspace);
+                model, workspace);
         synchronized (workspace) {
             final Transaction transaction = workspace.lookupTransaction();
             final TransactionContext transactionContext = newTransactionContext(method);
             beginTransaction(transaction, transactionContext);
             try {
-                return method.invoke(obj, args);
+                final Object result = method.invoke(model, args);
+                model.notifyListeners();
+                return result;
             } catch (final InvocationTargetException itx) {
                 rollbackTransaction(transaction, transactionContext);
                 throw itx.getTargetException();

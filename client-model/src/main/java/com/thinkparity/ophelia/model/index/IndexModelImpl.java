@@ -12,7 +12,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.session.Environment;
 
-import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.index.contact.ContactIndexImpl;
 import com.thinkparity.ophelia.model.index.container.ContainerIndexImpl;
 import com.thinkparity.ophelia.model.index.document.DocumentIndexEntry;
@@ -27,7 +27,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * 
  * TODO Include the index within the transaction.
  */
-public final class IndexModelImpl extends AbstractModelImpl implements
+public final class IndexModelImpl extends Model implements
         IndexModel, InternalIndexModel {
 
     /** A contact index implementation. */
@@ -203,7 +203,7 @@ public final class IndexModelImpl extends AbstractModelImpl implements
 	}
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
     @Override

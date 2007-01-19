@@ -10,7 +10,7 @@ import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.session.Environment;
 
-import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.Model;
 
 /**
  * <b>Title:</b>thinkParity Internal Workspace Model<br>
@@ -56,7 +56,7 @@ public final class InternalWorkspaceModel extends WorkspaceModel {
      *            A thinkParity event listener.
      */
     public <T extends EventListener> boolean addListener(
-            final Workspace workspace, final AbstractModelImpl impl,
+            final Workspace workspace, final Model impl,
             final T listener) {
         return findImpl(workspace).addListener(impl, listener);
     }
@@ -69,7 +69,7 @@ public final class InternalWorkspaceModel extends WorkspaceModel {
      * @return A list of typed thinkParity event listeners.
      */
     public <T extends EventListener> List<T> getListeners(
-            final Workspace workspace, final AbstractModelImpl<T> impl) {
+            final Workspace workspace, final Model<T> impl) {
         return findImpl(workspace).getListeners(workspace, impl);
     }
 
@@ -82,7 +82,7 @@ public final class InternalWorkspaceModel extends WorkspaceModel {
      *            A thinkParity event listener.
      */
     public <T extends EventListener> boolean removeListener(
-            final Workspace workspace, final AbstractModelImpl impl,
+            final Workspace workspace, final Model impl,
             final T listener) {
         return findImpl(workspace).removeListener(impl, listener);
     }

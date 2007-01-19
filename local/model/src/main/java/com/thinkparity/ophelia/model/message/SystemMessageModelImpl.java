@@ -5,14 +5,14 @@ package com.thinkparity.ophelia.model.message;
 
 import com.thinkparity.codebase.model.session.Environment;
 
-import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class SystemMessageModelImpl extends AbstractModelImpl {
+class SystemMessageModelImpl extends Model {
 
 	/**
      * Create SystemMessageModelImpl.
@@ -23,7 +23,7 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 	}
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
     @Override

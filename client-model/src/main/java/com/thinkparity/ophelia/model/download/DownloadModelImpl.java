@@ -12,7 +12,7 @@ import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Environment;
 
-import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.download.helper.DownloadHelper;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -23,7 +23,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public final class DownloadModelImpl extends AbstractModelImpl implements
+public final class DownloadModelImpl extends Model implements
         DownloadModel, InternalDownloadModel {
 
     /**
@@ -100,7 +100,7 @@ public final class DownloadModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
     @Override

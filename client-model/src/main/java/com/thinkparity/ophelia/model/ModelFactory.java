@@ -77,13 +77,12 @@ public final class ModelFactory {
             final Workspace workspace, final ClassLoader classLoader,
             final Class<?> modelInterface, final Class<?> modelImplementation) {
         try {
-            final AbstractModelImpl modelImplementationInstance =
-                (AbstractModelImpl) modelImplementation.newInstance();
-            modelImplementationInstance.initialize(environment, workspace);
-            modelImplementationInstance.initializeModel(environment, workspace);
+            final Model modelInstance = (Model) modelImplementation.newInstance();
+            modelInstance.initialize(environment, workspace);
+            modelInstance.initializeModel(environment, workspace);
             return Proxy.newProxyInstance(classLoader,
                     new Class<?>[] { modelInterface },
-                    new ModelInvocationHandler(workspace, modelImplementationInstance));
+                    new ModelInvocationHandler(workspace, modelInstance));
         } catch (final Exception x) {
             throw new ParityUncheckedException("Cannot instantiate model.", x);
         }

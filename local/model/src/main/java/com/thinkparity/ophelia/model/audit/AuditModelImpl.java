@@ -10,7 +10,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.audit.event.AddTeamMemberConfirmEvent;
 import com.thinkparity.ophelia.model.audit.event.AddTeamMemberEvent;
@@ -42,7 +42,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version 1.1.2.7
  */
-public final class AuditModelImpl extends AbstractModelImpl implements
+public final class AuditModelImpl extends Model implements
         AuditModel, InternalAuditModel {
 
 	private AuditIOHandler auditIO;
@@ -226,7 +226,7 @@ public final class AuditModelImpl extends AbstractModelImpl implements
 	}
 
     /**
-     * @see com.thinkparity.ophelia.model.AbstractModelImpl#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
     @Override

@@ -29,7 +29,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.util.jta.Transaction;
 
-import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.Constants.FileNames;
 import com.thinkparity.ophelia.model.Constants.Files;
@@ -94,7 +94,7 @@ public class WorkspaceImpl implements Workspace {
      *            A thinkParity event listener.
      */
     public <T extends EventListener> boolean addListener(
-            final AbstractModelImpl impl, final T listener) {
+            final Model impl, final T listener) {
         return listenersImpl.add(impl, listener);
     }
 
@@ -225,7 +225,7 @@ public class WorkspaceImpl implements Workspace {
      * @return A list of typed thinkParity event listeners.
      */
     public <T extends EventListener> List<T> getListeners(final Workspace workspace,
-            final AbstractModelImpl<T> impl) {
+            final Model<T> impl) {
         return listenersImpl.get(impl);
     }
 
@@ -348,7 +348,7 @@ public class WorkspaceImpl implements Workspace {
      *            A thinkParity event listener.
      */
     public <T extends EventListener> boolean removeListener(
-            final AbstractModelImpl impl, final T listener) {
+            final Model impl, final T listener) {
         return listenersImpl.remove(impl, listener);
     }
 

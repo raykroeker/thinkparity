@@ -166,22 +166,23 @@ public class Browser extends AbstractApplication {
      */
 	public void applySearch(final String expression) {
 	    final Data data = new Data(1);
-	    if (null != expression)
+	    if (null != expression) {
 	        data.set(TabListAvatar.DataKey.SEARCH_EXPRESSION, expression);
+        }
+	    setInput(AvatarId.TAB_ARCHIVE, data);
+	    setInput(AvatarId.TAB_CONTACT, data);
+	    setInput(AvatarId.TAB_CONTAINER, data);
         switch(getMainTitleAvatarTab()) {
         case ARCHIVE:
-            setInput(AvatarId.TAB_ARCHIVE, data);
             break;
         case CONTACT:
-            setInput(AvatarId.TAB_CONTACT, data);
             runDisplayContactInvitationInfo(expression);
             break;
         case CONTAINER:
-            setInput(AvatarId.TAB_CONTAINER, data);
             runDisplayContainerSeenFlagInfo(expression);
             break;
         default:
-            Assert.assertUnreachable("UNKNOWN TAB");
+            Assert.assertUnreachable("Unknown main title tab id.");
         }
 	}
 
@@ -235,13 +236,37 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Display the archive tab avatar.
+     *
+     */
+    public void displayArchiveTabAvatar() {
+        displayTab(AvatarId.TAB_ARCHIVE);
+    }
+
+    /**
      * Display the invite dialogue.
      *
      */   
     public void displayContactCreateInvitation() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTACT_CREATE_OUTGOING_INVITATION);
     }
+    
+    /**
+     * Display the contact tab avatar.
+     *
+     */
+    public void displayContactTabAvatar() {
+        displayTab(AvatarId.TAB_CONTACT);
+    }
 
+    /**
+     * Display the container tab avatar.
+     *
+     */
+    public void displayContainerTabAvatar() {
+        displayTab(AvatarId.TAB_CONTAINER);
+    }
+        
     /**
      * Display the container version comment dialog.
      * 
@@ -271,7 +296,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_CREATE);
     }
-
+    
     /**
      * Display the "new container" dialog (to create new packages).
      * If the user presses OK, runCreateContainer() is called and
@@ -290,7 +315,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_CREATE);
     }
-        
+
     /**
      * Display the edit profile dialog.
      *
@@ -321,7 +346,7 @@ public class Browser extends AbstractApplication {
             final Object[] errorMessageArguments) {
         displayErrorDialog(errorMessageKey, errorMessageArguments, null);
     }
-
+    
     /**
      * Display an error dialog
      * 
@@ -343,7 +368,7 @@ public class Browser extends AbstractApplication {
             input.set(ErrorAvatar.DataKey.ERROR, error);
         open(WindowId.ERROR, AvatarId.DIALOG_ERROR, input);
     }
-    
+
     /**
      * Display an error dialog.
      * 
@@ -379,7 +404,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
-
+    
     /**
      * Display the "publish container" dialog for a version.
      * If the user presses OK, the CONTAINER_PUBLISH_VERSION action is invoked.
@@ -401,7 +426,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
-    
+
     /**
      * Display the contact info dialogue.
      *
@@ -414,7 +439,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTACT_READ, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTACT_READ);        
     }
-    
+
     /**
      * Display a container rename dialog.
      * 
@@ -431,7 +456,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_RENAME, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_RENAME);
     }
-    
+
     /**
      * Display a document rename dialog.
      * 
@@ -451,37 +476,13 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT);
     }
-
+    
     /**
      * Display the update profile dialog.
      *
      */
     public void displayResetProfilePasswordDialog() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_RESET_PASSWORD);
-    }
-
-    /**
-     * Display the archive tab avatar.
-     *
-     */
-    public void displayArchiveTabAvatar() {
-        displayTab(AvatarId.TAB_ARCHIVE);
-    }
-
-    /**
-     * Display the contact tab avatar.
-     *
-     */
-    public void displayContactTabAvatar() {
-        displayTab(AvatarId.TAB_CONTACT);
-    }
-    
-    /**
-     * Display the container tab avatar.
-     *
-     */
-    public void displayContainerTabAvatar() {
-        displayTab(AvatarId.TAB_CONTAINER);
     }
 
     /** Display a tab list extension. */
@@ -596,6 +597,17 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Handle the container restored event.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void fireContainerRestored(final ContainerEvent e) {
+        if (!e.getContainer().isSeen())
+            runApplyContainerFlagSeen(e.getContainer().getId());
+    }
+    
+    /**
      * Notify the browser that a document draft has been updated (ie. documents changed)
      * 
      * @param documentId
@@ -604,7 +616,7 @@ public class Browser extends AbstractApplication {
     public void fireDocumentDraftUpdated(final Long documentId) {
         syncDocumentTabContainer(documentId, Boolean.FALSE);
     }
-    
+
     /**
      * Notify the application that a document has in some way been updated.
      *
@@ -819,7 +831,7 @@ public class Browser extends AbstractApplication {
         return getPlatform().getLogger(clasz);
     }
 
-    /**
+	/**
 	 * Obtain the platform.
 	 * 
 	 * @return The platform the application is running on.
@@ -868,7 +880,7 @@ public class Browser extends AbstractApplication {
         return getPlatform().getTimeZone();
     }
 
-	/**
+    /**
 	 * Close the main window.
 	 *
 	 */
@@ -886,7 +898,7 @@ public class Browser extends AbstractApplication {
         setStatus(ApplicationStatus.HIBERNATING);
 		notifyHibernate();
 	}
-
+    
     /**
      * Initialize the status message.
      */
@@ -894,17 +906,17 @@ public class Browser extends AbstractApplication {
         runDisplayContainerSeenFlagInfo();
         runDisplayContactInvitationInfo();
     }
-    
+
     public Boolean isBrowserWindowMaximized() {
         return JFrame.MAXIMIZED_BOTH == mainWindow.getExtendedState();
     }
-
+    
     /** @see com.thinkparity.ophelia.browser.platform.application.Application#isDevelopmentMode() */
     public Boolean isDevelopmentMode() { 
         return getPlatform().isDevelopmentMode();
     }
-    
-    /**
+
+	/**
      * Maximize (or un-maximize) the browser application.
      */
     public void maximize() {
@@ -917,8 +929,8 @@ public class Browser extends AbstractApplication {
 	public void minimize() {
 		if(!isBrowserWindowMinimized()) { mainWindow.setExtendedState(JFrame.ICONIFIED); }
 	}
-
-	/**
+    
+    /**
      * Move and resize the browser window.
      * (See moveBrowserWindow, resizeBrowserWindow)
      *
@@ -950,14 +962,14 @@ public class Browser extends AbstractApplication {
 		newL.y += l.y;
 		mainWindow.setLocation(newL);
 	}
-    
-    /**
+
+	/**
      * Call <code>toFront()</code> on the browser's main window.
      *
      */
     public void moveToFront() { mainWindow.toFront(); }
 
-	/**
+    /**
      * Resize the browser window.
      * 
      * @param s
@@ -985,7 +997,7 @@ public class Browser extends AbstractApplication {
         assertStatusChange(ApplicationStatus.RUNNING);
         setStatus(ApplicationStatus.RUNNING);
 	}
-
+    
     /**
 	 * @see com.thinkparity.ophelia.browser.platform.Saveable#restoreState(com.thinkparity.ophelia.browser.platform.util.State)
 	 * 
@@ -1003,8 +1015,8 @@ public class Browser extends AbstractApplication {
 		data.set(AcceptIncomingInvitation.DataKey.INVITATION_ID, invitationId);
 		invoke(ActionId.CONTACT_ACCEPT_INCOMING_INVITATION, data);
 	}
-    
-    /**
+  
+	/**
      * Run the add bookmark action.
      * 
      * @param containerId
@@ -1015,8 +1027,8 @@ public class Browser extends AbstractApplication {
         data.set(AddBookmark.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_ADD_BOOKMARK, data);
     }
-  
-	/**
+
+    /**
      * Run the create document action, browse to select the document.
      * 
      * @param containerId
@@ -1109,7 +1121,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer() {
         runCreateContainer(null, null);
     }
-
+    
     /**
      * Create a container (package) with one or more new documents.
      * The user will determine the container name.
@@ -1120,7 +1132,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer(final List<File> files) {
         runCreateContainer(null, files);
     }
-    
+
     /**
      * Create a container (package) with a specified name.
      * 
@@ -1130,7 +1142,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer(final String name) {
         runCreateContainer(name, null);
     }
-
+    
     /**
      * Run the create container action. If name and files are both not set; a
      * dialog will be used to prompt the user.
@@ -1148,7 +1160,7 @@ public class Browser extends AbstractApplication {
             data.set(Create.DataKey.FILES, files);
         invoke(ActionId.CONTAINER_CREATE, data);
     }
-    
+
     /**
      * Create a draft for the container.
      * 
@@ -1171,8 +1183,8 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(DeclineIncomingInvitation.DataKey.INVITATION_ID, invitationId);
         invoke(ActionId.CONTACT_DECLINE_INCOMING_INVITATION, data);
-    }
-
+    }    
+    
     /**
      * Run the delete contact action.
      * 
@@ -1184,7 +1196,7 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(Delete.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_DELETE, data);        
-    }    
+    }
     
     /**
      * Delete the draft for the container.
@@ -1356,7 +1368,7 @@ public class Browser extends AbstractApplication {
         data.set(Read.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_READ, data);
     }
-    
+
     /**
      * Run the read container version action.
      * 
@@ -1373,7 +1385,7 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.CONTAINER_READ_VERSION, data);
     }
 
-    /**
+	/**
      * Run the remove bookmark action.
      * 
      * @param containerId
@@ -1385,7 +1397,7 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.CONTAINER_REMOVE_BOOKMARK, data);
     }
 
-	/**
+    /**
      * Run the remove flag seen action.
      * 
      * @param documentId
@@ -1396,7 +1408,7 @@ public class Browser extends AbstractApplication {
         data.set(RemoveFlagSeen.DataKey.ARTIFACT_ID, containerId);
         invoke(ActionId.ARTIFACT_REMOVE_FLAG_SEEN, data);         
     }
-
+    
     /**
      * Run the profile's remove email action.
      *
@@ -1406,7 +1418,7 @@ public class Browser extends AbstractApplication {
         data.set(RemoveEmail.DataKey.EMAIL_ID, emailId);
         invoke(ActionId.PROFILE_REMOVE_EMAIL, data);
     }
-    
+
     /**
      * Run the container rename action.
      * 
@@ -1467,7 +1479,7 @@ public class Browser extends AbstractApplication {
         }
         invoke(ActionId.PROFILE_RESET_PASSWORD, data);
     }
-
+    
     /**
      * Update the document with the file.
      * 
@@ -1523,7 +1535,7 @@ public class Browser extends AbstractApplication {
             data.set(Update.DataKey.TITLE, title);
         invoke(ActionId.PROFILE_UPDATE, data);
     }
-    
+
     /**
      * Update the user's profile.
      * 
@@ -1572,7 +1584,7 @@ public class Browser extends AbstractApplication {
         }
         invoke(ActionId.PROFILE_VERIFY_EMAIL, data);
     }
-
+        
     /*
      *
 
@@ -1582,8 +1594,8 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	public void saveState(final State state) {}
-        
-    /**
+
+	/**
      * Select a tab. This displays the tab and also causes the
      * tab buttons to update.
      */
@@ -1592,8 +1604,8 @@ public class Browser extends AbstractApplication {
         data.set(MainTitleAvatar.DataKey.TAB_ID, tabId);
         getMainTitleAvatar().setInput(data); 
     }
-
-	/**
+        
+    /**
      * Set the cursor.
      * 
      * @param cursor
@@ -1602,7 +1614,7 @@ public class Browser extends AbstractApplication {
     public void setCursor(Cursor cursor) {
         SwingUtil.setCursor(mainWindow.getContentPane(), cursor);
     }
-        
+    
     /**
      * Set a custom status message with a link.
      * 
@@ -1628,7 +1640,7 @@ public class Browser extends AbstractApplication {
             }
         });   
     }
-    
+
     /**
      * Show the container.
      * 
@@ -1668,11 +1680,11 @@ public class Browser extends AbstractApplication {
         setStatus(ApplicationStatus.RUNNING);
 		notifyStart();
 	}
-
+    
     public void toggleStatusImage() {
         ((com.thinkparity.ophelia.browser.application.browser.display.StatusDisplay) mainWindow.getDisplay(DisplayId.STATUS)).toggleImage();
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getAvatar(com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId)
      */
@@ -1726,7 +1738,7 @@ public class Browser extends AbstractApplication {
         connection = Connection.ONLINE;
         setStatus(connection);
     }
-
+    
     /**
 	 * Obtain the input for an avatar.
 	 * 
@@ -1737,7 +1749,7 @@ public class Browser extends AbstractApplication {
 	Object getAvatarInput(final AvatarId id) {
 		return avatarInputMap.get(id);
 	}
-    
+
     /**
      * Clear the custom status message.
      * 
@@ -1745,7 +1757,7 @@ public class Browser extends AbstractApplication {
     private void clearStatus() {
         setStatus("Empty");
     }
-
+    
     /**
      * Open a confirmation dialogue.
      * 
@@ -1786,7 +1798,7 @@ public class Browser extends AbstractApplication {
 			public void run() { window.open(avatar); }
 		});
 	}
-    
+
     /**
      * Display an avatar on the status display.
      * 
@@ -1827,7 +1839,7 @@ public class Browser extends AbstractApplication {
         displayHelper.displayTab(tabPanelExtension);
     }
 
-    /**
+	/**
      * Display an avatar on the title display.
      * 
      * @param id
@@ -1837,7 +1849,7 @@ public class Browser extends AbstractApplication {
         displayHelper.displayTitle(id);
     }
 
-	/** Dispose the main window. */
+    /** Dispose the main window. */
     private void disposeBrowserWindow() {
         Assert.assertNotNull(mainWindow, "Main window is null.");
         mainWindow.dispose();
@@ -1860,17 +1872,6 @@ public class Browser extends AbstractApplication {
             return ActionFactory.create(id);
         }
 	}
-
-    /**
-     * Handle the container restored event.
-     * 
-     * @param e
-     *            A <code>ContainerEvent</code>.
-     */
-    public void fireContainerRestored(final ContainerEvent e) {
-        if (!e.getContainer().isSeen())
-            runApplyContainerFlagSeen(e.getContainer().getId());
-    }
 
     /**
      * Obtain the confirmation avatar.

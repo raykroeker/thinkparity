@@ -221,8 +221,11 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
             TabPanel searchResultPanel;
             for (final T searchResult : searchResults) {
                 searchResultPanel = lookupPanel(searchResult);
-                if (!filteredPanels.contains(searchResultPanel))
-                    filteredPanels.add(searchResultPanel);
+                /* NOTE if the search result panel is null something has
+                 * happened to bump the panel out of this tab */ 
+                if (null != searchResultPanel)
+                    if (!filteredPanels.contains(searchResultPanel))
+                        filteredPanels.add(searchResultPanel);
             }
         } else {
             // no filter is applied

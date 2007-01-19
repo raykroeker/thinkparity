@@ -1534,9 +1534,39 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *            A local document id <code>Long</code> relative to readAs.
      * @return A <code>DocumentVersion</code>.
      */
+    protected DocumentVersion readDocumentEarliestVersion(
+            final OpheliaTestUser readAs, final Long localDocumentId) {
+        return getDocumentModel(readAs).readEarliestVersion(localDocumentId);
+    }
+
+    /**
+     * Read a document version.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @param localDocumentId
+     *            A local document id <code>Long</code> relative to readAs.
+     * @return A <code>DocumentVersion</code>.
+     */
     protected DocumentVersion readDocumentLatestVersion(
             final OpheliaTestUser readAs, final Long localDocumentId) {
         return getDocumentModel(readAs).readLatestVersion(localDocumentId);
+    }
+
+    /**
+     * Read a document version.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @param localDocumentId
+     *            A local document id <code>Long</code> relative to readAs.
+     * @param versionId
+     *            A document version id <code>Long</code>.
+     * @return A <code>DocumentVersion</code>.
+     */
+    protected DocumentVersion readDocumentVersion(final OpheliaTestUser readAs,
+            final Long localDocumentId, final Long versionId) {
+        return getDocumentModel(readAs).readVersion(localDocumentId, versionId);
     }
 
     protected Map<User, ArtifactReceipt> readPublishedTo(
@@ -1584,6 +1614,19 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             teamIds.add(teamMember.getId());
         }
         return teamIds;
+    }
+
+    /**
+     * Read a user.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>User</code>.
+     */
+    protected User readUser(final OpheliaTestUser readAs, final JabberId userId) {
+        return getUserModel(readAs).read(userId);
     }
 
     protected void removeContainerListener(final OpheliaTestUser removeAs,

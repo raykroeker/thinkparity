@@ -60,6 +60,7 @@ public class Publish extends AbstractAction {
         final ContainerModel containerModel = getContainerModel();
         
         // Check there are documents with changes to publish.
+        Boolean publishableDocuments = Boolean.FALSE;
         Boolean changes = Boolean.FALSE;
         List<Document> documents = Collections.emptyList();
         final Container container = containerModel.read(containerId);
@@ -71,10 +72,14 @@ public class Publish extends AbstractAction {
                     switch (draft.getState(document)) {
                     case ADDED:
                     case MODIFIED:
+                        changes = Boolean.TRUE;
+                        publishableDocuments = Boolean.TRUE;
+                        break;
                     case REMOVED:
                         changes = Boolean.TRUE;
                         break;
                     case NONE:
+                        publishableDocuments = Boolean.TRUE;
                         break;
                     default:
                         throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
@@ -83,7 +88,7 @@ public class Publish extends AbstractAction {
             }
         }       
         
-        if (documents.isEmpty()) {
+        if (!publishableDocuments) {
             browser.displayErrorDialog("ErrorNoDocumentToPublish",
                     new Object[] {container.getName()});
         } else if (!changes) {

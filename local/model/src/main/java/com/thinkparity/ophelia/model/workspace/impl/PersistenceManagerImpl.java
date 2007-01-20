@@ -6,9 +6,8 @@ package com.thinkparity.ophelia.model.workspace.impl;
 import java.io.File;
 import java.util.List;
 
-import javax.naming.NamingException;
+import javax.sql.DataSource;
 
-import com.thinkparity.codebase.JNDIUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -50,14 +49,8 @@ class PersistenceManagerImpl {
     /** The data source driver url. */
     private final String dsDriverURL;
 
-    /** The data source jndi name. */
-    private final String dsName;
-
     /** An apache logger. */
     private final Log4JWrapper logger;
-
-    /** A jndi naming prefix <code>String</code>. */
-    private final String namingPrefix;
 
     /** A persistence <code>SessionManager</code>. */
     private SessionManager sessionManager;
@@ -89,30 +82,24 @@ class PersistenceManagerImpl {
             .append("TRUE")
             .toString();
         this.logger = new Log4JWrapper();
-        this.namingPrefix = new StringBuffer("java:comp/thinkParity/")
-            .append(workspace.getName())
-            .toString();
-        this.dsName = new StringBuffer(namingPrefix).append("/jdbc/DataSource")
-                .toString();
     }
 
     /**
-     * Obtain the data source name.
+     * Obtain the data source.
      * 
-     * @return The name of the datasource.
+     * @return The <code>DataSource</code>.
      */
-    String getDataSourceName() {
-        return dsName;
+    DataSource getDataSource() {
+        return dataSource;
     }
 
     /**
-     * Lookup a transaction.
+     * Obtain a transaction.
      * 
      * @return A <code>Transaction</code>.
-     * @throws NamingException
      */
-    Transaction lookupTransaction() throws NamingException {
-        return transactionManager.lookup();
+    Transaction getTransaction() {
+        return transactionManager.getTransaction();
     }
 
     /**
@@ -121,11 +108,8 @@ class PersistenceManagerImpl {
      */
     void start() {
         try {
-            final String txName = new StringBuffer(namingPrefix)
-                .append("/tx/UserTransaction")
-                .toString();
             // create transaction manager
-            transactionManager = TransactionManager.getInstance(txName);
+            transactionManager = TransactionManager.getInstance();
             transactionManager.start();
             // create datasource
             dataSource = new StandardXADataSource(); 
@@ -135,7 +119,6 @@ class PersistenceManagerImpl {
             dataSource.setUser(DS_USER);
             // bind the transaction manager to the data source
             transactionManager.bind(dataSource);
-            JNDIUtil.rebind(dsName, dataSource);
             sessionManager = new SessionManager(dataSource);
             new PersistenceMigrator(sessionManager).migrate();
         } catch (final Throwable t) {

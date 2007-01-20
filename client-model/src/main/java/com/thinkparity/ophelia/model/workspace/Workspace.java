@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.model.workspace;
 import java.io.File;
 import java.io.IOException;
 
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import com.thinkparity.codebase.model.util.jta.Transaction;
@@ -110,6 +109,13 @@ public interface Workspace {
 	public Preferences getPreferences();
 
     /**
+     * Obtain a transaction.
+     * 
+     * @return A <code>Transaction</code>.
+     */
+    public Transaction getTransaction();
+
+    /**
      * Obtain the workspace directory.
      * 
      * @return The workspace directory <code>File</code>.
@@ -122,12 +128,4 @@ public interface Workspace {
      * @return An <code>XMPPSession</code>.
      */
     public XMPPSession getXMPPSession();
-
-    /**
-     * Lookup a transaction.
-     * 
-     * @return A <code>Transaction</code>.
-     * @throws NamingException
-     */
-    public Transaction lookupTransaction() throws NamingException;
 }

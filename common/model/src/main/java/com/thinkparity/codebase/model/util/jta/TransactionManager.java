@@ -5,8 +5,6 @@ package com.thinkparity.codebase.model.util.jta;
 
 import javax.naming.NamingException;
 
-import com.thinkparity.codebase.JNDIUtil;
-
 import org.enhydra.jdbc.standard.StandardXADataSource;
 import org.objectweb.carol.util.configuration.ConfigurationException;
 import org.objectweb.carol.util.configuration.ConfigurationRepository;
@@ -38,23 +36,19 @@ public class TransactionManager {
      *            A thinkParity <code>Application</code>.
      * @return A <code>TransactionManager</code>.
      */
-    public static TransactionManager getInstance(final String txName) {
-        return new TransactionManager(txName);
+    public static TransactionManager getInstance() {
+        return new TransactionManager();
     }
 
     /** An objectweb <code>Jotm</code>. */
     private Jotm jotm;
 
-    /** The JNDI name to bind to. */
-    private final String txName;
-
     /**
      * Create TransactionManager.
      *
      */
-    private TransactionManager(final String txName) {
+    private TransactionManager() {
         super();
-        this.txName = txName;
     }
 
     /**
@@ -68,13 +62,12 @@ public class TransactionManager {
     }
 
     /**
-     * Lookup a transaction using a lookup key.
+     * Obtain a transaction.
      * 
-     * @param lookupKey
-     *            A lookup key <code>String</code>.
+     * @return A <code>Transaction</code>.
      */
-    public Transaction lookup() throws NamingException {
-        return (Transaction) JNDIUtil.lookup(txName);
+    public Transaction getTransaction() {
+        return new Transaction(jotm.getUserTransaction());
     }
 
     /**
@@ -84,7 +77,6 @@ public class TransactionManager {
      */
     public void start() throws ConfigurationException, NamingException {
         this.jotm = new Jotm(true, false);
-        initialize();
     }
 
     /**
@@ -93,16 +85,5 @@ public class TransactionManager {
      */
     public void stop() {
         jotm.stop();
-    }
-
-    /**
-     * Initialize the transaction manager. This will create an instance of the
-     * underlying transaction manager.
-     * 
-     * @throws NamingException
-     */
-    private void initialize() throws NamingException {
-        final Transaction transaction = new Transaction(jotm.getUserTransaction());
-        JNDIUtil.rebind(txName, transaction);
     }
 }

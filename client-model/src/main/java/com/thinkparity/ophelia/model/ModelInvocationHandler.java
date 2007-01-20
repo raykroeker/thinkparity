@@ -69,7 +69,7 @@ final class ModelInvocationHandler implements InvocationHandler {
         LOGGER.logTrace("Invoking method {0} on {1} in workspace {2}.", method,
                 model, workspace);
         synchronized (workspace) {
-            final Transaction transaction = workspace.lookupTransaction();
+            final Transaction transaction = workspace.getTransaction();
             final TransactionContext transactionContext = newTransactionContext(method);
             beginTransaction(transaction, transactionContext);
             try {

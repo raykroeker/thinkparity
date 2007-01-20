@@ -11,13 +11,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import com.thinkparity.codebase.Constants;
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
-import com.thinkparity.codebase.JNDIUtil;
 import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.StringUtil;
@@ -202,12 +200,7 @@ public class WorkspaceImpl implements Workspace {
      *
      */
     public DataSource getDataSource() {
-        try {
-            return (DataSource) JNDIUtil.lookup(
-                    persistenceManagerImpl.getDataSourceName());
-        } catch (final NamingException nx) {
-            throw new WorkspaceException("Could not obtain data source.", nx);
-        }
+        return persistenceManagerImpl.getDataSource();
     }
 
     /**
@@ -311,11 +304,11 @@ public class WorkspaceImpl implements Workspace {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.workspace.Workspace#lookupTransaction()
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getTransaction()
      *
      */
-    public Transaction lookupTransaction() throws NamingException {
-        return persistenceManagerImpl.lookupTransaction();
+    public Transaction getTransaction() {
+        return persistenceManagerImpl.getTransaction();
     }
 
     /**

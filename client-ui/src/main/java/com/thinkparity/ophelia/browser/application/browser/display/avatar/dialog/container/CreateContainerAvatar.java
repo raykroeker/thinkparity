@@ -13,13 +13,11 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
-import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.CreateContainerProvider;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
@@ -36,9 +34,6 @@ public class CreateContainerAvatar extends Avatar {
     
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
-    
-    /** List of containers. */
-    private List<Container> containers = null;
        
     /** Creates new form NewContainerDialogue */
     public CreateContainerAvatar() {
@@ -51,7 +46,7 @@ public class CreateContainerAvatar extends Avatar {
             }
         });
     }
-    
+
     public AvatarId getId() {
         return AvatarId.DIALOG_CONTAINER_CREATE;
     }
@@ -67,24 +62,10 @@ public class CreateContainerAvatar extends Avatar {
         // If input is null then this call to reload() is too early,
         // the input isn't set up yet.
         if (input!=null) {
-            readContainers();
-            reloadExplanation();
-            reloadErrorMessage();
             nameJTextField.setText("");
             okJButton.setEnabled(Boolean.FALSE);
             nameJTextField.requestFocusInWindow();
         }
-    }
-    
-    /**
-     * Reload the error message.
-     */
-    private void reloadErrorMessage() {
-        if (isInputValid() && !isInputNameUnique()) {
-            errorMessageJLabel.setText(getString("ErrorNotUnique"));
-        } else {
-            errorMessageJLabel.setText("");
-        }       
     }
     
     /**
@@ -116,33 +97,7 @@ public class CreateContainerAvatar extends Avatar {
             return Boolean.FALSE;
         }
     }
-    
-    /**
-     * Check if the name is unique.
-     */
-    private Boolean isInputNameUnique() {
-        if (isInputValid()) {
-            Boolean unique = Boolean.TRUE;
-            final String newName = extractName();
-            for (final Container container : containers) {
-                if (container.getName().equalsIgnoreCase(newName)) {
-                    unique = Boolean.FALSE;
-                    break;
-                }
-            }
-            return unique;
-        }
-        
-        return Boolean.TRUE;
-    }
-    
-    /**
-     * Read containers.
-     */
-    private void readContainers() {
-        containers = ((CreateContainerProvider) contentProvider).readContainers();
-    }  
-       
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -150,33 +105,20 @@ public class CreateContainerAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        javax.swing.JButton cancelJButton;
-        javax.swing.JLabel nameJLabel;
-
-        explanationJLabel = new javax.swing.JLabel();
-        nameJLabel = new javax.swing.JLabel();
-        nameJTextField = new javax.swing.JTextField();
-        errorMessageJLabel = new javax.swing.JLabel();
-        okJButton = new javax.swing.JButton();
-        cancelJButton = new javax.swing.JButton();
-
-        explanationJLabel.setFont(Fonts.DialogFont);
-        explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.ExplanationForTwoFiles"));
-        explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
+        final javax.swing.JButton cancelJButton = new javax.swing.JButton();
 
         nameJLabel.setFont(Fonts.DialogFont);
         nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.Name"));
 
+        nameJTextField.setFont(Fonts.DialogTextEntryFont);
         nameJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 nameJTextFieldActionPerformed(evt);
             }
         });
 
-        errorMessageJLabel.setFont(Fonts.DialogFont);
-        errorMessageJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.ErrorNotUnique"));
-        errorMessageJLabel.setMinimumSize(new java.awt.Dimension(290, 15));
-
+        okJButton.setFont(Fonts.DialogButtonFont);
         okJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.Ok"));
         okJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -184,6 +126,7 @@ public class CreateContainerAvatar extends Avatar {
             }
         });
 
+        cancelJButton.setFont(Fonts.DialogButtonFont);
         cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -198,16 +141,14 @@ public class CreateContainerAvatar extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 319, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(okJButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(cancelJButton))
                     .add(layout.createSequentialGroup()
                         .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 92, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 319, Short.MAX_VALUE))
+                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(okJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cancelJButton)))
                 .addContainerGap())
         );
 
@@ -216,15 +157,11 @@ public class CreateContainerAvatar extends Avatar {
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .add(explanationJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(32, 32, 32)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(nameJLabel)
                     .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 17, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 47, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(cancelJButton)
                     .add(okJButton))
@@ -264,7 +201,6 @@ public class CreateContainerAvatar extends Avatar {
             else {
                 okJButton.setEnabled(Boolean.FALSE);
             }
-            reloadErrorMessage();
         }
         
         public void removeUpdate( DocumentEvent event ) {
@@ -278,42 +214,10 @@ public class CreateContainerAvatar extends Avatar {
     }
     
     /**
-     * Reload explanation text.
-     */
-    private void reloadExplanation() {
-        // Adjust the embedded assistance if a list of documents is provided.
-        explanationJLabel.setText(getString("Explanation"));          
-        if(null != input) {
-            final Integer numFiles = (Integer) ((Data) input).get(DataKey.NUM_FILES);
-            if (numFiles > 0) {
-                final List<File> files = getDataFiles((Data) input, DataKey.FILES);
-                if (numFiles == 1) {
-                    final String name = (String) files.get(0).getName();
-                    explanationJLabel.setText(
-                            getString("ExplanationForOneFile",
-                            new Object[] { name }));
-                } else if (numFiles == 2) {
-                    final String name1 = (String) files.get(0).getName();
-                    final String name2 = (String) files.get(1).getName();
-                    explanationJLabel.setText(
-                            getString("ExplanationForTwoFiles",
-                            new Object[] { name1, name2 }));
-                } else if (numFiles > 2) {
-                    final String name1 = (String) files.get(0).getName();
-                    final String name2 = (String) files.get(1).getName();
-                    explanationJLabel.setText(
-                            getString("ExplanationForManyFiles",
-                            new Object[] { name1, name2, numFiles }));
-                }
-            }
-        }        
-    }
-    
-    /**
      * If the user presses "OK" or Enter, and input is valid, create the container
      */
     private void createContainer() {
-        final String containerName = nameJTextField.getText();
+        final String containerName = extractName();
         final Integer numFiles = (Integer) ((Data) input)
                 .get(DataKey.NUM_FILES);
         if (numFiles > 0) {
@@ -342,10 +246,8 @@ public class CreateContainerAvatar extends Avatar {
     }    
       
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel errorMessageJLabel;
-    private javax.swing.JLabel explanationJLabel;
-    private javax.swing.JTextField nameJTextField;
-    private javax.swing.JButton okJButton;
+    private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
+    private final javax.swing.JButton okJButton = new javax.swing.JButton();
     // End of variables declaration//GEN-END:variables
 
     public enum DataKey { NUM_FILES, FILES }

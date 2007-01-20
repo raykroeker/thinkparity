@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="common/codebase/src/main/java"/>
 	<classpathentry kind="src" path="common/model/src/main/java"/>
 	<classpathentry kind="src" path="local/browser/src/main/java"/>
-	<classpathentry kind="src" path="local/browser-plugins/archive/main/java"/>
 	<classpathentry kind="src" path="local/model/src/main/java"/>
 	<classpathentry kind="src" path="local/thinkparity/src/main/java"/>
 	<classpathentry kind="src" output="target/test-classes" path="common/junitx/src/main/java"/>
@@ -45,5 +44,13 @@
 	<classpathentry kind="lib" path="vendor/jotm/2.0.10/jta-spec1_0_1.jar"/>
 	<classpathentry kind="lib" path="vendor/jotm/2.0.10/xapool.jar" sourcepath="vendor/jotm/2.0.10/xapool-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="vendor/jotm/2.0.10/commons-cli-1.0.jar"/>
+	<classpathentry kind="lib" path="vendor/jotm/2.0.10/commons-logging.jar"/>
+	<classpathentry kind="lib" path="vendor/jotm/2.0.10/connector-1_5.jar"/>
+	<classpathentry kind="lib" path="vendor/jotm/2.0.10/howl.jar"/>
+	<classpathentry kind="lib" path="vendor/jotm/2.0.10/jotm_iiop_stubs.jar"/>
+	<classpathentry kind="lib" path="vendor/jotm/2.0.10/jotm_jrmp_stubs.jar"/>
+	<classpathentry kind="lib" path="vendor/jotm/2.0.10/jts1_0.jar"/>
+	<classpathentry kind="lib" path="vendor/jotm/2.0.10/objectweb-datasource.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

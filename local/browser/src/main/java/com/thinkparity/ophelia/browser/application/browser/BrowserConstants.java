@@ -32,7 +32,7 @@ public final class BrowserConstants {
     public static final class Fonts {
 
         /** The dialog font family name. */
-        private static final String DIALOG_NAME = "Tahoma";
+        private static final String DIALOG_FONT_NAME = "Tahoma";
 
         /** The font family name. */
         private static final String FONT_NAME = "Tahoma";
@@ -47,15 +47,23 @@ public final class BrowserConstants {
 
         /** The dialog font. */
         public static final Font DialogFont =
-            new Font(DIALOG_NAME, Font.PLAIN, 11);
+            new Font(DIALOG_FONT_NAME, Font.PLAIN, 11);
 
-        /** The dialog font. */
+        /** The dialog bold font. */
         public static final Font DialogFontBold =
-            new Font(DIALOG_NAME, Font.BOLD, 11);
+            new Font(DIALOG_FONT_NAME, Font.BOLD, 11);
+        
+        /** The dialog button font. */
+        public static final Font DialogButtonFont =
+            new Font(DIALOG_FONT_NAME, Font.PLAIN, 11);
+        
+        /** The dialog text entry font. */
+        public static final Font DialogTextEntryFont =
+            new Font(DIALOG_FONT_NAME, Font.PLAIN, 11);
 
-        /** The dialog font. */
+        /** The dialog title font. */
         public static final Font DialogTitle =
-            new Font(DIALOG_NAME, Font.BOLD, 13);
+            new Font(DIALOG_FONT_NAME, Font.BOLD, 13);
 
         /** The small font. */
         public static final Font SmallFont =

@@ -13,9 +13,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.thinkparity.codebase.FileUtil;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -58,7 +57,6 @@ public class RenameDocumentAvatar extends Avatar {
         // the input isn't set up yet.
         if (input!=null) {
             readDraftDocuments();
-            reloadExplanation();
             reloadName();
             reloadErrorMessage();
         }
@@ -207,13 +205,6 @@ public class RenameDocumentAvatar extends Avatar {
     }
     
     /**
-     * Reload the explanation control.
-     */
-    private void reloadExplanation() {
-        explanationJLabel.setText(getString("Explanation", new Object[] {getInputDocumentName()} ));
-    }
-    
-    /**
      *  Reload the name text control.
      */
     private void reloadName() {
@@ -252,42 +243,36 @@ public class RenameDocumentAvatar extends Avatar {
         javax.swing.JButton cancelJButton;
         javax.swing.JLabel nameJLabel;
 
-        explanationJLabel = new javax.swing.JLabel();
         nameJLabel = new javax.swing.JLabel();
         nameJTextField = new javax.swing.JTextField();
         errorMessageJLabel = new javax.swing.JLabel();
         okJButton = new javax.swing.JButton();
         cancelJButton = new javax.swing.JButton();
 
-        explanationJLabel.setFont(Fonts.DialogFont);
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        explanationJLabel.setText(bundle.getString("RenameDocumentDialog.Explanation")); // NOI18N
-        explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-
         nameJLabel.setFont(Fonts.DialogFont);
-        nameJLabel.setText(bundle.getString("RenameDocumentDialog.Name")); // NOI18N
+        nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameDocumentDialog.Name"));
 
         nameJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                nameJTextFieldActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nameJTextFieldActionPerformed(evt);
             }
         });
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
-        errorMessageJLabel.setText(bundle.getString("RenameDocumentDialog.ErrorNotUnique")); // NOI18N
+        errorMessageJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameDocumentDialog.ErrorNotUnique"));
         errorMessageJLabel.setPreferredSize(new java.awt.Dimension(32, 14));
 
-        okJButton.setText(bundle.getString("RenameDocumentDialog.OK")); // NOI18N
+        okJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameDocumentDialog.OK"));
         okJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                okJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                okJButtonActionPerformed(evt);
             }
         });
 
-        cancelJButton.setText(bundle.getString("RenameDocumentDialog.Cancel")); // NOI18N
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameDocumentDialog.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                cancelJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelJButtonActionPerformed(evt);
             }
         });
 
@@ -298,16 +283,15 @@ public class RenameDocumentAvatar extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 317, Short.MAX_VALUE)
-                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(okJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(cancelJButton))
-                    .add(layout.createSequentialGroup()
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)))
+                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE))
+                    .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 383, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -316,15 +300,13 @@ public class RenameDocumentAvatar extends Avatar {
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(explanationJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(37, 37, 37)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(nameJLabel)
                     .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(19, 19, 19)
                 .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 24, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(okJButton)
                     .add(cancelJButton))
@@ -375,7 +357,6 @@ public class RenameDocumentAvatar extends Avatar {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel errorMessageJLabel;
-    private javax.swing.JLabel explanationJLabel;
     private javax.swing.JTextField nameJTextField;
     private javax.swing.JButton okJButton;
     // End of variables declaration//GEN-END:variables

@@ -7,7 +7,6 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -51,11 +50,6 @@ public class ContainerVersionCommentAvatar extends Avatar {
         // the input isn't set up yet.
         if (null!=containerId) {
             final ContainerVersion containerVersion = ((ContainerVersionProvider) contentProvider).readVersion(containerId, versionId);
-            final User publishedBy = ((ContainerVersionProvider) contentProvider).readUser(containerVersion.getUpdatedBy());
-            final String publisherName = publishedBy.getName();
-            final String containerName = containerVersion.getName();
-            final String publishDate = getString("ExplanationDate", new Object[] { containerVersion.getCreatedOn().getTime() });
-            explanationJLabel.setText(getString("Explanation", new Object[] { publisherName, containerName, publishDate }));
             if (containerVersion.isSetComment()) {
                 commentJTextArea.setText(containerVersion.getComment());
             } else {
@@ -100,12 +94,10 @@ public class ContainerVersionCommentAvatar extends Avatar {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         okJButton = new javax.swing.JButton();
-        explanationJLabel = new javax.swing.JLabel();
         commentJScrollPane = new javax.swing.JScrollPane();
         commentJTextArea = new javax.swing.JTextArea();
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        okJButton.setText(bundle.getString("ContainerVersionCommentDialog.Ok")); // NOI18N
+        okJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ContainerVersionCommentDialog.Ok"));
         okJButton.setMaximumSize(new java.awt.Dimension(65, 23));
         okJButton.setMinimumSize(new java.awt.Dimension(65, 23));
         okJButton.setPreferredSize(new java.awt.Dimension(65, 23));
@@ -114,9 +106,6 @@ public class ContainerVersionCommentAvatar extends Avatar {
                 okJButtonActionPerformed(evt);
             }
         });
-
-        explanationJLabel.setText(bundle.getString("ContainerVersionCommentDialog.Explanation")); // NOI18N
-        explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         commentJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         commentJTextArea.setEditable(false);
@@ -134,7 +123,6 @@ public class ContainerVersionCommentAvatar extends Avatar {
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(org.jdesktop.layout.GroupLayout.LEADING, commentJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE)
-                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE)
                     .add(okJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
@@ -142,9 +130,7 @@ public class ContainerVersionCommentAvatar extends Avatar {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(explanationJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE)
+                .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 149, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(okJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -160,7 +146,6 @@ public class ContainerVersionCommentAvatar extends Avatar {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane commentJScrollPane;
     private javax.swing.JTextArea commentJTextArea;
-    private javax.swing.JLabel explanationJLabel;
     private javax.swing.JButton okJButton;
     // End of variables declaration//GEN-END:variables
     

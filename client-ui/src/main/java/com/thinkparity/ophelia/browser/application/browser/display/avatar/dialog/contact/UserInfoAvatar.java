@@ -6,11 +6,7 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact;
 
-import java.util.List;
-
-import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -73,7 +69,6 @@ public class UserInfoAvatar extends Avatar {
         // Clear controls for contact name, company, and email
         nameJTextField.setText("");
         companyJTextField.setText("");
-        emailJTextField.setText("");
         titleJTextField.setText("");
         
         JabberId id = getInputUserId();
@@ -82,14 +77,7 @@ public class UserInfoAvatar extends Avatar {
             if (user != null) {
                 nameJTextField.setText(user.getName());
                 companyJTextField.setText(user.getOrganization());
-                titleJTextField.setText(user.getTitle());
-                if (user instanceof Contact) {
-                    final Contact contact = (Contact)user;
-                    final List<EMail> emails = contact.getEmails();
-                    if (0 < emails.size()) {
-                        emailJTextField.setText(emails.get(0).toString());
-                    }
-                }   
+                titleJTextField.setText(user.getTitle()); 
             }
         }
         
@@ -110,32 +98,25 @@ public class UserInfoAvatar extends Avatar {
         titleJTextField = new javax.swing.JTextField();
         companyJLabel = new javax.swing.JLabel();
         companyJTextField = new javax.swing.JTextField();
-        emailJLabel = new javax.swing.JLabel();
-        emailJTextField = new javax.swing.JTextField();
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        closeJButton.setText(bundle.getString("UserInfoDialog.Close")); // NOI18N
+        closeJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UserInfoDialog.Close"));
         closeJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 closeJButtonActionPerformed(evt);
             }
         });
 
-        nameJLabel.setText(bundle.getString("UserInfoDialog.Name")); // NOI18N
+        nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UserInfoDialog.Name"));
 
         nameJTextField.setEditable(false);
 
-        titleJLabel.setText(bundle.getString("UserInfoDialog.TitleLabel")); // NOI18N
+        titleJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UserInfoDialog.TitleLabel"));
 
         titleJTextField.setEditable(false);
 
-        companyJLabel.setText(bundle.getString("UserInfoDialog.Company")); // NOI18N
+        companyJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UserInfoDialog.Company"));
 
         companyJTextField.setEditable(false);
-
-        emailJLabel.setText(bundle.getString("UserInfoDialog.Email")); // NOI18N
-
-        emailJTextField.setEditable(false);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -144,44 +125,40 @@ public class UserInfoAvatar extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(titleJLabel)
-                            .add(companyJLabel)
-                            .add(nameJLabel)
-                            .add(emailJLabel))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, closeJButton)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(companyJLabel)
                         .add(14, 14, 14)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)
-                            .add(companyJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, titleJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)
-                            .add(emailJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, closeJButton))
+                        .add(companyJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(titleJLabel)
+                        .add(14, 14, 14)
+                        .add(titleJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(nameJLabel)
+                        .add(14, 14, 14)
+                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
-        layout.linkSize(new java.awt.Component[] {companyJLabel, emailJLabel, nameJLabel, titleJLabel}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+        layout.linkSize(new java.awt.Component[] {companyJLabel, nameJLabel, titleJLabel}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
+                .add(29, 29, 29)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(nameJLabel)
-                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(nameJLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(titleJLabel)
-                    .add(titleJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(titleJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(titleJLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(companyJLabel)
-                    .add(companyJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(emailJLabel)
-                    .add(emailJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 21, Short.MAX_VALUE)
+                    .add(companyJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(companyJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 40, Short.MAX_VALUE)
                 .add(closeJButton)
                 .addContainerGap())
         );
@@ -195,8 +172,6 @@ public class UserInfoAvatar extends Avatar {
     private javax.swing.JButton closeJButton;
     private javax.swing.JLabel companyJLabel;
     private javax.swing.JTextField companyJTextField;
-    private javax.swing.JLabel emailJLabel;
-    private javax.swing.JTextField emailJTextField;
     private javax.swing.JLabel nameJLabel;
     private javax.swing.JTextField nameJTextField;
     private javax.swing.JLabel titleJLabel;

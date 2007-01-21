@@ -98,13 +98,13 @@ public class AddDocument extends AbstractAction {
             } else {
                 if (duplicates.size() == 1) {
                     browser.displayErrorDialog("ErrorAddDocumentNotUnique",
-                            new Object[] {container.getName(), duplicates.get(0).getName()});
+                            new Object[] {duplicates.get(0).getName()});
                 } else if (duplicates.size() == 2) {
                     browser.displayErrorDialog("ErrorAddDocumentTwoNotUnique",
-                            new Object[] {container.getName(), duplicates.get(0).getName(), duplicates.get(1).getName()});
+                            new Object[] {duplicates.get(0).getName(), duplicates.get(1).getName()});
                 } else {
                     browser.displayErrorDialog("ErrorAddDocumentManyNotUnique",
-                            new Object[] {container.getName(), duplicates.get(0).getName(), duplicates.get(1).getName()});
+                            new Object[] {duplicates.get(0).getName(), duplicates.get(1).getName()});
                 }
             }
         }

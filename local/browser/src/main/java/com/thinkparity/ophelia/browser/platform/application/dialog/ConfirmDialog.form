@@ -18,9 +18,9 @@
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="confirmJLabel" alignment="0" pref="291" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="denyJButton" linkSize="1" min="-2" max="-2" attributes="1"/>
-                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="confirmJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="denyJButton" linkSize="1" min="-2" max="-2" attributes="1"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -34,8 +34,8 @@
               <Component id="confirmJLabel" pref="88" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="confirmJButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="denyJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="confirmJButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>

@@ -3,22 +3,14 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.codebase.model.profile.Profile;
-
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
-import com.thinkparity.ophelia.model.contact.ContactModel;
-import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.document.DocumentModel;
-import com.thinkparity.ophelia.model.profile.ProfileModel;
-import com.thinkparity.ophelia.model.session.SessionModel;
-import com.thinkparity.ophelia.model.user.UserModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.contact.ReadContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.ContainerVersionProvider;
-import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.CreateContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.PublishContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.RenameDocumentProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.EditProfileProvider;
@@ -28,8 +20,13 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
-
-import org.apache.log4j.Logger;
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.contact.ContactModel;
+import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.document.DocumentModel;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
+import com.thinkparity.ophelia.model.session.SessionModel;
+import com.thinkparity.ophelia.model.user.UserModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -110,15 +107,9 @@ public class ProviderFactory {
         case DIALOG_CONTACT_READ:
             provider = new ReadContactProvider(profile, userModel);
             break;
-        case DIALOG_CONTAINER_CREATE:
-            provider = new CreateContainerProvider(profile, containerModel);
-            break;
         case DIALOG_CONTAINER_PUBLISH:
             provider = new PublishContainerProvider(profile, containerModel, userModel, contactModel);
-            break;
-        case DIALOG_CONTAINER_RENAME:
-            provider = new CreateContainerProvider(profile, containerModel);
-            break;   
+            break; 
         case DIALOG_CONTAINER_RENAME_DOCUMENT:
             provider = new RenameDocumentProvider(profile, containerModel);
             break;     

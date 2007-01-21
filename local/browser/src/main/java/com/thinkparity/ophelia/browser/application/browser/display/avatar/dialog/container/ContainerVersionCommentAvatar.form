@@ -17,7 +17,6 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="commentJScrollPane" alignment="0" pref="340" max="32767" attributes="0"/>
-                  <Component id="explanationJLabel" alignment="1" pref="340" max="32767" attributes="0"/>
                   <Component id="okJButton" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -28,9 +27,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="explanationJLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="commentJScrollPane" pref="129" max="32767" attributes="0"/>
+              <Component id="commentJScrollPane" pref="149" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="okJButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
@@ -57,14 +54,6 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="okJButtonActionPerformed"/>
       </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="explanationJLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="localization/JPanel_Messages.properties" key="ContainerVersionCommentDialog.Explanation" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
-        </Property>
-        <Property name="verticalAlignment" type="int" value="1"/>
-      </Properties>
     </Component>
     <Container class="javax.swing.JScrollPane" name="commentJScrollPane">
       <Properties>

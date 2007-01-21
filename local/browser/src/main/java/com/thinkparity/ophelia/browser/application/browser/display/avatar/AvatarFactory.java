@@ -142,7 +142,6 @@ public class AvatarFactory {
 
         case DIALOG_CONTAINER_CREATE:
             avatar = new CreateContainerAvatar();
-            avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_CONTAINER_PUBLISH:
             avatar = new PublishContainerAvatar();
@@ -150,7 +149,6 @@ public class AvatarFactory {
             break;
         case DIALOG_CONTAINER_RENAME:
             avatar = new RenameContainerAvatar();
-            avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_CONTAINER_RENAME_DOCUMENT:
             avatar = new RenameDocumentAvatar();

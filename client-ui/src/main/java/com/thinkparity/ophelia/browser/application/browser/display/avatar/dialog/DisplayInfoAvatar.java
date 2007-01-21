@@ -80,20 +80,12 @@ public class DisplayInfoAvatar extends Avatar {
     private Link getWebPage() {
         return LinkFactory.getInstance(Application.OPHELIA, Version.getMode()).create();
     }
-    
-    // The web page string will have text up to "//" stripped to get rid of http://
+
     private String getWebPageString() {
-        final Link link = getWebPage();
-        if (null != link) {
-            final String webPage = link.toString();
-            if (null != webPage) {
-                return StringUtil.removeBefore(webPage, "//");
-            }            
-        }
-        return null;
+        // Strip off "http:/"
+        return StringUtil.removeBefore(getWebPage().toString(), "//");
     }
-    
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

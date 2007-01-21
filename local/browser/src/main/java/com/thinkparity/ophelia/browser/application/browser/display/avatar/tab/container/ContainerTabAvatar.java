@@ -151,7 +151,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     
     /**
      * Notify the avatar that a container has been flagged.
-     * (ie. bookmark added or removed)
+     * (eg. bookmark added or removed, latest flag changed, etc.)
      * 
      * @param e
      *            A <code>ContainerEvent</code>.       

@@ -178,15 +178,15 @@ public class ConfirmDialog extends Avatar {
 
         confirmJButton.setText("!Yes!");
         confirmJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                confirmJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmJButtonActionPerformed(evt);
             }
         });
 
         denyJButton.setText("!No!");
         denyJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                denyJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                denyJButtonActionPerformed(evt);
             }
         });
 
@@ -199,9 +199,9 @@ public class ConfirmDialog extends Avatar {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(org.jdesktop.layout.GroupLayout.LEADING, confirmJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
-                        .add(denyJButton)
+                        .add(confirmJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(confirmJButton)))
+                        .add(denyJButton)))
                 .addContainerGap())
         );
 
@@ -214,8 +214,8 @@ public class ConfirmDialog extends Avatar {
                 .add(confirmJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(confirmJButton)
-                    .add(denyJButton))
+                    .add(denyJButton)
+                    .add(confirmJButton))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.system.notify;
 
-import com.thinkparity.ophelia.browser.BrowserTestCase;
 import com.thinkparity.ophelia.browser.util.Swing;
 
 /**
@@ -12,26 +11,45 @@ import com.thinkparity.ophelia.browser.util.Swing;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class DisplayTest extends BrowserTestCase {
+public final class DisplayStub {
 
     static {
         Swing.init();
     }
 
-    private static final String NAME = "Notify Display Test";
+    public static void main(final String[] args) {
+        final DisplayStub stub = new DisplayStub();
+        try {
+            stub.setUp();
+        } catch (final Throwable t) {
+            t.printStackTrace(System.err);
+            System.exit(1);
+        }
+        try {
+            stub.display();
+        } catch (final Throwable t) {
+            t.printStackTrace(System.err);
+        }
+        try {
+            stub.tearDown();
+        } catch (final Throwable t) {
+            t.printStackTrace(System.err);
+        }
+
+    }
 
     private Fixture datum;
 
     /**
-     * Create DisplayTest.
+     * Create DisplayStub.
      *
      * @param name
      */
-    public DisplayTest() {
-        super(NAME);
+    public DisplayStub() {
+        super();
     }
 
-    public void testDisplay() {
+    public void display() {
         for (final Notification notification : datum.notifications) {
             NotifyFrame.testDisplay(notification);
             try {
@@ -50,13 +68,7 @@ public final class DisplayTest extends BrowserTestCase {
         }
     }
 
-    /**
-     * @see com.thinkparity.codebase.junitx.TestCase#setUp()
-     *
-     */
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    protected void setUp() {
         final Notification[] notifications = new Notification[4];
         notifications[0] = new Notification() {
             public String getMessage() {
@@ -85,13 +97,7 @@ public final class DisplayTest extends BrowserTestCase {
         datum = new Fixture(notifications);
     }
 
-    /**
-     * @see com.thinkparity.codebase.junitx.TestCase#tearDown()
-     *
-     */
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    protected void tearDown() {
     }
 
     private static final class Fixture {

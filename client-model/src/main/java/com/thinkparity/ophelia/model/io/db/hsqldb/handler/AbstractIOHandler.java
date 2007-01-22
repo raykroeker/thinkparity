@@ -32,7 +32,7 @@ public abstract class AbstractIOHandler {
      * @param dataSource
      *            An sql <code>DataSource</code>.
      */
-    protected AbstractIOHandler(DataSource dataSource) {
+    protected AbstractIOHandler(final DataSource dataSource) {
         super();
         this.logger = new Log4JWrapper();
         this.sessionManager = new SessionManager(dataSource);

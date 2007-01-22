@@ -719,8 +719,8 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      */
     protected void archive(final OpheliaTestUser archiveAs, final Long localContainerId) {
         final Container container = getContainerModel(archiveAs).read(localContainerId);
-        logger.logInfo("Archiving container \"{0}\" as \"{1}\".", container,
-                archiveAs.getSimpleUsername());
+        logger.logInfo("Archiving container \"{0}\" as \"{1}\".",
+                container.getName(), archiveAs.getSimpleUsername());
         getContainerModel(archiveAs).archive(localContainerId);
     }
 
@@ -1694,10 +1694,11 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @param uniqueId
      *            A container unique id <code>UUID</code>.
      */
-    protected void restore(final OpheliaTestUser restoreAs, final Long containerId) {
-        logger.logInfo("Restoring container \"{0}\" as \"{1}\".", containerId,
-                restoreAs.getSimpleUsername());
-        getContainerModel(restoreAs).restore(containerId);
+    protected void restore(final OpheliaTestUser restoreAs, final Long localContainerId) {
+        final Container container = readContainer(restoreAs, localContainerId);
+        logger.logInfo("Restoring container \"{0}\" as \"{1}\".",
+                container.getName(), restoreAs.getSimpleUsername());
+        getContainerModel(restoreAs).restore(localContainerId);
     }
 
     protected Document revertDocument(final OpheliaTestUser revertAs,

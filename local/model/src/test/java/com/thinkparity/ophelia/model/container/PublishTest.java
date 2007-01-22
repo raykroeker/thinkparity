@@ -49,7 +49,7 @@ public class PublishTest extends ContainerTestCase {
      * the published to users is the same as for the publishing user.
      */
     public void test4() {
-        final Container c = createContainer(datum.junit, "Packages Test: Publish 4");
+        final Container c = createContainer(datum.junit, getName());
         final List<Document> d_list_initial = addDocuments(datum.junit, c.getId());
         publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
@@ -65,7 +65,7 @@ public class PublishTest extends ContainerTestCase {
 
         final Container c_x = readContainer(datum.junit_x, c.getUniqueId());
         final ContainerVersion cv_latest_x = readContainerLatestVersion(datum.junit_x, c_x.getId());
-        final ContainerVersion cv_previous_x = readContainerPreviousVersion(datum.junit_x, c.getId(), cv_latest.getVersionId());
+        final ContainerVersion cv_previous_x = readContainerPreviousVersion(datum.junit_x, c.getId(), cv_latest_x.getVersionId());
         final List<Document> d_list_x = readContainerVersionDocuments(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
 
         final Container c_y = readContainer(datum.junit_y, c.getUniqueId());
@@ -156,7 +156,7 @@ public class PublishTest extends ContainerTestCase {
      * 
      */
     public void testPublish() {
-        Container c = createContainer(datum.junit, NAME);
+        Container c = createContainer(datum.junit, getName());
         final List<Document> documents = addDocuments(datum.junit, c.getId());
         publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
@@ -232,7 +232,7 @@ public class PublishTest extends ContainerTestCase {
         for (final Entry<User, ArtifactReceipt> entry : pt.entrySet()) {
             assertNotNull("Published to user is null.", entry.getKey());
             assertNotNull("Published to receipt is null.", entry.getValue());
-            assertNotNull("Published to receipt received on is null.", entry.getValue().getReceivedOn());
+            assertNotNull("Published to receipt received on for " + entry.getKey().getSimpleUsername() + " is null.", entry.getValue().getReceivedOn());
         }
 
         final ContainerVersion cv_x_latest = readContainerLatestVersion(datum.junit_x, c_x.getId());
@@ -259,7 +259,7 @@ public class PublishTest extends ContainerTestCase {
      *
      */
     public void testPublishWithComment() {
-        Container c = createContainer(datum.junit, NAME);
+        Container c = createContainer(datum.junit, getName());
         final List<Document> documents = addDocuments(datum.junit, c.getId());
         publishWithComment(datum.junit, c.getId(), NAME, "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
@@ -319,7 +319,7 @@ public class PublishTest extends ContainerTestCase {
         for (final Entry<User, ArtifactReceipt> entry : pt.entrySet()) {
             assertNotNull("Published to user is null.", entry.getKey());
             assertNotNull("Published to receipt is null.", entry.getValue());
-            assertNotNull("Published to receipt received on is null.", entry.getValue().getReceivedOn());
+            assertNotNull("Published to receipt received on for " + entry.getKey().getSimpleUsername() + " is null.", entry.getValue().getReceivedOn());
         }
 
         final ContainerVersion cv_x_latest = readContainerLatestVersion(datum.junit_x, c_x.getId());

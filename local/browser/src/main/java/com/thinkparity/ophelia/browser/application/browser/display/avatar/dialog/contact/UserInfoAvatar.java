@@ -10,6 +10,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.SingleContentProvider;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -66,22 +67,12 @@ public class UserInfoAvatar extends Avatar {
     }
     
     public void reload() {
-        // Clear controls for contact name, company, and email
-        nameJTextField.setText("");
-        companyJTextField.setText("");
-        titleJTextField.setText("");
-        
-        JabberId id = getInputUserId();
-        if (id != null) {
-            final User user = getUser(id);
-            if (user != null) {
-                nameJTextField.setText(user.getName());
-                companyJTextField.setText(user.getOrganization());
-                titleJTextField.setText(user.getTitle()); 
-            }
+        if (input!=null) {  
+            final User user = getUser(getInputUserId());
+            nameJTextField.setText(user.getName());
+            companyJTextField.setText(user.getOrganization());
+            titleJTextField.setText(user.getTitle()); 
         }
-        
-        closeJButton.requestFocusInWindow();
     }
 
     /** This method is called from within the constructor to
@@ -91,14 +82,12 @@ public class UserInfoAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        closeJButton = new javax.swing.JButton();
-        nameJLabel = new javax.swing.JLabel();
-        nameJTextField = new javax.swing.JTextField();
-        titleJLabel = new javax.swing.JLabel();
-        titleJTextField = new javax.swing.JTextField();
-        companyJLabel = new javax.swing.JLabel();
-        companyJTextField = new javax.swing.JTextField();
+        final javax.swing.JButton closeJButton = new javax.swing.JButton();
+        final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel titleJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel companyJLabel = new javax.swing.JLabel();
 
+        closeJButton.setFont(Fonts.DialogButtonFont);
         closeJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UserInfoDialog.Close"));
         closeJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -106,17 +95,29 @@ public class UserInfoAvatar extends Avatar {
             }
         });
 
+        nameJLabel.setFont(Fonts.DialogFont);
         nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UserInfoDialog.Name"));
 
         nameJTextField.setEditable(false);
+        nameJTextField.setFont(Fonts.DialogTextEntryFont);
+        nameJTextField.setFocusable(false);
+        nameJTextField.setOpaque(false);
 
+        titleJLabel.setFont(Fonts.DialogFont);
         titleJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UserInfoDialog.TitleLabel"));
 
         titleJTextField.setEditable(false);
+        titleJTextField.setFont(Fonts.DialogTextEntryFont);
+        titleJTextField.setFocusable(false);
+        titleJTextField.setOpaque(false);
 
+        companyJLabel.setFont(Fonts.DialogFont);
         companyJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UserInfoDialog.Company"));
 
         companyJTextField.setEditable(false);
+        companyJTextField.setFont(Fonts.DialogTextEntryFont);
+        companyJTextField.setFocusable(false);
+        companyJTextField.setOpaque(false);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -125,28 +126,23 @@ public class UserInfoAvatar extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, closeJButton)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, closeJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 59, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(companyJLabel)
-                        .add(14, 14, 14)
-                        .add(companyJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(titleJLabel)
-                        .add(14, 14, 14)
-                        .add(titleJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(nameJLabel)
-                        .add(14, 14, 14)
-                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(nameJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
+                            .add(titleJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
+                            .add(companyJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                            .add(companyJTextField)
+                            .add(titleJTextField)
+                            .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE))))
                 .addContainerGap())
         );
-
-        layout.linkSize(new java.awt.Component[] {companyJLabel, nameJLabel, titleJLabel}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(29, 29, 29)
+                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(nameJLabel))
@@ -158,8 +154,8 @@ public class UserInfoAvatar extends Avatar {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(companyJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(companyJLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 40, Short.MAX_VALUE)
-                .add(closeJButton)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 18, Short.MAX_VALUE)
+                .add(closeJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -169,13 +165,9 @@ public class UserInfoAvatar extends Avatar {
     }//GEN-LAST:event_closeJButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton closeJButton;
-    private javax.swing.JLabel companyJLabel;
-    private javax.swing.JTextField companyJTextField;
-    private javax.swing.JLabel nameJLabel;
-    private javax.swing.JTextField nameJTextField;
-    private javax.swing.JLabel titleJLabel;
-    private javax.swing.JTextField titleJTextField;
+    private final javax.swing.JTextField companyJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField titleJTextField = new javax.swing.JTextField();
     // End of variables declaration//GEN-END:variables
 
     public enum DataKey { USER_ID }

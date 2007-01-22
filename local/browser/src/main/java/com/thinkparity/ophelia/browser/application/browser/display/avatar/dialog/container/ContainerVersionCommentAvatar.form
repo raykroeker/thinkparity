@@ -16,7 +16,7 @@
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="commentJScrollPane" alignment="0" pref="340" max="32767" attributes="0"/>
+                  <Component id="commentJScrollPane" alignment="0" pref="360" max="32767" attributes="0"/>
                   <Component id="okJButton" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -27,8 +27,8 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="commentJScrollPane" pref="149" max="32767" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
+              <Component id="commentJScrollPane" pref="76" max="32767" attributes="0"/>
+              <EmptySpace pref="14" max="32767" attributes="0"/>
               <Component id="okJButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -38,6 +38,9 @@
   <SubComponents>
     <Component class="javax.swing.JButton" name="okJButton">
       <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogButtonFont" type="code"/>
+        </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="localization/JPanel_Messages.properties" key="ContainerVersionCommentDialog.Ok" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
@@ -54,12 +57,19 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="okJButtonActionPerformed"/>
       </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
+      </AuxValues>
     </Component>
     <Container class="javax.swing.JScrollPane" name="commentJScrollPane">
       <Properties>
         <Property name="horizontalScrollBarPolicy" type="int" value="31"/>
+        <Property name="focusable" type="boolean" value="false"/>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
         <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
       </AuxValues>
 
@@ -69,12 +79,15 @@
           <Properties>
             <Property name="editable" type="boolean" value="false"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="Fonts.DialogFont" type="code"/>
+              <Connection code="Fonts.DialogTextEntryFont" type="code"/>
             </Property>
             <Property name="lineWrap" type="boolean" value="true"/>
             <Property name="wrapStyleWord" type="boolean" value="true"/>
             <Property name="focusable" type="boolean" value="false"/>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
+          </AuxValues>
         </Component>
       </SubComponents>
     </Container>

@@ -43,18 +43,9 @@ public class ContainerVersionCommentAvatar extends Avatar {
     }
     
     public void reload() {
-        final Long containerId = getInputContainerId();
-        final Long versionId = getInputVersionId();
-
-        // If containerId is null then this call to reload() is too early,
-        // the input isn't set up yet.
-        if (null!=containerId) {
-            final ContainerVersion containerVersion = ((ContainerVersionProvider) contentProvider).readVersion(containerId, versionId);
-            if (containerVersion.isSetComment()) {
-                commentJTextArea.setText(containerVersion.getComment());
-            } else {
-                commentJTextArea.setText(null);
-            }
+        if (input != null) {
+            reloadComment();
+            commentJTextArea.setCaretPosition(0); //scroll to top
         }
     }
     
@@ -93,10 +84,10 @@ public class ContainerVersionCommentAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        okJButton = new javax.swing.JButton();
-        commentJScrollPane = new javax.swing.JScrollPane();
-        commentJTextArea = new javax.swing.JTextArea();
+        final javax.swing.JButton okJButton = new javax.swing.JButton();
+        final javax.swing.JScrollPane commentJScrollPane = new javax.swing.JScrollPane();
 
+        okJButton.setFont(Fonts.DialogButtonFont);
         okJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ContainerVersionCommentDialog.Ok"));
         okJButton.setMaximumSize(new java.awt.Dimension(65, 23));
         okJButton.setMinimumSize(new java.awt.Dimension(65, 23));
@@ -108,8 +99,9 @@ public class ContainerVersionCommentAvatar extends Avatar {
         });
 
         commentJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        commentJScrollPane.setFocusable(false);
         commentJTextArea.setEditable(false);
-        commentJTextArea.setFont(Fonts.DialogFont);
+        commentJTextArea.setFont(Fonts.DialogTextEntryFont);
         commentJTextArea.setLineWrap(true);
         commentJTextArea.setWrapStyleWord(true);
         commentJTextArea.setFocusable(false);
@@ -122,7 +114,7 @@ public class ContainerVersionCommentAvatar extends Avatar {
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, commentJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, commentJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
                     .add(okJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
@@ -130,8 +122,8 @@ public class ContainerVersionCommentAvatar extends Avatar {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 149, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 76, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 14, Short.MAX_VALUE)
                 .add(okJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -143,10 +135,22 @@ public class ContainerVersionCommentAvatar extends Avatar {
         }
     }// GEN-LAST:event_okJButtonActionPerformed
 
+    /**
+     * Reload the comment control.
+     */
+    private void reloadComment() {
+        final Long containerId = getInputContainerId();
+        final Long versionId = getInputVersionId();
+        final ContainerVersion containerVersion = ((ContainerVersionProvider) contentProvider).readVersion(containerId, versionId);
+        if (containerVersion.isSetComment()) {
+            commentJTextArea.setText(containerVersion.getComment());
+        } else {
+            commentJTextArea.setText(null);
+        }
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane commentJScrollPane;
-    private javax.swing.JTextArea commentJTextArea;
-    private javax.swing.JButton okJButton;
+    private final javax.swing.JTextArea commentJTextArea = new javax.swing.JTextArea();
     // End of variables declaration//GEN-END:variables
     
     public enum DataKey { CONTAINER_ID, VERSION_ID }

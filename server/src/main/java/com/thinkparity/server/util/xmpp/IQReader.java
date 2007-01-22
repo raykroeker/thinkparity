@@ -3,16 +3,20 @@
  */
 package com.thinkparity.desdemona.util.xmpp;
 
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.SimpleTimeZone;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.UUID;
 
-import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -38,15 +42,31 @@ import com.thoughtworks.xstream.io.xml.Dom4JReader;
  */
 public final class IQReader implements ServiceRequestReader {
 
+    /** The local <code>Locale</code>. */
+    private static final Locale LOCALE;
+
+    /** The local <code>TimeZone</code>. */
+    private static final TimeZone TIME_ZONE;
+
+    /** The universal <code>DateFormat</code>. */
+    private static final DateFormat UNIVERSAL_FORMAT;
+    
     private static final XStreamUtil XSTREAM_UTIL;
 
     static {
+        LOCALE = Locale.getDefault();
+        TIME_ZONE = TimeZone.getDefault();
+        final DateImage universalImage = DateImage.ISO;
+        final String universalPattern = universalImage.toString();
+        final TimeZone universalTimeZone = TimeZone.getTimeZone("Universal");
+        UNIVERSAL_FORMAT = new SimpleDateFormat(universalPattern);
+        UNIVERSAL_FORMAT.setTimeZone(universalTimeZone);
         XSTREAM_UTIL = XStreamUtil.getInstance();
     }
 
     /** The xmpp internet query <code>IQ</code>. */
     private final IQ iq;
-    
+
     /**
      * Create IQReader.
      * 
@@ -72,12 +92,19 @@ public final class IQReader implements ServiceRequestReader {
     }
 
     public final Calendar readCalendar(final String name) {
-        final String sData = readString(name);
+        final String universalDateTime = readString(name);
         try {
-            return DateUtil.parse(sData, DateUtil.DateImage.ISO,
-                    new SimpleTimeZone(0, "GMT"));
+            if (null == universalDateTime) {
+                return null;
+            } else {
+                final Date localDate = ((DateFormat) UNIVERSAL_FORMAT.clone()).parse(universalDateTime);
+                final Calendar localCalendar = Calendar.getInstance(TIME_ZONE, LOCALE);
+                localCalendar.setTimeInMillis(localDate.getTime());
+                return localCalendar;
+            }
+        } catch (final ParseException px) {
+            throw new RuntimeException(px);
         }
-        catch(final ParseException px) { throw new RuntimeException(px); }
     }
 
     public final EMail readEMail(final String name) {

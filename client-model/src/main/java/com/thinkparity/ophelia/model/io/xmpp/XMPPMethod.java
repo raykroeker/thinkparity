@@ -7,20 +7,25 @@ package com.thinkparity.ophelia.model.io.xmpp;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.ErrorHelper;
+import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
@@ -75,14 +80,36 @@ import org.xmlpull.v1.XmlPullParserException;
 @SuppressWarnings("unchecked")
 public class XMPPMethod extends IQ {
 
-    /** An apache logger. */
-    protected static final Log4JWrapper logger;
+    /** The local <code>Locale</code>. */
+    private static final Locale LOCALE;
+
+    /** An apache LOGGER. */
+    private static final Log4JWrapper LOGGER;
+
+    /** The local <code>TimeZone</code>. */
+    private static final TimeZone TIME_ZONE;
+
+    /** The universal <code>DateFormat</code>. */
+    private static final DateFormat UNIVERSAL_FORMAT;
+
+    /** The universal <code>DateImage</code>. */
+    private static final DateImage UNIVERSAL_IMAGE;
+
+    /** A <code>TimeZone</code>. */
+    private static final TimeZone UNIVERSAL_TIME_ZONE;
 
     /** An <code>XStreamUtil</code> instance. */
-    protected static final XStreamUtil XSTREAM_UTIL;
+    private static final XStreamUtil XSTREAM_UTIL;
 
     static {
-        logger = new Log4JWrapper();
+        LOCALE = Locale.getDefault();
+        LOGGER = new Log4JWrapper();
+        TIME_ZONE = TimeZone.getDefault();
+        UNIVERSAL_IMAGE = DateImage.ISO;
+        UNIVERSAL_TIME_ZONE = TimeZone.getTimeZone("Universal"); 
+        final String universalPattern = UNIVERSAL_IMAGE.toString();
+        UNIVERSAL_FORMAT = new SimpleDateFormat(universalPattern);
+        UNIVERSAL_FORMAT.setTimeZone(UNIVERSAL_TIME_ZONE);
         XSTREAM_UTIL = XStreamUtil.getInstance();
 
         ProviderManager.addIQProvider(Xml.Service.NAME, Xml.Service.NAMESPACE_RESPONSE, new XMPPMethodResponseProvider());
@@ -114,7 +141,7 @@ public class XMPPMethod extends IQ {
      * @return An xmpp method response.
      */
     public XMPPMethodResponse execute(final XMPPConnection xmppConnection) {
-        logger.logVariable("name", name);
+        LOGGER.logVariable("name", name);
         // add an executed on parameter
         setParameter(Xml.All.EXECUTED_ON, DateUtil.getInstance());
 
@@ -122,10 +149,10 @@ public class XMPPMethod extends IQ {
         final PacketCollector idCollector = createPacketCollector(xmppConnection);
 
         // TIME This is a local timestamp.
-        logger.logVariable("preSendPacket", DateUtil.getInstance());
+        LOGGER.logVariable("preSendPacket", DateUtil.getInstance());
         xmppConnection.sendPacket(this);
         // TIME This is a local timestamp.
-        logger.logVariable("postSendPacket", DateUtil.getInstance());
+        LOGGER.logVariable("postSendPacket", DateUtil.getInstance());
 
         // this sleep has been inserted because when packets are sent within
         // x milliseconds of each other, they tend to get swallowed by the
@@ -135,7 +162,7 @@ public class XMPPMethod extends IQ {
 
         // the timeout is used because the timeout is not expected to be long;
         // and it helps debug non-implemented responses
-        logger.logVariable("preResponseCollected", DateUtil.getInstance());
+        LOGGER.logVariable("preResponseCollected", DateUtil.getInstance());
         try {
             final XMPPMethodResponse response =
 //                (XMPPMethodResponse) idCollector.nextResult(7 * 1000);
@@ -143,13 +170,13 @@ public class XMPPMethod extends IQ {
             return response;
         } catch (final Throwable t) {
             final String errorId = new ErrorHelper().getErrorId(t);
-            logger.logError(t, errorId);
-            logger.logError("name:{0}", name);
-            logger.logError("xmppConnection:{0}", xmppConnection);
+            LOGGER.logError(t, errorId);
+            LOGGER.logError("name:{0}", name);
+            LOGGER.logError("xmppConnection:{0}", xmppConnection);
             throw new XMPPException(errorId);
         } finally {
             // re-set the parameters post execution
-            logger.logVariable("postResponseCollected", DateUtil.getInstance());
+            LOGGER.logVariable("postResponseCollected", DateUtil.getInstance());
             parameters.clear();
         }
     }
@@ -163,8 +190,8 @@ public class XMPPMethod extends IQ {
             .append("<query xmlns=\"jabber:iq:parity:").append(name).append("\">")
             .append(getParametersXML())
             .append("</query>");
-        logger.logVariable("childElementXML.length()", childElementXML.length());
-        logger.logVariable("childElementXML", childElementXML);
+        LOGGER.logVariable("childElementXML.length()", childElementXML.length());
+        LOGGER.logVariable("childElementXML", childElementXML);
         return childElementXML.toString();
     }
 
@@ -203,10 +230,6 @@ public class XMPPMethod extends IQ {
             parameters.add(new XMPPMethodParameter(name, Long.class, value));
 
         this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
-    }
-
-    public final void setParameter(final String name, final UserVCard value) {
-        parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
     }
 
     public final void setParameter(final String name, final ArtifactType value) {
@@ -280,6 +303,10 @@ public class XMPPMethod extends IQ {
         this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
     }
 
+    public final void setParameter(final String name, final UserVCard value) {
+        parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
+    }
+
     /**
      * Set a named parameter.
      * 
@@ -335,13 +362,17 @@ public class XMPPMethod extends IQ {
         return xml.toString();
     }
 
+    private String getParameterXMLValue(final Calendar value) {
+        final Calendar universalCalendar = (Calendar) value.clone();
+        universalCalendar.setTimeZone(UNIVERSAL_TIME_ZONE);
+        return ((DateFormat) UNIVERSAL_FORMAT).format(universalCalendar.getTime());
+    }
+
     private String getParameterXMLValue(final XMPPMethodParameter parameter) {
         if (parameter.javaType.equals(ArtifactType.class)) {
             return parameter.javaValue.toString();
         } else if (parameter.javaType.equals(Calendar.class)) {
-            final Calendar valueGMT =
-                DateUtil.getInstance(((Calendar) parameter.javaValue).getTime(), new SimpleTimeZone(0, "GMT"));
-            return DateUtil.format(valueGMT, DateUtil.DateImage.ISO);
+            return getParameterXMLValue((Calendar) parameter.javaValue);
         } else if (parameter.javaType.equals(DocumentVersionContent.class)) {
             final DocumentVersionContent dvc = (DocumentVersionContent) parameter.javaValue;
             return new StringBuffer("")
@@ -405,16 +436,8 @@ public class XMPPMethod extends IQ {
             try {
                 return doParseIQ(parser);
             } catch (final Throwable t) {
-                logger.logFatal(t, "Could not parse remote method response.");
+                LOGGER.logFatal(t, "Could not parse remote method response.");
                 throw new XMPPException(t);
-            }
-        }
-
-        private Calendar calendarValueOf(final String s) {
-            try {
-                return DateUtil.parse(s, DateUtil.DateImage.ISO, new SimpleTimeZone(0, "GMT"));
-            } catch (final ParseException px) {
-                throw new RuntimeException(px);
             }
         }
 
@@ -432,9 +455,9 @@ public class XMPPMethod extends IQ {
             final XMPPMethodResponse response = new XMPPMethodResponse();
             parser.next();
             while(true) {
-                logger.logVariable("parser.getName()", parser.getName());
-                logger.logVariable("parser.getDepth()", parser.getDepth());
-                logger.logVariable("parser.getNamespace()", parser.getNamespace());
+                LOGGER.logVariable("parser.getName()", parser.getName());
+                LOGGER.logVariable("parser.getDepth()", parser.getDepth());
+                LOGGER.logVariable("parser.getNamespace()", parser.getNamespace());
                 // stop processing when we hit the trailing query tag
                 if (XmlPullParser.END_TAG == parser.getEventType()) {
                     if (Service.NAME.equals(parser.getName())) {
@@ -451,6 +474,25 @@ public class XMPPMethod extends IQ {
             return response;
         }
 
+        /**
+         * Parse a java calendar from a string. The date/time of the string is
+         * taken to be in GMT.
+         * 
+         * @param s
+         *            A date/time <code>String</code>.
+         * @return A <code>Calendar</code> in the default locale/timezone.
+         */
+        private Calendar parseJavaCalendar(final String universalDateTime) {
+            try {
+                final Date localDate = ((DateFormat) UNIVERSAL_FORMAT.clone()).parse(universalDateTime);
+                final Calendar localCalendar = Calendar.getInstance(TIME_ZONE, LOCALE);
+                localCalendar.setTimeInMillis(localDate.getTime());
+                return localCalendar;
+            } catch (final ParseException px) {
+                throw new RuntimeException(px);
+            }
+        }
+
         private Class parseJavaType(final XmlPullParser parser) {
             final String javaType = parser.getAttributeValue("", "javaType");
             try {
@@ -463,7 +505,7 @@ public class XMPPMethod extends IQ {
 
         private Object parseJavaValue(final XmlPullParser parser,
                 final Class javaType) throws XmlPullParserException, IOException {
-            logger.logVariable("javaType", javaType);
+            LOGGER.logVariable("javaType", javaType);
             if (javaType.equals(List.class)) {
                 if (parser.isEmptyElementTag()) {
                     parser.next();
@@ -572,7 +614,7 @@ public class XMPPMethod extends IQ {
                         javaValue = Boolean.valueOf(parser.getText());
                         parser.next();
                     } else if (javaType.equals(Calendar.class)) {
-                        javaValue = calendarValueOf(parser.getText());
+                        javaValue = parseJavaCalendar(parser.getText());
                         parser.next();
                     } else if (javaType.equals(ContainerVersion.class)) {
                         javaValue = new ContainerVersion();

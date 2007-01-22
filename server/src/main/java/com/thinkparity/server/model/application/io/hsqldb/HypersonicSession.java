@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import com.thinkparity.codebase.DateUtil;
@@ -34,8 +35,16 @@ public final class HypersonicSession {
     /** An apache logger wrapper. */
     protected static final Log4JWrapper LOGGER;
 
+    /** The local <code>TimeZone</code>. */
+    private static final TimeZone TIME_ZONE;
+
+    /** The universal <code>TimeZone</code>. */
+    private static final TimeZone UNIVERSAL_TIME_ZONE;
+
     static {
         LOGGER = new Log4JWrapper("DESDEMONA_SQL_DEBUGGER");
+        TIME_ZONE = TimeZone.getDefault();
+        UNIVERSAL_TIME_ZONE = TimeZone.getTimeZone("Universal");
     }
 
     /** A <code>Connection</code>. */
@@ -202,15 +211,16 @@ public final class HypersonicSession {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
-			final Calendar value = DateUtil.getInstance();
-			final Timestamp timestamp = resultSet.getTimestamp(columnName, value);
+            final Calendar localCalendar = DateUtil.getInstance();
+            localCalendar.setTimeZone(TIME_ZONE);
+            final Timestamp timestamp = resultSet.getTimestamp(columnName, localCalendar);
 			if (resultSet.wasNull()) {
 			    logColumnExtraction(columnName, null);
                 return null;
 			} else {
-				value.setTime(timestamp);
-                logColumnExtraction(columnName, value);
-				return value;
+                localCalendar.setTimeInMillis(timestamp.getTime());
+                logColumnExtraction(columnName, localCalendar);
+                return localCalendar;
 			}
 		} catch (final SQLException sqlx) {
             throw panic(sqlx);
@@ -461,8 +471,10 @@ public final class HypersonicSession {
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
 		try {
+            final Calendar universalCalendar = (Calendar) value.clone();
+            universalCalendar.setTimeZone(UNIVERSAL_TIME_ZONE);
 			preparedStatement.setTimestamp(index,
-					new Timestamp(value.getTimeInMillis()), value);
+					new Timestamp(universalCalendar.getTimeInMillis()), universalCalendar);
 		} catch (final SQLException sqlx) {
             throw panic(sqlx);
 		}

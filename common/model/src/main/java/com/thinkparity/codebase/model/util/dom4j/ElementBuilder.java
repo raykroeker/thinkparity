@@ -7,12 +7,15 @@ import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 import java.util.UUID;
 import java.util.Map.Entry;
 
+import com.thinkparity.codebase.DateFormatUtil;
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -63,8 +66,17 @@ public class ElementBuilder {
 
     private static final DocumentFactory DOCUMENT_FACTORY;
 
+    private static final Locale UNIVERSAL_LOCALE;
+
+    private static final String UNIVERSAL_PATTERN;
+
+    private static final TimeZone UNIVERSAL_TIME_ZONE;
+
     static {
         DOCUMENT_FACTORY = DocumentFactory.getInstance();
+        UNIVERSAL_LOCALE = Locale.CANADA;
+        UNIVERSAL_PATTERN = DateImage.ISO.toString();
+        UNIVERSAL_TIME_ZONE = TimeZone.getTimeZone("Universal");
     }
 
     public static final Element addContainerElements(
@@ -177,10 +189,13 @@ public class ElementBuilder {
         if (null == value) {
             return addNullElement(parent, name, Calendar.class);
         } else {
-            final Calendar valueGMT = DateUtil.getInstance(
-                    value.getTime(), new SimpleTimeZone(0, "GMT"));
-            return addElement(parent, name, Calendar.class, DateUtil.format(
-                    valueGMT, DateUtil.DateImage.ISO));
+            
+            final Calendar universalCalendar = DateUtil.getInstance(
+                    value.getTime(), UNIVERSAL_TIME_ZONE, UNIVERSAL_LOCALE);
+            final DateFormatUtil universalFormat = DateFormatUtil.getInstance(
+                    UNIVERSAL_LOCALE, UNIVERSAL_TIME_ZONE);
+            return addElement(parent, name, Calendar.class,
+                    universalFormat.format(UNIVERSAL_PATTERN, universalCalendar));
         }
     }
 
@@ -207,18 +222,6 @@ public class ElementBuilder {
         final Element element = parent.addElement(name);
         applyCoreAttributes(element, type);
         return element;
-    }
-
-    public static final Element addElement(final XStreamUtil xstreamUtil,
-            final Element parent, final String name, final Container value) {
-        if (null == value) {
-            return addNullElement(parent, name, Container.class);
-        } else {
-            final Element element = addElement(parent, name, value.getClass());
-            final Dom4JWriter writer = new Dom4JWriter(element);
-            xstreamUtil.marshal(value, writer);
-            return element;
-        }
     }
 
     public static final Element addElement(final Element parent,
@@ -446,6 +449,18 @@ public class ElementBuilder {
         }
     }
 
+    public static final Element addElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final Container value) {
+        if (null == value) {
+            return addNullElement(parent, name, Container.class);
+        } else {
+            final Element element = addElement(parent, name, value.getClass());
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
+            return element;
+        }
+    }
+
     /**
      * Add a list of string values.
      * 
@@ -582,18 +597,6 @@ public class ElementBuilder {
         }
     }
 
-    public static final Element addVCardElement(final XStreamUtil xstreamUtil,
-            final Element parent, final String name, final UserVCard value) {
-        if (null == value) {
-            return addNullElement(parent, name, UserVCard.class);
-        } else {
-            final Element element = addElement(parent, name, UserVCard.class);
-            final Dom4JWriter writer = new Dom4JWriter(element);
-            xstreamUtil.marshal(value, writer);
-            return element;
-        }
-    }
-
     public static final Element addUserReceiptElements(
             final XStreamUtil xstreamUtil, final Element parent,
             final String name, final Map<User, ArtifactReceipt> values) {
@@ -607,6 +610,18 @@ public class ElementBuilder {
                 addElement(xstreamUtil, entryElement, "key", entry.getKey());
                 addElement(xstreamUtil, entryElement, "value", entry.getValue());
             }
+            return element;
+        }
+    }
+
+    public static final Element addVCardElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final UserVCard value) {
+        if (null == value) {
+            return addNullElement(parent, name, UserVCard.class);
+        } else {
+            final Element element = addElement(parent, name, UserVCard.class);
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
             return element;
         }
     }

@@ -15,6 +15,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import com.thinkparity.codebase.DateUtil;
@@ -56,15 +57,23 @@ public final class Session {
     /** An <code>XStreamUtil</code> instance. */
     protected static final XStreamUtil XSTREAM_UTIL;
 
+    /** The local <code>TimeZone</code>. */
+    private static final TimeZone TIME_ZONE;
+
+    /** The universal <code>TimeZone</code>. */
+    private static final TimeZone UNIVERSAL_TIME_ZONE;
+
     static {
         LOGGER = new Log4JWrapper("SQL_DEBUGGER");
+        TIME_ZONE = TimeZone.getDefault();
+        UNIVERSAL_TIME_ZONE = TimeZone.getTimeZone("Universal");
         XSTREAM_UTIL = XStreamUtil.getInstance();
     }
 
-    /** The sql connection. */
+	/** The sql connection. */
 	private final Connection connection;
 
-	/** The session id. */
+    /** The session id. */
 	private final JVMUniqueId id;
 
     /** The connection meta data. */
@@ -73,10 +82,10 @@ public final class Session {
     /** The session's prepared statement. */
 	private PreparedStatement preparedStatement;
 
-    /** The prepared statement's result set. */
+	/** The prepared statement's result set. */
 	private ResultSet resultSet;
 
-	/** The <code>SessionManager</code>. */
+    /** The <code>SessionManager</code>. */
     private final SessionManager sessionManager;
 
     /**
@@ -191,7 +200,7 @@ public final class Session {
         }
     }
 
-    /**
+	/**
      * Execute the SQL query in the session's prepared statement and set the
      * result set. Return the number of rows updated.
      * 
@@ -207,7 +216,7 @@ public final class Session {
         }
     }
 
-	public AuditEventType getAuditEventTypeFromInteger(final String columnName) {
+    public AuditEventType getAuditEventTypeFromInteger(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -246,16 +255,17 @@ public final class Session {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
-			final Calendar value = DateUtil.getInstance();
-			final Timestamp timestamp = resultSet.getTimestamp(columnName, value);
+			final Calendar localCalendar = DateUtil.getInstance();
+            localCalendar.setTimeZone(TIME_ZONE);
+			final Timestamp timestamp = resultSet.getTimestamp(columnName, localCalendar);
 			if (resultSet.wasNull()) {
                 logColumnExtraction(columnName, null);
                 return null;
 			}
 			else {
-				value.setTime(timestamp);
-                logColumnExtraction(columnName, value);
-				return value;
+                localCalendar.setTimeInMillis(timestamp.getTime());
+                logColumnExtraction(columnName, localCalendar);
+				return localCalendar;
 			}
 		} catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
@@ -275,7 +285,7 @@ public final class Session {
         }
     }
 
-    public EMail getEMail(final String columnName) {
+	public EMail getEMail(final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
         try {
@@ -318,13 +328,14 @@ public final class Session {
 		}
 	}
 
-	/**
+    /**
 	 * Obtain the session id.
 	 * 
 	 * @return The session id.
 	 */
 	public JVMUniqueId getId() { return id; }
 
+    
     /**
      * Execute a query to obtain the identity created.
      * 
@@ -351,7 +362,6 @@ public final class Session {
         }
     }
 
-    
     /**
      * Obtain the input stream from the result.
      * 
@@ -450,7 +460,7 @@ public final class Session {
 		}
 	}
 
-    public ArtifactState getStateFromString(final String columnName) {
+	public ArtifactState getStateFromString(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -563,7 +573,7 @@ public final class Session {
 		}
 	}
 
-	/**
+    /**
 	 * Obtain the database metadata.
 	 * 
 	 * @return The database metadata.
@@ -578,7 +588,7 @@ public final class Session {
 		}
 	}
 
-    public PreparedStatement prepareStatement(final String sql) {
+	public PreparedStatement prepareStatement(final String sql) {
 		assertConnectionIsOpen();
 		logStatement(sql);
 		try {
@@ -617,13 +627,15 @@ public final class Session {
 		}
 	}
 
-	public void setCalendar(final Integer index, final Calendar value) {
+    public void setCalendar(final Integer index, final Calendar value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
 		try {
+            final Calendar universalCalendar = (Calendar) value.clone();
+            universalCalendar.setTimeZone(UNIVERSAL_TIME_ZONE);
 			preparedStatement.setTimestamp(index,
-					new Timestamp(value.getTimeInMillis()), value);
+					new Timestamp(universalCalendar.getTimeInMillis()), universalCalendar);
 		} catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
 		}

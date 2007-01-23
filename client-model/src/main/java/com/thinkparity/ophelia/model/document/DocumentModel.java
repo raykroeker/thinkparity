@@ -51,17 +51,6 @@ public interface DocumentModel {
 	public Document create(final String name, final InputStream inputStream);
 
     /**
-	 * Create a new document version based upon an existing document. This will
-	 * check the cache for updates to the document, write the updates to the
-	 * document, then create a new version based upon that document.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @return The newly created version.
-	 */
-	public DocumentVersion createVersion(final Long documentId);
-
-    /**
 	 * Obtain a document with a specified id.
 	 * 
 	 * @param documentId

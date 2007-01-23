@@ -49,7 +49,7 @@ public class CreateVersionDraftUpdatedTest extends DocumentTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
+		final InternalDocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
         final File inputFile = getInputFiles()[0];
         final Document document = createDocument(OpheliaTestUser.JUNIT, inputFile);
         modifyDocument(OpheliaTestUser.JUNIT, document.getId());
@@ -71,9 +71,9 @@ public class CreateVersionDraftUpdatedTest extends DocumentTestCase {
 	 */
 	private class Fixture extends DocumentTestCase.Fixture {
 		private final Document document;
-		private final DocumentModel documentModel;
+		private final InternalDocumentModel documentModel;
 		private Fixture(final Document document,
-                final DocumentModel documentModel) {
+                final InternalDocumentModel documentModel) {
 			this.document = document;
 			this.documentModel = documentModel;
 		}

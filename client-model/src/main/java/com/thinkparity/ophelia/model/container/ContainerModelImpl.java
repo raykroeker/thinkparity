@@ -3156,7 +3156,7 @@ public final class ContainerModelImpl extends
             for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
                 containerIO.createPublishedTo(container.getId(),
                         version.getVersionId(),
-                        userModel.read(entry.getValue().getUserId()),
+                        userModel.readLazyCreate(entry.getValue().getUserId()),
                         entry.getValue().getPublishedOn());
                 if (entry.getValue().isSetReceivedOn()) {
                     containerIO.updatePublishedTo(container.getId(),

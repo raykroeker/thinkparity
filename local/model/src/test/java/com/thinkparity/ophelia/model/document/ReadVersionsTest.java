@@ -91,7 +91,7 @@ public class ReadVersionsTest extends DocumentTestCase {
 			final Document document = createDocument(OpheliaTestUser.JUNIT, testFile);
             for(int i = 0; i < VERSION_COUNT; i++) {
                 modifyDocument(OpheliaTestUser.JUNIT, document.getId());
-                documentModel.createVersion(document.getId());
+                documentModel.createVersion(document.getId(), currentDateTime());
             }
 			data.add(new Fixture(document, documentModel, VERSION_COUNT));
 		}

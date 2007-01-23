@@ -996,7 +996,7 @@ public final class ContainerModelImpl extends
                         .getState(draftDocument)) {
                     if (documentModel.isDraftModified(draftDocument.getId())) {
                         draftDocumentLatestVersion =
-                            documentModel.createVersion(draftDocument.getId());
+                            documentModel.createVersion(draftDocument.getId(), publishedOn);
                     } else {
                         draftDocumentLatestVersion =
                             documentModel.readLatestVersion(draftDocument.getId());

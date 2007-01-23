@@ -64,7 +64,7 @@ public class ReadVersionTest extends DocumentTestCase {
 		DocumentVersion documentVersion;
 		for(File testFile : getInputFiles()) {
 			document = create(OpheliaTestUser.JUNIT, testFile);
-			documentModel.createVersion(document.getId());
+			documentModel.createVersion(document.getId(), currentDateTime());
 			documentVersion = documentModel.readVersions(document.getId()).iterator().next();
 			data.add(new Fixture(document.getId(), documentModel, documentVersion, documentVersion.getVersionId()));
 		}

@@ -32,8 +32,8 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 
-import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.DownloadMonitor;
+import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.Constants.Compression;
 import com.thinkparity.ophelia.model.Constants.Encoding;
@@ -174,7 +174,8 @@ public final class DocumentModelImpl extends
      * @return The new version.
      * @throws ParityException
      */
-    public DocumentVersion createVersion(final Long documentId) {
+    public DocumentVersion createVersion(final Long documentId,
+            final Calendar createdOn) {
         logger.logApiId();
         logger.logVariable("documentId", documentId);
         try {
@@ -183,7 +184,7 @@ public final class DocumentModelImpl extends
             final InputStream content = localFile.openStream();
             try {
                 return createVersion(documentId, readNextVersionId(documentId),
-                        content, localUserId(), currentDateTime());
+                        content, localUserId(), createdOn);
             } finally {
                 content.close();
             }

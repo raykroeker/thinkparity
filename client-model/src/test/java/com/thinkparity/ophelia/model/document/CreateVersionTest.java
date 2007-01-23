@@ -43,7 +43,7 @@ public class CreateVersionTest extends DocumentTestCase {
 	 * Test the document model create version api.
 	 */
 	public void testCreateVersion() {
-		final DocumentVersion version = datum.documentModel.createVersion(datum.document.getId());
+		final DocumentVersion version = datum.documentModel.createVersion(datum.document.getId(), currentDateTime());
 
         assertNotNull(NAME, version);
 		assertEquals(datum.document.getId(), version.getArtifactId());

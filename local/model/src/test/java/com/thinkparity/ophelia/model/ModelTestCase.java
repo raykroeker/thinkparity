@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -827,8 +828,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @return A version.
      */
     protected DocumentVersion createDocumentVersion(
-            final OpheliaTestUser testUser, final Document document) {
-        return getDocumentModel(testUser).createVersion(document.getId());
+            final OpheliaTestUser testUser, final Document document,
+            final Calendar createdOn) {
+        return getDocumentModel(testUser).createVersion(document.getId(), createdOn);
     }
 
     /**

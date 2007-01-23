@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.document;
 
 import java.io.InputStream;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 
@@ -40,10 +41,13 @@ public interface InternalDocumentModel extends DocumentModel {
      * document, then create a new version based upon that document.
      * 
      * @param documentId
-     *            The document unique id.
+     *            A document id <code>Long</code>.
+     * @param createdOn
+     *            A created on <code>Calendar</code>.
      * @return The newly created version.
      */
-    public DocumentVersion createVersion(final Long documentId);
+    public DocumentVersion createVersion(final Long documentId,
+            final Calendar createdOn);
 
     /**
      * Delete a document.

@@ -49,7 +49,7 @@ public class PrintVersion extends AbstractAction {
         final ContainerVersion version = containerModel.readVersion(containerId, versionId);
 
         final Browser browser = getBrowserApplication();
-        if(browser.confirm(getId().toString(), new Object[] {
+        if(browser.confirm("ContainerPrintVersion.ConfirmPrintMessage", new Object[] {
                 container.getName(), version.getCreatedOn().getTime() })) {
             containerModel.printVersion(containerId, versionId, new Printer() {
                 public void print(final File file) {

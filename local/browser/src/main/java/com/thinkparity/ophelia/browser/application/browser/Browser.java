@@ -35,6 +35,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.DisplayId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ConfirmAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorDetailsAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.UserInfoAvatar;
@@ -73,7 +74,6 @@ import com.thinkparity.ophelia.browser.platform.action.profile.VerifyEmail;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
-import com.thinkparity.ophelia.browser.platform.application.dialog.ConfirmDialog;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.application.window.Window;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
@@ -183,7 +183,7 @@ public class Browser extends AbstractApplication {
      */
     public Boolean confirm(final String messageKey) {
         final Data input = new Data(1);
-        input.set(ConfirmDialog.DataKey.MESSAGE_KEY, messageKey);
+        input.set(ConfirmAvatar.DataKey.MESSAGE_KEY, messageKey);
         return confirm(input);
     }
 
@@ -199,8 +199,8 @@ public class Browser extends AbstractApplication {
     public Boolean confirm(final String messageKey,
             final Object[] messageArguments) {
         final Data input = new Data(2);
-        input.set(ConfirmDialog.DataKey.MESSAGE_KEY, messageKey);
-        input.set(ConfirmDialog.DataKey.MESSAGE_ARGUMENTS, messageArguments);
+        input.set(ConfirmAvatar.DataKey.MESSAGE_KEY, messageKey);
+        input.set(ConfirmAvatar.DataKey.MESSAGE_ARGUMENTS, messageArguments);
         return confirm(input);
     }
 
@@ -213,7 +213,7 @@ public class Browser extends AbstractApplication {
      */
     public Boolean confirmLocalized(final String localizedMessage) {
         final Data input = new Data(1);
-        input.set(ConfirmDialog.DataKey.LOCALIZED_MESSAGE, localizedMessage);
+        input.set(ConfirmAvatar.DataKey.LOCALIZED_MESSAGE, localizedMessage);
         return confirm(input);
     }
 
@@ -1895,8 +1895,8 @@ public class Browser extends AbstractApplication {
      * Obtain the confirmation avatar.
      * @return The confirmation avatar.
      */
-    private ConfirmDialog getConfirmAvatar() {
-        return (ConfirmDialog) getAvatar(AvatarId.DIALOG_CONFIRM);
+    private ConfirmAvatar getConfirmAvatar() {
+        return (ConfirmAvatar) getAvatar(AvatarId.DIALOG_CONFIRM);
     }
 
 	/**

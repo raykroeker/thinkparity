@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ConfirmAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.DisplayInfoAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorDetailsAvatar;
@@ -26,7 +27,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.event.EventDi
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ProviderFactory;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
-import com.thinkparity.ophelia.browser.platform.application.dialog.ConfirmDialog;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
@@ -127,7 +127,7 @@ public class AvatarFactory {
 			break;
 
         case DIALOG_CONFIRM:
-            avatar = new ConfirmDialog();
+            avatar = new ConfirmAvatar();
             break;
         case DIALOG_ERROR:
             avatar = new ErrorAvatar();

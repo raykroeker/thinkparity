@@ -46,7 +46,7 @@ public class PrintDraft extends AbstractAction {
         final Container container = containerModel.read(containerId);
 
         final Browser browser = getBrowserApplication();
-        if(browser.confirm(getId().toString(), new Object[] {
+        if(browser.confirm("ContainerPrintDraft.ConfirmPrintMessage", new Object[] {
                 container.getName() })) {
             containerModel.printDraft(containerId, new Printer() {
                 public void print(final File file) {

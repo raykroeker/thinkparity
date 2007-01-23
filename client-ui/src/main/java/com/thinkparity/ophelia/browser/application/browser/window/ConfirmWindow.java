@@ -25,7 +25,7 @@ public class ConfirmWindow extends Window {
      *            The parity owner.
      */
     public ConfirmWindow(final BrowserWindow owner) {
-        super(owner, Boolean.TRUE, Boolean.FALSE, "ConfirmWindow");
+        super(owner, Boolean.TRUE, Boolean.TRUE, "ConfirmWindow");
     }
 
     /**

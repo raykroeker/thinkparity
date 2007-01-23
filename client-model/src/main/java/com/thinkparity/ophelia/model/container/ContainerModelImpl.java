@@ -1781,6 +1781,7 @@ public final class ContainerModelImpl extends
         case ADDED:     // delete the document
             getDocumentModel().delete(document.getId());
             break;
+        case MODIFIED:  // fall through
         case NONE:
             containerIO.createDraftArtifactRel(
                     containerId, document.getId(), ContainerDraft.ArtifactState.REMOVED);

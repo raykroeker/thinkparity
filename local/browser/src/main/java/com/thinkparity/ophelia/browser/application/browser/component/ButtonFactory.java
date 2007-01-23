@@ -196,7 +196,7 @@ public class ButtonFactory extends ComponentFactory {
                 action.invokeAction(data);
             } catch(final Throwable t) {
                 ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER))
-                        .displayErrorDialog(t.getLocalizedMessage(), t);
+                        .displayErrorDialog(t);
             }
         }
 

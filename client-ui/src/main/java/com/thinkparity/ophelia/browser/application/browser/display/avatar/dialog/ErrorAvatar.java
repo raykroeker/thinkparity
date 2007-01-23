@@ -4,15 +4,11 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog;
 
 import java.awt.event.ActionEvent;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
 import javax.swing.AbstractAction;
 
-import com.thinkparity.codebase.swing.ClipboardUtils;
-
-
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -39,6 +35,21 @@ public class ErrorAvatar extends Avatar {
         initComponents();
     }
 
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getAvatarTitle()
+     */
+    @Override
+    public String getAvatarTitle() {
+        if (null == input) {
+            return null;
+        } else if (getInputThrown()) {
+            return getString("Title");
+        } else {
+            final StringBuffer errorKey = new StringBuffer(getInputErrorMessageKey()).append(".Title");
+            return getString(errorKey.toString());
+        }
+    }
+
     public AvatarId getId() { return AvatarId.DIALOG_ERROR; }
 
     public State getState() { return null; }
@@ -49,7 +60,6 @@ public class ErrorAvatar extends Avatar {
      */
     public void reload() {
         reloadErrorMessage();
-        reloadError();
     }
 
     public void setState(final State state) {}
@@ -58,10 +68,6 @@ public class ErrorAvatar extends Avatar {
         disposeWindow();
     }//GEN-LAST:event_closeJButtonActionPerformed
 
-    private void copyDetailsJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_copyDetailsJButtonActionPerformed
-        ClipboardUtils.copy(errorJTextArea);
-    }//GEN-LAST:event_copyDetailsJButtonActionPerformed
-
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -69,33 +75,18 @@ public class ErrorAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        javax.swing.JButton closeJButton;
+        final javax.swing.JButton closeJButton = new javax.swing.JButton();
 
-        errorMessageJLabel = new javax.swing.JLabel();
-        errorJScrollPane = new javax.swing.JScrollPane();
-        errorJTextArea = new javax.swing.JTextArea();
-        copyDetailsJButton = new javax.swing.JButton();
-        closeJButton = new javax.swing.JButton();
-
-        errorMessageJLabel.setText("Default Error Message:  This text should not be seen.");
+        errorMessageJLabel.setFont(Fonts.DialogFont);
+        errorMessageJLabel.setText("Error encountered.");
         errorMessageJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        errorMessageJLabel.setPreferredSize(new java.awt.Dimension(485, 50));
 
-        errorJTextArea.setColumns(20);
-        errorJTextArea.setFont(errorMessageJLabel.getFont());
-        errorJTextArea.setRows(5);
-        errorJScrollPane.setViewportView(errorJTextArea);
-
-        copyDetailsJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ErrorDialog.CopyDetailsButton"));
-        copyDetailsJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                copyDetailsJButtonActionPerformed(e);
-            }
-        });
-
+        closeJButton.setFont(Fonts.DialogButtonFont);
         closeJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ErrorDialog.Ok"));
         closeJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                closeJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeJButtonActionPerformed(evt);
             }
         });
 
@@ -106,54 +97,28 @@ public class ErrorAvatar extends Avatar {
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, errorJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
-                        .add(copyDetailsJButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 220, Short.MAX_VALUE)
-                        .add(closeJButton)))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .add(closeJButton))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(errorJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(closeJButton)
-                    .add(copyDetailsJButton))
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(31, 31, 31)
+                .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 20, Short.MAX_VALUE)
+                .add(closeJButton)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * Read the input error.
-     * 
-     * @return An error string.
-     */
-    private String readInputError() {
-        if(null == input) { return null; }
-        else {
-            final Throwable t = (Throwable) ((Data) input).get(DataKey.ERROR);
-            if (null == t) {
-                return null;
-            } else {
-                final StringWriter sw = new StringWriter();
-                t.printStackTrace(new PrintWriter(sw));
-                return sw.toString();
-            }
-        }
-    }
 
     /**
-     * Read the error message key from the input.
+     * Get the error message key from the input.
      * 
      * @return An error message key.
      */
-    private Object[] readInputErrorMessageArguments() {
+    private Object[] getInputErrorMessageArguments() {
         if (null == input) {
             return null;
         } else {
@@ -162,31 +127,28 @@ public class ErrorAvatar extends Avatar {
     }   
 
     /**
-     * Read the error message key from the input.
+     * Get the error message key from the input.
      * 
      * @return An error message key.
      */
-    private String readInputErrorMessageKey() {
-        if(null == input) { return null; }
-        else { return (String) ((Data) input).get(DataKey.ERROR_MESSAGE_KEY); }
-    }
-
-    /**
-     * Reload the error text area.
-     *
-     */
-    private void reloadError() {
-        errorJTextArea.setText("");
-        final String error = readInputError();
-        if (null != error) {
-            errorJScrollPane.setVisible(true);
-            copyDetailsJButton.setVisible(true);
-
-            errorJTextArea.setText(error);
-            errorJTextArea.setCaretPosition(0);
+    private String getInputErrorMessageKey() {
+        if (null == input) {
+            return null;
         } else {
-            errorJScrollPane.setVisible(false);
-            copyDetailsJButton.setVisible(false);
+            return (String) ((Data) input).get(DataKey.ERROR_MESSAGE_KEY);
+        }
+    }
+    
+    /**
+     * Get the "thrown" boolean from the input.
+     * 
+     * @return A boolean indicating if the error was thrown.
+     */
+    private Boolean getInputThrown() {
+        if (null == input) {
+            return null;
+        } else {
+            return (Boolean) ((Data) input).get(DataKey.ERROR_THROWN);
         }
     }
 
@@ -196,25 +158,21 @@ public class ErrorAvatar extends Avatar {
      */
     private void reloadErrorMessage() {
         errorMessageJLabel.setText("");
-        final String errorMessageKey = readInputErrorMessageKey();
-        final Object[] errorMessageArguments = readInputErrorMessageArguments();
+        final String errorMessageKey = getInputErrorMessageKey();
+        final Object[] errorMessageArguments = getInputErrorMessageArguments();
         if(null != errorMessageKey) {
-            if(null != errorMessageArguments) {
+            if (null != errorMessageArguments) {
                 errorMessageJLabel.setText(getString(errorMessageKey, errorMessageArguments));
-            }
-            else {
+            } else {
                 errorMessageJLabel.setText(getString(errorMessageKey));
             }
         }
     }
 
     /** Data keys. */
-    public enum DataKey { ERROR, ERROR_MESSAGE_ARGUMENTS, ERROR_MESSAGE_KEY }
+    public enum DataKey { ERROR_MESSAGE_ARGUMENTS, ERROR_MESSAGE_KEY, ERROR_THROWN }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton copyDetailsJButton;
-    private javax.swing.JScrollPane errorJScrollPane;
-    private javax.swing.JTextArea errorJTextArea;
-    private javax.swing.JLabel errorMessageJLabel;
+    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 }

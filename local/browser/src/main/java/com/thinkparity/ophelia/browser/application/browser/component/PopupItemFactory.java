@@ -328,7 +328,7 @@ public class PopupItemFactory extends AbstractFactory {
                 action.invokeAction(data);
             } catch(final Throwable t) {
                 ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER))
-                        .displayErrorDialog(t.getLocalizedMessage(), t);
+                        .displayErrorDialog(t);
             }
         }
 

@@ -24,7 +24,7 @@ public class ErrorWindow extends Window {
      *            The parity owner.
      */
     public ErrorWindow(final BrowserWindow owner) {
-        super(owner, Boolean.TRUE, Boolean.FALSE, "ErrorWindow");
+        super(owner, Boolean.TRUE, Boolean.TRUE, "ErrorWindow");
     }
 
     /**

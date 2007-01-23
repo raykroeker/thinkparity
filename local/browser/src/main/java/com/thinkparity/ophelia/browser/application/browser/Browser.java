@@ -19,16 +19,15 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.swing.JFileChooserUtil;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.TeamMember;
-
-import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.codebase.swing.JFileChooserUtil;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -37,6 +36,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Avatar
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorDetailsAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.UserInfoAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ContainerVersionCommentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
@@ -51,13 +51,7 @@ import com.thinkparity.ophelia.browser.application.browser.window.WindowFactory;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowId;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
-import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
-import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
-import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.LinkAction;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
+import com.thinkparity.ophelia.browser.platform.action.*;
 import com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.artifact.RemoveFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation;
@@ -66,18 +60,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingIn
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.DisplayContactInvitationInfo;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Create;
-import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.DisplayFlagSeenInfo;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
-import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.Rename;
-import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
@@ -98,8 +81,7 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-
-import org.apache.log4j.Logger;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -327,16 +309,16 @@ public class Browser extends AbstractApplication {
     /**
      * Handle a user error (show an error dialog).
      * 
-     * @param messageKey
+     * @param errorMessageKey
      *            The error message localization key.
      */
     public void displayErrorDialog(final String errorMessageKey) {
-        displayErrorDialog(errorMessageKey, null, null);
+        displayErrorDialog(errorMessageKey, null, Boolean.FALSE);
     }
     
     /**
-     * Display an error dialog.
-     *
+     * Display an error dialog
+     * 
      * @param errorMessageKey
      *            The error message localization key.
      * @param errorMessageArguments
@@ -344,29 +326,55 @@ public class Browser extends AbstractApplication {
      */
     public void displayErrorDialog(final String errorMessageKey,
             final Object[] errorMessageArguments) {
-        displayErrorDialog(errorMessageKey, errorMessageArguments, null);
+        displayErrorDialog(errorMessageKey, errorMessageArguments, Boolean.FALSE);
     }
     
     /**
      * Display an error dialog
      * 
-     * @param error
-     *            An error (optional).
+     * @param errorMessageKey
+     *            The error message localization key.
+     * @param errorMessageArguments
+     *            The error message arguments.
+     * @param thrown
+     *            A flag indicating if the error was thrown.      
+     */
+    private void displayErrorDialog(final String errorMessageKey,
+            final Object[] errorMessageArguments,
+            final Boolean thrown) {
+        final Data input = new Data(3);
+        if (null != errorMessageKey)
+            input.set(ErrorAvatar.DataKey.ERROR_MESSAGE_KEY, errorMessageKey);
+        if (null != errorMessageArguments)
+            input.set(ErrorAvatar.DataKey.ERROR_MESSAGE_ARGUMENTS, errorMessageArguments);
+        input.set(ErrorAvatar.DataKey.ERROR_THROWN, thrown);
+        open(WindowId.ERROR, AvatarId.DIALOG_ERROR, input);
+    }
+    
+    /**
+     * Display an error dialog
+     * 
      * @param errorMessageKey
      *            An error message key.
      * @param errorMessageArguments
      *            Error message arguments (optional).
+     * @param error
+     *            An error (optional).         
      */
     public void displayErrorDialog(final String errorMessageKey,
             final Object[] errorMessageArguments, final Throwable error) {
-        final Data input = new Data(3);
-        if (null != errorMessageKey)
-            input.set(ErrorAvatar.DataKey.ERROR_MESSAGE_KEY, errorMessageKey);
-        if(null != errorMessageArguments)
-            input.set(ErrorAvatar.DataKey.ERROR_MESSAGE_ARGUMENTS, errorMessageArguments);
-        if(null != error)
-            input.set(ErrorAvatar.DataKey.ERROR, error);
-        open(WindowId.ERROR, AvatarId.DIALOG_ERROR, input);
+        if (getPlatform().isDevelopmentMode() || getPlatform().isTestingMode()) {
+            final Data input = new Data(3);
+            if (null != errorMessageKey)
+                input.set(ErrorDetailsAvatar.DataKey.ERROR_MESSAGE_KEY, errorMessageKey);
+            if (null != errorMessageArguments)
+                input.set(ErrorDetailsAvatar.DataKey.ERROR_MESSAGE_ARGUMENTS, errorMessageArguments);
+            if (null != error)
+                input.set(ErrorDetailsAvatar.DataKey.ERROR, error);
+            open(WindowId.ERROR, AvatarId.DIALOG_ERROR_DETAILS, input);
+        } else {
+            displayErrorDialog(errorMessageKey, errorMessageArguments, Boolean.TRUE);
+        }
     }
 
     /**
@@ -380,6 +388,16 @@ public class Browser extends AbstractApplication {
     public void displayErrorDialog(final String errorMessageKey,
             final Throwable error) {
         displayErrorDialog(errorMessageKey, null, error);
+    }
+    
+    /**
+     * Display an error dialog.
+     * 
+     * @param error
+     *            An error.
+     */
+    public void displayErrorDialog(final Throwable error) {
+        displayErrorDialog(null, null, error);
     }
     
     /**
@@ -1944,7 +1962,7 @@ public class Browser extends AbstractApplication {
 		} catch(final Throwable t) {
             logger.logError(t, "Could not invoke action {0} with data {1}.", actionId, data);
             // TODO Provide meaningful error messages
-            displayErrorDialog("", t);
+            displayErrorDialog(t);
 		}
 	}
 

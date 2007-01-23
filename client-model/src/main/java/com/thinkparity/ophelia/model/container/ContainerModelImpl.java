@@ -581,52 +581,12 @@ public final class ContainerModelImpl extends
         logger.logApiId();
         logger.logVariable("event", event);
         try {
-            // determine the existance of the container and the version.
-            final InternalArtifactModel artifactModel = getArtifactModel();
-            final boolean doesExist = artifactModel.doesExist(
-                    event.getUniqueId()).booleanValue();
-            final boolean doesVersionExist;
-            final Container container;
-            final ContainerVersion version;
-            if (doesExist) {
-                final Long containerId = artifactModel.readId(event.getUniqueId());
-                container = read(containerId);
-                doesVersionExist = artifactModel.doesVersionExist(
-                        containerId, event.getVersionId()).booleanValue();
-
-                if (doesVersionExist) {
-                    version = readVersion(container.getId(), event.getVersionId());
-                } else {
-                    version = createVersion(container.getId(),
-                            event.getVersionId(), event.getPublishedBy(),
-                            event.getPublishedOn());
-                }
-            } else {
-                doesVersionExist = false;
-
-                // ensure the published by user exists locally
-                getUserModel().readLazyCreate(event.getPublishedBy());
-
-                container = new Container();
-                container.setCreatedBy(event.getPublishedBy());
-                container.setCreatedOn(event.getPublishedOn());
-                container.setName(event.getName());
-                container.setState(ArtifactState.ACTIVE);
-                container.setType(ArtifactType.CONTAINER);
-                container.setUniqueId(event.getUniqueId());
-                container.setUpdatedBy(container.getCreatedBy());
-                container.setUpdatedOn(container.getCreatedOn());
-                // create
-                containerIO.create(container);
-                // create version
-                version = createVersion(container.getId(), event.getVersionId(),
-                        event.getPublishedBy(), event.getPublishedOn());
-                // create remote info
-                artifactModel.createRemoteInfo(container.getId(),
-                        event.getPublishedBy(), container.getCreatedOn());
-                // index
-                getIndexModel().indexContainer(container.getId());
-            }
+            final Container container = handleResolution(event.getUniqueId(),
+                    event.getName(), event.getPublishedBy(),
+                    event.getPublishedOn());
+            final ContainerVersion version = handleVersionResolution(
+                    event.getUniqueId(), event.getVersionId(),
+                    event.getPublishedBy(), event.getPublishedOn());
 
             // handle the artifact by specific type
             final ArtifactVersion artifactVersion;
@@ -637,7 +597,7 @@ public final class ContainerModelImpl extends
             default:
                 throw Assert.createUnreachable("Cannot publish a container within a container.");
             }
-            final Long artifactId = artifactModel.readId(event.getArtifactUniqueId());
+            final Long artifactId = getArtifactModel().readId(event.getArtifactUniqueId());
             if (!containerIO.doesExistVersion(container.getId(),
                     event.getVersionId(), artifactId,
                     event.getArtifactVersionId()).booleanValue()) {
@@ -744,6 +704,11 @@ public final class ContainerModelImpl extends
         logger.logApiId();
         logger.logVariable("event", event);
         try {
+            handleResolution(event.getUniqueId(), event.getName(),
+                    event.getPublishedBy(), event.getPublishedOn());
+            handleVersionResolution(event.getUniqueId(), event.getVersionId(),
+                    event.getPublishedBy(), event.getPublishedOn());
+
             final InternalArtifactModel artifactModel = getArtifactModel();
             final Long containerId = artifactModel.readId(event.getUniqueId());
             // build published to list
@@ -2286,30 +2251,6 @@ public final class ContainerModelImpl extends
      *            A container id <code>Long</code>.
      * @param versionId
      *            A container version id <code>Long</code>.
-     * @param createdBy
-     *            The created by user id <code>JabberId</code>.
-     * @param createdOn
-     *            The created on <code>Calendar</code>.
-     * @return The new <code>ContainerVersion</code>.
-     * 
-     * @deprecated Use
-     *             {@link ContainerModelImpl#createVersion(Long, Long, String, JabberId, Calendar)}
-     *             instead.
-     */
-    @Deprecated
-    private ContainerVersion createVersion(final Long containerId,
-            final Long versionId, final JabberId createdBy,
-            final Calendar createdOn) {
-        return createVersion(containerId, versionId, null, createdBy, createdOn);
-    }
-
-    /**
-     * Create a new container version.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A container version id <code>Long</code>.
      * @param comment
      *            A comment <code>String</code>.
      * @param createdBy
@@ -2596,7 +2537,6 @@ public final class ContainerModelImpl extends
         }
     }
 
-
     /**
      * Handle a document published remote event.
      * 
@@ -2623,6 +2563,85 @@ public final class ContainerModelImpl extends
     private DocumentVersion handleDocumentPublished(
             final ContainerArtifactPublishedEvent event) throws IOException {
         return getDocumentModel().handleDocumentPublished(event);
+    }
+
+    /**
+     * Handle the resolution of a container. If the container does not exist it
+     * will be created.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param name
+     *            A container name <code>String</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param publishedBy
+     *            A container published by user id <code>JabberId</code>.
+     * @param publishedOn
+     *            A conatiner published on <code>Calendar</code>.
+     * @return A <code>Container</code>.
+     */
+    private Container handleResolution(final UUID uniqueId, final String name,
+            final JabberId publishedBy, final Calendar publishedOn) {
+        // determine the existance of the container and the version.
+        final InternalArtifactModel artifactModel = getArtifactModel();
+        final boolean doesExist = artifactModel.doesExist(uniqueId).booleanValue();
+        final Container container;
+        if (doesExist) {
+            container = read(artifactModel.readId(uniqueId));
+        } else {
+            // ensure the published by user exists locally
+            getUserModel().readLazyCreate(publishedBy);
+
+            container = new Container();
+            container.setCreatedBy(publishedBy);
+            container.setCreatedOn(publishedOn);
+            container.setName(name);
+            container.setState(ArtifactState.ACTIVE);
+            container.setType(ArtifactType.CONTAINER);
+            container.setUniqueId(uniqueId);
+            container.setUpdatedBy(container.getCreatedBy());
+            container.setUpdatedOn(container.getCreatedOn());
+            // create
+            containerIO.create(container);
+
+            // create remote info
+            artifactModel.createRemoteInfo(container.getId(),
+                    publishedBy, container.getCreatedOn());
+            // index
+            getIndexModel().indexContainer(container.getId());
+        }
+        return container;
+    }
+
+
+    /**
+     * Handle the resolution of a container version. If the version does not
+     * exist it will be created.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param publishedBy
+     *            A container published by user id <code>JabberId</code>.
+     * @param publishedOn
+     *            A conatiner published on <code>Calendar</code>.
+     * @return A <code>ContainerVersion</code>.
+     */
+    private ContainerVersion handleVersionResolution(final UUID uniqueId,
+            final Long versionId, final JabberId publishedBy,
+            final Calendar publishedOn) {
+        final InternalArtifactModel artifactModel = getArtifactModel();
+        final Long containerId = artifactModel.readId(uniqueId);
+        final ContainerVersion version;
+        if (artifactModel.doesVersionExist(containerId, versionId).booleanValue()) {
+            version = readVersion(containerId, versionId);
+        } else {
+            version = createVersion(containerId, versionId, null, publishedBy,
+                    publishedOn);
+        }
+        return version;
     }
 
     /**

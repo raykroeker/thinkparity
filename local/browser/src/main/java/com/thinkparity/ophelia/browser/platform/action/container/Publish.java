@@ -87,15 +87,7 @@ public class Publish extends AbstractAction {
                 }
             }
         }
-        
-        final int top = 4;
-        final int bottom = 0;
-        try {
-            final int z = top / bottom;
-        } catch (Throwable t) {
-            browser.displayErrorDialog(t);
-        }
-        
+
         if (!publishableDocuments) {
             browser.displayErrorDialog("ErrorNoDocumentToPublish",
                     new Object[] {container.getName()});

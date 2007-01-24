@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog;
 
 import java.awt.event.ActionEvent;
+import java.text.MessageFormat;
 
 import javax.swing.AbstractAction;
 
@@ -42,7 +43,7 @@ public class ErrorAvatar extends Avatar {
     public String getAvatarTitle() {
         if (null == input) {
             return null;
-        } else if (getInputThrown()) {
+        } else if (null == getInputErrorMessageKey()) {
             return getString("Title");
         } else {
             final StringBuffer errorKey = new StringBuffer(getInputErrorMessageKey()).append(".Title");
@@ -112,6 +113,23 @@ public class ErrorAvatar extends Avatar {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Get the input error localized message.
+     * 
+     * @return A string.
+     */
+    private String getInputErrorLocalizedMessage() {
+        if (null == input) {
+            return null;
+        } else {
+            final Throwable t = (Throwable) ((Data) input).get(DataKey.ERROR);
+            if (null == t) {
+                return null;
+            } else {
+                return t.getLocalizedMessage();
+            }
+        }
+    }
 
     /**
      * Get the error message key from the input.
@@ -124,7 +142,7 @@ public class ErrorAvatar extends Avatar {
         } else {
             return (Object[]) ((Data) input).get(DataKey.ERROR_MESSAGE_ARGUMENTS);
         }
-    }   
+    }
 
     /**
      * Get the error message key from the input.
@@ -138,19 +156,6 @@ public class ErrorAvatar extends Avatar {
             return (String) ((Data) input).get(DataKey.ERROR_MESSAGE_KEY);
         }
     }
-    
-    /**
-     * Get the "thrown" boolean from the input.
-     * 
-     * @return A boolean indicating if the error was thrown.
-     */
-    private Boolean getInputThrown() {
-        if (null == input) {
-            return null;
-        } else {
-            return (Boolean) ((Data) input).get(DataKey.ERROR_THROWN);
-        }
-    }
 
     /**
      * Reload the error message label.
@@ -160,17 +165,24 @@ public class ErrorAvatar extends Avatar {
         errorMessageJLabel.setText("");
         final String errorMessageKey = getInputErrorMessageKey();
         final Object[] errorMessageArguments = getInputErrorMessageArguments();
-        if(null != errorMessageKey) {
+        if (null != errorMessageKey) {
+            final String text;
             if (null != errorMessageArguments) {
-                errorMessageJLabel.setText(getString(errorMessageKey, errorMessageArguments));
+                text = getString(errorMessageKey, errorMessageArguments);
             } else {
-                errorMessageJLabel.setText(getString(errorMessageKey));
+                text = getString(errorMessageKey);
+            }
+            errorMessageJLabel.setText(MessageFormat.format("<html>{0}</html>", text));
+        } else {
+            final String errorLocalizedMessage = getInputErrorLocalizedMessage();
+            if (null != errorLocalizedMessage) {
+                errorMessageJLabel.setText(errorLocalizedMessage);
             }
         }
     }
 
     /** Data keys. */
-    public enum DataKey { ERROR_MESSAGE_ARGUMENTS, ERROR_MESSAGE_KEY, ERROR_THROWN }
+    public enum DataKey { ERROR, ERROR_MESSAGE_ARGUMENTS, ERROR_MESSAGE_KEY }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();

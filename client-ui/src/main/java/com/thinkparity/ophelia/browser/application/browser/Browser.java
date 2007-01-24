@@ -305,7 +305,7 @@ public class Browser extends AbstractApplication {
     public void displayEditProfileDialog() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_EDIT);
     }
-    
+
     /**
      * Handle a user error (show an error dialog).
      * 
@@ -313,9 +313,9 @@ public class Browser extends AbstractApplication {
      *            The error message localization key.
      */
     public void displayErrorDialog(final String errorMessageKey) {
-        displayErrorDialog(errorMessageKey, null, Boolean.FALSE);
+        displayErrorDialog(errorMessageKey, null, null);
     }
-    
+
     /**
      * Display an error dialog
      * 
@@ -326,70 +326,9 @@ public class Browser extends AbstractApplication {
      */
     public void displayErrorDialog(final String errorMessageKey,
             final Object[] errorMessageArguments) {
-        displayErrorDialog(errorMessageKey, errorMessageArguments, Boolean.FALSE);
-    }
-    
-    /**
-     * Display an error dialog
-     * 
-     * @param errorMessageKey
-     *            The error message localization key.
-     * @param errorMessageArguments
-     *            The error message arguments.
-     * @param thrown
-     *            A flag indicating if the error was thrown.      
-     */
-    private void displayErrorDialog(final String errorMessageKey,
-            final Object[] errorMessageArguments,
-            final Boolean thrown) {
-        final Data input = new Data(3);
-        if (null != errorMessageKey)
-            input.set(ErrorAvatar.DataKey.ERROR_MESSAGE_KEY, errorMessageKey);
-        if (null != errorMessageArguments)
-            input.set(ErrorAvatar.DataKey.ERROR_MESSAGE_ARGUMENTS, errorMessageArguments);
-        input.set(ErrorAvatar.DataKey.ERROR_THROWN, thrown);
-        open(WindowId.ERROR, AvatarId.DIALOG_ERROR, input);
-    }
-    
-    /**
-     * Display an error dialog
-     * 
-     * @param errorMessageKey
-     *            An error message key.
-     * @param errorMessageArguments
-     *            Error message arguments (optional).
-     * @param error
-     *            An error (optional).         
-     */
-    public void displayErrorDialog(final String errorMessageKey,
-            final Object[] errorMessageArguments, final Throwable error) {
-        if (getPlatform().isDevelopmentMode() || getPlatform().isTestingMode()) {
-            final Data input = new Data(3);
-            if (null != errorMessageKey)
-                input.set(ErrorDetailsAvatar.DataKey.ERROR_MESSAGE_KEY, errorMessageKey);
-            if (null != errorMessageArguments)
-                input.set(ErrorDetailsAvatar.DataKey.ERROR_MESSAGE_ARGUMENTS, errorMessageArguments);
-            if (null != error)
-                input.set(ErrorDetailsAvatar.DataKey.ERROR, error);
-            open(WindowId.ERROR, AvatarId.DIALOG_ERROR_DETAILS, input);
-        } else {
-            displayErrorDialog(errorMessageKey, errorMessageArguments, Boolean.TRUE);
-        }
+        displayErrorDialog(errorMessageKey, errorMessageArguments, null);
     }
 
-    /**
-     * Display an error dialog.
-     * 
-     * @param errorMessageKey
-     *            An error message localization key.
-     * @param error
-     *            An error.
-     */
-    public void displayErrorDialog(final String errorMessageKey,
-            final Throwable error) {
-        displayErrorDialog(errorMessageKey, null, error);
-    }
-    
     /**
      * Display an error dialog.
      * 
@@ -399,7 +338,57 @@ public class Browser extends AbstractApplication {
     public void displayErrorDialog(final Throwable error) {
         displayErrorDialog(null, null, error);
     }
-    
+
+    /**
+     * Display an error dialog
+     * 
+     * @param errorMessageKey
+     *            The error message localization key (optional).
+     * @param errorMessageArguments
+     *            The error message arguments (optional).
+     * @param error
+     *            An error (optional).     
+     */
+    public void displayErrorDialog(final String errorMessageKey,
+            final Object[] errorMessageArguments,
+            final Throwable error) {
+        if ((null != error) && (getPlatform().isDevelopmentMode() || getPlatform().isTestingMode())) {
+            displayErrorDetailsDialog(errorMessageKey, errorMessageArguments, error);
+        } else {        
+            final Data input = new Data(3);
+            if (null != errorMessageKey)
+                input.set(ErrorAvatar.DataKey.ERROR_MESSAGE_KEY, errorMessageKey);
+            if (null != errorMessageArguments)
+                input.set(ErrorAvatar.DataKey.ERROR_MESSAGE_ARGUMENTS, errorMessageArguments);
+            if (null != error) {
+                input.set(ErrorAvatar.DataKey.ERROR, error);
+            }
+            open(WindowId.ERROR, AvatarId.DIALOG_ERROR, input);
+        }
+    }
+
+    /**
+     * Display an error dialog including details of the Throwable error.
+     * 
+     * @param errorMessageKey
+     *            An error message key (optional).
+     * @param errorMessageArguments
+     *            Error message arguments (optional).
+     * @param error
+     *            An error.         
+     */
+    private void displayErrorDetailsDialog(final String errorMessageKey,
+        final Object[] errorMessageArguments, final Throwable error) {
+        final Data input = new Data(3);
+        if (null != errorMessageKey)
+            input.set(ErrorDetailsAvatar.DataKey.ERROR_MESSAGE_KEY, errorMessageKey);
+        if (null != errorMessageArguments)
+            input.set(ErrorDetailsAvatar.DataKey.ERROR_MESSAGE_ARGUMENTS, errorMessageArguments);
+        if (null != error)
+            input.set(ErrorDetailsAvatar.DataKey.ERROR, error);
+        open(WindowId.ERROR, AvatarId.DIALOG_ERROR_DETAILS, input);
+    }
+
     /**
      * Display the info (or Help About) dialog.
      */

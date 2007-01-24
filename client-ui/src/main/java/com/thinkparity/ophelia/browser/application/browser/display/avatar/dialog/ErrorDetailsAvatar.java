@@ -9,6 +9,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialo
 import java.awt.event.ActionEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.MessageFormat;
 
 import javax.swing.AbstractAction;
 
@@ -216,15 +217,17 @@ public class ErrorDetailsAvatar extends Avatar {
         final String errorMessageKey = getInputErrorMessageKey();
         final Object[] errorMessageArguments = getInputErrorMessageArguments();
         if (null != errorMessageKey) {
-            if(null != errorMessageArguments) {
-                errorMessageJLabel.setText(getString(errorMessageKey, errorMessageArguments));
+            final String text;
+            if (null != errorMessageArguments) {
+                text = getString(errorMessageKey, errorMessageArguments);
             } else {
-                errorMessageJLabel.setText(getString(errorMessageKey));
+                text = getString(errorMessageKey);
             }
+            errorMessageJLabel.setText(MessageFormat.format("<html>{0}</html>", text));
         } else {
             final String errorLocalizedMessage = getInputErrorLocalizedMessage();
             if (null != errorLocalizedMessage) {
-                errorMessageJLabel.setText(getInputErrorLocalizedMessage());
+                errorMessageJLabel.setText(errorLocalizedMessage);
             }
         }
     }

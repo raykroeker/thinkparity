@@ -5,6 +5,8 @@
 package com.thinkparity.ophelia.browser.platform.action.container;
 
 
+import com.thinkparity.codebase.model.document.Document;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -17,6 +19,9 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @version $Revision$
  */
 public class RevertDocument extends AbstractAction {
+    
+    /** The thinkParity browser application. */
+    private final Browser browser;
 
 	/**
 	 * Create RevertDocument.
@@ -26,13 +31,18 @@ public class RevertDocument extends AbstractAction {
 	 */
 	public RevertDocument(final Browser browser) {
 		super(ActionId.CONTAINER_REVERT_DOCUMENT);
+        this.browser = browser;
 	}
 
 	/** @see com.thinkparity.ophelia.browser.platform.action.AbstractAction#invoke(com.thinkparity.ophelia.browser.platform.action.Data) */
 	public void invoke(final Data data) {
 	    final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
-        getContainerModel().revertDocument(containerId, documentId);
+        final Document document = getDocumentModel().get(documentId);
+        if (browser.confirm("DocumentRevert.ConfirmRevertMessage",
+                new Object[] { document.getName() })) {
+            getContainerModel().revertDocument(containerId, documentId);
+        }
 	}
 
 	public enum DataKey { CONTAINER_ID, DOCUMENT_ID }

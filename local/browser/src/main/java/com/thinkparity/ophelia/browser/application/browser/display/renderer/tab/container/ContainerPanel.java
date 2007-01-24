@@ -233,7 +233,7 @@ public class ContainerPanel extends DefaultTabPanel {
         if (cell instanceof WestCell) {
             westListModel.setSelectedCell(cell);
         }           
-        if (!onIcon && e.getClickCount() % 2 == 0) {
+        if (!onIcon && e.getClickCount() % 2 == 0 && e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.toggleExpansion(this);
         }
     }
@@ -375,12 +375,22 @@ public class ContainerPanel extends DefaultTabPanel {
     private void collapsedJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMousePressed
         logger.logApiId();
         logger.logVariable("e", e);
-        if ((e.getClickCount() % 2) == 0) {
+        if (e.getClickCount() == 1 && e.isPopupTrigger()) {
+            popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
+            popupDelegate.showForContainer(container);
+        }
+        if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.toggleExpansion(this);
         }
     }//GEN-LAST:event_collapsedJPanelMousePressed
 
     private void collapsedJPanelMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMouseReleased
+        logger.logApiId();
+        logger.logVariable("e", e);
+        if (e.getClickCount() == 1 && e.isPopupTrigger()) {
+            popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
+            popupDelegate.showForContainer(container);
+        }
     }//GEN-LAST:event_collapsedJPanelMouseReleased
 
     /**
@@ -492,12 +502,15 @@ public class ContainerPanel extends DefaultTabPanel {
                 westListModel.getSelectedCell().showPopup();
             }
         }
+        if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
+            tabDelegate.toggleExpansion(this);
+        }
     }//GEN-LAST:event_eastJPanelMousePressed
     
     private void expandedJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMousePressed
         logger.logApiId();
         logger.logVariable("e", e);
-        if ((e.getClickCount() % 2) == 0) {
+        if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.toggleExpansion(this);
         }
     }//GEN-LAST:event_expandedJPanelMousePressed

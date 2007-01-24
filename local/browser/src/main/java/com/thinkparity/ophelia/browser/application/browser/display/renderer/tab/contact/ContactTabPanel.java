@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
+import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -929,7 +930,7 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     private void jPanelMouseClicked(final javax.swing.JPanel jPanel,
             final java.awt.event.MouseEvent e) {
-        if (0 == e.getClickCount() % 2)
+        if (0 == e.getClickCount() % 2 && e.getButton() == MouseEvent.BUTTON1)
             tabDelegate.toggleExpansion(this);
     }
 
@@ -945,7 +946,7 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     private void jPanelMousePressed(final javax.swing.JPanel jPanel,
             final java.awt.event.MouseEvent e) {
-        if (expanded && e.isPopupTrigger()) {
+        if (e.isPopupTrigger()) {
             popupDelegate.initialize(jPanel, e.getX(), e.getY());
             if (isSetContact())
                 popupDelegate.showForContact(contact);
@@ -970,7 +971,7 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     private void jPanelMouseReleased(final javax.swing.JPanel jPanel,
             final java.awt.event.MouseEvent e) {
-        if (expanded && e.isPopupTrigger()) {
+        if (e.isPopupTrigger()) {
             popupDelegate.initialize(jPanel, e.getX(), e.getY());
             if (isSetContact())
                 popupDelegate.showForContact(contact);

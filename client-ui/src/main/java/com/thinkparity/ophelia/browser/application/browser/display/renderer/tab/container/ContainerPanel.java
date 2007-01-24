@@ -581,6 +581,7 @@ public class ContainerPanel extends DefaultTabPanel {
         setBorder(BORDER);
         collapsedJPanel.setLayout(new java.awt.GridBagLayout());
 
+        collapsedJPanel.setOpaque(false);
         collapsedJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 collapsedJPanelMousePressed(evt);

@@ -6,11 +6,10 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.a
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import com.thinkparity.ophelia.model.events.ContainerEvent;
-
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.archive.ArchiveTabDispatcher;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * <b>Title:</b>thinkParity Container Tab Avatar<br>
@@ -39,6 +38,16 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
                                 .addListeners(ArchiveTabAvatar.this);
                     }
                 });
+    }
+    
+    /**
+     * Expand the container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void expandContainer(final Long containerId) {
+        model.expandPanel(containerId, Boolean.FALSE);
     }
 
     /**

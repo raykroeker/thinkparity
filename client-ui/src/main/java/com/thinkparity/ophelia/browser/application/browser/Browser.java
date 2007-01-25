@@ -46,6 +46,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameDocumentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabListAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.archive.ArchiveTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowFactory;
@@ -534,6 +535,22 @@ public class Browser extends AbstractApplication {
         setStatus(ApplicationStatus.ENDING);        
 		notifyEnd();
 	}
+    
+    /**
+     * Expand the container.
+     *
+     * @param containerId
+     *            The containerId.
+     * @param archiveTab
+     *            true for archive tab, false for container tab.        
+     */
+    public void expandContainer(final Long containerId, final Boolean archiveTab) {
+        if (archiveTab) {
+            getTabArchiveAvatar().expandContainer(containerId);
+        } else {
+            getTabContainerAvatar().expandContainer(containerId);
+        }
+    }
     
     /**
      * Notify the application that an actin has been invoked.
@@ -1650,6 +1667,7 @@ public class Browser extends AbstractApplication {
 
     /**
      * Show the container.
+     * This expands the container without animation, and scrolls so it is visible.
      * 
      * @param containerIds
      *            The list of containerIds.
@@ -1925,6 +1943,15 @@ public class Browser extends AbstractApplication {
      */
     private MainTitleAvatar.TabId getMainTitleAvatarTab() {
         return (MainTitleAvatar.TabId) ((Data) getMainTitleAvatar().getInput()).get(MainTitleAvatar.DataKey.TAB_ID);
+    }
+
+    /**
+     * Obtain the archive tab avatar.
+     * 
+     * @return A <code>ArchiveAvatar</code>.
+     */
+    private ArchiveTabAvatar getTabArchiveAvatar() {
+        return (ArchiveTabAvatar) getAvatar(AvatarId.TAB_ARCHIVE);
     }
 
     /**

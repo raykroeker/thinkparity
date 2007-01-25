@@ -41,7 +41,17 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
                     }
                 });
     }
-    
+
+    /**
+     * Expand the container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void expandContainer(final Long containerId) {
+        model.expandPanel(containerId, Boolean.FALSE);
+    }
+
     /**
      * Notify the avatar that a container has been archived.
      * 

@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,9 +24,6 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
-
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
@@ -35,24 +33,13 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Archive;
-import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Delete;
-import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
-import com.thinkparity.ophelia.browser.platform.action.container.PrintDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
-import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Rename;
-import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.RevertDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.UndeleteDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
 /**
  * <b>Title:</b><br>
@@ -65,6 +52,12 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
 
     /** A <code>ContainerModel</code>. */
     private final ContainerTabModel model;
+    
+    /** A list of action ids, used for the container popup. */
+    private final List<ActionId> actionIds;
+    
+    /** A list of data, used for the container popup. */
+    private final List<Data> dataList;
 
     /**
      * Create ContainerTabPopupFactory.
@@ -75,32 +68,34 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     ContainerTabPopupDelegate(final ContainerTabModel model) {
         super();
         this.model = model;
+        this.actionIds = new ArrayList<ActionId>();
+        this.dataList = new ArrayList<Data>();
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForContainer(com.thinkparity.codebase.model.container.Container)
      *
      */
-    public void showForContainer(final Container container) {
+    public void showForContainer(final Container container) {   
         if (isOnline()) {
             boolean needSeparator = false;
             if (container.isLocalDraft()) {
                 final Data publishData = new Data(1);
                 publishData.set(Publish.DataKey.CONTAINER_ID, container.getId());
-                add(ActionId.CONTAINER_PUBLISH, publishData);
+                addWithExpand(ActionId.CONTAINER_PUBLISH, publishData, container);
                 needSeparator = true;
             }
             if (!container.isDraft() && container.isLatest()) {
                 final Data createDraftData = new Data(1);
                 createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
-                add(ActionId.CONTAINER_CREATE_DRAFT, createDraftData);  
+                addWithExpand(ActionId.CONTAINER_CREATE_DRAFT, createDraftData, container);  
                 needSeparator = true;
             }
             if (container.isLocalDraft()) {
                 final Data deleteDraftData = new Data(2);
                 deleteDraftData.set(DeleteDraft.DataKey.CONTAINER_ID, container.getId());
                 deleteDraftData.set(DeleteDraft.DataKey.CONFIRM, Boolean.TRUE);
-                add(ActionId.CONTAINER_DELETE_DRAFT, deleteDraftData);
+                addWithExpand(ActionId.CONTAINER_DELETE_DRAFT, deleteDraftData, container);
                 needSeparator = true;
             }
             if (needSeparator) {
@@ -113,7 +108,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             final Data addDocumentData = new Data(1);
             addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, container.getId());
             addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
-            add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
+            addWithExpand(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData, container);
             addSeparator();
         }
 
@@ -121,19 +116,19 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         if (!isDistributed(container.getId())) {
             final Data renameData = new Data(1);
             renameData.set(Rename.DataKey.CONTAINER_ID, container.getId());
-            add(ActionId.CONTAINER_RENAME, renameData);
+            addWithExpand(ActionId.CONTAINER_RENAME, renameData, container);
         }
 
         if (isDistributed(container.getId()) && !container.isLocalDraft()) {
             final Data archiveData = new Data(1);
             archiveData.set(Archive.DataKey.CONTAINER_ID, container.getId());
-            add(ActionId.CONTAINER_ARCHIVE, archiveData);
+            addWithExpand(ActionId.CONTAINER_ARCHIVE, archiveData, container);
         }
 
         // delete
         final Data deleteData = new Data(1);
         deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
-        add(ActionId.CONTAINER_DELETE, deleteData);  
+        addWithExpand(ActionId.CONTAINER_DELETE, deleteData, container);
 
 
         // export
@@ -142,7 +137,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             addSeparator();
             final Data exportData = new Data(1);
             exportData.set(com.thinkparity.ophelia.browser.platform.action.container.Export.DataKey.CONTAINER_ID, container.getId());
-            add(ActionId.CONTAINER_EXPORT, exportData);
+            addWithExpand(ActionId.CONTAINER_EXPORT, exportData, container);
         }
 
         // include the container's id and unique id in the menu
@@ -374,6 +369,33 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         }    
 
         show();
+    }
+
+    /**
+     * Add an action to a popup menu.
+     * A second action to expand the container is inserted.
+     * 
+     * @param actionId
+     *            An <code>ActionId</code>.
+     * @param data
+     *            The <code>Data</code>.       
+     * @param container
+     *            The <code>Container</code>.            
+     */
+    private void addWithExpand(final ActionId actionId, final Data data,
+            final Container container) {
+        actionIds.clear();
+        dataList.clear();
+        
+        final Data expandData = new Data(2);
+        expandData.set(Expand.DataKey.CONTAINER_ID, container.getId());
+        expandData.set(Expand.DataKey.ARCHIVE_TAB, Boolean.FALSE);
+        actionIds.add(ActionId.CONTAINER_EXPAND);
+        dataList.add(expandData);
+        
+        actionIds.add(actionId);
+        dataList.add(data);
+        add(actionIds, dataList, 1);
     }
 
     /**

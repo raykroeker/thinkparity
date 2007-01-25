@@ -5,13 +5,17 @@ package com.thinkparity.ophelia.browser.application.browser.component;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.AbstractFactory;
@@ -110,6 +114,24 @@ public class PopupItemFactory extends AbstractFactory {
     }
     
     /**
+     * Create a popup menu item that will run multiple actions.
+     * This method is suited for context menus (mnemonic and
+     * accelerator not supported, and popup name used).
+     * 
+     * @param actionIds
+     *            A list of action id.
+     * @param dataList
+     *            A list of action data.
+     * @param mainActionIndex
+     *            The index to the main action (used for the name).       
+     * @return A popup menu item.
+     */
+    public JMenuItem createPopupItem(final List<ActionId> actionIds,
+            final List<Data> dataList, final int mainActionIndex) {
+        return SINGLETON.doCreatePopupItem(actionIds, dataList, mainActionIndex, Boolean.FALSE);
+    }
+    
+    /**
      * Create a popup menu item for an action and its data.
      * This method is suited for context menus.
      * This method supplies the menu name, so the AbstractAction
@@ -153,11 +175,10 @@ public class PopupItemFactory extends AbstractFactory {
                 } else {
                     action = ActionFactory.create(extension);
                 }
-
-                final ActionWrapper wrapper = getWrapper(extension, action);        
+                
                 final Data data = new Data(1);
-                data.set(ActionExtensionAction.DataKey.SELECTION, selection);
-                wrapper.setData(data);
+                data.set(ActionExtensionAction.DataKey.SELECTION, selection);                
+                final ActionWrapper wrapper = getWrapper(extension, action, data);        
                 jPopupMenu.add(new ThinkParityMenuItem(wrapper));
             }
         }
@@ -193,11 +214,45 @@ public class PopupItemFactory extends AbstractFactory {
             action = ActionFactory.create(actionId);
         }
         
-        final ActionWrapper actionWrapper = getWrapper(action);        
-        actionWrapper.setData(data);
+        final ActionWrapper actionWrapper = getWrapper(action, data, mainMenu);        
         
-        // Adjust the action so it is suited to main menu or context popup menu
-        actionWrapper.adjustForMenuType(mainMenu);
+        return new ThinkParityMenuItem(actionWrapper);
+    }
+    
+    /**
+     * Create a popup menu item that will run multiple actions.
+     * 
+     * @param actionIds
+     *            A list of action id.
+     * @param dataList
+     *            A list of action data.
+     * @param mainActionIndex
+     *            The index to the main action (used for the name).
+     * @param mainMenu
+     *            true for main menu, false for context menu         
+     * @return A popup menu item.
+     */
+    private JMenuItem doCreatePopupItem(final List<ActionId> actionIds,
+            final List<Data> dataList, final int mainActionIndex, final Boolean mainMenu) {
+        Assert.assertTrue(actionIds.size()==dataList.size(), "List size mismatch creating popup menu.");  
+        AbstractAction action;
+        ActionId actionId = actionIds.get(0);
+        if (actionRegistry.contains(actionId)) {
+            action = actionRegistry.get(actionId);
+        } else {
+            action = ActionFactory.create(actionId);
+        }
+        final ActionWrapper actionWrapper = getWrapper(action, dataList.get(0), mainMenu);
+
+        for (int index = 1; index < actionIds.size(); index++) {
+            actionId = actionIds.get(index);
+            if (actionRegistry.contains(actionId)) {
+                action = actionRegistry.get(actionId);
+            } else {
+                action = ActionFactory.create(actionId);
+            }
+            actionWrapper.addAction(action, dataList.get(index), index==mainActionIndex);
+        }
         
         return new ThinkParityMenuItem(actionWrapper);
     }
@@ -222,8 +277,7 @@ public class PopupItemFactory extends AbstractFactory {
             action = ActionFactory.create(actionId);
         }
         
-        final ActionWrapper actionWrapper = getWrapper(action);        
-        actionWrapper.setData(data);
+        final ActionWrapper actionWrapper = getWrapper(action, data, Boolean.FALSE);        
         
         final JMenuItem menuItem = new ThinkParityMenuItem(text);
         menuItem.addActionListener(new ActionListener() {
@@ -259,14 +313,18 @@ public class PopupItemFactory extends AbstractFactory {
      *            A <code>ActionExtension</code>.
      * @param action
      *            An <code>AbstractAction</code>.
+     * @param data
+     *            The <code>Data</code>.       
      * @return An <code>ActionWrapper</code>.
      */
     private ActionWrapper getWrapper(final ActionExtension extension,
-            final AbstractAction action) {
+            final AbstractAction action, final Data data) {
         if (extensionRegistry.containsKey(extension)) {
-            return extensionRegistry.get(extension);
+            final ActionWrapper actionWrapper = extensionRegistry.get(extension);
+            actionWrapper.setData(data);
+            return actionWrapper;
         } else {
-            extensionRegistry.put(extension, new ActionWrapper(action));
+            extensionRegistry.put(extension, new ActionWrapper(action, data, Boolean.FALSE));
             return extensionRegistry.get(extension);
         }
     }
@@ -274,16 +332,17 @@ public class PopupItemFactory extends AbstractFactory {
     /**
      * Create an action wrapper using the appropriate map.
      * 
-     * @param actionId
-     *              The action ID.
      * @param action
-     *              The action.
-     * @param registry
-     *              The registry, either for menus or for context popups.
+     *              The AbstractAction.
+     * @param data
+     *              The Data.
+     * @param mainMenu
+     *            true for main menu, false for context menu             
      * @return An ActionWrapper.
      */
-    private ActionWrapper getWrapper(final AbstractAction action) {
-        return new ActionWrapper(action);
+    private ActionWrapper getWrapper(final AbstractAction action,
+            final Data data, final Boolean mainMenu) {
+        return new ActionWrapper(action, data, mainMenu);
     }
 
     /**
@@ -292,40 +351,48 @@ public class PopupItemFactory extends AbstractFactory {
      */
     private class ActionWrapper extends javax.swing.AbstractAction {
 
-        /** A thinkParity action. */
-        private final AbstractAction action;
+        /** A list of thinkParity actions. */
+        private final List<AbstractAction> actions;
 
-        /** The action data. */
-        private Data data;
+        /** A list of action data. */
+        private List<Data> dataList;
+        
+        /** Flag indicating if this is for the main menu. */
+        private Boolean mainMenu;
 
         /**
-         * Create SwingAbstractAction.
+         * Create an ActionWrapper for one action and its data.
          * 
          * @param action
          *            A thinkParity action.
          * @param data
          *            The action data.
+         * @param mainMenu
+         *            true for main menu, false for context menu       
          */
-        private ActionWrapper(final AbstractAction action) {
+        private ActionWrapper(final AbstractAction action,
+                final Data data, final Boolean mainMenu) {
             super();
-            this.action = action;
-            this.data = null;
-            if (action.isSetName()) {
-                putValue(Action.NAME, action.getName());
-            } else if  (action.isSetMenuName()) {
-                putValue(Action.NAME, action.getMenuName());
-            } else {
-                putValue(Action.NAME, "!No name set.!");
-            }           
+            this.mainMenu = mainMenu;
+            this.actions = new ArrayList<AbstractAction>();
+            this.dataList = new ArrayList<Data>();
+            actions.add(action);
+            dataList.add(data);
+            adjustName(mainMenu, action);       
         }
-        
+
         /**
          * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
          * 
          */
         public void actionPerformed(final ActionEvent e) {
             try {
-                action.invokeAction(data);
+                // Run all actions in sequence. Most often there will be just one action.
+                for (int index = 0; index < actions.size(); index++) {
+                    final AbstractAction action = actions.get(index);
+                    final Data data = dataList.get(index);
+                    action.invokeAction(data);
+                }
             } catch(final Throwable t) {
                 ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER))
                         .displayErrorDialog(t);
@@ -333,14 +400,33 @@ public class PopupItemFactory extends AbstractFactory {
         }
 
         /**
-         * Tailor the action so it is suited for main menu or popup menu.
+         * Add an action and its data. This makes it possible to invoke more
+         * than one thinkParity action from a single popup menu item.
+         * 
+         * @param action
+         *            A thinkParity action.
+         * @param data
+         *            The action data.
+         * @param useName
+         *            True if this action is used to set the menu name.        
          */
-        public void adjustForMenuType(final Boolean mainMenu) {
+        private void addAction(final AbstractAction action,
+                final Data data, final Boolean useName) {
+            this.actions.add(action);
+            this.dataList.add(data);
+            if (useName) {
+                adjustName(mainMenu, action);
+            }
+        }
+
+        /**
+         * Set the name, tailor the action so it is suited for main menu or popup menu.
+         */
+        private void adjustName(final Boolean mainMenu, final AbstractAction action) {
             if (mainMenu) {
                 putValue(Action.NAME, action.isSetMenuName() ? action.getMenuName() : "!No name set.!"); 
-                setMnemonicAndAccelerator();
-            }
-            else {
+                setMnemonicAndAccelerator(action);
+            } else {
                 putValue(Action.NAME, action.isSetName() ? action.getName() : "!No name set.!");
             }
         }
@@ -351,14 +437,14 @@ public class PopupItemFactory extends AbstractFactory {
          * @param data
          *            THe action data.
          */
-        public void setData(final Data data) {
-            this.data = data;
+        private void setData(final Data data) {
+            this.dataList.set(0, data);
         }
-        
+
         /**
          * Set mnemonic and accelerator
          */
-        private void setMnemonicAndAccelerator() {
+        private void setMnemonicAndAccelerator(final AbstractAction action) {
             if (action.isSetMnemonic()) {
                 putValue(MNEMONIC_KEY, Integer.valueOf(action.getMnemonic().charAt(0)));
             }

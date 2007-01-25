@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.browser.platform.action;
 
 import java.awt.Component;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JMenu;
@@ -80,6 +81,22 @@ public class DefaultPopupDelegate implements PopupDelegate {
      */
     public void add(final ActionId actionId, final Data data) {
         jPopupMenu.add(itemFactory.createPopupItem(actionId, data));
+    }
+    
+    /**
+     * Add a list of actions to the popup menu.
+     * This allows more than one action to be associated with one menu item.
+     * 
+     * @param actionIds
+     *            A list of <code>ActionId</code>.
+     * @param dataList
+     *            The list of action <code>Data</code>.
+     * @param mainActionIndex
+     *            The index to the main action (used for the name).            
+     */
+    public void add(final List<ActionId> actionIds,
+            final List<Data> dataList, final int mainActionIndex) {
+        jPopupMenu.add(itemFactory.createPopupItem(actionIds, dataList, mainActionIndex));
     }
 
     /**

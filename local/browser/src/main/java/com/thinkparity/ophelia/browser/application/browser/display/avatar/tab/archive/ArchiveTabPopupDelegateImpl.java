@@ -9,6 +9,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -34,6 +35,7 @@ import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.Delete;
 import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
+import com.thinkparity.ophelia.browser.platform.action.container.Expand;
 import com.thinkparity.ophelia.browser.platform.action.container.Restore;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
@@ -51,6 +53,12 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
 
     /** A <code>ArchiveTabModel</code>. */
     private final ArchiveTabModel model;
+    
+    /** A list of action ids, used for the container popup. */
+    private final List<ActionId> actionIds;
+    
+    /** A list of data, used for the container popup. */
+    private final List<Data> dataList;
 
     /**
      * Create ArchiveTabPopupDelegateImpl.
@@ -61,6 +69,8 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
     ArchiveTabPopupDelegateImpl(final ArchiveTabModel model) {
         super();
         this.model = model;
+        this.actionIds = new ArrayList<ActionId>();
+        this.dataList = new ArrayList<Data>();
     }
 
     /**
@@ -72,19 +82,22 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
         if (isDistributed(container.getId()) && !container.isLocalDraft()) {
             final Data archiveData = new Data(1);
             archiveData.set(Restore.DataKey.CONTAINER_ID, container.getId());
-            add(ActionId.CONTAINER_RESTORE, archiveData);
+            addWithExpand(ActionId.CONTAINER_RESTORE, archiveData, container);
         }
+
         // delete
         final Data deleteData = new Data(1);
         deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
-        add(ActionId.CONTAINER_DELETE, deleteData);  
+        addWithExpand(ActionId.CONTAINER_DELETE, deleteData, container);
+
         // export
         if (container.isLocalDraft() || isDistributed(container.getId())) {
             addSeparator();
             final Data exportData = new Data(1);
             exportData.set(com.thinkparity.ophelia.browser.platform.action.container.Export.DataKey.CONTAINER_ID, container.getId());
-            add(ActionId.CONTAINER_EXPORT, exportData);
+            addWithExpand(ActionId.CONTAINER_EXPORT, exportData, container);
         }
+
         // debugging info
         if (model.isDevelopmentMode()) {
             final Clipboard systemClipboard =
@@ -152,6 +165,7 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
         if (documentViews.size() > 0) {
             addSeparator(ActionId.DOCUMENT_OPEN_VERSION);
         }
+
         // update profile/read contact
         if (isLocalUser(publishedBy)) {
             final Data data = new Data(1);
@@ -206,6 +220,33 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
             add(ActionId.DOCUMENT_PRINT_VERSION, documentView.getDocumentName(), documentVersionPrintData);           
         }    
         show();
+    }
+
+    /**
+     * Add an action to a popup menu.
+     * A second action to expand the container is inserted.
+     * 
+     * @param actionId
+     *            An <code>ActionId</code>.
+     * @param data
+     *            The <code>Data</code>.       
+     * @param container
+     *            The <code>Container</code>.            
+     */
+    private void addWithExpand(final ActionId actionId, final Data data,
+            final Container container) {
+        actionIds.clear();
+        dataList.clear();
+        
+        final Data expandData = new Data(2);
+        expandData.set(Expand.DataKey.CONTAINER_ID, container.getId());
+        expandData.set(Expand.DataKey.ARCHIVE_TAB, Boolean.TRUE);
+        actionIds.add(ActionId.CONTAINER_EXPAND);
+        dataList.add(expandData);
+        
+        actionIds.add(actionId);
+        dataList.add(data);
+        add(actionIds, dataList, 1);
     }
 
     /**

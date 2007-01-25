@@ -3,9 +3,12 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab;
 
+import java.awt.BasicStroke;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 
@@ -171,14 +174,27 @@ public final class TabRenderer {
      *            A width <code>int</code>.
      * @param height
      *            A height <code>int</code>.
+     * @param selected
+     *            A selected <code>Boolean</code>.            
      */
-    public void paintBackground(final Graphics g, final int width, final int height) {
-        /*
-         * paint a background for a non-selected container panel - a simple
-         * color fill
-         */
-        g.setColor(Colors.Browser.List.LIST_CONTAINERS_BACKGROUND);
-        g.fillRect(0, 0, width, height);
+    public void paintBackground(final Graphics g, final int width, final int height, final Boolean selected) {
+        final Graphics2D g2 = (Graphics2D)g.create();
+        try {
+            // Paint the background for a collapsed panel.
+            // This is a simple color fill.
+            g2.setColor(Colors.Browser.Panel.PANEL_COLLAPSED_BACKGROUND);
+            g2.fillRect(0, 0, width, height);
+            
+            // For selection, draw a dashed line around the perimeter.
+            if (selected) {
+                final Path2D path = getSelectionPath(width, height);
+                final float dashes[] = {1};
+                g2.setStroke( new BasicStroke( 1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f, dashes, 0));
+                g2.setColor(Colors.Browser.Panel.PANEL_COLLAPSED_SELECTION_LINE); 
+                g2.draw(path);
+            }
+        }
+        finally { g2.dispose(); }
     }
 
     /**
@@ -270,5 +286,36 @@ public final class TabRenderer {
                     observer);
         }
         g.drawImage(versionImagesWest[selectionIndex], 0, rowOffset, observer);
+    }
+
+    /**
+     * Get a path for the selection line.
+     * 
+     * @param width
+     *            A width <code>int</code>.
+     * @param height
+     *            A height <code>int</code>.
+     * @return A <code>Path2D</code>.
+     */
+    private Path2D getSelectionPath(final int width, final int height) {
+        final Path2D path = new Path2D.Double();           
+        final int insetX = 6;   // Inset from the left, right
+        final int insetY = 2;   // Inset from the top, bottom
+        final int radius = 2;   // Radius of the curves on the corners
+        final int quad = 0;     // Inset to the control point for defining curves
+        final int minX = insetX;
+        final int maxX = width - insetX - 1;
+        final int minY = insetY;
+        final int maxY = height - insetY - 1;
+        path.moveTo(minX + radius, minY);
+        path.lineTo(maxX - radius, minY);
+        path.quadTo(maxX - quad, minY + quad, maxX, minY + radius);
+        path.lineTo(maxX, maxY - radius);
+        path.quadTo(maxX - quad, maxY - quad, maxX - radius, maxY);
+        path.lineTo(minX + radius, maxY);
+        path.quadTo(minX + quad, maxY - quad, minX, maxY - radius);
+        path.lineTo(minX, minY + radius);
+        path.quadTo(minX + quad, minY + quad, minX + radius, minY);
+        return path;
     }
 }

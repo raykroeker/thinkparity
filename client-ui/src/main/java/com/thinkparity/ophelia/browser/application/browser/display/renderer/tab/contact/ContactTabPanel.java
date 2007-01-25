@@ -10,18 +10,16 @@ import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
+import com.thinkparity.ophelia.model.contact.IncomingInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 /**
  * <b>Title:</b><br>
@@ -327,7 +325,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         if (expanded || animating) {
             renderer.paintExpandedBackground(g, this);
         } else {
-            renderer.paintBackground(g, getWidth(), getHeight());
+            renderer.paintBackground(g, getWidth(), getHeight(), selected);
         }
     }
 
@@ -947,6 +945,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     private void jPanelMousePressed(final javax.swing.JPanel jPanel,
             final java.awt.event.MouseEvent e) {
         if (e.isPopupTrigger()) {
+            tabDelegate.select(this);
             popupDelegate.initialize(jPanel, e.getX(), e.getY());
             if (isSetContact())
                 popupDelegate.showForContact(contact);
@@ -956,6 +955,8 @@ public class ContactTabPanel extends DefaultTabPanel {
                 popupDelegate.showForInvitation(outgoing);
             else
                 Assert.assertUnreachable("Inconsistent contact tab panel state.");
+        } else if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
+            tabDelegate.select(this);
         }
     }
 
@@ -972,6 +973,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     private void jPanelMouseReleased(final javax.swing.JPanel jPanel,
             final java.awt.event.MouseEvent e) {
         if (e.isPopupTrigger()) {
+            tabDelegate.select(this);
             popupDelegate.initialize(jPanel, e.getX(), e.getY());
             if (isSetContact())
                 popupDelegate.showForContact(contact);

@@ -35,4 +35,6 @@ public interface TabPanel {
     public void expand(final boolean animate);
     
     public void setExpanded(final Boolean expanded);
+    
+    public void setSelected(final Boolean selected);
 }

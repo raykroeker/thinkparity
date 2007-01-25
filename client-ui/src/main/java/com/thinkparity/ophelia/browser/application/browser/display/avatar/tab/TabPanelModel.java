@@ -76,6 +76,9 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     /** A user search expression <code>String</code>. */
     protected String searchExpression;
     
+    /** The selected panel. */
+    protected TabPanel selectedPanel;
+    
     /** A search result list of unique id <code>T</code>s. */
     protected final List<T> searchResults;
 
@@ -169,7 +172,21 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
         rectangle.x = rectangle.y = 0;
         panel.scrollRectToVisible(rectangle);
     }
-    
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate#select(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    public void select(final TabPanel tabPanel) {
+        if (null != selectedPanel && tabPanel.equals(selectedPanel)) {
+            return;
+        }
+        if (null != selectedPanel) {
+            selectedPanel.setSelected(Boolean.FALSE);
+        }
+        selectedPanel = tabPanel;
+        selectedPanel.setSelected(Boolean.TRUE);
+    }
+
     /**
      * Set localization.
      *
@@ -189,7 +206,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     public void setSession(final BrowserSession session) {
         this.session = session;
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#toggleExpansion(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
      * 

@@ -12,6 +12,14 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  * @version 1.1.2.1
  */
 public interface TabDelegate {
+    
+    /**
+     * Select the panel.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     */
+    public void select(final TabPanel tabPanel);
 
     /**
      * Toggle the expansion of a panel.

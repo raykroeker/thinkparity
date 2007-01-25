@@ -33,6 +33,10 @@ public final class Constants {
             public static final class Border {
                 public static final Color BORDER_COLOR = new Color(130, 130, 130, 255);
             }
+            public static final class Panel {
+                public static final Color PANEL_COLLAPSED_BACKGROUND = new Color(234, 234, 234, 255);
+                public static final Color PANEL_COLLAPSED_SELECTION_LINE = new Color(100, 100, 100, 255);
+            }
             public static final class List {
                 public static final Color LIST_LACK_MOST_RECENT_VERSION_FG = new Color(100, 100, 100, 255);
                 public static final Color LIST_SECONDARY_TEXT_FG = new Color(100, 100, 100, 255);

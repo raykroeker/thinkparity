@@ -11,6 +11,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 
@@ -140,6 +141,7 @@ public class PanelCellListModel {
             tabPanel.panelCellSelectionChanged(getSelectedCell());
             saveSelectedIndex(selectedIndex);
         }
+        selectPanel();
     }
 
     private void installDataListener() {
@@ -180,5 +182,15 @@ public class PanelCellListModel {
         tabPanel.setAttribute(MessageFormat.format(
                 SK_LIST_SELECTED_INDEX_PATTERN, tabPanel.getId(), listKey),
                 Integer.valueOf(selectedIndex));
+    }
+    
+    private void selectPanel() {
+        // NOTE This is done so other panels will deselect when there is activity in
+        // the expanded panel. Note also that the null check is because this method
+        // may get called during initialization before the delegate is set up.
+        final TabDelegate delegate = tabPanel.getTabDelegate();
+        if (null != delegate) {
+            delegate.select(tabPanel);
+        }
     }
 }

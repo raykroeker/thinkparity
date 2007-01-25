@@ -72,16 +72,16 @@ public class ContainerPanel extends DefaultTabPanel {
     // End of variables declaration//GEN-END:variables
 
     /** A <code>Container</code>. */
-    protected Container container;
+    private Container container;
 
     /** The container's created by <code>User</code>. */
-    protected User containerCreatedBy;
+    private User containerCreatedBy;
 
     /** A <code>ContainerDraft</code>. */
-    protected ContainerDraft draft;
+    private ContainerDraft draft;
 
     /** The expanded <code>Boolean</code> state. */
-    protected boolean expanded;
+    private boolean expanded;
 
     /** The container tab's <code>DefaultActionDelegate</code>. */
     private ActionDelegate actionDelegate;
@@ -358,7 +358,7 @@ public class ContainerPanel extends DefaultTabPanel {
                 renderer.paintExpandedBackgroundEast(g, westJPanel.getWidth(), getHeight(), selectionIndex, this);
             }
         } else {
-            renderer.paintBackground(g, getWidth(), getHeight());
+            renderer.paintBackground(g, getWidth(), getHeight(), selected);
         }
     }
 
@@ -376,10 +376,12 @@ public class ContainerPanel extends DefaultTabPanel {
         logger.logApiId();
         logger.logVariable("e", e);
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
+            tabDelegate.select(this);
             popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
             popupDelegate.showForContainer(container);
-        }
-        if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
+        } else if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
+            tabDelegate.select(this);
+        } else if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.toggleExpansion(this);
         }
     }//GEN-LAST:event_collapsedJPanelMousePressed
@@ -388,6 +390,7 @@ public class ContainerPanel extends DefaultTabPanel {
         logger.logApiId();
         logger.logVariable("e", e);
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
+            tabDelegate.select(this);
             popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
             popupDelegate.showForContainer(container);
         }
@@ -496,6 +499,7 @@ public class ContainerPanel extends DefaultTabPanel {
     }//GEN-LAST:event_eastJPanelMouseReleased
 
     private void eastJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJPanelMousePressed
+        tabDelegate.select(this);
         if (e.isPopupTrigger()) {
             if (!westListModel.isSelectionEmpty()) {
                 getPopupDelegate().initialize((Component) e.getSource(), e.getX(), e.getY());
@@ -510,6 +514,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private void expandedJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMousePressed
         logger.logApiId();
         logger.logVariable("e", e);
+        tabDelegate.select(this);
         if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.toggleExpansion(this);
         }
@@ -569,6 +574,7 @@ public class ContainerPanel extends DefaultTabPanel {
     
     private void iconJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMousePressed
         if (e.getButton() == MouseEvent.BUTTON1) {
+            tabDelegate.select(this);
             actionDelegate.invokeForContainer(container);
         }
     }//GEN-LAST:event_iconJLabelMousePressed

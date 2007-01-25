@@ -59,6 +59,9 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
         IMAGE_CACHE = new MainPanelImageCache();
         NUMBER_VISIBLE_ROWS = 6;
     }
+    
+    /** The selected <code>Boolean</code> state. */
+    protected boolean selected;
 
     /**
      * Format a calendar as a fuzzy date.
@@ -221,5 +224,13 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
      */
     public final void setAttribute(final String name, final Object value) {
         session.setAttribute(name, value);
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#setSelected(java.lang.Boolean)
+     */
+    public void setSelected(final Boolean selected) {
+        this.selected = selected;
+        repaint();
     }
 }

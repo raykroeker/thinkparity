@@ -74,9 +74,6 @@ public class ContainerPanel extends DefaultTabPanel {
     /** A <code>Container</code>. */
     private Container container;
 
-    /** The container's created by <code>User</code>. */
-    private User containerCreatedBy;
-
     /** A <code>ContainerDraft</code>. */
     private ContainerDraft draft;
 
@@ -308,7 +305,6 @@ public class ContainerPanel extends DefaultTabPanel {
             final Map<ContainerVersion, User> publishedBy,
             final List<TeamMember> team) {
         this.container = container;
-        this.containerCreatedBy = containerCreatedBy;
         this.draft = draftView.getDraft();
         this.latestVersion = latestVersion;
         

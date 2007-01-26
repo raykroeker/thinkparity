@@ -19,6 +19,7 @@ import javax.swing.Icon;
 import javax.swing.JLabel;
 
 import com.thinkparity.ophelia.browser.Constants.Icons.BrowserTitle;
+import com.thinkparity.ophelia.browser.application.browser.BrowserPopupHelper;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar.TabId;
@@ -67,6 +68,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         this.pluginTabs = new HashMap<PluginExtension, Tab>();
         initComponents();
         addMoveListener(this);
+        new BrowserPopupHelper().addPopupListener(this);
         new Resizer(getBrowser(), this, Boolean.FALSE, Resizer.ResizeEdges.LEFT);
         new Resizer(getBrowser(), containerJLabel, Boolean.FALSE, Resizer.ResizeEdges.LEFT);
     }

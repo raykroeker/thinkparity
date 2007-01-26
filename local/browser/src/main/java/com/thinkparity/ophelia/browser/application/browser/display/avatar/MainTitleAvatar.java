@@ -11,6 +11,7 @@ import com.thinkparity.codebase.swing.GradientPainter;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.Constants.Colors.Browser;
+import com.thinkparity.ophelia.browser.application.browser.BrowserPopupHelper;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -35,6 +36,7 @@ public class MainTitleAvatar extends Avatar {
         initComponents();
         installResizer();
         installMoveListener();
+        new BrowserPopupHelper().addPopupListener(this);
         
         // Double click to maximize the browser window
         this.addMouseListener(new java.awt.event.MouseAdapter() {

@@ -103,7 +103,7 @@ public class BrowserWindow extends AbstractJFrame {
 		super("BrowserWindow");
 		this.browser = browser;
 		this.logger = Logger.getLogger(getClass());
-        this.persistence = PersistenceFactory.getPersistence(getClass()); 
+        this.persistence = PersistenceFactory.getPersistence(getClass());
         final Boolean maximized = persistence.get("maximized", Boolean.FALSE);
 		getRootPane().setBorder(new WindowBorder2());
         addWindowListener(new WindowAdapter() {
@@ -181,6 +181,7 @@ public class BrowserWindow extends AbstractJFrame {
     private void initMenu(final Boolean maximized) {
         final JMenuBar menuBar = new BrowserMenuBar(browser, maximized);
         addMoveListener(menuBar);
+        new BrowserPopupHelper().addPopupListener(menuBar);
         setJMenuBar(menuBar);
     }
     

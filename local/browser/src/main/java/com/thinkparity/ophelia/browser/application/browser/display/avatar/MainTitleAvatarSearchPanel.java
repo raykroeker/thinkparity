@@ -22,6 +22,7 @@ import com.thinkparity.codebase.swing.border.TopBottomBorder;
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.Constants.Search;
+import com.thinkparity.ophelia.browser.application.browser.BrowserPopupHelper;
 
 /**
  *
@@ -43,6 +44,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         super();
         initComponents();
         addMoveListener(this);
+        new BrowserPopupHelper().addPopupListener(this);
         new Resizer(getBrowser(), this, Boolean.FALSE, Resizer.ResizeEdges.RIGHT);       
     }
 

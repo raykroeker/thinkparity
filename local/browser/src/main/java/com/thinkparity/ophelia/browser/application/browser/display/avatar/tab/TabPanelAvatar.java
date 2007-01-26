@@ -20,6 +20,7 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.thinkparity.ophelia.browser.Constants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserPopupHelper;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
@@ -123,6 +124,9 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
     	installDataListener();
         initComponents();
         installResizer();
+        final BrowserPopupHelper browserPopupHelper = new BrowserPopupHelper();
+        browserPopupHelper.addPopupListener(this);
+        browserPopupHelper.addPopupListener(tabJScrollPane);
         setTransferHandler(new TransferHandler() {
             @Override
             public boolean canImport(final JComponent comp,

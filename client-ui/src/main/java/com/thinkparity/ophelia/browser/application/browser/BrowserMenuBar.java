@@ -11,20 +11,13 @@ import java.awt.event.MouseEvent;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
 import com.thinkparity.codebase.swing.GradientPainter;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
-import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
-import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
-import com.thinkparity.ophelia.browser.util.localization.JFrameLocalization;
 
 /**
  * @author raymond@thinkparity.com
@@ -37,12 +30,6 @@ public class BrowserMenuBar extends JMenuBar {
     
     /** The browser application. */
     private final Browser browser;
-    
-    /** Resource bundle based localization. */
-    private final JFrameLocalization localization;
-    
-    /** A popup menu item factory. */
-    private final PopupItemFactory popupItemFactory;
     
     /** Close label icon. */
     private static final Icon CLOSE_ICON;
@@ -125,8 +112,6 @@ public class BrowserMenuBar extends JMenuBar {
     public BrowserMenuBar(final Browser browser, final Boolean maximized) {
         super();
         this.browser = browser;
-        this.localization = new JFrameLocalization("BrowserWindow.Menu");   
-        this.popupItemFactory = PopupItemFactory.getInstance();
         new Resizer(browser, this, Boolean.FALSE, Resizer.ResizeEdges.TOP);
         
         // Double click to maximize the browser window
@@ -140,34 +125,6 @@ public class BrowserMenuBar extends JMenuBar {
             }
         });
 
-        // Create JMenus
-        final JMenu newMenu = MenuFactory.create(localization.getString("New"), localization.getString("NewMnemonic"));
-        this.add(Box.createRigidArea(new Dimension(6,0))); 
-        this.add(newMenu);        
-        final JMenu profileMenu = MenuFactory.create(localization.getString("Profile"), localization.getString("ProfileMnemonic"));
-        this.add(Box.createRigidArea(new Dimension(2,0)));  
-        this.add(profileMenu);
-        final JMenu helpMenu = MenuFactory.create(localization.getString("Help"), localization.getString("HelpMnemonic"));
-        this.add(Box.createRigidArea(new Dimension(2,0)));  
-        this.add(helpMenu);
-
-        // Create the New popup menu
-        newMenu.add(popupItemFactory.createMenuPopupItem(ActionId.CONTAINER_CREATE, Data.emptyData()));
-        newMenu.add(popupItemFactory.createMenuPopupItem(ActionId.CONTACT_CREATE_INCOMING_INVITATION, Data.emptyData()));
-
-        // Create the Profile menu
-/*        final Data updateProfileData = new Data(1);
-        updateProfileData.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-        profileMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PROFILE_UPDATE, updateProfileData));*/
-
-        final Data editProfileData = new Data(1);
-        editProfileData.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-        profileMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PROFILE_UPDATE, editProfileData));
-        
-        // Create the OpenHelp menu
-        helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PLATFORM_BROWSER_OPEN_HELP, Data.emptyData()));
-        helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PLATFORM_BROWSER_DISPLAY_INFO, Data.emptyData()));
-        
         // Create the Sign-Up button
         // TODO Add this button back when the user is a guest
         this.add(Box.createHorizontalGlue());
@@ -176,11 +133,11 @@ public class BrowserMenuBar extends JMenuBar {
         
         // Add minimize, maximize and close buttons
         this.add(getMinimizeButton());
-        this.add(Box.createRigidArea(new Dimension(2,0)));
+        this.add(Box.createRigidArea(new Dimension(2,19)));
         this.add(getMaximizeButton(maximized));
-        this.add(Box.createRigidArea(new Dimension(2,0)));
+        this.add(Box.createRigidArea(new Dimension(2,19)));
         this.add(getCloseButton());
-        this.add(Box.createRigidArea(new Dimension(4,0)));
+        this.add(Box.createRigidArea(new Dimension(4,19)));
     }
     
     private JLabel getMinimizeButton() {

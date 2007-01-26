@@ -7,17 +7,17 @@ import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.user.UserModel;
-
-import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 
 /**
  * Provide a flat list of contacts from the session model.
@@ -30,6 +30,9 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
     /** A thinkParity <code>ContactModel</code>. */
     private final ContactModel contactModel;
 
+    /** A thinkParity <code>ProfileModel</code>. */
+    private final ProfileModel profileModel;
+
     /** A thinkParity <code>UserModel</code>. */
     private final UserModel userModel;
 
@@ -38,13 +41,18 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
      * 
      * @param profile
      *            A thinkParity user's profile.
+     * @param profileModel
+     *            A thinkParity profile interface.
      * @param contactModel
      *            A thinkParity contact interface.
+     * @param userModel
+     *            A thinkParity user interface.
      */
-	public ContactProvider(final Profile profile,
+	public ContactProvider(final Profile profile, final ProfileModel profileModel,
             final ContactModel contactModel, final UserModel userModel) {
 		super(profile);
         this.contactModel = contactModel;
+        this.profileModel = profileModel;
         this.userModel = userModel;
 	}
 
@@ -66,6 +74,10 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
         return contactModel.read();
     }
 
+    public List<ProfileEMail> readEmails() {
+        return profileModel.readEmails();
+    }
+
     public IncomingInvitation readIncomingInvitation(final Long invitationId) {
         return contactModel.readIncomingInvitation(invitationId);
     }
@@ -80,6 +92,10 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
 
     public List<OutgoingInvitation> readOutgoingInvitations() {
         return contactModel.readOutgoingInvitations();
+    }
+
+    public Profile readProfile() {
+        return profile;
     }
 
     public User readUser(final JabberId userId) {

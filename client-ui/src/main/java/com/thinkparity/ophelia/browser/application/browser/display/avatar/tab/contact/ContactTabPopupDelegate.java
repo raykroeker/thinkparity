@@ -4,9 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
 import com.thinkparity.codebase.model.contact.Contact;
-
-import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
+import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactTabPanel;
@@ -18,6 +16,9 @@ import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInv
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingInvitation;
+import com.thinkparity.ophelia.browser.platform.action.profile.Update;
+import com.thinkparity.ophelia.model.contact.IncomingInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 /**
  * <b>Title:</b><br>
@@ -81,6 +82,16 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
             add(ActionId.CONTACT_DELETE_OUTGOING_INVITATION, deleteData);
             show();
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.PopupDelegate#showForProfile(com.thinkparity.codebase.model.profile.Profile)
+     */
+    public void showForProfile(final Profile profile) {
+        final Data profileData = new Data(1);
+        profileData.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+        add(ActionId.PROFILE_UPDATE, profileData);
+        show();
     }
 
     /**

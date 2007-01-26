@@ -590,7 +590,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * 
      * Notify the application that a contact has been deleted.
      * 
      * @param contactId
@@ -606,8 +605,7 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * 
-     * Notify the application that a contact has been deleted.
+     * Notify the application that a contact has been updated.
      * 
      * @param contactId
      *           The contact id.
@@ -802,6 +800,17 @@ public class Browser extends AbstractApplication {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncOutgoingInvitation(invitationId, remote);
+            }
+        });
+    }
+
+    /**
+     * Notify the application that the user profile has been updated.
+     */
+    public void fireProfileUpdated() {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().syncProfile(Boolean.FALSE);
             }
         });
     }
@@ -1608,11 +1617,7 @@ public class Browser extends AbstractApplication {
         }
         invoke(ActionId.PROFILE_VERIFY_EMAIL, data);
     }
-        
-    /*
-     *
 
-     */
     /**
 	 * @see com.thinkparity.ophelia.browser.platform.Saveable#saveState(com.thinkparity.ophelia.browser.platform.util.State)
 	 * 

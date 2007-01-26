@@ -8,9 +8,12 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
+import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.swing.SwingUtil;
 
@@ -82,6 +85,9 @@ public class ContactTabPanel extends DefaultTabPanel {
 
     /** A contact <code>OutgoingInvitation</code>. */
     private OutgoingInvitation outgoing;
+    
+    /** A contact <code>Profile</code>. */
+    private Profile profile;
 
     /** A contact tab <code>PopupDelegate</code>. */
     private PopupDelegate popupDelegate;
@@ -139,6 +145,8 @@ public class ContactTabPanel extends DefaultTabPanel {
             id.append(incoming.getId());
         else if (isSetOutgoing())
             id.append(outgoing.getId());
+        else if (isSetProfile())
+            id.append(profile.getId());
         else
             Assert.assertUnreachable("Inconsistent contact tab panel state.");
         return id.toString();
@@ -168,6 +176,15 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     public PopupDelegate getPopupDelegate() {
         return popupDelegate;
+    }
+
+    /**
+     * Obtain the profile.
+     * 
+     * @return A <code>Profile</code>.
+     */
+    public Profile getProfile() {
+        return profile;
     }
 
     /**
@@ -213,6 +230,15 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     public Boolean isSetOutgoing() {
         return null != outgoing;
+    }
+
+    /**
+     * Determine if the profile is set.
+     * 
+     * @return True if the profile is set.
+     */
+    public Boolean isSetProfile() {
+        return null != profile;
     }
 
     /**
@@ -289,8 +315,8 @@ public class ContactTabPanel extends DefaultTabPanel {
     /**
      * Set the panel data.
      * 
-     * @param contact
-     *            A <code>Contact</code>.
+     * @param outgoing
+     *            A <code>OutgoingInvitation</code>.
      */
     public void setPanelData(final OutgoingInvitation outgoing) {
         this.outgoing = outgoing;
@@ -303,6 +329,32 @@ public class ContactTabPanel extends DefaultTabPanel {
         reload(outgoingInvitedAsValueJLabel, outgoing.getEmail().toString());
         reload(outgoingInvitedOnValueJLabel, formatFuzzy(outgoing.getCreatedOn()));
         reload(outgoingTextJLabel, outgoing.getEmail().toString());
+    }
+
+    /**
+     * Set the panel data.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     */
+    public void setPanelData(final Profile profile,
+            final List<ProfileEMail> emails) {
+        this.profile = profile;
+        collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
+        reload(collapsedTextJLabel, profile.getName());
+        reload(collapsedAdditionalTextJLabel, getAdditionalText(profile));
+
+        reload(contactTextJLabel, profile.getName());
+        reload(contactAdditionalTextJLabel, getAdditionalText(profile));
+
+        reload(contactCityValueJLabel, profile.getCity());
+        reload(contactCountryValueJLabel, profile.getCountry());
+        if (0 < emails.size())
+            reload(contactEMailValueJLabel, emails.get(0).getEmail().toString());
+        else
+            reload(contactEMailValueJLabel, null);
+        reload(contactMobliePhoneValueJLabel, profile.getMobilePhone());
+        reload(contactPhoneValueJLabel, profile.getPhone());
     }
 
     /**
@@ -440,7 +492,7 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     private void doExpand(final boolean animate) {
         expandedJPanel.removeAll();
-        if (isSetContact())
+        if (isSetContact() || isSetProfile())
             expandedJPanel.add(contactJPanel, innerConstraints.clone());
         else if (isSetIncoming())
             expandedJPanel.add(incomingJPanel, innerConstraints.clone());
@@ -953,6 +1005,8 @@ public class ContactTabPanel extends DefaultTabPanel {
                 popupDelegate.showForInvitation(incoming);
             else if (isSetOutgoing())
                 popupDelegate.showForInvitation(outgoing);
+            else if (isSetProfile())
+                popupDelegate.showForProfile(profile);
             else
                 Assert.assertUnreachable("Inconsistent contact tab panel state.");
         } else if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
@@ -981,6 +1035,8 @@ public class ContactTabPanel extends DefaultTabPanel {
                 popupDelegate.showForInvitation(incoming);
             else if (isSetOutgoing())
                 popupDelegate.showForInvitation(outgoing);
+            else if (isSetProfile())
+                popupDelegate.showForProfile(profile);
             else
                 Assert.assertUnreachable("Inconsistent contact tab panel state.");
         }

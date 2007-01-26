@@ -14,14 +14,12 @@ import javax.swing.Action;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.sort.DefaultComparator;
 import com.thinkparity.codebase.sort.StringComparator;
-
-import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
@@ -30,6 +28,8 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactTabPanel;
+import com.thinkparity.ophelia.model.contact.IncomingInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 /**
  * <b>Title:</b>thinkParity Contact Tab Model<br>
@@ -156,6 +156,8 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         for (final OutgoingInvitation invitation : outgoing) {
             addPanel(invitation);
         }
+        final Profile profile = readProfile();
+        addPanel(profile);
         final List<Contact> contacts = readContacts();
         for (final Contact contact : contacts) {
             addPanel(contact);
@@ -228,7 +230,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         } else {
             final int panelIndex = lookupIndex(contact.getId());
             if (-1 < panelIndex) {
-                // if the reload is the result of a remote event add the container
+                // if the reload is the result of a remote event add the panel
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
                 removePanel(contactId, false);
@@ -254,7 +256,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         } else {
             final int panelIndex = lookupIndex(invitation.getId());
             if (-1 < panelIndex) {
-                // if the reload is the result of a remote event add the container
+                // if the reload is the result of a remote event add the panel
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
                 removePanel(invitationId, false);
@@ -280,7 +282,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         } else {
             final int panelIndex = lookupIndex(invitation.getId());
             if (-1 < panelIndex) {
-                // if the reload is the result of a remote event add the container
+                // if the reload is the result of a remote event add the panel
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
                 removePanel(invitationId, false);
@@ -296,6 +298,27 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         synchronize();
         debug();
 
+    }
+
+    void syncProfile(final Boolean remote) {
+        debug();
+        final Profile profile = readProfile();
+        final int panelIndex = lookupIndex(profile.getId());
+        if (-1 < panelIndex) {
+            // if the reload is the result of a remote event add the panel
+            // at the top of the list; otherwise add it in the same location
+            // it previously existed
+            removePanel(profile.getId(), false);
+            if (remote) {
+                addPanel(0, profile);
+            } else {
+                addPanel(panelIndex, profile);
+            }
+        } else {
+            addPanel(0, profile);
+        }
+        synchronize();
+        debug();
     }
 
     /**
@@ -365,7 +388,31 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     private void addPanel(final OutgoingInvitation invitation) {
         addPanel(panels.size() == 0 ? 0 : panels.size(), invitation);
     }
-    
+
+    /**
+     * Add a profile to the panels list.
+     * 
+     * @param index
+     *            The index at which to add the invitation.
+     * @param profile
+     *            A <code>Profile</code>.
+     */
+    private void addPanel(final int index, final Profile profile) {
+        panels.add(index, toDisplay(profile));
+    }
+
+    /**
+     * Add a profile to the end of the panels list.
+     * 
+     * @param index
+     *            The index at which to add the invitation.
+     * @param profile
+     *            A <code>Profile</code>.
+     */
+    private void addPanel(final Profile profile) {
+        addPanel(panels.size() == 0 ? 0 : panels.size(), profile);
+    }
+
     /**
      * Apply an ordering to the panels.
      * 
@@ -455,6 +502,15 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         return ((ContactProvider) contentProvider).readContacts();
     }
 
+    /**
+     * Read the emails.
+     * 
+     * @return A <code>List</code> of <code>ProfileEMail</code>.
+     */
+    private List<ProfileEMail> readEmails() {
+        return ((ContactProvider) contentProvider).readEmails();
+    }
+
     private IncomingInvitation readIncomingInvitation(final Long invitationId) {
         return ((ContactProvider) contentProvider).readIncomingInvitation(invitationId);
     }
@@ -480,6 +536,15 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     private List<OutgoingInvitation> readOutgoingInvitations() {
         return ((ContactProvider) contentProvider).readOutgoingInvitations();
     }
+    
+    /**
+     * Read the profile.
+     * 
+     * @return A <code>Profile</code>.
+     */
+    private Profile readProfile() {
+        return ((ContactProvider) contentProvider).readProfile();
+    }
 
     /**
      * Read a user from the content provider.
@@ -492,9 +557,9 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         return (User) ((ContactProvider) contentProvider).readUser(jabberId);
     }
 
-    private void removePanel(final JabberId contactId,
+    private void removePanel(final JabberId userId,
             final boolean removeExpandedState) {
-        final int panelIndex = lookupIndex(contactId);
+        final int panelIndex = lookupIndex(userId);
         if (removeExpandedState) {
             final TabPanel panel = panels.remove(panelIndex);
             expandedState.remove(panel);
@@ -559,6 +624,23 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         final ContactTabPanel panel = new ContactTabPanel(session);
         panel.setActionDelegate(actionDelegate);
         panel.setPanelData(invitation);
+        panel.setPopupDelegate(popupDelegate);
+        panel.setExpanded(isExpanded(panel));
+        panel.setTabDelegate(this);
+        return panel;
+    }
+    
+    /**
+     * Obtain the contact display cell for a profile.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     * @return A contact display cell.
+     */
+    private TabPanel toDisplay(final Profile profile) {
+        final ContactTabPanel panel = new ContactTabPanel(session);
+        panel.setActionDelegate(actionDelegate);
+        panel.setPanelData(profile, readEmails());
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
         panel.setTabDelegate(this);

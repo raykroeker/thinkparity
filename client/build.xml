@@ -476,7 +476,7 @@ Local Configuration:
                 <equals arg1="TESTING" arg2="${thinkparity.innerMode}"/>
             </or>
         </condition>
-        <sleep seconds="3"/>
+        <sleep seconds="1"/>
     </target>
 
     <!-- analyze the source -->

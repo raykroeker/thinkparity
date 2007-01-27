@@ -13,6 +13,8 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
+import com.thinkparity.ophelia.model.events.ProfileListener;
+
 /**
  * <b>Title:</b>thinkParity Profile Model<br>
  * <b>Description:</b><br>
@@ -29,6 +31,15 @@ public interface ProfileModel {
      *            An <code>EMail</code>.
      */
 	public void addEmail(final EMail email);
+
+    /**
+     * Add a profile event listener to the model.
+     *
+     * @param listener
+     *      An instance of <code>ProfileListener</code>.
+     */
+    @ThinkParityTransaction(TransactionType.NEVER)
+    public void addListener(final ProfileListener listener);
 
     /**
      * Create the user's profile locally.
@@ -87,6 +98,15 @@ public interface ProfileModel {
      *            An email id <code>Long</code>.
      */
 	public void removeEmail(final Long emailId);
+
+    /**
+     * Remove a profile event listener from the model.
+     *
+     * @param listener
+     *      An instance of <code>ProfileListener</code>.
+     */
+    @ThinkParityTransaction(TransactionType.NEVER)
+    public void removeListener(final ProfileListener listener);
 
     /**
      * Reset the user's password.

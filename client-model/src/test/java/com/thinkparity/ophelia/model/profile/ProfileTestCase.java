@@ -4,36 +4,71 @@
 package com.thinkparity.ophelia.model.profile;
 
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 
+import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.ModelTestCase;
 
 /**
+ * <b>Title:</b>thinkParity Profile Test Case<br>
+ * <b>Description:</b>
+ *
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.2
  */
 abstract class ProfileTestCase extends ModelTestCase {
 
     /**
      * Assert the profile and all of its required fields are not null.
      * 
-     * @param assertion
-     *            The assertion.
      * @param profile
      *            The profile.
      */
-    protected static void assertNotNull(final String assertion,
-            final Profile profile) {
-        assertNotNull(assertion + " [PROFILE IS NULL]", (Object) profile);
-        assertNotNull(assertion + " [PROFILE ID IS NULL]", profile.getId());
-        assertNotNull(assertion + " [PROFILE LOCAL ID IS NULL]", profile.getLocalId());
-        assertNotNull(assertion + " [PROFILE NAME IS NULL]", profile.getName());
+    protected static void assertNotNull(final Profile profile) {
+        assertNotNull("Profile reference is null.", (Object) profile);
+        assertNotNull("Profile id reference is null.", profile.getId());
+        assertNotNull("Profile local id reference is null.", profile.getLocalId());
+        assertNotNull("Profile name reference is null.", profile.getName());
     }
 
-    /** Create ProfileTestCase. */
-    protected ProfileTestCase(final String name) { super(name); }
+    /**
+     * Assert the profile email and all of its required fields are not null.
+     * 
+     * @param email
+     *      A <code>ProfileEMail</code>.
+     */
+    protected static void assertNotNull(final ProfileEMail email) {
+        assertNotNull("Profile email reference is null.", (Object) email);
+        assertNotNull("Profile email address reference is null.", email.getEmail());
+        assertNotNull("Profile email id reference is null.", email.getEmailId());
+        assertNotNull("Profile email profile id reference is null.", email.getProfileId());
+        assertNotNull("Profile email verified reference is null.", email.isVerified());
+    }
 
     /**
-     * @see com.thinkparity.ophelia.model.ModelTestCase#setUp()
+     * Create ProfileTestCase.
+     *
+     * @param name
+     *      A test name <code>String</code>.
+     */
+    protected ProfileTestCase(final String name) {
+        super(name);
+    }
+
+    /**
+     * Obtain a profile model.
+     *
+     * @param testUser
+     *      A <code>OpheliaTestUser</code>.
+     * @return An instance of <code>InternalProfileModel</code>.
+     */
+    protected InternalProfileModel getModel(final OpheliaTestUser testUser) {
+        return getProfileModel(testUser);
+    }
+
+    /**
+     * Set up the profile test case.
+     *
      */
     @Override
     protected void setUp() throws Exception {
@@ -41,13 +76,17 @@ abstract class ProfileTestCase extends ModelTestCase {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.ModelTestCase#tearDown()
+     * Tear down the profile test case.
+     *
      */
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
 
-    /** A datum definition abstraction. */
-    protected abstract class Fixture {}
+    /**
+     * <b>Title:</b>Profile Test Fixture Abstraction<br>
+     * <b>Description:</b><br>
+     */
+    protected abstract class Fixture extends ModelTestCase.Fixture {}
 }

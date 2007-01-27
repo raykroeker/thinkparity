@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.event.EventNotifier;
 
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
@@ -14,6 +15,8 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.Model;
+import com.thinkparity.ophelia.model.events.ProfileEvent;
+import com.thinkparity.ophelia.model.events.ProfileListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ProfileIOHandler;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -24,11 +27,14 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version 1.1.2.10
  */
-public final class ProfileModelImpl extends Model implements
+public final class ProfileModelImpl extends Model<ProfileListener> implements
         ProfileModel, InternalProfileModel {
 
     /** The profile db io. */
     private ProfileIOHandler profileIO;
+
+    /** A <code>ProfileEventGenerator</code> for local events. */
+    private final ProfileEventGenerator localEventGenerator;
 
     /**
      * Create ProfileModelImpl.
@@ -36,6 +42,7 @@ public final class ProfileModelImpl extends Model implements
      */
     public ProfileModelImpl() {
         super();
+        this.localEventGenerator = new ProfileEventGenerator(ProfileEvent.Source.LOCAL);
     }
 
     /**
@@ -58,9 +65,21 @@ public final class ProfileModelImpl extends Model implements
             profileIO.createEmail(profile.getLocalId(), profileEMail);
             // add email remotely
             getSessionModel().addProfileEmail(localUserId(), profileEMail);
+            // fire event
+            notifyEmailAdded(read(), readEmail(profileEMail.getEmailId()),
+                    localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#addListener(com.thinkparity.ophelia.model.events.ProfileListener)
+     *
+     */
+    @Override
+    public void addListener(final ProfileListener listener) {
+        super.addListener(listener);
     }
 
     /**
@@ -195,9 +214,19 @@ public final class ProfileModelImpl extends Model implements
             profileIO.deleteEmail(email.getProfileId(), email.getEmailId());
             // remove email remotely
             getSessionModel().removeProfileEmail(localUserId(), email);
+            notifyEmailRemoved(read(), email, localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#removeListener(com.thinkparity.ophelia.model.events.ProfileListener)
+     *
+     */
+    @Override
+    public void removeListener(final ProfileListener listener) {
+        super.removeListener(listener);
     }
 
     /**
@@ -215,6 +244,7 @@ public final class ProfileModelImpl extends Model implements
             final Credentials credentials = readCredentials();
             credentials.setPassword(resetPassword);
             updateCredentials(credentials);
+            notifyPasswordReset(read(), localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -233,6 +263,7 @@ public final class ProfileModelImpl extends Model implements
             // update local data
             profileIO.update(profile);
             getSessionModel().updateProfile(localUserId(), profile);
+            notifyProfileUpdated(read(), localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -261,6 +292,7 @@ public final class ProfileModelImpl extends Model implements
             // update remote data.
             getSessionModel().updateProfileCredentials(localUserId(),
                     credentials);
+            notifyPasswordUpdated(read(), localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -284,6 +316,8 @@ public final class ProfileModelImpl extends Model implements
             final ProfileEMail email = profileIO.readEmail(profile.getLocalId(), emailId);
             getSessionModel().verifyProfileEmail(localUserId(), email, key);
             profileIO.verifyEmail(email.getProfileId(), email.getEmailId(), Boolean.TRUE);
+            notifyEmailVerified(read(), readEmail(email.getEmailId()),
+                    localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -297,5 +331,116 @@ public final class ProfileModelImpl extends Model implements
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
         this.profileIO = IOFactory.getDefault(workspace).createProfileHandler();
+    }
+
+    /**
+     * Notify that an email address has been added.
+     * 
+     * @param profile
+     *      A <code>Profile</code>.
+     * @param email
+     *      An <code>EMail</code> address.
+     * @param eventGenerator
+     *            An event generator.
+     */
+    private void notifyEmailAdded(final Profile profile,
+            final ProfileEMail email,
+            final ProfileEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ProfileListener>() {
+            public void notifyListener(final ProfileListener listener) {
+                listener.emailAdded(eventGenerator.generate(profile, email));
+            }
+        });
+    }
+
+    /**
+     * Notify that an email address has been removed.
+     * 
+     * @param profile
+     *      A <code>Profile</code>.
+     * @param email
+     *      An <code>EMail</code> address.
+     * @param eventGenerator
+     *            An event generator.
+     */
+    private void notifyEmailRemoved(final Profile profile,
+            final ProfileEMail email,
+            final ProfileEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ProfileListener>() {
+            public void notifyListener(final ProfileListener listener) {
+                listener.emailRemoved(eventGenerator.generate(profile, email));
+            }
+        });
+    }
+
+    /**
+     * Notify that an email address has been verified.
+     * 
+     * @param profile
+     *      A <code>Profile</code>.
+     * @param email
+     *      An <code>EMail</code> address.
+     * @param eventGenerator
+     *            An event generator.
+     */
+    private void notifyEmailVerified(final Profile profile,
+            final ProfileEMail email,
+            final ProfileEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ProfileListener>() {
+            public void notifyListener(final ProfileListener listener) {
+                listener.emailVerified(eventGenerator.generate(profile, email));
+            }
+        });
+    }
+
+    /**
+     * Notify that the password has been reset.
+     * 
+     * @param profile
+     *      A <code>Profile</code>.
+     * @param eventGenerator
+     *            An event generator.
+     */
+    private void notifyPasswordReset(final Profile profile,
+            final ProfileEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ProfileListener>() {
+            public void notifyListener(final ProfileListener listener) {
+                listener.passwordReset(eventGenerator.generate(profile));
+            }
+        });
+    }
+
+    /**
+     * Notify that the password has been updated.
+     * 
+     * @param profile
+     *      A <code>Profile</code>.
+     * @param eventGenerator
+     *            An event generator.
+     */
+    private void notifyPasswordUpdated(final Profile profile,
+            final ProfileEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ProfileListener>() {
+            public void notifyListener(final ProfileListener listener) {
+                listener.passwordUpdated(eventGenerator.generate(profile));
+            }
+        });
+    }
+
+    /**
+     * Notify that the profile has been updated.
+     * 
+     * @param profile
+     *      A <code>Profile</code>.
+     * @param eventGenerator
+     *            An event generator.
+     */
+    private void notifyProfileUpdated(final Profile profile,
+            final ProfileEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ProfileListener>() {
+            public void notifyListener(final ProfileListener listener) {
+                listener.profileUpdated(eventGenerator.generate(profile));
+            }
+        });
     }
 }

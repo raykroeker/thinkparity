@@ -140,7 +140,7 @@ public class OpheliaTestUser extends User {
      */
     protected void assertIsReachable(final Environment environment) {
         Assert.assertTrue(environment.isReachable(),
-                "Environment {0} is not reachable.", environment);
+                "Environment {0} is not reachable.", environment.name());
     }
 
     /**

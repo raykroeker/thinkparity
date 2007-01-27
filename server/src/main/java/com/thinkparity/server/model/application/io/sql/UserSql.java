@@ -104,14 +104,14 @@ public class UserSql extends AbstractSql {
 
     /** Sql to read the user profile's security answer. */
     private static final String SQL_READ_PROFILE_SECURITY_ANSWER =
-            new StringBuffer("select PUP.SECURITYANSWER ")
+            new StringBuffer("select PUP.SECURITY_ANSWER ")
             .append("from PARITY_USER_PROFILE PUP ")
             .append("where PUP.USERNAME=?")
             .toString();
 
     /** Sql to read the user profile's security question. */
     private static final String SQL_READ_PROFILE_SECURITY_QUESTION =
-            new StringBuffer("select PUP.SECURITYQUESTION ")
+            new StringBuffer("select PUP.SECURITY_QUESTION ")
             .append("from PARITY_USER_PROFILE PUP ")
             .append("where PUP.USERNAME=?")
             .toString();

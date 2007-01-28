@@ -14,12 +14,6 @@
     <property name="project.name" value="${ant.project.name}"/>
     <property name="project.version" value="1.0.0-RC32"/>
 
-    <!-- cvs configuration -->
-    <property name="cvs.compressionlevel" value="9"/>
-    <property name="cvs.cvsroot" value=":pserver:${scm.credentials}@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
-    <property name="cvs.branch" value="v1_0"/>
-    <property name="cvs.modules" value="vendor/ant/1.7.0"/>
-
     <!-- javac configuration -->
     <property name="javac.compilerarg" value="-Xlint:deprecation -Xlint:unchecked"/>
 
@@ -36,14 +30,12 @@
     <path id="compile.classpath">
         <pathelement location="${target.classes.dir}"/>
 
-        <pathelement location="${basedir}/vendor/ant/1.7.0/ant.jar"/>
+        <pathelement location="${ant.home}/lib/ant.jar"/>
     </path>
-    <!-- runtime classpath -->
-    <path id="runtime.classpath">
-    </path>
+
     <!-- test compile classpath -->
     <path id="test.classpath">
-        <path refid="runtime.classpath"/>
+        <path refid="compile.classpath"/>
         <pathelement location="${target.test-classes.dir}"/>
     </path>
 
@@ -77,19 +69,6 @@
         <checksum algorithm="SHA" file="${build.name}-sources.jar" fileext=".sha"/>
         <checksum algorithm="MD5" file="${build.name}-javadoc.jar" fileext=".md5"/>
         <checksum algorithm="SHA" file="${build.name}-javadoc.jar" fileext=".sha"/>
-    </target>
-
-    <!-- checkout -->
-    <target name="checkout">
-        <echo message="${cvs.compressionlevel}"/>
-        <echo message="${cvs.cvsroot}"/>
-        <echo message="${cvs.branch}"/>
-        <echo message="${cvs.modules}"/>
-        <sleep seconds="3"/>
-        <!-- source trees -->
-        <cvs cvsroot="${cvs.cvsroot}"
-            command="checkout" compressionlevel="${cvs.compressionlevel}"
-            tag="${cvs.branch}" package="${cvs.modules}" dest="${basedir}"/>
     </target>
 
     <!-- install -->

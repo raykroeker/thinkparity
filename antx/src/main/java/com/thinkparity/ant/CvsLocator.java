@@ -41,7 +41,10 @@ final class CvsLocator extends AbstractCvsTask {
         setTag(dependency.getProject().getProperty("cvs.branch"));
         setDest(dependency.getProject().getBaseDir());
         setCommand(COMMAND);
-        setPackage(dependency.getPath());;
+        final String path = new StringBuffer("vendor/")
+            .append(dependency.getPath())
+            .toString();
+        setPackage(path);
         execute();
     }
 }

@@ -123,7 +123,10 @@ public class Dependency extends AbstractTask {
     protected void doExecute() {
         final File file = getFile();
         if (!file.exists())
-            throw panic("Dependency {0} does not exist.", file.getAbsolutePath());
+            locate();
+        if (!file.exists())
+            throw panic("Dependency {0} does not exist and cannot be found.",
+                    file.getAbsolutePath());
         addPathElements(file);
     }
 
@@ -142,6 +145,39 @@ public class Dependency extends AbstractTask {
             throw panic("Dependency version is not specified.");
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_CLASSES_DIR);
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_TEST_CLASSES_DIR);
+    }
+
+    /**
+     * Obtain the path specified for the dependency.
+     * 
+     * @return A path <code>String</code>.
+     */
+    String getPath() {
+        validate();
+        log("path:" + path, Project.MSG_DEBUG);
+        return path;
+    }
+
+    /**
+     * Obtain the provider.
+     *
+     * @return The provider <code>String</code>.
+     */
+    String getProvider() {
+        validate();
+        log("provider:" + provider, Project.MSG_DEBUG);
+        return provider;
+    }
+
+    /**
+     * Obtain the version specified for the dependency.
+     * 
+     * @return A dependency version <code>String</code>.
+     */
+    String getVersion() {
+        validate();
+        log("version:" + version, Project.MSG_DEBUG);
+        return version;
     }
 
     /**
@@ -264,28 +300,6 @@ public class Dependency extends AbstractTask {
     }
 
     /**
-     * Obtain the path specified for the dependency.
-     * 
-     * @return A path <code>String</code>.
-     */
-    private String getPath() {
-        validate();
-        log("path:" + path, Project.MSG_DEBUG);
-        return path;
-    }
-
-    /**
-     * Obtain the provider.
-     *
-     * @return The provider <code>String</code>.
-     */
-    private String getProvider() {
-        validate();
-        log("provider:" + provider, Project.MSG_DEBUG);
-        return provider;
-    }
-
-    /**
      * Obtain the scope specified for the dependency.
      * 
      * @return A dependency <code>Scope</code>.
@@ -297,14 +311,11 @@ public class Dependency extends AbstractTask {
     }
 
     /**
-     * Obtain the version specified for the dependency.
-     * 
-     * @return A dependency version <code>String</code>.
+     * Attempt to locate the dependency.
+     *
      */
-    private String getVersion() {
-        validate();
-        log("version:" + version, Project.MSG_DEBUG);
-        return version;
+    private void locate() {
+        new CvsLocator().locate(this);
     }
 
     /**

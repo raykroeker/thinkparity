@@ -3,337 +3,191 @@
     <property name="build.sysclasspath" value="ignore"/>
 
     <!-- build configuration -->
+    <property environment="env"/>
     <tstamp>
         <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="PST"/>
     </tstamp>
+    <!-- local configuration  -->
+    <property file="local.properties"/>
 
-    <!-- release configuration -->
-    <property name="release.name" value="${ant.project.name}"/>
-    <property name="release.version" value="1.0.0-RC18"/>
+    <!-- project configuration -->
+    <property name="project.name" value="${ant.project.name}"/>
+    <property name="project.version" value="1.0.0-RC32"/>
 
     <!-- cvs configuration -->
     <property name="cvs.compressionlevel" value="9"/>
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
-    <property name="cvs.modules" value="common/codebase common/junitx common/migrator remote/codebase remote/migrator lib/commons-codec lib/hsqldb lib/junit lib/log4j lib/messenger"/>
-    <property name="cvs.modules.ide" value="ide/eclipse/product/calpurnia"/>
+    <property name="cvs.modules" value="common/codebase common/junitx common/migrator common/model local/browser local/browser-plugins local/model local/thinkparity vendor/commons-codec/1.3 vendor/dom4j/1.6.1 vendor/fop/0.20.5 vendor/groovy/1.0-JSR06 vendor/hsqldb/1.8.0.2 vendor/jdic/0.9.1 vendor/jdic_icon/0.1.1 vendor/i686 vendor/junit/3.8.1 vendor/log4j/1.2.13 vendor/lucene/1.9.1 vendor/nativeskin/6.7 vendor/smack/2.2.1 vendor/smackx/2.2.1 vendor/swing-layout/1.0 vendor/xdoclet/1.0.3 vendor/xpp3/1.1.3.4.O vendor/xstream/1.2.1"/>
+
+    <!-- javac configuration -->
+    <property name="javac.compilerarg" value="-Xlint:deprecation -Xlint:unchecked"/>
 
     <!-- output directories -->
-	<property name="target.dir" value="${basedir}/target"/>
-	<property name="target.classes.dir" value="${target.dir}/classes"/>
+    <property name="target.dir" value="${basedir}/target"/>
+    <property name="target.classes.dir" value="${target.dir}/classes"/>
     <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
-    <property name="target.release.dir" value="${target.dir}/release"/>
-	<property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
-	<property name="target.test-report.dir" value="${target.dir}/test-report"/>
-	<property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
+    <property name="target.test-javadoc.dir" value="${target.dir}/test-docs/api"/>
+    <property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
+    <property name="target.test-report.dir" value="${target.dir}/test-report"/>
+    <property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
 
-    <!-- input directories/files/paths -->
-    <property name="vendor.dir" value="${basedir}/vendor"/>
-    <property name="vendor.commons-codec.lib" value="${vendor.dir}/commons-codec/1.3/commons-codec.jar"/>
-    <property name="vendor.hsqldb.lib" value="${vendor.dir}/hsqldb/1.8.0.2/hsqldb.jar"/>
-    <property name="vendor.junit.lib" value="${vendor.dir}/junit/3.8.1/junit.jar"/>
-    <property name="vendor.log4j.lib" value="${vendor.dir}/log4j/1.2.13/log4j.jar"/>
-    <property name="vendor.messenger.lib" value="${vendor.dir}/messenger/2.3.1/messenger.jar"/>
-	<path id="test-sourcepath">
-		<pathelement location="${basedir}/common/junitx/src/main/java"/>
-		<pathelement location="${basedir}/common/codebase/src/test/java"/>
-		<pathelement location="${basedir}/remote/migrator/src/test/java"/>
-	</path>
-	<path id="classpath">
-		<pathelement location="${target.classes.dir}"/>
-        <pathelement location="${vendor.commons-codec.lib}"/>
-		<pathelement location="${vendor.log4j.lib}"/>
-		<pathelement location="${vendor.messenger.lib}"/>
-	</path>
-    <path id="test-classpath">
+    <!-- compile classpath -->
+    <path id="compile.classpath">
+        <pathelement location="${target.classes.dir}"/>
+
+        <pathelement location="${basedir}/vendor/ant/1.7.0/ant.jar"/>
+    </path>
+    <!-- runtime classpath -->
+    <path id="runtime.classpath">
+    </path>
+    <!-- test compile classpath -->
+    <path id="test.classpath">
+        <path refid="runtime.classpath"/>
         <pathelement location="${target.test-classes.dir}"/>
-        <pathelement location="${vendor.hsqldb.lib}"/>
-        <pathelement location="${vendor.junit.lib}"/>
-    </path>
-    <!-- classpath -->
-    <path id="project.classpath">
-		<pathelement location="${target.classes.dir}/common/codebase"/>
-		<pathelement location="${target.classes.dir}/common/migrator"/>
-		<pathelement location="${target.classes.dir}/remote/codebase"/>
-		<pathelement location="${target.classes.dir}/remote/migrator"/>
-
-        <pathelement location="${basedir}/vendor/commons-codec/1.3/commons-codec.jar"/>
-		<pathelement location="${basedir}/vendor/log4j/1.2.13/log4j.jar"/>
-		<pathelement location="${basedir}/vendor/messenger/2.3.1/messenger.jar"/>
     </path>
 
-    <!-- test-classpath -->
-    <path id="project.test-classpath">
-        <path refid="project.classpath"/>
-
-        <pathelement location="${target.test-classes.dir}/common/codebase"/>
-        <pathelement location="${target.test-classes.dir}/common/junitx"/>
-        <pathelement location="${target.test-classes.dir}/common/migrator"/>
-        <pathelement location="${target.test-classes.dir}/remote/codebase"/>
-        <pathelement location="${target.test-classes.dir}/remote/migrator"/>
-
-        <pathelement location="${basedir}/vendor/junit/3.8.1/junit.jar"/>
-        <pathelement location="${basedir}/vendor/hsqldb/1.8.0.2/hsqldb.jar"/>
-    </path>
-
-    <!-- checkout source -->
-    <target name="checkout">
-        <echo message="${cvs.cvsroot}"/>
-        <echo message="${cvs.branch}"/>
-        <echo message="${cvs.modules}"/>
-        <echo message="${cvs.modules.ide}"/>
-        <sleep seconds="3"/>
-        <!-- source trees -->
-        <cvs cvsroot="${cvs.cvsroot}"
-            command="checkout" tag="${cvs.branch}" package="${cvs.modules}"
-            dest="${basedir}"/>
-        <!-- ide files -->
-        <cvs cvsroot="${cvs.cvsroot}"
-            command="export -d &quot;${basedir}/ide&quot;" tag="${cvs.branch}" package="${cvs.modules.ide}"
-            dest="${basedir}"/>
-        <move todir="${basedir}">
-            <fileset dir="${basedir}/ide"/>
-        </move>
+    <!-- build -->
+    <target name="build" depends="compile,javadoc">
+        <property name="build.name" value="${target.dir}/${project.name}-${project.version}"/>
+        <jar destfile="${build.name}.jar" duplicate="fail" update="false"
+                whenempty="fail">
+            <manifest/>
+            <fileset dir="${target.classes.dir}"/>
+            <fileset file="${basedir}/LICENSE.txt"/>
+            <fileset file="${basedir}/README.txt"/>
+        </jar>
+        <jar destfile="${build.name}-sources.jar" duplicate="fail" update="false"
+                whenempty="fail">
+            <manifest/>
+            <fileset dir="${basedir}/src/main/java"/>
+            <fileset file="${basedir}/LICENSE.txt"/>
+            <fileset file="${basedir}/README.txt"/>
+        </jar>
+        <jar destfile="${build.name}-javadoc.jar" duplicate="fail" update="false"
+                whenempty="fail">
+            <manifest/>
+            <fileset dir="${target.javadoc.dir}"/>
+            <fileset file="${basedir}/LICENSE.txt"/>
+            <fileset file="${basedir}/README.txt"/>
+        </jar>
+        <checksum algorithm="MD5" file="${build.name}.jar" fileext=".md5"/>
+        <checksum algorithm="SHA" file="${build.name}.jar" fileext=".sha"/>
+        <checksum algorithm="MD5" file="${build.name}-sources.jar" fileext=".md5"/>
+        <checksum algorithm="SHA" file="${build.name}-sources.jar" fileext=".sha"/>
+        <checksum algorithm="MD5" file="${build.name}-javadoc.jar" fileext=".md5"/>
+        <checksum algorithm="SHA" file="${build.name}-javadoc.jar" fileext=".sha"/>
     </target>
 
-    <!-- update source -->
-    <target name="update">
-        <echo message="${cvs.cvsroot}"/>
-        <cvs cvsroot="${cvs.cvsroot}" command="update -P -d"/>
-    </target>
-   
-    <!-- checkout ide files -->
-    <target name="checkout.ide">
-        <echo message="${cvs.cvsroot}"/>
-        <echo message="${cvs.tag}"/>
-        <echo message="${cvs.modules.ide}"/>
-        <cvs cvsroot="${cvs.cvsroot}"
-            command="export -d &quot;${basedir}/ide&quot;" tag="${cvs.tag}" package="${cvs.modules.ide}"
-            dest="${basedir}"/>
-        <move todir="${basedir}">
-            <fileset dir="${basedir}/ide"/>
-        </move>
+    <!-- install -->
+    <target name="install" depends="build">
+        <property name="build.name" value="${target.dir}/${project.name}-${project.version}"/>
+        <copy todir="${ant.home}/lib">
+            <fileset file="${build.name}.jar"/>
+        </copy>
     </target>
 
     <!-- delete output -->
-	<target name="clean">
-		<delete dir="${target.dir}"/>
-	</target>
+    <target name="clean">
+        <delete dir="${target.dir}"/>
+    </target>
 
     <!-- compile -->
-	<target name="compile" depends="init,process-resources">
-        <!-- if the compile.debug is not set; use true as a default otherwise
-             use the value itself -->
-        <condition property="compile.innerDebug" value="${compile.debug}" else="true">
-            <isset property="compile.debug"/>
-        </condition>
-
-        <!-- common/codebase -->
-		<javac srcdir="common/codebase/src/main/java"
-                destdir="${target.classes.dir}/common/codebase" debug="${compile.innerDebug}">
-			<classpath refid="project.classpath"/>
-		</javac>
-        <!-- common/migrator -->
-		<javac srcdir="common/migrator/src/main/java"
-                destdir="${target.classes.dir}/common/migrator" debug="${compile.innerDebug}">
-			<classpath refid="project.classpath"/>
-		</javac>
-        <!-- remote/codebase -->
-		<javac srcdir="remote/codebase/src/main/java"
-                destdir="${target.classes.dir}/remote/codebase" debug="${compile.innerDebug}">
-			<classpath refid="project.classpath"/>
-		</javac>
-        <!-- remote/migrator -->
-		<javac srcdir="remote/migrator/src/main/java"
-                destdir="${target.classes.dir}/remote/migrator" debug="${compile.innerDebug}">
-			<classpath refid="project.classpath"/>
-		</javac>
-	</target>
+    <target name="compile" depends="init,process-resources">
+        <javac srcdir="${basedir}/src/main/java"
+                destdir="${target.classes.dir}" debug="${compile.innerdebug}">
+            <classpath refid="compile.classpath"/>
+            <compilerarg line="${javac.compilerarg}"/>
+        </javac>
+    </target>
 
     <!-- print help -->
     <target name="help">
         <echo>
 Options:
-    -Dcompile.debug=true,false  Generate compiler debug info.
-                                Default:true
 Targets:
-    checkout                    Checkout all source.
-    checkout.ide                Checkout ide configuration files.
     clean                       Delete output.
     compile                     Compile source.
     javadoc                     Generate javadoc (html) documentation.
     process-resources           Process resources.
-    release                     Create a release package.
     test                        Run tests.
     test-compile                Compile test source.
     test-process-resources      Process test resources.
-Examples:
-    First Run:
-    ant checkout test           Will grab all source from cvs; process all
-                                resources; compile all code and run all tests.
-
-    Subsequent Runs:
-    ant test                    Will process all resources; compile all code; run
-                                all tests.
-
-    Checkout IDE Files:
-    ant checkout.ide
         </echo>
     </target>
 
     <!-- initialize output -->
-	<target name="init">
-        <mkdir dir="${target.classes.dir}/common/codebase"/>
-        <mkdir dir="${target.classes.dir}/common/migrator"/>
-        <mkdir dir="${target.classes.dir}/remote/codebase"/>
-        <mkdir dir="${target.classes.dir}/remote/migrator"/>
-		<mkdir dir="${target.test-classes.dir}/common/codebase"/>
-		<mkdir dir="${target.test-classes.dir}/common/junitx"/>
-		<mkdir dir="${target.test-classes.dir}/common/migrator"/>
-		<mkdir dir="${target.test-classes.dir}/remote/codebase"/>
-		<mkdir dir="${target.test-classes.dir}/remote/migrator"/>
+    <target name="init">
+        <mkdir dir="${target.classes.dir}"/>
         <mkdir dir="${target.javadoc.dir}"/>
-        <mkdir dir="${target.test-sessions.dir}"/>
-	</target>
+        <mkdir dir="${target.test-javadoc.dir}"/>
+        <mkdir dir="${target.test-classes.dir}"/>
+        <mkdir dir="${target.test-report.dir}"/>
 
-    <!-- document the source -->
+        <property name="compile.innerdebug" value="true"/>
+        <echo>Build Configuration:
+    compile.debug:            ${compile.innerdebug}</echo>
+    </target>
+
+    <!-- javadoc -->
     <target name="javadoc">
-        <!-- common/codebase -->
-        <javadoc access="private" classpathref="project.classpath"
-                destdir="${target.javadoc.dir}/common/codebase"
-                doctitle="thinkParity Common Codebase"
+        <javadoc access="private" classpathref="compile.classpath"
+                destdir="${target.javadoc.dir}"
+                doctitle="thinkParity"
                 packagenames="com.thinkparity.*"
-                sourcepath="${basedir}/common/codebase/src/main/java"/>
-        <!-- common/migrator -->
-        <javadoc access="private" classpathref="project.classpath"
-                destdir="${target.javadoc.dir}/common/migrator"
-                doctitle="thinkParity Common Migrator"
+                sourcepath="${basedir}/src/main/java">
+        </javadoc>
+    </target>
+
+    <!-- test-javadoc -->
+    <target name="test-javadoc">
+        <javadoc access="private" classpathref="test.classpath"
+                destdir="${target.test-javadoc.dir}"
+                doctitle="thinkParity"
                 packagenames="com.thinkparity.*"
-                sourcepath="${basedir}/common/migrator/src/main/java"/>
-        <!-- remote/codebase -->
-        <javadoc access="private" classpathref="project.classpath"
-                destdir="${target.javadoc.dir}/remote/codebase"
-                doctitle="thinkParity Remote Codebase"
-                packagenames="com.thinkparity.*"
-                sourcepath="${basedir}/remote/codebase/src/main/java"/>
-        <!-- remote/migrator -->
-        <javadoc access="private" classpathref="project.classpath"
-                destdir="${target.javadoc.dir}/remote/migrator"
-                doctitle="thinkParity Remote Migrator"
-                packagenames="com.thinkparity.*"
-                sourcepath="${basedir}/remote/migrator/src/main/java"/>
+                sourcepath="${basedir}/src/test/java">
+        </javadoc>
     </target>
 
     <!-- process resources -->
-    <target name="process-resources">
-        <!-- common/codebase -->
-        <copy todir="${target.classes.dir}/common/codebase">
-            <fileset dir="${basedir}/common/codebase/src/main/resources"/>
-        </copy>
-        <!-- remote/migrator -->
-        <copy todir="${target.classes.dir}/remote/migrator">
-            <fileset dir="${basedir}/remote/migrator/src/main/resources"/>
-        </copy>
-        <copy todir="${target.classes.dir}/remote/migrator" overwrite="true">
-            <fileset dir="${basedir}/remote/migrator/src/main/filters"/>
-            <filterset begintoken="$${" endtoken="}">
-                <filter token="pom.version" value="${release.version}"/>
-                <filter token="com.thinkparity.parity.buildId" value="${build.id}"/>
-                <filtersfile file="${basedir}/build.filters"/>
-            </filterset>
+    <target name="process-resources" depends="init">
+        <copy todir="${target.classes.dir}">
+            <fileset dir="${basedir}/src/main/resources"/>
         </copy>
     </target>
 
-    <!-- release -->
-    <target name="release">
-        <antcall target="clean" inheritAll="true" inheritRefs="true"/>
-        <antcall target="test" inheritAll="true" inheritRefs="true"/>
-        <antcall target="clean" inheritAll="true" inheritRefs="true"/>
-        <antcall target="compile" inheritAll="true" inheritRefs="true"/>
+    <!-- test -->
+    <target name="test" depends="test-compile">
+        <!-- if junitx.log4j.* is not set; use defaults; otherwise use the
+            values themselves -->
+        <condition property="inner.junitx.log4j.level"
+                value="${junitx.log4j.level}" else="INFO">
+            <isset property="junitx.log4j.level"/>
+        </condition>
+        <condition property="inner.junitx.log4j.console"
+                value="${junitx.log4j.console}" else="false">
+            <isset property="junitx.log4j.console"/>
+        </condition>
+        <condition property="inner.test"
+                value="**/${test}Test.class" else="**/*Test.class">
+            <isset property="test"/>
+        </condition>
+        <!-- execute test -->
+        <junit fork="on" forkmode="once" reloading="false"
+                errorproperty="junit.didError" failureproperty="junit.didFail"
+                outputtoformatters="false">
+            <jvmarg value="-Djunitx.log4j.level=${inner.junitx.log4j.level}"/>
+            <jvmarg value="-Djunitx.log4j.console=${inner.junitx.log4j.console}"/>
+            <classpath refid="test.classpath"/>
+            <formatter type="brief"/>
 
-        <property name="target.release.plugin.dir"
-                value="${target.release.dir}/plugin"/>
-        <!-- ${target.release.plugin.dir} -->
-        <copy todir="${target.release.plugin.dir}">
-            <fileset dir="${basedir}">
-                <include name="README.txt"/>
-                <include name="LICENSE.txt"/>
-            </fileset>
-            <fileset dir="${target.classes.dir}/remote/migrator">
-                <include name="changelog.html"/>
-                <include name="icon_large.gif"/>
-                <include name="icon_small.gif"/>
-                <include name="plugin.xml"/>
-                <include name="readme.html"/>
-            </fileset>
-        </copy>
-        <!-- ${target.release.plugin.dir}/classes -->
-        <copy todir="${target.release.plugin.dir}/classes">
-            <fileset dir="${target.classes.dir}/remote/migrator">
-                <include name="log4j.properties"/>
-            </fileset>
-        </copy>
-        <!-- ${target.release.plugin.dir}/lib -->
-        <mkdir dir="${target.release.plugin.dir}/lib"/>
-        <copy todir="${target.release.plugin.dir}/lib">
-            <fileset file="${vendor.log4j.lib}"/>
-            <fileset file="${vendor.commons-codec.lib}"/>
-        </copy>
-        <!-- common/migrator -->
-        <!-- remote/migrator -->
-        <jar destfile="${target.release.plugin.dir}/lib/migrator.jar">
-            <manifest>
-            </manifest>
-            <fileset dir="${target.classes.dir}/common/migrator"/>
-            <fileset dir="${target.classes.dir}/remote/migrator"/>
-        </jar>
-        <!-- common/codebase -->
-        <!-- remote/codebase -->
-        <jar destfile="${target.release.plugin.dir}/lib/codebase.jar">
-            <manifest>
-            </manifest>
-            <fileset dir="${target.classes.dir}/common/codebase"/>
-            <fileset dir="${target.classes.dir}/remote/codebase"/>
-        </jar>
-        <!-- release jar -->
-        <jar destfile="${target.release.dir}/${release.name}-${release.version}-plugin.jar">
-            <manifest>
-            </manifest>
-            <fileset dir="${target.release.plugin.dir}"/>
-        </jar>
-        <checksum file="${target.release.dir}/${release.name}-${release.version}-plugin.jar"
-            algorithm="MD5"/>
-        <checksum file="${target.release.dir}/${release.name}-${release.version}-plugin.jar"
-            algorithm="SHA"/>
-    </target>
-
-    <!-- unit test -->
-	<target name="test" depends="test-compile">
-		<junit fork="on" forkmode="once" reloading="false"
-            errorproperty="junit.didError" failureproperty="junit.didFail">
-			<classpath refid="project.test-classpath"/>
-			<formatter type="brief" usefile="false"/>
-
-            <!-- execute single test -->
-		    <test if="test" name="${test}" todir="${target.test-sessions.dir}">
-		        <formatter type="xml"/>
-		    </test>
-
-		    <!-- execute batch tests -->
-		    <batchtest unless="test" todir="${target.test-sessions.dir}">
+            <!-- execute batch tests -->
+            <batchtest todir="${target.test-sessions.dir}">
                 <formatter type="xml"/>
-                <fileset dir="${target.test-classes.dir}/common/codebase" includes="**/*Test.class"/>
-                <fileset dir="${target.test-classes.dir}/remote/migrator" includes="**/*Test.class"/>
-			</batchtest>
-		</junit>
-        <antcall target="test-report" inheritRefs="true" inheritAll="true"/>
-
-        <fail message="JUnit failure." if="junit.didFail"/>
-        <fail message="JUnit error." if="junit.didError"/>
-	</target>
-
-    <!-- unit test report -->
-    <target name="test-report">
+                <fileset dir="${target.test-classes.dir}" includes="${inner.test}"/>
+            </batchtest>
+        </junit>
+        <!-- create report -->
         <delete dir="${target.test-report.dir}"/>
         <mkdir dir="${target.test-report.dir}"/>
         <junitreport todir="${target.test-report.dir}">
@@ -342,37 +196,23 @@ Examples:
             </fileset>
             <report styledir="${basedir}" format="noframes" todir="${target.test-report.dir}"/>
         </junitreport>
+        <fail message="JUnit failure." if="junit.didFail"/>
+        <fail message="JUnit error." if="junit.didError"/>
     </target>
 
-    <!-- compile tests -->
-	<target name="test-compile" depends="compile,test-process-resources">
-        <!-- if the compile.debug is not set; use true as a default otherwise
-             use the value itself -->
-        <condition property="compile.innerDebug" value="${compile.debug}" else="true">
-            <isset property="compile.debug"/>
-        </condition>
+    <!-- test-compile -->
+    <target name="test-compile" depends="compile,test-process-resources">
+        <javac srcdir="${basedir}/src/test/java"
+                destdir="${target.test-classes.dir}" debug="${compile.innerdebug}">
+            <classpath refid="test.classpath"/>
+            <compilerarg line="${javac.compilerarg}"/>
+        </javac>
+    </target>
 
-        <!-- common/junitx -->
-        <javac srcdir="common/junitx/src/main/java"
-                destdir="${target.test-classes.dir}/common/junitx" debug="${compile.innerDebug}">
-            <classpath refid="project.test-classpath"/>
-        </javac>
-        <!-- common/codebase -->
-        <javac srcdir="common/codebase/src/test/java"
-                destdir="${target.test-classes.dir}/common/codebase" debug="${compile.innerDebug}">
-            <classpath refid="project.test-classpath"/>
-        </javac>
-        <!-- remote/migrator -->
-        <javac srcdir="remote/migrator/src/test/java"
-                destdir="${target.test-classes.dir}/remote/migrator" debug="${compile.innerDebug}">
-            <classpath refid="project.test-classpath"/>
-        </javac>
-	</target>
-
-    <!-- process test resources -->
-    <target name="test-process-resources">
-        <copy todir="${target.test-classes.dir}/common/junitx/">
-            <fileset dir="${basedir}/common/junitx/src/main/resources"/>
+    <!-- test-process-resources -->
+    <target name="test-process-resources" depends="init">
+        <copy todir="${target.test-classes.dir}">
+            <fileset dir="${basedir}/src/test/resources"/>
         </copy>
     </target>
 </project>

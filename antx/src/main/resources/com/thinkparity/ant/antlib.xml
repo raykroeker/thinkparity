@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!--
+	thinkParity Ant Library
+-->
+<antlib>
+	<!-- tasks -->
+	<taskdef name="dependency" classname="com.thinkparity.ant.Dependency"/>
+
+</antlib>

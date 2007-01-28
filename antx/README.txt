@@ -1,17 +1,16 @@
-  Calpurnia Pisonis
-    Daughter of Lucius Calpurnius Piso Frugi, was a Roman woman, third and last
-wife of Julius Caesar. They married in 59 BC with no children resulting from
-the union. According to sources1 Calpurnia had a premonition of her husband's
-murder and tried to warn him in vain. In Shakespeare's play, Calpurnia has a
-dream that a statue of Caesar is flowing with blood as many Romans wash their
-hands in the blood. 
+  Ophelia (character)
+    Ophelia is a female character from Hamlet by William Shakespeare. She is a
+young noblewoman of Denmark, daughter to Polonius, sister to Laertes, and love
+interest of Hamlet. She is a loyal and duitiful daughter, who obeys her father's
+instruction to "lock herself from [Hamlet's] resort."
 
-    The calpurnia product is a remote (server based) product that manages the
-auto-upgrade content on the server.
+    The ophelia product is the local (client side) product that manages the
+user's containers; documents; and profile.
 
 Build Tools:
     1.  The Apache Ant Project:   1.6.5   http://ant.apache.org
     2.  JUnit:                    3.8.1   http://www.junit.org
+    3.  Launch4J                  2.1.3   http://launch4j.sourceforge.net
 
 Build Tools Installation:
     Windows XP
@@ -26,35 +25,45 @@ Build Tools Installation:
             Apache Ant version 1.6.5 compiled on June 2 2005
         5.  Copy junit.jar to "%ANT_HOME%\lib"
         6.  Install launch4j-2.1.3-1-win32.exe
+        7.  Install nsis-2.1.14.exe
 
 Checkout Source
     1.  ant checkout
 
 Source Tree
-    +>calpurnia
+    +>ophelia
     	+>.externalToolBuilders		// Eclipse IDE
         +>common                    // All location generic code (non local;
             +>codebase              // non-remote) code lives in common.
             +>junitx
             +>migrator
-        +>remote                     // All remote generic code lives in local.
-            +>codebase
-            +>migrator
+        +>local                     // All local generic code lives in local.
+            +>browser
             +>model
+            +>thinkparity
         +>vendor                    // All vendor libraries live in vendor
             +>commons-codec         // organized by the library then version.
             +>hsqldb
+            +>i686
+                +>win32
+                    +>jdic
+            +>jdic
             +>junit
             +>log4j
-            +>messenger
+            +>lucene
+            +>smack
+            +>smackx
+            +>swing-layout
+            +>xpp3
+            +>xstream
         +.classpath                                         // Eclipse IDE
         +.cvsignore
         +.project                                           // Eclipse IDE
         +build.filters                                      // Ant Build Filters
         +build.xml                                          // Ant Build Definition
         +LICENSE.txt
+        +ophelia - com.thinkparity.browser.Browser.launch   // Eclipse IDE
         +README.txt
-        +*.launch                                           // Eclipse IDE
 
 How To:  Build a Release
     1.  Update build.xml

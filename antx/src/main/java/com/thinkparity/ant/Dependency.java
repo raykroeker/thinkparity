@@ -156,12 +156,26 @@ public class Dependency extends AbstractTask {
             throw panic("Dependency scope for {0} is not specified.", path);
         if (null == type)
             throw panic("Dependency type for {0} is not specified.", path);
+        if (null == version)
+            throw panic("Dependency version for {0} is not specified.", path);
+        // validate scope/type combination
         if (Type.NATIVE == type)
             if (scope == Scope.COMPILE)
                 throw panic("Dependency type {0} for scope {1} is invalid.",
                         type.name(), scope.name());
-        if (null == version)
-            throw panic("Dependency version for {0} is not specified.", path);
+        // validate type/path combination
+        switch (type) {
+        case JAVA:
+            if (!getFile().isFile())
+                throw panic("Dependency path for {0} must be a file.", path);
+            break;
+        case NATIVE:
+            if (!getFile().isDirectory())
+                throw panic("Dependency path for {0} must be a directory.", path);
+            break;
+        default:
+            throw panic("Unknown type {0}", type.name());
+        }
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_CLASSES_DIR);
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_TEST_CLASSES_DIR);
     }

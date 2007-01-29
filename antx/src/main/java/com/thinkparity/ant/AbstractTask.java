@@ -105,9 +105,8 @@ public abstract class AbstractTask extends Task {
      */
     @Override
     public void execute() throws BuildException {
-        debug();
+        validate();
         doExecute();
-        debug();
     }
 
     /**
@@ -119,8 +118,16 @@ public abstract class AbstractTask extends Task {
     /**
      * Execute the task.
      *
+     * @throws BuildException
      */
     protected abstract void doExecute() throws BuildException;
+
+    /**
+     * Validate the task.
+     * 
+     * @throws BuildException
+     */
+    protected abstract void validate() throws BuildException;
 
     /**
      * <b>Title:</b>Build Adapter<br>

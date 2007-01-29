@@ -260,12 +260,14 @@ public class Dependency extends AbstractTask {
                 final Path classPath = (Path) getProject().getReference(classPathId);
 
                 fileSet = new FileSet();
+                fileSet.setProject(getProject());
                 fileSet.setRefid(classPath.getRefid());
             }
             break;
         case NATIVE:
             if (null == fileSet) {
                 fileSet = new FileSet();
+                fileSet.setProject(getProject());
                 fileSet.setDir(getVendorRootDirectory());
             }
             final File[] nativeIncludes = location.listFiles();

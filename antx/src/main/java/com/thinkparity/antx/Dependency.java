@@ -1,7 +1,7 @@
 /*
  * Created On:  26-Jan-07 6:00:00 PM
  */
-package com.thinkparity.ant;
+package com.thinkparity.antx;
 
 import java.io.File;
 import java.text.MessageFormat;
@@ -130,7 +130,7 @@ public class Dependency extends AbstractTask {
     }
 
     /**
-     * @see com.thinkparity.ant.AbstractTask#doExecute()
+     * @see com.thinkparity.antx.AbstractTask#doExecute()
      *
      */
     @Override

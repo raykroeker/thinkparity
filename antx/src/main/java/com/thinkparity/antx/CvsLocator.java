@@ -1,7 +1,7 @@
 /*
  * Created On:  27-Jan-07 7:59:49 PM
  */
-package com.thinkparity.ant;
+package com.thinkparity.antx;
 
 import org.apache.tools.ant.taskdefs.AbstractCvsTask;
 

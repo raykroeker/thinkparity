@@ -14,7 +14,6 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Path.PathElement;
-import org.apache.tools.ant.types.selectors.FilenameSelector;
 
 /**
  * <b>Title:</b><br>
@@ -259,12 +258,9 @@ public class Dependency extends AbstractTask {
             fileSet = createFileSet(type, scope);
         }
 
-        FilenameSelector filenameSelector;
         switch (type) {
         case JAVA:
-            filenameSelector = new FilenameSelector();
-            filenameSelector.setName("**/*" + location.getName());
-            fileSet.addFilename(filenameSelector);
+            fileSet.appendIncludes(new String[] {"**/*" + location.getName()});
             break;
         case NATIVE:
             final File[] nativeLocations = location.listFiles(new FileFilter() {
@@ -272,11 +268,11 @@ public class Dependency extends AbstractTask {
                     return pathname.isFile();
                 }
             });
-            for (final File nativeLocation : nativeLocations) {
-                filenameSelector = new FilenameSelector();
-                filenameSelector.setName("**/*" + nativeLocation.getName());
-                fileSet.addFilename(filenameSelector);
+            final String[] includes = new String[nativeLocations.length];
+            for (int i = 0; i < nativeLocations.length; i++) {
+                includes[i] = "**/*" + nativeLocations[i].getName();
             }
+            fileSet.appendIncludes(includes);
             break;
         default:
             throw panic("Unknown type for location {0}", location.getAbsolutePath());

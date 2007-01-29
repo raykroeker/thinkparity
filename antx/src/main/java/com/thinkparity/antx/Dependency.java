@@ -4,14 +4,17 @@
 package com.thinkparity.antx;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
+import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Path.PathElement;
+import org.apache.tools.ant.types.selectors.FilenameSelector;
 
 /**
  * <b>Title:</b><br>
@@ -224,18 +227,60 @@ public class Dependency extends AbstractTask {
      */
     private void addClassPathElement(final Scope scope, final File location) {
         // obtain the existing class path
-        final String pathId = getClassPathId(scope);
-        Path existingPath = (Path) getProject().getReference(pathId);
-        if (null == existingPath) {
+        final String classPathId = getClassPathId(scope);
+        Path classPath = (Path) getProject().getReference(classPathId);
+        if (null == classPath) {
             // create a new class path
-            existingPath = createClassPath(scope);
+            classPath = createClassPath(scope);
         }
         // add the location
-        final PathElement referencePath = existingPath.new PathElement();
+        final PathElement referencePath = classPath.new PathElement();
         referencePath.setLocation(location);
-        existingPath.add(referencePath);
+        classPath.add(referencePath);
         // save the path
-        getProject().addReference(pathId, existingPath);
+        getProject().addReference(classPathId, classPath);
+    }
+
+    /**
+     * Add a fileset element for a location of a dependency type in a dependency
+     * scope.
+     * 
+     * @param type
+     *            A dependency <code>Type</code>.
+     * @param scope
+     *            A dependency <code>Scope</code>.
+     * @param location
+     *            A dependency location <code>File</code>.
+     */
+    private void addFilesetLocation(final Type type, final Scope scope, final File location) {
+        final String fileSetId = getFileSetId(type, scope);
+        FileSet fileSet = (FileSet) getProject().getReference(fileSetId);
+        if (null == fileSet) {
+            fileSet = createFileSet(type, scope);
+        }
+        FilenameSelector filenameSelector;
+        switch (type) {
+        case JAVA:
+            filenameSelector = new FilenameSelector();
+            filenameSelector.setName(location.getAbsolutePath());
+            fileSet.addFilename(filenameSelector);
+            break;
+        case NATIVE:
+            final File[] nativeLocations = location.listFiles(new FileFilter() {
+                public boolean accept(final File pathname) {
+                    return pathname.isFile();
+                }
+            });
+            for (final File nativeLocation : nativeLocations) {
+                filenameSelector = new FilenameSelector();
+                filenameSelector.setName(nativeLocation.getAbsolutePath());
+                fileSet.addFilename(filenameSelector);
+            }
+            break;
+        default:
+            throw panic("Unknown type for location {0}", location.getAbsolutePath());
+        }
+        getProject().addReference(fileSetId, fileSet);
     }
 
     /**
@@ -282,13 +327,21 @@ public class Dependency extends AbstractTask {
                 addClassPathElement(Scope.COMPILE, location);
                 addClassPathElement(Scope.RUNTIME, location);
                 addClassPathElement(Scope.TEST, location);
+
+                addFilesetLocation(Type.JAVA, Scope.RUNTIME, location);
+                addFilesetLocation(Type.JAVA, Scope.TEST, location);
                 break;
             case RUNTIME:
                 addClassPathElement(Scope.RUNTIME, location);
                 addClassPathElement(Scope.TEST, location);
+
+                addFilesetLocation(Type.JAVA, Scope.RUNTIME, location);
+                addFilesetLocation(Type.JAVA, Scope.TEST, location);
                 break;
             case TEST:
                 addClassPathElement(Scope.TEST, location);
+
+                addFilesetLocation(Type.JAVA, Scope.TEST, location);
                 break;
             default:
                 throw panic("Unknown scope {0}", scope.name());
@@ -301,9 +354,14 @@ public class Dependency extends AbstractTask {
             case RUNTIME:
                 addLibraryPathElement(Scope.RUNTIME, location);
                 addLibraryPathElement(Scope.TEST, location);
+
+                addFilesetLocation(Type.NATIVE, Scope.RUNTIME, location);
+                addFilesetLocation(Type.NATIVE, Scope.TEST, location);
                 break;
             case TEST:
                 addLibraryPathElement(Scope.TEST, location);
+
+                addFilesetLocation(Type.NATIVE, Scope.TEST, location);
                 break;
             default:
                 throw panic("Unknown scope {0}", scope.name());
@@ -326,9 +384,8 @@ public class Dependency extends AbstractTask {
      */
     private Path createClassPath(final Scope scope) {
         final Project project = getProject();
-        final String classPathId = getClassPathId(scope);
 
-        final Path classPath = new Path(project, classPathId);
+        final Path classPath = new Path(project);
         PathElement target;
         switch (scope) {
         case COMPILE:
@@ -357,6 +414,19 @@ public class Dependency extends AbstractTask {
     }
 
     /**
+     * Create a file set.
+     * 
+     * @param type
+     *            A dependency <code>Type</code>.
+     * @param scope
+     *            A dependency <code>Scope</code>.
+     * @return A <code>FileSet</code>.
+     */
+    private FileSet createFileSet(final Type type, final Scope scope) {
+        return new FileSet();
+    }
+
+    /**
      * Create a library path for a given scope.
      * 
      * @param scope
@@ -365,9 +435,7 @@ public class Dependency extends AbstractTask {
      */
     private Path createLibraryPath(final Scope scope) {
         final Project project = getProject();
-        final String libraryPathId = getLibraryPathId(scope);
-
-        return new Path(project, libraryPathId);
+        return new Path(project);
     }
 
     /**
@@ -390,6 +458,20 @@ public class Dependency extends AbstractTask {
     private File getFile() {
         final File vendor = new File(getProject().getBaseDir(), "vendor");
         return new File(vendor, getPath());
+    }
+
+    /**
+     * Obtain a file set id for the type and scope.
+     * 
+     * @param type
+     *            A dependency <code>Type</code>.
+     * @param scope
+     *            A dependncy <code>Scope</code>.
+     * @return A file set id <code>String</code>.
+     */
+    private String getFileSetId(final Type type, final Scope scope) {
+        return MessageFormat.format("{0}.dependencies-{1}",
+                scope.name().toLowerCase(), type.name().toLowerCase());
     }
 
     /**

@@ -156,6 +156,10 @@ public class Dependency extends AbstractTask {
             throw panic("Dependency scope for {0} is not specified.", path);
         if (null == type)
             throw panic("Dependency type for {0} is not specified.", path);
+        if (Type.NATIVE == type)
+            if (scope == Scope.COMPILE)
+                throw panic("Dependency type {0} for scope {1} is invalid.",
+                        type.name(), scope.name());
         if (null == version)
             throw panic("Dependency version for {0} is not specified.", path);
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_CLASSES_DIR);
@@ -237,7 +241,7 @@ public class Dependency extends AbstractTask {
         Path existingPath = (Path) getProject().getReference(pathId);
         if (null == existingPath) {
             // create a new class path
-            existingPath = createClassPath(scope);
+            existingPath = createLibraryPath(scope);
         }
         // add the location
         final PathElement referencePath = existingPath.new PathElement();
@@ -337,6 +341,20 @@ public class Dependency extends AbstractTask {
             throw panic("Unknown scope {0}", scope.name());
         }
         return classPath;
+    }
+
+    /**
+     * Create a library path for a given scope.
+     * 
+     * @param scope
+     *            The <code>Scope<code>.
+     * @return The new library <code>Path</code>.
+     */
+    private Path createLibraryPath(final Scope scope) {
+        final Project project = getProject();
+        final String libraryPathId = getLibraryPathId(scope);
+
+        return new Path(project, libraryPathId);
     }
 
     /**

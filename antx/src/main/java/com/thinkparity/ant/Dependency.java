@@ -43,6 +43,9 @@ public class Dependency extends AbstractTask {
     /** A dependency <code>Scope</code>. */
     private Scope scope;
 
+    /** A dependency <code>Type</code>. */
+    private Type type;
+
     /** A dependency version <code>String</code>. */
     private String version;
 
@@ -78,10 +81,20 @@ public class Dependency extends AbstractTask {
      * Set scope.
      *
      * @param scope
-     *		A String.
+     *      A String.
      */
     public void setScope(final String scope) {
         this.scope = Scope.valueOf(scope.toUpperCase());
+    }
+
+    /**
+     * Set type.
+     *
+     * @param type
+     *      A String.
+     */
+    public void setType(final String type) {
+        this.type = Type.valueOf(type.toUpperCase());
     }
 
     /**
@@ -141,6 +154,8 @@ public class Dependency extends AbstractTask {
             throw panic("Dependency provider is not specified.");
         if (null == scope)
             throw panic("Dependency scope is not specified.");
+        if (null == type)
+            throw panic("Dependency type is not specified.");
         if (null == version)
             throw panic("Dependency version is not specified.");
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_CLASSES_DIR);
@@ -190,7 +205,7 @@ public class Dependency extends AbstractTask {
      * @param location
      *            A location <code>File</code>.
      */
-    private void addPathElement(final Scope scope, final File location) {
+    private void addClassPathElement(final Scope scope, final File location) {
         // obtain the existing class path
         final String pathId = getClassPathId(scope);
         Path existingPath = (Path) getProject().getReference(pathId);
@@ -207,8 +222,35 @@ public class Dependency extends AbstractTask {
     }
 
     /**
-     * Add path elements for a given location. Based upon the scope of the
-     * depenency the location will be added to one or more paths.
+     * Add a library path element for a given scope and location. A path element
+     * is created and appended to the existing path for the given path id. If
+     * the existing path does not exist; it is created.
+     * 
+     * @param scope
+     *            A <code>Scope</code>.
+     * @param location
+     *            A location <code>File</code>.
+     */
+    private void addLibraryPathElement(final Scope scope, final File location) {
+        // obtain the existing class path
+        final String pathId = getLibraryPathId(scope);
+        Path existingPath = (Path) getProject().getReference(pathId);
+        if (null == existingPath) {
+            // create a new class path
+            existingPath = createClassPath(scope);
+        }
+        // add the location
+        final PathElement referencePath = existingPath.new PathElement();
+        referencePath.setLocation(location);
+        existingPath.add(referencePath);
+        // save the path
+        getProject().addReference(pathId, existingPath);
+    }
+
+    /**
+     * Add path elements for a given location. Based upon the type and scope of
+     * the dependency the location will be added as a class or library path
+     * within one or more scopes.
      * 
      * @param location
      *            A location <code>File</code>.
@@ -216,22 +258,42 @@ public class Dependency extends AbstractTask {
     private void addPathElements(final File location) {
         if (LOCATIONS.contains(location))
             return;
-
-        switch (getScope()) {
-        case COMPILE:
-            addPathElement(Scope.COMPILE, location);
-            addPathElement(Scope.RUNTIME, location);
-            addPathElement(Scope.TEST, location);
+        switch (getType()) {
+        case JAVA:
+            switch (getScope()) {
+            case COMPILE:
+                addClassPathElement(Scope.COMPILE, location);
+                addClassPathElement(Scope.RUNTIME, location);
+                addClassPathElement(Scope.TEST, location);
+                break;
+            case RUNTIME:
+                addClassPathElement(Scope.RUNTIME, location);
+                addClassPathElement(Scope.TEST, location);
+                break;
+            case TEST:
+                addClassPathElement(Scope.TEST, location);
+                break;
+            default:
+                throw panic("Unknown scope {0}", scope.name());
+            }
             break;
-        case RUNTIME:
-            addPathElement(Scope.RUNTIME, location);
-            addPathElement(Scope.TEST, location);
-            break;
-        case TEST:
-            addPathElement(Scope.TEST, location);
+        case NATIVE:
+            switch (getScope()) {
+            case COMPILE:
+                break;
+            case RUNTIME:
+                addLibraryPathElement(Scope.RUNTIME, location);
+                addLibraryPathElement(Scope.TEST, location);
+                break;
+            case TEST:
+                addLibraryPathElement(Scope.TEST, location);
+                break;
+            default:
+                throw panic("Unknown scope {0}", scope.name());
+            }
             break;
         default:
-            throw panic("Unknown scope {0}", scope.name());
+            throw panic("Unknown type {0}", type.name());
         }
     }
 
@@ -300,6 +362,18 @@ public class Dependency extends AbstractTask {
     }
 
     /**
+     * Obtain a library path id for the scope.
+     * 
+     * @param scope
+     *            An enumerated dependency <code>Scope</code>.
+     * @return A library path id <code>String</code>.
+     */
+    private String getLibraryPathId(final Scope scope) {
+        return MessageFormat.format("{0}.librarypath",
+                scope.toString().toLowerCase());
+    }
+
+    /**
      * Obtain the scope specified for the dependency.
      * 
      * @return A dependency <code>Scope</code>.
@@ -308,6 +382,17 @@ public class Dependency extends AbstractTask {
         validate();
         log("scope:" + scope, Project.MSG_DEBUG);
         return scope;
+    }
+
+    /**
+     * Obtain the type specified for the dependency.
+     * 
+     * @return A dependency <code>Type</code>.
+     */
+    private Type getType() {
+        validate();
+        log("type:" + type, Project.MSG_DEBUG);
+        return type;
     }
 
     /**
@@ -324,4 +409,11 @@ public class Dependency extends AbstractTask {
      * appropriate path references for compilation runtime and testing.<br>
      */
     public enum Scope { COMPILE, RUNTIME, TEST }
+
+    /**
+     * <b>Title:</b>Dependency Type<br>
+     * <b>Description:</b>Defines the type of dependency. Used to build
+     * appropirate path entries whether they be classpath or library path.<br>
+     */
+    public enum Type { JAVA, NATIVE }
 }

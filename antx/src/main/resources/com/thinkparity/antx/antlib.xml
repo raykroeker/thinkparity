@@ -4,6 +4,9 @@
 -->
 <antlib>
 	<!-- tasks -->
-	<taskdef name="dependency" classname="com.thinkparity.antx.Dependency"/>
+	<taskdef name="dependency" classname="com.thinkparity.antx.DependencyTask"/>
+
+	<!-- types -->
+	<typedef name="dependency" classname="com.thinkparity.antx.Dependency"/>
 
 </antlib>

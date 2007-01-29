@@ -34,15 +34,15 @@ final class CvsLocator extends AbstractCvsTask {
      * @param dependency
      *            A <code>Dependency</code>.
      */
-    void locate(final Dependency dependency) {
-        setCvsRoot(dependency.getProject().getProperty("cvs.cvsroot"));
+    void locate(final DependencyTask dependencyTask) {
+        setCvsRoot(dependencyTask.getProject().getProperty("cvs.cvsroot"));
         setCompressionLevel(Integer.valueOf(
-                dependency.getProject().getProperty("cvs.compressionlevel")));
-        setTag(dependency.getProject().getProperty("cvs.branch"));
-        setDest(dependency.getProject().getBaseDir());
+                dependencyTask.getProject().getProperty("cvs.compressionlevel")));
+        setTag(dependencyTask.getProject().getProperty("cvs.branch"));
+        setDest(dependencyTask.getProject().getBaseDir());
         setCommand(COMMAND);
         final String path = new StringBuffer("vendor/")
-            .append(dependency.getPath())
+            .append(dependencyTask.getPath())
             .toString();
         setPackage(path);
         execute();

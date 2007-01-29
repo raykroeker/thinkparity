@@ -258,11 +258,12 @@ public class Dependency extends AbstractTask {
         if (null == fileSet) {
             fileSet = createFileSet(type, scope);
         }
+
         FilenameSelector filenameSelector;
         switch (type) {
         case JAVA:
             filenameSelector = new FilenameSelector();
-            filenameSelector.setName(location.getAbsolutePath());
+            filenameSelector.setName("**/*" + location.getName());
             fileSet.addFilename(filenameSelector);
             break;
         case NATIVE:
@@ -273,7 +274,7 @@ public class Dependency extends AbstractTask {
             });
             for (final File nativeLocation : nativeLocations) {
                 filenameSelector = new FilenameSelector();
-                filenameSelector.setName(nativeLocation.getAbsolutePath());
+                filenameSelector.setName("**/*" + nativeLocation.getName());
                 fileSet.addFilename(filenameSelector);
             }
             break;
@@ -423,7 +424,9 @@ public class Dependency extends AbstractTask {
      * @return A <code>FileSet</code>.
      */
     private FileSet createFileSet(final Type type, final Scope scope) {
-        return new FileSet();
+        final FileSet fileSet = new FileSet();
+        fileSet.setDir(getVendorRootDirectory());
+        return fileSet;
     }
 
     /**
@@ -456,8 +459,7 @@ public class Dependency extends AbstractTask {
      * @return A <code>File</code>.
      */
     private File getFile() {
-        final File vendor = new File(getProject().getBaseDir(), "vendor");
-        return new File(vendor, getPath());
+        return new File(getVendorRootDirectory(), getPath());
     }
 
     /**
@@ -504,6 +506,15 @@ public class Dependency extends AbstractTask {
     private Type getType() {
         log("type:" + type, Project.MSG_DEBUG);
         return type;
+    }
+
+    /**
+     * Obtain the vendor root directory.
+     * 
+     * @return A directory <code>File</code>.
+     */
+    private File getVendorRootDirectory() {
+        return new File(getProject().getBaseDir(), "vendor");
     }
 
     /**

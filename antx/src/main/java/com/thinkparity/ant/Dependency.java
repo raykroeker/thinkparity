@@ -141,6 +141,19 @@ public class Dependency extends AbstractTask {
         if (!file.exists())
             throw panic("Dependency {0} does not exist and cannot be found.",
                     file.getAbsolutePath());
+        // validate type/path combination
+        switch (type) {
+        case JAVA:
+            if (!file.isFile())
+                throw panic("Dependency path for {0} must be a file.", path);
+            break;
+        case NATIVE:
+            if (!file.isDirectory())
+                throw panic("Dependency path for {0} must be a directory.", path);
+            break;
+        default:
+            throw panic("Unknown type {0}", type.name());
+        }
         addPathElements(file);
     }
 
@@ -165,19 +178,6 @@ public class Dependency extends AbstractTask {
             if (scope == Scope.COMPILE)
                 throw panic("Dependency type {0} for scope {1} is invalid.",
                         type.name(), scope.name());
-        // validate type/path combination
-        switch (type) {
-        case JAVA:
-            if (!getFile().isFile())
-                throw panic("Dependency path for {0} must be a file.", path);
-            break;
-        case NATIVE:
-            if (!getFile().isDirectory())
-                throw panic("Dependency path for {0} must be a directory.", path);
-            break;
-        default:
-            throw panic("Unknown type {0}", type.name());
-        }
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_CLASSES_DIR);
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_TEST_CLASSES_DIR);
     }

@@ -252,37 +252,31 @@ public class Dependency extends AbstractTask {
             final File location) {
         final String fileSetId = getFileSetId(type, scope);
         FileSet fileSet = (FileSet) getProject().getReference(fileSetId);
+        if (null == fileSet) {
+            fileSet = new FileSet();
+            fileSet.setProject(getProject());
+            fileSet.setDir(getVendorRootDirectory());
+        }
 
+        final String[] includes;
         switch (type) {
         case JAVA:
-            if (null == fileSet) {
-                final String classPathId = getClassPathId(Scope.RUNTIME);
-                final Path classPath = (Path) getProject().getReference(classPathId);
-
-                fileSet = new FileSet();
-                fileSet.setProject(getProject());
-                fileSet.setRefid(classPath.getRefid());
-            }
+            includes = new String[] {getPath()};
             break;
         case NATIVE:
-            if (null == fileSet) {
-                fileSet = new FileSet();
-                fileSet.setProject(getProject());
-                fileSet.setDir(getVendorRootDirectory());
-            }
             final File[] nativeIncludes = location.listFiles();
-            final StringBuffer nativeIncludePath = new StringBuffer();
-            for (final File nativeInclude : nativeIncludes) {
-                nativeIncludePath.setLength(0);
-                nativeIncludePath.append(getPath())
+            includes = new String[nativeIncludes.length];
+            for (int i = 0; i < nativeIncludes.length; i++) {
+                includes[i] = new StringBuffer(getPath())
                     .append(File.separator)
-                    .append(nativeInclude.getName());
-                fileSet.appendIncludes(new String[] {nativeIncludePath.toString()});
+                    .append(nativeIncludes[i].getName())
+                    .toString();
             }
             break;
         default:
-            throw panic("");
+            throw panic("Unknown type {0}", type.name());
         }
+        fileSet.appendIncludes(includes);
 
         getProject().addReference(fileSetId, fileSet);
     }

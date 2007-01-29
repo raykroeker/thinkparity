@@ -3,10 +3,10 @@
  */
 package com.thinkparity.antx;
 
-
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */

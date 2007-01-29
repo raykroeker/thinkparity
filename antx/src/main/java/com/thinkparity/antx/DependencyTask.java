@@ -83,7 +83,7 @@ public class DependencyTask extends AntXTask {
      */
     public void setScope(final String scope) {
         initialize();
-        this.dependency.setScope(Scope.valueOf(scope));
+        this.dependency.setScope(Scope.valueOf(scope.toUpperCase()));
     }
 
     /**
@@ -94,7 +94,7 @@ public class DependencyTask extends AntXTask {
      */
     public void setType(final String type) {
         initialize();
-        this.dependency.setType(Type.valueOf(type));
+        this.dependency.setType(Type.valueOf(type.toUpperCase()));
     }
 
     /**

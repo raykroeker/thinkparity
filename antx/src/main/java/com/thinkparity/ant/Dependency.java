@@ -151,13 +151,13 @@ public class Dependency extends AbstractTask {
         if (null == path)
             throw panic("Dependency path is not specified.");
         if (null == provider)
-            throw panic("Dependency provider is not specified.");
+            throw panic("Dependency provider for {0} is not specified.", path);
         if (null == scope)
-            throw panic("Dependency scope is not specified.");
+            throw panic("Dependency scope for {0} is not specified.", path);
         if (null == type)
-            throw panic("Dependency type is not specified.");
+            throw panic("Dependency type for {0} is not specified.", path);
         if (null == version)
-            throw panic("Dependency version is not specified.");
+            throw panic("Dependency version for {0} is not specified.", path);
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_CLASSES_DIR);
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_TEST_CLASSES_DIR);
     }

@@ -4,7 +4,6 @@
 package com.thinkparity.antx;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -248,35 +247,41 @@ public class Dependency extends AbstractTask {
      *            A dependency <code>Type</code>.
      * @param scope
      *            A dependency <code>Scope</code>.
-     * @param location
-     *            A dependency location <code>File</code>.
      */
-    private void addFilesetLocation(final Type type, final Scope scope, final File location) {
+    private void addFilesetLocation(final Type type, final Scope scope,
+            final File location) {
         final String fileSetId = getFileSetId(type, scope);
         FileSet fileSet = (FileSet) getProject().getReference(fileSetId);
-        if (null == fileSet) {
-            fileSet = createFileSet(type, scope);
-        }
 
         switch (type) {
         case JAVA:
-            fileSet.appendIncludes(new String[] {"**/*" + location.getName()});
+            if (null == fileSet) {
+                final String classPathId = getClassPathId(Scope.RUNTIME);
+                final Path classPath = (Path) getProject().getReference(classPathId);
+
+                fileSet = new FileSet();
+                fileSet.setRefid(classPath.getRefid());
+            }
             break;
         case NATIVE:
-            final File[] nativeLocations = location.listFiles(new FileFilter() {
-                public boolean accept(final File pathname) {
-                    return pathname.isFile();
-                }
-            });
-            final String[] includes = new String[nativeLocations.length];
-            for (int i = 0; i < nativeLocations.length; i++) {
-                includes[i] = "**/*" + nativeLocations[i].getName();
+            if (null == fileSet) {
+                fileSet = new FileSet();
+                fileSet.setDir(getVendorRootDirectory());
             }
-            fileSet.appendIncludes(includes);
+            final File[] nativeIncludes = location.listFiles();
+            final StringBuffer nativeIncludePath = new StringBuffer();
+            for (final File nativeInclude : nativeIncludes) {
+                nativeIncludePath.setLength(0);
+                nativeIncludePath.append(getPath())
+                    .append(File.separator)
+                    .append(nativeInclude.getName());
+                fileSet.appendIncludes(new String[] {nativeIncludePath.toString()});
+            }
             break;
         default:
-            throw panic("Unknown type for location {0}", location.getAbsolutePath());
+            throw panic("");
         }
+
         getProject().addReference(fileSetId, fileSet);
     }
 
@@ -408,22 +413,6 @@ public class Dependency extends AbstractTask {
             throw panic("Unknown scope {0}", scope.name());
         }
         return classPath;
-    }
-
-    /**
-     * Create a file set.
-     * 
-     * @param type
-     *            A dependency <code>Type</code>.
-     * @param scope
-     *            A dependency <code>Scope</code>.
-     * @return A <code>FileSet</code>.
-     */
-    private FileSet createFileSet(final Type type, final Scope scope) {
-        final FileSet fileSet = new FileSet();
-        fileSet.setProject(getProject());
-        fileSet.setDir(getVendorRootDirectory());
-        return fileSet;
     }
 
     /**

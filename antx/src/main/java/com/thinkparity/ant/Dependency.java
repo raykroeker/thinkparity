@@ -8,6 +8,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Path.PathElement;
@@ -133,7 +134,7 @@ public class Dependency extends AbstractTask {
      *
      */
     @Override
-    protected void doExecute() {
+    protected void doExecute() throws BuildException {
         final File file = getFile();
         if (!file.exists())
             locate();
@@ -147,7 +148,8 @@ public class Dependency extends AbstractTask {
      * Validate the task.  Check for path; scope and version.
      *
      */
-    protected void validate() {
+    @Override
+    protected void validate() throws BuildException {
         if (null == path)
             throw panic("Dependency path is not specified.");
         if (null == provider)
@@ -186,7 +188,6 @@ public class Dependency extends AbstractTask {
      * @return A path <code>String</code>.
      */
     String getPath() {
-        validate();
         log("path:" + path, Project.MSG_DEBUG);
         return path;
     }
@@ -197,7 +198,6 @@ public class Dependency extends AbstractTask {
      * @return The provider <code>String</code>.
      */
     String getProvider() {
-        validate();
         log("provider:" + provider, Project.MSG_DEBUG);
         return provider;
     }
@@ -208,7 +208,6 @@ public class Dependency extends AbstractTask {
      * @return A dependency version <code>String</code>.
      */
     String getVersion() {
-        validate();
         log("version:" + version, Project.MSG_DEBUG);
         return version;
     }
@@ -411,7 +410,6 @@ public class Dependency extends AbstractTask {
      * @return A dependency <code>Scope</code>.
      */
     private Scope getScope() {
-        validate();
         log("scope:" + scope, Project.MSG_DEBUG);
         return scope;
     }
@@ -422,7 +420,6 @@ public class Dependency extends AbstractTask {
      * @return A dependency <code>Type</code>.
      */
     private Type getType() {
-        validate();
         log("type:" + type, Project.MSG_DEBUG);
         return type;
     }

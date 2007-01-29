@@ -5,6 +5,7 @@ package com.thinkparity.antx;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.List;
 
 import org.apache.tools.ant.BuildEvent;
 import org.apache.tools.ant.BuildException;
@@ -91,12 +92,16 @@ public abstract class AntXTask extends Task {
             throw panic("Property {0} does not exist.", propertyName);
     }
 
+    /** A <code>DependencyTracker</code>. */
+    private final DependencyTracker dependencyTracker;
+
     /**
      * Create AbstractTask.
      *
      */
     public AntXTask() {
         super();
+        this.dependencyTracker = new DependencyTracker(this);
     }
 
     /**
@@ -121,6 +126,36 @@ public abstract class AntXTask extends Task {
      * @throws BuildException
      */
     protected abstract void doExecute() throws BuildException;
+
+    /**
+     * Obtain the tracked depenencies.
+     * 
+     * @return A <code>List</code> of <code>Dependency</code>s.
+     */
+    protected final List<Dependency> getDependencies() {
+        return dependencyTracker.getDependencies();
+    }
+
+    /**
+     * Determine if the dependency is being tracked.
+     * 
+     * @param dependency
+     *            A <code>Dependency</code>.
+     * @return True if it is being tracked.
+     */
+    protected final Boolean isTracked(final Dependency dependency) {
+        return dependencyTracker.isTracked(dependency);
+    }
+
+    /**
+     * Track a dependency.
+     * 
+     * @param dependency
+     *            A <code>Dependency</code>.
+     */
+    protected final void track(final Dependency dependency) {
+        dependencyTracker.track(dependency);
+    }
 
     /**
      * Validate the task.

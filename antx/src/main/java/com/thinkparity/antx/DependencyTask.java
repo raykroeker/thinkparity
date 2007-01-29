@@ -5,8 +5,6 @@ package com.thinkparity.antx;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
@@ -26,15 +24,20 @@ import com.thinkparity.antx.Dependency.Type;
  */
 public class DependencyTask extends AntXTask {
 
-    /** A list of the dependencies already added. */
-    private static final List<Dependency> DEPENDENCIES;
+    private static final String PROPERTY_NAME_CVS_BRANCH;
+
+    private static final String PROPERTY_NAME_CVS_COMPRESSION_LEVEL;
+
+    private static final String PROPERTY_NAME_CVS_ROOT;
 
     private static final String PROPERTY_NAME_TARGET_CLASSES_DIR;
 
     private static final String PROPERTY_NAME_TARGET_TEST_CLASSES_DIR;
 
     static {
-        DEPENDENCIES = new ArrayList<Dependency>(25);
+        PROPERTY_NAME_CVS_BRANCH = "cvs.branch";
+        PROPERTY_NAME_CVS_COMPRESSION_LEVEL = "cvs.compressionlevel";
+        PROPERTY_NAME_CVS_ROOT = "cvs.root";
         PROPERTY_NAME_TARGET_CLASSES_DIR = "target.classes.dir";
         PROPERTY_NAME_TARGET_TEST_CLASSES_DIR = "target.test-classes.dir";
     }
@@ -168,7 +171,7 @@ public class DependencyTask extends AntXTask {
     }
 
     /**
-     * @see com.thinkparity.antx.AbstractTask#doExecute()
+     * @see com.thinkparity.antx.AntXTask#doExecute()
      *
      */
     @Override
@@ -228,8 +231,6 @@ public class DependencyTask extends AntXTask {
      * 
      * @param scope
      *            A <code>Scope</code>.
-     * @param location
-     *            A location <code>File</code>.
      */
     private void addClassPathElement(final Scope scope) {
         // obtain the existing class path
@@ -321,7 +322,7 @@ public class DependencyTask extends AntXTask {
      * 
      */
     private void addPathElements() {
-        if (DEPENDENCIES.contains(dependency))
+        if (isTracked(dependency))
             return;
 
         switch (dependency.getType()) {
@@ -374,7 +375,7 @@ public class DependencyTask extends AntXTask {
         default:
             throw panic("Unknown type {0}", dependency.getType().name());
         }
-        DEPENDENCIES.add(dependency);
+        track(dependency);
     }
 
     /**
@@ -455,9 +456,9 @@ public class DependencyTask extends AntXTask {
     private void locate(final Dependency dependency) {
         if (null == cvsLocator) {
             final Project project = getProject();
-            cvsLocator = new CvsLocator(getProperty(project, "cvs.root"),
-                    Integer.valueOf(getProperty(project, "cvs.compressionlevel")),
-                    getProperty(project, "cvs.branch"),
+            cvsLocator = new CvsLocator(getProperty(project, PROPERTY_NAME_CVS_ROOT),
+                    Integer.valueOf(getProperty(project, PROPERTY_NAME_CVS_COMPRESSION_LEVEL)),
+                    getProperty(project, PROPERTY_NAME_CVS_BRANCH),
                     getVendorRootDirectory()); 
         }
         cvsLocator.locate(dependency);

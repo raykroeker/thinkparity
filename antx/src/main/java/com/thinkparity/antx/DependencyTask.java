@@ -14,6 +14,9 @@ import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Path.PathElement;
 
+import com.thinkparity.antx.Dependency.Scope;
+import com.thinkparity.antx.Dependency.Type;
+
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
@@ -21,7 +24,7 @@ import org.apache.tools.ant.types.Path.PathElement;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class DependencyTask extends AbstractTask {
+public class DependencyTask extends AntXTask {
 
     /** A list of the dependencies already added. */
     private static final List<File> LOCATIONS;
@@ -36,20 +39,11 @@ public class DependencyTask extends AbstractTask {
         PROPERTY_NAME_TARGET_TEST_CLASSES_DIR = "target.test-classes.dir";
     }
 
-    /** A dependency path <code>String</code>. */
-    private String path;
+    /** A cvs <code>Locator</code>. */
+    private Locator cvsLocator;
 
-    /** A dependency provider <code>String</code>. */
-    private String provider;
-
-    /** A dependency <code>Scope</code>. */
-    private Scope scope;
-
-    /** A dependency <code>Type</code>. */
-    private Type type;
-
-    /** A dependency version <code>String</code>. */
-    private String version;
+    /** A <code>Dependency</code>. */
+    private Dependency dependency;
 
     /**
      * Create Dependency.
@@ -66,7 +60,8 @@ public class DependencyTask extends AbstractTask {
      *		A path <code>String</code>.
      */
     public void setPath(final String path) {
-        this.path = path;
+        initialize();
+        this.dependency.setPath(path);
     }
 
     /**
@@ -76,7 +71,8 @@ public class DependencyTask extends AbstractTask {
      *      A provider <code>String</code>.
      */
     public void setProvider(final String provider) {
-        this.provider = provider;
+        initialize();
+        this.dependency.setProvider(provider);
     }
 
     /**
@@ -86,7 +82,8 @@ public class DependencyTask extends AbstractTask {
      *      A String.
      */
     public void setScope(final String scope) {
-        this.scope = Scope.valueOf(scope.toUpperCase());
+        initialize();
+        this.dependency.setScope(Scope.valueOf(scope));
     }
 
     /**
@@ -96,7 +93,8 @@ public class DependencyTask extends AbstractTask {
      *      A String.
      */
     public void setType(final String type) {
-        this.type = Type.valueOf(type.toUpperCase());
+        initialize();
+        this.dependency.setType(Type.valueOf(type));
     }
 
     /**
@@ -106,7 +104,8 @@ public class DependencyTask extends AbstractTask {
      *		A String.
      */
     public void setVersion(final String version) {
-        this.version = version;
+        initialize();
+        this.dependency.setVersion(version);
     }
 
     /**
@@ -136,26 +135,7 @@ public class DependencyTask extends AbstractTask {
      */
     @Override
     protected void doExecute() throws BuildException {
-        final File file = getFile();
-        if (!file.exists())
-            locate();
-        if (!file.exists())
-            throw panic("Dependency {0} does not exist and cannot be found.",
-                    file.getAbsolutePath());
-        // validate type/path combination
-        switch (type) {
-        case JAVA:
-            if (!file.isFile())
-                throw panic("Dependency path for {0} must be a file.", path);
-            break;
-        case NATIVE:
-            if (!file.isDirectory())
-                throw panic("Dependency path for {0} must be a directory.", path);
-            break;
-        default:
-            throw panic("Unknown type {0}", type.name());
-        }
-        addPathElements(file);
+        addPathElements(dependency.getLocation());
     }
 
     /**
@@ -164,21 +144,41 @@ public class DependencyTask extends AbstractTask {
      */
     @Override
     protected void validate() throws BuildException {
-        if (null == path)
-            throw panic("Dependency path is not specified.");
-        if (null == provider)
-            throw panic("Dependency provider for {0} is not specified.", path);
-        if (null == scope)
-            throw panic("Dependency scope for {0} is not specified.", path);
-        if (null == type)
-            throw panic("Dependency type for {0} is not specified.", path);
-        if (null == version)
-            throw panic("Dependency version for {0} is not specified.", path);
+        if (null == dependency)
+            throw panic("Dependency is not specified.");
+        if (null == dependency.getPath())
+            throw panic("Dependency path for {0} is not specified.", dependency);
+        if (null == dependency.getScope())
+            throw panic("Dependency scope for {0} is not specified.", dependency);
+        if (null == dependency.getType())
+            throw panic("Dependency type for {0} is not specified.", dependency);
+        if (null == dependency.getVersion())
+            throw panic("Dependency version for {0} is not specified.", dependency);
         // validate scope/type combination
-        if (Type.NATIVE == type)
-            if (scope == Scope.COMPILE)
-                throw panic("Dependency type {0} for scope {1} is invalid.",
-                        type.name(), scope.name());
+        if (Type.NATIVE == dependency.getType())
+            if (Scope.COMPILE == dependency.getScope())
+                throw panic("Dependency type {0} for scope {1} is invalid for {0}.",
+                        dependency.getType().name(),
+                        dependency.getScope().name(), dependency);
+        // resolve the dependency's location
+        dependency.setLocation(new File(getVendorRootDirectory(), dependency.getPath()));
+        if (!dependency.getLocation().exists())
+            locate(dependency);
+        if (!dependency.getLocation().exists())
+            throw panic("Dependency {0} does not exist and cannot be found.", dependency);
+        // validate type/path combination
+        switch (dependency.getType()) {
+        case JAVA:
+            if (!dependency.getLocation().isFile())
+                throw panic("Dependency path for {0} must be a file.", dependency);
+            break;
+        case NATIVE:
+            if (!dependency.getLocation().isDirectory())
+                throw panic("Dependency path for {0} must be a directory.", dependency);
+            break;
+        default:
+            throw panic("Unknown type {0}", getType().name());
+        }
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_CLASSES_DIR);
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_TEST_CLASSES_DIR);
     }
@@ -189,8 +189,8 @@ public class DependencyTask extends AbstractTask {
      * @return A path <code>String</code>.
      */
     String getPath() {
-        log("path:" + path, Project.MSG_DEBUG);
-        return path;
+        log("dependency.getPath():" + dependency.getPath(), Project.MSG_DEBUG);
+        return dependency.getPath();
     }
 
     /**
@@ -199,8 +199,8 @@ public class DependencyTask extends AbstractTask {
      * @return The provider <code>String</code>.
      */
     String getProvider() {
-        log("provider:" + provider, Project.MSG_DEBUG);
-        return provider;
+        log("dependency.getProvider():" + dependency.getProvider(), Project.MSG_DEBUG);
+        return dependency.getProvider();
     }
 
     /**
@@ -209,8 +209,8 @@ public class DependencyTask extends AbstractTask {
      * @return A dependency version <code>String</code>.
      */
     String getVersion() {
-        log("version:" + version, Project.MSG_DEBUG);
-        return version;
+        log("dependency.getVersion():" + dependency.getVersion(), Project.MSG_DEBUG);
+        return dependency.getVersion();
     }
 
     /**
@@ -342,7 +342,7 @@ public class DependencyTask extends AbstractTask {
                 addFilesetLocation(Type.JAVA, Scope.TEST, location);
                 break;
             default:
-                throw panic("Unknown scope {0}", scope.name());
+                throw panic("Unknown scope {0}", getScope().name());
             }
             break;
         case NATIVE:
@@ -362,11 +362,11 @@ public class DependencyTask extends AbstractTask {
                 addFilesetLocation(Type.NATIVE, Scope.TEST, location);
                 break;
             default:
-                throw panic("Unknown scope {0}", scope.name());
+                throw panic("Unknown scope {0}", getScope().name());
             }
             break;
         default:
-            throw panic("Unknown type {0}", type.name());
+            throw panic("Unknown type {0}", getType().name());
         }
     }
 
@@ -436,15 +436,6 @@ public class DependencyTask extends AbstractTask {
     }
 
     /**
-     * Obtain the file based upon the path.
-     * 
-     * @return A <code>File</code>.
-     */
-    private File getFile() {
-        return new File(getVendorRootDirectory(), getPath());
-    }
-
-    /**
      * Obtain a file set id for the type and scope.
      * 
      * @param type
@@ -476,8 +467,8 @@ public class DependencyTask extends AbstractTask {
      * @return A dependency <code>Scope</code>.
      */
     private Scope getScope() {
-        log("scope:" + scope, Project.MSG_DEBUG);
-        return scope;
+        log("dependency.getScope():" + dependency.getScope(), Project.MSG_DEBUG);
+        return dependency.getScope();
     }
 
     /**
@@ -486,8 +477,8 @@ public class DependencyTask extends AbstractTask {
      * @return A dependency <code>Type</code>.
      */
     private Type getType() {
-        log("type:" + type, Project.MSG_DEBUG);
-        return type;
+        log("dependency.getType():" + dependency.getType(), Project.MSG_DEBUG);
+        return dependency.getType();
     }
 
     /**
@@ -500,24 +491,26 @@ public class DependencyTask extends AbstractTask {
     }
 
     /**
-     * Attempt to locate the dependency.
+     * Initialize the dependency task.
      *
      */
-    private void locate() {
-        new CvsLocator().locate(this);
+    private void initialize() {
+        if (null == dependency)
+            dependency = new Dependency();
     }
 
     /**
-     * <b>Title:</b>Dependency Scope<br>
-     * <b>Description:</b>Defines the scope of the depenency. Used to build
-     * appropriate path references for compilation runtime and testing.<br>
+     * Attempt to locate the dependency.
+     *
      */
-    public enum Scope { COMPILE, RUNTIME, TEST }
-
-    /**
-     * <b>Title:</b>Dependency Type<br>
-     * <b>Description:</b>Defines the type of dependency. Used to build
-     * appropirate path entries whether they be classpath or library path.<br>
-     */
-    public enum Type { JAVA, NATIVE }
+    private void locate(final Dependency dependency) {
+        if (null == cvsLocator) {
+            final Project project = getProject();
+            cvsLocator = new CvsLocator(getProperty(project, "cvs.root"),
+                    Integer.valueOf(getProperty(project, "cvs.compressionlevel")),
+                    getProperty(project, "cvs.branch"),
+                    getVendorRootDirectory()); 
+        }
+        cvsLocator.locate(dependency);
+    }
 }

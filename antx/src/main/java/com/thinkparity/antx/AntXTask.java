@@ -19,7 +19,7 @@ import org.apache.tools.ant.Task;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public abstract class AbstractTask extends Task {
+public abstract class AntXTask extends Task {
 
     /**
      * Obtain a file property from the project.
@@ -95,7 +95,7 @@ public abstract class AbstractTask extends Task {
      * Create AbstractTask.
      *
      */
-    public AbstractTask() {
+    public AntXTask() {
         super();
     }
 

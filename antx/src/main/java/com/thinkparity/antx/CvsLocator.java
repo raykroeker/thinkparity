@@ -3,6 +3,8 @@
  */
 package com.thinkparity.antx;
 
+import java.io.File;
+
 import org.apache.tools.ant.taskdefs.AbstractCvsTask;
 
 /**
@@ -11,7 +13,7 @@ import org.apache.tools.ant.taskdefs.AbstractCvsTask;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-final class CvsLocator extends AbstractCvsTask {
+final class CvsLocator extends AbstractCvsTask implements Locator {
 
     /** The cvs locator's cvs command. */
     private static final String COMMAND;
@@ -21,11 +23,25 @@ final class CvsLocator extends AbstractCvsTask {
     }
 
     /**
-     * Create CVSLocator.
-     *
+     * Create CvsLocator.
+     * 
+     * @param cvsRoot
+     *            A cvs root <code>String</code>.
+     * @param compressionLevel
+     *            A cvs compression level <code>int</code>.
+     * @param tag
+     *            A cvs tag <code>String</code>.
+     * @param dest
+     *            A cvs destination <code>File</code>.
      */
-    CvsLocator() {
+    CvsLocator(final String cvsRoot, final int compressionLevel,
+            final String tag, final File dest) {
         super();
+        setCvsRoot(cvsRoot);
+        setCommand(COMMAND);
+        setCompressionLevel(compressionLevel);
+        setDest(dest);
+        setTag(tag);
     }
 
     /**
@@ -34,17 +50,11 @@ final class CvsLocator extends AbstractCvsTask {
      * @param dependency
      *            A <code>Dependency</code>.
      */
-    void locate(final DependencyTask dependencyTask) {
-        setCvsRoot(dependencyTask.getProject().getProperty("cvs.cvsroot"));
-        setCompressionLevel(Integer.valueOf(
-                dependencyTask.getProject().getProperty("cvs.compressionlevel")));
-        setTag(dependencyTask.getProject().getProperty("cvs.branch"));
-        setDest(dependencyTask.getProject().getBaseDir());
-        setCommand(COMMAND);
-        final String path = new StringBuffer("vendor/")
-            .append(dependencyTask.getPath())
-            .toString();
-        setPackage(path);
+    public void locate(final Dependency dependency) {
+        setPackage(new StringBuffer(getDest().getName())
+            .append("/")
+            .append(dependency.getPath())
+            .toString());
         execute();
     }
 }

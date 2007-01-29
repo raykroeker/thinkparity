@@ -27,16 +27,54 @@ import com.thinkparity.antx.Dependency.Type;
 public class DependencyTask extends AntXTask {
 
     /** A list of the dependencies already added. */
-    private static final List<File> LOCATIONS;
+    private static final List<Dependency> DEPENDENCIES;
 
     private static final String PROPERTY_NAME_TARGET_CLASSES_DIR;
 
     private static final String PROPERTY_NAME_TARGET_TEST_CLASSES_DIR;
 
     static {
-        LOCATIONS = new ArrayList<File>(25);
+        DEPENDENCIES = new ArrayList<Dependency>(25);
         PROPERTY_NAME_TARGET_CLASSES_DIR = "target.classes.dir";
         PROPERTY_NAME_TARGET_TEST_CLASSES_DIR = "target.test-classes.dir";
+    }
+
+    /**
+     * Obtain a class path id for the scope.
+     * 
+     * @param scope
+     *            An enumerated dependency <code>Scope</code>.
+     * @return A class path id <code>String</code>.
+     */
+    private static final String getClassPathId(final Scope scope) {
+        return MessageFormat.format("{0}.classpath",
+                scope.toString().toLowerCase());
+    }
+
+    /**
+     * Obtain a file set id for the type and scope.
+     * 
+     * @param type
+     *            A dependency <code>Type</code>.
+     * @param scope
+     *            A dependncy <code>Scope</code>.
+     * @return A file set id <code>String</code>.
+     */
+    private static final String getFileSetId(final Type type, final Scope scope) {
+        return MessageFormat.format("{0}.dependencies-{1}",
+                scope.name().toLowerCase(), type.name().toLowerCase());
+    }
+
+    /**
+     * Obtain a library path id for the scope.
+     * 
+     * @param scope
+     *            An enumerated dependency <code>Scope</code>.
+     * @return A library path id <code>String</code>.
+     */
+    private static final String getLibraryPathId(final Scope scope) {
+        return MessageFormat.format("{0}.librarypath",
+                scope.toString().toLowerCase());
     }
 
     /** A cvs <code>Locator</code>. */
@@ -135,7 +173,7 @@ public class DependencyTask extends AntXTask {
      */
     @Override
     protected void doExecute() throws BuildException {
-        addPathElements(dependency.getLocation());
+        addPathElements();
     }
 
     /**
@@ -177,40 +215,10 @@ public class DependencyTask extends AntXTask {
                 throw panic("Dependency path for {0} must be a directory.", dependency);
             break;
         default:
-            throw panic("Unknown type {0}", getType().name());
+            throw panic("Unknown type {0}", dependency.getType().name());
         }
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_CLASSES_DIR);
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_TEST_CLASSES_DIR);
-    }
-
-    /**
-     * Obtain the path specified for the dependency.
-     * 
-     * @return A path <code>String</code>.
-     */
-    String getPath() {
-        log("dependency.getPath():" + dependency.getPath(), Project.MSG_DEBUG);
-        return dependency.getPath();
-    }
-
-    /**
-     * Obtain the provider.
-     *
-     * @return The provider <code>String</code>.
-     */
-    String getProvider() {
-        log("dependency.getProvider():" + dependency.getProvider(), Project.MSG_DEBUG);
-        return dependency.getProvider();
-    }
-
-    /**
-     * Obtain the version specified for the dependency.
-     * 
-     * @return A dependency version <code>String</code>.
-     */
-    String getVersion() {
-        log("dependency.getVersion():" + dependency.getVersion(), Project.MSG_DEBUG);
-        return dependency.getVersion();
     }
 
     /**
@@ -223,7 +231,7 @@ public class DependencyTask extends AntXTask {
      * @param location
      *            A location <code>File</code>.
      */
-    private void addClassPathElement(final Scope scope, final File location) {
+    private void addClassPathElement(final Scope scope) {
         // obtain the existing class path
         final String classPathId = getClassPathId(scope);
         Path classPath = (Path) getProject().getReference(classPathId);
@@ -233,7 +241,7 @@ public class DependencyTask extends AntXTask {
         }
         // add the location
         final PathElement referencePath = classPath.new PathElement();
-        referencePath.setLocation(location);
+        referencePath.setLocation(dependency.getLocation());
         classPath.add(referencePath);
         // save the path
         getProject().addReference(classPathId, classPath);
@@ -248,8 +256,7 @@ public class DependencyTask extends AntXTask {
      * @param scope
      *            A dependency <code>Scope</code>.
      */
-    private void addFilesetLocation(final Type type, final Scope scope,
-            final File location) {
+    private void addFilesetLocation(final Type type, final Scope scope) {
         final String fileSetId = getFileSetId(type, scope);
         FileSet fileSet = (FileSet) getProject().getReference(fileSetId);
         if (null == fileSet) {
@@ -261,13 +268,13 @@ public class DependencyTask extends AntXTask {
         final String[] includes;
         switch (type) {
         case JAVA:
-            includes = new String[] {getPath()};
+            includes = new String[] {dependency.getPath()};
             break;
         case NATIVE:
-            final File[] nativeIncludes = location.listFiles();
+            final File[] nativeIncludes = dependency.getLocation().listFiles();
             includes = new String[nativeIncludes.length];
             for (int i = 0; i < nativeIncludes.length; i++) {
-                includes[i] = new StringBuffer(getPath())
+                includes[i] = new StringBuffer(dependency.getPath())
                     .append(File.separator)
                     .append(nativeIncludes[i].getName())
                     .toString();
@@ -312,62 +319,62 @@ public class DependencyTask extends AntXTask {
      * the dependency the location will be added as a class or library path
      * within one or more scopes.
      * 
-     * @param location
-     *            A location <code>File</code>.
      */
-    private void addPathElements(final File location) {
-        if (LOCATIONS.contains(location))
+    private void addPathElements() {
+        if (DEPENDENCIES.contains(dependency))
             return;
-        switch (getType()) {
-        case JAVA:
-            switch (getScope()) {
-            case COMPILE:
-                addClassPathElement(Scope.COMPILE, location);
-                addClassPathElement(Scope.RUNTIME, location);
-                addClassPathElement(Scope.TEST, location);
 
-                addFilesetLocation(Type.JAVA, Scope.RUNTIME, location);
-                addFilesetLocation(Type.JAVA, Scope.TEST, location);
+        switch (dependency.getType()) {
+        case JAVA:
+            switch (dependency.getScope()) {
+            case COMPILE:
+                addClassPathElement(Scope.COMPILE);
+                addClassPathElement(Scope.RUNTIME);
+                addClassPathElement(Scope.TEST);
+
+                addFilesetLocation(Type.JAVA, Scope.RUNTIME);
+                addFilesetLocation(Type.JAVA, Scope.TEST);
                 break;
             case RUNTIME:
-                addClassPathElement(Scope.RUNTIME, location);
-                addClassPathElement(Scope.TEST, location);
+                addClassPathElement(Scope.RUNTIME);
+                addClassPathElement(Scope.TEST);
 
-                addFilesetLocation(Type.JAVA, Scope.RUNTIME, location);
-                addFilesetLocation(Type.JAVA, Scope.TEST, location);
+                addFilesetLocation(Type.JAVA, Scope.RUNTIME);
+                addFilesetLocation(Type.JAVA, Scope.TEST);
                 break;
             case TEST:
-                addClassPathElement(Scope.TEST, location);
+                addClassPathElement(Scope.TEST);
 
-                addFilesetLocation(Type.JAVA, Scope.TEST, location);
+                addFilesetLocation(Type.JAVA, Scope.TEST);
                 break;
             default:
-                throw panic("Unknown scope {0}", getScope().name());
+                throw panic("Unknown scope {0}", dependency.getScope().name());
             }
             break;
         case NATIVE:
-            switch (getScope()) {
+            switch (dependency.getScope()) {
             case COMPILE:
                 break;
             case RUNTIME:
-                addLibraryPathElement(Scope.RUNTIME, location);
-                addLibraryPathElement(Scope.TEST, location);
+                addLibraryPathElement(Scope.RUNTIME, dependency.getLocation());
+                addLibraryPathElement(Scope.TEST, dependency.getLocation());
 
-                addFilesetLocation(Type.NATIVE, Scope.RUNTIME, location);
-                addFilesetLocation(Type.NATIVE, Scope.TEST, location);
+                addFilesetLocation(Type.NATIVE, Scope.RUNTIME);
+                addFilesetLocation(Type.NATIVE, Scope.TEST);
                 break;
             case TEST:
-                addLibraryPathElement(Scope.TEST, location);
+                addLibraryPathElement(Scope.TEST, dependency.getLocation());
 
-                addFilesetLocation(Type.NATIVE, Scope.TEST, location);
+                addFilesetLocation(Type.NATIVE, Scope.TEST);
                 break;
             default:
-                throw panic("Unknown scope {0}", getScope().name());
+                throw panic("Unknown scope {0}", dependency.getScope().name());
             }
             break;
         default:
-            throw panic("Unknown type {0}", getType().name());
+            throw panic("Unknown type {0}", dependency.getType().name());
         }
+        DEPENDENCIES.add(dependency);
     }
 
     /**
@@ -421,64 +428,6 @@ public class DependencyTask extends AntXTask {
     private Path createLibraryPath(final Scope scope) {
         final Project project = getProject();
         return new Path(project);
-    }
-
-    /**
-     * Obtain a class path id for the scope.
-     * 
-     * @param scope
-     *            An enumerated dependency <code>Scope</code>.
-     * @return A class path id <code>String</code>.
-     */
-    private String getClassPathId(final Scope scope) {
-        return MessageFormat.format("{0}.classpath",
-                scope.toString().toLowerCase());
-    }
-
-    /**
-     * Obtain a file set id for the type and scope.
-     * 
-     * @param type
-     *            A dependency <code>Type</code>.
-     * @param scope
-     *            A dependncy <code>Scope</code>.
-     * @return A file set id <code>String</code>.
-     */
-    private String getFileSetId(final Type type, final Scope scope) {
-        return MessageFormat.format("{0}.dependencies-{1}",
-                scope.name().toLowerCase(), type.name().toLowerCase());
-    }
-
-    /**
-     * Obtain a library path id for the scope.
-     * 
-     * @param scope
-     *            An enumerated dependency <code>Scope</code>.
-     * @return A library path id <code>String</code>.
-     */
-    private String getLibraryPathId(final Scope scope) {
-        return MessageFormat.format("{0}.librarypath",
-                scope.toString().toLowerCase());
-    }
-
-    /**
-     * Obtain the scope specified for the dependency.
-     * 
-     * @return A dependency <code>Scope</code>.
-     */
-    private Scope getScope() {
-        log("dependency.getScope():" + dependency.getScope(), Project.MSG_DEBUG);
-        return dependency.getScope();
-    }
-
-    /**
-     * Obtain the type specified for the dependency.
-     * 
-     * @return A dependency <code>Type</code>.
-     */
-    private Type getType() {
-        log("dependency.getType():" + dependency.getType(), Project.MSG_DEBUG);
-        return dependency.getType();
     }
 
     /**

@@ -425,6 +425,7 @@ public class Dependency extends AbstractTask {
      */
     private FileSet createFileSet(final Type type, final Scope scope) {
         final FileSet fileSet = new FileSet();
+        fileSet.setProject(getProject());
         fileSet.setDir(getVendorRootDirectory());
         return fileSet;
     }

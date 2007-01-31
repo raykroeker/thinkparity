@@ -805,12 +805,85 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Notify the application that the user profile has been updated.
+     * Notify the application that a profile email has been added.
+     * 
+     * @param remote
+     *            True if the notification is the result of a remote event.
      */
-    public void fireProfileUpdated() {
+    public void fireProfileEmailAdded(final Boolean remote) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                getTabContactAvatar().syncProfile(Boolean.FALSE);
+                getTabContactAvatar().syncProfile(remote);
+            }
+        });
+    }
+
+    /**
+     * Notify the application that a profile email has been removed.
+     * 
+     * @param remote
+     *            True if the notification is the result of a remote event.
+     */
+    public void fireProfileEmailRemoved(final Boolean remote) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().syncProfile(remote);
+            }
+        });
+    }
+
+    /**
+     * Notify the application that a profile email has been verified.
+     * 
+     * @param remote
+     *            True if the notification is the result of a remote event.
+     */
+    public void fireProfileEmailVerified(final Boolean remote) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().syncProfile(remote);
+            }
+        });
+    }
+
+    /**
+     * Notify the application that a profile password has been reset.
+     * 
+     * @param remote
+     *            True if the notification is the result of a remote event.
+     */
+    public void fireProfilePasswordReset(final Boolean remote) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().syncProfile(remote);
+            }
+        });
+    }
+
+    /**
+     * Notify the application that a profile password has been updated.
+     * 
+     * @param remote
+     *            True if the notification is the result of a remote event.
+     */
+    public void fireProfilePasswordUpdated(final Boolean remote) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().syncProfile(remote);
+            }
+        });
+    }
+
+    /**
+     * Notify the application that the user profile has been updated.
+     * 
+     * @param remote
+     *            True if the notification is the result of a remote event.
+     */
+    public void fireProfileUpdated(final Boolean remote) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().syncProfile(remote);
             }
         });
     }

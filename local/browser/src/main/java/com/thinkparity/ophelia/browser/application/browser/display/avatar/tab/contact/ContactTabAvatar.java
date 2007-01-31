@@ -32,7 +32,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
     }
     
     /**
-     * Show the contact invitation (scroll so it visible).
+     * Show the contact invitation (select the panel and scroll so it visible).
      * 
      * @param invitationIds
      *            The list of invitationIds.
@@ -105,6 +105,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            A panel id <code>ContactPanelId</code>.
      */
     private void showPanel(final ContactPanelId panelId) {
+        model.selectPanel(panelId);
         model.scrollPanelToVisible(panelId); 
     }  
 }

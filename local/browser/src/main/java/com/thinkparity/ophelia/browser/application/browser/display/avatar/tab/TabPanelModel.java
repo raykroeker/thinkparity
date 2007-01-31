@@ -172,11 +172,22 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
         rectangle.x = rectangle.y = 0;
         panel.scrollRectToVisible(rectangle);
     }
+    
+    /**
+     * Select the panel.
+     * 
+     * @param panelId
+     *            A panel id <code>T</code>.    
+     */
+    public void selectPanel(final T panelId) {
+        final TabPanel panel = lookupPanel(panelId);
+        selectPanel(panel);
+    }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate#select(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate#selectPanel(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
      */
-    public void select(final TabPanel tabPanel) {
+    public void selectPanel(final TabPanel tabPanel) {
         if (null != selectedPanel && tabPanel.equals(selectedPanel)) {
             return;
         }

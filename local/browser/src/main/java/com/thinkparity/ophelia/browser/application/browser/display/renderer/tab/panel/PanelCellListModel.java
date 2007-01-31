@@ -190,7 +190,7 @@ public class PanelCellListModel {
         // may get called during initialization before the delegate is set up.
         final TabDelegate delegate = tabPanel.getTabDelegate();
         if (null != delegate) {
-            delegate.select(tabPanel);
+            delegate.selectPanel(tabPanel);
         }
     }
 }

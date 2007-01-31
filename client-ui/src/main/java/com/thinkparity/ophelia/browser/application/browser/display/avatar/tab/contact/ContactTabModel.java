@@ -174,6 +174,8 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         final ContactTabPanel panel = (ContactTabPanel) tabPanel;
         if (panel.isSetContact()) {
             return new ContactPanelId(panel.getContact().getId());
+        } else if (panel.isSetProfile()) {
+            return new ContactPanelId(panel.getProfile().getId());
         } else if (panel.isSetIncoming()) {
             return new ContactPanelId(panel.getIncoming().getId());
         } else if (panel.isSetOutgoing()) {
@@ -194,7 +196,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         } else if (panelId.isSetInvitationId()) {
             panelIndex = lookupIndex(panelId.getInvitationId());
         } else {
-            throw Assert.createUnreachable("Unknown conatact panel id type.");
+            throw Assert.createUnreachable("Unknown contact panel id type.");
         }
         return -1 == panelIndex ? null : panels.get(panelIndex);
     }
@@ -465,12 +467,20 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         return sortedBy.contains(sortBy);
     }
 
-    private int lookupIndex(final JabberId contactId) {
-        Contact contact;
+    private int lookupIndex(final JabberId userId) {
+        ContactTabPanel panel;
         for (int i = 0; i < panels.size(); i++) {
-            contact = ((ContactTabPanel) panels.get(i)).getContact();
-            if (null != contact && contact.getId().equals(contactId))
-                return i;
+            panel = ((ContactTabPanel) panels.get(i));
+            if (panel.isSetContact()) {
+                if (panel.getContact().getId().equals(userId)) {
+                    return i;
+                }
+            }
+            if (panel.isSetProfile()) {
+                if (panel.getProfile().getId().equals(userId)) {
+                    return i;
+                }
+            }
         }
         return -1;
     }
@@ -479,12 +489,16 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         ContactTabPanel panel;
         for (int i = 0; i < panels.size(); i++) {
             panel = ((ContactTabPanel) panels.get(i));
-            if (panel.isSetIncoming())
-                if (panel.getIncoming().getId().equals(invitationId))
+            if (panel.isSetIncoming()) {
+                if (panel.getIncoming().getId().equals(invitationId)) {
                     return i;
-            if (panel.isSetOutgoing())
-                if (panel.getOutgoing().getId().equals(invitationId))
+                }
+            }
+            if (panel.isSetOutgoing()) {
+                if (panel.getOutgoing().getId().equals(invitationId)) {
                     return i;
+                }
+            }
         }
         return -1;
     }
@@ -661,7 +675,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             STRING_COMPARATOR_ASC = new StringComparator(Boolean.TRUE);
             STRING_COMPARATOR_DESC = new StringComparator(Boolean.FALSE);
         }
-        
+
         /** Whether or not to sort in ascending order. */
         private boolean ascending;
 
@@ -673,79 +687,129 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         private SortBy(final boolean ascending) {
             this.ascending = ascending;
         }
-        
+
         /**
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-         * 
          */
         public int compare(final TabPanel o1, final TabPanel o2) {
             final ContactTabPanel p1 = (ContactTabPanel) o1;
             final ContactTabPanel p2 = (ContactTabPanel) o2;
-            int result = 0;
-            if (p1.isSetContact()) {
-                if (p2.isSetContact()) {
-                    switch (this) {
-                    case NAME:
-                        // note the lack of multiplier
-                        return ascending
-                            ? STRING_COMPARATOR_ASC.compare(
-                                    p1.getContact().getName(),
-                                    p2.getContact().getName())
-                            : STRING_COMPARATOR_DESC.compare(
-                                    p1.getContact().getName(),
-                                    p2.getContact().getName());
-                    case TITLE:
-                        // note the lack of multiplier
-                        result =  ascending
-                            ? STRING_COMPARATOR_ASC.compare(
-                                    p1.getContact().getTitle(),
-                                    p2.getContact().getTitle())
-                            : STRING_COMPARATOR_DESC.compare(
-                                    p1.getContact().getTitle(),
-                                    p2.getContact().getTitle());
-                        if (0 == result) {
-                            result = compareDefault(p1, p2);
-                        }
-                        return result;
-                    case ORGANIZATION:
-                        // note the lack of multiplier
-                        result = ascending
-                            ? STRING_COMPARATOR_ASC.compare(
-                                    p1.getContact().getOrganization(),
-                                    p2.getContact().getOrganization())
-                            : STRING_COMPARATOR_DESC.compare(
-                                    p1.getContact().getOrganization(),
-                                    p2.getContact().getOrganization());
-                        if (0 == result) {
-                            result = compareDefault(p1, p2);
-                        }
-                        return result;            
-                    default:
-                        throw Assert.createUnreachable("Unknown ordering.");
+            
+            // Sort first by panel type (incoming invite, outgoing invite, contacts)
+            int result = getTypePriority(p1).compareTo(getTypePriority(p2));
+            
+            // Sort outgoing invitations alphabetically by email
+            if (0 == result && p1.isSetOutgoing()) {
+                return ascending
+                    ? STRING_COMPARATOR_ASC.compare(
+                            p1.getOutgoing().getEmail().toString(),
+                            p2.getOutgoing().getEmail().toString())
+                    : STRING_COMPARATOR_DESC.compare(
+                            p1.getOutgoing().getEmail().toString(),
+                            p2.getOutgoing().getEmail().toString());
+            }
+            
+            // Sort incoming invitations, contacts, and profile
+            if (0 == result) {
+                switch (this) {
+                case NAME:
+                    // note the lack of multiplier
+                    return ascending
+                        ? STRING_COMPARATOR_ASC.compare(
+                                getUser(p1).getName(),
+                                getUser(p2).getName())
+                        : STRING_COMPARATOR_DESC.compare(
+                                getUser(p1).getName(),
+                                getUser(p2).getName());
+                case TITLE:
+                    // note the lack of multiplier
+                    result =  ascending
+                        ? STRING_COMPARATOR_ASC.compare(
+                                getUser(p1).getTitle(),
+                                getUser(p2).getTitle())
+                        : STRING_COMPARATOR_DESC.compare(
+                                getUser(p1).getTitle(),
+                                getUser(p2).getTitle());
+                    if (0 == result) {
+                        result = compareDefault(p1, p2);
                     }
-                } else {
-                    return 1;
-                }
+                    return result;
+                case ORGANIZATION:
+                    // note the lack of multiplier
+                    result = ascending
+                        ? STRING_COMPARATOR_ASC.compare(
+                                getUser(p1).getOrganization(),
+                                getUser(p2).getOrganization())
+                        : STRING_COMPARATOR_DESC.compare(
+                                getUser(p1).getOrganization(),
+                                getUser(p2).getOrganization());
+                    if (0 == result) {
+                        result = compareDefault(p1, p2);
+                    }
+                    return result;            
+                default:
+                    throw Assert.createUnreachable("Unknown ordering.");
+                }         
             } else {
-                if (p2.isSetContact()) {
-                    return -1;
-                } else {
-                    return 1;
-                }
+                return result;
             }
         }
 
         /**
-         * Apply a default ordering.
+         * Get the priority based on panel type.
+         * Incoming invitations, then outgoing invitations, then remaining panels.
+         * 
+         * @param p
+         *          A <code>ContactTabPanel</code>.
+         * @return An <code>Integer</code> priority.
+         */
+        private Integer getTypePriority(final ContactTabPanel p) {
+            if (p.isSetIncoming()) {
+                return 0;
+            } else if (p.isSetOutgoing()) {
+                return 1;
+            } else {
+                return 2;
+            }
+        }
+
+        /**
+         * Get the user associated with the panel.
+         * 
+         * @param p
+         *          A <code>ContactTabPanel</code>.
+         * @return A <code>User</code>.
+         */
+        private User getUser(final ContactTabPanel p) {
+            if (p.isSetIncoming()) {
+                return p.getInvitedBy();
+            } else if (p.isSetOutgoing()) {
+                return null;
+            } else if (p.isSetProfile()) {
+                return p.getProfile();
+            } else {
+                return p.getContact();
+            }
+        }
+
+        /**
+         * Apply a default ordering (assuming the same panel type, ie. both are contacts,
+         * both are incoming invitations, etc).
+         * 
+         * @param p1
+         *          A <code>ContactTabPanel</code>.
+         * @param p2
+         *          A <code>ContactTabPanel</code>.
+         * @return An <code>int</code> compare result.         
          */
         private int compareDefault(final ContactTabPanel p1, final ContactTabPanel p2) {
             return ascending
                 ? STRING_COMPARATOR_ASC.compare(
-                        p1.getContact().getName(),
-                        p2.getContact().getName())
+                        getUser(p1).getName(),
+                        getUser(p2).getName())
                 : STRING_COMPARATOR_DESC.compare(
-                        p1.getContact().getName(),
-                        p2.getContact().getName());
+                        getUser(p1).getName(),
+                        getUser(p2).getName());
         }
     }
 }

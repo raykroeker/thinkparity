@@ -16,15 +16,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.l10n.L18nContext;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
 import com.thinkparity.codebase.model.profile.Profile;
-
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
-import com.thinkparity.ophelia.model.contact.ContactModel;
-import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.document.DocumentModel;
-import com.thinkparity.ophelia.model.events.ContactListener;
-import com.thinkparity.ophelia.model.session.SessionModel;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarFactory;
@@ -40,6 +32,13 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.util.localization.ApplicationL18n;
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.contact.ContactModel;
+import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.document.DocumentModel;
+import com.thinkparity.ophelia.model.events.ContactListener;
+import com.thinkparity.ophelia.model.events.ProfileListener;
+import com.thinkparity.ophelia.model.session.SessionModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -139,6 +138,16 @@ public abstract class AbstractApplication implements Application {
     }
 
     /**
+     * Add a profile listener.
+     * 
+     * @param profileListener
+     *            A profile listener.
+     */
+    public void addListener(final ProfileListener listener) {
+        platform.getModelFactory().getProfileModel(getClass()).addListener(listener);
+    }
+
+    /**
      * Obtain the parity artifact interface.
      * 
      * @return The parity artifact interface.
@@ -212,6 +221,16 @@ public abstract class AbstractApplication implements Application {
      */
     public void removeListener(final ContactListener listener) {
         platform.getModelFactory().getContactModel(getClass()).removeListener(listener);
+    }
+
+    /**
+     * Remove a profile listener.
+     * 
+     * @param profileListener
+     *            A profile listener.
+     */
+    public void removeListener(final ProfileListener listener) {
+        platform.getModelFactory().getProfileModel(getClass()).removeListener(listener);
     }
 
 	/**

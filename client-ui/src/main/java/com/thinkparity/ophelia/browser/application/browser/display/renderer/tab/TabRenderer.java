@@ -41,17 +41,29 @@ public final class TabRenderer {
 
     /** The east background <code>Image</code>. */
     private static Image BACKGROUND_EAST;
-    
+
     /** The east background when row 0 is selected <code>Image</code>. */
     private static Image BACKGROUND_EAST_ROW0_SELECTED;
 
-    /** The container version panel's center background <code>BufferedImage</code>. */ 
+    /** The fields background, center <code>Image</code>. */
+    private static Image BACKGROUND_FIELDS_CENTER;
+
+    /** The fields background, east <code>Image</code>. */
+    private static Image BACKGROUND_FIELDS_EAST;
+
+    /** The fields background, west <code>Image</code>. */
+    private static Image BACKGROUND_FIELDS_WEST;
+
+    /** The fields background, center <code>Image</code>. */
+    private static BufferedImage backgroundFieldsCenter;
+
+    /** The version panel's center background <code>BufferedImage</code>. */ 
     private static BufferedImage[] VERSION_IMAGES_CENTER;
 
-    /** The container version panel's western background <code>BufferedImage</code>s. */
+    /** The version panel's west background <code>BufferedImage</code>s. */
     private static Image[] VERSION_IMAGES_WEST;
 
-    /** The container version panel's west background <code>BufferedImage</code>s. */
+    /** The version panel's west background <code>BufferedImage</code>s. */
     private static BufferedImage[] versionImagesWest;
 
     static {
@@ -107,7 +119,12 @@ public final class TabRenderer {
                 buffer.getHeight(), Image.SCALE_SMOOTH);
         buffer = ImageIOUtil.read("PanelBackgroundEast_0Selected.png");
         BACKGROUND_EAST_ROW0_SELECTED = buffer.getScaledInstance(bounds.width,
-                buffer.getHeight(), Image.SCALE_SMOOTH);    
+                buffer.getHeight(), Image.SCALE_SMOOTH);
+        buffer = ImageIOUtil.read("PanelBackgroundFieldsCenter.png");        
+        BACKGROUND_FIELDS_CENTER = buffer.getScaledInstance(bounds.width,
+                buffer.getHeight(), Image.SCALE_SMOOTH);
+        BACKGROUND_FIELDS_EAST = ImageIOUtil.read("PanelBackgroundFieldsEast.png");
+        BACKGROUND_FIELDS_WEST = ImageIOUtil.read("PanelBackgroundFieldsWest.png");
         VERSION_IMAGES_CENTER = new BufferedImage[] {
                 ImageIOUtil.read("PanelBackgroundCenter0.png"),
                 ImageIOUtil.read("PanelBackgroundCenter1.png"),
@@ -144,12 +161,12 @@ public final class TabRenderer {
      * Determine if the image destined for the component is dirty; ie needs to
      * be clipped before drawing.
      * 
-     * @param component
-     *            A <code>Component</code>.
      * @param image
-     *            An <code>Image</code>.
-     * @param imageSize
-     *            The image size <code>Dimension</code>.
+     *            A <code>BufferedImage</code>.
+     * @param width
+     *            The image <code>int</code> width.
+     * @param height
+     *            The image <code>int</code> height.
      * @return True if the image needs to be clipped before drawing.
      */
     private static boolean isDirty(final BufferedImage image, final int width,
@@ -166,7 +183,7 @@ public final class TabRenderer {
     }
 
     /**
-     * Paint the background for the container panel.
+     * Paint the background for the collapsed panel.
      * 
      * @param g
      *            A <code>Graphics</code> context.
@@ -198,7 +215,7 @@ public final class TabRenderer {
     }
 
     /**
-     * Paint the expanded background for the container panel.
+     * Paint the expanded background for the panel.
      * 
      * @param g
      *            A <code>Graphics</code> context.
@@ -207,19 +224,25 @@ public final class TabRenderer {
      */
     public void paintExpandedBackground(final Graphics g, final ImageObserver observer) {
         /*
-         * paint the background for an expanded container - this involves simply
+         * paint the background for an expanded panel - this involves simply
          * painting the main background image at the top
          */
         g.drawImage(BACKGROUND, 0, 0, observer);
     }
 
     /**
-     * Paint the background for the container version panel.
+     * Paint the background for the version panel.
      * 
      * @param g
      *            The panel <code>Graphics</code>.
-     * @param panel
-     *            A <code>ContainerVersionPanel</code>.
+     * @param width
+     *            A width <code>int</code>.
+     * @param height
+     *            A height <code>int</code>.
+     * @param selectionIndex
+     *            The <code>int</code> selection index.
+     * @param observer
+     *            An <code>ImageObserver</code>.              
      */
     public void paintExpandedBackgroundCenter(final Graphics g,
             final int width, final int height, final int selectionIndex,
@@ -238,10 +261,15 @@ public final class TabRenderer {
      * Paint the eastern background.
      * 
      * @param g
-     *            The <code>Graphics<code>.
-     * @param x The x <code>int</code> coordinate.
-     * @param height The height <code>int</code>.
-     * @param observer The <code>ImageObserver</code>.
+     *            The <code>Graphics</code>.
+     * @param x
+     *            The <code>int</code> x coordinate.
+     * @param height
+     *            A height <code>int</code>.
+     * @param selectionIndex
+     *            The <code>int</code> selection index.
+     * @param observer
+     *            An <code>ImageObserver</code>.    
      */
     public void paintExpandedBackgroundEast(final Graphics g, final int x,
             final int height, final int selectionIndex,
@@ -255,14 +283,50 @@ public final class TabRenderer {
     }
 
     /**
-     * Paint the background for the container version panel.
+     * Paint the background for a field.
      * 
      * @param g
-     *            The panel <code>Graphics</code>.
-     * @param panel
-     *            A <code>ContainerVersionPanel</code>.
+     *            The <code>Graphics</code>.
+     * @param x
+     *            The <code>int</code> x coordinate.
+     * @param width
+     *            A width <code>int</code>.
+     * @param height
+     *            A height <code>int</code>.
+     * @param observer
+     *            The <code>ImageObserver</code>.
+     */
+    public void paintExpandedBackgroundFields(final Graphics g,
+            final int x, final int width, final int height, final ImageObserver observer) {
+        /*
+         * The west and east images are each 3 pixels wide. They are not scaled.
+         * The centre image is scaled in the X direction to fill the desired width.
+         * The width is adjusted so it does not paint all the way to the right.
+         */
+        final int adjustedWidth = width - 140;
+        g.drawImage(BACKGROUND_FIELDS_WEST, x, 0, observer);
+        if (isDirty(backgroundFieldsCenter, adjustedWidth-6, height)) {
+            backgroundFieldsCenter = clipImage(
+                    BACKGROUND_FIELDS_CENTER, 0, 0, adjustedWidth-6, height,
+                    observer);
+        }
+        g.drawImage(backgroundFieldsCenter, x + 3, 0, observer);     
+        g.drawImage(BACKGROUND_FIELDS_EAST, x + adjustedWidth - 3, 0, observer);
+    }
+
+    /**
+     * Paint the background for the version panel.
+     * 
+     * @param g
+     *            A <code>Graphics</code> context.
+     * @param width
+     *            A width <code>int</code>.
+     * @param height
+     *            A height <code>int</code>.
      * @param selectionIndex
-     *            The selection index for the indices.
+     *            The <code>int</code> selection index.
+     * @param observer
+     *            An <code>ImageObserver</code>.      
      */
     public void paintExpandedBackgroundWest(final Graphics g, final int width,
             final int height, final int selectionIndex,

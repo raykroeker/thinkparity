@@ -372,11 +372,11 @@ public class ContainerPanel extends DefaultTabPanel {
         logger.logApiId();
         logger.logVariable("e", e);
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
-            tabDelegate.select(this);
+            tabDelegate.selectPanel(this);
             popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
             popupDelegate.showForContainer(container);
         } else if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
-            tabDelegate.select(this);
+            tabDelegate.selectPanel(this);
         } else if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.toggleExpansion(this);
         }
@@ -386,7 +386,7 @@ public class ContainerPanel extends DefaultTabPanel {
         logger.logApiId();
         logger.logVariable("e", e);
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
-            tabDelegate.select(this);
+            tabDelegate.selectPanel(this);
             popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
             popupDelegate.showForContainer(container);
         }
@@ -495,7 +495,7 @@ public class ContainerPanel extends DefaultTabPanel {
     }//GEN-LAST:event_eastJPanelMouseReleased
 
     private void eastJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJPanelMousePressed
-        tabDelegate.select(this);
+        tabDelegate.selectPanel(this);
         if (e.isPopupTrigger()) {
             if (!westListModel.isSelectionEmpty()) {
                 getPopupDelegate().initialize((Component) e.getSource(), e.getX(), e.getY());
@@ -510,7 +510,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private void expandedJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMousePressed
         logger.logApiId();
         logger.logVariable("e", e);
-        tabDelegate.select(this);
+        tabDelegate.selectPanel(this);
         if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.toggleExpansion(this);
         }
@@ -570,7 +570,7 @@ public class ContainerPanel extends DefaultTabPanel {
     
     private void iconJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMousePressed
         if (e.getButton() == MouseEvent.BUTTON1) {
-            tabDelegate.select(this);
+            tabDelegate.selectPanel(this);
             actionDelegate.invokeForContainer(container);
         }
     }//GEN-LAST:event_iconJLabelMousePressed

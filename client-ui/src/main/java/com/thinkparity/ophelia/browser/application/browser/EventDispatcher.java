@@ -3,14 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
-import com.thinkparity.ophelia.model.events.ContactAdapter;
-import com.thinkparity.ophelia.model.events.ContactEvent;
-import com.thinkparity.ophelia.model.events.ContactListener;
-import com.thinkparity.ophelia.model.events.ContainerAdapter;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
-import com.thinkparity.ophelia.model.events.ContainerListener;
-import com.thinkparity.ophelia.model.events.SessionAdapter;
-import com.thinkparity.ophelia.model.events.SessionListener;
+import com.thinkparity.ophelia.model.events.*;
 
 /**
  * The browser's event dispatcher.
@@ -28,6 +21,9 @@ class EventDispatcher {
 
 	/** A thinkParity container interface listener. */
     private ContainerListener containerListener;
+    
+    /** A thinkParity profile interface listener. */
+    private ProfileListener profileListener;
 
 	/** A thinkParity session interface listener.*/
 	private SessionListener sessionListener;
@@ -54,6 +50,9 @@ class EventDispatcher {
         browser.getContainerModel().removeListener(containerListener);
         containerListener = null;
         
+        browser.removeListener(profileListener);
+        profileListener = null;
+        
 		browser.getSessionModel().removeListener(sessionListener);
 		sessionListener = null;
 	}
@@ -68,6 +67,9 @@ class EventDispatcher {
 
         containerListener = createContainerListener();
         browser.getContainerModel().addListener(containerListener);
+        
+        profileListener = createProfileListener();
+        browser.addListener(profileListener);
         
 		sessionListener = createSessionListener();
 		browser.getSessionModel().addListener(sessionListener);
@@ -128,6 +130,40 @@ class EventDispatcher {
             @Override
             public void containerRestored(final ContainerEvent e) {
                 browser.fireContainerRestored(e);
+            }
+        };
+    }
+    
+    /**
+     * Create a profile listener for the browser application.
+     * 
+     * @return A <code>ProfileListener</code>.
+     */
+    private ProfileListener createProfileListener() {
+        return new ProfileAdapter() {
+            @Override
+            public void emailAdded(final ProfileEvent e) {
+                browser.fireProfileEmailAdded(e.isRemote());
+            }
+            @Override
+            public void emailRemoved(final ProfileEvent e) {
+                browser.fireProfileEmailRemoved(e.isRemote());
+            }
+            @Override
+            public void emailVerified(final ProfileEvent e) {
+                browser.fireProfileEmailVerified(e.isRemote());
+            }
+            @Override
+            public void passwordReset(final ProfileEvent e) {
+                browser.fireProfilePasswordReset(e.isRemote());
+            }
+            @Override
+            public void passwordUpdated(final ProfileEvent e) {
+                browser.fireProfilePasswordUpdated(e.isRemote());
+            }
+            @Override
+            public void profileUpdated(final ProfileEvent e) {
+                browser.fireProfileUpdated(e.isRemote());
             }
         };
     }

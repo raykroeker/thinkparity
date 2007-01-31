@@ -77,7 +77,7 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
             final javax.swing.JLabel iconJLabel) {
         iconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(final java.awt.event.MouseEvent e) {
-                tabPanel.getTabDelegate().select(tabPanel);
+                tabPanel.getTabDelegate().selectPanel(tabPanel);
                 tabPanel.panelCellMousePressed(cell, Boolean.TRUE, e);
                 if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
                     if (cell.isActionAvailable()) {
@@ -106,7 +106,7 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
         });
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(final java.awt.event.MouseEvent e) {
-                tabPanel.getTabDelegate().select(tabPanel);
+                tabPanel.getTabDelegate().selectPanel(tabPanel);
                 tabPanel.panelCellMousePressed(cell, Boolean.FALSE, e);
                 maybeShowPopup(e);
             }

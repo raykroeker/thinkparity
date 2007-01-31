@@ -95,7 +95,7 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
     }
 
     public Profile readProfile() {
-        return profile;
+        return profileModel.read();
     }
 
     public User readUser(final JabberId userId) {

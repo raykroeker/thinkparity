@@ -19,7 +19,7 @@ public interface TabDelegate {
      * @param tabPanel
      *            A <code>TabPanel</code>.
      */
-    public void select(final TabPanel tabPanel);
+    public void selectPanel(final TabPanel tabPanel);
 
     /**
      * Toggle the expansion of a panel.

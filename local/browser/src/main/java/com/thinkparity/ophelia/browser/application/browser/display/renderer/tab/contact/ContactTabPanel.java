@@ -48,6 +48,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     private final javax.swing.JLabel contactAdditionalTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel contactAddressValueJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel contactEMailValueJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel contactFillterValueJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel contactIconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel contactLocationValueJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel contactMobilePhoneValueJLabel = new javax.swing.JLabel();
@@ -591,11 +592,9 @@ public class ContactTabPanel extends DefaultTabPanel {
         final javax.swing.JPanel expandedDataLabelsJPanel = new javax.swing.JPanel();
         final javax.swing.JLabel contactEMailJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel contactAddressJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel contactLocationJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel contactPhoneJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel contactMobilePhoneJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel contactFillerJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel contactFillterValueJLabel = new javax.swing.JLabel();
 
         collapsedJPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -792,20 +791,12 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(10, 51, 0, 0);
         expandedDataLabelsJPanel.add(contactAddressJLabel, gridBagConstraints);
 
-        contactLocationJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.locationJLabel"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(10, 51, 0, 0);
-        expandedDataLabelsJPanel.add(contactLocationJLabel, gridBagConstraints);
-
         contactPhoneJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.phoneJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(10, 51, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(34, 51, 0, 0);
         expandedDataLabelsJPanel.add(contactPhoneJLabel, gridBagConstraints);
 
         contactMobilePhoneJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.mobilePhoneJLabel"));

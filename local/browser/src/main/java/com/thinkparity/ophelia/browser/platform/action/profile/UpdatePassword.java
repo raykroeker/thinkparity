@@ -3,12 +3,11 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.profile;
 
-import com.thinkparity.ophelia.model.profile.ProfileModel;
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 /**
  * @author raymond@thinkparity.com
@@ -37,7 +36,7 @@ public class UpdatePassword extends AbstractAction {
     public void invoke(final Data data) {
         final Boolean displayAvatar = (Boolean) data.get(DataKey.DISPLAY_AVATAR);
         if (displayAvatar) {
-            browser.displayEditProfileDialog();
+            browser.displayUpdatePasswordDialog();
         } else {
             final ProfileModel profileModel = getProfileModel();
 

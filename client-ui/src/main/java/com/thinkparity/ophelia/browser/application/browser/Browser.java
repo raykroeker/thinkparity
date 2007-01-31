@@ -504,6 +504,13 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Display the update password dialog.
+     */
+    public void displayUpdatePasswordDialog() {
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_UPDATE_PASSWORD);
+    }
+
+    /**
      * Display the verify profile email dialog.
      * 
      * @param emailId

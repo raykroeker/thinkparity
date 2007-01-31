@@ -51,8 +51,7 @@ final class CvsLocator extends AbstractCvsTask implements Locator {
      *            A <code>Dependency</code>.
      */
     public void locate(final Dependency dependency) {
-        setPackage(new StringBuffer(getDest().getName())
-            .append("/")
+        setPackage(new StringBuffer("vendor/")
             .append(dependency.getPath())
             .toString());
         execute();

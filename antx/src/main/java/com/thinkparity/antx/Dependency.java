@@ -41,6 +41,21 @@ public class Dependency {
     }
 
     /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     *
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (null == obj)
+            return false;
+        if (this == obj)
+            return true;
+        if (getClass() != obj.getClass())
+            return false;
+        return ((Dependency) obj).location.equals(location);
+    }
+
+    /**
      * Obtain location.
      *
      * @return A File.
@@ -92,6 +107,34 @@ public class Dependency {
      */
     public String getVersion() {
         return version;
+    }
+
+    /**
+     * @see java.lang.Object#hashCode()
+     *
+     */
+    @Override
+    public int hashCode() {
+        final int PRIME = 31;
+        int result = 1;
+        result = PRIME * result + ((location == null) ? 0 : location.hashCode());
+        return result;
+    }
+
+    /**
+     * @see java.lang.Object#toString()
+     *
+     */
+    @Override
+    public String toString() {
+        return new StringBuffer()
+            .append("type:").append(type)
+            .append(",scope:").append(scope)
+            .append(",provider:").append(provider)
+            .append(",version:").append(version)
+            .append(",path:").append(path)
+            .append(",location:").append(null == location ? null : location.getAbsolutePath())
+            .toString();
     }
 
     /**

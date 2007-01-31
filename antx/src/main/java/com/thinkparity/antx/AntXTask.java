@@ -101,7 +101,7 @@ public abstract class AntXTask extends Task {
      */
     public AntXTask() {
         super();
-        this.dependencyTracker = new DependencyTracker(this);
+        this.dependencyTracker = new DependencyTracker();
     }
 
     /**
@@ -132,13 +132,15 @@ public abstract class AntXTask extends Task {
      * 
      * @return A <code>List</code> of <code>Dependency</code>s.
      */
-    protected final List<Dependency> getDependencies() {
-        return dependencyTracker.getDependencies();
+    protected final List<Dependency> getAllDependencies() {
+        return dependencyTracker.getAllDependencies();
     }
 
     /**
      * Determine if the dependency is being tracked.
      * 
+     * @param scope
+     *            A <code>Dependency.Scope</code>.
      * @param dependency
      *            A <code>Dependency</code>.
      * @return True if it is being tracked.
@@ -148,13 +150,30 @@ public abstract class AntXTask extends Task {
     }
 
     /**
+     * Determine if the dependency is being tracked.
+     * 
+     * @param scope
+     *            A <code>Dependency.Scope</code>.
+     * @param dependency
+     *            A <code>Dependency</code>.
+     * @return True if it is being tracked.
+     */
+    protected final Boolean isTracked(final Dependency.Scope scope,
+            final Dependency dependency) {
+        return dependencyTracker.isTracked(dependency);
+    }
+
+    /**
      * Track a dependency.
      * 
+     * @param scope
+     *            A <code>Dependency.Scope</code>.
      * @param dependency
      *            A <code>Dependency</code>.
      */
-    protected final void track(final Dependency dependency) {
-        dependencyTracker.track(dependency);
+    protected final void track(final Dependency.Scope scope,
+            final Dependency dependency) {
+        dependencyTracker.track(scope, dependency);
     }
 
     /**
@@ -162,7 +181,7 @@ public abstract class AntXTask extends Task {
      * 
      * @throws BuildException
      */
-    protected abstract void validate() throws BuildException;
+    protected void validate() throws BuildException {}
 
     /**
      * <b>Title:</b>Build Adapter<br>

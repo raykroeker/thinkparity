@@ -37,7 +37,7 @@ public class DependencyTask extends AntXTask {
     static {
         PROPERTY_NAME_CVS_BRANCH = "cvs.branch";
         PROPERTY_NAME_CVS_COMPRESSION_LEVEL = "cvs.compressionlevel";
-        PROPERTY_NAME_CVS_ROOT = "cvs.root";
+        PROPERTY_NAME_CVS_ROOT = "cvs.cvsroot";
         PROPERTY_NAME_TARGET_CLASSES_DIR = "target.classes.dir";
         PROPERTY_NAME_TARGET_TEST_CLASSES_DIR = "target.test-classes.dir";
     }
@@ -335,6 +335,10 @@ public class DependencyTask extends AntXTask {
 
                 addFilesetLocation(Type.JAVA, Scope.RUNTIME);
                 addFilesetLocation(Type.JAVA, Scope.TEST);
+
+                track(Scope.COMPILE, dependency);
+                track(Scope.RUNTIME, dependency);
+                track(Scope.TEST, dependency);
                 break;
             case RUNTIME:
                 addClassPathElement(Scope.RUNTIME);
@@ -342,11 +346,16 @@ public class DependencyTask extends AntXTask {
 
                 addFilesetLocation(Type.JAVA, Scope.RUNTIME);
                 addFilesetLocation(Type.JAVA, Scope.TEST);
+
+                track(Scope.RUNTIME, dependency);
+                track(Scope.TEST, dependency);
                 break;
             case TEST:
                 addClassPathElement(Scope.TEST);
 
                 addFilesetLocation(Type.JAVA, Scope.TEST);
+
+                track(Scope.TEST, dependency);
                 break;
             default:
                 throw panic("Unknown scope {0}", dependency.getScope().name());
@@ -362,11 +371,16 @@ public class DependencyTask extends AntXTask {
 
                 addFilesetLocation(Type.NATIVE, Scope.RUNTIME);
                 addFilesetLocation(Type.NATIVE, Scope.TEST);
+
+                track(Scope.RUNTIME, dependency);
+                track(Scope.TEST, dependency);
                 break;
             case TEST:
                 addLibraryPathElement(Scope.TEST, dependency.getLocation());
 
                 addFilesetLocation(Type.NATIVE, Scope.TEST);
+
+                track(Scope.TEST, dependency);
                 break;
             default:
                 throw panic("Unknown scope {0}", dependency.getScope().name());
@@ -375,7 +389,6 @@ public class DependencyTask extends AntXTask {
         default:
             throw panic("Unknown type {0}", dependency.getType().name());
         }
-        track(dependency);
     }
 
     /**
@@ -459,7 +472,7 @@ public class DependencyTask extends AntXTask {
             cvsLocator = new CvsLocator(getProperty(project, PROPERTY_NAME_CVS_ROOT),
                     Integer.valueOf(getProperty(project, PROPERTY_NAME_CVS_COMPRESSION_LEVEL)),
                     getProperty(project, PROPERTY_NAME_CVS_BRANCH),
-                    getVendorRootDirectory()); 
+                    project.getBaseDir());
         }
         cvsLocator.locate(dependency);
     }

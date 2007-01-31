@@ -4,7 +4,10 @@
 package com.thinkparity.antx;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
@@ -83,8 +86,23 @@ public class DependencyTask extends AntXTask {
     /** A cvs <code>Locator</code>. */
     private Locator cvsLocator;
 
-    /** A <code>Dependency</code>. */
-    private Dependency dependency;
+    /** The list of dependencies added by this task invocation. */
+    private final List<Dependency> dependencies;
+
+    /** A dependency path <code>String</code>. */
+    private String path;
+
+    /** A dependency provider <code>String</code>. */
+    private String provider;
+
+    /** A dependency's <code>Scope</code>. */
+    private Scope scope;
+
+    /** A dependency's <code>Type</code>. */
+    private Type type;
+
+    /** A dependency version <code>String</code>. */
+    private String version;
 
     /**
      * Create Dependency.
@@ -92,6 +110,7 @@ public class DependencyTask extends AntXTask {
      */
     public DependencyTask() {
         super();
+        this.dependencies = new ArrayList<Dependency>();
     }
 
     /**
@@ -101,8 +120,7 @@ public class DependencyTask extends AntXTask {
      *		A path <code>String</code>.
      */
     public void setPath(final String path) {
-        initialize();
-        this.dependency.setPath(path);
+        this.path = path;
     }
 
     /**
@@ -112,8 +130,7 @@ public class DependencyTask extends AntXTask {
      *      A provider <code>String</code>.
      */
     public void setProvider(final String provider) {
-        initialize();
-        this.dependency.setProvider(provider);
+        this.provider = provider;
     }
 
     /**
@@ -123,8 +140,7 @@ public class DependencyTask extends AntXTask {
      *      A String.
      */
     public void setScope(final String scope) {
-        initialize();
-        this.dependency.setScope(Scope.valueOf(scope.toUpperCase()));
+        this.scope = Scope.valueOf(scope.toUpperCase());
     }
 
     /**
@@ -134,8 +150,7 @@ public class DependencyTask extends AntXTask {
      *      A String.
      */
     public void setType(final String type) {
-        initialize();
-        this.dependency.setType(Type.valueOf(type.toUpperCase()));
+        this.type = Type.valueOf(type.toUpperCase());
     }
 
     /**
@@ -145,8 +160,7 @@ public class DependencyTask extends AntXTask {
      *		A String.
      */
     public void setVersion(final String version) {
-        initialize();
-        this.dependency.setVersion(version);
+        this.version = version;
     }
 
     /**
@@ -185,40 +199,62 @@ public class DependencyTask extends AntXTask {
      */
     @Override
     protected void validate() throws BuildException {
-        if (null == dependency)
-            throw panic("Dependency is not specified.");
-        if (null == dependency.getPath())
-            throw panic("Dependency path for {0} is not specified.", dependency);
-        if (null == dependency.getScope())
-            throw panic("Dependency scope for {0} is not specified.", dependency);
-        if (null == dependency.getType())
-            throw panic("Dependency type for {0} is not specified.", dependency);
-        if (null == dependency.getVersion())
-            throw panic("Dependency version for {0} is not specified.", dependency);
+        if (null == path)
+            throw panic("Dependency path for is not specified.");
+        if (null == scope)
+            throw panic("Dependency scope for is not specified.");
+        if (null == type)
+            throw panic("Dependency type for is not specified.");
+        if (null == version)
+            throw panic("Dependency version for is not specified.");
         // validate scope/type combination
-        if (Type.NATIVE == dependency.getType())
-            if (Scope.COMPILE == dependency.getScope())
-                throw panic("Dependency type {0} for scope {1} is invalid for {0}.",
-                        dependency.getType().name(),
-                        dependency.getScope().name(), dependency);
-        // resolve the dependency's location
-        dependency.setLocation(new File(getVendorRootDirectory(), dependency.getPath()));
-        if (!dependency.getLocation().exists())
-            locate(dependency);
-        if (!dependency.getLocation().exists())
-            throw panic("Dependency {0} does not exist and cannot be found.", dependency);
-        // validate type/path combination
-        switch (dependency.getType()) {
+        if (Type.NATIVE == type)
+            if (Scope.COMPILE == scope)
+                throw panic("Dependency type {0} for scope {1} is invalid.",
+                        type.name(), scope.name());
+        dependencies.clear();
+        final File location = new File(getVendorRootDirectory(), path);
+        Dependency dependency;
+        switch (type) {
         case JAVA:
-            if (!dependency.getLocation().isFile())
-                throw panic("Dependency path for {0} must be a file.", dependency);
+            if (!location.isFile())
+                throw panic("Dependency path for must be a file.");
+            dependency = new Dependency();
+            dependency.setLocation(location);
+            dependency.setPath(path);
+            dependency.setProvider(provider);
+            dependency.setScope(scope);
+            dependency.setType(type);
+            dependency.setVersion(version);
+            dependencies.add(dependency);
             break;
         case NATIVE:
-            if (!dependency.getLocation().isDirectory())
-                throw panic("Dependency path for {0} must be a directory.", dependency);
+            if (!location.isDirectory())
+                throw panic("Dependency path for must be a directory.");
+            final File[] nativeFiles = location.listFiles(new FileFilter() {
+                public boolean accept(final File pathname) {
+                    return pathname.isFile();
+                }
+            });
+            for (final File nativeFile : nativeFiles) {
+                dependency = new Dependency();
+                dependency.setLocation(nativeFile);
+                dependency.setPath(path);
+                dependency.setProvider(provider);
+                dependency.setScope(scope);
+                dependency.setType(type);
+                dependency.setVersion(version);
+                dependencies.add(dependency);
+            }
             break;
         default:
-            throw panic("Unknown type {0}", dependency.getType().name());
+            throw panic("Unknown type {0}", type.name());
+        }
+        for (final Dependency d : dependencies) {
+            if (!d.getLocation().exists())
+                locate(d);
+            if (!d.getLocation().exists())
+                throw panic("Dependency {0} does not exist and cannot be found.", d);
         }
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_CLASSES_DIR);
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_TEST_CLASSES_DIR);
@@ -231,8 +267,11 @@ public class DependencyTask extends AntXTask {
      * 
      * @param scope
      *            A <code>Scope</code>.
+     * @param dependency
+     *            A <code>Dependency</code>.
      */
-    private void addClassPathElement(final Scope scope) {
+    private void addClassPathElement(final Scope scope,
+            final Dependency dependency) {
         // obtain the existing class path
         final String classPathId = getClassPathId(scope);
         Path classPath = (Path) getProject().getReference(classPathId);
@@ -257,7 +296,8 @@ public class DependencyTask extends AntXTask {
      * @param scope
      *            A dependency <code>Scope</code>.
      */
-    private void addFilesetLocation(final Type type, final Scope scope) {
+    private void addFilesetLocation(final Type type, final Scope scope,
+            final Dependency dependency) {
         final String fileSetId = getFileSetId(type, scope);
         FileSet fileSet = (FileSet) getProject().getReference(fileSetId);
         if (null == fileSet) {
@@ -265,27 +305,7 @@ public class DependencyTask extends AntXTask {
             fileSet.setProject(getProject());
             fileSet.setDir(getVendorRootDirectory());
         }
-
-        final String[] includes;
-        switch (type) {
-        case JAVA:
-            includes = new String[] {dependency.getPath()};
-            break;
-        case NATIVE:
-            final File[] nativeIncludes = dependency.getLocation().listFiles();
-            includes = new String[nativeIncludes.length];
-            for (int i = 0; i < nativeIncludes.length; i++) {
-                includes[i] = new StringBuffer(dependency.getPath())
-                    .append(File.separator)
-                    .append(nativeIncludes[i].getName())
-                    .toString();
-            }
-            break;
-        default:
-            throw panic("Unknown type {0}", type.name());
-        }
-        fileSet.appendIncludes(includes);
-
+        fileSet.appendIncludes(new String[] {dependency.getPath()});
         getProject().addReference(fileSetId, fileSet);
     }
 
@@ -322,72 +342,74 @@ public class DependencyTask extends AntXTask {
      * 
      */
     private void addPathElements() {
-        if (isTracked(dependency))
-            return;
-
-        switch (dependency.getType()) {
-        case JAVA:
-            switch (dependency.getScope()) {
-            case COMPILE:
-                addClassPathElement(Scope.COMPILE);
-                addClassPathElement(Scope.RUNTIME);
-                addClassPathElement(Scope.TEST);
-
-                addFilesetLocation(Type.JAVA, Scope.RUNTIME);
-                addFilesetLocation(Type.JAVA, Scope.TEST);
-
-                track(Scope.COMPILE, dependency);
-                track(Scope.RUNTIME, dependency);
-                track(Scope.TEST, dependency);
+        for (final Dependency dependency : dependencies) {
+            if (isTracked(dependency))
                 break;
-            case RUNTIME:
-                addClassPathElement(Scope.RUNTIME);
-                addClassPathElement(Scope.TEST);
-
-                addFilesetLocation(Type.JAVA, Scope.RUNTIME);
-                addFilesetLocation(Type.JAVA, Scope.TEST);
-
-                track(Scope.RUNTIME, dependency);
-                track(Scope.TEST, dependency);
+    
+            switch (dependency.getType()) {
+            case JAVA:
+                switch (dependency.getScope()) {
+                case COMPILE:
+                    addClassPathElement(Scope.COMPILE, dependency);
+                    addClassPathElement(Scope.RUNTIME, dependency);
+                    addClassPathElement(Scope.TEST, dependency);
+    
+                    addFilesetLocation(Type.JAVA, Scope.RUNTIME, dependency);
+                    addFilesetLocation(Type.JAVA, Scope.TEST, dependency);
+    
+                    track(Scope.COMPILE, dependency);
+                    track(Scope.RUNTIME, dependency);
+                    track(Scope.TEST, dependency);
+                    break;
+                case RUNTIME:
+                    addClassPathElement(Scope.RUNTIME, dependency);
+                    addClassPathElement(Scope.TEST, dependency);
+    
+                    addFilesetLocation(Type.JAVA, Scope.RUNTIME, dependency);
+                    addFilesetLocation(Type.JAVA, Scope.TEST, dependency);
+    
+                    track(Scope.RUNTIME, dependency);
+                    track(Scope.TEST, dependency);
+                    break;
+                case TEST:
+                    addClassPathElement(Scope.TEST, dependency);
+    
+                    addFilesetLocation(Type.JAVA, Scope.TEST, dependency);
+    
+                    track(Scope.TEST, dependency);
+                    break;
+                default:
+                    throw panic("Unknown scope {0}", dependency.getScope().name());
+                }
                 break;
-            case TEST:
-                addClassPathElement(Scope.TEST);
-
-                addFilesetLocation(Type.JAVA, Scope.TEST);
-
-                track(Scope.TEST, dependency);
+            case NATIVE:
+                switch (dependency.getScope()) {
+                case COMPILE:
+                    break;
+                case RUNTIME:
+                    addLibraryPathElement(Scope.RUNTIME, dependency.getLocation());
+                    addLibraryPathElement(Scope.TEST, dependency.getLocation());
+    
+                    addFilesetLocation(Type.NATIVE, Scope.RUNTIME, dependency);
+                    addFilesetLocation(Type.NATIVE, Scope.TEST, dependency);
+    
+                    track(Scope.RUNTIME, dependency);
+                    track(Scope.TEST, dependency);
+                    break;
+                case TEST:
+                    addLibraryPathElement(Scope.TEST, dependency.getLocation());
+    
+                    addFilesetLocation(Type.NATIVE, Scope.TEST, dependency);
+    
+                    track(Scope.TEST, dependency);
+                    break;
+                default:
+                    throw panic("Unknown scope {0}", dependency.getScope().name());
+                }
                 break;
             default:
-                throw panic("Unknown scope {0}", dependency.getScope().name());
+                throw panic("Unknown type {0}", dependency.getType().name());
             }
-            break;
-        case NATIVE:
-            switch (dependency.getScope()) {
-            case COMPILE:
-                break;
-            case RUNTIME:
-                addLibraryPathElement(Scope.RUNTIME, dependency.getLocation());
-                addLibraryPathElement(Scope.TEST, dependency.getLocation());
-
-                addFilesetLocation(Type.NATIVE, Scope.RUNTIME);
-                addFilesetLocation(Type.NATIVE, Scope.TEST);
-
-                track(Scope.RUNTIME, dependency);
-                track(Scope.TEST, dependency);
-                break;
-            case TEST:
-                addLibraryPathElement(Scope.TEST, dependency.getLocation());
-
-                addFilesetLocation(Type.NATIVE, Scope.TEST);
-
-                track(Scope.TEST, dependency);
-                break;
-            default:
-                throw panic("Unknown scope {0}", dependency.getScope().name());
-            }
-            break;
-        default:
-            throw panic("Unknown type {0}", dependency.getType().name());
         }
     }
 
@@ -451,15 +473,6 @@ public class DependencyTask extends AntXTask {
      */
     private File getVendorRootDirectory() {
         return new File(getProject().getBaseDir(), "vendor");
-    }
-
-    /**
-     * Initialize the dependency task.
-     *
-     */
-    private void initialize() {
-        if (null == dependency)
-            dependency = new Dependency();
     }
 
     /**

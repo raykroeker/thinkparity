@@ -19,7 +19,7 @@ final class CvsLocator extends AbstractCvsTask implements Locator {
     private static final String COMMAND;
 
     static {
-        COMMAND = "checkout";
+        COMMAND = "export";
     }
 
     /**
@@ -47,13 +47,12 @@ final class CvsLocator extends AbstractCvsTask implements Locator {
     /**
      * Locate a dependency
      * 
-     * @param dependency
-     *            A <code>Dependency</code>.
+     * @param dependencyPath
+     *            A dependency path <code>String</code>.
      */
-    public void locate(final Dependency dependency) {
+    public void locate(final String dependencyPath) {
         setPackage(new StringBuffer("vendor/")
-            .append(dependency.getPath())
-            .toString());
+            .append(dependencyPath).toString());
         execute();
     }
 }

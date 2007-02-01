@@ -83,6 +83,32 @@ public class DependencyTask extends AntXTask {
                 scope.toString().toLowerCase());
     }
 
+    /**
+     * Panic. Create a build error including all specified properties.
+     * 
+     * @param message
+     *            A build error message.
+     * @return A <code>BuildException</code>.
+     */
+    private static final BuildException panic(final String message,
+            final String path, final String provider, final Scope scope,
+            final Type type, final String version, final File location) {
+        final StringBuffer actualMessage = new StringBuffer(message);
+        if (null != path)
+            actualMessage.append("{0}  path:").append(path);
+        if (null != provider)
+            actualMessage.append("{0}  provider:").append(provider);
+        if (null != scope)
+            actualMessage.append("{0}  scope:").append(scope.name());
+        if (null != type)
+            actualMessage.append("{0}  type:").append(type.name());
+        if (null != version)
+            actualMessage.append("{0}  version:").append(version);
+        if (null != location)
+            actualMessage.append("{0}  location:").append(location.getAbsolutePath());
+        return panic(actualMessage.toString(), LINE_SEPARATOR);
+    }
+
     /** A cvs <code>Locator</code>. */
     private Locator cvsLocator;
 
@@ -120,7 +146,12 @@ public class DependencyTask extends AntXTask {
      *		A path <code>String</code>.
      */
     public void setPath(final String path) {
+        /* TODO path contains an os platform which is an enum which is
+         * upper case - not sure what to do with that */
         this.path = path;
+        this.path = this.path.replace("LINUX", "linux");
+        this.path = this.path.replace("WIN32", "win32");
+        this.path = this.path.replace("UNIX", "unix");
     }
 
     /**
@@ -140,7 +171,11 @@ public class DependencyTask extends AntXTask {
      *      A String.
      */
     public void setScope(final String scope) {
-        this.scope = Scope.valueOf(scope.toUpperCase());
+        try {
+            this.scope = Scope.valueOf(scope.toUpperCase());
+        } catch (final IllegalArgumentException iax) {
+            throw panic("Unknown scope:  {0}.", scope);
+        }
     }
 
     /**
@@ -150,7 +185,11 @@ public class DependencyTask extends AntXTask {
      *      A String.
      */
     public void setType(final String type) {
-        this.type = Type.valueOf(type.toUpperCase());
+        try {
+            this.type = Type.valueOf(type.toUpperCase());
+        } catch (final IllegalArgumentException iax) {
+            throw panic("Unknown type:  {0}.", type);
+        }
     }
 
     /**
@@ -200,25 +239,30 @@ public class DependencyTask extends AntXTask {
     @Override
     protected void validate() throws BuildException {
         if (null == path)
-            throw panic("Dependency path for is not specified.");
+            throw panic("Dependency path is not specified.", path, provider, scope, type, version, null);
+        if (null == provider)
+            throw panic("Dependency provider is not specified.", path, provider, scope, type, version, null);
         if (null == scope)
-            throw panic("Dependency scope for is not specified.");
+            throw panic("Dependency scope is not specified.", path, provider, scope, type, version, null);
         if (null == type)
-            throw panic("Dependency type for is not specified.");
+            throw panic("Dependency type is not specified.", path, provider, scope, type, version, null);
         if (null == version)
-            throw panic("Dependency version for is not specified.");
+            throw panic("Dependency version is not specified.", path, provider, scope, type, version, null);
         // validate scope/type combination
-        if (Type.NATIVE == type)
-            if (Scope.COMPILE == scope)
-                throw panic("Dependency type {0} for scope {1} is invalid.",
-                        type.name(), scope.name());
+        if (Type.NATIVE == type && Scope.COMPILE == scope)
+            throw panic("Dependency type/scope combination is invalid.", path, provider, scope, type, version, null);
         dependencies.clear();
-        final File location = new File(getVendorRootDirectory(), path);
+        final File location;
         Dependency dependency;
         switch (type) {
         case JAVA:
+            location = new File(getVendorRootDirectory(), path);
+            if (!location.exists())
+                locate(path);
+            if (!location.exists())
+                throw panic("Dependency does not exist and cannot be located.", path, provider, scope, type, version, location);
             if (!location.isFile())
-                throw panic("Dependency path for must be a file.");
+                throw panic("Dependency location is not a file.", path, provider, scope, type, version, location);
             dependency = new Dependency();
             dependency.setLocation(location);
             dependency.setPath(path);
@@ -229,8 +273,14 @@ public class DependencyTask extends AntXTask {
             dependencies.add(dependency);
             break;
         case NATIVE:
+            location = new File(getVendorRootDirectory(), path);
+            if (!location.exists())
+                locate(path);
+            if (!location.exists())
+                throw panic("Dependency does not exist and cannot be located.", path, provider, scope, type, version, location);
             if (!location.isDirectory())
-                throw panic("Dependency path for must be a directory.");
+                throw panic("Dependency location is not a directory.", path, provider, scope, type, version, location);
+
             final File[] nativeFiles = location.listFiles(new FileFilter() {
                 public boolean accept(final File pathname) {
                     return pathname.isFile();
@@ -239,7 +289,7 @@ public class DependencyTask extends AntXTask {
             for (final File nativeFile : nativeFiles) {
                 dependency = new Dependency();
                 dependency.setLocation(nativeFile);
-                dependency.setPath(path);
+                dependency.setPath(path + File.separator + nativeFile.getName());
                 dependency.setProvider(provider);
                 dependency.setScope(scope);
                 dependency.setType(type);
@@ -248,13 +298,7 @@ public class DependencyTask extends AntXTask {
             }
             break;
         default:
-            throw panic("Unknown type {0}", type.name());
-        }
-        for (final Dependency d : dependencies) {
-            if (!d.getLocation().exists())
-                locate(d);
-            if (!d.getLocation().exists())
-                throw panic("Dependency {0} does not exist and cannot be found.", d);
+            throw panic("Unknown type {0}", path, provider, scope, type, version, null);
         }
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_CLASSES_DIR);
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_TEST_CLASSES_DIR);
@@ -344,7 +388,7 @@ public class DependencyTask extends AntXTask {
     private void addPathElements() {
         for (final Dependency dependency : dependencies) {
             if (isTracked(dependency))
-                break;
+                continue;
     
             switch (dependency.getType()) {
             case JAVA:
@@ -385,7 +429,8 @@ public class DependencyTask extends AntXTask {
             case NATIVE:
                 switch (dependency.getScope()) {
                 case COMPILE:
-                    break;
+                    throw panic("Unexpected scope {0} for type {1}.",
+                            scope.name(), type.name());
                 case RUNTIME:
                     addLibraryPathElement(Scope.RUNTIME, dependency.getLocation());
                     addLibraryPathElement(Scope.TEST, dependency.getLocation());
@@ -479,7 +524,7 @@ public class DependencyTask extends AntXTask {
      * Attempt to locate the dependency.
      *
      */
-    private void locate(final Dependency dependency) {
+    private void locate(final String dependencyPath) {
         if (null == cvsLocator) {
             final Project project = getProject();
             cvsLocator = new CvsLocator(getProperty(project, PROPERTY_NAME_CVS_ROOT),
@@ -487,6 +532,6 @@ public class DependencyTask extends AntXTask {
                     getProperty(project, PROPERTY_NAME_CVS_BRANCH),
                     project.getBaseDir());
         }
-        cvsLocator.locate(dependency);
+        cvsLocator.locate(dependencyPath);
     }
 }

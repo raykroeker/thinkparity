@@ -36,8 +36,6 @@ public class DependencyTracker {
     /**
      * Create DependencyTracker.
      * 
-     * @param task
-     *            The <code>AntXTask</code> consumer of the tracker.
      */
     public DependencyTracker() {
         super();

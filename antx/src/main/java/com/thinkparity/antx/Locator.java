@@ -16,5 +16,5 @@ interface Locator {
      * Attempt to locate a dependency.
      *
      */
-    void locate(final Dependency dependency);
+    void locate(final String dependencyPath);
 }

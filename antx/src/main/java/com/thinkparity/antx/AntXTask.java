@@ -22,6 +22,13 @@ import org.apache.tools.ant.Task;
  */
 public abstract class AntXTask extends Task {
 
+    /** A line separator <code>String</code>. */
+    protected static final String LINE_SEPARATOR;
+
+    static {
+        LINE_SEPARATOR = System.getProperty("line.separator");
+    }
+
     /**
      * Obtain a file property from the project.
      * 
@@ -139,8 +146,6 @@ public abstract class AntXTask extends Task {
     /**
      * Determine if the dependency is being tracked.
      * 
-     * @param scope
-     *            A <code>Dependency.Scope</code>.
      * @param dependency
      *            A <code>Dependency</code>.
      * @return True if it is being tracked.

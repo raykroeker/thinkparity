@@ -103,7 +103,7 @@ public class UpdateProfileAvatar extends Avatar {
         reload(provinceJTextField, profile.getProvince());
         reloadCountry(profile);
         reload(postalCodeJTextField, profile.getPostalCode());
-        reload(emailJTextField, emails.get(0).getEmail().toString());
+        reload(emailJTextField, getEmailString());
         reloadProvinceLabel();
         reloadPostalCodeLabel();
         reloadErrorMessage();
@@ -173,6 +173,19 @@ public class UpdateProfileAvatar extends Avatar {
 
     private String extractInputTitle() {
         return extract(titleJTextField);
+    }
+
+    /**
+     * Get the main email in String form.
+     * 
+     * @return The email <code>String</code>.
+     */
+    private String getEmailString() {
+        if (emails.size() > 0) {
+            return emails.get(0).getEmail().toString();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -446,7 +459,7 @@ public class UpdateProfileAvatar extends Avatar {
             isChanged(extractInputProvince(), profile.getProvince()) ||
             isChanged(extractInputCountry(), profile.getCountry()) ||
             isChanged(extractInputPostalCode(), profile.getPostalCode()) ||
-            isChanged(extractInputEmail(), emails.get(0).getEmail().toString())) {
+            isChanged(extractInputEmail(), getEmailString())) {
             return Boolean.TRUE;
         } else {
             return Boolean.FALSE;
@@ -560,7 +573,7 @@ public class UpdateProfileAvatar extends Avatar {
             errorMessageJLabel.setText(getString("ErrorRequiredField", new Object[] {getLabelText(emailJLabel)}));
         } else if (!isInputEmailValid()) {
             errorMessageJLabel.setText(getString("ErrorEmailInvalid"));
-        } else if (isChanged(extractInputEmail(), emails.get(0).getEmail().toString())) {
+        } else if (isChanged(extractInputEmail(), getEmailString())) {
             errorMessageJLabel.setText(getString("ErrorEmailChanged"));
         } else {
             // NOTE The space ensures the dialog leaves room for this control.
@@ -594,7 +607,7 @@ public class UpdateProfileAvatar extends Avatar {
      * Update the email address.
      */
     private void updateEmail() {
-        if (isChanged(extractInputEmail(), emails.get(0).getEmail().toString())) {
+        if (isChanged(extractInputEmail(), getEmailString())) {
             final EMail newEmail = EMailBuilder.parse(extractInputEmail());
             getController().runAddProfileEmail(newEmail);
             getController().runRemoveProfileEmail(emails.get(0).getEmailId());

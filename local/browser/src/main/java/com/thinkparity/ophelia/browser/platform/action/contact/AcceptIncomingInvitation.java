@@ -3,17 +3,11 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.contact;
 
-import com.thinkparity.codebase.model.user.User;
-
-
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.model.contact.ContactModel;
-import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.user.UserModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -24,13 +18,9 @@ public class AcceptIncomingInvitation extends AbstractAction {
 	/** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
-    /** The thinkParity browser application. */
-    private final Browser browser;
-
 	/** Create AcceptInvitation. */
 	public AcceptIncomingInvitation(final Browser browser) {
 		super(ActionId.CONTACT_ACCEPT_INCOMING_INVITATION);
-        this.browser = browser;
 	}
 
     /**
@@ -41,14 +31,7 @@ public class AcceptIncomingInvitation extends AbstractAction {
 	    final Long invitationId = (Long) data.get(DataKey.INVITATION_ID);
 
         final ContactModel contactModel = getContactModel();
-        final UserModel userModel = getUserModel();
-        final IncomingInvitation invitation = contactModel.readIncomingInvitation(invitationId);
-        final User invitedBy = userModel.read(invitation.getInvitedBy());
-        if (browser.confirm(
-                "ContactIncomingInvitationAccept.ConfirmAcceptMessage",
-                new Object[] { invitedBy.getName() })) {
-            contactModel.acceptIncomingInvitation(invitationId);
-        }
+        contactModel.acceptIncomingInvitation(invitationId);
 	}
 
 	public enum DataKey { INVITATION_ID }

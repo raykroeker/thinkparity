@@ -28,10 +28,30 @@ public class Profile extends User {
         super();
     }
 
+    /**
+     * Obtain the address.
+     * 
+     * @return An address <code>String</code>.
+     */
+    public String getAddress() {
+        // TODO Get address
+        return "";
+    }
+
+    /**
+     * Obtain the city.
+     * 
+     * @return A city <code>String</code>.
+     */
     public String getCity() {
         return vcard.getCity();
     }
 
+    /**
+     * Obtain the country.
+     * 
+     * @return A country <code>String</code>.
+     */
     public String getCountry() {
         return vcard.getCountry();
     }
@@ -48,10 +68,30 @@ public class Profile extends User {
     /**
      * Obtain phone.
      *
-     * @return A String.
+     * @return A phone number <code>String</code>.
      */
     public String getPhone() {
         return vcard.getPhone();
+    }
+
+    /**
+     * Obtain the postal code.
+     * 
+     * @return A postal code <code>String</code>.
+     */
+    public String getPostalCode() {
+        // TODO Get postal code
+        return "";
+    }
+
+    /**
+     * Obtain the province.
+     * 
+     * @return A province <code>String</code>.
+     */
+    public String getProvince() {
+        // TODO Get province
+        return "";
     }
 
     /**
@@ -70,6 +110,16 @@ public class Profile extends User {
      */
     public Boolean isSetMobilePhone() {
         return vcard.isSetMobilePhone();
+    }
+
+    /**
+     * Set address.
+     * 
+     * @param address
+     *            The address <code>String</code>.
+     */
+    public void setAddress(final String address) {
+        // TODO Set address
     }
 
     /**
@@ -147,10 +197,30 @@ public class Profile extends User {
      * Set phone.
      *
      * @param phone
-     *		A String.
+     *            A phone number <code>String</code>.
      */
     public void setPhone(final String phone) {
         vcard.setPhone(phone);
+    }
+
+    /**
+     * Set postal code.
+     *
+     * @param postalCode
+     *            A postal code <code>String</code>.
+     */
+    public void setPostalCode(final String postalCode) {
+        // TODO Set postal code
+    }
+
+    /**
+     * Set province.
+     *
+     * @param province
+     *            A province <code>String</code>.
+     */
+    public void setProvince(final String province) {
+        // TODO Set province
     }
 
     /**

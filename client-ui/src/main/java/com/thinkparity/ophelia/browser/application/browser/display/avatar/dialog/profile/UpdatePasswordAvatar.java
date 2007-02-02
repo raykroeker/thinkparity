@@ -156,6 +156,13 @@ public class UpdatePasswordAvatar extends Avatar {
         confirmNewPasswordJLabel.setFont(Fonts.DialogFont);
         confirmNewPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdatePasswordDialog.ConfirmNewPassword"));
 
+        oldPasswordJPasswordField.setFont(Fonts.DialogTextEntryFont);
+
+        newPasswordJPasswordField.setFont(Fonts.DialogTextEntryFont);
+
+        confirmNewPasswordJPasswordField.setFont(Fonts.DialogTextEntryFont);
+
+        okJButton.setFont(Fonts.DialogButtonFont);
         okJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdatePasswordDialog.OK"));
         okJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -163,6 +170,7 @@ public class UpdatePasswordAvatar extends Avatar {
             }
         });
 
+        cancelJButton.setFont(Fonts.DialogButtonFont);
         cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdatePasswordDialog.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -173,6 +181,7 @@ public class UpdatePasswordAvatar extends Avatar {
         forgotPasswordJPanel.setLayout(new java.awt.GridBagLayout());
 
         forgotPasswordJPanel.setOpaque(false);
+        forgotPasswordJLabel.setFont(Fonts.DialogFont);
         forgotPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdatePasswordDialog.ForgotPassword"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;

@@ -1,5 +1,5 @@
 /**
- * Created On: 6-Dec-06 2:56:53 PM
+ * Created On: Feb 1, 2007 4:36:25 PM
  * $Id$
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile;
@@ -17,34 +17,34 @@ import com.thinkparity.ophelia.model.profile.ProfileModel;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class EditProfileProvider extends CompositeFlatSingleContentProvider {
-    
+public class UpdateProfileProvider extends CompositeFlatSingleContentProvider {
+
     /** A profile model interface. */
     private final ProfileModel profileModel;
-    
+
     /**
-     * Create EditProfileProvider.
+     * Create UpdateProfileProvider.
      * 
      * @param profile
      *            The local user profile.
      * @param profileModel
      *            A profile model interface.
      */
-    public EditProfileProvider(final Profile profile, final ProfileModel profileModel) {
+    public UpdateProfileProvider(final Profile profile, final ProfileModel profileModel) {
         super(profile);
         this.profileModel = profileModel;
     }
-    
+
     @Override
     public Object getElement(Integer index, Object input) {
-        throw Assert.createNotYetImplemented("EditProfileProvider#getElement");
+        throw Assert.createNotYetImplemented("UpdateProfileProvider#getElement");
     }
 
     @Override
     public Object[] getElements(Integer index, Object input) {
-        throw Assert.createNotYetImplemented("EditProfileProvider#getElements");
+        throw Assert.createNotYetImplemented("UpdateProfileProvider#getElements");
     }
-    
+
     /**
      * Read the profile.
      * 
@@ -53,7 +53,7 @@ public class EditProfileProvider extends CompositeFlatSingleContentProvider {
     public Profile readProfile() {
         return profileModel.read();
     }
-    
+
     /**
      * Read emails.
      * 

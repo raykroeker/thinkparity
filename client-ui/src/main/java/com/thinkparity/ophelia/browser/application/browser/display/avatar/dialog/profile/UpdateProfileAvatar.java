@@ -28,7 +28,7 @@ import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.EditProfileProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.UpdateProfileProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.dialog.profile.LocaleRenderer;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
@@ -505,7 +505,7 @@ public class UpdateProfileAvatar extends Avatar {
      * @return A <code>Profile</code>.
      */
     private Profile readProfile() {
-        return ((EditProfileProvider) contentProvider).readProfile();
+        return ((UpdateProfileProvider) contentProvider).readProfile();
     }
 
     /**
@@ -514,7 +514,7 @@ public class UpdateProfileAvatar extends Avatar {
      * @return A <code>List&lt;ProfileEMail&gt;</code>.
      */
     private List<ProfileEMail> readEmails() {
-        return ((EditProfileProvider) contentProvider).readEmails();
+        return ((UpdateProfileProvider) contentProvider).readEmails();
     }
 
     /**

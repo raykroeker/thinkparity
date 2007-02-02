@@ -300,14 +300,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Display the edit profile dialog.
-     *
-     */
-    public void displayEditProfileDialog() {
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_EDIT);
-    }
-
-    /**
      * Handle a user error (show an error dialog).
      * 
      * @param errorMessageKey
@@ -508,6 +500,14 @@ public class Browser extends AbstractApplication {
      */
     public void displayUpdatePasswordDialog() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_UPDATE_PASSWORD);
+    }
+
+    /**
+     * Display the update profile dialog.
+     *
+     */
+    public void displayUpdateProfileDialog() {
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_UPDATE);
     }
 
     /**
@@ -1610,28 +1610,39 @@ public class Browser extends AbstractApplication {
     
     /**
      * Update the user's profile.
-     * 
+     *
      * @param name
      *            The user's name <code>String</code>.
+     * @param address
+     *            The user's address <code>String</code>. 
+     * @param city
+     *            The user's city <code>String</code>.   
+     * @param country
+     *            The user's country <code>String</code>.       
+     * @param mobilePhone
+     *            The user's mobile phone <code>String</code>.
      * @param organization
      *            The user's organization <code>String</code>.
+     * @param phone
+     *            The user's phone <code>String</code>.
+     * @param postalCode
+     *            The user's postal code <code>String</code>.
+     * @param province
+     *            The user's province <code>String</code>.
      * @param title
      *            The user's title <code>String</code>.
-     * @param address
-     *            The user's address <code>String</code>.
-     * @param office phone
-     *            The user's office phone <code>String</code>.    
-     * @param mobile phone
-     *            The user's mobile phone <code>String</code>.                        
      */
-    public void runUpdateProfile(final String name, final String city,
+    public void runUpdateProfile(final String name,
+            final String address, final String city,
             final String country, final String mobilePhone,
             final String organization, final String phone,
-            final String province, final String title) {
-        final Data data = new Data(7);
+            final String postalCode, final String province,
+            final String title) {
+        final Data data = new Data(11);
         data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
         data.set(Update.DataKey.NAME, name);
-
+        if (null != address)
+            data.set(Update.DataKey.ADDRESS, address);
         if (null != city)
             data.set(Update.DataKey.CITY, city);
         if (null != country)
@@ -1642,6 +1653,8 @@ public class Browser extends AbstractApplication {
             data.set(Update.DataKey.ORGANIZATION, organization);
         if (null != phone)
             data.set(Update.DataKey.PHONE, phone);
+        if (null != postalCode)
+            data.set(Update.DataKey.POSTAL_CODE, postalCode);
         if (null != province)
             data.set(Update.DataKey.PROVINCE, province);
         if (null != title)

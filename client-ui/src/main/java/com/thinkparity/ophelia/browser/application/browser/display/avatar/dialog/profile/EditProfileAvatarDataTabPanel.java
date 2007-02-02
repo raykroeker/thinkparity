@@ -80,8 +80,8 @@ public class EditProfileAvatarDataTabPanel extends EditProfileAvatarAbstractTabP
             final String title = extractInputTitle();
             final String phone = extractInputOfficePhone();
             final String mobilePhone = extractInputMobilePhone();
-            getController().runUpdateProfile(name, city, country, mobilePhone,
-                    organization, phone, null, title);
+            getController().runUpdateProfile(name, null, city, country, mobilePhone,
+                    organization, phone, null, null, title);
         }
     }
 

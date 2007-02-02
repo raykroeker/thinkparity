@@ -122,6 +122,9 @@ public class ProviderFactory {
         case DIALOG_PROFILE_EDIT:
             provider = new EditProfileProvider(profile, profileModel);
             break;
+        case DIALOG_PROFILE_UPDATE:
+            provider = new EditProfileProvider(profile, profileModel);
+            break;
         case DIALOG_PROFILE_VERIFY_EMAIL:
             provider = new VerifyEMailProvider(profile, profileModel);
             break;

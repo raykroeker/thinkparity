@@ -170,7 +170,7 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
         if (isLocalUser(publishedBy)) {
             final Data data = new Data(1);
             data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-            add(ActionId.PROFILE_UPDATE, publishedBy.getName(), data);
+            add(ActionId.CONTACT_READ, publishedBy.getName(), ActionId.PROFILE_UPDATE, data);
         } else {
             final Data data = new Data(1);
             data.set(Read.DataKey.CONTACT_ID, publishedBy.getId());
@@ -181,7 +181,7 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
             if (isLocalUser(entry.getKey())) {
                 final Data data = new Data(1);
                 data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-                add(ActionId.PROFILE_UPDATE, entry.getKey().getName(), data);
+                add(ActionId.CONTACT_READ, entry.getKey().getName(), ActionId.PROFILE_UPDATE, data);
             } else {
                 final Data data = new Data(1);
                 data.set(Read.DataKey.CONTACT_ID, entry.getKey().getId());

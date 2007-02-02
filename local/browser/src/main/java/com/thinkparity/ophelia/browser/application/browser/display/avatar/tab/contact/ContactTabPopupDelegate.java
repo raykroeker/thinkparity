@@ -89,13 +89,14 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.PopupDelegate#showForProfile(com.thinkparity.codebase.model.profile.Profile)
      */
     public void showForProfile(final Profile profile) {
-        final Data updateProfileData = new Data(1);
-        updateProfileData.set(UpdatePassword.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-        add(ActionId.PROFILE_UPDATE_PASSWORD, updateProfileData);
-        
         final Data profileData = new Data(1);
         profileData.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
         add(ActionId.PROFILE_UPDATE, profileData);
+
+        final Data updateProfileData = new Data(1);
+        updateProfileData.set(UpdatePassword.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+        add(ActionId.PROFILE_UPDATE_PASSWORD, updateProfileData);
+
         show();
     }
 

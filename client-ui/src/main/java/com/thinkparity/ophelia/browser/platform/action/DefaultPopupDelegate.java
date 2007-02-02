@@ -108,7 +108,7 @@ public class DefaultPopupDelegate implements PopupDelegate {
      * @param actionId
      *            An <code>ActionId</code>.
      * @param text
-     *            The menu texxt <code>String</code>.
+     *            The menu text <code>String</code>.
      * @param data
      *            The action <code>Data</code>.                    
      */
@@ -173,22 +173,37 @@ public class DefaultPopupDelegate implements PopupDelegate {
      *           Print
      * 
      * @param text
-     *            The menu texxt <code>String</code>.
+     *            The menu text <code>String</code>.
      * @param actionId
      *            An <code>ActionId</code>.
      * @param data
      *            The action <code>Data</code>.
      */
     public void add(final String text, final ActionId actionId, final Data data) {
-        final JMenu jMenu;
-        if (submenus.containsKey(text)) {
-            jMenu = submenus.get(text);
-        } else {
-            jMenu = MenuFactory.createPopupSubMenu(text);
-            jPopupMenu.add(jMenu);
-            submenus.put(text,  jMenu);
-        }
+        final JMenu jMenu = getSubmenu(text);
         jMenu.add(itemFactory.createPopupItem(actionId, data));
+    }
+
+    /**
+     * Add an action to a submenu. An action is supplied to determine the submenu.
+     * Text is supplied for the name of the new menu item. Finally an action
+     * is provided that will execute when the menu is selected by the user.
+     * 
+     * Example:
+     * Action "edit profile" added to the submenu "open" as "open -> Joe Smith"
+     * 
+     * @param submenuActionId
+     *            An <code>ActionId</code> for naming the submenu.
+     * @param text
+     *            The menu text <code>String</code>.
+     * @param actionId
+     *            An <code>ActionId</code>.
+     * @param data
+     *            The action <code>Data</code>.
+     */
+    public void add(final ActionId subMenuActionId, final String text, final ActionId actionId, final Data data) {
+        final JMenu jMenu = getSubmenu(subMenuActionId);
+        jMenu.add(itemFactory.createPopupItem(actionId, text, data));
     }
 
     /**
@@ -258,6 +273,26 @@ public class DefaultPopupDelegate implements PopupDelegate {
     private JMenu getSubmenu(final ActionId actionId) {
         final JMenu subMenu;
         final String menuName = itemFactory.getPopupActionName(actionId);
+        if (submenus.containsKey(menuName)) {
+            subMenu = submenus.get(menuName);
+        } else {
+            subMenu = MenuFactory.createPopupSubMenu(menuName);
+            jPopupMenu.add(subMenu);
+            submenus.put(menuName, subMenu);
+        }
+        return subMenu;
+    }
+
+    /**
+     * Obtain a sub menu given its name. If it exists then
+     * retreive it; if not create a new one.
+     * 
+     * @param menuName
+     *            A menu name <code>String</code>.
+     * @return A <code>JMenu</code>.
+     */
+    private JMenu getSubmenu(final String menuName) {
+        final JMenu subMenu;
         if (submenus.containsKey(menuName)) {
             subMenu = submenus.get(menuName);
         } else {

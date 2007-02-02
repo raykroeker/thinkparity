@@ -402,7 +402,7 @@ public class ContactTabPanel extends DefaultTabPanel {
             renderer.paintExpandedBackground(g, this);
             final Point location = SwingUtilities.convertPoint(expandedDataValuesJPanel, new Point(0,0), this);
             renderer.paintExpandedBackgroundFields(g, location.x,
-                    expandedDataValuesJPanel.getWidth(), getHeight(), this);
+                    expandedDataValuesJPanel.getWidth(), this);
         } else {
             renderer.paintBackground(g, getWidth(), getHeight(), selected);
         }

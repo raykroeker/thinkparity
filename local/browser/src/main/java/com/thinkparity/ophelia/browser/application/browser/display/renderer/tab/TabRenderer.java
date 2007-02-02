@@ -56,6 +56,9 @@ public final class TabRenderer {
 
     /** The fields background, center <code>Image</code>. */
     private static BufferedImage backgroundFieldsCenter;
+    
+    /** The height of image BACKGROUND_FIELDS_CENTER. */
+    private static int backgroundFieldsCenterHeight;
 
     /** The version panel's center background <code>BufferedImage</code>. */ 
     private static BufferedImage[] VERSION_IMAGES_CENTER;
@@ -120,7 +123,8 @@ public final class TabRenderer {
         buffer = ImageIOUtil.read("PanelBackgroundEast_0Selected.png");
         BACKGROUND_EAST_ROW0_SELECTED = buffer.getScaledInstance(bounds.width,
                 buffer.getHeight(), Image.SCALE_SMOOTH);
-        buffer = ImageIOUtil.read("PanelBackgroundFieldsCenter.png");        
+        buffer = ImageIOUtil.read("PanelBackgroundFieldsCenter.png"); 
+        backgroundFieldsCenterHeight = buffer.getHeight();
         BACKGROUND_FIELDS_CENTER = buffer.getScaledInstance(bounds.width,
                 buffer.getHeight(), Image.SCALE_SMOOTH);
         BACKGROUND_FIELDS_EAST = ImageIOUtil.read("PanelBackgroundFieldsEast.png");
@@ -297,7 +301,7 @@ public final class TabRenderer {
      *            The <code>ImageObserver</code>.
      */
     public void paintExpandedBackgroundFields(final Graphics g,
-            final int x, final int width, final int height, final ImageObserver observer) {
+            final int x, final int width, final ImageObserver observer) {
         /*
          * The west and east images are each 3 pixels wide. They are not scaled.
          * The centre image is scaled in the X direction to fill the desired width.
@@ -305,9 +309,9 @@ public final class TabRenderer {
          */
         final int adjustedWidth = width - 140;
         g.drawImage(BACKGROUND_FIELDS_WEST, x, 0, observer);
-        if (isDirty(backgroundFieldsCenter, adjustedWidth-6, height)) {
+        if (isDirty(backgroundFieldsCenter, adjustedWidth-6, backgroundFieldsCenterHeight)) {
             backgroundFieldsCenter = clipImage(
-                    BACKGROUND_FIELDS_CENTER, 0, 0, adjustedWidth-6, height,
+                    BACKGROUND_FIELDS_CENTER, 0, 0, adjustedWidth-6, backgroundFieldsCenterHeight,
                     observer);
         }
         g.drawImage(backgroundFieldsCenter, x + 3, 0, observer);     
@@ -344,7 +348,7 @@ public final class TabRenderer {
         final int rowOffset;
         rowHeight = 26;
         rowOffset = selectionIndex * 24;
-        if (isDirty(versionImagesWest[selectionIndex], width, height)) {
+        if (isDirty(versionImagesWest[selectionIndex], width, rowHeight)) {
             versionImagesWest[selectionIndex] = clipImage(
                     VERSION_IMAGES_WEST[selectionIndex], 0, 0, width, rowHeight,
                     observer);

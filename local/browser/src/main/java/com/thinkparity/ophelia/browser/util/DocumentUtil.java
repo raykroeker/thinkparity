@@ -55,8 +55,8 @@ public class DocumentUtil {
     }
 
     /**
-     * Obtain the index of a file within a list of documents by using an exact
-     * name comparison.
+     * Obtain the index of a file within a list of documents by using a
+     * non-case-sensitive name comparison.
      * 
      * @param documents
      *            A <code>List</code> of <code>Document</code>s.
@@ -67,7 +67,7 @@ public class DocumentUtil {
      */
 	public int indexOf(final List<Document> documents, final File file) {
         for (int i = 0; i < documents.size(); i++)
-            if (documents.get(i).getName().equals(file.getName()))
+            if (documents.get(i).getName().equalsIgnoreCase(file.getName()))
                 return i;
         return -1;
     }

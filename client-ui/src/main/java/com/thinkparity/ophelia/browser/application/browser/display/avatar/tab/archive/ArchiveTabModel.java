@@ -3,30 +3,15 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.archive;
 
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.sort.DefaultComparator;
-import com.thinkparity.codebase.sort.StringComparator;
-import com.thinkparity.codebase.swing.dnd.TxUtils;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -34,13 +19,9 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.sort.DefaultComparator;
+import com.thinkparity.codebase.sort.StringComparator;
 
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
-import com.thinkparity.ophelia.model.events.ContainerDraftListener;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
-
-import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
@@ -52,10 +33,12 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.archive.ArchiveTabPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
-import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.application.Application;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
-import com.thinkparity.ophelia.browser.util.DocumentUtil;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
+import com.thinkparity.ophelia.model.events.ContainerDraftListener;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * <b>Title:</b>thinkParity Archive Tab Model<br>
@@ -174,28 +157,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#canImportData(java.awt.datatransfer.DataFlavor[])
-     * 
-     */
-    @Override
-    protected boolean canImportData(final DataFlavor[] transferFlavors) {
-        return TxUtils.containsJavaFileList(transferFlavors);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#canImportData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.datatransfer.DataFlavor[])
-     *
-     */
-    @Override
-    protected boolean canImportData(final TabPanel tabPanel,
-            final DataFlavor[] transferFlavors) {
-        if (TxUtils.containsJavaFileList(transferFlavors)) {
-            return canImportData(((ArchiveTabPanel) tabPanel).getContainer());
-        }
-        return false;
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#debug()
      * 
      */
@@ -218,50 +179,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
         }
         logger.logDebug("Search expression:  {0}", searchExpression);
         logger.logDebug("{0} search result hits.", searchResults.size());
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#importData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.datatransfer.Transferable)
-     *
-     */
-    @Override
-    protected void importData(final TabPanel tabPanel,
-            final Transferable transferable) {
-        Assert.assertTrue(canImportData(tabPanel,
-                transferable.getTransferDataFlavors()),
-                "Cannot import data {0} onto {1}.", transferable, tabPanel);
-        importData(((ArchiveTabPanel) tabPanel).getContainer(), transferable);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#importData(java.awt.datatransfer.Transferable)
-     * 
-     */
-    @Override
-    protected void importData(final Transferable transferable) {
-        Assert.assertTrue(canImportData(transferable.getTransferDataFlavors()),
-                "Cannot import data {0}.", transferable);
-        final File[] transferableFiles = extractFiles(transferable);
-        // Determine the list of files to add to a new package. Check if the user
-        // is trying to drag folders.
-        final List<File> importFiles = new ArrayList<File>();
-        Boolean foundFolders = Boolean.FALSE;
-        Boolean foundFiles = Boolean.FALSE;
-        for (final File transferableFile : transferableFiles) {
-            if (transferableFile.isDirectory()) {
-                foundFolders = Boolean.TRUE;
-            } else {
-                foundFiles = Boolean.TRUE;
-                importFiles.add(transferableFile);
-            }
-        }
-        // Report an error if the user tries to drag folders. Otherwise
-        // create a package and add documents.
-        if (foundFolders) {
-            browser.displayErrorDialog("ErrorCreatePackageIsFolder");
-        } else if (foundFiles) {
-            browser.runCreateContainer(importFiles);
-        }
     }
 
     /**
@@ -489,40 +406,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Determine if an import can be performed on a container. The user needs to
-     * have the draft, or alternatively if nobody has the draft then he needs to
-     * be online in order to create a new draft.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     * @return True if an import can be performed.
-     */
-    private boolean canImportData(final Container container) {
-        if (container.isLocalDraft()) {
-            return true;                
-        } else if (!container.isDraft() && isOnline()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Extract a list of files from a transferable.
-     * 
-     * @param transferable
-     *            A <code>Transferable</code>.
-     * @return A <code>List</code> of <code>File</code>s.
-     */
-    private File[] extractFiles(final Transferable transferable) {
-        try {
-            return TxUtils.extractFiles(transferable);
-        } catch (final Exception x) {
-            throw new BrowserException("Cannot extract files from transferrable.", x);
-        }
-    }
-    
-    /**
      * Obtain a container draft monitor created by the model.
      * 
      * @param containerId
@@ -575,95 +458,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      */
     private String getString(final SortBy sortBy) {
         return localization.getString(sortBy);
-    }
-    
-    /**
-     * Import data into a container.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     * @param transferable
-     *            Import data <code>Transferable</code>.
-     */
-    private void importData(final Container container,
-            final Transferable transferable) {
-        final File[] transferableFiles = extractFiles(transferable);
-        // Get the list of documents in this package.
-        final List <String> existingDocuments = new ArrayList<String>();
-        List<Document> draftDocuments = null;
-        if (container.isLocalDraft()) {
-            draftDocuments = readDraftDocuments(container.getId());
-            for (final Document document : draftDocuments) {
-                existingDocuments.add(document.getName());
-            }
-        }
-        // Determine the list of files to add and/or update. Check if the user
-        // is trying to drag folders. Create two lists, one for adding and one
-        // for updating, depending on whether there is a document of the same
-        // name found in the package.
-        final List<File> addFileList = new ArrayList<File>();
-        final List<File> updateFileList = new ArrayList<File>();
-        Boolean foundFolders = Boolean.FALSE;
-        Boolean foundFilesToAdd = Boolean.FALSE;
-        Boolean foundFilesToUpdate = Boolean.FALSE;
-        for (final File transferableFile : transferableFiles) {
-            if (transferableFile.isDirectory()) {
-                foundFolders = Boolean.TRUE;
-            } else {
-                if (existingDocuments.contains(transferableFile.getName())) {
-                    foundFilesToUpdate = Boolean.TRUE;
-                    updateFileList.add(transferableFile);
-                }
-                else {
-                    foundFilesToAdd = Boolean.TRUE;
-                    addFileList.add(transferableFile);
-                }
-            }
-        }
-        // Report an error if the user tries to drag folders.
-        if (foundFolders) {
-            browser.displayErrorDialog("ErrorAddDocumentIsFolder");
-            return;
-        }
-        // If the draft is required, attempt to get it. This should succeed
-        // unless somebody managed to get the draft, or the system went offline,
-        // since the call to canImport() above.
-        if (foundFilesToUpdate || foundFilesToAdd) {
-            if (!container.isLocalDraft() && !container.isDraft() &&
-                    (Connection.ONLINE == browser.getConnection())) {
-                browser.runCreateContainerDraft(container.getId());
-            }
-            
-            if (!container.isLocalDraft()) {
-                browser.displayErrorDialog("ErrorAddDocumentLackDraft",
-                        new Object[] { container.getName() });
-                return;
-            }
-            draftDocuments = readDraftDocuments(container.getId());
-        }
-        // Add one or more documents.
-        if (foundFilesToAdd) {
-            browser.runAddContainerDocuments(container.getId(), addFileList
-                    .toArray(new File[] {}));
-        }
-        // Update one or more documents.
-        final DocumentUtil documentUtil = DocumentUtil.getInstance();
-        if ((foundFilesToUpdate) && (null != draftDocuments)) {
-            for (final File file : updateFileList) {
-                if (documentUtil.contains(draftDocuments, file)) {
-                    final Document document =
-                        draftDocuments.get(documentUtil.indexOf(draftDocuments, file));
-                    if (readIsDraftDocumentModified(document.getId())) {
-                        if (browser.confirm("ConfirmOverwriteWorking",
-                        new Object[] { file.getName() })) {
-                            browser.runUpdateDocumentDraft(document.getId(), file);
-                        }
-                    } else {
-                        browser.runUpdateDocumentDraft(document.getId(), file);
-                    } 
-                }
-            }
-        }
     }
 
     /**
@@ -740,22 +534,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
             final Long versionId) {
         return getProvider().readDocumentViews(
                 containerId, versionId);
-    }
-
-    /**
-     * Read the draft's document list.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @return A <code>List</code> of <code>Document</code>s.
-     */
-    private List<Document> readDraftDocuments(final Long containerId) {
-        final DraftView draftView = readDraftView(containerId);
-        if (null == draftView) {
-            return Collections.emptyList();
-        } else {
-            return draftView.getDocuments();
-        }
     }
 
     /**

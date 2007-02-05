@@ -49,7 +49,7 @@ public class TxUtils {
      * @throws IOException
      * @throws UnsupportedFlavorException
      */
-    public static File[] extractFiles(final Transferable t) throws IOException,
+    public static List<File> extractFiles(final Transferable t) throws IOException,
             UnsupportedFlavorException {
         return SINGLETON.doExtractFiles(t);
     }
@@ -90,7 +90,7 @@ public class TxUtils {
      * @throws IOException
      * @throws UnsupportedFlavorException
      */
-    private File[] doExtractFiles(final Transferable t) throws IOException,
+    private List<File> doExtractFiles(final Transferable t) throws IOException,
             UnsupportedFlavorException {
         final List data = (List) t.getTransferData(DataFlavor.javaFileListFlavor);
         final List<File> fileData = new LinkedList<File>();
@@ -107,6 +107,6 @@ public class TxUtils {
             }
             fileData.add(file);
         }
-        return fileData.toArray(new File[] {});
+        return fileData;
     }
 }

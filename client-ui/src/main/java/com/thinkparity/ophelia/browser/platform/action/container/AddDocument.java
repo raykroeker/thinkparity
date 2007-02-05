@@ -74,7 +74,7 @@ public class AddDocument extends AbstractAction {
             final List<File> duplicates = new ArrayList<File>();
             for(final File file : files) {
                 for (final Document existingDocument : existingDocuments) {
-                    if (existingDocument.getName().equals(file.getName())) {
+                    if (existingDocument.getName().equalsIgnoreCase(file.getName())) {
                         duplicates.add(file);
                         break;
                     }

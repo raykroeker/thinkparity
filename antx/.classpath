@@ -2,6 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="vendor/ant/1.7.0/ant.jar" sourcepath="vendor/ant/1.7.0/ant-sources.jar"/>
+	<classpathentry kind="var" path="ANT_HOME/lib/ant.jar" sourcepath="/ANT_HOME/apache-ant-1.7.0-src.zip"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

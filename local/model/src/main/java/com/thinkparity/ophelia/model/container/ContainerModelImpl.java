@@ -2430,7 +2430,7 @@ public final class ContainerModelImpl extends
                 versionsPublishedBy.put(version, readUser(version.getUpdatedBy()));
                 publishedTo.put(version, readPublishedTo(
                         version.getArtifactId(), version.getVersionId()));
-    
+
                 documents.put(version, readDocumentVersions(
                         version.getArtifactId(), version.getVersionId()));
                 directory = exportFileSystem.createDirectory(
@@ -2438,7 +2438,7 @@ public final class ContainerModelImpl extends
                 for (final DocumentVersion documentVersion : documents.get(version)) {
                     documentsSize.put(documentVersion, readDocumentVersionSize(
                             documentVersion.getArtifactId(), documentVersion.getVersionId()));
-    
+
                     file = new File(directory,
                             documentNameGenerator.exportFileName(documentVersion));
                     Assert.assertTrue(file.createNewFile(),
@@ -2453,12 +2453,12 @@ public final class ContainerModelImpl extends
                     }
                 }
             }
-    
+
             final PDFWriter pdfWriter = new PDFWriter(exportFileSystem);
             pdfWriter.write(nameGenerator.pdfFileName(container), container,
                     readUser(container.getCreatedBy()), versions,
                     versionsPublishedBy, documents, documentsSize, publishedTo);
-    
+
             final File zipFile = new File(exportFileSystem.getRoot(), exportFileName);
             ZipUtil.createZipFile(zipFile, exportFileSystem.getRoot());
             final File exportFile = new File(exportDirectory, zipFile.getName());

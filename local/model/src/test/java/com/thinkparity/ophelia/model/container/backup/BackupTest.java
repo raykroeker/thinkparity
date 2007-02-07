@@ -52,14 +52,14 @@ public final class BackupTest extends BackupTestCase {
      *
      */
     public void testBackup() {
-        // test
+        // create package
         final Container c = createContainer(datum.junit_z, "Backup Test: Backup 1");
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.doc");
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.pdf");
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.png");
         publish(datum.junit_z, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
-        // postconditions
+        // ensure created
         final Container c_local = readContainer(datum.junit_z, c.getUniqueId());
         final List<ContainerVersion> cv_list_local = readContainerVersions(datum.junit_z, c_local.getId());
         ContainerVersion cv_local;
@@ -74,7 +74,7 @@ public final class BackupTest extends BackupTestCase {
         List<DocumentVersion> dv_list_local;
         DocumentVersion dv_local;
         InputStream dv_stream_local;
-        // ensure backed up remotely
+        // ensure backed up
         logger.logInfo("Validating container \"{0}\"", c.getName());
         final Container c_backup = getBackupModel(datum.junit_z).readContainer(c.getUniqueId());
         assertNotNull("Container has not been properly backed up.", c_backup);

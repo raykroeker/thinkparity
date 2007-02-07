@@ -387,7 +387,7 @@ public class XMPPMethod extends IQ {
         } else if (parameter.javaType.equals(Integer.class)) {
             return parameter.javaValue.toString();
         } else if (parameter.javaType.equals(JabberId.class)) {
-            return ((JabberId) parameter.javaValue).getQualifiedUsername();
+            return ((JabberId) parameter.javaValue).getQualifiedJabberId();
         } else if (parameter.javaType.equals(Long.class)) {
             return parameter.javaValue.toString();
         } else if (parameter.javaType.equals(Library.Type.class)) {

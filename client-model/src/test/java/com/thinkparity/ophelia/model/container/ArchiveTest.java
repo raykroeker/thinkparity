@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.container;
 
 import java.util.List;
+import java.io.File;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -94,6 +95,11 @@ public class ArchiveTest extends ContainerTestCase {
         assertEquals("Local container team list does not match expectation.", 1, t_id_list_z.size());
         assertFalse("Local container team list contains archive user.", t_id_list_z.contains(datum.junit_z.getId()));
         assertTrue("Local container team list does not contain publish to user.", t_id_list_z.contains(datum.junit_x.getId()));
+
+        // verify the package can be exported
+        final File exportFile = getContainerModel(datum.junit_z).export(getOutputDirectory(), c_z.getId());
+        assertNotNull("Export file is null.", exportFile);
+        assertTrue("Export file does not exist.", exportFile.exists());
     }
 
     /**
@@ -207,6 +213,7 @@ public class ArchiveTest extends ContainerTestCase {
 
         // verify the package team does not contain the archive user in the backup
         final List<JabberId> t_id_list_backup_z = getBackupModel(datum.junit_z).readTeamIds(c_backup_z.getUniqueId());
+        logger.logVariable("t_id_list_backup_z", t_id_list_backup_z);
         assertEquals("Backup container team list does not match expectation.", 1, t_id_list_backup_z.size());
         assertFalse("Backup container team list contains archive user.", t_id_list_backup_z.contains(datum.junit_z.getId()));
         assertTrue("Backup container team list does not contain publish to user.", t_id_list_backup_z.contains(datum.junit_x.getId()));

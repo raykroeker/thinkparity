@@ -940,7 +940,8 @@ public abstract class Model<T extends EventListener> extends
         if (null == localUserId) {
             final Credentials credentials = readCredentials();
             if (null != credentials) {
-                localUserId = JabberIdBuilder.parseUsername(credentials.getUsername());
+                localUserId = JabberIdBuilder.build(credentials.getUsername(),
+                        environment.getXMPPService(), credentials.getResource());
             }
         }
         return localUserId;

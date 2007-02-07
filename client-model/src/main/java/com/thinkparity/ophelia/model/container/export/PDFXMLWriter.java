@@ -111,7 +111,12 @@ final class PDFXMLWriter {
         xstream.addImplicitCollection(PDFXMLContainerVersion.class, "documents");
         xstream.addImplicitCollection(PDFXMLContainerVersion.class, "users");
 
-        xstream.toXML(createPDFXML(), newFileWriter(path));
+        final FileWriter fileWriter = newFileWriter(path);
+        try {
+            xstream.toXML(createPDFXML(), newFileWriter(path));
+        } finally {
+            fileWriter.close();
+        }
     }
 
     private PDFXMLContainer createPDFXML() {

@@ -1,7 +1,7 @@
 insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.auth.anonymous','true');
 insert into jiveProperty (NAME,PROPVALUE)
-    values('xmpp.domain','thinkparity.dyndns.org');
+    values('xmpp.domain','thinkparity.net');
 insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.server.socket.port','5270');
 insert into jiveProperty (NAME,PROPVALUE)
@@ -64,29 +64,29 @@ insert into PARITY_USER_ARCHIVE_REL (USERNAME,ARCHIVENAME)
     values('junit.z', 'thinkparity.archive.0');
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit', 'junit.x@thinkparity.dyndns.org', 'junit', NOW(), 'junit', NOW());
+    values ('junit', 'junit.x@thinkparity.net', 'junit', NOW(), 'junit', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit', 'junit.y@thinkparity.dyndns.org', 'junit', NOW(), 'junit', NOW());
+    values ('junit', 'junit.y@thinkparity.net', 'junit', NOW(), 'junit', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit', 'junit.z@thinkparity.dyndns.org', 'junit', NOW(), 'junit', NOW());
+    values ('junit', 'junit.z@thinkparity.net', 'junit', NOW(), 'junit', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.x', 'junit@thinkparity.dyndns.org', 'junit.x', NOW(), 'junit.x', NOW());
+    values ('junit.x', 'junit@thinkparity.net', 'junit.x', NOW(), 'junit.x', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.x', 'junit.y@thinkparity.dyndns.org', 'junit.x', NOW(), 'junit.x', NOW());
+    values ('junit.x', 'junit.y@thinkparity.net', 'junit.x', NOW(), 'junit.x', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.x', 'junit.z@thinkparity.dyndns.org', 'junit.x', NOW(), 'junit.x', NOW());
+    values ('junit.x', 'junit.z@thinkparity.net', 'junit.x', NOW(), 'junit.x', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.y', 'junit@thinkparity.dyndns.org', 'junit.y', NOW(), 'junit.y', NOW());
+    values ('junit.y', 'junit@thinkparity.net', 'junit.y', NOW(), 'junit.y', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.y', 'junit.x@thinkparity.dyndns.org', 'junit.y', NOW(), 'junit.y', NOW());
+    values ('junit.y', 'junit.x@thinkparity.net', 'junit.y', NOW(), 'junit.y', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.y', 'junit.z@thinkparity.dyndns.org', 'junit.y', NOW(), 'junit.y', NOW());
+    values ('junit.y', 'junit.z@thinkparity.net', 'junit.y', NOW(), 'junit.y', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.z', 'junit@thinkparity.dyndns.org', 'junit.z', NOW(), 'junit.z', NOW());
+    values ('junit.z', 'junit@thinkparity.net', 'junit.z', NOW(), 'junit.z', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.z', 'junit.x@thinkparity.dyndns.org', 'junit.z', NOW(), 'junit.z', NOW());
+    values ('junit.z', 'junit.x@thinkparity.net', 'junit.z', NOW(), 'junit.z', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.z', 'junit.y@thinkparity.dyndns.org', 'junit.z', NOW(), 'junit.z', NOW());
+    values ('junit.z', 'junit.y@thinkparity.net', 'junit.z', NOW(), 'junit.z', NOW());

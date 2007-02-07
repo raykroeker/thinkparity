@@ -1,7 +1,7 @@
 insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.auth.anonymous','true');
 insert into jiveProperty (NAME,PROPVALUE)
-    values('xmpp.domain','thinkparity.dyndns.org');
+    values('xmpp.domain','thinkparity.net');
 insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.server.socket.port','5271');
 insert into jiveProperty (NAME,PROPVALUE)
@@ -130,11 +130,11 @@ insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
     values ('masako', 1000);
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('asahebjam', 'omid@thinkparity.dyndns.org', 'asahebjam', NOW(), 'asahebjam', NOW());
+    values ('asahebjam', 'omid@thinkparity.net', 'asahebjam', NOW(), 'asahebjam', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('asahebjam', 'rkroeker@thinkparity.dyndns.org', 'asahebjam', NOW(), 'asahebjam', NOW());
+    values ('asahebjam', 'rkroeker@thinkparity.net', 'asahebjam', NOW(), 'asahebjam', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('asahebjam', 'robert@thinkparity.dyndns.org', 'asahebjam', NOW(), 'asahebjam', NOW());
+    values ('asahebjam', 'robert@thinkparity.net', 'asahebjam', NOW(), 'asahebjam', NOW());
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('ahalaby','parity',0,0);
@@ -188,225 +188,225 @@ insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
     values ('gdengo', 1000);
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('omid', 'asahebjam@thinkparity.dyndns.org', 'omid', NOW(), 'omid', NOW());
+    values ('omid', 'asahebjam@thinkparity.net', 'omid', NOW(), 'omid', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('omid', 'rkroeker@thinkparity.dyndns.org', 'omid', NOW(), 'omid', NOW());
+    values ('omid', 'rkroeker@thinkparity.net', 'omid', NOW(), 'omid', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('omid', 'robert@thinkparity.dyndns.org', 'omid', NOW(), 'omid', NOW());
+    values ('omid', 'robert@thinkparity.net', 'omid', NOW(), 'omid', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('omid', 'djohnson@thinkparity.dyndns.org', 'omid', NOW(), 'omid', NOW());
+    values ('omid', 'djohnson@thinkparity.net', 'omid', NOW(), 'omid', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('omid', 'emorrison@thinkparity.dyndns.org', 'omid', NOW(), 'omid', NOW());
+    values ('omid', 'emorrison@thinkparity.net', 'omid', NOW(), 'omid', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('omid', 'kmfarland@thinkparity.dyndns.org', 'omid', NOW(), 'omid', NOW());
+    values ('omid', 'kmfarland@thinkparity.net', 'omid', NOW(), 'omid', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('omid', 'strimnell@thinkparity.dyndns.org', 'omid', NOW(), 'omid', NOW());
+    values ('omid', 'strimnell@thinkparity.net', 'omid', NOW(), 'omid', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('omid', 'kenjiro@thinkparity.dyndns.org', 'omid', NOW(), 'omid', NOW());
+    values ('omid', 'kenjiro@thinkparity.net', 'omid', NOW(), 'omid', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('omid', 'masako@thinkparity.dyndns.org', 'omid', NOW(), 'omid', NOW());
+    values ('omid', 'masako@thinkparity.net', 'omid', NOW(), 'omid', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'asahebjam@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'asahebjam@thinkparity.net', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'omid@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'omid@thinkparity.net', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'robert@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'robert@thinkparity.net', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'djohnson@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'djohnson@thinkparity.net', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'emorrison@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'emorrison@thinkparity.net', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'kmfarland@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'kmfarland@thinkparity.net', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'strimnell@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'strimnell@thinkparity.net', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'kenjiro@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'kenjiro@thinkparity.net', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'masako@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'masako@thinkparity.net', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'ahalaby@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'ahalaby@thinkparity.net', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'rwaterhouse@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'rwaterhouse@thinkparity.net', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'ashaftoe@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'ashaftoe@thinkparity.net', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'brussell@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'brussell@thinkparity.net', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'gdengo@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'gdengo@thinkparity.net', 'rkroeker', NOW(), 'rkroeker', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('robert', 'asahebjam@thinkparity.dyndns.org', 'robert', NOW(), 'robert', NOW());
+    values ('robert', 'asahebjam@thinkparity.net', 'robert', NOW(), 'robert', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('robert', 'omid@thinkparity.dyndns.org', 'robert', NOW(), 'robert', NOW());
+    values ('robert', 'omid@thinkparity.net', 'robert', NOW(), 'robert', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('robert', 'rkroeker@thinkparity.dyndns.org', 'robert', NOW(), 'robert', NOW());
+    values ('robert', 'rkroeker@thinkparity.net', 'robert', NOW(), 'robert', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('robert', 'djohnson@thinkparity.dyndns.org', 'robert', NOW(), 'robert', NOW());
+    values ('robert', 'djohnson@thinkparity.net', 'robert', NOW(), 'robert', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('robert', 'emorrison@thinkparity.dyndns.org', 'robert', NOW(), 'robert', NOW());
+    values ('robert', 'emorrison@thinkparity.net', 'robert', NOW(), 'robert', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('robert', 'kmfarland@thinkparity.dyndns.org', 'robert', NOW(), 'robert', NOW());
+    values ('robert', 'kmfarland@thinkparity.net', 'robert', NOW(), 'robert', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('robert', 'strimnell@thinkparity.dyndns.org', 'robert', NOW(), 'robert', NOW());
+    values ('robert', 'strimnell@thinkparity.net', 'robert', NOW(), 'robert', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('robert', 'kenjiro@thinkparity.dyndns.org', 'robert', NOW(), 'robert', NOW());
+    values ('robert', 'kenjiro@thinkparity.net', 'robert', NOW(), 'robert', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('robert', 'masako@thinkparity.dyndns.org', 'robert', NOW(), 'robert', NOW());
+    values ('robert', 'masako@thinkparity.net', 'robert', NOW(), 'robert', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('djohnson', 'omid@thinkparity.dyndns.org', 'djohnson', NOW(), 'djohnson', NOW());
+    values ('djohnson', 'omid@thinkparity.net', 'djohnson', NOW(), 'djohnson', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('djohnson', 'rkroeker@thinkparity.dyndns.org', 'djohnson', NOW(), 'djohnson', NOW());
+    values ('djohnson', 'rkroeker@thinkparity.net', 'djohnson', NOW(), 'djohnson', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('djohnson', 'robert@thinkparity.dyndns.org', 'djohnson', NOW(), 'djohnson', NOW());
+    values ('djohnson', 'robert@thinkparity.net', 'djohnson', NOW(), 'djohnson', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('djohnson', 'emorrison@thinkparity.dyndns.org', 'djohnson', NOW(), 'djohnson', NOW());
+    values ('djohnson', 'emorrison@thinkparity.net', 'djohnson', NOW(), 'djohnson', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('djohnson', 'kmfarland@thinkparity.dyndns.org', 'djohnson', NOW(), 'djohnson', NOW());
+    values ('djohnson', 'kmfarland@thinkparity.net', 'djohnson', NOW(), 'djohnson', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('djohnson', 'strimnell@thinkparity.dyndns.org', 'djohnson', NOW(), 'djohnson', NOW());
+    values ('djohnson', 'strimnell@thinkparity.net', 'djohnson', NOW(), 'djohnson', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('djohnson', 'kenjiro@thinkparity.dyndns.org', 'djohnson', NOW(), 'djohnson', NOW());
+    values ('djohnson', 'kenjiro@thinkparity.net', 'djohnson', NOW(), 'djohnson', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('djohnson', 'masako@thinkparity.dyndns.org', 'djohnson', NOW(), 'djohnson', NOW());
+    values ('djohnson', 'masako@thinkparity.net', 'djohnson', NOW(), 'djohnson', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('emorrison', 'omid@thinkparity.dyndns.org', 'emorrison', NOW(), 'emorrison', NOW());
+    values ('emorrison', 'omid@thinkparity.net', 'emorrison', NOW(), 'emorrison', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('emorrison', 'rkroeker@thinkparity.dyndns.org', 'emorrison', NOW(), 'emorrison', NOW());
+    values ('emorrison', 'rkroeker@thinkparity.net', 'emorrison', NOW(), 'emorrison', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('emorrison', 'robert@thinkparity.dyndns.org', 'emorrison', NOW(), 'emorrison', NOW());
+    values ('emorrison', 'robert@thinkparity.net', 'emorrison', NOW(), 'emorrison', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('emorrison', 'djohnson@thinkparity.dyndns.org', 'emorrison', NOW(), 'emorrison', NOW());
+    values ('emorrison', 'djohnson@thinkparity.net', 'emorrison', NOW(), 'emorrison', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('emorrison', 'kmfarland@thinkparity.dyndns.org', 'emorrison', NOW(), 'emorrison', NOW());
+    values ('emorrison', 'kmfarland@thinkparity.net', 'emorrison', NOW(), 'emorrison', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('emorrison', 'strimnell@thinkparity.dyndns.org', 'emorrison', NOW(), 'emorrison', NOW());
+    values ('emorrison', 'strimnell@thinkparity.net', 'emorrison', NOW(), 'emorrison', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('emorrison', 'kenjiro@thinkparity.dyndns.org', 'emorrison', NOW(), 'emorrison', NOW());
+    values ('emorrison', 'kenjiro@thinkparity.net', 'emorrison', NOW(), 'emorrison', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('emorrison', 'masako@thinkparity.dyndns.org', 'emorrison', NOW(), 'emorrison', NOW());
+    values ('emorrison', 'masako@thinkparity.net', 'emorrison', NOW(), 'emorrison', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('kmfarland', 'omid@thinkparity.dyndns.org', 'kmfarland', NOW(), 'kmfarland', NOW());
+    values ('kmfarland', 'omid@thinkparity.net', 'kmfarland', NOW(), 'kmfarland', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('kmfarland', 'rkroeker@thinkparity.dyndns.org', 'kmfarland', NOW(), 'kmfarland', NOW());
+    values ('kmfarland', 'rkroeker@thinkparity.net', 'kmfarland', NOW(), 'kmfarland', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('kmfarland', 'robert@thinkparity.dyndns.org', 'kmfarland', NOW(), 'kmfarland', NOW());
+    values ('kmfarland', 'robert@thinkparity.net', 'kmfarland', NOW(), 'kmfarland', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('kmfarland', 'djohnson@thinkparity.dyndns.org', 'kmfarland', NOW(), 'kmfarland', NOW());
+    values ('kmfarland', 'djohnson@thinkparity.net', 'kmfarland', NOW(), 'kmfarland', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('kmfarland', 'emorrison@thinkparity.dyndns.org', 'kmfarland', NOW(), 'kmfarland', NOW());
+    values ('kmfarland', 'emorrison@thinkparity.net', 'kmfarland', NOW(), 'kmfarland', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('kmfarland', 'strimnell@thinkparity.dyndns.org', 'kmfarland', NOW(), 'kmfarland', NOW());
+    values ('kmfarland', 'strimnell@thinkparity.net', 'kmfarland', NOW(), 'kmfarland', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('kmfarland', 'kenjiro@thinkparity.dyndns.org', 'kmfarland', NOW(), 'kmfarland', NOW());
+    values ('kmfarland', 'kenjiro@thinkparity.net', 'kmfarland', NOW(), 'kmfarland', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('kmfarland', 'masako@thinkparity.dyndns.org', 'kmfarland', NOW(), 'kmfarland', NOW());
+    values ('kmfarland', 'masako@thinkparity.net', 'kmfarland', NOW(), 'kmfarland', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('strimnell', 'omid@thinkparity.dyndns.org', 'strimnell', NOW(), 'strimnell', NOW());
+    values ('strimnell', 'omid@thinkparity.net', 'strimnell', NOW(), 'strimnell', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('strimnell', 'rkroeker@thinkparity.dyndns.org', 'strimnell', NOW(), 'strimnell', NOW());
+    values ('strimnell', 'rkroeker@thinkparity.net', 'strimnell', NOW(), 'strimnell', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('strimnell', 'robert@thinkparity.dyndns.org', 'strimnell', NOW(), 'strimnell', NOW());
+    values ('strimnell', 'robert@thinkparity.net', 'strimnell', NOW(), 'strimnell', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('strimnell', 'djohnson@thinkparity.dyndns.org', 'strimnell', NOW(), 'strimnell', NOW());
+    values ('strimnell', 'djohnson@thinkparity.net', 'strimnell', NOW(), 'strimnell', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('strimnell', 'emorrison@thinkparity.dyndns.org', 'strimnell', NOW(), 'strimnell', NOW());
+    values ('strimnell', 'emorrison@thinkparity.net', 'strimnell', NOW(), 'strimnell', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('strimnell', 'kmfarland@thinkparity.dyndns.org', 'strimnell', NOW(), 'strimnell', NOW());
+    values ('strimnell', 'kmfarland@thinkparity.net', 'strimnell', NOW(), 'strimnell', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('strimnell', 'kenjiro@thinkparity.dyndns.org', 'strimnell', NOW(), 'strimnell', NOW());
+    values ('strimnell', 'kenjiro@thinkparity.net', 'strimnell', NOW(), 'strimnell', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('strimnell', 'masako@thinkparity.dyndns.org', 'strimnell', NOW(), 'strimnell', NOW());
+    values ('strimnell', 'masako@thinkparity.net', 'strimnell', NOW(), 'strimnell', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('kenjiro', 'omid@thinkparity.dyndns.org', 'kenjiro', NOW(), 'kenjiro', NOW());
+    values ('kenjiro', 'omid@thinkparity.net', 'kenjiro', NOW(), 'kenjiro', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('kenjiro', 'rkroeker@thinkparity.dyndns.org', 'kenjiro', NOW(), 'kenjiro', NOW());
+    values ('kenjiro', 'rkroeker@thinkparity.net', 'kenjiro', NOW(), 'kenjiro', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('kenjiro', 'robert@thinkparity.dyndns.org', 'kenjiro', NOW(), 'kenjiro', NOW());
+    values ('kenjiro', 'robert@thinkparity.net', 'kenjiro', NOW(), 'kenjiro', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('kenjiro', 'djohnson@thinkparity.dyndns.org', 'kenjiro', NOW(), 'kenjiro', NOW());
+    values ('kenjiro', 'djohnson@thinkparity.net', 'kenjiro', NOW(), 'kenjiro', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('kenjiro', 'emorrison@thinkparity.dyndns.org', 'kenjiro', NOW(), 'kenjiro', NOW());
+    values ('kenjiro', 'emorrison@thinkparity.net', 'kenjiro', NOW(), 'kenjiro', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('kenjiro', 'kmfarland@thinkparity.dyndns.org', 'kenjiro', NOW(), 'kenjiro', NOW());
+    values ('kenjiro', 'kmfarland@thinkparity.net', 'kenjiro', NOW(), 'kenjiro', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('kenjiro', 'strimnell@thinkparity.dyndns.org', 'kenjiro', NOW(), 'kenjiro', NOW());
+    values ('kenjiro', 'strimnell@thinkparity.net', 'kenjiro', NOW(), 'kenjiro', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('kenjiro', 'masako@thinkparity.dyndns.org', 'kenjiro', NOW(), 'kenjiro', NOW());
+    values ('kenjiro', 'masako@thinkparity.net', 'kenjiro', NOW(), 'kenjiro', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('masako', 'omid@thinkparity.dyndns.org', 'masako', NOW(), 'masako', NOW());
+    values ('masako', 'omid@thinkparity.net', 'masako', NOW(), 'masako', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('masako', 'rkroeker@thinkparity.dyndns.org', 'masako', NOW(), 'masako', NOW());
+    values ('masako', 'rkroeker@thinkparity.net', 'masako', NOW(), 'masako', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('masako', 'robert@thinkparity.dyndns.org', 'masako', NOW(), 'masako', NOW());
+    values ('masako', 'robert@thinkparity.net', 'masako', NOW(), 'masako', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('masako', 'djohnson@thinkparity.dyndns.org', 'masako', NOW(), 'masako', NOW());
+    values ('masako', 'djohnson@thinkparity.net', 'masako', NOW(), 'masako', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('masako', 'emorrison@thinkparity.dyndns.org', 'masako', NOW(), 'masako', NOW());
+    values ('masako', 'emorrison@thinkparity.net', 'masako', NOW(), 'masako', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('masako', 'kmfarland@thinkparity.dyndns.org', 'masako', NOW(), 'masako', NOW());
+    values ('masako', 'kmfarland@thinkparity.net', 'masako', NOW(), 'masako', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('masako', 'strimnell@thinkparity.dyndns.org', 'masako', NOW(), 'masako', NOW());
+    values ('masako', 'strimnell@thinkparity.net', 'masako', NOW(), 'masako', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('masako', 'kenjiro@thinkparity.dyndns.org', 'masako', NOW(), 'masako', NOW());
+    values ('masako', 'kenjiro@thinkparity.net', 'masako', NOW(), 'masako', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rwaterhouse', 'rkroeker@thinkparity.dyndns.org', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
+    values ('rwaterhouse', 'rkroeker@thinkparity.net', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rwaterhouse', 'ahalaby@thinkparity.dyndns.org', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
+    values ('rwaterhouse', 'ahalaby@thinkparity.net', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rwaterhouse', 'ashaftoe@thinkparity.dyndns.org', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
+    values ('rwaterhouse', 'ashaftoe@thinkparity.net', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rwaterhouse', 'brussell@thinkparity.dyndns.org', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
+    values ('rwaterhouse', 'brussell@thinkparity.net', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rwaterhouse', 'gdengo@thinkparity.dyndns.org', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
+    values ('rwaterhouse', 'gdengo@thinkparity.net', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ahalaby', 'rkroeker@thinkparity.dyndns.org', 'ahalaby', NOW(), 'ahalaby', NOW());
+    values ('ahalaby', 'rkroeker@thinkparity.net', 'ahalaby', NOW(), 'ahalaby', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ahalaby', 'rwaterhouse@thinkparity.dyndns.org', 'ahalaby', NOW(), 'ahalaby', NOW());
+    values ('ahalaby', 'rwaterhouse@thinkparity.net', 'ahalaby', NOW(), 'ahalaby', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ahalaby', 'ashaftoe@thinkparity.dyndns.org', 'ahalaby', NOW(), 'ahalaby', NOW());
+    values ('ahalaby', 'ashaftoe@thinkparity.net', 'ahalaby', NOW(), 'ahalaby', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ahalaby', 'brussell@thinkparity.dyndns.org', 'ahalaby', NOW(), 'ahalaby', NOW());
+    values ('ahalaby', 'brussell@thinkparity.net', 'ahalaby', NOW(), 'ahalaby', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ahalaby', 'gdengo@thinkparity.dyndns.org', 'ahalaby', NOW(), 'ahalaby', NOW());
+    values ('ahalaby', 'gdengo@thinkparity.net', 'ahalaby', NOW(), 'ahalaby', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ashaftoe', 'rkroeker@thinkparity.dyndns.org', 'ashaftoe', NOW(), 'ashaftoe', NOW());
+    values ('ashaftoe', 'rkroeker@thinkparity.net', 'ashaftoe', NOW(), 'ashaftoe', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ashaftoe', 'ahalaby@thinkparity.dyndns.org', 'ashaftoe', NOW(), 'ashaftoe', NOW());
+    values ('ashaftoe', 'ahalaby@thinkparity.net', 'ashaftoe', NOW(), 'ashaftoe', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ashaftoe', 'rwaterhouse@thinkparity.dyndns.org', 'ashaftoe', NOW(), 'ashaftoe', NOW());
+    values ('ashaftoe', 'rwaterhouse@thinkparity.net', 'ashaftoe', NOW(), 'ashaftoe', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ashaftoe', 'brussell@thinkparity.dyndns.org', 'ashaftoe', NOW(), 'ashaftoe', NOW());
+    values ('ashaftoe', 'brussell@thinkparity.net', 'ashaftoe', NOW(), 'ashaftoe', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ashaftoe', 'gdengo@thinkparity.dyndns.org', 'ashaftoe', NOW(), 'ashaftoe', NOW());
+    values ('ashaftoe', 'gdengo@thinkparity.net', 'ashaftoe', NOW(), 'ashaftoe', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('brussell', 'rkroeker@thinkparity.dyndns.org', 'brussell', NOW(), 'brussell', NOW());
+    values ('brussell', 'rkroeker@thinkparity.net', 'brussell', NOW(), 'brussell', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('brussell', 'ahalaby@thinkparity.dyndns.org', 'brussell', NOW(), 'brussell', NOW());
+    values ('brussell', 'ahalaby@thinkparity.net', 'brussell', NOW(), 'brussell', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('brussell', 'rwaterhouse@thinkparity.dyndns.org', 'brussell', NOW(), 'brussell', NOW());
+    values ('brussell', 'rwaterhouse@thinkparity.net', 'brussell', NOW(), 'brussell', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('brussell', 'ashaftoe@thinkparity.dyndns.org', 'brussell', NOW(), 'brussell', NOW());
+    values ('brussell', 'ashaftoe@thinkparity.net', 'brussell', NOW(), 'brussell', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('brussell', 'gdengo@thinkparity.dyndns.org', 'brussell', NOW(), 'brussell', NOW());
+    values ('brussell', 'gdengo@thinkparity.net', 'brussell', NOW(), 'brussell', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('gdengo', 'rkroeker@thinkparity.dyndns.org', 'gdengo', NOW(), 'gdengo', NOW());
+    values ('gdengo', 'rkroeker@thinkparity.net', 'gdengo', NOW(), 'gdengo', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('gdengo', 'ahalaby@thinkparity.dyndns.org', 'gdengo', NOW(), 'gdengo', NOW());
+    values ('gdengo', 'ahalaby@thinkparity.net', 'gdengo', NOW(), 'gdengo', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('gdengo', 'rwaterhouse@thinkparity.dyndns.org', 'gdengo', NOW(), 'gdengo', NOW());
+    values ('gdengo', 'rwaterhouse@thinkparity.net', 'gdengo', NOW(), 'gdengo', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('gdengo', 'ashaftoe@thinkparity.dyndns.org', 'gdengo', NOW(), 'gdengo', NOW());
+    values ('gdengo', 'ashaftoe@thinkparity.net', 'gdengo', NOW(), 'gdengo', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('gdengo', 'brussell@thinkparity.dyndns.org', 'gdengo', NOW(), 'gdengo', NOW());
+    values ('gdengo', 'brussell@thinkparity.net', 'gdengo', NOW(), 'gdengo', NOW());

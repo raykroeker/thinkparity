@@ -355,7 +355,7 @@ Examples:
                     <and>
                         <available file="${localconfig}"/>
                         <isset property="platform"/>
-			<isset property="release.version"/>
+                        <isset property="release.version"/>
                         <isset property="scm.credentials"/>
                     </and>
                 </not>

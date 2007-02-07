@@ -113,7 +113,7 @@ final class PDFXMLWriter {
 
         final FileWriter fileWriter = newFileWriter(path);
         try {
-            xstream.toXML(createPDFXML(), newFileWriter(path));
+            xstream.toXML(createPDFXML(), fileWriter);
         } finally {
             fileWriter.close();
         }

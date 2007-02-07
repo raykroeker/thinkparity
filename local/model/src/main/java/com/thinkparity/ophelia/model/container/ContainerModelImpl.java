@@ -387,6 +387,10 @@ public final class ContainerModelImpl extends
         try {
             final Container container = read(containerId);
             if (isDistributed(container.getId())) {
+                // delete the draft
+                if (container.isLocalDraft()) {
+                    getSessionModel().deleteDraft(container.getUniqueId());
+                }
                 /* the archive user is not part of the team */
                 if (isLocalTeamMember(container.getId())) {
                     final TeamMember localTeamMember = localTeamMember(container.getId());

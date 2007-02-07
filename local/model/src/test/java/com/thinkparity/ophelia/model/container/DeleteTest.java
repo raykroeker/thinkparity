@@ -49,6 +49,38 @@ public final class DeleteTest extends ContainerTestCase {
     }
 
     /**
+     * Test the delete api with a draft.
+     *
+     */
+    public void testDeleteWithDraft() {
+        final Container c = createContainer(datum.junit, "Packages Test: Delete 2");
+        final List<Document> d_list = addDocuments(datum.junit, c.getId(), "JUnitTestFramework.doc");
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity");
+        datum.waitForEvents();
+        createDraft(datum.junit, c.getId());
+        datum.waitForEvents();
+
+        getContainerModel(datum.junit).addListener(datum);
+        getContainerModel(datum.junit).delete(c.getId());
+        datum.waitForEvents();
+        getContainerModel(datum.junit).removeListener(datum);
+
+        assertTrue("Deleted event not fired.", datum.didNotify);
+        final Container c_deleted = readContainer(datum.junit, c.getUniqueId());
+        assertNull("Container for " + datum.junit.getSimpleUsername() + " is not null.", c_deleted);
+        for (final Document d : d_list) {
+            assertNull("Document for " + datum.junit.getSimpleUsername() + " is not null.",
+                    readDocument(datum.junit, d.getUniqueId()));
+        }
+
+        final Container c_x = readContainer(datum.junit_x, c.getUniqueId());
+        assertNotNull("Container for " + datum.junit_x.getSimpleUsername() + " is null.", c_x);
+
+        final ContainerDraft cd_x = readContainerDraft(datum.junit_x, c_x.getId());
+        assertNull("Container draft for " + datum.junit_x.getSimpleUsername() + " is not null.", cd_x);
+    }
+
+    /**
      * Test the delete api after adding a document.
      *
      */

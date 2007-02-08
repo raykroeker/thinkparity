@@ -602,6 +602,7 @@ public final class ContainerModelImpl extends
                 throw Assert.createUnreachable("Cannot publish a container within a container.");
             }
             final Long artifactId = getArtifactModel().readId(event.getArtifactUniqueId());
+            logger.logVariable("artifactId", artifactId);
             if (!containerIO.doesExistVersion(container.getId(),
                     event.getVersionId(), artifactId,
                     event.getArtifactVersionId()).booleanValue()) {

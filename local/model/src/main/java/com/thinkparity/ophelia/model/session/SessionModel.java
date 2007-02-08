@@ -26,6 +26,7 @@ public interface SessionModel {
 	 * @param sessionListener
 	 *            The session listener to add.
 	 */
+    @ThinkParityTransaction(TransactionType.NEVER)
 	public void addListener(final SessionListener sessionListener);
 
     /**
@@ -64,5 +65,6 @@ public interface SessionModel {
 	 * @param sessionListener
 	 *            The registered session listener to remove.
 	 */
+    @ThinkParityTransaction(TransactionType.NEVER)
 	public void removeListener(final SessionListener sessionListener);
 }

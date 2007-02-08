@@ -194,6 +194,7 @@ public interface DocumentModel {
 	 * @param listener
 	 *        The document listener.
 	 */
+    @ThinkParityTransaction(TransactionType.NEVER)
 	public void removeListener(final DocumentListener listener);
 
 	/**

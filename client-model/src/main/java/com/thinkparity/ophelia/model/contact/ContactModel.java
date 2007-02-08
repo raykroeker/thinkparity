@@ -41,6 +41,7 @@ public interface ContactModel {
      * @param listener
      *            A contact listener.
      */
+    @ThinkParityTransaction(TransactionType.NEVER)
     public void addListener(final ContactListener listener);
 
     /**
@@ -218,6 +219,7 @@ public interface ContactModel {
      * @param listener
      *            A contact listener.
      */
+    @ThinkParityTransaction(TransactionType.NEVER)
     public void removeListener(final ContactListener listener);
 
     /**

@@ -55,7 +55,7 @@ public class Ticket442Test extends TicketTestCase {
      */
     public void testTicket() {
         // create a container; add a document; publish
-        final Container c_initial = createContainer(datum.junit, "Ticket 410.");
+        final Container c_initial = createContainer(datum.junit, NAME);
         final Document d_txt = addDocument(datum.junit, c_initial.getId(), "JUnitTestFramework.txt");
         publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();

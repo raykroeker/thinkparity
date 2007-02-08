@@ -17,7 +17,7 @@ import com.thinkparity.ophelia.OpheliaTestUser;
 public final class Ticket329Test extends TicketTestCase {
 
     /** Test name <code>String</code>. */
-    private static final String NAME = "Trac Ticket 329";
+    private static final String NAME = "Test ticket 329";
 
     /** Test datum. */
     private Fixture datum;

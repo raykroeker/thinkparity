@@ -24,7 +24,7 @@ import com.thinkparity.ophelia.OpheliaTestUser;
 public class Ticket406Test extends TicketTestCase {
 
     /** Test name. */
-    private static final String NAME = "Ticket 406 Test";
+    private static final String NAME = "Test ticket 406";
 
     /** Test datum. */
     private Fixture datum;
@@ -45,7 +45,7 @@ public class Ticket406Test extends TicketTestCase {
      * first and second publish were being flagged as removed.
      */
     public void testTicket() {
-        final Container c = createContainer(datum.junit, "Packages Test: Publish 4");
+        final Container c = createContainer(datum.junit, NAME);
         final List<Document> d_list_initial = addDocuments(datum.junit, c.getId());
         publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();

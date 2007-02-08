@@ -474,13 +474,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setTypeAsInteger(5, artifactType);
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not add version.");
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -525,10 +521,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                 if (1 != session.executeUpdate())
                     throw new HypersonicException("Could not create artifact delta.");
             }
-
-            session.commit();
-        } catch (final Throwable t) {
-            throw translateError(session, t);
         } finally {
             session.close();
         }
@@ -572,13 +564,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setEnumTypeAsString(3, state);
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not create draft artifact relationship.");
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -594,11 +582,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                 createPublishedTo(session, containerId, versionId,
                         publishedToUser, publishedOn);
             }
-
-            session.commit();
-        } catch (final HypersonicException hx) {
-            session.rollback();
-            throw hx;
         } finally {
             session.close();
         }
@@ -614,11 +597,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         try {
             createPublishedTo(session, containerId, versionId, publishedTo,
                     publishedOn);
-
-            session.commit();
-        } catch (final HypersonicException hx) {
-            session.rollback();
-            throw hx;
         } finally {
             session.close();
         }
@@ -637,13 +615,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(2, version.getVersionId());
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not create version.");
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -658,13 +632,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not delete container.");
             artifactIO.delete(session, containerId);
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -692,10 +662,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(3, compareToVersionId);
             if (deltaCount != session.executeUpdate())
                 throw new HypersonicException("Could not delete delta.");
-
-            session.commit();
-        } catch (final Throwable t) {
-            throw translateError(session, t);
         } finally {
             session.close();
         }
@@ -723,10 +689,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(3, versionId);
             if (deltaCount != session.executeUpdate())
                 throw new HypersonicException("Could not delete deltas.");
-
-            session.commit();
-        } catch (final Throwable t) {
-            throw translateError(session, t);
         } finally {
             session.close();
         }
@@ -742,14 +704,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(1, containerId);
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not delete draft.");
-
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -763,13 +720,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(2, artifactId);
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not delete draft artifact relationship.");
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -797,10 +750,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not delete version.");
             artifactIO.deleteVersion(session, containerId, versionId);
-            session.commit();
-        } catch (final Throwable t) {
-            session.rollback();
-            throw translateError(t);
         } finally {
             session.close();
         }
@@ -820,7 +769,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(1, containerId);
             session.setLong(2, containerVersionId);
             session.setLong(3, artifactId);
-            session.setLong(3, artifactVersionId);
+            session.setLong(4, artifactVersionId);
             session.executeQuery();
             session.nextResult();
             if (0 == session.getInteger("COUNT")) {
@@ -1071,13 +1020,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(4, artifactVersionId);
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not remove version.");
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -1090,11 +1035,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(1, containerId);
             session.setLong(2, versionId);
             session.executeUpdate();
-            session.commit();
-        }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
         } finally {
             session.close();
         }
@@ -1112,11 +1052,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(1, container.getId());
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not restore container.");
-
-            session.commit();
-        } catch (final HypersonicException hx) {  
-            session.rollback();
-            throw hx;
         } finally {
             session.close();
         }
@@ -1136,10 +1071,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(3, versionId);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not update comment.");
-
-            session.commit();
-        } catch (final Throwable t) {
-            throw translateError(session, t);
         } finally {
             session.close();
         }
@@ -1156,11 +1087,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(2, containerId);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not update name.");
-
-            session.commit();
-        } catch (final HypersonicException hx) {
-            session.rollback();
-            throw hx;
         } finally {
             session.close();
         }
@@ -1185,11 +1111,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setCalendar(5, publishedOn);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not update container version published to list.");
-
-            session.commit();
-        } catch (final HypersonicException hx) {
-            session.rollback();
-            throw hx;
         } finally {
             session.close();
         }

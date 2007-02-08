@@ -88,6 +88,14 @@ class TestInitializer {
         logging.setProperty("log4j.appender.SQL_DEBUGGER.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity SQL.log"));
+        // ophelia xa appender
+        logging.setProperty("log4j.appender.XA_DEBUGGER", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.XA_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
+        logging.setProperty("log4j.appender.XA_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.XA_DEBUGGER.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
+        logging.setProperty("log4j.appender.XA_DEBUGGER.File",
+                MessageFormat.format("{0}{1}{2}", loggingRoot,
+                        File.separatorChar, "thinkParity XA.log"));
         // ophelia xmpp appender
         logging.setProperty("log4j.appender.XMPP_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
@@ -111,6 +119,9 @@ class TestInitializer {
             logging.setProperty("log4j.logger.SQL_DEBUGGER", "NONE");
             logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
 
+            logging.setProperty("log4j.logger.XA_DEBUGGER", "NONE");
+            logging.setProperty("log4j.additivity.XA_DEBUGGER", "false");
+
             logging.setProperty("log4j.logger.XMPP_DEBUGGER", "NONE");
             logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
             break;
@@ -123,6 +134,9 @@ class TestInitializer {
             logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
             logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
 
+            logging.setProperty("log4j.logger.XA_DEBUGGER", "TRACE, XA_DEBUGGER");
+            logging.setProperty("log4j.additivity.XA_DEBUGGER", "false");
+
             logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
             logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
             break;
@@ -134,6 +148,9 @@ class TestInitializer {
 
             logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
             logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
+
+            logging.setProperty("log4j.logger.XA_DEBUGGER", "DEBUG, XA_DEBUGGER");
+            logging.setProperty("log4j.additivity.XA_DEBUGGER", "false");
 
             logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
             logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");

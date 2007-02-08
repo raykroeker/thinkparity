@@ -16,8 +16,6 @@ import com.thinkparity.codebase.model.util.jta.TransactionManager;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
-import com.thinkparity.ophelia.model.util.jta.TransactionContextImpl;
-import com.thinkparity.ophelia.model.util.jta.XidFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
 
@@ -42,9 +40,6 @@ class PersistenceManagerImpl {
     /** The <code>Workspace</code>. */
     private final Workspace workspace;
 
-    /** The <code>XidFactory</code>. */
-    private final XidFactory xidFactory;
-
     /**
      * Create SessionManagerImpl.
      * 
@@ -55,7 +50,6 @@ class PersistenceManagerImpl {
         super();
         this.logger = new Log4JWrapper();
         this.workspace = workspace;
-        this.xidFactory = XidFactory.getInstance(workspace);
     }
 
     /**
@@ -135,10 +129,7 @@ class PersistenceManagerImpl {
     private Transaction beginTransaction() throws NotSupportedException,
             SystemException {
         final Transaction transaction = getTransaction();
-        final TransactionContextImpl context = new TransactionContextImpl();
-        final String xid = getClass().toString();
-        context.setXid(xidFactory.createXid(xid));
-        transaction.begin(context);
+        transaction.begin();
         return transaction;
     }
 }

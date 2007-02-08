@@ -49,28 +49,29 @@ public class PublishTest extends ContainerTestCase {
      * the published to users is the same as for the publishing user.
      */
     public void test4() {
-        final Container c = createContainer(datum.junit, getName());
-        final List<Document> d_list_initial = addDocuments(datum.junit, c.getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        final Container c_initial = createContainer(datum.junit, getName());
+        final List<Document> d_list_initial = addDocuments(datum.junit, c_initial.getId());
+        publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
-        createDraft(datum.junit, c.getId());
+        createDraft(datum.junit, c_initial.getId());
         datum.waitForEvents();
         modifyDocument(datum.junit, d_list_initial.get(0).getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
 
+        final Container c = readContainer(datum.junit, c_initial.getUniqueId());
         final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
         final ContainerVersion cv_previous = readContainerPreviousVersion(datum.junit, c.getId(), cv_latest.getVersionId());
         final List<Document> d_list = readContainerVersionDocuments(datum.junit, c.getId(), cv_latest.getVersionId());
 
-        final Container c_x = readContainer(datum.junit_x, c.getUniqueId());
+        final Container c_x = readContainer(datum.junit_x, c_initial.getUniqueId());
         final ContainerVersion cv_latest_x = readContainerLatestVersion(datum.junit_x, c_x.getId());
-        final ContainerVersion cv_previous_x = readContainerPreviousVersion(datum.junit_x, c.getId(), cv_latest_x.getVersionId());
+        final ContainerVersion cv_previous_x = readContainerPreviousVersion(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
         final List<Document> d_list_x = readContainerVersionDocuments(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
 
-        final Container c_y = readContainer(datum.junit_y, c.getUniqueId());
+        final Container c_y = readContainer(datum.junit_y, c_initial.getUniqueId());
         final ContainerVersion cv_latest_y = readContainerLatestVersion(datum.junit_y, c_y.getId());
-        final ContainerVersion cv_previous_y = readContainerPreviousVersion(datum.junit_y, c.getId(), cv_latest.getVersionId());
+        final ContainerVersion cv_previous_y = readContainerPreviousVersion(datum.junit_y, c_y.getId(), cv_latest.getVersionId());
         final List<Document> d_list_y = readContainerVersionDocuments(datum.junit_y, c_y.getId(), cv_latest_y.getVersionId());
 
         assertSimilar("Container does not match expectation.", c, c_x);

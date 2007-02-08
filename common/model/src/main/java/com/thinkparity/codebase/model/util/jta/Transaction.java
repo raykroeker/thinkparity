@@ -11,8 +11,6 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 /**
  * <b>Title:</b>thinkParity CommonModel Transaction<br>
  * <b>Description:</b>A think parity model transaction. The transaction is a
@@ -23,9 +21,6 @@ import com.thinkparity.codebase.assertion.Assert;
  * @version 1.1.2.1
  */
 public final class Transaction {
-
-    /** A <code>TransactionContext</code>. */
-    private static TransactionContext context;
 
     /** The jta <code>UserTransaction</code>. */
     private final UserTransaction userTransaction;
@@ -47,24 +42,8 @@ public final class Transaction {
      * @throws NotSupportedException
      * @throws SystemException
      */
-    public void begin(final TransactionContext context)
-            throws NotSupportedException, SystemException {
-        Assert.assertIsNull(Transaction.context,
-                "Cannot nest transaction within context {0}.",
-                Transaction.context);
+    public void begin() throws NotSupportedException, SystemException {
         userTransaction.begin();
-        Transaction.context = context;
-    }
-
-    /**
-     * Determine if this transaction belongs to the context.
-     * 
-     * @param context
-     *            A <code>TransactionContext</code>.
-     * @return True if the transaction belongs to this context.
-     */
-    public Boolean belongsTo(final TransactionContext context) {
-        return context.equals(Transaction.context);
     }
 
     /**
@@ -77,20 +56,7 @@ public final class Transaction {
      */
     public void commit() throws HeuristicMixedException,
             HeuristicRollbackException, RollbackException, SystemException {
-        try {
-            userTransaction.commit();
-        } finally {
-            Transaction.context = null;
-        }
-    }
-
-    /**
-     * Obtain context.
-     * 
-     * @return A <code>TransactionContext</code>.
-     */
-    public TransactionContext getContext() {
-        return context;
+        userTransaction.commit();
     }
 
     /**
@@ -128,11 +94,7 @@ public final class Transaction {
      * @throws SystemException
      */
     public void rollback() throws SystemException {
-        try {
-            userTransaction.rollback();
-        } finally {
-            Transaction.context = null;
-        }
+        userTransaction.rollback();
     }
 
     /**

@@ -3,24 +3,23 @@
  */
 package com.thinkparity.ophelia.model.workspace.impl;
 
-import java.io.File;
 import java.util.List;
 
 import javax.sql.DataSource;
+import javax.transaction.NotSupportedException;
+import javax.transaction.SystemException;
 
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.util.jta.Transaction;
 import com.thinkparity.codebase.model.util.jta.TransactionManager;
 
-import com.thinkparity.ophelia.model.Constants.DirectoryNames;
-import com.thinkparity.ophelia.model.Constants.FileNames;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
+import com.thinkparity.ophelia.model.util.jta.TransactionContextImpl;
+import com.thinkparity.ophelia.model.util.jta.XidFactory;
+import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
-
-import org.enhydra.jdbc.standard.StandardXADataSource;
 
 /**
  * @author raymond@thinkparity.com
@@ -28,26 +27,8 @@ import org.enhydra.jdbc.standard.StandardXADataSource;
  */
 class PersistenceManagerImpl {
 
-    /** The data source driver name. */
-    private static final String DS_DRIVER_NAME;
-
-    /** The data source password. */
-    private static final String DS_PASSWORD;
-
-    /** The data source user. */
-    private static final String DS_USER;
-
-    static {
-        DS_DRIVER_NAME = "org.hsqldb.jdbcDriver";
-        DS_USER = "sa";
-        DS_PASSWORD = "";
-    }
-
-    /** An enhydra <code>StandardXADataSource</code>. */
-    private StandardXADataSource dataSource;
-
-    /** The data source driver url. */
-    private final String dsDriverURL;
+    /** An <code>PersistenceManagerDataSource</code>. */
+    private PersistenceManagerDataSource dataSource;
 
     /** An apache logger. */
     private final Log4JWrapper logger;
@@ -58,6 +39,12 @@ class PersistenceManagerImpl {
     /** A <code>TransactionManager</code>. */
     private TransactionManager transactionManager;
 
+    /** The <code>Workspace</code>. */
+    private final Workspace workspace;
+
+    /** The <code>XidFactory</code>. */
+    private final XidFactory xidFactory;
+
     /**
      * Create SessionManagerImpl.
      * 
@@ -66,22 +53,9 @@ class PersistenceManagerImpl {
      */
     PersistenceManagerImpl(final WorkspaceImpl workspace) {
         super();
-        this.dsDriverURL = new StringBuffer("jdbc:hsqldb:file:")
-            .append(workspace.getDataDirectory().getAbsolutePath())
-            .append(File.separator)
-            .append(DirectoryNames.Workspace.Data.DB)
-            .append(File.separator)
-            .append(FileNames.Workspace.Data.DB)
-            .append(Separator.SemiColon)
-            .append("hsqldb.default_table_type")
-            .append(Separator.Equals)
-            .append("cached")
-            .append(Separator.SemiColon)
-            .append("sql.tx_no_multi_rewrite")
-            .append(Separator.Equals)
-            .append("TRUE")
-            .toString();
         this.logger = new Log4JWrapper();
+        this.workspace = workspace;
+        this.xidFactory = XidFactory.getInstance(workspace);
     }
 
     /**
@@ -112,15 +86,19 @@ class PersistenceManagerImpl {
             transactionManager = TransactionManager.getInstance();
             transactionManager.start();
             // create datasource
-            dataSource = new StandardXADataSource(); 
-            dataSource.setDriverName(DS_DRIVER_NAME);
-            dataSource.setPassword(DS_PASSWORD);
-            dataSource.setUrl(dsDriverURL);
-            dataSource.setUser(DS_USER);
+            dataSource = new PersistenceManagerDataSource(workspace); 
             // bind the transaction manager to the data source
             transactionManager.bind(dataSource);
             sessionManager = new SessionManager(dataSource);
-            new PersistenceMigrator(sessionManager).migrate();
+
+            final Transaction transaction = beginTransaction();
+            try {
+                new PersistenceMigrator(sessionManager).migrate();
+                transaction.commit();
+            } catch (final Throwable t) {
+                transaction.rollback();
+                throw t;
+            }
         } catch (final Throwable t) {
             throw new WorkspaceException("Cannot start persistence manager.", t);
         }
@@ -147,5 +125,20 @@ class PersistenceManagerImpl {
         }
         transactionManager.stop();
         transactionManager = null;
+    }
+
+    /**
+     * Begin a new transaction.
+     * 
+     * @return A <code>Transaction</code>.
+     */
+    private Transaction beginTransaction() throws NotSupportedException,
+            SystemException {
+        final Transaction transaction = getTransaction();
+        final TransactionContextImpl context = new TransactionContextImpl();
+        final String xid = getClass().toString();
+        context.setXid(xidFactory.createXid(xid));
+        transaction.begin(context);
+        return transaction;
     }
 }

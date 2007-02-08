@@ -28,7 +28,7 @@ public class XidImpl implements Xid {
      * @param id
      *            A transaction id <code>String</code>.
      */
-    public XidImpl(final String id) {
+    XidImpl(final String id) {
         super();
         this.id = id;
         this.idBytes = id.getBytes();

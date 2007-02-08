@@ -186,14 +186,9 @@ public class PersistenceMigrator {
         try {
             createSchema(session);
             insertSeedData(session);
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            logger.fatal("Could not create parity schema.", hx);
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     private void insertSeedData(final Session session) {

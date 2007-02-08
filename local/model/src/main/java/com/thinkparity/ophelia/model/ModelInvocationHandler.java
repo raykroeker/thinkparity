@@ -23,7 +23,7 @@ import com.thinkparity.codebase.model.util.jta.TransactionContext;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.util.jta.TransactionContextImpl;
-import com.thinkparity.ophelia.model.util.jta.XidImpl;
+import com.thinkparity.ophelia.model.util.jta.XidFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -50,6 +50,9 @@ final class ModelInvocationHandler implements InvocationHandler {
     /** A thinkParity <code>Workspace</code>. */
     private final Workspace workspace;
 
+    /** An <code>XidFactory</code>. */
+    private final XidFactory xidFactory;
+
     /**
      * Create ModelInvocationHandler.
      *
@@ -58,6 +61,7 @@ final class ModelInvocationHandler implements InvocationHandler {
         super();
         this.workspace = workspace;
         this.model = model;
+        this.xidFactory = XidFactory.getInstance(workspace);
     }
 
     /**
@@ -73,14 +77,18 @@ final class ModelInvocationHandler implements InvocationHandler {
             final TransactionContext transactionContext = newTransactionContext(method);
             beginTransaction(transaction, transactionContext);
             try {
-                final Object result = method.invoke(model, args);
-                model.notifyListeners();
+                final Object result;
+                try {
+                    result = method.invoke(model, args);
+                } finally {
+                    model.notifyListeners();
+                }
                 return result;
             } catch (final InvocationTargetException itx) {
-                rollbackTransaction(transaction, transactionContext);
+                rollbackTransaction(transaction);
                 throw itx.getTargetException();
             } catch (final Throwable t) {
-                rollbackTransaction(transaction, transactionContext);
+                rollbackTransaction(transaction);
                 throw t;
             } finally {
                 completeTransaction(transaction, transactionContext);
@@ -107,24 +115,22 @@ final class ModelInvocationHandler implements InvocationHandler {
         LOGGER.logVariable("transaction.getStatus()", transaction.getStatus());
         switch (transactionContext.getType()) {
         case REQUIRES_NEW:
-            LOGGER.logTrace("New transaction required for context {0}.",
+            LOGGER.logInfo("Starting transaction for {0}.",
                     transactionContext);
             transaction.begin(transactionContext);
             break;
         case REQUIRED:
-            LOGGER.logTrace("Transaction required for context {0}.",
-                    transactionContext);
-            if (transaction.isRollbackOnly()) {
-                LOGGER.logTrace("Transaction marked for rollback.");
-            } else if (!transaction.isActive().booleanValue()) {
+            if (!transaction.isActive().booleanValue()) {
+                LOGGER.logInfo("Starting transaction for {0}.",
+                        transactionContext);
                 transaction.begin(transactionContext);
                 Assert.assertTrue(transaction.isActive(),
                         "Transaction required for {0}.", transactionContext);
+            } else {
+                LOGGER.logInfo("{0}Joining transaction with {1}.", "\t", transactionContext);
             }
             break;
         case NEVER:
-            LOGGER.logTrace("Transaction not supported for context {0}.",
-                    transactionContext);
             Assert.assertNotTrue(transaction.isActive(),
                     "Transaction not permitted for {0}.", transactionContext);
             break;
@@ -154,10 +160,10 @@ final class ModelInvocationHandler implements InvocationHandler {
             RollbackException, SystemException {
         if (transaction.belongsTo(transactionContext)) {
             if (transaction.isRollbackOnly()) {
-                LOGGER.logTrace("Rolling back for context {0}.", transactionContext);
+                LOGGER.logInfo("Rolling back transaction for {0}.", transaction.getContext());
                 transaction.rollback();
             } else {
-                LOGGER.logTrace("Commiting for context {0}.", transactionContext);
+                LOGGER.logInfo("Commiting transaction for {0}.", transaction.getContext());
                 transaction.commit();
             }
         } else {
@@ -205,13 +211,11 @@ final class ModelInvocationHandler implements InvocationHandler {
      */
     private TransactionContext newTransactionContext(final Method method) {
         final TransactionContextImpl context = new TransactionContextImpl();
-        final String xid = new StringBuffer(workspace.getWorkspaceDirectory().getName())
-            .append("_")
-            .append(method.getClass().toString())
+        final String xid = new StringBuffer(method.getClass().toString())
             .append("_")
             .append(method.toString())
             .toString();
-        context.setXid(new XidImpl(xid));
+        context.setXid(xidFactory.createXid(xid));
         context.setType(getTransactionType(method));
         return context;
     }
@@ -227,30 +231,30 @@ final class ModelInvocationHandler implements InvocationHandler {
      *            A <code>TransactionContext</code>.
      * @throws SystemException
      */
-    private void rollbackTransaction(final Transaction transaction,
-            final TransactionContext transactionContext) throws SystemException {
-        if (!transaction.belongsTo(transactionContext).booleanValue()) {
-            switch (transactionContext.getType()) {
-            case REQUIRES_NEW:
-            case REQUIRED:
-                LOGGER.logTrace("Transaction for context {0} can no longer be commited.",
-                        transactionContext);
+    private void rollbackTransaction(final Transaction transaction) throws SystemException {
+        switch (transaction.getContext().getType()) {
+        case REQUIRES_NEW:
+        case REQUIRED:
+            LOGGER.logInfo("Set rollback only for {0}.",
+                    transaction.getContext());
+            transaction.setRollbackOnly();
+            break;
+        case NEVER:
+            Assert.assertNotTrue(transaction.isActive(),
+                    "Transaction not permitted for {0}.", transaction.getContext());
+            break;
+        case SUPPORTED:
+            if (transaction.isActive()) {
+                LOGGER.logInfo("Set rollback only for {0}.",
+                        transaction.getContext());
                 transaction.setRollbackOnly();
-                break;
-            case NEVER:
-                Assert.assertNotTrue(transaction.isActive(),
-                        "Transaction not permitted for {0}.", transactionContext);
-                break;
-            case SUPPORTED:
-                if (transaction.isActive()) {
-                    LOGGER.logTrace("Transaction for context {0} can no longer be commited.",
-                            transactionContext);
-                    transaction.setRollbackOnly();
-                }
-                break;
-            default:
-                throw Assert.createUnreachable("Unknown transaction type.");
+            } else {
+                LOGGER.logTrace("Transaction for {0} is not active.",
+                        transaction.getContext());
             }
+            break;
+        default:
+            throw Assert.createUnreachable("Unknown transaction type.");
         }
     }
 }

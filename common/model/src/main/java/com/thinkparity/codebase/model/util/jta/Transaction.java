@@ -11,16 +11,21 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 /**
- * <b>Title:</b>thinkParity Model Transaction<br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity CommonModel Transaction<br>
+ * <b>Description:</b>A think parity model transaction. The transaction is a
+ * simple wrapper around a JTA user transaction. The static context design
+ * enforces a single active transaction per classloader.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 public final class Transaction {
 
     /** A <code>TransactionContext</code>. */
-    private TransactionContext context;
+    private static TransactionContext context;
 
     /** The jta <code>UserTransaction</code>. */
     private final UserTransaction userTransaction;
@@ -44,8 +49,11 @@ public final class Transaction {
      */
     public void begin(final TransactionContext context)
             throws NotSupportedException, SystemException {
+        Assert.assertIsNull(Transaction.context,
+                "Cannot nest transaction within context {0}.",
+                Transaction.context);
         userTransaction.begin();
-        this.context = context;
+        Transaction.context = context;
     }
 
     /**
@@ -56,7 +64,7 @@ public final class Transaction {
      * @return True if the transaction belongs to this context.
      */
     public Boolean belongsTo(final TransactionContext context) {
-        return context.equals(this.context);
+        return context.equals(Transaction.context);
     }
 
     /**
@@ -69,7 +77,11 @@ public final class Transaction {
      */
     public void commit() throws HeuristicMixedException,
             HeuristicRollbackException, RollbackException, SystemException {
-        userTransaction.commit();
+        try {
+            userTransaction.commit();
+        } finally {
+            Transaction.context = null;
+        }
     }
 
     /**
@@ -97,7 +109,7 @@ public final class Transaction {
      * @return True if the transaction is active.
      */
     public Boolean isActive() throws SystemException {
-        return Status.STATUS_ACTIVE == userTransaction.getStatus();
+        return Boolean.valueOf(Status.STATUS_ACTIVE == userTransaction.getStatus());
     }
 
     /**
@@ -107,7 +119,7 @@ public final class Transaction {
      * @throws SystemException
      */
     public Boolean isRollbackOnly() throws SystemException {
-        return userTransaction.getStatus() == Status.STATUS_MARKED_ROLLBACK;
+        return Boolean.valueOf(Status.STATUS_MARKED_ROLLBACK == userTransaction.getStatus());
     }
 
     /**
@@ -116,7 +128,11 @@ public final class Transaction {
      * @throws SystemException
      */
     public void rollback() throws SystemException {
-        userTransaction.rollback();
+        try {
+            userTransaction.rollback();
+        } finally {
+            Transaction.context = null;
+        }
     }
 
     /**

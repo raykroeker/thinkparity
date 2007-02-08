@@ -124,15 +124,13 @@ public final class Session {
 
     /**
      * Commit the session.
-     *
+     * 
+     * @deprecated Since moving to the transaction manager api the individual
+     *             session commit api is no longer needed.
      */
+    @Deprecated
     public void commit() {
-        assertConnectionIsOpen();
-        try {
-            connection.commit();
-        } catch (final SQLException sqlx) {
-            throw panic(sqlx);
-        }
+        LOGGER.logWarning("Commit for session {0} no longer supported.", getId());
     }
 
     /**
@@ -599,10 +597,13 @@ public final class Session {
 		}
 	}
 
+	/**
+     * @deprecated Since moving to the transaction manager api the individual
+     *             session commit api is no longer needed.
+     */
+    @Deprecated
 	public void rollback() {
-		assertConnectionIsOpen();
-		try { connection.commit(); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+        LOGGER.logWarning("Rollback for session {0} no longer supported.", getId());
 	}
 
 	public void setBoolean(final Integer index, final Boolean value) {

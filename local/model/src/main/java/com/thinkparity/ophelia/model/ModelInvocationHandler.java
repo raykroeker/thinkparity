@@ -134,7 +134,7 @@ final class ModelInvocationHandler implements InvocationHandler {
         if (isSetXAContext()) {
             switch (context.getType()) {
             case REQUIRED:
-                XA_LOGGER.logInfo("{0}Join with transaction-{1}.", "\t\t", context);
+                XA_LOGGER.logInfo("{0}Join {1} with {2}.", "\t\t", context, getXAContext());
                 break;
             case REQUIRES_NEW:
                 LOGGER.logFatal("New transaction required-{0}", context);
@@ -142,10 +142,7 @@ final class ModelInvocationHandler implements InvocationHandler {
                 Assert.assertUnreachable("New transaction required-{0}", context);
                 break;
             case NEVER:
-                LOGGER.logFatal("Transaction not permitted for {0}.", context);
-                XA_LOGGER.logFatal("Transaction not permitted for {0}.", context);
-                Assert.assertNotTrue(transaction.isActive(),
-                        "Transaction not permitted for {0}.", context);
+                XA_LOGGER.logInfo("{0}No transaction participation-{1}.", "\t\t", context);
                 break;
             case SUPPORTED:
                 break;
@@ -157,26 +154,14 @@ final class ModelInvocationHandler implements InvocationHandler {
         } else {
             switch (context.getType()) {
             case REQUIRES_NEW:
-                transaction.begin();
+            case REQUIRED:
                 setXAContext(context);
+                transaction.begin();
                 XA_LOGGER.logInfo("Begin transaction-{0}.", context);
                 XA_LOGGER.logVariable("transaction.getStatus()", transaction.getStatus());
                 break;
-            case REQUIRED:
-                if (!transaction.isActive().booleanValue()) {
-                    transaction.begin();
-                    setXAContext(context);
-                    XA_LOGGER.logInfo("Begin transaction-{0}.", context);
-                    XA_LOGGER.logVariable("transaction.getStatus()", transaction.getStatus());
-                } else {
-                    XA_LOGGER.logInfo("{0}Join with transaction-{1}.", "\t\t", context);
-                }
-                break;
             case NEVER:
-                LOGGER.logFatal("Transaction not permitted for {0}.", context);
-                XA_LOGGER.logFatal("Transaction not permitted for {0}.", context);
-                Assert.assertNotTrue(transaction.isActive(),
-                        "Transaction not permitted for {0}.", context);
+                XA_LOGGER.logInfo("{0}No transaction participation-{1}.", "\t\t", context);
                 break;
             case SUPPORTED:
                 break;
@@ -220,10 +205,7 @@ final class ModelInvocationHandler implements InvocationHandler {
             case SUPPORTED:
                 break;
             case NEVER:
-                LOGGER.logFatal("Transaction not permitted for {0}.", context);
-                XA_LOGGER.logFatal("Transaction not permitted for {0}.", context);
-                Assert.assertNotTrue(transaction.isActive(),
-                        "Transaction not permitted for {0}.", context);
+                XA_LOGGER.logInfo("No transaction participation-{0}.", context);
                 break;
             default:
                 LOGGER.logFatal("Unknown transaction type.");
@@ -247,10 +229,12 @@ final class ModelInvocationHandler implements InvocationHandler {
         if (null == transaction) {
             transaction = method.getDeclaringClass().getAnnotation(ThinkParityTransaction.class);
         }
-        LOGGER.logFatal("Method {0} of class {1} does not define transactional behaviour.",
-                method.getName(), method.getDeclaringClass().toString());
-        XA_LOGGER.logFatal("Method {0} of class {1} does not define transactional behaviour.",
-                method.getName(), method.getDeclaringClass().toString());
+        if (null == transaction) {
+            LOGGER.logFatal("Method {0} of class {1} does not define transactional behaviour.",
+                    method.getName(), method.getDeclaringClass().toString());
+            XA_LOGGER.logFatal("Method {0} of class {1} does not define transactional behaviour.",
+                    method.getName(), method.getDeclaringClass().toString());
+        }
         Assert.assertNotNull(transaction,
                 "Method {0} of class {1} does not define transactional behaviour.",
                 method.getName(), method.getDeclaringClass().toString());
@@ -324,10 +308,7 @@ final class ModelInvocationHandler implements InvocationHandler {
             transaction.setRollbackOnly();
             break;
         case NEVER:
-            LOGGER.logFatal("Transaction not permitted for {0}.", context);
-            XA_LOGGER.logFatal("Transaction not permitted for {0}.", context);
-            Assert.assertNotTrue(transaction.isActive(),
-                    "Transaction not permitted for {0}.", context);
+            XA_LOGGER.logInfo("No transaction participation-{0}.", context);
             break;
         case SUPPORTED:
             if (transaction.isActive()) {

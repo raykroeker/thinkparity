@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
+import java.awt.EventQueue;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 
@@ -222,12 +223,18 @@ public abstract class TabModel implements TabDelegate {
 
     /**
      * Synchronize the internal state of the model with the display.
-     *
+     * Ensure the AWT event dispatching thread is used.
      */
     protected void synchronize() {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() { synchronizeImpl(); }
-        });
+        // Use the AWT event dispatching thread. If we are already on the
+        // thread then call directly so the sequence of code is not changed.
+        if (EventQueue.isDispatchThread()) {
+            synchronizeImpl();
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() { synchronizeImpl(); }
+            });
+        }
     }
 
     /**

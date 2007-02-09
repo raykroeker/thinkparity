@@ -30,7 +30,6 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 
 import com.thinkparity.ophelia.model.DownloadMonitor;
 import com.thinkparity.ophelia.model.Model;
@@ -194,6 +193,19 @@ public final class DocumentModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#remove(java.lang.Long)
+     *
+     */
+    public void remove(final Long documentId) {
+        try {
+            final LocalFile localFile = getLocalFile(get(documentId));
+            localFile.lock();
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Delete a document.
      * 
      * @param documentId
@@ -287,59 +299,60 @@ public final class DocumentModelImpl extends
      *            The document content.
      */
     public DocumentVersion handleDocumentPublished(
-            final ContainerArtifactPublishedEvent event) {
+            final DocumentVersion version, final String streamId,
+            final JabberId publishedBy, final Calendar publishedOn) {
         logger.logApiId();
-        logger.logVariable("event", event);
+        logger.logVariable("version", version);
+        logger.logVariable("streamId", streamId);
         try {
             final InternalArtifactModel artifactModel  = getArtifactModel();
             final Document document;
-            final DocumentVersion version;
-            if (artifactModel.doesExist(event.getArtifactUniqueId())) {
+            final DocumentVersion localVersion;
+            if (artifactModel.doesExist(version.getArtifactUniqueId())) {
                 logger.logInfo("Document {0} already exists.",
-                        event.getArtifactUniqueId());
-                document = read(event.getArtifactUniqueId());
+                        version.getArtifactUniqueId());
+                document = read(version.getArtifactUniqueId());
                 if (artifactModel.doesVersionExist(document.getId(),
-                        event.getArtifactVersionId())) {
+                        version.getVersionId())) {
                     logger.logWarning(
                             "Document version {0}:{1} already exists.",
-                            event.getArtifactUniqueId(), event.getArtifactVersionId());
-                    version = readVersion(document.getId(), event.getArtifactVersionId());
+                            version.getArtifactUniqueId(), version.getVersionId());
+                    localVersion = readVersion(document.getId(), version.getVersionId());
                 } else {
                     final File streamFile = downloadStream(new DownloadMonitor() {
                         public void chunkDownloaded(final int chunkSize) {
                             logger.logInfo("Downloaded {0} bytes", chunkSize);
                         }
-                    }, event.getArtifactStreamId());
+                    }, streamId);
                     final InputStream stream = new FileInputStream(streamFile);
                     try {
-                        version = createVersion(document.getId(),
-                                event.getArtifactVersionId(), stream,
-                                event.getPublishedBy(), event.getPublishedOn());
+                        localVersion = createVersion(document.getId(),
+                                version.getVersionId(), stream, publishedBy,
+                                publishedOn);
                     } finally {
                         stream.close();
                     }
                 }
             }
             else {
-                document = create(event.getArtifactUniqueId(),
-                        event.getArtifactName(), event.getPublishedBy(),
-                        event.getPublishedOn());
+                document = create(version.getArtifactUniqueId(),
+                        version.getName(), publishedBy, publishedOn);
                 final File streamFile = downloadStream(new DownloadMonitor() {
                     public void chunkDownloaded(final int chunkSize) {}
-                }, event.getArtifactStreamId());
+                }, streamId);
                 final InputStream stream = new FileInputStream(streamFile);
                 try {
-                    version = createVersion(document.getId(),
-                            event.getArtifactVersionId(), stream,
-                            event.getPublishedBy(), event.getPublishedOn());
+                    localVersion = createVersion(document.getId(),
+                            version.getVersionId(), stream, publishedBy,
+                            publishedOn);
                 } finally {
                     stream.close();
                 }
                 // index
-                final Long containerId = artifactModel.readId(event.getUniqueId());
+                final Long containerId = artifactModel.readId(version.getArtifactUniqueId());
                 getIndexModel().indexDocument(containerId, document.getId());
             }
-            return version;
+            return localVersion;
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -712,7 +725,8 @@ public final class DocumentModelImpl extends
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#readVersions(java.lang.Long, java.util.Comparator)
      *
      */
-    public List<DocumentVersion> readVersions(Long documentId, Comparator<? super ArtifactVersion> comparator) {
+    public List<DocumentVersion> readVersions(Long documentId,
+            Comparator<? super ArtifactVersion> comparator) {
         try {
             final List<DocumentVersion> versions =
                 documentIO.listVersions(documentId);

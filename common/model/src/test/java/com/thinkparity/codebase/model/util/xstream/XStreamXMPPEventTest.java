@@ -15,7 +15,6 @@ import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
-import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
@@ -28,8 +27,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedE
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import org.dom4j.Element;
@@ -115,9 +112,6 @@ public final class XStreamXMPPEventTest extends XStreamTestCase {
         data.add(setUp(new ContactInvitationDeletedEvent(), new ContactInvitationDeletedEvent()));
         data.add(setUp(new ContactInvitationExtendedEvent(), new ContactInvitationExtendedEvent()));
         data.add(setUp(new ContactUpdatedEvent(), new ContactUpdatedEvent()));
-
-        data.add(setUp(new ContainerArtifactPublishedEvent(), new ContainerArtifactPublishedEvent()));
-        data.add(setUp(new ContainerPublishedEvent(), new ContainerPublishedEvent()));
     }
 
     /**
@@ -222,37 +216,6 @@ public final class XStreamXMPPEventTest extends XStreamTestCase {
             final ContactUpdatedEvent event2) {
         event.setContactId(jabberId);
         event.setUpdatedOn(DateUtil.getInstance());
-        return new Fixture(event);
-    }
-
-    private Fixture setUp(final ContainerArtifactPublishedEvent event,
-            final ContainerArtifactPublishedEvent event2) {
-        event.setArtifactChecksum("Artifact checksum.");
-        event.setArtifactCount(10);
-        event.setArtifactIndex(3);
-        event.setArtifactName("Artifact name.");
-        event.setArtifactStreamId("Artifact stream id.");
-        event.setArtifactType(ArtifactType.CONTAINER);
-        event.setArtifactUniqueId(UUID.randomUUID());
-        event.setArtifactVersionId(10L);
-        event.setName("Container name.");
-        event.setPublishedBy(jabberId);
-        event.setPublishedOn(DateUtil.getInstance());
-        event.setUniqueId(UUID.randomUUID());
-        event.setVersionId(10L);
-        return new Fixture(event);
-    }
-
-    private Fixture setUp(final ContainerPublishedEvent event,
-            final ContainerPublishedEvent event2) {
-        event.setArtifactCount(10);
-        event.setComment(null);
-        event.setName("Container name.");
-        event.setPublishedBy(jabberId);
-        event.setPublishedOn(DateUtil.getInstance());
-        event.setPublishedTo(jabberIds);
-        event.setUniqueId(UUID.randomUUID());
-        event.setVersionId(10L);
         return new Fixture(event);
     }
 

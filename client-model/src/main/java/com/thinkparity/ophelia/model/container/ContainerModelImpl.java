@@ -48,7 +48,6 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.ophelia.model.Model;
@@ -90,19 +89,8 @@ public final class ContainerModelImpl extends
         Model<ContainerListener> implements ContainerModel,
         InternalContainerModel {
 
-    private static final PublishMonitor PUBLISH_MONITOR;
-
+    /** The upload stream step increment. */
     private static final int STEP_SIZE = 1024;
-
-    static {
-        PUBLISH_MONITOR = new PublishMonitor() {
-            public void determine(final Integer stages) {}
-            public void processBegin() {}
-            public void processEnd() {}
-            public void stageBegin(final PublishStage stage, final Object data) {}
-            public void stageEnd(final PublishStage stage) {}
-        };
-    }
 
     /** The artifact io layer. */
     private ArtifactIOHandler artifactIO;
@@ -540,84 +528,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Handle the container artifact published remote event. If the container
-     * does not yet exist it will be created; same goes for the version. The
-     * artifact will then be passed off to the appropriate model then attached
-     * to the version.
-     * 
-     * @param uniqueId
-     *            The container <code>UUID</code>.
-     * @param versionId
-     *            The container version id <code>Long</code>.
-     * @param name
-     *            The container name <code>String</code>.
-     * @param artifactUniqueId
-     *            The artifact <code>UUID</code>
-     * @param artifactVersionId
-     *            The artifact version id <code>Long</code>.
-     * @param artifactName
-     *            The artifact name <code>String</code>.
-     * @param artifactType
-     *            The artifact's <code>ArtifactType</code>.
-     * @param artifactChecksum
-     *            The artifact checksum <code>String</code>.
-     * @param artifactBytes
-     *            The artifact bytes <code>byte[]</code>.
-     * @param publishedBy
-     *            The publisher <code>JabberId</code>.
-     * @param publishedOn
-     *            The publish date <code>Calendar</code>.
-     * 
-     * @see #createVersion(Long, Long, JabberId, Calendar)
-     * @see #handleDocumentPublished(UUID, Long, String, String, byte[],
-     *      JabberId, Calendar)
-     * @see #notifyContainerPublished(Container, ContainerDraft,
-     *      ContainerVersion, ContainerEventGenerator)
-     * @see #read(Long)
-     * @see #readVersion(Long, Long)
-     * @see ContainerIndexor#create(Long, String)
-     * @see InternalArtifactModel#createRemoteInfo(Long, JabberId, Calendar)
-     * @see InternalArtifactModel#doesExist(UUID)
-     * @see InternalArtifactModel#doesVersionExist(Long, Long)
-     * @see InternalArtifactModel#readId(UUID)
-     */
-    public void handleArtifactPublished(final ContainerArtifactPublishedEvent event) {
-        logger.logApiId();
-        logger.logVariable("event", event);
-        try {
-            final Container container = handleResolution(event.getUniqueId(),
-                    event.getName(), event.getPublishedBy(),
-                    event.getPublishedOn());
-            final ContainerVersion version = handleVersionResolution(
-                    event.getUniqueId(), event.getVersionId(),
-                    event.getPublishedBy(), event.getPublishedOn());
-
-            // handle the artifact by specific type
-            final ArtifactVersion artifactVersion;
-            switch (event.getArtifactType()) {
-            case DOCUMENT:
-                artifactVersion = handleDocumentPublished(event);
-                break;
-            default:
-                throw Assert.createUnreachable("Cannot publish a container within a container.");
-            }
-            final Long artifactId = getArtifactModel().readId(event.getArtifactUniqueId());
-            logger.logVariable("artifactId", artifactId);
-            if (!containerIO.doesExistVersion(container.getId(),
-                    event.getVersionId(), artifactId,
-                    event.getArtifactVersionId()).booleanValue()) {
-                containerIO.addVersion(version.getArtifactId(),
-                        version.getVersionId(), artifactVersion.getArtifactId(),
-                        artifactVersion.getVersionId(),
-                        artifactVersion.getArtifactType());
-            }
-            
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
      * Handle the remote draft created event. A
      * <code>ContainerDraft</code is created;
      * and the created by <code>JabberId</code> is set as the owner; and a 
@@ -709,82 +619,114 @@ public final class ContainerModelImpl extends
         logger.logApiId();
         logger.logVariable("event", event);
         try {
-            handleResolution(event.getUniqueId(), event.getName(),
-                    event.getPublishedBy(), event.getPublishedOn());
-            handleVersionResolution(event.getUniqueId(), event.getVersionId(),
-                    event.getPublishedBy(), event.getPublishedOn());
-
+            final Container container = handleResolution(event);
+            final ContainerVersion version = handleVersionResolution(event);
+            // handle the documents
+            for (final Entry<DocumentVersion, String> entry :
+                    event.getDocumentVersions().entrySet()) {
+                final ArtifactVersion artifactVersion =
+                    getDocumentModel().handleDocumentPublished(entry.getKey(),
+                            entry.getValue(), event.getPublishedBy(),
+                            event.getPublishedOn());
+                final Long artifactId = getArtifactModel().readId(
+                        entry.getKey().getArtifactUniqueId());
+                logger.logVariable("artifactId", artifactId);
+                if (!containerIO.doesExistVersion(container.getId(),
+                        version.getVersionId(), artifactId,
+                        entry.getKey().getVersionId()).booleanValue()) {
+                    containerIO.addVersion(version.getArtifactId(),
+                            version.getVersionId(),
+                            artifactVersion.getArtifactId(),
+                            artifactVersion.getVersionId(),
+                            artifactVersion.getArtifactType());
+                }
+            }
             final InternalArtifactModel artifactModel = getArtifactModel();
-            final Long containerId = artifactModel.readId(event.getUniqueId());
             // build published to list
             final InternalUserModel userModel = getUserModel();
-            final List<User> publishedToUsers = new ArrayList<User>();
-            for (final JabberId publishedToId : event.getPublishedTo()) {
-                publishedToUsers.add(userModel.readLazyCreate(publishedToId));
+            final List<JabberId> publishedToIds = new ArrayList<JabberId>(event.getPublishedTo().size());
+            final List<User> publishedToUsers = new ArrayList<User>(event.getPublishedTo().size());
+            for (final User publishedToUser : event.getPublishedTo()) {
+                publishedToIds.add(publishedToUser.getId());
+                publishedToUsers.add(userModel.readLazyCreate(publishedToUser.getId()));
             }
             // add only published by user to the team
             final TeamMember publishedBy;
-            final List<TeamMember> localTeam = artifactModel.readTeam2(containerId);
+            final List<TeamMember> localTeam = artifactModel.readTeam2(container.getId());
             if (!contains(localTeam, event.getPublishedBy())) {
-                publishedBy = artifactModel.addTeamMember(containerId, event.getPublishedBy());
+                publishedBy = artifactModel.addTeamMember(container.getId(), event.getPublishedBy());
             } else {
                 publishedBy = localTeam.get(indexOf(localTeam, event.getPublishedBy()));
             }
             // delete draft
-            final ContainerDraft draft = readDraft(containerId);
+            final ContainerDraft draft = readDraft(container.getId());
             if (null == draft) {
-                logger.logWarning("Draft did not previously exist for {0}.", event.getName());
+                logger.logWarning("Draft did not previously exist for {0}.",
+                        container.getName());
             } else {
-                deleteDraft(containerId);
+                deleteDraft(container.getId());
             }
             // create published to list
-            containerIO.createPublishedTo(containerId, event.getVersionId(),
-                    publishedToUsers, event.getPublishedOn());
+            containerIO.createPublishedTo(container.getId(),
+                    version.getVersionId(), publishedToUsers,
+                    event.getPublishedOn());
             // calculate differences
-            final ContainerVersion version = readVersion(containerId, event.getVersionId());
-            final ContainerVersion previous = readPreviousVersion(containerId, event.getVersionId());
-            final ContainerVersion next = readNextVersion(containerId, event.getVersionId());
+            final ContainerVersion previous = readPreviousVersion(container.getId(), version.getVersionId());
+            final ContainerVersion next = readNextVersion(container.getId(), version.getVersionId());
             if (null == previous) {
-                logger.logInfo("First version of {0}.", event.getName());
+                logger.logInfo("First version of {0}.", container.getName());
             } else {
-                containerIO.deleteDelta(containerId, previous.getVersionId(),
+                containerIO.deleteDelta(container.getId(), previous.getVersionId(),
                         version.getVersionId());
-                containerIO.createDelta(calculateDelta(read(containerId),
+                containerIO.createDelta(calculateDelta(container,
                         version, previous));
             }
             if (null == next) {
-                logger.logInfo("Latest version of {0}.", event.getName());
+                logger.logInfo("Latest version of {0}.", container.getName());
             } else {
-                containerIO.deleteDelta(containerId, version.getVersionId(),
-                        next.getVersionId());
-                containerIO.createDelta(calculateDelta(read(containerId),
-                        next, version));
+                containerIO.deleteDelta(container.getId(),
+                        version.getVersionId(), next.getVersionId());
+                containerIO.createDelta(calculateDelta(container, next,
+                        version));
             }
-            // apply comment
-            if (null != event.getComment() && 0 < event.getComment().trim().length())
-                containerIO.updateComment(containerId, version.getVersionId(),
-                        event.getComment());
             // index
-            getIndexModel().indexContainer(containerId);
+// NOCOMMIT
+logger.logTraceId();
+            getIndexModel().indexContainer(container.getId());
+// NOCOMMIT
+logger.logTraceId();
             // send confirmation
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar confirmedOn = sessionModel.readDateTime();
+// NOCOMMIT
+logger.logTraceId();
             sessionModel.confirmArtifactReceipt(localUserId(),
-                    event.getUniqueId(), event.getVersionId(),
+                    container.getUniqueId(), version.getVersionId(),
                     event.getPublishedBy(), event.getPublishedOn(),
-                    event.getPublishedTo(), localUserId(), confirmedOn);
+                    publishedToIds, localUserId(), confirmedOn);
+// NOCOMMIT
+logger.logTraceId();
             // audit\fire event
-            final Container postPublish = read(containerId);
-            final ContainerVersion postPublishVersion = readVersion(containerId, event.getVersionId());
+            final Container postPublish = read(container.getId());
+            final ContainerVersion postPublishVersion = readVersion(
+                    container.getId(), version.getVersionId());
+// NOCOMMIT
+logger.logTraceId();
             auditContainerPublished(postPublish, draft,
                     postPublishVersion, event.getPublishedBy(),
-                    event.getPublishedTo(), event.getPublishedOn());
+                    publishedToIds, event.getPublishedOn());
+// NOCOMMIT
+logger.logTraceId();
             if (null == draft) {
                 notifyVersionPublished(postPublish, postPublishVersion,
                         publishedBy, remoteEventGenerator);
+// NOCOMMIT
+logger.logTraceId();
             } else {
                 notifyDraftPublished(postPublish, draft, postPublishVersion,
                         publishedBy, remoteEventGenerator);
+// NOCOMMIT
+logger.logTraceId();
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -795,19 +737,29 @@ public final class ContainerModelImpl extends
         logger.logApiId();
         logger.logVariable("event", event);
         try {
+// NOCOMMIT
+logger.logTraceId();
             final Long containerId = artifactIO.readId(event.getUniqueId());
             final User receivedBy = getUserModel().readLazyCreate(event.getReceivedBy());
             final ArtifactReceipt receipt = containerIO.readPublishedTo(
                     containerId, event.getVersionId(), event.getPublishedOn(),
                     receivedBy);
+// NOCOMMIT
+logger.logTraceId();
             if (null == receipt) {
                 containerIO.createPublishedTo(containerId, event.getVersionId(),
                         receivedBy, event.getPublishedOn());
+// NOCOMMIT
+logger.logTraceId();
             }
             containerIO.updatePublishedTo(containerId, event.getVersionId(),
                     event.getPublishedOn(), event.getReceivedBy(),
                     event.getReceivedOn());
+// NOCOMMIT
+logger.logTraceId();
             notifyContainerReceived(read(containerId), remoteEventGenerator);
+// NOCOMMIT
+logger.logTraceId();
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -914,53 +866,6 @@ public final class ContainerModelImpl extends
      * @param teamMembers
      *            A list of team members to publish to.
      */
-    public void publish(final Long containerId, final List<Contact> contacts,
-            final List<TeamMember> teamMembers) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("contacts", contacts);
-        logger.logVariable("teamMembers", teamMembers);
-        publish(containerId, null, contacts, teamMembers);
-    }
-
-    /**
-     * Publish the container. Publishing involves determining if the working
-     * version of a document differes from the latest version and if so creating
-     * a new version; then sending the latest version to all team members.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param contacts
-     *            A list of contacts to publish to.
-     * @param teamMembers
-     *            A list of team members to publish to.
-     */
-    public void publish(final Long containerId, final String comment,
-            final List<Contact> contacts, final List<TeamMember> teamMembers) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("comment", comment);
-        logger.logVariable("contacts", contacts);
-        logger.logVariable("teamMembers", teamMembers);
-        try {
-            publish(PUBLISH_MONITOR, containerId, comment, contacts, teamMembers);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Publish the container. Publishing involves determining if the working
-     * version of a document differes from the latest version and if so creating
-     * a new version; then sending the latest version to all team members.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param contacts
-     *            A list of contacts to publish to.
-     * @param teamMembers
-     *            A list of team members to publish to.
-     */
     public void publish(final PublishMonitor monitor, final Long containerId,
             final String comment, final List<Contact> contacts,
             final List<TeamMember> teamMembers) {
@@ -991,7 +896,6 @@ public final class ContainerModelImpl extends
             final ContainerVersion version = createVersion(container.getId(),
                     readNextVersionId(containerId), comment, localUserId(),
                     publishedOn);
-
             // attach artifacts to the version
             final InternalDocumentModel documentModel = getDocumentModel();
             final List<Document> draftDocuments = draft.getDocuments();
@@ -1013,29 +917,31 @@ public final class ContainerModelImpl extends
                             draftDocumentLatestVersion.getArtifactType());
                 }
             }
-            // first version
+            // store differences between this and the previous version
             if (null == previous) {
                 logger.logInfo("First version of {0}.", container.getName());
             } else {
                 // delta previous with version
                 containerIO.createDelta(calculateDelta(read(containerId), version, previous));
             }
-
             fireStageEnd(monitor, PublishStage.CreateVersion);
-
-            doPublishVersion(monitor, containerId, version.getVersionId(),
-                    contacts, teamMembers, publishedOn);
-
             // delete draft
             for (final Artifact artifact : draft.getArtifacts()) {
                 documentModel.deleteDraft(artifact.getId());
                 containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
             }
             containerIO.deleteDraft(containerId);
-
             // remove key
             getArtifactModel().removeFlagKey(container.getId());
-
+            // build the publish to list
+            final List<User> publishToUsers = new ArrayList<User>();
+            publishToUsers.addAll(contacts);
+            publishToUsers.addAll(teamMembers);
+            // create published to list
+            containerIO.createPublishedTo(version.getArtifactId(),
+                    version.getVersionId(), publishToUsers, publishedOn);
+            // publish container contents
+            publish(monitor, version, localUserId(), publishedOn, publishToUsers);
             // fire event
             final Container postPublish = read(container.getId());
             final ContainerVersion postPublishVersion = readVersion(
@@ -1071,46 +977,30 @@ public final class ContainerModelImpl extends
             fireProcessBegin(monitor);
             final Calendar publishedOn = getSessionModel().readDateTime();
             final ContainerVersion version = readVersion(containerId, versionId);
-            final List<JabberId> publishTo = new ArrayList<JabberId>();
             final List<User> publishToUsers = new ArrayList<User>();
             // build the team ids and the publish to list
             final List<JabberId> teamMemberIds =
                 getArtifactModel().readTeamIds(containerId);
             for (final Contact contact : contacts) {
-                publishTo.add(contact.getId());
                 publishToUsers.add(contact);
                 teamMemberIds.add(contact.getId());
             }
             for (final TeamMember teamMember : teamMembers) {
                 if (!contains(publishToUsers, teamMember)) {
-                    if (!containsUser(publishTo, teamMember)) {
-                        publishTo.add(teamMember.getId());
-                        publishToUsers.add(teamMember);
-                    } else {
-                        Assert.assertUnreachable("Inconsistent publish to state.");
-                    }
+                    publishToUsers.add(teamMember);
                 }
-            }
-            // publish
-            publish(monitor, version, readTeam(containerId), publishTo, version
-                    .getCreatedBy(), publishedOn);
-            // update the remote team
-            final InternalSessionModel sessionModel = getSessionModel();
-            final Container container = read(containerId);
-            for (final Contact contact : contacts) {
-                sessionModel.addTeamMember(container.getUniqueId(),
-                        teamMemberIds, contact.getId());
-
             }
             // only create a published to reference if one for the user does not
             // already exist
             final Map<User, ArtifactReceipt> publishedTo =
                 containerIO.readPublishedTo(containerId, versionId);
-            for (final User user : publishToUsers) {
-                if (!publishedTo.containsKey(user))
+            for (final User publishToUser : publishToUsers) {
+                if (!publishedTo.containsKey(publishToUser))
                     containerIO.createPublishedTo(containerId, versionId,
-                            user, publishedOn);
+                            publishToUser, publishedOn);
             }
+            // publish
+            publish(monitor, version, version.getCreatedBy(), publishedOn, publishToUsers);
             // fire event
             final Container postPublish = read(containerId);
             final ContainerVersion postPublishVersion =
@@ -1755,12 +1645,13 @@ public final class ContainerModelImpl extends
         case NONE:
             containerIO.createDraftArtifactRel(
                     containerId, document.getId(), ContainerDraft.ArtifactState.REMOVED);
+            getDocumentModel().remove(document.getId());
             break;
         case REMOVED:   // fall through
         default:
             Assert.assertUnreachable("UNKNOWN ARTIFACT STATE");
         }
-
+        // fire event
         final Container postAdditionContainer = read(containerId);        
         final ContainerDraft postAdditionDraft = readDraft(containerId);
         notifyDocumentRemoved(postAdditionContainer, postAdditionDraft, document, localEventGenerator);
@@ -2356,49 +2247,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Publish a container.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A container version id <code>Long</code>.
-     */
-    private void doPublishVersion(final PublishMonitor monitor,
-            final Long containerId, final Long versionId,
-            final List<Contact> contacts, final List<TeamMember> teamMembers,
-            final Calendar publishedOn) throws IOException {
-        final Container container = read(containerId);
-        final ContainerVersion version = readVersion(containerId, versionId);
-        // build the team ids
-        final List<JabberId> teamMemberIds =
-            getArtifactModel().readTeamIds(containerId);
-        // build the publish to list
-        final List<JabberId> publishTo = new ArrayList<JabberId>();
-        final List<User> publishToUsers = new ArrayList<User>();
-        for (final Contact contact : contacts) {
-            publishTo.add(contact.getId());
-            publishToUsers.add(contact);
-            teamMemberIds.add(contact.getId());
-        }
-        for (final TeamMember teamMember : teamMembers) {
-            publishTo.add(teamMember.getId());
-            publishToUsers.add(teamMember);
-            if (!containsUser(teamMemberIds, teamMember))
-                teamMemberIds.add(teamMember.getId());
-        }
-        // publish container contents
-        publish(monitor, version, readTeam(containerId), publishTo,
-                localUserId(), publishedOn);
-        // update remote team
-        for (final Contact contact : contacts)
-            getSessionModel().addTeamMember(container.getUniqueId(),
-                    teamMemberIds, contact.getId());
-        // create published to list
-        containerIO.createPublishedTo(containerId,
-                version.getVersionId(), publishToUsers, publishedOn);
-    }
-
-    /**
      * Export a container and a list of versions.
      * 
      * @param exportDirectory
@@ -2543,53 +2391,20 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Handle a document published remote event.
-     * 
-     * @param uniqueId
-     *            The document unique id <code>UUID</code>.
-     * @param versionId
-     *            The document version id <code>Long</code>.
-     * @param name
-     *            The document name <code>String</code>
-     * @param checksum
-     *            The document checksum <code>String</code>.
-     * @param streamId
-     *            The document stream id <code>String</code>.
-     * @param publishedBy
-     *            The publish user <code>JabberId</code>.
-     * @param publishedOn
-     *            The publish date <code>Calendar</code>.
-     * @return A new <code>DocumentVersion</code>.
-     * 
-     * @throws IOException
-     * 
-     * @see InternalDocumentModel#handleDocumentPublished(JabberId, Calendar, UUID, Long, String, String, InputStream)
-     */
-    private DocumentVersion handleDocumentPublished(
-            final ContainerArtifactPublishedEvent event) throws IOException {
-        return getDocumentModel().handleDocumentPublished(event);
-    }
-
-    /**
      * Handle the resolution of a container. If the container does not exist it
      * will be created.
      * 
-     * @param uniqueId
-     *            A container unique id <code>UUID</code>.
-     * @param name
-     *            A container name <code>String</code>.
-     * @param versionId
-     *            A container version id <code>Long</code>.
-     * @param publishedBy
-     *            A container published by user id <code>JabberId</code>.
-     * @param publishedOn
-     *            A conatiner published on <code>Calendar</code>.
+     * @param event
+     *            A <code>ContainerPublishedEvent</code>.
      * @return A <code>Container</code>.
      */
-    private Container handleResolution(final UUID uniqueId, final String name,
-            final JabberId publishedBy, final Calendar publishedOn) {
+    private Container handleResolution(final ContainerPublishedEvent event) {
         // determine the existance of the container and the version.
         final InternalArtifactModel artifactModel = getArtifactModel();
+        final UUID uniqueId = event.getVersion().getArtifactUniqueId();
+        final JabberId publishedBy = event.getPublishedBy();
+        final Calendar publishedOn = event.getPublishedOn();
+        final String name = event.getVersion().getName();
         final boolean doesExist = artifactModel.doesExist(uniqueId).booleanValue();
         final Container container;
         if (doesExist) {
@@ -2634,17 +2449,21 @@ public final class ContainerModelImpl extends
      *            A conatiner published on <code>Calendar</code>.
      * @return A <code>ContainerVersion</code>.
      */
-    private ContainerVersion handleVersionResolution(final UUID uniqueId,
-            final Long versionId, final JabberId publishedBy,
-            final Calendar publishedOn) {
+    private ContainerVersion handleVersionResolution(
+            final ContainerPublishedEvent event) {
         final InternalArtifactModel artifactModel = getArtifactModel();
+        final UUID uniqueId = event.getVersion().getArtifactUniqueId();
         final Long containerId = artifactModel.readId(uniqueId);
+        final Long versionId = event.getVersion().getVersionId();
+        final JabberId publishedBy = event.getPublishedBy();
+        final Calendar publishedOn = event.getPublishedOn();
+        final String comment = event.getVersion().getComment();
         final ContainerVersion version;
         if (artifactModel.doesVersionExist(containerId, versionId).booleanValue()) {
             version = readVersion(containerId, versionId);
         } else {
-            version = createVersion(containerId, versionId, null, publishedBy,
-                    publishedOn);
+            version = createVersion(containerId, versionId, comment,
+                    publishedBy, publishedOn);
         }
         return version;
     }
@@ -2945,21 +2764,28 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Publish a container.
+     * Upload the documents for a version. Then call the remote publish api.
      * 
-     * @param container
-     *            A container.
-     * @param publishTo
-     *            A list of ids to publish to.
+     * @param monitor
+     *            A <code>PublishMonitor</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param contacts
+     *            A <code>List</code> of <code>Contact</code>s.
+     * @param teamMembers
+     *            A <code>List</code> of <code>TeamMember</code>s.
+     * @param emailAddresses
+     *            A <code>List</code> of <code>EMail</code>s.
      * @param publishedBy
-     *            The publisher.
+     *            A published by user id <code>JabberId</code>.
      * @param publishedOn
-     *            The publish date.
+     *            A published on <code>Calendar</code>.
+     * @throws IOException
      */
     private void publish(final PublishMonitor monitor,
-            final ContainerVersion version, final List<TeamMember> team,
-            final List<JabberId> publishTo, final JabberId publishedBy,
-            final Calendar publishedOn) throws IOException {
+            final ContainerVersion version, final JabberId publishedBy,
+            final Calendar publishedOn, final List<User> publishedTo)
+            throws IOException {
         final Map<DocumentVersion, InputStream> documentVersionStreams =
             readDocumentVersionStreams(version.getArtifactId(),
                     version.getVersionId());
@@ -2990,8 +2816,9 @@ public final class ContainerModelImpl extends
         }
         getSessionModel().deleteStreamSession(session);
         fireStageBegin(monitor, PublishStage.PublishContainer);
-        getSessionModel().publish(version, documentVersionStreamIds, team,
-                publishTo, publishedBy, publishedOn);
+        getSessionModel().publish(version, documentVersionStreamIds,
+                readTeam(version.getArtifactId()), publishedBy, publishedOn,
+                publishedTo);
         fireStageEnd(monitor, PublishStage.PublishContainer);
     }
 

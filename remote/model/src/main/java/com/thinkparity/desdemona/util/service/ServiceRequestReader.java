@@ -5,13 +5,19 @@ package com.thinkparity.desdemona.util.service;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
+import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
 
 /**
  * <b>Title:</b><br>
@@ -25,7 +31,46 @@ public interface ServiceRequestReader {
 
     public Calendar readCalendar(final String name);
 
+    /**
+     * Read contacts.
+     * 
+     * @param name
+     *            A parameter name.
+     * @return A <code>List</code> of <code>Contact</code>s.
+     */
+    public List<Contact> readContacts(final String name);
+
+    /**
+     * Read a container version.
+     * 
+     * @param name
+     *            A parameter name <code>String</code>.
+     * @return A <code>ContainerVersion</code>.
+     */
+    public ContainerVersion readContainerVersion(final String name);
+
+    public List<DocumentVersion> readDocumentVersions(final String name);
+
+    /**
+     * Read document version and stream ids.
+     * 
+     * @param name
+     *            A parameter name.
+     * @return A <code>Map</code> of <code>DocumentVersion</code> and their
+     *         stream id <code>String</code>.
+     */
+    public Map<DocumentVersion, String> readDocumentVersionsStreamIds(final String name);
+
     public EMail readEMail(final String name);
+
+    /**
+     * Read email addresses.
+     * 
+     * @param name
+     *            A parameter name.
+     * @return A <code>List</code> of <code>EMail</code>s.
+     */
+    public List<EMail> readEMails(final String name);
 
     /**
      * Read an integer parameter from the internet query.
@@ -66,6 +111,7 @@ public interface ServiceRequestReader {
      */
     public Long readLong(final String name);
 
+
     /**
      * Read long data.
      *
@@ -94,6 +140,24 @@ public interface ServiceRequestReader {
      * @return The data; or null if the data does not exist.
      */
     public String readString(final String name);
+
+    /**
+     * Read team members.
+     * 
+     * @param name
+     *            A parameter name.
+     * @return A <code>List</code> of <code>TeamMember</code>s.
+     */
+    public List<TeamMember> readTeamMembers(final String name);
+
+    /**
+     * Read users.
+     * 
+     * @param name
+     *            A parameter name <code>String</code>.
+     * @return A <code>List</code> of <code>User</code>s.
+     */
+    public List<User> readUsers(final String name);
 
     /**
      * Read a unique id.

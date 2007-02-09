@@ -1153,11 +1153,11 @@ public abstract class Model<T extends EventListener> extends
         }
         final Long actualStreamOffset;
         if (skipped == streamOffset.longValue()) {
-            logger.logInfo("Resuming download for {0} at {1}.",
+            logger.logInfo("Resuming upload for {0} at {1}.",
                     session, streamOffset);
             actualStreamOffset = streamOffset;
         } else {
-            logger.logWarning("Could not resume download for {0} at {1}.  Starting over.",
+            logger.logWarning("Could not resume upload for {0} at {1}.  Starting over.",
                     session, streamOffset);
             actualStreamOffset = 0L;
         }

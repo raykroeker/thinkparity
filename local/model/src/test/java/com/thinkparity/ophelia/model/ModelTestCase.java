@@ -83,7 +83,17 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     /** Number of files to use from the total test input set. */
     private static final Integer NUMBER_OF_INPUT_FILES = 7;
 
+    /** A publish monitor. */
+    private static final PublishMonitor PUBLISH_MONITOR;
+
     static {
+        PUBLISH_MONITOR = new PublishMonitor() {
+            public void determine(final Integer stages) {}
+            public void processBegin() {}
+            public void processEnd() {}
+            public void stageBegin(final PublishStage stage, final Object data) {}
+            public void stageEnd(final PublishStage stage) {}
+        };
         USER_UTILS = UserUtils.getInstance();
     }
 
@@ -1348,7 +1358,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 fail("Cannot publish to nobody.");
             }
         }
-        getContainerModel(publishAs).publish(localContainerId, comment, contacts, teamMembers);
+        getContainerModel(publishAs).publish(PUBLISH_MONITOR, localContainerId, comment, contacts, teamMembers);
     }
 
     /**

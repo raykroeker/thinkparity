@@ -9,19 +9,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
-import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
@@ -53,142 +53,134 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Publish the container version.
+     * Determine if a list contains a user.
      * 
-     * @param uniqueId
-     *            A container unique id.
-     * @param versionId
-     *            A container version id.
-     * @param name
-     *            A container name.
-     * @param artifactCount
-     *            The number of artifacts in the container version.
-     * @param publishedBy
-     *            By whom the container was published.
-     * @param publishedTo
-     *            To whom to container was published.
-     * @param publishedOn
-     *            When the container was published.
+     * @param <U>
+     *            A type of <code>User</code>.
+     * @param list
+     *            A <code>User</code> <code>List</code>.
+     * @param o
+     *            A <code>User</code>
+     * @return True if the list contains the user.
      */
-    void publish(final UUID uniqueId, final Long versionId, final String name,
-            final String comment, final Integer artifactCount,
-            final List<JabberId> team, final JabberId publishedBy,
-            final List<JabberId> publishedTo, final Calendar publishedOn) {
+    public <T extends User> boolean contains(
+            final List<T> list, final JabberId id) {
+        return -1 < indexOf(list, id);
+    }
+
+    /**
+     * Determine if a list contains a user.
+     * 
+     * @param <U>
+     *            A type of <code>User</code>.
+     * @param list
+     *            A <code>User</code> <code>List</code>.
+     * @param o
+     *            A <code>User</code>
+     * @return True if the list contains the user.
+     */
+    public <T extends User, U extends User> boolean contains(
+            final List<T> list, final U o) {
+        return -1 < indexOf(list, o);
+    }
+
+    /**
+     * Obtain the index of a user in the list.
+     * 
+     * @param <U>
+     *            A type of <code>User</code>.
+     * @param list
+     *            A user <code>List</code>.
+     * @param o
+     *            A <code>User</code>
+     * @return The index of the first user in the list with a matching id; or -1
+     *         if no such user exists.
+     */
+    public <T extends User, U extends User> int indexOf(final List<T> users,
+            final U user) {
+        return indexOf(users, user.getId());
+    }
+
+    /**
+     * Obtain the index of a user in the list with the given id.
+     * 
+     * @param <U>
+     *            A type of <code>User</code>.
+     * @param list
+     *            A user <code>List</code>.
+     * @param id
+     *            A user id <code>JabberId</code>.
+     * @return The index of the first user in the list with a matching id; or -1
+     *         if no such user exists.
+     */
+    public <U extends User> int indexOf(final List<U> list, final JabberId o) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getId().equals(o))
+                return i;
+        }
+        return -1;
+    }
+
+    protected final <T extends User, U extends User> void assertNotContains(
+            final List<T> list, final U element, final String message,
+            final Object... messageArguments) {
+        Assert.assertNotTrue(contains(list, element), message, messageArguments);
+    }
+
+    // TODO-javadoc ContainerModelImpl#publish
+    void publish(final JabberId userId, final ContainerVersion version,
+            final Map<DocumentVersion, String> documentVersions,
+            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final Calendar publishedOn, final List<User> publishedTo) {
         logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("name", name);
-        logger.logVariable("comment", comment);
-        logger.logVariable("artifactCount", artifactCount);
-        logger.logVariable("team", team);
+        logger.logVariable("userId", userId);
+        logger.logVariable("version", version);
+        logger.logVariable("documentVersions", documentVersions);
+        logger.logVariable("teamMembers", teamMembers);
         logger.logVariable("publishedBy", publishedBy);
-        logger.logVariable("publishedTo", publishedTo);
         logger.logVariable("publishedOn", publishedOn);
+        logger.logVariable("publishedTo", publishedTo);
         try {
+            final List<JabberId> publishedToIds = new ArrayList<JabberId>();
+            final List<JabberId> teamMemberIds = new ArrayList<JabberId>();
+            for (final User publishedToUser : publishedTo)
+                publishedToIds.add(publishedToUser.getId());
+            for (final TeamMember teamMember : teamMembers)
+                teamMemberIds.add(teamMember.getId());
+
             final ContainerPublishedEvent publishedEvent = new ContainerPublishedEvent();
-            publishedEvent.setArtifactCount(artifactCount);
-            publishedEvent.setComment(comment);
-            publishedEvent.setName(name);
+            publishedEvent.setDocumentVersions(documentVersions);
             publishedEvent.setPublishedBy(publishedBy);
             publishedEvent.setPublishedOn(publishedOn);
             publishedEvent.setPublishedTo(publishedTo);
-            publishedEvent.setUniqueId(uniqueId);
-            publishedEvent.setVersionId(versionId);
-            enqueueEvent(session.getJabberId(), publishedTo, publishedEvent);
+            publishedEvent.setVersion(version);
+            enqueueEvent(session.getJabberId(), publishedToIds, publishedEvent);
 
             final ArtifactPublishedEvent artifactPublishedEvent = new ArtifactPublishedEvent();
             artifactPublishedEvent.setPublishedBy(publishedBy);
             artifactPublishedEvent.setPublishedOn(publishedOn);
-            artifactPublishedEvent.setUniqueId(uniqueId);
-            artifactPublishedEvent.setVersionId(versionId);
-            artifactPublishedEvent.setTeamUserIds(team);
-            final List<JabberId> enqueueTo = new ArrayList<JabberId>(team.size() + publishedTo.size());
-            for (final JabberId jabberId : team)
-                enqueueTo.add(jabberId);
-            for (final JabberId jabberId : publishedTo) {
-                if (!enqueueTo.contains(jabberId))
-                    enqueueTo.add(jabberId);
+            artifactPublishedEvent.setUniqueId(version.getArtifactUniqueId());
+            artifactPublishedEvent.setVersionId(version.getVersionId());
+            artifactPublishedEvent.setTeamUserIds(teamMemberIds);
+            final List<JabberId> enqueueTo = new ArrayList<JabberId>(teamMembers.size() + publishedTo.size());
+            for (final TeamMember teamMember : teamMembers) {
+                enqueueTo.add(teamMember.getId());
+            }
+            for (final JabberId publishedToId : publishedToIds) {
+                if (!enqueueTo.contains(publishedToId))
+                    enqueueTo.add(publishedToId);
             }
             enqueueEvent(session.getJabberId(), enqueueTo, artifactPublishedEvent);
 
-            final Artifact artifact = getArtifactModel().read(uniqueId);
+            for (final User publishedToUser : publishedTo) {
+                if (!contains(teamMembers, publishedToUser))
+                    getArtifactModel().addTeamMember(userId, teamMemberIds,
+                            version.getArtifactUniqueId(), publishedToUser.getId());
+            }
+
+            final Artifact artifact = getArtifactModel().read(version.getArtifactUniqueId());
             artifactSql.updateKeyHolder(artifact.getId(),
                     User.THINK_PARITY.getId().getUsername(), publishedBy);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Publish a container version artifact version to a subset of team members.
-     * 
-     * @param uniqueId
-     *            A container unique id.
-     * @param versionId
-     *            A container version id.
-     * @param name
-     *            A container name.
-     * @param artifactCount
-     *            An artifact count for the container version.
-     * @param artifactIndex
-     *            The artifact's index in the container version.
-     * @param artifactUniqueId
-     *            An artifact unique id.
-     * @param artifactVersionId
-     *            An artifact version id.
-     * @param artifactName
-     *            An artifact name.
-     * @param artifactType
-     *            An artifact type.
-     * @param artifactChecksum
-     *            An artifact checksum.
-     * @param artifactStreamId
-     *            A stream id.
-     * @param publishTo
-     *            To whom the container was published.
-     * @param publishedBy
-     *            By whom the artifact was published.
-     * @param publishedOn
-     *            When the artifact was published.
-     */
-    void publishArtifact(final UUID uniqueId, final Long versionId,
-            final String name, final Integer artifactCount,
-            final Integer artifactIndex, final UUID artifactUniqueId,
-            final Long artifactVersionId, final String artifactName,
-            final ArtifactType artifactType, final String artifactChecksum,
-            final String artifactStreamId, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("name", name);
-        logVariable("artifactCount", artifactCount);
-        logVariable("artifactIndex", artifactIndex);
-        logVariable("artifactUniqueId", artifactUniqueId);
-        logVariable("artifactVersionId", artifactVersionId);
-        logVariable("artifactName", artifactName);
-        logVariable("artifactType", artifactType);
-        logVariable("artifactChecksum", artifactChecksum);
-        logVariable("artifactStreamId", artifactStreamId);
-        logVariable("publishTo", publishTo);
-        logVariable("publishedBy", publishedBy);
-        logVariable("publishedOn", publishedOn);
-        try {
-            final ContainerArtifactPublishedEvent publishArtifactEvent = new ContainerArtifactPublishedEvent();
-            publishArtifactEvent.setArtifactChecksum(artifactChecksum);
-            publishArtifactEvent.setArtifactName(artifactName);
-            publishArtifactEvent.setArtifactStreamId(artifactStreamId);
-            publishArtifactEvent.setArtifactType(artifactType);
-            publishArtifactEvent.setArtifactUniqueId(artifactUniqueId);
-            publishArtifactEvent.setArtifactVersionId(artifactVersionId);
-            publishArtifactEvent.setArtifactCount(artifactCount);
-            publishArtifactEvent.setArtifactIndex(artifactIndex);
-            publishArtifactEvent.setName(name);
-            publishArtifactEvent.setUniqueId(uniqueId);
-            publishArtifactEvent.setVersionId(versionId);
-            publishArtifactEvent.setPublishedBy(publishedBy);
-            publishArtifactEvent.setPublishedOn(publishedOn);
-            enqueueEvent(session.getJabberId(), publishTo, publishArtifactEvent);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -276,33 +268,6 @@ class ContainerModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
-     * Read the archived document versions for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A unique id </code>UUID </code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param documentUniqueId
-     *            A document unique id <code>UUID</code>.
-     * @return A <code>List&lt;DocumentVersion&gt;</code>.
-     */
-    List<DocumentVersion> readArchiveDocumentVersions(final JabberId userId,
-            final UUID uniqueId, final Long versionId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        try {
-            assertIsAuthenticatedUser(userId);
-            return getArchiveModel().getDocumentReader(userId, uniqueId, versionId)
-                    .readVersions(null);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
     Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
             final JabberId userId, final UUID uniqueId, final Long compareVersionId) {
         logApiId();
@@ -333,6 +298,33 @@ class ContainerModelImpl extends AbstractModelImpl {
             throw translateError(t);
         }
     }
+    /**
+     * Read the archived document versions for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id </code>UUID </code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param documentUniqueId
+     *            A document unique id <code>UUID</code>.
+     * @return A <code>List&lt;DocumentVersion&gt;</code>.
+     */
+    List<DocumentVersion> readArchiveDocumentVersions(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return getArchiveModel().getDocumentReader(userId, uniqueId, versionId)
+                    .readVersions(null);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     Map<User, ArtifactReceipt> readArchivePublishedTo(final JabberId userId, final UUID uniqueId, final Long versionId) {
         logger.logApiId();
@@ -342,21 +334,6 @@ class ContainerModelImpl extends AbstractModelImpl {
         try {
             assertIsAuthenticatedUser(userId);
             return getArchiveModel().getContainerReader(userId)
-                    .readPublishedTo(uniqueId, versionId);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    Map<User, ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
-            final UUID uniqueId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        try {
-            assertIsAuthenticatedUser(userId);
-            return getBackupModel().getContainerReader(userId)
                     .readPublishedTo(uniqueId, versionId);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -472,6 +449,21 @@ class ContainerModelImpl extends AbstractModelImpl {
             assertIsAuthenticatedUser(userId);
             return getBackupModel().getDocumentReader(userId, uniqueId, versionId)
                     .readVersions(null);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    Map<User, ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return getBackupModel().getContainerReader(userId)
+                    .readPublishedTo(uniqueId, versionId);
         } catch (final Throwable t) {
             throw translateError(t);
         }

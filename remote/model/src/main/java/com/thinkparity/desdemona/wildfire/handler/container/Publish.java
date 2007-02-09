@@ -5,9 +5,14 @@ package com.thinkparity.desdemona.wildfire.handler.container;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
@@ -39,22 +44,21 @@ public final class Publish extends AbstractHandler {
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
         logger.logApiId();
-        publish(provider, reader.readUUID("uniqueId"),
-                reader.readLong("versionId"), reader.readString("name"),
-                reader.readString("comment"),
-                reader.readInteger("artifactCount"),
-                reader.readJabberIds("team", "team-element"),
+        publish(provider, reader.readJabberId("userId"),
+                reader.readContainerVersion("version"),
+                reader.readDocumentVersionsStreamIds("documentVersions"),
+                reader.readTeamMembers("teamMembers"),
                 reader.readJabberId("publishedBy"),
-                reader.readJabberIds("publishedTo", "publishedTo"),
-                reader.readCalendar("publishedOn"));
+                reader.readCalendar("publishedOn"),
+                reader.readUsers("publishedTo"));
     }
 
-    private void publish(final ServiceModelProvider context,
-            final UUID uniqueId, final Long versionId, final String name,
-            final String comment, final Integer artifactCount,
-            final List<JabberId> team, final JabberId publishedBy,
-            final List<JabberId> publishedTo, final Calendar publishedOn) {
-        context.getContainerModel().publish(uniqueId, versionId, name, comment,
-                artifactCount, team, publishedBy, publishedTo, publishedOn);
+    private void publish(final ServiceModelProvider provider,
+            final JabberId userId, final ContainerVersion version,
+            final Map<DocumentVersion, String> documentVersions,
+            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final Calendar publishedOn, final List<User> publishedTo) {
+        provider.getContainerModel().publish(userId, version, documentVersions,
+                teamMembers, publishedBy, publishedOn, publishedTo);
     }
 }

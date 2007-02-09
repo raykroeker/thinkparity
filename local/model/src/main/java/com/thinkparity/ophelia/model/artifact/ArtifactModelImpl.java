@@ -369,11 +369,17 @@ public final class ArtifactModelImpl extends Model implements
         logger.logApiId();
         logger.logVariable("event", event);
         try {
+// NOCOMMIT
+logger.logTraceId();
             final Long artifactId = artifactIO.readId(event.getUniqueId());
             if (doesVersionExist(artifactId, event.getVersionId())) {
+// NOCOMMIT
+logger.logTraceId();
                 switch (artifactIO.readType(artifactId)) {
                 case CONTAINER:
                     getContainerModel().handleReceived(event);
+// NOCOMMIT
+logger.logTraceId();
                     break;
                 default:
                     Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");

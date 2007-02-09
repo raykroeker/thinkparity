@@ -188,32 +188,6 @@ public interface ContainerModel {
      * @param contacts
      *            A list of contacts to publish to.
      */
-    public void publish(final Long containerId, final List<Contact> contacts,
-            final List<TeamMember> teamMembers);
-
-    /**
-     * Publish the container.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param teamMembers
-     *            A list of team members to publish to.
-     * @param contacts
-     *            A list of contacts to publish to.
-     */
-    public void publish(final Long containerId, final String comment,
-            final List<Contact> contacts, final List<TeamMember> teamMembers);
-
-    /**
-     * Publish the container.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param teamMembers
-     *            A list of team members to publish to.
-     * @param contacts
-     *            A list of contacts to publish to.
-     */
     public void publish(final PublishMonitor monitor, final Long containerId,
             final String comment, final List<Contact> contacts,
             final List<TeamMember> teamMembers);

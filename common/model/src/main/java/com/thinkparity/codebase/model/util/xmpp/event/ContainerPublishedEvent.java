@@ -3,11 +3,18 @@
  */
 package com.thinkparity.codebase.model.util.xmpp.event;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.User;
 
 /**
  * <b>Title:</b><br>
@@ -17,14 +24,11 @@ import com.thinkparity.codebase.jabber.JabberId;
  */
 public final class ContainerPublishedEvent extends XMPPEvent {
 
-    /** How many artifacts in the container. */
-    private Integer artifactCount;
-
-    /** A version comment. */
-    private String comment;
-
-    /** The name of the container. */
-    private String name;
+    /**
+     * The <code>DocumentVersion</code>s and their stream id
+     * <code>String</code>s.
+     */
+    private final Map<DocumentVersion, String> documentVersions;
 
     /** Who published the container. */
     private JabberId publishedBy;
@@ -33,13 +37,10 @@ public final class ContainerPublishedEvent extends XMPPEvent {
     private Calendar publishedOn;
 
     /** Who the container was published to. */
-    private List<JabberId> publishedTo;
+    private final List<User> publishedTo;
 
-    /** The artifact unique id. */
-    private UUID uniqueId;
-
-    /** Which version was published. */
-    private Long versionId;
+    /** The <code>ContainerVersion</code>. */
+    private ContainerVersion version;
 
     /**
      * Create ContainerPublishedEvent.
@@ -47,33 +48,20 @@ public final class ContainerPublishedEvent extends XMPPEvent {
      */
     public ContainerPublishedEvent() {
         super();
+        this.documentVersions = new HashMap<DocumentVersion, String>();
+        this.publishedTo = new ArrayList<User>();
     }
 
-    /**
-     * Obtain artifactCount.
-     *
-     * @return A Integer.
-     */
-    public Integer getArtifactCount() {
-        return artifactCount;
+    public void clearDocumentVersions() {
+        documentVersions.clear();
     }
 
-    /**
-     * Obtain comment.
-     *
-     * @return A String.
-     */
-    public String getComment() {
-        return comment;
+    public void clearPublishedTo() {
+        this.publishedTo.clear();
     }
 
-    /**
-     * Obtain name.
-     *
-     * @return A String.
-     */
-    public String getName() {
-        return name;
+    public Map<DocumentVersion, String> getDocumentVersions() {
+        return Collections.unmodifiableMap(documentVersions);
     }
 
     /**
@@ -99,63 +87,28 @@ public final class ContainerPublishedEvent extends XMPPEvent {
      *
      * @return A List<JabberId>.
      */
-    public List<JabberId> getPublishedTo() {
-        return publishedTo;
+    public List<User> getPublishedTo() {
+        return Collections.unmodifiableList(publishedTo);
     }
 
     /**
-     * Obtain uniqueId.
+     * Obtain version.
      *
-     * @return A UUID.
+     * @return A ContainerVersion.
      */
-    public UUID getUniqueId() {
-        return uniqueId;
+    public ContainerVersion getVersion() {
+        return version;
     }
 
-    /**
-     * Obtain versionId.
-     *
-     * @return A Long.
-     */
-    public Long getVersionId() {
-        return versionId;
-    }
-
-    /**
-     * Set artifactCount.
-     *
-     * @param artifactCount
-     *		A Integer.
-     */
-    public void setArtifactCount(final Integer artifactCount) {
-        this.artifactCount = artifactCount;
-    }
-
-    /**
-     * Set comment.
-     *
-     * @param comment
-     *		A String.
-     */
-    public void setComment(final String comment) {
-        this.comment = comment;
-    }
-
-    /**
-     * Set name.
-     *
-     * @param name
-     *		A String.
-     */
-    public void setName(final String name) {
-        this.name = name;
+    public void setDocumentVersions(final Map<DocumentVersion, String> documentVersions) {
+        this.documentVersions.putAll(documentVersions);
     }
 
     /**
      * Set publishedBy.
      *
      * @param publishedBy
-     *		A JabberId.
+     *      A JabberId.
      */
     public void setPublishedBy(final JabberId publishedBy) {
         this.publishedBy = publishedBy;
@@ -165,7 +118,7 @@ public final class ContainerPublishedEvent extends XMPPEvent {
      * Set publishedOn.
      *
      * @param publishedOn
-     *		A Calendar.
+     *      A Calendar.
      */
     public void setPublishedOn(final Calendar publishedOn) {
         this.publishedOn = publishedOn;
@@ -175,29 +128,19 @@ public final class ContainerPublishedEvent extends XMPPEvent {
      * Set publishedTo.
      *
      * @param publishedTo
-     *		A List<JabberId>.
+     *      A List<JabberId>.
      */
-    public void setPublishedTo(final List<JabberId> publishedTo) {
-        this.publishedTo = publishedTo;
+    public void setPublishedTo(final List<User> publishedTo) {
+        this.publishedTo.addAll(publishedTo);
     }
 
     /**
-     * Set uniqueId.
+     * Set version.
      *
-     * @param uniqueId
-     *		A UUID.
+     * @param version
+     *      A ContainerVersion.
      */
-    public void setUniqueId(final UUID uniqueId) {
-        this.uniqueId = uniqueId;
-    }
-
-    /**
-     * Set versionId.
-     *
-     * @param versionId
-     *		A Long.
-     */
-    public void setVersionId(final Long versionId) {
-        this.versionId = versionId;
+    public void setVersion(final ContainerVersion version) {
+        this.version = version;
     }
 }

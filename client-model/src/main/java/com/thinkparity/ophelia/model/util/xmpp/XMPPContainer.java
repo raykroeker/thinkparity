@@ -3,21 +3,17 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.Constants.Xml.Service;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.util.xmpp.event.ContainerListener;
 
@@ -41,67 +37,26 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
         super(xmppCore);
     }
 
-    /**
-     * Publish a container.
-     * 
-     * @param container
-     *            A container.
-     * @param documents
-     *            A list of documents and their content.
-     * @param publishTo
-     *            Whom the container is to be published to.
-     * @param publishedBy
-     *            Who the container is published by.
-     * @param publishedOn
-     *            When the container is published.
-     * @throws IOException
-     */
-    void publish(final ContainerVersion container,
-            final Map<DocumentVersion, String> documents,
-            final List<TeamMember> team, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn) {
+    // TODO-javadoc XMPPContainer#publish
+    void publish(final JabberId userId, final ContainerVersion version,
+            final Map<DocumentVersion, String> documentVersions,
+            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final Calendar publishedOn, final List<User> publishedTo) {
         logger.logApiId();
-        logger.logVariable("container", container);
-        logger.logVariable("documents", documents);
-        logger.logVariable("team", team);
-        logger.logVariable("publishTo", publishTo);
+        logger.logVariable("version", version);
+        logger.logVariable("documentVersions", documentVersions);
+        logger.logVariable("teamMembers", teamMembers);
         logger.logVariable("publishedBy", publishedBy);
         logger.logVariable("publishedOn", publishedOn);
-        int i = 0;
-        final Set<Entry<DocumentVersion, String>> entries = documents.entrySet();
-        for (final Entry<DocumentVersion, String> entry : entries) {
-            // publish artifact
-            final XMPPMethod publishArtifact = new XMPPMethod(Service.Container.PUBLISH_ARTIFACT);
-            publishArtifact.setParameter("uniqueId", container.getArtifactUniqueId());
-            publishArtifact.setParameter("versionId", container.getVersionId());
-            publishArtifact.setParameter("name", container.getName());
-            publishArtifact.setParameter("artifactCount", entries.size());
-            publishArtifact.setParameter("artifactIndex", i++);
-            publishArtifact.setParameter("artifactUniqueId", entry.getKey().getArtifactUniqueId());
-            publishArtifact.setParameter("artifactVersionId", entry.getKey().getVersionId());
-            publishArtifact.setParameter("artifactName", entry.getKey().getName());
-            publishArtifact.setParameter("artifactType", entry.getKey().getArtifactType());
-            publishArtifact.setParameter("artifactChecksum", entry.getKey().getChecksum());
-            publishArtifact.setParameter("artifactStreamId", entry.getValue());
-            publishArtifact.setParameter("publishTo", "publishTo", publishTo);
-            publishArtifact.setParameter("publishedBy", publishedBy);
-            publishArtifact.setParameter("publishedOn", publishedOn);
-            execute(publishArtifact);
-        }
-        // publish
-        final XMPPMethod publish = new XMPPMethod(Service.Container.PUBLISH);
-        publish.setParameter("uniqueId", container.getArtifactUniqueId());
-        publish.setParameter("versionId", container.getVersionId());
-        publish.setParameter("name", container.getName());
-        publish.setParameter("comment", container.getComment());
-        publish.setParameter("artifactCount", entries.size());
-        final List<JabberId> teamIds = new ArrayList<JabberId>(team.size());
-        for (final TeamMember teamMember : team)
-            teamIds.add(teamMember.getId());
-        publish.setParameter("team", "team-element", teamIds);
+        logger.logVariable("publishedTo", publishedTo);
+        final XMPPMethod publish = new XMPPMethod("container:publish");
+        publish.setParameter("userId", userId);
+        publish.setParameter("version", version);
+        publish.setDocumentVersionsStreamIdsParameter("documentVersions", documentVersions);
+        publish.setTeamMembersParameter("teamMembers", teamMembers);
         publish.setParameter("publishedBy", publishedBy);
-        publish.setParameter("publishedTo", "publishedTo", publishTo);
         publish.setParameter("publishedOn", publishedOn);
+        publish.setUsersParameter("publishedTo", publishedTo);
         execute(publish);
     }
 }

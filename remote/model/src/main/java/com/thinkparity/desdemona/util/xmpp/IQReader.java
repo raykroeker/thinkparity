@@ -9,10 +9,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -23,7 +25,12 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
+import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
@@ -50,9 +57,9 @@ public final class IQReader implements ServiceRequestReader {
 
     /** The universal <code>DateFormat</code>. */
     private static final DateFormat UNIVERSAL_FORMAT;
-    
-    private static final XStreamUtil XSTREAM_UTIL;
 
+    private static final XStreamUtil XSTREAM_UTIL;
+    
     static {
         LOCALE = Locale.getDefault();
         TIME_ZONE = TimeZone.getDefault();
@@ -107,8 +114,109 @@ public final class IQReader implements ServiceRequestReader {
         }
     }
 
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readContacts(java.lang.String)
+     *
+     */
+    public final List<Contact> readContacts(final String name) {
+        final Element element = iq.getChildElement().element(name);
+        final Iterator iChildren = element.elementIterator("element");
+        final List<Contact> contacts = new ArrayList<Contact>();
+        Dom4JReader dom4JReader;
+        while (iChildren.hasNext()) {
+            dom4JReader = new Dom4JReader((Element) iChildren.next());
+            try {
+                dom4JReader.moveDown();
+                contacts.add((Contact) XSTREAM_UTIL.unmarshal(dom4JReader, new Contact()));
+            } finally {
+                dom4JReader.moveUp();
+                dom4JReader.close();
+            }
+        }
+        return contacts;    
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readContainerVersion(java.lang.String)
+     *
+     */
+    public final ContainerVersion readContainerVersion(final String name) {
+        final Element vcardElement = iq.getChildElement().element(name);
+        final Dom4JReader xmlReader = new Dom4JReader(vcardElement);
+        xmlReader.moveDown();
+        try {
+            final ContainerVersion containerVersion = new ContainerVersion();
+            XSTREAM_UTIL.unmarshal(xmlReader, containerVersion);
+            return containerVersion;
+        } finally {
+            xmlReader.moveUp();
+            xmlReader.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readDocumentVersions(java.lang.String)
+     *
+     */
+    public final List<DocumentVersion> readDocumentVersions(final String name) {
+        final Element element = iq.getChildElement().element(name);
+        final Iterator iChildren = element.elementIterator("element");
+        final List<DocumentVersion> documentVersions = new ArrayList<DocumentVersion>();
+        Dom4JReader dom4JReader;
+        while (iChildren.hasNext()) {
+            dom4JReader = new Dom4JReader((Element) iChildren.next());
+            try {
+                dom4JReader.moveDown();
+                documentVersions.add((DocumentVersion) XSTREAM_UTIL.unmarshal(dom4JReader, new DocumentVersion()));
+            } finally {
+                dom4JReader.moveUp();
+                dom4JReader.close();
+            }
+        }
+        return documentVersions;
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readStrings(java.lang.String)
+     *
+     */
+    public final Map<DocumentVersion, String> readDocumentVersionsStreamIds(
+            final String name) {
+        final Element element = iq.getChildElement().element(name);
+        final Iterator iKeys = element.elementIterator("key");
+        final Iterator iValues = element.elementIterator("value");
+        final Map<DocumentVersion, String> documentVersions = new HashMap<DocumentVersion, String>();
+        Dom4JReader keyReader;
+        while (iKeys.hasNext() && iValues.hasNext()) {
+            keyReader = new Dom4JReader((Element) iKeys.next());
+            try {
+                keyReader.moveDown();
+                documentVersions.put(
+                        (DocumentVersion) XSTREAM_UTIL.unmarshal(keyReader, new DocumentVersion()),
+                        (String) ((Element) iValues.next()).getData());
+            } finally {
+                keyReader.moveUp();
+            }
+        }
+        return documentVersions;
+    }
+
     public final EMail readEMail(final String name) {
         return EMailBuilder.parse(readString(name));
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readEMails(java.lang.String)
+     *
+     */
+    public final List<EMail> readEMails(final String name) {
+        final Element element = iq.getChildElement().element(name);
+        final Iterator iChildren = element.elements("element").iterator();
+        final List<EMail> emails = new ArrayList<EMail>();
+        while (iChildren.hasNext()) {
+            emails.add(EMailBuilder.parse((String) ((Element) iChildren.next()).getData()));
+        }
+        return emails;
     }
 
     /**
@@ -234,6 +342,51 @@ public final class IQReader implements ServiceRequestReader {
      */
     public final String readString(final String name) {
         return (String) readObject(name);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readTeamMembers(java.lang.String)
+     *
+     */
+    public final List<TeamMember> readTeamMembers(final String name) {
+        final Element element = iq.getChildElement().element(name);
+        final Iterator iChildren = element.elementIterator("element");
+        final List<TeamMember> teamMembers = new ArrayList<TeamMember>();
+        Dom4JReader dom4JReader;
+        while (iChildren.hasNext()) {
+            dom4JReader = new Dom4JReader((Element) iChildren.next());
+            try {
+                dom4JReader.moveDown();
+                teamMembers.add((TeamMember) XSTREAM_UTIL.unmarshal(dom4JReader, new TeamMember()));
+            } finally {
+                dom4JReader.moveUp();
+                dom4JReader.close();
+            }
+        }
+        return teamMembers;
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readUsers(java.lang.String)
+     *
+     */
+    public final List<User> readUsers(final String name) {
+        final Element element = iq.getChildElement().element(name);
+        final Iterator iChildren = element.elementIterator("element");
+        final List<User> users = new ArrayList<User>();
+        Dom4JReader dom4JReader;
+        while (iChildren.hasNext()) {
+            dom4JReader = new Dom4JReader((Element) iChildren.next());
+            try {
+                dom4JReader.moveDown();
+//                users.add((User) XSTREAM_UTIL.unmarshal(dom4JReader, new User()));
+                users.add((User) XSTREAM_UTIL.unmarshal(dom4JReader));
+            } finally {
+                dom4JReader.moveUp();
+                dom4JReader.close();
+            }
+        }
+        return users;
     }
 
     /**

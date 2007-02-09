@@ -146,6 +146,10 @@ public class XStreamUtil {
         return xstream.unmarshal(reader, root);
     }
 
+    public Object unmarshal(final HierarchicalStreamReader reader) {
+        return xstream.unmarshal(reader);
+    }
+
     public ArtifactReceipt unmarshalArtifactReceipt(
             final HierarchicalStreamReader xml, final ArtifactReceipt root) {
         return (ArtifactReceipt) xstream.unmarshal(xml, root);

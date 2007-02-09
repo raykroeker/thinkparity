@@ -147,21 +147,6 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteArtifact(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
-     *
-     */
-    public void deleteArtifact(final JabberId userId, final UUID uniqueId) {
-        try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                xmppSession.deleteArtifact(userId, uniqueId);
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
     public void confirmArtifactReceipt(final JabberId userId, final UUID uniqueId,
             final Long versionId, final JabberId publishedBy,
             final Calendar publishedOn, final List<JabberId> publishedTo,
@@ -292,7 +277,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
 	 * Decline a user's invitation to their contact list.
 	 * 
 	 * @param jabberId
@@ -312,6 +297,21 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw translateError(t);
 		}
 	}
+
+	/**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteArtifact(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
+     *
+     */
+    public void deleteArtifact(final JabberId userId, final UUID uniqueId) {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                xmppSession.deleteArtifact(userId, uniqueId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
 	/**
      * Delete a contact.
@@ -568,35 +568,21 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Publish a container.
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#publish(com.thinkparity.codebase.model.container.ContainerVersion,
+     *      java.util.Map, java.util.List,
+     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
+     *      java.util.List)
      * 
-     * @param container
-     *            A container.
-     * @param documents
-     *            A list of documents and stream ids.
-     * @param publishTo
-     *            A list of ids to publish to.
-     * @param publishedBy
-     *            By whom the container was published.
-     * @param publishedOn
-     *            When the container was published.
      */
     public void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
-            final List<TeamMember> team, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn) {
-        logger.logApiId();
-        logger.logVariable("container", container);
-        logger.logVariable("documents", documents);
-        logger.logVariable("team", team);
-        logger.logVariable("publishTo", publishTo);
-        logger.logVariable("publishedBy", publishedBy);
-        logger.logVariable("publishedOn", publishedOn);
+            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final Calendar publishedOn, final List<User> publishedTo) {
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                xmppSession.publish(container, documents, team, publishTo,
-                        publishedBy, publishedOn);
+                xmppSession.publish(localUserId(), container, documents,
+                        teamMembers, publishedBy, publishedOn, publishedTo);
             }
         } catch(final Throwable t) {
             throw translateError(t);

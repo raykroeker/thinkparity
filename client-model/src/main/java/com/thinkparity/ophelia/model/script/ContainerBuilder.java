@@ -21,6 +21,8 @@ import com.thinkparity.ophelia.model.ModelFactory;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
+import com.thinkparity.ophelia.model.container.monitor.PublishStage;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -33,6 +35,19 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @version 1.1.2.1
  */
 public class ContainerBuilder {
+
+    /** A publish monitor. */
+    private static final PublishMonitor PUBLISH_MONITOR;
+
+    static {
+        PUBLISH_MONITOR = new PublishMonitor() {
+            public void determine(final Integer stages) {}
+            public void processBegin() {}
+            public void processEnd() {}
+            public void stageBegin(final PublishStage stage, final Object data) {}
+            public void stageEnd(final PublishStage stage) {}
+        };
+    }
 
     /** A container id. */
     private Long id;
@@ -175,7 +190,7 @@ public class ContainerBuilder {
         final ContainerModel containerModel = getContainerModel();
         final List<TeamMember> teamMembers = containerModel.readTeam(id);
         final List<Contact> contacts = Collections.emptyList();
-        containerModel.publish(id, comment, contacts, teamMembers);
+        containerModel.publish(PUBLISH_MONITOR, id, comment, contacts, teamMembers);
         return this;
     }
 
@@ -197,7 +212,7 @@ public class ContainerBuilder {
         final List<Contact> contacts = contactModel.read();
         filter(teamMembers, names);
         filter(contacts, names);
-        containerModel.publish(id, comment, contacts, teamMembers);
+        containerModel.publish(PUBLISH_MONITOR, id, comment, contacts, teamMembers);
         return this;
     }
 

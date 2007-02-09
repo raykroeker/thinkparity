@@ -11,12 +11,12 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
-import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.AbstractModel;
@@ -51,79 +51,14 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
 		super(new ContainerModelImpl(session));
 	}
 
-    /**
-     * Publish the container version.
-     * 
-     * @param uniqueId
-     *            A container unique id.
-     * @param versionId
-     *            A container version id.
-     * @param name
-     *            A container name.
-     * @param artifactCount
-     *            The number of artifacts in the container version.
-     * @param publishedBy
-     *            By whom the container was published.
-     * @param publishedTo
-     *            Whom to container was published to.
-     * @param publishedOn
-     *            When the container was published.
-     */
-    public void publish(final UUID uniqueId, final Long versionId,
-            final String name, final String comment,
-            final Integer artifactCount, final List<JabberId> team,
-            final JabberId publishedBy, final List<JabberId> publishedTo,
-            final Calendar publishedOn) {
+    // TODO-javadoc ContainerModel#publish
+    public void publish(final JabberId userId, final ContainerVersion version,
+            final Map<DocumentVersion, String> documentVersions,
+            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final Calendar publishedOn, final List<User> publishedTo) {
         synchronized (getImplLock()) {
-            getImpl().publish(uniqueId, versionId, name, comment,
-                    artifactCount, team, publishedBy, publishedTo, publishedOn);
-        }
-    }
-
-    /**
-     * Publish a container version artifact version to a subset of team members.
-     * 
-     * @param uniqueId
-     *            A container unique id.
-     * @param versionId
-     *            A container version id.
-     * @param name
-     *            A container name.
-     * @param artifactCount
-     *            An artifact count for the container version.
-     * @param artifactIndex
-     *            The artifact's index in the container version.
-     * @param artifactUniqueId
-     *            An artifact unique id.
-     * @param artifactVersionId
-     *            An artifact version id.
-     * @param artifactName
-     *            An artifact name.
-     * @param artifactType
-     *            An artifact type.
-     * @param artifactChecksum
-     *            An artifact checksum.
-     * @param artifactStreamId
-     *            A stream id <code>String</code>.
-     * @param publishTo
-     *            To whom the container was published.
-     * @param publishedBy
-     *            By whom the artifact was published.
-     * @param publishedOn
-     *            When the artifact was published.
-     */
-    public void publishArtifact(final UUID uniqueId, final Long versionId,
-            final String name, final Integer artifactCount,
-            final Integer artifactIndex, final UUID artifactUniqueId,
-            final Long artifactVersionId, final String artifactName,
-            final ArtifactType artifactType, final String artifactChecksum,
-            final String artifactStreamId, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn) {
-        synchronized (getImplLock()) {
-            getImpl().publishArtifact(uniqueId, versionId, name, artifactCount,
-                    artifactIndex, artifactUniqueId, artifactVersionId,
-                    artifactName, artifactType, artifactChecksum,
-                    artifactStreamId, publishTo, publishedBy, publishedOn);
+            getImpl().publish(userId, version, documentVersions, teamMembers,
+                    publishedBy, publishedOn, publishedTo);
         }
     }
 
@@ -182,6 +117,22 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
+    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
+            final JabberId userId, final UUID uniqueId,
+            final Long compareVersionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveDocumentVersionDeltas(userId, uniqueId,
+                    compareVersionId);
+        }
+    }
+    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
+            final JabberId userId, final UUID uniqueId,
+            final Long compareVersionId, final Long compareToVersionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveDocumentVersionDeltas(userId, uniqueId,
+                    compareVersionId, compareToVersionId);
+        }
+    }
     /**
      * Read the archived document versions for a user.
      * 
@@ -202,23 +153,14 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
                     versionId);
         }
     }
-    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
-            final JabberId userId, final UUID uniqueId,
-            final Long compareVersionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArchiveDocumentVersionDeltas(userId, uniqueId,
-                    compareVersionId);
-        }
-    }
-    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
-            final JabberId userId, final UUID uniqueId,
-            final Long compareVersionId, final Long compareToVersionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArchiveDocumentVersionDeltas(userId, uniqueId,
-                    compareVersionId, compareToVersionId);
-        }
-    }
 
+
+    public Map<User, ArtifactReceipt> readArchivePublishedTo(
+            final JabberId userId, final UUID uniqueId, final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchivePublishedTo(userId, uniqueId, versionId);
+        }
+    }
 
     /**
      * Read the archived container versions for a user.
@@ -236,20 +178,6 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
-    public Map<User, ArtifactReceipt> readArchivePublishedTo(
-            final JabberId userId, final UUID uniqueId, final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArchivePublishedTo(userId, uniqueId, versionId);
-        }
-    }
-
-    public Map<User, ArtifactReceipt> readBackupPublishedTo(
-            final JabberId userId, final UUID uniqueId, final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readBackupPublishedTo(userId, uniqueId, versionId);
-        }
-    }
-
     /**
      * Read the backup containers for a user.
      * 
@@ -262,7 +190,6 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
             return getImpl().readBackup(userId);
         }
     }
-
 
     /**
      * Read a backup container.
@@ -278,6 +205,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
             return getImpl().readBackup(userId, uniqueId);
         }
     }
+
 
     /**
      * Read the backup documents for a user.
@@ -314,6 +242,13 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
             final JabberId userId, final UUID uniqueId, final Long versionId) {
         synchronized (getImplLock()) {
             return getImpl().readBackupDocumentVersions(userId, uniqueId, versionId);
+        }
+    }
+
+    public Map<User, ArtifactReceipt> readBackupPublishedTo(
+            final JabberId userId, final UUID uniqueId, final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readBackupPublishedTo(userId, uniqueId, versionId);
         }
     }
 

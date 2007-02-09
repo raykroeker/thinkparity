@@ -132,8 +132,8 @@ public class TestSession {
             final Calendar sessionDate = DateUtil.getInstance(Long.valueOf(sessionId));
 
             final File newSessionDirectory = new File(parent,
-                    MessageFormat.format("{0} {1,date, yyyy-MM-dd HH.mm.ss.SSS}",
-                            JUnitX.getName(), sessionDate.getTime()));
+                    MessageFormat.format("{0} {1,date,yyyy-MM-dd HH.mm.ss.SSS}",
+                            JUnitX.getShortName(), sessionDate.getTime()));
             Assert.assertTrue("Cannot rename old session directory.",
                     sessionDirectory.renameTo(newSessionDirectory));
             final File newSessionFile = new File(newSessionDirectory, sessionFileName);

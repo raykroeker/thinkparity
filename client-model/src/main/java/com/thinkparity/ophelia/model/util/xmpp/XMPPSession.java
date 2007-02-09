@@ -109,17 +109,6 @@ public interface XMPPSession {
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
      */
-    public void deleteArtifact(final JabberId userId, final UUID uniqueId);
-
-    /**
-     * Archive an artifact. This will simply apply the archived flag within the
-     * backup.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     */
     public void archiveArtifact(final JabberId userId, final UUID uniqueId);
 
     /**
@@ -225,6 +214,17 @@ public interface XMPPSession {
             final JabberId invitedBy);
 
     /**
+     * Archive an artifact. This will simply apply the archived flag within the
+     * backup.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     */
+    public void deleteArtifact(final JabberId userId, final UUID uniqueId);
+
+    /**
      * Delete a contact.
      * 
      * @param userId
@@ -326,26 +326,12 @@ public interface XMPPSession {
      */
     public void processEventQueue(final JabberId userId);
 
-    /**
-     * Publish a container.
-     * 
-     * @param container
-     *            A container.
-     * @param documents
-     *            A list of documents and their content.
-     * @param team
-     *            A <code>JabberId</code> list of the entire team.
-     * @param publishTo
-     *            A <code>JabberId</code> list of whom to publish to.
-     * @param publishedBy
-     *            By whom the container was published.
-     * @param publishedOn
-     *            When the container was published.
-     */
-    public void publish(final ContainerVersion container,
+    // TODO-javadoc XMPPSession#publish
+    public void publish(final JabberId userId,
+            final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
-            final List<TeamMember> team, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn);
+            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final Calendar publishedOn, final List<User> publishedTo);
 
     /**
      * Read the archive's containers.

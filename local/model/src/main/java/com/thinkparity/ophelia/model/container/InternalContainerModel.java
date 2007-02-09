@@ -14,7 +14,6 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
@@ -39,17 +38,6 @@ public interface InternalContainerModel extends ContainerModel {
      * @return True if a draft exists.
      */
     public Boolean doesExistDraft(final Long containerId);
-
-    /**
-     * Handle the container artifact published remote event. If the container
-     * does not yet exist it will be created; same goes for the version. The
-     * artifact will then be passed off to the appropriate model then attached
-     * to the version.
-     * 
-     * @param event
-     *            A <code>ContainerArtifactPublishedEvent</code>.
-     */
-    public void handleArtifactPublished(final ContainerArtifactPublishedEvent event);
 
     /**
      * Handle the remote draft created event. A

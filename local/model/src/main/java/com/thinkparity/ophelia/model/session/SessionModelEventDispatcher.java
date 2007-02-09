@@ -17,7 +17,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedE
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
@@ -124,12 +123,6 @@ class SessionModelEventDispatcher {
             public void handleEvent(final ContactUpdatedEvent event) {
                 logger.logApiId();
                 getContactModel().handleContactUpdated(event);
-            }});
-        xmppSession.addListener(ContainerArtifactPublishedEvent.class,
-                new XMPPEventListener<ContainerArtifactPublishedEvent>() {
-            public void handleEvent(final ContainerArtifactPublishedEvent event) {
-                logger.logApiId();
-                getContainerModel().handleArtifactPublished(event);
             }});
         xmppSession.addListener(ContainerPublishedEvent.class,
                 new XMPPEventListener<ContainerPublishedEvent>() {

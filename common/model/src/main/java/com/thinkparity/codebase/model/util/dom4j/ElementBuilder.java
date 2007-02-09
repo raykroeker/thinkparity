@@ -46,8 +46,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedE
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import org.dom4j.DocumentFactory;
@@ -775,47 +773,6 @@ public class ElementBuilder {
             final Element element = createElement(name, value.getClass());
             addElement(element, "contactId", value.getContactId());
             addElement(element, "updatedOn", value.getUpdatedOn());
-            return element;
-        }
-    }
-
-    public static final Element createElement(final String name,
-            final ContainerArtifactPublishedEvent value) {
-        if (null == value) {
-            return createNullElement(name, ContainerArtifactPublishedEvent.class);
-        } else {
-            final Element element = createElement(name, value.getClass());
-            addElement(element, "artifactChecksum", value.getArtifactChecksum());
-            addElement(element, "artifactCount", value.getArtifactCount());
-            addElement(element, "artifactIndex", value.getArtifactIndex());
-            addElement(element, "artifactName", value.getArtifactName());
-            addElement(element, "streamId", value.getArtifactStreamId());
-            addElement(element, "artifactType", value.getArtifactType());
-            addElement(element, "uniqueId", value.getArtifactUniqueId());
-            addElement(element, "versionId", value.getArtifactVersionId());
-            addElement(element, "name", value.getName());
-            addElement(element, "publishedBy", value.getPublishedBy());
-            addElement(element, "publishedOn", value.getPublishedOn());
-            addElement(element, "uniqueId", value.getUniqueId());
-            addElement(element, "versionId", value.getVersionId());
-            return element;
-        }
-    }
-
-    public static final Element createElement(final String name,
-            final ContainerPublishedEvent value) {
-        if (null == value) {
-            return createNullElement(name, ContainerArtifactPublishedEvent.class);
-        } else {
-            final Element element = createElement(name, value.getClass());
-            addElement(element, "artifactCount", value.getArtifactCount());
-            addElement(element, "comment", value.getComment());
-            addElement(element, "name", value.getName());
-            addElement(element, "publishedBy", value.getPublishedBy());
-            addElement(element, "publishedOn", value.getPublishedOn());
-            addJabberIdElements(element, "publishedTo", value.getPublishedTo());
-            addElement(element, "uniqueId", value.getUniqueId());
-            addElement(element, "versionId", value.getVersionId());
             return element;
         }
     }

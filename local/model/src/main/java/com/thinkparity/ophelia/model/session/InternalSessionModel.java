@@ -220,24 +220,11 @@ public interface InternalSessionModel extends SessionModel {
     @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
     public void processQueue();
 
-    /**
-     * Publish a container version.
-     * 
-     * @param container
-     *            A container version.
-     * @param teamMembers
-     *            A list of team members.
-     * @param documents
-     *            A list of documents and their stream ids.
-     * @param publishedBy
-     *            The publisher.
-     * @param publishedOn
-     *            The publish date.
-     */
+    // TODO-javadoc InternalSessionModel#publish
     public void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
-            final List<TeamMember> team, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn);
+            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final Calendar publishedOn, final List<User> publishedTo);
 
     public Container readArchiveContainer(final JabberId userId,
             final UUID uniqueId);

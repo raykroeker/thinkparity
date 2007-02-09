@@ -783,6 +783,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
                 publishedBy, team);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
+        panel.setSelected(isSelected(panel));
         panel.setTabDelegate(this);
         if (isExpanded(panel)) {
             browser.runApplyContainerFlagSeen(panel.getContainer().getId());

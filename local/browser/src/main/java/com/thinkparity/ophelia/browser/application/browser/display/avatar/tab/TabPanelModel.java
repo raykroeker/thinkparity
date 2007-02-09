@@ -172,7 +172,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
         rectangle.x = rectangle.y = 0;
         panel.scrollRectToVisible(rectangle);
     }
-    
+
     /**
      * Select the panel.
      * 
@@ -188,11 +188,14 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate#selectPanel(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
      */
     public void selectPanel(final TabPanel tabPanel) {
-        if (null != selectedPanel && tabPanel.equals(selectedPanel)) {
+        if (isSelected(tabPanel)) {
             return;
         }
         if (null != selectedPanel) {
-            selectedPanel.setSelected(Boolean.FALSE);
+            // Note that the panel may have been replaced since it was set.
+            // The selectedPanel id can be trusted.
+            final T oldPanelId = lookupId(selectedPanel);
+            lookupPanel(oldPanelId).setSelected(Boolean.FALSE);
         }
         selectedPanel = tabPanel;
         selectedPanel.setSelected(Boolean.TRUE);
@@ -371,6 +374,17 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      */
     protected boolean isSearchApplied() {
         return null != searchExpression;
+    }
+
+    /**
+     * Determine if a panel is selected.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @return True if the panel is selected; false otherwise.
+     */
+    protected boolean isSelected(final TabPanel tabPanel) {
+        return (null != selectedPanel && lookupId(tabPanel).equals(lookupId(selectedPanel)));
     }
 
     /**

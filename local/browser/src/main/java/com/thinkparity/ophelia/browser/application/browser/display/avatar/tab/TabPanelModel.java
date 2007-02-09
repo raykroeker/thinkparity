@@ -422,7 +422,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      * search results to the list.
      */
     @Override
-    protected void synchronize() {
+    protected void synchronizeImpl() {
         debug();
         applyFilters();
         applySort();

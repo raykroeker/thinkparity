@@ -7,6 +7,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 
 import javax.swing.DefaultListModel;
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -223,7 +224,17 @@ public abstract class TabModel implements TabDelegate {
      * Synchronize the internal state of the model with the display.
      *
      */
-    protected abstract void synchronize();
+    protected void synchronize() {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { synchronizeImpl(); }
+        });
+    }
+
+    /**
+     * Synchronize the internal state of the model with the display.
+     *
+     */
+    protected abstract void synchronizeImpl();
 
     /**
      * Obtain the input search expression.

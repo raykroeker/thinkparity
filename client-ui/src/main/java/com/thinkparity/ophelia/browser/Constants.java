@@ -30,32 +30,24 @@ public final class Constants {
     /** Colour constants. */
     public static final class Colors {
         public static final class Browser {
+            // Standard orange and blue from the original logo:
+            // Orange:  new Color(252, 146, 62, 255);
+            // Blue:    new Color(11, 49, 122, 255);
             public static final class Border {
+                // Browser border color
                 public static final Color BORDER_COLOR = new Color(130, 130, 130, 255);
             }
-            public static final class Panel {
-                public static final Color PANEL_COLLAPSED_BACKGROUND = new Color(234, 234, 234, 255);
-                public static final Color PANEL_COLLAPSED_SELECTION_LINE = new Color(100, 100, 100, 255);
+            public static final class Link {
+                public static final Color LINK_FOREGROUND = new Color(49, 102, 148, 255);
             }
             public static final class List {
-                public static final Color LIST_LACK_MOST_RECENT_VERSION_FG = new Color(100, 100, 100, 255);
-                public static final Color LIST_SECONDARY_TEXT_FG = new Color(100, 100, 100, 255);
-                public static final Color LIST_CONTAINERS_BORDER = new Color(212, 212, 212, 255);
-                public static final Color LIST_CONTAINERS_BACKGROUND = new Color(234, 234, 234, 255);
-                public static final Color LIST_CONTAINER_GRADIENT_TOP = new Color(254, 254, 254, 255);
-                public static final Color LIST_CONTAINER_GRADIENT_BOTTOM = new Color(245, 246, 248, 255);
-       
-                
-                public static final Color INNER_LIST_SELECTION_BORDER = new Color(100, 100, 100, 255);   // dark gray
+                // TODO Can remove these if the tab cell code is stripped out
                 public static final Color LIST_EVEN_BG = new Color(245, 246, 247, 255);         // light gray (bluish gray on my monitor)
-                public static final Color LIST_EXPANDED_BG = Color.WHITE;
-                public static final Color LIST_FG = Color.BLACK;
-                public static final Color LIST_GRADIENT_DARK = new Color(204, 208, 214, 255);   // darker color taken from browser title area
-                public static final Color LIST_GRADIENT_LIGHT = new Color(245, 246, 247, 255);  // lighter color taken from browser title area              
                 public static final Color LIST_ODD_BG = Color.WHITE;
+                public static final Color LIST_NOT_ENABLED_TEXT_FG = new Color(49, 102, 148, 255);
                 public static final Color LIST_SELECTION_BG = new Color(207, 221, 241, 255);    // blue
-                public static final Color LIST_SELECTION_BORDER = new Color(130, 130, 130, 255); // new Color(100, 100, 100, 255);   // dark gray
                 public static final Color LIST_SELECTION_FG = Color.BLACK;
+                public static final Color LIST_FG = Color.BLACK;           
             }
             public static final class MainStatus {
                 public static final Color BG_GRAD_FINISH = new Color(183, 190, 196, 255);
@@ -70,41 +62,32 @@ public final class Constants {
                 public static final Color BG_GRAD_FINISH = new Color(192, 197, 205, 255);
                 public static final Color BG_GRAD_START = new Color(239, 241, 242, 255);
                 public static final Color SEARCH_OUTLINE = new Color(204, 215, 226, 255);
-                public static final Color SIGN_UP_BACKGROUND = new Color(255, 199, 60, 70);
             }
             public static final class MainTitleTop {
                 public static final Color BG_GRAD_FINISH = new Color(239, 241, 242, 255);  // about 25% of the gradient
                 public static final Color BG_GRAD_START = new Color(251, 252, 252, 255);                
             }
-            public static final class Menu {
-                public static final Color MENU_BORDER = new Color(157, 157, 161, 255);
+            public static final class Panel {
+                public static final Color PANEL_COLLAPSED_BACKGROUND = new Color(234, 234, 234, 255);
+                public static final Color PANEL_COLLAPSED_SELECTION_LINE = new Color(100, 100, 100, 255);
+                public static final Color PANEL_BORDER = new Color(212, 212, 212, 255);
+                public static final Color PANEL_LACK_MOST_RECENT_VERSION_TEXT_FG = new Color(100, 100, 100, 255);
+                public static final Color PANEL_ADDITIONAL_TEXT_FG = new Color(49, 102, 148, 255);
             }
             public static final class ProgressBar {
                 public static final Color BORDER = new Color(115, 106, 96, 255);
+            }
+            public static final class Publish {
+                public static final Color FIRST_CONTACT_BORDER = new Color(212, 212, 212, 255);
             }
             public static final class SemiTransparentLayer {
                 public static final float LAYER_ALPHA = 0.30F;
                 public static final Color LAYER_COLOR = new Color(239, 241, 242, 255);
             }
             public static final class TabCell {
+                // TODO Can remove these if the tab cell code is stripped out
                 public static final Color TEXT = Color.BLACK;
-                public static final Color TEXT_CLOSED = Color.BLACK;
                 public static final Color TEXT_MOUSEOVER = new Color(0, 0, 120, 255);
-            }
-            public static final class Table {
-                public static final Color HEADER_BG = new Color(245, 248, 252, 255);
-                public static final Color HEADER_FG = Color.BLACK;
-                public static final Color HEADER_ROLLOVER_BG = new Color(87, 136, 206, 255);
-                public static final Color HEADER_ROLLOVER_FG = Color.WHITE;
-                public static final Color ROW_EVEN_BG = new Color(245, 246, 247, 255);
-                public static final Color ROW_ODD_BG = Color.WHITE;
-            }
-            public static final class Publish {
-                public static final Color FIRST_CONTACT_BORDER = new Color(212, 212, 212, 255);
-            }
-            public static final class UpdateProfile {
-                public static final Color EMAIL_CELL_BG = new Color(255, 255, 255, 255);
-                public static final Color EMAIL_CELL_BG_SELECTED = new Color(255, 0, 0, 255);
             }
             public static final class Window {
                 public static final Color BORDER_TOP = new Color(242, 245, 248, 255);
@@ -115,9 +98,6 @@ public final class Constants {
                 public static final Color BORDER_BOTTOM_RIGHT= new Color(212, 220, 229, 255);
                 public static final Color TITLE_GRADIENT_TOP = new Color(250, 251, 253, 255);
                 public static final Color TITLE_GRADIENT_BOTTOM = new Color(247, 249, 250, 255);
-            }
-            public static final class Link {
-                public static final Color LINK_FOREGROUND = new Color(49, 102, 148, 255);
             }
         }
         public static final class Swing {
@@ -293,6 +273,16 @@ public final class Constants {
     public static final class Logging {
         public static final String APPLICATION_LOG_ID = Application.OPHELIA + "] [APPLICATION";
         public static final String PLATFORM_LOG_ID = Application.OPHELIA + "] [PLATFORM";
+    }
+
+    /** Menu constants. */
+    public static final class Menus {
+        public static final class Swing {
+            /** The submenu offset in X direction. */
+            public static final int SUBMENU_POPUP_OFFSET_X = -1;
+            /** The submenu offset in Y direction. */
+            public static final int SUBMENU_POPUP_OFFSET_Y = 0;
+        }
     }
 
     public static final class Network {

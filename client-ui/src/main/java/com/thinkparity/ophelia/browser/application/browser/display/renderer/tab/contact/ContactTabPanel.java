@@ -633,7 +633,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
         collapsedContactJPanel.add(collapsedTextJLabel, gridBagConstraints);
 
-        collapsedAdditionalTextJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
+        collapsedAdditionalTextJLabel.setForeground(Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG);
         collapsedAdditionalTextJLabel.setText("!Contact Additional Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -673,7 +673,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
         collapsedIncomingInvitationJPanel.add(incomingInvitationTextJLabel, gridBagConstraints);
 
-        incomingInvitationAdditionalTextJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
+        incomingInvitationAdditionalTextJLabel.setForeground(Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG);
         incomingInvitationAdditionalTextJLabel.setText("!Contact Additional Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -758,7 +758,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
         expandedContactJPanel.add(contactTextJLabel, gridBagConstraints);
 
-        contactAdditionalTextJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
+        contactAdditionalTextJLabel.setForeground(Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG);
         contactAdditionalTextJLabel.setText("!Title, Organization!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 0;

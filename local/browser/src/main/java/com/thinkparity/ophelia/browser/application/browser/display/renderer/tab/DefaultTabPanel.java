@@ -54,7 +54,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
         ANIMATION_HEIGHT_ADJUSTMENT = 12;
         ANIMATION_MAXIMUM_HEIGHT = 165;
         ANIMATION_MINIMUM_HEIGHT = 25;
-        BORDER = new BottomBorder(Colors.Browser.List.LIST_CONTAINERS_BORDER);
+        BORDER = new BottomBorder(Colors.Browser.Panel.PANEL_BORDER);
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
         IMAGE_CACHE = new MainPanelImageCache();
         NUMBER_VISIBLE_ROWS = 6;

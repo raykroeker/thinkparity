@@ -73,7 +73,7 @@
         <Component class="javax.swing.JLabel" name="additionalTextJLabel">
           <Properties>
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="Colors.Browser.List.INNER_LIST_SELECTION_BORDER" type="code"/>
+              <Connection code="Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG" type="code"/>
             </Property>
             <Property name="text" type="java.lang.String" value="!Package Additional Text!"/>
           </Properties>

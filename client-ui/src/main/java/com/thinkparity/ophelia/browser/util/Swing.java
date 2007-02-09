@@ -13,6 +13,7 @@ import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.Constants.Menus;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItemUI;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityProgressBarUI;
@@ -46,8 +47,8 @@ public class Swing {
         defaults.put("MenuItem.selectionForeground", Colors.Swing.MENU_ITEM_SELECTION_FG);
         defaults.put("MenuItem.background", Colors.Swing.MENU_ITEM_BG);
         defaults.put("MenuItem.foreground", Colors.Swing.MENU_ITEM_FG);
-        defaults.put("Menu.submenuPopupOffsetX", BrowserConstants.Menu.SUBMENU_POPUP_OFFSET_X);
-        defaults.put("Menu.submenuPopupOffsetY", BrowserConstants.Menu.SUBMENU_POPUP_OFFSET_Y);
+        defaults.put("Menu.submenuPopupOffsetX", Menus.Swing.SUBMENU_POPUP_OFFSET_X);
+        defaults.put("Menu.submenuPopupOffsetY", Menus.Swing.SUBMENU_POPUP_OFFSET_Y);
         defaults.put("PopupMenu.background", Colors.Swing.MENU_BG);
         defaults.put("PopupMenu.foreground", Colors.Swing.MENU_FG);
         defaults.put("PopupMenu.font", BrowserConstants.Fonts.DefaultFont);

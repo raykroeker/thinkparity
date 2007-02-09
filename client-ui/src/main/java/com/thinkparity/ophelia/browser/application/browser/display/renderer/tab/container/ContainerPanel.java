@@ -634,7 +634,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
         collapsedJPanel.add(textJLabel, gridBagConstraints);
 
-        additionalTextJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
+        additionalTextJLabel.setForeground(Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG);
         additionalTextJLabel.setText("!Package Additional Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -836,7 +836,7 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         if (!isLatest()) {
             textJLabel.setForeground(
-                    Colors.Browser.List.LIST_LACK_MOST_RECENT_VERSION_FG);
+                    Colors.Browser.Panel.PANEL_LACK_MOST_RECENT_VERSION_TEXT_FG);
         }
     }
 

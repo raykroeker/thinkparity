@@ -49,22 +49,15 @@ public final class PublishContainerAvatar extends Avatar implements
     private final PublishContainerAvatarUserListModel namesListModel;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel buttonBarJPanel;
-    private javax.swing.JButton cancelJButton;
-    private javax.swing.JLabel commentJLabel;
-    private javax.swing.JScrollPane commentJScrollPane;
-    private javax.swing.JTextArea commentJTextArea;
-    private javax.swing.JLabel documentJLabel;
-    private javax.swing.JLabel documentNameJLabel;
-    private javax.swing.JLabel emailsJLabel;
-    private javax.swing.JScrollPane emailsJScrollPane;
-    private javax.swing.JTextArea emailsJTextArea;
-    private javax.swing.JLabel fillerJLabel;
-    private javax.swing.JList namesJList;
-    private javax.swing.JScrollPane namesJScrollPane;
-    private javax.swing.JPanel progressBarJPanel;
-    private javax.swing.JButton publishJButton;
-    private javax.swing.JProgressBar publishJProgressBar;
+    private final javax.swing.JPanel buttonBarJPanel = new javax.swing.JPanel();
+    private final javax.swing.JTextArea commentJTextArea = new javax.swing.JTextArea();
+    private final javax.swing.JLabel documentJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel documentNameJLabel = new javax.swing.JLabel();
+    private final javax.swing.JList namesJList = new javax.swing.JList();
+    private final javax.swing.JScrollPane namesJScrollPane = new javax.swing.JScrollPane();
+    private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
+    private final javax.swing.JButton publishJButton = new javax.swing.JButton();
+    private final javax.swing.JProgressBar publishJProgressBar = new javax.swing.JProgressBar();
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -287,25 +280,17 @@ public final class PublishContainerAvatar extends Avatar implements
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        namesJScrollPane = new javax.swing.JScrollPane();
-        namesJList = new javax.swing.JList();
-        commentJLabel = new javax.swing.JLabel();
-        emailsJLabel = new javax.swing.JLabel();
-        emailsJScrollPane = new javax.swing.JScrollPane();
-        emailsJTextArea = new javax.swing.JTextArea();
-        commentJScrollPane = new javax.swing.JScrollPane();
-        commentJTextArea = new javax.swing.JTextArea();
-        buttonBarJPanel = new javax.swing.JPanel();
-        fillerJLabel = new javax.swing.JLabel();
-        publishJButton = new javax.swing.JButton();
-        cancelJButton = new javax.swing.JButton();
-        progressBarJPanel = new javax.swing.JPanel();
-        documentJLabel = new javax.swing.JLabel();
-        documentNameJLabel = new javax.swing.JLabel();
-        publishJProgressBar = new javax.swing.JProgressBar();
+        final javax.swing.JLabel emailsJLabel = new javax.swing.JLabel();
+        final javax.swing.JScrollPane emailsJScrollPane = new javax.swing.JScrollPane();
+        final javax.swing.JTextArea emailsJTextArea = new javax.swing.JTextArea();
+        final javax.swing.JLabel commentJLabel = new javax.swing.JLabel();
+        final javax.swing.JScrollPane commentJScrollPane = new javax.swing.JScrollPane();
+        final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
+        final javax.swing.JButton cancelJButton = new javax.swing.JButton();
 
         namesJScrollPane.setBorder(null);
         namesJScrollPane.setOpaque(false);
+        namesJList.setFont(Fonts.DialogFont);
         namesJList.setModel(namesListModel);
         namesJList.setCellRenderer(new PublishContainerAvatarUserCellRenderer());
         namesJList.setOpaque(false);
@@ -318,26 +303,30 @@ public final class PublishContainerAvatar extends Avatar implements
 
         namesJScrollPane.setViewportView(namesJList);
 
-        commentJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("PublishContainerDialog.Comment"));
-        commentJLabel.setFocusable(false);
-
+        emailsJLabel.setFont(Fonts.DialogFont);
         emailsJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("PublishContainerDialog.Emails"));
 
         emailsJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         emailsJTextArea.setColumns(20);
-        emailsJTextArea.setFont(Fonts.DialogFont);
+        emailsJTextArea.setFont(Fonts.DialogTextEntryFont);
         emailsJTextArea.setLineWrap(true);
         emailsJScrollPane.setViewportView(emailsJTextArea);
 
+        commentJLabel.setFont(Fonts.DialogFont);
+        commentJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("PublishContainerDialog.Comment"));
+        commentJLabel.setFocusable(false);
+
         commentJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        commentJTextArea.setFont(Fonts.DialogFont);
+        commentJTextArea.setFont(Fonts.DialogTextEntryFont);
         commentJTextArea.setLineWrap(true);
         commentJTextArea.setWrapStyleWord(true);
         commentJScrollPane.setViewportView(commentJTextArea);
 
         buttonBarJPanel.setOpaque(false);
+        fillerJLabel.setFont(Fonts.DialogFont);
         fillerJLabel.setPreferredSize(new java.awt.Dimension(3, 14));
 
+        publishJButton.setFont(Fonts.DialogButtonFont);
         publishJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("PublishContainerDialog.publishJButton"));
         publishJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -345,6 +334,7 @@ public final class PublishContainerAvatar extends Avatar implements
             }
         });
 
+        cancelJButton.setFont(Fonts.DialogButtonFont);
         cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("PublishContainerDialog.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -376,12 +366,14 @@ public final class PublishContainerAvatar extends Avatar implements
                 .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(cancelJButton)
                     .add(publishJButton))
-                .addContainerGap())
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         progressBarJPanel.setOpaque(false);
+        documentJLabel.setFont(Fonts.DialogFont);
         documentJLabel.setText(getDocumentJLabelText());
 
+        documentNameJLabel.setFont(Fonts.DialogFont);
         documentNameJLabel.setText("!My Document.doc!");
 
         publishJProgressBar.setBorder(javax.swing.BorderFactory.createLineBorder(Colors.Browser.ProgressBar.BORDER));
@@ -412,16 +404,16 @@ public final class PublishContainerAvatar extends Avatar implements
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, emailsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
-                    .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
-                    .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, commentJScrollPane)
-                    .add(commentJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, progressBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
+                    .add(commentJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
+                    .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
+                    .add(emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
+                    .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -436,12 +428,11 @@ public final class PublishContainerAvatar extends Avatar implements
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(commentJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 69, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
     

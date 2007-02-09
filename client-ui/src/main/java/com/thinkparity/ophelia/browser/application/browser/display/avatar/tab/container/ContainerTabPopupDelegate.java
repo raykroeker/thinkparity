@@ -126,10 +126,12 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         }
 
         // delete
-        final Data deleteData = new Data(1);
-        deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
-        addWithExpand(ActionId.CONTAINER_DELETE, deleteData, container);
-
+        // This menu is shown if online, or if it has never been published.
+        if (isOnline() || !isDistributed(container.getId())) {
+            final Data deleteData = new Data(1);
+            deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
+            addWithExpand(ActionId.CONTAINER_DELETE, deleteData, container);
+        }
 
         // export
         // This menu is not shown if there is a new package with no draft and no versions.

@@ -86,9 +86,12 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
         }
 
         // delete
-        final Data deleteData = new Data(1);
-        deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
-        addWithExpand(ActionId.CONTAINER_DELETE, deleteData, container);
+        // This menu is shown if online, or if it has never been published.
+        if (isOnline() || !isDistributed(container.getId())) {
+            final Data deleteData = new Data(1);
+            deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
+            addWithExpand(ActionId.CONTAINER_DELETE, deleteData, container);
+        }
 
         // export
         if (container.isLocalDraft() || isDistributed(container.getId())) {
@@ -269,5 +272,14 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
      */
     private boolean isLocalUser(final User user) {
         return model.readIsLocalUser(user).booleanValue();
+    }
+
+    /**
+     * Determine if online.
+     * 
+     * @return True if online; false otherwise.
+     */
+    private boolean isOnline() {
+        return model.isOnline().booleanValue();
     }
 }

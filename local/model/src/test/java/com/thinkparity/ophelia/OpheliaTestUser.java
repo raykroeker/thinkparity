@@ -29,6 +29,9 @@ public class OpheliaTestUser extends User {
     /** A test user. */
     public static final OpheliaTestUser JUNIT;
 
+    /** A test user. This user should not be any other user's contact. */
+    public static final OpheliaTestUser JUNIT_W;
+
     /** A test user. */
     public static final OpheliaTestUser JUNIT_X;
 
@@ -43,6 +46,7 @@ public class OpheliaTestUser extends User {
 
 	static {
         JUNIT = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit");
+        JUNIT_W = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.w");
         JUNIT_X = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.x");
         JUNIT_Y = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.y");
         JUNIT_Z = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.z");

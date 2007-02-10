@@ -11,10 +11,11 @@ import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
-import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.events.ProfileAdapter;
 import com.thinkparity.ophelia.model.events.ProfileEvent;
 import com.thinkparity.ophelia.model.events.ProfileListener;
+
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * <b>Title:</b>thinkParity Profile Test<br>
@@ -54,6 +55,37 @@ public final class ProfileTest extends ProfileTestCase {
     }
 
     /**
+     * Test determination of email availability.
+     *
+     */
+    public void testIsEmailAvailable() {
+        // add an e-mail to a contact
+        String emailInjection = "+" + String.valueOf(System.currentTimeMillis());
+        EMail email = EMailBuilder.parse("junit" + emailInjection + "@thinkparity.com");
+        getModel(datum.junit).addEmail(email);
+        assertFalse("Email availability incorrect.", getModel(datum.junit_x).isAvailable(email));
+
+        // add an e-mail to a non-contact
+        emailInjection = "+" + String.valueOf(System.currentTimeMillis());
+        email = EMailBuilder.parse("junit" + emailInjection + "@thinkparity.com");
+        getModel(datum.junit_w).addEmail(email);
+        assertFalse("Email availability incorrect.", getModel(datum.junit_x).isAvailable(email));
+
+        emailInjection = "+" + String.valueOf(System.currentTimeMillis());
+        email = EMailBuilder.parse("junit" + emailInjection + "@thinkparity.com");
+        assertTrue("Email availability incorrect.", getModel(datum.junit_x).isAvailable(email));
+    }
+
+    /**
+     * Test reading the profile.
+     *
+     */
+    public void testRead() {
+        final Profile profile = getModel(datum.junit).read();
+        assertNotNull(profile);
+    }
+
+    /**
      * Test removing an email address.
      *
      */
@@ -83,6 +115,24 @@ public final class ProfileTest extends ProfileTestCase {
         final String newPassword = getModel(datum.junit).readCredentials().getPassword();
         getModel(datum.junit).updatePassword(newPassword, password);
         assertTrue("Reset password event not fired.", datum.reset_password_notify);
+    }
+
+    /**
+     * Test updating the profile.
+     *
+     */
+    public void testUpdate() {
+        final Profile profile = getModel(datum.junit).read();
+        final String updateSuffix = String.valueOf(System.currentTimeMillis());
+        profile.setCity("Vancouver" + updateSuffix);
+        profile.setCountry("Canada" + updateSuffix);
+        profile.setMobilePhone("888-555-1111" + updateSuffix);
+        profile.setPhone("888-555-1111" + updateSuffix);
+        getModel(datum.junit).addListener(datum.update_listener);
+        getModel(datum.junit).update(profile);
+        datum.waitForEvents();
+        getModel(datum.junit).removeListener(datum.update_listener);
+        assertTrue("Update event not fired.", datum.update_notify);
     }
 
     /**
@@ -118,33 +168,6 @@ public final class ProfileTest extends ProfileTestCase {
     }
 
     /**
-     * Test reading the profile.
-     *
-     */
-    public void testRead() {
-        final Profile profile = getModel(datum.junit).read();
-        assertNotNull(profile);
-    }
-
-    /**
-     * Test updating the profile.
-     *
-     */
-    public void testUpdate() {
-        final Profile profile = getModel(datum.junit).read();
-        final String updateSuffix = String.valueOf(System.currentTimeMillis());
-        profile.setCity("Vancouver" + updateSuffix);
-        profile.setCountry("Canada" + updateSuffix);
-        profile.setMobilePhone("888-555-1111" + updateSuffix);
-        profile.setPhone("888-555-1111" + updateSuffix);
-        getModel(datum.junit).addListener(datum.update_listener);
-        getModel(datum.junit).update(profile);
-        datum.waitForEvents();
-        getModel(datum.junit).removeListener(datum.update_listener);
-        assertTrue("Update event not fired.", datum.update_notify);
-    }
-
-    /**
      * Set up the profile test.
      *
      */
@@ -153,6 +176,8 @@ public final class ProfileTest extends ProfileTestCase {
         super.setUp();
         datum = new Fixture();
         login(datum.junit);
+        login(datum.junit_w);
+        login(datum.junit_x);
     }
 
     /**
@@ -162,6 +187,8 @@ public final class ProfileTest extends ProfileTestCase {
     @Override
     protected void tearDown() throws Exception {
         logout(datum.junit);
+        logout(datum.junit_w);
+        logout(datum.junit_x);
         datum = null;
         super.tearDown();
     }
@@ -174,6 +201,8 @@ public final class ProfileTest extends ProfileTestCase {
         private final ProfileListener add_email_listener;
         private boolean add_email_notify;
         private final OpheliaTestUser junit;
+        private final OpheliaTestUser junit_w;
+        private final OpheliaTestUser junit_x;
         private final ProfileListener remove_email_listener;
         private boolean remove_email_notify;
         private final ProfileListener reset_password_listener;
@@ -193,6 +222,8 @@ public final class ProfileTest extends ProfileTestCase {
         private Fixture() {
             super();
             this.junit = OpheliaTestUser.JUNIT;
+            this.junit_w = OpheliaTestUser.JUNIT_W;
+            this.junit_x = OpheliaTestUser.JUNIT_X;
             this.add_email_listener = new ProfileAdapter() {
                 @Override
                 public void emailAdded(final ProfileEvent e) {

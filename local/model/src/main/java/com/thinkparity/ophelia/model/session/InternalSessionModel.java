@@ -114,16 +114,16 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void createDraft(final List<JabberId> team, final UUID uniqueId);
 
-	public String createStream(final StreamSession session);
+    public String createStream(final StreamSession session);
 
-    /**
+	/**
      * Initialize a stream.
      * 
      * @return A <code>StreamSession</code>.
      */
     public StreamSession createStreamSession();
 
-	/**
+    /**
      * Deny the presence visibility request from user to the currently logged
      * in user.
      * 
@@ -135,7 +135,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void declineInvitation(final EMail invitedAs, final JabberId invitedBy);
 
-    /**
+	/**
      * Delete an artifact from the backup.
      * 
      * @param userId
@@ -168,7 +168,7 @@ public interface InternalSessionModel extends SessionModel {
     public void deleteContactInvitation(final JabberId userId,
             final EMail invitedAs, final Calendar deletedOn);
 
-	/**
+    /**
      * Delete a draft for an artifact.
      * 
      * @param uniqueId
@@ -176,7 +176,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void deleteDraft(final UUID uniqueId);
 
-    /**
+	/**
      * Delete a stream session.
      * 
      * @param session
@@ -212,6 +212,17 @@ public interface InternalSessionModel extends SessionModel {
      * 
      */
     public void handleSessionTerminated(final Exception cause);
+
+    /**
+     * Determine the availability of an e-mail address.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            An <code>EMail</code> address.
+     * @return True if the email is not being used.
+     */
+    public Boolean isEmailAvailable(final JabberId userId, final EMail email);
 
     /**
      * Process the remote event queue.

@@ -4,7 +4,6 @@
 package com.thinkparity.codebase.model.util.dom4j;
 
 import java.nio.charset.Charset;
-import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -168,6 +167,15 @@ public class ElementBuilder {
             return addNullElement(parent, name, ArtifactType.class);
         } else {
             return addElement(parent, name, ArtifactType.class, value.toString());
+        }
+    }
+
+    public static final Element addElement(final Element parent,
+            final String name, final Boolean value) {
+        if (null == value) {
+            return addNullElement(parent, name, Boolean.class);
+        } else {
+            return addElement(parent, name, Boolean.class, value.toString());
         }
     }
 
@@ -854,20 +862,6 @@ public class ElementBuilder {
             final Element element = addElement(parent, name, value.getClass());
             final Dom4JWriter writer = new Dom4JWriter(element);
             xstreamUtil.marshal(value, writer);
-            return element;
-        }
-    }
-
-    private static final Element addJabberIdElements(final Element parent,
-            final String name, final List<JabberId> values) {
-        if (values.size() < 1) {
-            return addNullElement(parent, name, List.class);
-        } else {
-            final String childName = MessageFormat.format("{0}-element", name);
-            final Element element = addElement(parent, name, List.class);
-            for (final JabberId value : values) {
-                addElement(element, childName, value);
-            }
             return element;
         }
     }

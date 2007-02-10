@@ -48,6 +48,15 @@ public interface ProfileModel {
     public Profile create();
 
     /**
+     * Determine whether or not an e-mail address is available.
+     * 
+     * @param email
+     *            An <code>EMail</code>.
+     * @return True if the address is not in use.
+     */
+    public Boolean isAvailable(final EMail email);
+
+    /**
      * Determine if sign up is available.
      * 
      * @return True if sign up is available.

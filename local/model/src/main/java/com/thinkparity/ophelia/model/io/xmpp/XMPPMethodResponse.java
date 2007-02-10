@@ -63,6 +63,10 @@ public class XMPPMethodResponse extends IQ {
         return (byte[]) readResult(name);
     }
 
+    public Boolean readResultBoolean(final String name) {
+        return (Boolean) readResult(name);
+    }
+
     public Calendar readResultCalendar(final String name) {
         return (Calendar) readResult(name);
     }

@@ -69,6 +69,25 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
     }
 
     /**
+     * Determine the availability of an e-mail address.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            An <code>EMail</code> address.
+     * @return True if the email is not being used.
+     */
+    Boolean isEmailAvailable(final JabberId userId, final EMail email) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("email", email);
+        final XMPPMethod isEmailAvailable = new XMPPMethod("profile:isemailavailable");
+        isEmailAvailable.setParameter("userId", userId);
+        isEmailAvailable.setParameter("email", email);
+        return execute(isEmailAvailable, Boolean.TRUE).readResultBoolean("isAvailable");
+    }
+
+    /**
      * Read a profile.
      * 
      * @return A profile.

@@ -105,7 +105,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * Add a team member. This will create the team member relationship in the
      * distributed network with a pending state.
      * 
@@ -131,7 +131,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#archiveArtifact(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.UUID)
      * 
@@ -298,7 +298,7 @@ public final class SessionModelImpl extends Model<SessionListener>
 		}
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteArtifact(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
      *
      */
@@ -402,7 +402,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
 	 * Extend an invitation to a contact.
 	 * 
 	 * @param extendTo
@@ -422,7 +422,7 @@ public final class SessionModelImpl extends Model<SessionListener>
 		}
 	}
 
-	/**
+    /**
      * Handle the session established remote event.
      *
      */
@@ -439,7 +439,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * Handle the remote session terminated event.
      *
      */
@@ -473,6 +473,22 @@ public final class SessionModelImpl extends Model<SessionListener>
             });
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isEmailAvailable(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.email.EMail)
+     * 
+     */
+    public Boolean isEmailAvailable(final JabberId userId, final EMail email) {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.isEmailAvailable(userId, email);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 

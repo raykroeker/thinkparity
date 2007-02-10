@@ -3,12 +3,14 @@
  */
 package com.thinkparity.ophelia.model.profile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 
+import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
@@ -30,11 +32,11 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 public final class ProfileModelImpl extends Model<ProfileListener> implements
         ProfileModel, InternalProfileModel {
 
-    /** The profile db io. */
-    private ProfileIOHandler profileIO;
-
     /** A <code>ProfileEventGenerator</code> for local events. */
     private final ProfileEventGenerator localEventGenerator;
+
+    /** The profile db io. */
+    private ProfileIOHandler profileIO;
 
     /**
      * Create ProfileModelImpl.
@@ -108,6 +110,28 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             return profileIO.read(localUserId());
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#isAvailable(com.thinkparity.codebase.email.EMail)
+     *
+     */
+    public Boolean isAvailable(final EMail email) {
+        try {
+            assertOnline();
+            // check contacts first
+            final List<Contact> contacts = getContactModel().read();
+            final List<EMail> emails = new ArrayList<EMail>();
+            for (final Contact contact : contacts)
+                emails.addAll(contact.getEmails());
+            for (final EMail contactEmail : emails)
+                if (email.toString().equals(contactEmail.toString()))
+                    return Boolean.FALSE;
+            // check all users
+            return getSessionModel().isEmailAvailable(localUserId(), email);
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 

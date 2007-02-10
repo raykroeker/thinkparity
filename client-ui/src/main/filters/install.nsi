@@ -62,7 +62,6 @@ Section "thinkParity" SecParityBrowser
   File "LICENSE.TXT"
   File "README.TXT"
   File "thinkParity.exe"
-  File "thinkParity Demo.exe"
   File "thinkParity.jar"
   File "thinkParity.properties"
 
@@ -73,7 +72,6 @@ Section "thinkParity" SecParityBrowser
   CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
   CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
   CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\thinkParity.lnk" "$INSTDIR\thinkParity.exe"
-  CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\thinkParity Demo.lnk" "$INSTDIR\thinkParity Demo.exe"
   CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall thinkParity.lnk" "$INSTDIR\Uninstall thinkParity.exe"
   CreateShortCut "$DESKTOP\thinkParity.lnk" "$INSTDIR\thinkParity.exe"
   CreateShortCut "$SMSTARTUP\thinkParity.lnk" "$INSTDIR\thinkParity.exe"
@@ -103,7 +101,6 @@ Section "Uninstall"
   Delete "$INSTDIR\LICENSE.txt"
   Delete "$INSTDIR\README.txt"
   Delete "$INSTDIR\thinkParity.exe"
-  Delete "$INSTDIR\thinkParity Demo.exe"
   Delete "$INSTDIR\thinkParity.jar"
   Delete "$INSTDIR\thinkParity.properties"
 
@@ -111,7 +108,6 @@ Section "Uninstall"
   !insertmacro MUI_STARTMENU_GETFOLDER Application $MUI_TEMP
 
   Delete "$SMPROGRAMS\$MUI_TEMP\thinkParity.lnk"
-  Delete "$SMPROGRAMS\$MUI_TEMP\thinkParity Demo.lnk"
   Delete "$SMPROGRAMS\$MUI_TEMP\Uninstall thinkParity.lnk"
   Delete "$DESKTOP\thinkParity.lnk"
   Delete "$SMSTARTUP\thinkParity.lnk"

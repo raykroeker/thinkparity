@@ -161,7 +161,6 @@ class ContainerModelImpl extends AbstractModelImpl {
             artifactPublishedEvent.setPublishedOn(publishedOn);
             artifactPublishedEvent.setUniqueId(version.getArtifactUniqueId());
             artifactPublishedEvent.setVersionId(version.getVersionId());
-            artifactPublishedEvent.setTeamUserIds(teamMemberIds);
             final List<JabberId> enqueueTo = new ArrayList<JabberId>(teamMembers.size() + publishedTo.size());
             for (final TeamMember teamMember : teamMembers) {
                 enqueueTo.add(teamMember.getId());
@@ -170,13 +169,8 @@ class ContainerModelImpl extends AbstractModelImpl {
                 if (!enqueueTo.contains(publishedToId))
                     enqueueTo.add(publishedToId);
             }
+            artifactPublishedEvent.setTeamUserIds(enqueueTo);
             enqueueEvent(session.getJabberId(), enqueueTo, artifactPublishedEvent);
-
-            for (final User publishedToUser : publishedTo) {
-                if (!contains(teamMembers, publishedToUser))
-                    getArtifactModel().addTeamMember(userId, teamMemberIds,
-                            version.getArtifactUniqueId(), publishedToUser.getId());
-            }
 
             final Artifact artifact = getArtifactModel().read(version.getArtifactUniqueId());
             artifactSql.updateKeyHolder(artifact.getId(),

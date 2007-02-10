@@ -123,6 +123,19 @@ class ProfileModelImpl extends AbstractModelImpl {
         }
     }
 
+    Boolean isEmailAvailable(final JabberId userId, final EMail email) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("email", email);
+        try {
+            assertIsAuthenticatedUser(userId);
+
+            return userSql.isEmailAvailable(email);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     /**
      * Read a profile.
      * 

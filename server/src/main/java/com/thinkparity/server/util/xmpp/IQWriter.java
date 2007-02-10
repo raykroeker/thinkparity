@@ -80,7 +80,7 @@ public final class IQWriter implements ServiceResponseWriter {
      */
     public final IQ getIQ() { return iq; }
 
-    public Element toEvent() {
+    public final Element toEvent() {
         return iq.getChildElement();
     }
 
@@ -94,6 +94,14 @@ public final class IQWriter implements ServiceResponseWriter {
      */
     public final void writeArtifactType(final String name,
             final ArtifactType value) {
+        ElementBuilder.addElement(iq.getChildElement(), name, value);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeBoolean(java.lang.String, java.lang.Boolean)
+     *
+     */
+    public final void writeBoolean(final String name, final Boolean value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 

@@ -45,6 +45,8 @@ public interface ServiceResponseWriter {
     public void writeArtifactType(final String name,
             ArtifactType value);
 
+    public void writeBoolean(final String name, final Boolean value);
+
     /**
      * Write a calendar value.
      *
@@ -54,7 +56,7 @@ public interface ServiceResponseWriter {
      *      The element value.
      */
     public void writeCalendar(final String name, Calendar value);
-
+    
     public void writeContainer(final String name, Container value);
 
     public void writeContainers(final String parentName,

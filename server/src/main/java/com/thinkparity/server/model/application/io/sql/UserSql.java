@@ -59,7 +59,7 @@ public class UserSql extends AbstractSql {
             .append("on JU.USERNAME=PUAR.ARCHIVENAME ")
             .append("where JU.USERNAME=?")
             .toString();
-        
+
     /** Sql to read a user's archive ids. */
     private static final String SQL_READ_ARCHIVE_IDS =
             new StringBuffer("select PUAR.ARCHIVENAME ")
@@ -67,7 +67,7 @@ public class UserSql extends AbstractSql {
             .append("where PUAR.USERNAME=? ")
             .append("order by PUAR.ARCHIVENAME asc")
             .toString();
-
+        
     /** Sql to read a user. */
     private static final String SQL_READ_BY_USER_ID =
             new StringBuffer("select JU.USERNAME ")
@@ -84,6 +84,13 @@ public class UserSql extends AbstractSql {
             .append("where JU.USERNAME=? and PUE.EMAIL=? ")
             .append("and PUE.VERIFICATIONKEY=?")
             .toString();
+
+    /** Sql to count email addresses. */
+    private static final String SQL_READ_EMAIL_COUNT =
+        new StringBuffer("select COUNT(EMAIL) \"EMAIL_COUNT\" ")
+        .append("from PARITYUSEREMAIL PUE ")
+        .append("where PUE.EMAIL=?")
+        .toString();
 
     /** Sql to read e-mail addresses. */
     private static final String SQL_READ_EMAILS =
@@ -195,6 +202,27 @@ public class UserSql extends AbstractSql {
             cx.commit();
         } finally {
            close(cx, ps);
+        }
+    }
+
+    public Boolean isEmailAvailable(final EMail email) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_EMAIL_COUNT);
+            session.setString(1, email.toString());
+            session.executeQuery();
+            session.nextResult();
+            if (0 == session.getInteger("EMAIL_COUNT")) {
+                return Boolean.TRUE;
+            } else if (1 == session.getInteger("EMAIL_COUNT")) {
+                return Boolean.FALSE;
+            } else {
+                throw new HypersonicException("Could not determine availability.");
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
         }
     }
 

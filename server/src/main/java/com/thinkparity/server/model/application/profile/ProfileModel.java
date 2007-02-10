@@ -34,7 +34,7 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
 		return new ProfileModel(session);
 	}
 
-	/**
+    /**
 	 * Create ProfileModel.
 	 *
 	 * @param workspace
@@ -44,7 +44,7 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
 		super(new ProfileModelImpl(session));
 	}
 
-    /**
+	/**
      * Add an email to a user's profile.
      * 
      * @param userId
@@ -68,6 +68,12 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
     public Token createToken(final JabberId userId) {
         synchronized (getImplLock()) {
             return getImpl().createToken(userId);
+        }
+    }
+
+    public Boolean isEmailAvailable(final JabberId userId, final EMail email) {
+        synchronized (getImplLock()) {
+            return getImpl().isEmailAvailable(userId, email);
         }
     }
 

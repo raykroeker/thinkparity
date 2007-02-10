@@ -7,11 +7,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 
-import com.thinkparity.ophelia.model.events.ContainerEvent;
-
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.container.ContainerTabDispatcher;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * <b>Title:</b>thinkParity Container Tab Avatar<br>
@@ -40,6 +39,16 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
                                 .addListeners(ContainerTabAvatar.this);
                     }
                 });
+    }
+
+    /**
+     * Collapse the container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void collapseContainer(final Long containerId) {
+        model.collapsePanel(containerId, Boolean.FALSE);
     }
 
     /**

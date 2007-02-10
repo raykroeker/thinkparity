@@ -99,6 +99,9 @@ public class ActionFactory extends AbstractFactory {
         case CONTACT_ACCEPT_INCOMING_INVITATION:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation(browser);
             break;
+        case CONTACT_COLLAPSE:
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.Collapse(browser);
+            break;
 		case CONTACT_CREATE_INCOMING_INVITATION:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInvitation(browser);
             break;
@@ -114,6 +117,9 @@ public class ActionFactory extends AbstractFactory {
         case CONTACT_DISPLAY_INVITATION_INFO:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.DisplayContactInvitationInfo(browser);
             break;
+        case CONTACT_EXPAND:
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.Expand(browser);
+            break;
 		case CONTACT_READ:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.Read(browser);
             break;
@@ -126,6 +132,9 @@ public class ActionFactory extends AbstractFactory {
             break;
         case CONTAINER_ARCHIVE:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Archive(browser);
+            break;
+        case CONTAINER_COLLAPSE:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Collapse(browser);
             break;
 		case CONTAINER_CREATE:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Create(browser);

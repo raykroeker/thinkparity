@@ -970,13 +970,13 @@ public class ContactTabPanel extends DefaultTabPanel {
             tabDelegate.selectPanel(this);
             popupDelegate.initialize(jPanel, e.getX(), e.getY());
             if (isSetContact())
-                popupDelegate.showForContact(contact);
+                popupDelegate.showForContact(contact, isExpanded());
             else if (isSetIncoming())
                 popupDelegate.showForInvitation(incoming);
             else if (isSetOutgoing())
                 popupDelegate.showForInvitation(outgoing);
             else if (isSetProfile())
-                popupDelegate.showForProfile(profile);
+                popupDelegate.showForProfile(profile, isExpanded());
             else
                 Assert.assertUnreachable("Inconsistent contact tab panel state.");
         } else if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
@@ -1000,13 +1000,13 @@ public class ContactTabPanel extends DefaultTabPanel {
             tabDelegate.selectPanel(this);
             popupDelegate.initialize(jPanel, e.getX(), e.getY());
             if (isSetContact())
-                popupDelegate.showForContact(contact);
+                popupDelegate.showForContact(contact, isExpanded());
             else if (isSetIncoming())
                 popupDelegate.showForInvitation(incoming);
             else if (isSetOutgoing())
                 popupDelegate.showForInvitation(outgoing);
             else if (isSetProfile())
-                popupDelegate.showForProfile(profile);
+                popupDelegate.showForProfile(profile, isExpanded());
             else
                 Assert.assertUnreachable("Inconsistent contact tab panel state.");
         }

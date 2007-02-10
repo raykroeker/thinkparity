@@ -1,8 +1,10 @@
 /**
- * Created On: Jan 24, 2007 12:04:53 PM
+ * Created On: Feb 9, 2007 11:28:43 PM
  * $Id$
  */
-package com.thinkparity.ophelia.browser.platform.action.container;
+package com.thinkparity.ophelia.browser.platform.action.contact;
+
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
@@ -25,7 +27,7 @@ public class Expand extends AbstractAction {
      *            The browser application.
      */
     public Expand(final Browser browser) {
-        super(ActionId.CONTAINER_EXPAND);
+        super(ActionId.CONTACT_EXPAND);
         this.browser = browser;
     }
 
@@ -34,11 +36,10 @@ public class Expand extends AbstractAction {
      */
     @Override
     public void invoke(final Data data) {
-        final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
-        final Boolean archiveTab = (Boolean) data.get(DataKey.ARCHIVE_TAB);
-        browser.expandContainer(containerId, archiveTab);  
+        final JabberId contactId = (JabberId) data.get(DataKey.CONTACT_ID);
+        browser.expandContact(contactId);  
     }
 
     /** The data keys. */
-    public enum DataKey { CONTAINER_ID, ARCHIVE_TAB }
+    public enum DataKey { CONTACT_ID }
 }

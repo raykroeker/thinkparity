@@ -73,12 +73,18 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForContainer(com.thinkparity.codebase.model.container.Container)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForContainer(com.thinkparity.codebase.model.container.Container, boolean)
      *
      */
-    public void showForContainer(final Container container) {   
+    public void showForContainer(final Container container, final boolean expanded) {
+        boolean needSeparator = false;
+        
+        if (!expanded) {
+            addExpand(container.getId());
+            addSeparator();
+        }
+
         if (isOnline()) {
-            boolean needSeparator = false;
             if (container.isLocalDraft()) {
                 final Data publishData = new Data(1);
                 publishData.set(Publish.DataKey.CONTAINER_ID, container.getId());
@@ -98,9 +104,6 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
                 addWithExpand(ActionId.CONTAINER_DELETE_DRAFT, deleteDraftData, container);
                 needSeparator = true;
             }
-            if (needSeparator) {
-                addSeparator();
-            }
         }
 
         // Add document
@@ -109,7 +112,13 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, container.getId());
             addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
             addWithExpand(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData, container);
+            needSeparator = true;
+        }
+
+        // Separator, maybe
+        if (needSeparator) {
             addSeparator();
+            needSeparator = false;
         }
 
         // Rename container
@@ -117,12 +126,14 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             final Data renameData = new Data(1);
             renameData.set(Rename.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_RENAME, renameData, container);
+            needSeparator = true;
         }
 
         if (isDistributed(container.getId()) && !container.isLocalDraft()) {
             final Data archiveData = new Data(1);
             archiveData.set(Archive.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_ARCHIVE, archiveData, container);
+            needSeparator = true;
         }
 
         // delete
@@ -131,15 +142,26 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             final Data deleteData = new Data(1);
             deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_DELETE, deleteData, container);
+            needSeparator = true;
         }
 
         // export
         // This menu is not shown if there is a new package with no draft and no versions.
         if (container.isLocalDraft() || isDistributed(container.getId())) {
-            addSeparator();
+            if (needSeparator) {
+                addSeparator();
+            }
             final Data exportData = new Data(1);
             exportData.set(com.thinkparity.ophelia.browser.platform.action.container.Export.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_EXPORT, exportData, container);
+        }
+        
+        // Collapse
+        if (expanded) {
+            if (needSeparator) {
+                addSeparator();
+            }
+            addCollapse(container.getId());
         }
 
         // include the container's id and unique id in the menu
@@ -179,9 +201,8 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      * 
      */
     public void showForDraft(final Container container, final ContainerDraft draft) {
-        
         final List<Document> documents = draft.getDocuments();
-        
+
         // Open submenu, documents
         for (final Document document : documents) {
             final Data openData = new Data(1);
@@ -270,6 +291,12 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             add(ActionId.DOCUMENT_PRINT_DRAFT, document.getName(), documentPrintData);     
         }
         
+        // Collapse
+        if (documents.size() > 0) {
+            addSeparator();
+        }
+        addCollapse(container.getId());
+        
         show();
     }
 
@@ -278,7 +305,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      *
      */
     public void showForPanel(final TabPanel tabPanel) {
-        showForContainer(((ContainerPanel) tabPanel).getContainer());
+        showForContainer(((ContainerPanel) tabPanel).getContainer(), false);
     }
 
     /**
@@ -350,9 +377,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         exportData.set(com.thinkparity.ophelia.browser.platform.action.container.ExportVersion.DataKey.VERSION_ID, version.getVersionId());
         add(ActionId.CONTAINER_EXPORT_VERSION, exportData);
         
-        if (documentViews.size() > 0) {
-            addSeparator();
-        }
+        addSeparator();
         
         // Print
         if (documentViews.size() > 1) {
@@ -368,9 +393,41 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             documentVersionPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.DOCUMENT_ID, documentView.getDocumentId());
             documentVersionPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.VERSION_ID, documentView.getVersionId());
             add(ActionId.DOCUMENT_PRINT_VERSION, documentView.getDocumentName(), documentVersionPrintData);           
-        }    
+        }
+
+        // Collapse
+        if (documentViews.size() > 0) {
+            addSeparator();
+        }
+        addCollapse(version.getArtifactId());
 
         show();
+    }
+    
+    /**
+     * Add the "collapse" menu.
+     * 
+     * @param containerId
+     *            A <code>Long</code>.
+     */
+    private void addCollapse(final Long containerId) {
+        final Data collapseData = new Data(2);
+        collapseData.set(Collapse.DataKey.CONTAINER_ID, containerId);
+        collapseData.set(Collapse.DataKey.ARCHIVE_TAB, Boolean.FALSE);
+        add(ActionId.CONTAINER_COLLAPSE, collapseData);
+    }
+
+    /**
+     * Add the "expand" menu.
+     * 
+     * @param containerId
+     *            A <code>Long</code>.
+     */
+    private void addExpand(final Long containerId) {
+        final Data expandData = new Data(2);
+        expandData.set(Expand.DataKey.CONTAINER_ID, containerId);
+        expandData.set(Expand.DataKey.ARCHIVE_TAB, Boolean.FALSE);
+        add(ActionId.CONTAINER_EXPAND, expandData);
     }
 
     /**

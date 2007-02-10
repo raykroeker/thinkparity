@@ -33,6 +33,7 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
+import com.thinkparity.ophelia.browser.platform.action.container.Collapse;
 import com.thinkparity.ophelia.browser.platform.action.container.Delete;
 import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
 import com.thinkparity.ophelia.browser.platform.action.container.Expand;
@@ -77,12 +78,20 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForContainer(com.thinkparity.codebase.model.container.Container)
      *
      */
-    public void showForContainer(final Container container) {
+    public void showForContainer(final Container container, final boolean expanded) {
+        boolean needSeparator = false;
+
+        if (!expanded) {
+            addExpand(container.getId());
+            addSeparator();
+        }
+
         // restore
         if (isDistributed(container.getId()) && !container.isLocalDraft()) {
             final Data archiveData = new Data(1);
             archiveData.set(Restore.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_RESTORE, archiveData, container);
+            needSeparator = true;
         }
 
         // delete
@@ -91,6 +100,7 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
             final Data deleteData = new Data(1);
             deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_DELETE, deleteData, container);
+            needSeparator = true;
         }
 
         // export
@@ -99,6 +109,15 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
             final Data exportData = new Data(1);
             exportData.set(com.thinkparity.ophelia.browser.platform.action.container.Export.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_EXPORT, exportData, container);
+            needSeparator = true;
+        }
+
+        // Collapse
+        if (expanded) {
+            if (needSeparator) {
+                addSeparator();
+            }
+            addCollapse(container.getId());
         }
 
         // debugging info
@@ -146,7 +165,7 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
      *
      */
     public void showForPanel(final TabPanel tabPanel) {
-        showForContainer(((ArchiveTabPanel) tabPanel).getContainer());
+        showForContainer(((ArchiveTabPanel) tabPanel).getContainer(), false);
     }
 
     /**
@@ -191,7 +210,9 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
                 add(ActionId.CONTACT_READ, entry.getKey().getName(), data);
             }
         }
+
         addSeparator();
+
         // display version info
         if (version.isSetComment()) {
             final Data commentData = new Data(2);
@@ -199,14 +220,15 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
             commentData.set(DisplayVersionInfo.DataKey.VERSION_ID, version.getVersionId());
             add(ActionId.CONTAINER_DISPLAY_VERSION_INFO, commentData);
         }
+
         // export version
         final Data exportData = new Data(2);
         exportData.set(com.thinkparity.ophelia.browser.platform.action.container.ExportVersion.DataKey.CONTAINER_ID, version.getArtifactId());
         exportData.set(com.thinkparity.ophelia.browser.platform.action.container.ExportVersion.DataKey.VERSION_ID, version.getVersionId());
         add(ActionId.CONTAINER_EXPORT_VERSION, exportData);
-        if (documentViews.size() > 0) {
-            addSeparator();
-        }
+
+        addSeparator();
+
         // print
         if (documentViews.size() > 1) {
             final Data printData = new Data(2);
@@ -221,8 +243,41 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
             documentVersionPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.DOCUMENT_ID, documentView.getDocumentId());
             documentVersionPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.VERSION_ID, documentView.getVersionId());
             add(ActionId.DOCUMENT_PRINT_VERSION, documentView.getDocumentName(), documentVersionPrintData);           
-        }    
+        }
+
+        // Collapse
+        if (documentViews.size() > 0) {
+            addSeparator();
+        }
+        addCollapse(version.getArtifactId());
+
         show();
+    }
+
+    /**
+     * Add the "collapse" menu.
+     * 
+     * @param containerId
+     *            A <code>Long</code>.
+     */
+    private void addCollapse(final Long containerId) {
+        final Data collapseData = new Data(2);
+        collapseData.set(Collapse.DataKey.CONTAINER_ID, containerId);
+        collapseData.set(Collapse.DataKey.ARCHIVE_TAB, Boolean.TRUE);
+        add(ActionId.CONTAINER_COLLAPSE, collapseData);
+    }
+
+    /**
+     * Add the "expand" menu.
+     * 
+     * @param containerId
+     *            A <code>Long</code>.
+     */
+    private void addExpand(final Long containerId) {
+        final Data expandData = new Data(2);
+        expandData.set(Expand.DataKey.CONTAINER_ID, containerId);
+        expandData.set(Expand.DataKey.ARCHIVE_TAB, Boolean.TRUE);
+        add(ActionId.CONTAINER_EXPAND, expandData);
     }
 
     /**

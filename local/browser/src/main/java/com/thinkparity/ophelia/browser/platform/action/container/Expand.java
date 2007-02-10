@@ -19,7 +19,7 @@ public class Expand extends AbstractAction {
     private final Browser browser;
 
     /**
-     * Create a Create.
+     * Create a Expand.
      * 
      * @param browser
      *            The browser application.

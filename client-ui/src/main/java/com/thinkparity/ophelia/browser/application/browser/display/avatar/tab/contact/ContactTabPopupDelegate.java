@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
+import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 
@@ -13,9 +14,11 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.Collapse;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.Expand;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
@@ -45,13 +48,24 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.PopupDelegate#showForContact(com.thinkparity.codebase.model.contact.Contact)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.PopupDelegate#showForContact(com.thinkparity.codebase.model.contact.Contact, boolean)
      * 
      */
-    public void showForContact(final Contact contact) {
+    public void showForContact(final Contact contact, final boolean expanded) {
+        if (!expanded) {
+            addExpand(contact.getId());
+            addSeparator();
+        }
+
         final Data deleteData = new Data(1);
         deleteData.set(Delete.DataKey.CONTACT_ID, contact.getId());
         add(ActionId.CONTACT_DELETE, deleteData);
+
+        if (expanded) {
+            addSeparator();
+            addCollapse(contact.getId());
+        }
+
         show();
     }
 
@@ -86,9 +100,14 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.PopupDelegate#showForProfile(com.thinkparity.codebase.model.profile.Profile)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.PopupDelegate#showForProfile(com.thinkparity.codebase.model.profile.Profile, boolean)
      */
-    public void showForProfile(final Profile profile) {
+    public void showForProfile(final Profile profile, final boolean expanded) {
+        if (!expanded) {
+            addExpand(profile.getId());
+            addSeparator();
+        }
+
         final Data profileData = new Data(1);
         profileData.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
         add(ActionId.PROFILE_UPDATE, profileData);
@@ -96,6 +115,11 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
         final Data updateProfileData = new Data(1);
         updateProfileData.set(UpdatePassword.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
         add(ActionId.PROFILE_UPDATE_PASSWORD, updateProfileData);
+
+        if (expanded) {
+            addSeparator();
+            addCollapse(profile.getId());
+        }
 
         show();
     }
@@ -105,7 +129,31 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
      * 
      */
     public void showForPanel(final TabPanel tabPanel) {
-        showForContact(((ContactTabPanel) tabPanel).getContact());
+        showForContact(((ContactTabPanel) tabPanel).getContact(), false);
+    }
+
+    /**
+     * Add the "collapse" menu.
+     * 
+     * @param contactId
+     *            A <code>JabberId</code>.
+     */
+    private void addCollapse(final JabberId contactId) {
+        final Data collapseData = new Data(1);
+        collapseData.set(Collapse.DataKey.CONTACT_ID, contactId);
+        add(ActionId.CONTACT_COLLAPSE, collapseData);
+    }
+
+    /**
+     * Add the "expand" menu.
+     * 
+     * @param contactId
+     *            A <code>JabberId</code>.
+     */
+    private void addExpand(final JabberId contactId) {
+        final Data expandData = new Data(1);
+        expandData.set(Expand.DataKey.CONTACT_ID, contactId);
+        add(ActionId.CONTACT_EXPAND, expandData);
     }
 
     /**

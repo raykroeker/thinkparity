@@ -23,8 +23,10 @@ public interface PopupDelegate extends TabPanelPopupDelegate {
      * 
      * @param contact
      *            A <code>Contact</code>.
+     * @param expanded
+     *            A <code>boolean</code>.     
      */
-    public void showForContact(final Contact contact);
+    public void showForContact(final Contact contact, final boolean expanded);
 
     /**
      * Show a popup for a contact invitation.
@@ -47,6 +49,8 @@ public interface PopupDelegate extends TabPanelPopupDelegate {
      * 
      * @param profile
      *            A <code>Profile</code>.
+     * @param expanded
+     *            A <code>boolean</code>.     
      */
-    public void showForProfile(final Profile profile);
+    public void showForProfile(final Profile profile, final boolean expanded);
 }

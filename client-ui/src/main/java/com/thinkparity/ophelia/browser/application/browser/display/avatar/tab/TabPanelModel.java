@@ -104,7 +104,22 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
         this.searchResults = new ArrayList<T>();
         this.visiblePanels = new ArrayList<TabPanel>();
     }
-       
+
+    /**
+     * Collapse the panel.
+     * 
+     * @param panelId
+     *            A panel id <code>T</code>.
+     * @param animate
+     *            Animate flag <code>Boolean</code>.           
+     */
+    public void collapsePanel(final T panelId, final Boolean animate) {
+        final TabPanel tabPanel = (TabPanel)lookupPanel(panelId);
+        if (isExpanded(tabPanel)) {
+            toggleExpansion(tabPanel, animate);
+        }
+    }
+
     /**
      * Expand the panel.
      * 

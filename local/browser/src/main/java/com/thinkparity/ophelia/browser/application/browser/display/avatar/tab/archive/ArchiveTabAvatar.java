@@ -39,7 +39,17 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
                     }
                 });
     }
-    
+
+    /**
+     * Collapse the container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void collapseContainer(final Long containerId) {
+        model.collapsePanel(containerId, Boolean.FALSE);
+    }
+
     /**
      * Expand the container.
      * 

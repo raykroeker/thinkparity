@@ -30,7 +30,29 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
         model.setSession(getSession());
         setSortByDelegate(model);
     }
-    
+
+    /**
+     * Collapse the contact.
+     * 
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
+     */
+    public void collapseContact(final JabberId contactId) {
+        final ContactPanelId contactPanelId = new ContactPanelId(contactId);
+        model.collapsePanel(contactPanelId, Boolean.FALSE);
+    }
+
+    /**
+     * Expand the contact.
+     * 
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
+     */
+    public void expandContact(final JabberId contactId) {
+        final ContactPanelId contactPanelId = new ContactPanelId(contactId);
+        model.expandPanel(contactPanelId, Boolean.FALSE);
+    }
+
     /**
      * Show the contact invitation (select the panel and scroll so it visible).
      * 

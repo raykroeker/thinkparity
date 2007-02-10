@@ -176,6 +176,32 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Collapse the contact.
+     *
+     * @param contactId
+     *            The contact id.      
+     */
+    public void collapseContact(final JabberId contactId) {
+        getTabContactAvatar().collapseContact(contactId);
+    }
+
+    /**
+     * Collapse the container.
+     *
+     * @param containerId
+     *            The containerId.
+     * @param archiveTab
+     *            true for archive tab, false for container tab.        
+     */
+    public void collapseContainer(final Long containerId, final Boolean archiveTab) {
+        if (archiveTab) {
+            getTabArchiveAvatar().collapseContainer(containerId);
+        } else {
+            getTabContainerAvatar().collapseContainer(containerId);
+        }
+    }
+
+    /**
      * Open a confirmation dialog.
      * 
      * @param messageKey
@@ -542,12 +568,22 @@ public class Browser extends AbstractApplication {
         setStatus(ApplicationStatus.ENDING);        
 		notifyEnd();
 	}
-    
+
+    /**
+     * Expand the contact.
+     *
+     * @param contactId
+     *            The contact id.       
+     */
+    public void expandContact(final JabberId contactId) {
+        getTabContactAvatar().expandContact(contactId);
+    }
+
     /**
      * Expand the container.
      *
      * @param containerId
-     *            The containerId.
+     *            The container id.
      * @param archiveTab
      *            true for archive tab, false for container tab.        
      */
@@ -558,7 +594,7 @@ public class Browser extends AbstractApplication {
             getTabContainerAvatar().expandContainer(containerId);
         }
     }
-    
+
     /**
      * Notify the application that an actin has been invoked.
      */

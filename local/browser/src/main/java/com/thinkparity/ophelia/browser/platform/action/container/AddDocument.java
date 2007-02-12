@@ -89,11 +89,16 @@ public class AddDocument extends AbstractAction {
                 boolean update = true;
                 if (ContainerDraft.ArtifactState.ADDED == containerDraft.getState(document)) {
                     update = browser.confirm("ConfirmOverwriteAddedDocument", new Object[] { file.getName() });
-                } else if (getDocumentModel().isDraftModified(document.getId())) {
+                } else if (ContainerDraft.ArtifactState.REMOVED != containerDraft.getState(document) &&
+                        getDocumentModel().isDraftModified(document.getId())) {
                     update = browser.confirm("ConfirmOverwriteModifiedDocument", new Object[] { file.getName() });                    
                 }
 
+                // Update the document. If necessary, undelete the document first.
                 if (update) {
+                    if (ContainerDraft.ArtifactState.REMOVED == containerDraft.getState(document)) {
+                        getContainerModel().revertDocument(containerId, document.getId());
+                    }
                     updateDocument(file, containerId, document.getId());   
                 }
             }

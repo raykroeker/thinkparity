@@ -65,7 +65,6 @@ import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
-import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
 import com.thinkparity.ophelia.browser.platform.action.profile.AddEmail;
 import com.thinkparity.ophelia.browser.platform.action.profile.RemoveEmail;
 import com.thinkparity.ophelia.browser.platform.action.profile.ResetPassword;
@@ -1628,22 +1627,7 @@ public class Browser extends AbstractApplication {
         }
         invoke(ActionId.PROFILE_RESET_PASSWORD, data);
     }
-    
-    /**
-     * Update the document with the file.
-     * 
-     * @param documentId
-     *            A document id.
-     * @param file
-     *            A file.
-     */
-    public void runUpdateDocumentDraft(final Long documentId, final File file) {
-        final Data data = new Data(2);
-        data.set(UpdateDraft.DataKey.DOCUMENT_ID, documentId);
-        data.set(UpdateDraft.DataKey.FILE, file);
-        invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);
-    }
-    
+
     /**
      * Update the user's profile.
      *

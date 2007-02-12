@@ -218,9 +218,6 @@ public class ActionFactory extends AbstractFactory {
         case DOCUMENT_PRINT_VERSION:
             action = new com.thinkparity.ophelia.browser.platform.action.document.PrintVersion(browser);
             break;
-		case DOCUMENT_UPDATE_DRAFT:
-            action = new com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft(browser);
-            break;
 
 		case PLATFORM_BROWSER_DISPLAY_INFO:
 		    action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.DisplayInfo(browser);

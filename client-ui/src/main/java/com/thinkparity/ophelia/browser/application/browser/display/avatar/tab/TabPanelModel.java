@@ -209,8 +209,12 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
         if (null != selectedPanel) {
             // Note that the panel may have been replaced since it was set.
             // The selectedPanel id can be trusted.
+            // Also note the selected panel may have been deleted.
             final T oldPanelId = lookupId(selectedPanel);
-            lookupPanel(oldPanelId).setSelected(Boolean.FALSE);
+            final TabPanel oldPanel = lookupPanel(oldPanelId);
+            if (null != oldPanel) {
+                oldPanel.setSelected(Boolean.FALSE);
+            }
         }
         selectedPanel = tabPanel;
         selectedPanel.setSelected(Boolean.TRUE);

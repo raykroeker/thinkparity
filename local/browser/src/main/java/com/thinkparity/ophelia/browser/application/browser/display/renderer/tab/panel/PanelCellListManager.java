@@ -124,6 +124,17 @@ public class PanelCellListManager {
         reloadControls();
     }
     
+    /**
+     * Show the first page.
+     */
+    public void showFirstPage() {
+        if (0 != currentPage) {
+            currentPage = 0;
+            updateModel();
+            reloadControls();
+        }
+    }
+    
     private void initializeMouseListeners() {
         MouseAdapter mouseAdapter = new java.awt.event.MouseAdapter() {
             public void mousePressed(final java.awt.event.MouseEvent e) {

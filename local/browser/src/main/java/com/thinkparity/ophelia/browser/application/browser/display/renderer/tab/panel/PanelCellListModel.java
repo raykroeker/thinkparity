@@ -134,6 +134,10 @@ public class PanelCellListModel {
         setSelectedIndex(listModel.indexOf(cell));
     }
 
+    public void showFirstPage() {
+        listManager.showFirstPage();
+    }
+
     private void setSelectedIndex(final int selectedIndex) {
         final int oldSelectedIndex = this.selectedIndex;
         this.selectedIndex = selectedIndex;

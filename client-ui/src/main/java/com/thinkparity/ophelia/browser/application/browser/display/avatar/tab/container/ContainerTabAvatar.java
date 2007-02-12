@@ -58,7 +58,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A container id <code>Long</code>.
      */
     public void expandContainer(final Long containerId) {
-        model.expandPanel(containerId, Boolean.FALSE);
+        showPanel(containerId);
     }
 
     /**
@@ -83,7 +83,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
             sync(e);
         } else {
             sync(e);
-            showContainer(e.getContainer().getId());           
+            showPanel(e.getContainer().getId());           
             setDraftSelection(e);
         }
     }
@@ -281,7 +281,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     public void showContainer(final List<Long> containerIds, final int index) {
         final List<Long> sortedContainerIds = model.getCurrentVisibleOrder(containerIds);
         if (index < sortedContainerIds.size()) {
-            showContainer(sortedContainerIds.get(index));
+            showPanel(sortedContainerIds.get(index));
         }
     }
 
@@ -330,13 +330,14 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     }
     
     /**
-     * Show the container (expand the panel and scroll so it
+     * Show the panel (expand the panel and scroll so it
      * is visible).
      * 
      * @param containerId
      *            A container id <code>Long</code>.
      */
-    private void showContainer(final Long containerId) {
+    private void showPanel(final Long containerId) {
+        model.selectPanel(containerId);
         model.expandPanel(containerId, Boolean.FALSE);
         model.scrollPanelToVisible(containerId);
     }

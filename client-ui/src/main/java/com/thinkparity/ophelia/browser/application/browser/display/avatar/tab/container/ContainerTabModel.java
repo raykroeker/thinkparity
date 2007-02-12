@@ -79,7 +79,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         super();
         this.actionDelegate = new ContainerTabActionDelegate(this);
         this.containerIdLookup = new HashMap<Long, Long>();
-        this.containerTabImportHelper = new ContainerTabImportHelper(browser);
+        this.containerTabImportHelper = new ContainerTabImportHelper(this, browser);
         this.popupDelegate = new ContainerTabPopupDelegate(this);
         this.sortedBy = new Stack<SortBy>();
         addApplicationListener();

@@ -27,11 +27,15 @@ public class ContainerTabImportHelper {
     /** The application. */
     private final Browser browser;
 
+    /** The model. */
+    private final ContainerTabModel model;
+
     /**
      * Create a ContainerTabImportHelper.
      */
-    ContainerTabImportHelper(final Browser browser) {
+    ContainerTabImportHelper(final ContainerTabModel model, final Browser browser) {
         super();
+        this.model = model;
         this.browser = browser;
     }
 
@@ -91,7 +95,7 @@ public class ContainerTabImportHelper {
     /**
      * Import data into a container (ie. add and/or update documents).
      * 
-     * @param c
+     * @param container
      *            A <code>Container</code>.
      * @param transferable
      *            Import data <code>Transferable</code>.
@@ -109,6 +113,7 @@ public class ContainerTabImportHelper {
 
         // Add and/or update documents to the container.
         if (0 < transferableFiles.size()) {
+            showPanel(container.getId());
             browser.runAddContainerDocuments(container.getId(), transferableFiles
                     .toArray(new File[] {}));
         }
@@ -128,6 +133,19 @@ public class ContainerTabImportHelper {
             }
         }
         return Boolean.FALSE;
+    }
+
+    /**
+     * Expand the panel, select it, and select the draft.
+     * 
+     * @param containerId
+     *            A <code>Long</code> container id.
+     */
+    private void showPanel(final Long containerId) {
+        model.selectPanel(containerId);
+        model.expandPanel(containerId, Boolean.FALSE);
+        model.scrollPanelToVisible(containerId);
+        model.setDraftSelection(containerId);
     }
 
     /**

@@ -50,7 +50,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      */
     public void expandContact(final JabberId contactId) {
         final ContactPanelId contactPanelId = new ContactPanelId(contactId);
-        model.expandPanel(contactPanelId, Boolean.FALSE);
+        showPanel(contactPanelId, true);
     }
 
     /**
@@ -67,7 +67,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
             panelIds.add(new ContactPanelId(invitationId));
         final List<ContactPanelId> sortedInvitationIds = model.getCurrentVisibleOrder(panelIds);
         if (index < sortedInvitationIds.size()) {
-            showPanel(sortedInvitationIds.get(index));
+            showPanel(sortedInvitationIds.get(index), false);
         }
     }
     
@@ -126,8 +126,11 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      * @param panelId
      *            A panel id <code>ContactPanelId</code>.
      */
-    private void showPanel(final ContactPanelId panelId) {
+    private void showPanel(final ContactPanelId panelId, final boolean expand) {
         model.selectPanel(panelId);
+        if (expand) {
+            model.expandPanel(panelId, Boolean.FALSE);
+        }
         model.scrollPanelToVisible(panelId); 
     }  
 }

@@ -268,6 +268,7 @@ public class ContainerPanel extends DefaultTabPanel {
         Assert.assertTrue(container.isDraft(),
                 "Cannot set draft selection for container:  {0}",
                 container.getId());
+        westListModel.showFirstPage();
         westListModel.setSelectedCell(westCells.get(1));
     }
 

@@ -94,6 +94,7 @@ class LocalFile {
             StreamUtil.copy(inputStream, outputStream, 1024);
             return tempFile;
         } finally {
+            // TODO output stream might not be closed properly
             inputStream.close();
             outputStream.close();
         }

@@ -1193,7 +1193,7 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Run the create document action.
+     * Run the add document action. This adds and/or updates documents.
      * 
      * @param containerId
      *            The container id.

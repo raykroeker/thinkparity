@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 
@@ -18,10 +19,9 @@ import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.browser.util.DocumentUtil;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.document.DocumentModel;
 
 /**
  * @author raymond@thinkparity.com
@@ -55,60 +55,112 @@ public class AddDocument extends AbstractAction {
             // prompt for files
             browser.runAddContainerDocuments(containerId);
         } else {
-            final ArtifactModel artifactModel = getArtifactModel();
-            final ContainerModel containerModel = getContainerModel();
-            final DocumentModel documentModel = getDocumentModel();
-            Document document;
+            // Ensure the container has a local draft.
+            final Container container = getContainerModel().read(containerId);
+            Assert.assertTrue(getContainerModel().read(containerId).isLocalDraft(),
+                    "Cannot add documents to container {0}, no local draft.", container.getName());
+
+            // Get the list of existing draft documents in this container.
+            final List<Document> draftDocuments = readDraftDocuments(containerId);;
             
-            // Get the list of existing documents in this package.
-            List<Document> existingDocuments = Collections.emptyList();
-            final Container container = containerModel.read(containerId);
-            if (container.isLocalDraft()) {
-                final ContainerDraft draft = containerModel.readDraft(containerId);
-                if (null != draft) {
-                    existingDocuments = draft.getDocuments();
-                }
-            }
-            
-            // Check for duplicates, these are not allowed.
-            final List<File> duplicates = new ArrayList<File>();
-            for(final File file : files) {
-                for (final Document existingDocument : existingDocuments) {
-                    if (existingDocument.getName().equalsIgnoreCase(file.getName())) {
-                        duplicates.add(file);
-                        break;
-                    }
-                }
-            }
-            
-            if (duplicates.isEmpty()) {
-                for(final File file : files) {
-                    try {
-                        final InputStream inputStream = new FileInputStream(file);
-                        try {
-                            document = documentModel.create(file.getName(), inputStream);
-                            containerModel.addDocument(containerId, document.getId());
-                            artifactModel.applyFlagSeen(document.getId());
-                        } finally {
-                            inputStream.close();
-                        }
-                    }
-                    catch(final IOException iox) { throw translateError(iox); }
-                }
-            } else {
-                if (duplicates.size() == 1) {
-                    browser.displayErrorDialog("ErrorAddDocumentNotUnique",
-                            new Object[] {duplicates.get(0).getName()});
-                } else if (duplicates.size() == 2) {
-                    browser.displayErrorDialog("ErrorAddDocumentTwoNotUnique",
-                            new Object[] {duplicates.get(0).getName(), duplicates.get(1).getName()});
+            // Determine which files are for adding and which are for updating.
+            // A file is added to the 'update' list if the draft contains a
+            // document of the same name; otherwise, the file is added to the 'add' list.
+            final DocumentUtil documentUtil = DocumentUtil.getInstance();
+            final List<File> addFileList = new ArrayList<File>();
+            final List<File> updateFileList = new ArrayList<File>();
+            for (final File file : files) {
+                if (documentUtil.contains(draftDocuments, file)) {
+                    updateFileList.add(file);
                 } else {
-                    browser.displayErrorDialog("ErrorAddDocumentManyNotUnique",
-                            new Object[] {duplicates.get(0).getName(), duplicates.get(1).getName()});
+                    addFileList.add(file); 
+                }
+            }
+            
+            // Add documents
+            for (final File file : addFileList) {
+                addDocument(file, containerId);
+            }
+            
+            // Update documents
+            final ContainerDraft containerDraft = getContainerModel().readDraft(containerId);
+            for (final File file : updateFileList) {
+                final Document document = draftDocuments.get(documentUtil.indexOf(draftDocuments, file));
+                boolean update = true;
+                if (ContainerDraft.ArtifactState.ADDED == containerDraft.getState(document)) {
+                    update = browser.confirm("ConfirmOverwriteAddedDocument", new Object[] { file.getName() });
+                } else if (getDocumentModel().isDraftModified(document.getId())) {
+                    update = browser.confirm("ConfirmOverwriteModifiedDocument", new Object[] { file.getName() });                    
+                }
+
+                if (update) {
+                    updateDocument(file, containerId, document.getId());   
                 }
             }
         }
 	}
+
+    /**
+     * Add a document.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void addDocument(final File file, final Long containerId) {
+        try {
+            final InputStream inputStream = new FileInputStream(file);
+            try {
+                final Document document = getDocumentModel().create(file.getName(), inputStream);
+                getContainerModel().addDocument(containerId, document.getId());
+                getArtifactModel().applyFlagSeen(document.getId());
+            } finally {
+                inputStream.close();
+            }
+        }
+        catch(final IOException iox) { throw translateError(iox); }
+    }
+
+    /**
+     * Read the draft documents.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A list of <code>Document</code>.
+     */
+    private List<Document> readDraftDocuments(final Long containerId) {
+        final ContainerModel containerModel = getContainerModel();
+        final Container container = containerModel.read(containerId);
+        if (container.isLocalDraft()) {
+            return containerModel.readDraft(containerId).getDocuments();
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Update a document.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param documentId
+     *            A document id <code>Long</code>.
+     */
+    private void updateDocument(final File file, final Long containerId, final Long documentId) {
+        try {
+            final InputStream inputStream = new FileInputStream(file);
+            try {
+                getDocumentModel().updateDraft(documentId, inputStream);
+                browser.fireDocumentDraftUpdated(documentId);
+            } finally {
+                inputStream.close();
+            }
+        }
+        catch(final IOException iox) { throw translateError(iox); }
+    }
 
 	public enum DataKey { CONTAINER_ID, FILES }
 }

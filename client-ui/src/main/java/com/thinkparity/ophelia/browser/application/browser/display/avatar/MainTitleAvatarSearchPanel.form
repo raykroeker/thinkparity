@@ -42,12 +42,12 @@
         </Property>
       </Properties>
       <Events>
+        <EventHandler event="mouseEntered" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="searchJTextFieldMouseEntered"/>
+        <EventHandler event="mouseExited" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="searchJTextFieldMouseExited"/>
+        <EventHandler event="mousePressed" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="searchJTextFieldMousePressed"/>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="searchJTextFieldActionPerformed"/>
         <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="searchJTextFieldFocusGained"/>
         <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="searchJTextFieldFocusLost"/>
-        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="searchJTextFieldMouseClicked"/>
-        <EventHandler event="mouseEntered" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="searchJTextFieldMouseEntered"/>
-        <EventHandler event="mouseExited" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="searchJTextFieldMouseExited"/>
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="searchJTextField.setBorder(new TopBottomBorder(Colors.Browser.MainTitle.SEARCH_OUTLINE));&#xa;searchJTextField.getDocument().addDocumentListener(new DocumentListener() {&#xa;        public void changedUpdate(final DocumentEvent e) {&#xa;            searchJTextFieldChangedUpdate(e);&#xa;        }&#xa;        public void insertUpdate(final DocumentEvent e) {&#xa;            searchJTextFieldInsertUpdate(e);&#xa;        }&#xa;        public void removeUpdate(final DocumentEvent e) {&#xa;            searchJTextFieldRemoveUpdate(e);&#xa;        }&#xa;});"/>

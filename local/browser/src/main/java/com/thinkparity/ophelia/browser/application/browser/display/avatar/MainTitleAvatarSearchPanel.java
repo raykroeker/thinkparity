@@ -36,7 +36,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     /** The search activation timer. */
     private Timer searchActivationTimer;
     
-    /** Flag indicating the user clicked in the text area */
+    /** Flag indicating the user pressed the mouse in the text area */
     private Boolean userActivated = Boolean.FALSE;
     
     /** Creates new form BrowserTitleSearch */
@@ -119,6 +119,17 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         searchJTextField.setMinimumSize(new java.awt.Dimension(1, 19));
         searchJTextField.setOpaque(false);
         searchJTextField.setPreferredSize(new java.awt.Dimension(1, 19));
+        searchJTextField.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                searchJTextFieldMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                searchJTextFieldMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                searchJTextFieldMousePressed(evt);
+            }
+        });
         searchJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 searchJTextFieldActionPerformed(evt);
@@ -130,17 +141,6 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
             }
             public void focusLost(java.awt.event.FocusEvent evt) {
                 searchJTextFieldFocusLost(evt);
-            }
-        });
-        searchJTextField.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                searchJTextFieldMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                searchJTextFieldMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                searchJTextFieldMouseExited(evt);
             }
         });
 
@@ -164,11 +164,11 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
 
     }// </editor-fold>//GEN-END:initComponents
 
-    private void searchJTextFieldMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_searchJTextFieldMouseClicked
+    private void searchJTextFieldMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_searchJTextFieldMousePressed
         userActivated = Boolean.TRUE;
         searchJTextField.getCaret().setVisible(true);
         repaint();
-    }// GEN-LAST:event_searchJTextFieldMouseClicked
+    }//GEN-LAST:event_searchJTextFieldMousePressed
 
     private void searchJTextFieldMouseExited(final java.awt.event.MouseEvent e) {// GEN-FIRST:event_searchJTextFieldMouseExited
         Window window = SwingUtilities.getWindowAncestor(this);
@@ -193,12 +193,9 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     }//GEN-LAST:event_searchJTextFieldFocusLost
 
     private void searchJTextFieldFocusGained(final java.awt.event.FocusEvent e) {//GEN-FIRST:event_searchJTextFieldFocusGained
+        // Only show the caret if the user actually mouse-pressed in the JTextField.
         // NOTE Perhaps reconsider this approach if we need to tab to this control.
-        // Don't show the caret unless the mouse actually clicked in the JTextField
-        if (searchJTextField.getCaret().isVisible()) {
-            searchJTextField.getCaret().setVisible(false);
-        }
-        repaint();
+        searchJTextField.getCaret().setVisible(userActivated);
     }//GEN-LAST:event_searchJTextFieldFocusGained
     
     /**

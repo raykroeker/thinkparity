@@ -10,11 +10,8 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.Icon;
-import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.swing.AbstractJPanel;
@@ -43,20 +40,6 @@ public class WindowTitle extends AbstractJPanel {
     public WindowTitle(final String title) {
         initComponents();
         titleJLabel.setText(title);
-        closeJLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(final MouseEvent e) {
-                SwingUtilities.getWindowAncestor(WindowTitle.this).dispose();
-            }
-            @Override
-            public void mouseEntered(final MouseEvent e) {
-                ((JLabel) e.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
-            }
-            @Override
-            public void mouseExited(final MouseEvent e) {
-                ((JLabel) e.getSource()).setIcon(CLOSE_ICON);
-            }            
-        });
     }
     
     /** @see javax.swing.JComponent#paintComponent(java.awt.Graphics) */
@@ -95,9 +78,6 @@ public class WindowTitle extends AbstractJPanel {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        titleJLabel = new javax.swing.JLabel();
-        closeJLabel = new javax.swing.JLabel();
-
         setLayout(new java.awt.GridBagLayout());
 
         setMaximumSize(new java.awt.Dimension(2147483647, 20));
@@ -116,18 +96,51 @@ public class WindowTitle extends AbstractJPanel {
         gridBagConstraints.insets = new java.awt.Insets(4, 9, 0, 0);
         add(titleJLabel, gridBagConstraints);
 
-        closeJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_Close.png")));
+        closeJButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_Close.png")));
+        closeJButton.setBorderPainted(false);
+        closeJButton.setContentAreaFilled(false);
+        closeJButton.setFocusPainted(false);
+        closeJButton.setFocusable(false);
+        closeJButton.setMaximumSize(new java.awt.Dimension(14, 14));
+        closeJButton.setMinimumSize(new java.awt.Dimension(14, 14));
+        closeJButton.setPreferredSize(new java.awt.Dimension(14, 14));
+        closeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                closeJButtonMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                closeJButtonMouseExited(evt);
+            }
+        });
+        closeJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeJButtonActionPerformed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 6);
-        add(closeJLabel, gridBagConstraints);
+        add(closeJButton, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
 
+    private void closeJButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJButtonMouseExited
+        ((javax.swing.JButton) evt.getSource()).setIcon(CLOSE_ICON);
+    }//GEN-LAST:event_closeJButtonMouseExited
+
+    private void closeJButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJButtonMouseEntered
+        ((javax.swing.JButton) evt.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
+    }//GEN-LAST:event_closeJButtonMouseEntered
+
+    private void closeJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
+        SwingUtilities.getWindowAncestor(WindowTitle.this).dispose();
+    }//GEN-LAST:event_closeJButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel closeJLabel;
-    private javax.swing.JLabel titleJLabel;
+    private final javax.swing.JButton closeJButton = new javax.swing.JButton();
+    private final javax.swing.JLabel titleJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 
 }

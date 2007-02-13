@@ -415,10 +415,6 @@ public class ContactTabPanel extends DefaultTabPanel {
     @Override
     protected void repaintLists() {}
     
-    private void collapsedContactJPanelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedContactJPanelMouseClicked
-        jPanelMouseClicked((javax.swing.JPanel) e.getSource(), e);
-    }//GEN-LAST:event_collapsedContactJPanelMouseClicked
-
     private void collapsedContactJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedContactJPanelMousePressed
         jPanelMousePressed((javax.swing.JPanel) e.getSource(), e);
     }//GEN-LAST:event_collapsedContactJPanelMousePressed
@@ -606,9 +602,6 @@ public class ContactTabPanel extends DefaultTabPanel {
 
         collapsedContactJPanel.setOpaque(false);
         collapsedContactJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                collapsedContactJPanelMouseClicked(evt);
-            }
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 collapsedContactJPanelMousePressed(evt);
             }
@@ -646,9 +639,6 @@ public class ContactTabPanel extends DefaultTabPanel {
 
         collapsedIncomingInvitationJPanel.setOpaque(false);
         collapsedIncomingInvitationJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                collapsedIncomingInvitationJPanelMouseClicked(evt);
-            }
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 collapsedIncomingInvitationJPanelMousePressed(evt);
             }
@@ -732,9 +722,6 @@ public class ContactTabPanel extends DefaultTabPanel {
 
         expandedContactJPanel.setOpaque(false);
         expandedContactJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                expandedContactJPanelMouseClicked(evt);
-            }
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 expandedContactJPanelMousePressed(evt);
             }
@@ -906,10 +893,6 @@ public class ContactTabPanel extends DefaultTabPanel {
         jPanelMousePressed((javax.swing.JPanel) e.getSource(), e);
     }//GEN-LAST:event_expandedContactJPanelMousePressed
 
-    private void expandedContactJPanelMouseClicked(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedContactJPanelMouseClicked
-        jPanelMouseClicked((javax.swing.JPanel) e.getSource(), e);
-    }//GEN-LAST:event_expandedContactJPanelMouseClicked
-
     private void incomingInvitationDeclineJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_incomingInvitationDeclineJLabelMousePressed
         if (e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.selectPanel(this);
@@ -932,28 +915,6 @@ public class ContactTabPanel extends DefaultTabPanel {
         jPanelMousePressed((javax.swing.JPanel) e.getSource(), e);
     }//GEN-LAST:event_collapsedIncomingInvitationJPanelMousePressed
 
-    private void collapsedIncomingInvitationJPanelMouseClicked(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedIncomingInvitationJPanelMouseClicked
-        jPanelMouseClicked((javax.swing.JPanel) e.getSource(), e);
-    }//GEN-LAST:event_collapsedIncomingInvitationJPanelMouseClicked
-
-    /**
-     * Handle the mouse clicked event for any one of the panels in this tab. If
-     * the click is a double click; the panel will be expanded/collapsed.
-     * 
-     * @param jPanel
-     *            A <code>JPanel</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    private void jPanelMouseClicked(final javax.swing.JPanel jPanel,
-            final java.awt.event.MouseEvent e) {
-        if (0 == e.getClickCount() % 2 && e.getButton() == MouseEvent.BUTTON1) {
-            if (isSetContact() || isSetProfile()) {
-                tabDelegate.toggleExpansion(this);
-            }
-        }
-    }
-
     /**
      * Handle the mouse pressed event for any one of the jpanels in this tab.
      * Depending on whether or not the event is a popup trigger the popup
@@ -966,7 +927,7 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     private void jPanelMousePressed(final javax.swing.JPanel jPanel,
             final java.awt.event.MouseEvent e) {
-        if (e.isPopupTrigger()) {
+        if (e.getClickCount() == 1 && e.isPopupTrigger()) {
             tabDelegate.selectPanel(this);
             popupDelegate.initialize(jPanel, e.getX(), e.getY());
             if (isSetContact())
@@ -981,6 +942,10 @@ public class ContactTabPanel extends DefaultTabPanel {
                 Assert.assertUnreachable("Inconsistent contact tab panel state.");
         } else if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.selectPanel(this);
+        } else if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
+            if (isSetContact() || isSetProfile()) {
+                tabDelegate.toggleExpansion(this);
+            }
         }
     }
 
@@ -996,7 +961,7 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     private void jPanelMouseReleased(final javax.swing.JPanel jPanel,
             final java.awt.event.MouseEvent e) {
-        if (e.isPopupTrigger()) {
+        if (e.getClickCount() == 1 && e.isPopupTrigger()) {
             tabDelegate.selectPanel(this);
             popupDelegate.initialize(jPanel, e.getX(), e.getY());
             if (isSetContact())

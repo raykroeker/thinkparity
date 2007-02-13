@@ -10,5 +10,5 @@ import java.io.File;
  * @version 1.1.2.1
  */
 public interface Printer {
-    public void print(final File file, final String documentName);
+    public void print(final File file);
 }

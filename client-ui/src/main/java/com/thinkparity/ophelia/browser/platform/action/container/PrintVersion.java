@@ -6,18 +6,19 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 
 import java.io.File;
 
-import org.jdesktop.jdic.desktop.DesktopException;
-
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+
+import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.util.Printer;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
-import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.util.Printer;
+
+import org.jdesktop.jdic.desktop.DesktopException;
 
 /**
  * @author rob_masako@shaw.ca
@@ -50,11 +51,11 @@ public class PrintVersion extends AbstractAction {
         final Container container = containerModel.read(containerId);
         final ContainerVersion version = containerModel.readVersion(containerId, versionId);
 
-        if (DesktopUtil.isPrinter()) {
+        if (DesktopUtil.isPrintServiceAvailable()) {
             if (browser.confirm("ContainerPrintVersion.ConfirmPrintMessage", new Object[] {
                     container.getName(), version.getCreatedOn().getTime() })) {
                 containerModel.printVersion(containerId, versionId, new Printer() {
-                    public void print(final File file, final String documentName) {
+                    public void print(final File file) {
                         if (DesktopUtil.isPrintable(file)) {
                             try {
                                 DesktopUtil.print(file);
@@ -62,7 +63,7 @@ public class PrintVersion extends AbstractAction {
                                 throw translateError(dx);
                             }
                         } else {
-                            browser.displayErrorDialog("ErrorPrintVersionNotPrintable", new Object[] {documentName});         
+                            browser.displayErrorDialog("ErrorPrintVersionNotPrintable", new Object[] {container.getName()});         
                         }
                     }
                 });

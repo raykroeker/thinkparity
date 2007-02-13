@@ -66,9 +66,9 @@ public class DesktopUtil {
      * 
      * @return true if there is a printer attached; false otherwise.
      */
-    public static boolean isPrinter() {
+    public static boolean isPrintServiceAvailable() {
         final PrintService[] printServices = PrinterJob.lookupPrintServices();
-        return (printServices.length > 0);
+        return printServices.length > 0;
     }
 
     /**

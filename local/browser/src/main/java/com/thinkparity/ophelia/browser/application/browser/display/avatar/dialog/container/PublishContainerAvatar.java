@@ -296,8 +296,8 @@ public final class PublishContainerAvatar extends Avatar implements
         namesJList.setOpaque(false);
         namesJList.setVisibleRowCount(7);
         namesJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                namesJListMouseClicked(evt);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                namesJListMousePressed(evt);
             }
         });
 
@@ -435,7 +435,7 @@ public final class PublishContainerAvatar extends Avatar implements
                 .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
-    
+
     private Boolean isVersionUser(final User user, final User publisher, final Map<User, ArtifactReceipt> versionUsers) {
         if (null != publisher) {
             if (publisher.getId().equals(user.getId())) {
@@ -452,7 +452,7 @@ public final class PublishContainerAvatar extends Avatar implements
         return Boolean.FALSE;       
     }
 
-    private void namesJListMouseClicked(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_namesJListMouseClicked
+    private void namesJListMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_namesJListMousePressed
         if (e.getButton() == MouseEvent.BUTTON1) {
             PublishContainerAvatarUser user = (PublishContainerAvatarUser)((JList) e.getSource()).getSelectedValue();
             user.toggleSelected();
@@ -462,7 +462,7 @@ public final class PublishContainerAvatar extends Avatar implements
             }
             publishJButton.setEnabled(isInputValid());
         }
-    }//GEN-LAST:event_namesJListMouseClicked
+    }//GEN-LAST:event_namesJListMousePressed
 
     /**
      * Publish the container.

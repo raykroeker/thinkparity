@@ -139,107 +139,131 @@ public class BrowserMenuBar extends JMenuBar {
         this.add(getCloseButton());
         this.add(Box.createRigidArea(new Dimension(4,19)));
     }
-    
-    private JLabel getMinimizeButton() {
-        javax.swing.JLabel minimizeJLabel = new JLabel(MINIMIZE_ICON);
-        minimizeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                minimizeJLabelMouseClicked(evt);
+
+    private javax.swing.JButton getMinimizeButton() {
+        javax.swing.JButton minimizeJButton = new javax.swing.JButton(MINIMIZE_ICON);
+        minimizeJButton.setBorderPainted(false);
+        minimizeJButton.setContentAreaFilled(false);
+        minimizeJButton.setFocusPainted(false);
+        minimizeJButton.setFocusable(false);
+        minimizeJButton.setMaximumSize(new java.awt.Dimension(14, 14));
+        minimizeJButton.setMinimumSize(new java.awt.Dimension(14, 14));
+        minimizeJButton.setPreferredSize(new java.awt.Dimension(14, 14));
+        minimizeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(final java.awt.event.MouseEvent e) {
+                minimizeJButtonMouseEntered(e);
             }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                minimizeJLabelMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                minimizeJLabelMouseExited(evt);
+            public void mouseExited(final java.awt.event.MouseEvent e) {
+                minimizeJButtonMouseExited(e);
             }
         });
-        
-        return minimizeJLabel;        
+        minimizeJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(final java.awt.event.ActionEvent e) {
+                minimizeJButtonActionPerformed(e);
+            }
+        });
+
+        return minimizeJButton;        
     }
-    
-    private JLabel getMaximizeButton(final Boolean maximized) {
-        javax.swing.JLabel maximizeJLabel = new JLabel();
+
+    private javax.swing.JButton getMaximizeButton(final Boolean maximized) {
+        javax.swing.JButton maximizeJButton = new javax.swing.JButton();
+        maximizeJButton.setBorderPainted(false);
+        maximizeJButton.setContentAreaFilled(false);
+        maximizeJButton.setFocusPainted(false);
+        maximizeJButton.setFocusable(false);
+        maximizeJButton.setMaximumSize(new java.awt.Dimension(14, 14));
+        maximizeJButton.setMinimumSize(new java.awt.Dimension(14, 14));
+        maximizeJButton.setPreferredSize(new java.awt.Dimension(14, 14));
         if (maximized) {
-            maximizeJLabel.setIcon(UNMAXIMIZE_ICON);
+            maximizeJButton.setIcon(UNMAXIMIZE_ICON);
         } else {
-            maximizeJLabel.setIcon(MAXIMIZE_ICON);
+            maximizeJButton.setIcon(MAXIMIZE_ICON);
         }
-        maximizeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                maximizeJLabelMouseClicked(evt);
+        maximizeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(final java.awt.event.MouseEvent e) {
+                maximizeJButtonMouseEntered(e);
             }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                maximizeJLabelMouseEntered(evt);
+            public void mouseExited(final java.awt.event.MouseEvent e) {
+                maximizeJButtonMouseExited(e);
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                maximizeJLabelMouseExited(evt);
+        });
+        maximizeJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(final java.awt.event.ActionEvent e) {
+                maximizeJButtonActionPerformed(e);
+            }
+        });
+
+        return maximizeJButton;        
+    }
+
+    private javax.swing.JButton getCloseButton() {
+        final javax.swing.JButton closeJButton = new javax.swing.JButton(CLOSE_ICON);
+        closeJButton.setBorderPainted(false);
+        closeJButton.setContentAreaFilled(false);
+        closeJButton.setFocusPainted(false);
+        closeJButton.setFocusable(false);
+        closeJButton.setMaximumSize(new java.awt.Dimension(14, 14));
+        closeJButton.setMinimumSize(new java.awt.Dimension(14, 14));
+        closeJButton.setPreferredSize(new java.awt.Dimension(14, 14));
+        closeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(final java.awt.event.MouseEvent e) {
+                closeJButtonMouseEntered(e);
+            }
+            public void mouseExited(final java.awt.event.MouseEvent e) {
+                closeJButtonMouseExited(e);
+            }
+        });
+        closeJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(final java.awt.event.ActionEvent e) {
+                closeJButtonActionPerformed(e);
             }
         });
         
-        return maximizeJLabel;        
+        return closeJButton;        
     }
-    
-    private JLabel getCloseButton() {
-        javax.swing.JLabel closeJLabel = new JLabel(CLOSE_ICON);
-        closeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                closeJLabelMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                closeJLabelMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                closeJLabelMouseExited(evt);
-            }
-        });
-        
-        return closeJLabel;        
-    }
-    
-    private void minimizeJLabelMouseClicked(java.awt.event.MouseEvent evt) {
+
+    private void minimizeJButtonActionPerformed(final java.awt.event.ActionEvent e) {
         browser.minimize();
-        minimizeJLabelMouseExited(evt);
     }
 
-    private void minimizeJLabelMouseEntered(java.awt.event.MouseEvent evt) {
-        ((JLabel) evt.getSource()).setIcon(MINIMIZE_ROLLOVER_ICON);
+    private void minimizeJButtonMouseEntered(final java.awt.event.MouseEvent e) {
+        ((javax.swing.JButton) e.getSource()).setIcon(MINIMIZE_ROLLOVER_ICON);
     }
 
-    private void minimizeJLabelMouseExited(java.awt.event.MouseEvent evt) {
-        ((JLabel) evt.getSource()).setIcon(MINIMIZE_ICON);
+    private void minimizeJButtonMouseExited(final java.awt.event.MouseEvent e) {
+        ((javax.swing.JButton) e.getSource()).setIcon(MINIMIZE_ICON);
     }
-    
-    private void maximizeJLabelMouseClicked(java.awt.event.MouseEvent evt) {
+
+    private void maximizeJButtonActionPerformed(final java.awt.event.ActionEvent e) {
         browser.maximize();
-        maximizeJLabelMouseExited(evt);
     }
 
-    private void maximizeJLabelMouseEntered(java.awt.event.MouseEvent evt) {
+    private void maximizeJButtonMouseEntered(final java.awt.event.MouseEvent e) {
         if (browser.isBrowserWindowMaximized()) {
-            ((JLabel) evt.getSource()).setIcon(UNMAXIMIZE_ROLLOVER_ICON);
+            ((javax.swing.JButton) e.getSource()).setIcon(UNMAXIMIZE_ROLLOVER_ICON);
         } else {
-            ((JLabel) evt.getSource()).setIcon(MAXIMIZE_ROLLOVER_ICON);
+            ((javax.swing.JButton) e.getSource()).setIcon(MAXIMIZE_ROLLOVER_ICON);
         }
     }
 
-    private void maximizeJLabelMouseExited(java.awt.event.MouseEvent evt) {
+    private void maximizeJButtonMouseExited(final java.awt.event.MouseEvent e) {
         if (browser.isBrowserWindowMaximized()) {
-            ((JLabel) evt.getSource()).setIcon(UNMAXIMIZE_ICON);
+            ((javax.swing.JButton) e.getSource()).setIcon(UNMAXIMIZE_ICON);
         } else {
-            ((JLabel) evt.getSource()).setIcon(MAXIMIZE_ICON);
+            ((javax.swing.JButton) e.getSource()).setIcon(MAXIMIZE_ICON);
         }
     }
-       
-    private void closeJLabelMouseClicked(java.awt.event.MouseEvent evt) {
+
+    private void closeJButtonActionPerformed(final java.awt.event.ActionEvent e) {        
         browser.closeBrowserWindow();
-        closeJLabelMouseExited(evt);
     }
 
-    private void closeJLabelMouseEntered(java.awt.event.MouseEvent evt) {
-        ((JLabel) evt.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
+    private void closeJButtonMouseEntered(final java.awt.event.MouseEvent e) {
+        ((javax.swing.JButton) e.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
     }
 
-    private void closeJLabelMouseExited(java.awt.event.MouseEvent evt) {
-        ((JLabel) evt.getSource()).setIcon(CLOSE_ICON);
+    private void closeJButtonMouseExited(final java.awt.event.MouseEvent e) {
+        ((javax.swing.JButton) e.getSource()).setIcon(CLOSE_ICON);
     }
 }

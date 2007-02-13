@@ -290,7 +290,7 @@ class LocalFile extends ModelHelper<DocumentModelImpl> {
         Assert.assertNotNull(lock.getFile(), "File for {0} is null.", file);
         Assert.assertNotNull(lock.getFileChannel(), "File channel for {0} is null.", file);
         Assert.assertNotNull(lock.getFileLock(), "File lock for {0} is null.", file);
-        Assert.assertNotNull(lock.getFileLock().isValid(), "File lock for {0} is not valid.", file);
+        Assert.assertTrue(lock.getFileLock().isValid(), "File lock for {0} is not valid.", file);
         Assert.assertNotNull(lock.getRandomAccessFile(), "Random access file for {0} is null.", file);
     }
 

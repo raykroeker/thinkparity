@@ -34,6 +34,10 @@ public final class PublishPostRemoveTest extends ContainerTestCase {
         super(NAME);
     }
 
+    /**
+     * Test publishing a package after the removal of a document.
+     *
+     */
     public void testPublish() {
         final Container c = createContainer(datum.junit, NAME);
         addDocuments(datum.junit, c.getId());

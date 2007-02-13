@@ -19,8 +19,9 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 
-import com.thinkparity.ophelia.model.AbstractModelImplHelper;
 import com.thinkparity.ophelia.model.migrator.InternalLibraryModel;
+
+import org.apache.log4j.Logger;
 
 /**
  * The download helper is used by various methods in the release model impl.  It
@@ -30,10 +31,13 @@ import com.thinkparity.ophelia.model.migrator.InternalLibraryModel;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public class DownloadHelper extends AbstractModelImplHelper {
+public class DownloadHelper {
 
     private static final String MANIFEST_HEADER =
         "lBrowserBootstrap:  Manifest";
+
+    /** An apache logger. */
+    protected final Logger logger;
 
     /** A file system helper. */
     private final FileSystemHelper fsHelper;

@@ -11,8 +11,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 
-import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -20,6 +21,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
+import com.thinkparity.ophelia.model.ModelHelper;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.Constants.IO;
 import com.thinkparity.ophelia.model.util.MD5Util;
@@ -35,16 +37,13 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raykroeker@gmail.com
  * @version 1.1.2.1
  */
-class LocalFile {
+class LocalFile extends ModelHelper<DocumentModelImpl> {
 
     /** An apache logger. */
     protected final Log4JWrapper logger;
 
     /** The local <code>File</code>. */
     private final File file;
-
-    /** The file content's checksum <code>String</code>. */
-    private String fileChecksum;
 
     /** A document name generator. */ 
     private final DocumentNameGenerator nameGenerator;
@@ -55,8 +54,9 @@ class LocalFile {
      * @param document
      *            The document the local file represents.
      */
-    LocalFile(final Workspace workspace, final Document document) {
-        super();
+    LocalFile(final DocumentModelImpl model, final Workspace workspace,
+            final Document document) {
+        super(model);
         this.logger = new Log4JWrapper();
         this.nameGenerator = new DocumentNameGenerator();
         this.file = getFile(workspace, document);
@@ -70,32 +70,31 @@ class LocalFile {
      * @param version
      *            The version.
      */
-    LocalFile(final Workspace workspace, final Document document,
-            final DocumentVersion version) {
-        super();
+    LocalFile(final DocumentModelImpl model, final Workspace workspace,
+            final Document document, final DocumentVersion version) {
+        super(model);
         this.logger = new Log4JWrapper();
         this.nameGenerator = new DocumentNameGenerator();
         this.file = getFile(workspace, document, version);
     }
 
     /**
-     * Create a clone of the local file in the workspace's temp location.
+     * Copy the local file.
      * 
-     * @param workspace
-     *            The thinkParity workspace.
-     * @return A clone of the local file.
+     * @param copyTo
+     *            The copy <code>File</code>.
      * @throws IOException
      */
-    File createTempClone(final Workspace workspace) throws IOException {
-        final File tempFile = workspace.createTempFile(file.getName());
-        final FileOutputStream outputStream = new FileOutputStream(tempFile);
-        final InputStream inputStream = openStream();
+    void copy(final File copyTo, final Integer buffer) throws IOException {
+        final FileOutputStream outputStream = new FileOutputStream(copyTo);
         try {
-            StreamUtil.copy(inputStream, outputStream, 1024);
-            return tempFile;
+            final InputStream inputStream = openInputStream();
+            try {
+                StreamUtil.copy(inputStream, outputStream, buffer);
+            } finally {
+                inputStream.close();
+            }
         } finally {
-            // TODO output stream might not be closed properly
-            inputStream.close();
             outputStream.close();
         }
     }
@@ -104,19 +103,10 @@ class LocalFile {
      * Delete the local file.
      *
      */
-    void delete() {
-        if(file.exists())
-            Assert.assertTrue("delete()", file.delete());
-    }
-
-    /**
-     * Delete the local file's parent.
-     * 
-     */
-    void deleteParentTree() {
-        final File parent = file.getParentFile();
-        if(parent.exists())
-            FileUtil.deleteTree(parent);
+    void delete(final LocalFileLock lock) {
+        assertIsValid(lock);
+        if(lock.getFile().exists())
+            Assert.assertTrue(file.delete(), "Could not delete file {0}.", file);
     }
 
     /**
@@ -129,13 +119,6 @@ class LocalFile {
     }
 
     /**
-     * Obtain the file checksum.
-     * 
-     * @return The file checksum.
-     */
-    String getFileChecksum() { return fileChecksum; }
-
-    /**
      * Obtain the last modified date of the file.
      * 
      * @return The last modified date as a <code>Long</code> number of
@@ -146,10 +129,43 @@ class LocalFile {
     }
 
     /**
-     * Lock the file.
-     *
+     * Obtain an exclusive file lock.
+     * 
+     * @return A <code>DocumentLock</code>.
      */
-    void lock() { file.setReadOnly(); }
+    <T extends LocalFileLock> T lock(final T instance) {
+        try {
+            instance.setWritable(Boolean.valueOf(file.canWrite()));
+            file.setWritable(true, true);
+            final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rwd");
+            try {
+                final FileChannel fileChannel = randomAccessFile.getChannel();
+                try {
+                    instance.setFile(file);
+                    instance.setRandomAccessFile(randomAccessFile);
+                    instance.setFileChannel(fileChannel);
+                    instance.setFileLock(fileChannel.lock());
+                    return instance;
+                } catch (final Throwable t) {
+                    try {
+                        fileChannel.close();
+                    } catch (final IOException iox) {
+                        logger.logError(iox, "Could not close file channel for {0}.", file);
+                    }
+                    throw panic(t);
+                }
+            } catch (final Throwable t) {
+                try {
+                    randomAccessFile.close();
+                } catch (final IOException iox) {
+                    logger.logError(iox, "Could not close file {0}.", file);
+                }
+                throw panic(t);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
 
     /**
      * Open the document local file.
@@ -167,29 +183,53 @@ class LocalFile {
      * @return An input stream.
      * @throws FileNotFoundException
      */
-    InputStream openStream() throws FileNotFoundException {
+    InputStream openInputStream() throws FileNotFoundException {
         return new FileInputStream(file);
     }
-
+    
     /**
-     * Read the document local file into the bytes parameter. This will also
-     * calculate the content's checksum.
+     * Read the local file's checksum.
      * 
      * @throws FileNotFoundException
      * @throws IOException
-     * @see LocalFile#getFileBytes()
-     * @see LocalFile#getFileChecksum()
      */
-    void read() throws FileNotFoundException, IOException {
+    String readChecksum() throws FileNotFoundException, IOException {
         if (file.exists()) {
-            final InputStream fileInputStream = openStream();
+            final InputStream fileInputStream = openInputStream();
             try {
-                fileChecksum = MD5Util.md5Hex(fileInputStream);
+                return MD5Util.md5Hex(fileInputStream);
             } finally {
                 fileInputStream.close();
             }
         } else {
-            fileChecksum = null;
+            return null;
+        }
+    }
+
+    /**
+     * Release the exclusive file lock.
+     * 
+     * @param lock
+     *            A <code>DocumentLock</code>.
+     */
+    void release(final LocalFileLock lock) {
+        try {
+            file.setWritable(lock.isWritable(), true);
+            lock.getFileLock().release();
+        } catch (final Throwable t) {
+            throw panic(t);
+        } finally {
+            try {
+                lock.getFileChannel().close();
+            } catch (final Throwable t1) {
+                logger.logError(t1, "Could not release file lock for {0}.", file);
+            } finally {
+                try {
+                    lock.getRandomAccessFile().close();                    
+                } catch (final Throwable t2) {
+                    logger.logError(t2, "Could not release file lock for {0}.", file);
+                }
+            }
         }
     }
 
@@ -199,9 +239,21 @@ class LocalFile {
      * @param filename
      *            The new name.
      */
-    void rename(final String filename) {
-        Assert.assertTrue("[CANNOT RENAME LOCAL FILE]",
-                file.renameTo(new File(file.getParentFile(), filename)));
+    void rename(final LocalFileLock lock, final String filename) {
+        assertIsValid(lock);
+        final File renameTo = new File(lock.getFile().getParentFile(), filename);
+        Assert.assertTrue(lock.getFile().renameTo(renameTo),
+                "Cannot rename file {0} to {1}.",
+                lock.getFile(), renameTo);
+    }
+
+    /**
+     * Set the file's read-only flag.
+     *
+     */
+    void setReadOnly(final LocalFileLock lock) {
+        assertIsValid(lock);
+        lock.getFile().setReadOnly();
     }
 
     /**
@@ -215,44 +267,31 @@ class LocalFile {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    void write(final InputStream is, final Long time) throws FileNotFoundException, IOException {
-        final OutputStream os = createOutputStream();
+    void write(final LocalFileLock lock, final InputStream is, final Long time)
+            throws FileNotFoundException, IOException {
+        assertIsValid(lock);
+        final OutputStream os = openOutputStream(lock);
         try {
             StreamUtil.copy(is, os, IO.BUFFER_SIZE);
+        } finally {
+            os.close();
         }
-        finally { os.close(); }
-        setLastModified(time);
+        lock.getFile().setLastModified(time);
     }
 
     /**
-     * Write the input stream to the local file.
-     * The file date will match the date of the version.
+     * Assert the validity of the document lock.
      * 
-     * @param is
-     *            The input stream containing new content.
-     * @param version
-     *            The version.     
-     * @throws FileNotFoundException
-     * @throws IOException
+     * @param lock
+     *            A <code>DocumentLock</code>.
      */
-    void write(final InputStream is, final DocumentVersion version) throws FileNotFoundException, IOException {
-        final OutputStream os = createOutputStream();
-        try {
-            StreamUtil.copy(is, os, IO.BUFFER_SIZE);
-        }
-        finally { os.close(); }
-        setLastModified(version.getCreatedOn().getTimeInMillis());
-    }
-
-    /**
-     * Create an output stream for the local file.
-     * 
-     * @return The output stream.
-     * @throws FileNotFoundException
-     */
-    private OutputStream createOutputStream()
-            throws FileNotFoundException {
-        return new BufferedOutputStream(new FileOutputStream(file));
+    private void assertIsValid(final LocalFileLock lock) {
+        Assert.assertNotNull(lock, "Local file lock for {0} is null.", file);
+        Assert.assertNotNull(lock.getFile(), "File for {0} is null.", file);
+        Assert.assertNotNull(lock.getFileChannel(), "File channel for {0} is null.", file);
+        Assert.assertNotNull(lock.getFileLock(), "File lock for {0} is null.", file);
+        Assert.assertNotNull(lock.getFileLock().isValid(), "File lock for {0} is not valid.", file);
+        Assert.assertNotNull(lock.getRandomAccessFile(), "Random access file for {0} is null.", file);
     }
 
     /**
@@ -295,25 +334,30 @@ class LocalFile {
      */
     private File getFileParent(final Workspace workspace,
             final Document document) {
-        final File cache = new File(workspace.getDataDirectory(),
+        final File localDirectory = new File(workspace.getDataDirectory(),
                 DirectoryNames.Workspace.Data.LOCAL);
-        if(!cache.exists()) {
-            Assert.assertTrue("getFileParent(Document)", cache.mkdir());
+        if(!localDirectory.exists()) {
+            Assert.assertTrue(localDirectory.mkdir(),
+                    "Cannot create directory {0}.",
+                    localDirectory);
         }
-        final File parent = new File(cache, nameGenerator.localDirectoryName(document));
+        final File parent = new File(localDirectory,
+                nameGenerator.localDirectoryName(document));
         if(!parent.exists()) {
-            Assert.assertTrue("getFileParent(Document)", parent.mkdir());
+            Assert.assertTrue(parent.mkdir(),
+                    "Cannot create directory {0}.", parent);
         }
         return parent;
-    }   
+    }
 
     /**
-     * Set the last modified date of the file.
+     * Create an output stream for the local file.
      * 
-     * @param time
-     *            The last modified date as a <code>Long</code> number of milliseconds.
+     * @return The output stream.
+     * @throws FileNotFoundException
      */
-    private void setLastModified(final Long time) {
-        file.setLastModified(time);
+    private OutputStream openOutputStream(final LocalFileLock lock)
+            throws FileNotFoundException {
+        return new BufferedOutputStream(new FileOutputStream(lock.getFile()));
     }
 }

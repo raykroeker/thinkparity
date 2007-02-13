@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -31,10 +32,12 @@ public interface InternalDocumentModel extends DocumentModel {
     /**
      * Create a draft for a document.
      * 
+     * @param lock
+     *            A <code>DocumentLock</code>.
      * @param documentId
      *            A document id <code>Long</code>.
      */
-    public void createDraft(final Long documentId);
+    public void createDraft(final DocumentLock lock, final Long documentId);
 
     /**
      * Create a new document version based upon an existing document. This will
@@ -53,18 +56,24 @@ public interface InternalDocumentModel extends DocumentModel {
     /**
      * Delete a document.
      * 
+     * @param lock
+     *            A <code>DocumentLock</code>.
      * @param documentId
      *            A document id.
      */
-    public void delete(final Long documentId);
+    public void delete(final DocumentLock lock,
+            final Map<DocumentVersion, DocumentVersionLock> versionLocks,
+            final Long documentId);
 
     /**
      * Delete the document draft.
      * 
+     * @param lock
+     *            A <code>DocumentLock</code>.
      * @param documentId
      *            A document id <code>Long</code>.
      */
-    public void deleteDraft(final Long documentId);
+    public void deleteDraft(final DocumentLock lock, final Long documentId);
 
     /**
      * Determine whether or not a draft exists for a document.
@@ -74,7 +83,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public Boolean doesExistDraft(final Long documentId);
 
-	/**
+    /**
      * Obtain a document name generator.
      * 
      * @return A <code>DocumentNameGenerator</code>.
@@ -94,6 +103,24 @@ public interface InternalDocumentModel extends DocumentModel {
             final JabberId publishedBy, final Calendar publishedOn);
 
     /**
+     * Obtain an exclusive lock on a document.
+     * 
+     * @param document
+     *            A <code>Document</code>.
+     * @return A <code>DocumentLock</code>.
+     */
+    public DocumentLock lock(final Document document);
+
+    /**
+     * Obtain an exclusive lock on a document.
+     * 
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @return A <code>DocumentVersionLock</code>.
+     */
+    public DocumentVersionLock lockVersion(final DocumentVersion version);
+
+	/**
      * Open an input stream to read a document version. Note: It is a good idea
      * to buffer the input stream.
      * 
@@ -104,7 +131,7 @@ public interface InternalDocumentModel extends DocumentModel {
 	public InputStream openVersionStream(final Long documentId,
             final Long versionId);
 
-	/**
+    /**
      * Read a document.
      * 
      * @param documentId
@@ -122,7 +149,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
 	public List<AuditEvent> readAuditEvents(final Long documentId);
 
-    /**
+	/**
      * Read a list of document versions.
      * 
      * @param documentId
@@ -153,12 +180,22 @@ public interface InternalDocumentModel extends DocumentModel {
     public Long readVersionSize(final Long documentId, final Long versionId);
 
     /**
+     * Release the exclusive lock.
+     * 
+     * @param lock
+     *            A <code>DocumentLock</code>.
+     */
+    public void release(final DocumentLock lock);
+
+    /**
      * Remove a document.
      * 
+     * @param lock
+     *            A <code>DocumentLock</code>.
      * @param documentId
      *            A document id <code>Long</code>.
      */
-    public void remove(final Long documentId);
+    public void remove(final DocumentLock lock, final Long documentId);
 
     /**
      * Revert the document draft to its previous state.
@@ -166,5 +203,5 @@ public interface InternalDocumentModel extends DocumentModel {
      * @param documentId
      *            A document id <code>Long</code>.
      */
-    public void revertDraft(final Long documentId);
+    public void revertDraft(final DocumentLock lock, final Long documentId);
 }

@@ -19,7 +19,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 
-import com.thinkparity.ophelia.model.AbstractModelImplHelper;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 
 /**
@@ -28,7 +27,7 @@ import com.thinkparity.ophelia.model.Constants.DirectoryNames;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public class FileSystemHelper extends AbstractModelImplHelper {
+public class FileSystemHelper {
 
     /**
      * Obtain a file system helper for a downloaded release.

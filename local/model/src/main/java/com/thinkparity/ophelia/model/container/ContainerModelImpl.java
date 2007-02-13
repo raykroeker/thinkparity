@@ -59,7 +59,9 @@ import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.container.export.PDFWriter;
 import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
 import com.thinkparity.ophelia.model.container.monitor.PublishStage;
+import com.thinkparity.ophelia.model.document.DocumentLock;
 import com.thinkparity.ophelia.model.document.DocumentNameGenerator;
+import com.thinkparity.ophelia.model.document.DocumentVersionLock;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 import com.thinkparity.ophelia.model.events.ContainerListener;
@@ -335,23 +337,27 @@ public final class ContainerModelImpl extends
                         readLatestVersion(container.getId());
                 final List<Document> documents = readDocuments(
                         latestVersion.getArtifactId(), latestVersion.getVersionId());
-                // create
-                final ContainerDraft draft = new ContainerDraft();
-                draft.setOwner(localTeamMember(containerId));
-                draft.setContainerId(containerId);
-                final InternalDocumentModel documentModel = getDocumentModel();
-                for (final Document document : documents) {
-                    draft.addDocument(document);
-                    draft.putState(document, ContainerDraft.ArtifactState.NONE);
-                    documentModel.createDraft(document.getId());
-                    
+                final Map<Document, DocumentLock> documentLocks = lockDocuments(documents);
+                try {
+                    // create
+                    final ContainerDraft draft = new ContainerDraft();
+                    draft.setOwner(localTeamMember(containerId));
+                    draft.setContainerId(containerId);
+                    final InternalDocumentModel documentModel = getDocumentModel();
+                    for (final Document document : documents) {
+                        draft.addDocument(document);
+                        draft.putState(document, ContainerDraft.ArtifactState.NONE);
+                        documentModel.createDraft(documentLocks.get(document), document.getId());
+                    }
+                    containerIO.createDraft(draft);
+                    artifactModel.applyFlagKey(container.getId());
+                    // remote create
+                    final List<JabberId> team = artifactModel.readTeamIds(containerId);
+                    team.remove(localUserId());
+                    getSessionModel().createDraft(team, container.getUniqueId());
+                } finally {
+                    releaseDocuments(documentLocks.values());
                 }
-                containerIO.createDraft(draft);
-                artifactModel.applyFlagKey(container.getId());
-                // remote create
-                final List<JabberId> team = artifactModel.readTeamIds(containerId);
-                team.remove(localUserId());
-                getSessionModel().createDraft(team, container.getUniqueId());
             }
             // fire event
             final Container postCreation = read(containerId);
@@ -374,6 +380,9 @@ public final class ContainerModelImpl extends
         logger.logVariable("containerId", containerId);
         try {
             final Container container = read(containerId);
+            final List<Document> allDocuments = readAllDocuments(containerId);
+            final Map<Document, DocumentLock> allDocumentsLocks = lockDocuments(allDocuments);
+            final Map<DocumentVersion, DocumentVersionLock> allDocumentVersionsLocks = lockDocumentVersions(allDocuments);
             if (isDistributed(container.getId())) {
                 // delete the draft
                 if (container.isLocalDraft()) {
@@ -389,9 +398,9 @@ public final class ContainerModelImpl extends
                 }
                 getSessionModel().deleteArtifact(localUserId(),
                         container.getUniqueId());
-                deleteLocal(container.getId());
+                deleteLocal(container.getId(), allDocuments, allDocumentsLocks, allDocumentVersionsLocks);
             } else {
-                deleteLocal(container.getId());
+                deleteLocal(container.getId(), allDocuments, allDocumentsLocks, allDocumentVersionsLocks);
             }
             // fire event
             notifyContainerDeleted(container, localEventGenerator);
@@ -407,27 +416,31 @@ public final class ContainerModelImpl extends
      *            A container id.
      */
     public void deleteDraft(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
         try {
             assertDoesExistDraft(containerId, "Draft does not exist.");
-            final Container container = read(containerId);
-            if (doesExistLocalDraft(containerId)) {
-                if (!isFirstDraft(container.getId())) {
-                    assertOnline("User is not online.");
-                    assertIsDistributed("Draft has not been distributed.", containerId);
-                    getSessionModel().deleteDraft(container.getUniqueId());
-                }
-            }
-            // delete local data
             final InternalDocumentModel documentModel = getDocumentModel();
+            final Container container = read(containerId);
             final ContainerDraft draft = readDraft(containerId);
-            for (final Artifact artifact : draft.getArtifacts()) {
-                documentModel.deleteDraft(artifact.getId());
-                containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+            final List<Document> draftDocuments = draft.getDocuments();
+            final Map<Document, DocumentLock> draftDocumentLocks = lockDocuments(draftDocuments);
+            try {
+                if (doesExistLocalDraft(containerId)) {
+                    if (!isFirstDraft(container.getId())) {
+                        assertOnline("User is not online.");
+                        assertIsDistributed("Draft has not been distributed.", containerId);
+                        getSessionModel().deleteDraft(container.getUniqueId());
+                    }
+                }
+                // delete local data
+                for (final Document draftDocument : draftDocuments) {
+                    documentModel.deleteDraft(draftDocumentLocks.get(draftDocument), draftDocument.getId());
+                    containerIO.deleteDraftArtifactRel(containerId, draftDocument.getId());
+                }
+                containerIO.deleteDraft(containerId);
+                notifyDraftDeleted(container, draft, localEventGenerator);
+            } finally {
+                releaseDocuments(draftDocumentLocks.values());
             }
-            containerIO.deleteDraft(containerId);
-            notifyDraftDeleted(container, draft, localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -690,43 +703,27 @@ public final class ContainerModelImpl extends
                         version));
             }
             // index
-// NOCOMMIT
-logger.logTraceId();
             getIndexModel().indexContainer(container.getId());
-// NOCOMMIT
-logger.logTraceId();
             // send confirmation
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar confirmedOn = sessionModel.readDateTime();
-// NOCOMMIT
-logger.logTraceId();
             sessionModel.confirmArtifactReceipt(localUserId(),
                     container.getUniqueId(), version.getVersionId(),
                     event.getPublishedBy(), event.getPublishedOn(),
                     publishedToIds, localUserId(), confirmedOn);
-// NOCOMMIT
-logger.logTraceId();
             // audit\fire event
             final Container postPublish = read(container.getId());
             final ContainerVersion postPublishVersion = readVersion(
                     container.getId(), version.getVersionId());
-// NOCOMMIT
-logger.logTraceId();
             auditContainerPublished(postPublish, draft,
                     postPublishVersion, event.getPublishedBy(),
                     publishedToIds, event.getPublishedOn());
-// NOCOMMIT
-logger.logTraceId();
             if (null == draft) {
                 notifyVersionPublished(postPublish, postPublishVersion,
                         publishedBy, remoteEventGenerator);
-// NOCOMMIT
-logger.logTraceId();
             } else {
                 notifyDraftPublished(postPublish, draft, postPublishVersion,
                         publishedBy, remoteEventGenerator);
-// NOCOMMIT
-logger.logTraceId();
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -737,29 +734,19 @@ logger.logTraceId();
         logger.logApiId();
         logger.logVariable("event", event);
         try {
-// NOCOMMIT
-logger.logTraceId();
             final Long containerId = artifactIO.readId(event.getUniqueId());
             final User receivedBy = getUserModel().readLazyCreate(event.getReceivedBy());
             final ArtifactReceipt receipt = containerIO.readPublishedTo(
                     containerId, event.getVersionId(), event.getPublishedOn(),
                     receivedBy);
-// NOCOMMIT
-logger.logTraceId();
             if (null == receipt) {
                 containerIO.createPublishedTo(containerId, event.getVersionId(),
                         receivedBy, event.getPublishedOn());
-// NOCOMMIT
-logger.logTraceId();
             }
             containerIO.updatePublishedTo(containerId, event.getVersionId(),
                     event.getPublishedOn(), event.getReceivedBy(),
                     event.getReceivedOn());
-// NOCOMMIT
-logger.logTraceId();
             notifyContainerReceived(read(containerId), remoteEventGenerator);
-// NOCOMMIT
-logger.logTraceId();
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -879,75 +866,81 @@ logger.logTraceId();
         assertDoesExistLocalDraft("LOCAL DRAFT DOES NOT EXIST", containerId);
         assertDoesNotContain("CANNOT PUBLISH TO SELF", teamMembers, localUser());
         try {
-            final Calendar publishedOn = getSessionModel().readDateTime();
-            final Container container = read(containerId);
+            // lock the documents
             final ContainerDraft draft = readDraft(containerId);
-            // if the artfiact doesn't exist on the server; create it there
-            if (!isDistributed(container.getId())) {
-                createDistributed(container, publishedOn);
-            }
-            // ensure the user is the key holder
-            assertIsKeyHolder("USER NOT KEY HOLDER", containerId);
-            // previous version
-            final ContainerVersion previous = readLatestVersion(containerId);
-            // create version
-            fireProcessBegin(monitor);
-            fireStageBegin(monitor, PublishStage.CreateVersion);
-            final ContainerVersion version = createVersion(container.getId(),
-                    readNextVersionId(containerId), comment, localUserId(),
-                    publishedOn);
-            // attach artifacts to the version
-            final InternalDocumentModel documentModel = getDocumentModel();
             final List<Document> draftDocuments = draft.getDocuments();
-            DocumentVersion draftDocumentLatestVersion;
-            for(final Document draftDocument : draftDocuments) {
-                if(ContainerDraft.ArtifactState.REMOVED != draft
-                        .getState(draftDocument)) {
-                    if (documentModel.isDraftModified(draftDocument.getId())) {
-                        draftDocumentLatestVersion =
-                            documentModel.createVersion(draftDocument.getId(), publishedOn);
-                    } else {
-                        draftDocumentLatestVersion =
-                            documentModel.readLatestVersion(draftDocument.getId());
-                    }
-                    containerIO.addVersion(
-                            version.getArtifactId(), version.getVersionId(),
-                            draftDocumentLatestVersion.getArtifactId(),
-                            draftDocumentLatestVersion.getVersionId(),
-                            draftDocumentLatestVersion.getArtifactType());
+            final Map<Document, DocumentLock> draftDocumentLocks = lockDocuments(draftDocuments);
+            try {
+                final Calendar publishedOn = getSessionModel().readDateTime();
+                final Container container = read(containerId);
+                // if the artfiact doesn't exist on the server; create it there
+                if (!isDistributed(container.getId())) {
+                    createDistributed(container, publishedOn);
                 }
+                // ensure the user is the key holder
+                assertIsKeyHolder("USER NOT KEY HOLDER", containerId);
+                // previous version
+                final ContainerVersion previous = readLatestVersion(containerId);
+                // create version
+                fireProcessBegin(monitor);
+                fireStageBegin(monitor, PublishStage.CreateVersion);
+                final ContainerVersion version = createVersion(container.getId(),
+                        readNextVersionId(containerId), comment, localUserId(),
+                        publishedOn);
+                // attach artifacts to the version
+                final InternalDocumentModel documentModel = getDocumentModel();
+                DocumentVersion draftDocumentLatestVersion;
+                for (final Document draftDocument : draftDocuments) {
+                    if(ContainerDraft.ArtifactState.REMOVED !=
+                            draft.getState(draftDocument)) {
+                        if (documentModel.isDraftModified(draftDocument.getId())) {
+                            draftDocumentLatestVersion =
+                                documentModel.createVersion(draftDocument.getId(), publishedOn);
+                        } else {
+                            draftDocumentLatestVersion =
+                                documentModel.readLatestVersion(draftDocument.getId());
+                        }
+                        containerIO.addVersion(
+                                version.getArtifactId(), version.getVersionId(),
+                                draftDocumentLatestVersion.getArtifactId(),
+                                draftDocumentLatestVersion.getVersionId(),
+                                draftDocumentLatestVersion.getArtifactType());
+                    }
+                }
+                // store differences between this and the previous version
+                if (null == previous) {
+                    logger.logInfo("First version of {0}.", container.getName());
+                } else {
+                    // delta previous with version
+                    containerIO.createDelta(calculateDelta(read(containerId), version, previous));
+                }
+                fireStageEnd(monitor, PublishStage.CreateVersion);
+                // delete draft
+                for (final Document draftDocument : draftDocuments) {
+                    documentModel.deleteDraft(draftDocumentLocks.get(draftDocument), draftDocument.getId());
+                    containerIO.deleteDraftArtifactRel(containerId, draftDocument.getId());
+                }
+                containerIO.deleteDraft(containerId);
+                // remove key
+                getArtifactModel().removeFlagKey(container.getId());
+                // build the publish to list
+                final List<User> publishToUsers = new ArrayList<User>();
+                publishToUsers.addAll(contacts);
+                publishToUsers.addAll(teamMembers);
+                // create published to list
+                containerIO.createPublishedTo(version.getArtifactId(),
+                        version.getVersionId(), publishToUsers, publishedOn);
+                // publish container contents
+                publish(monitor, version, localUserId(), publishedOn, publishToUsers);
+                // fire event
+                final Container postPublish = read(container.getId());
+                final ContainerVersion postPublishVersion = readVersion(
+                        version.getArtifactId(), version.getVersionId());
+                notifyDraftPublished(postPublish, draft, postPublishVersion,
+                        localTeamMember(container.getId()), localEventGenerator);
+            } finally {
+                releaseDocuments(draftDocumentLocks.values());
             }
-            // store differences between this and the previous version
-            if (null == previous) {
-                logger.logInfo("First version of {0}.", container.getName());
-            } else {
-                // delta previous with version
-                containerIO.createDelta(calculateDelta(read(containerId), version, previous));
-            }
-            fireStageEnd(monitor, PublishStage.CreateVersion);
-            // delete draft
-            for (final Artifact artifact : draft.getArtifacts()) {
-                documentModel.deleteDraft(artifact.getId());
-                containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
-            }
-            containerIO.deleteDraft(containerId);
-            // remove key
-            getArtifactModel().removeFlagKey(container.getId());
-            // build the publish to list
-            final List<User> publishToUsers = new ArrayList<User>();
-            publishToUsers.addAll(contacts);
-            publishToUsers.addAll(teamMembers);
-            // create published to list
-            containerIO.createPublishedTo(version.getArtifactId(),
-                    version.getVersionId(), publishToUsers, publishedOn);
-            // publish container contents
-            publish(monitor, version, localUserId(), publishedOn, publishToUsers);
-            // fire event
-            final Container postPublish = read(container.getId());
-            final ContainerVersion postPublishVersion = readVersion(
-                    version.getArtifactId(), version.getVersionId());
-            notifyDraftPublished(postPublish, draft, postPublishVersion,
-                    localTeamMember(container.getId()), localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         } finally {
@@ -1628,33 +1621,41 @@ logger.logTraceId();
      *            A document id.
      */
     public void removeDocument(final Long containerId, final Long documentId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("documentId", documentId);
-        assertDraftExists("DRAFT DOES NOT EXIST", containerId);
-        assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
-                containerId, documentId, ContainerDraft.ArtifactState.REMOVED);
-        final ContainerDraft draft = readDraft(containerId);
-        final Document document = draft.getDocument(documentId);
-        containerIO.deleteDraftArtifactRel(containerId, document.getId());
-        switch (draft.getState(document.getId())) {
-        case ADDED:     // delete the document
-            getDocumentModel().delete(document.getId());
-            break;
-        case MODIFIED:  // fall through
-        case NONE:
-            containerIO.createDraftArtifactRel(
-                    containerId, document.getId(), ContainerDraft.ArtifactState.REMOVED);
-            getDocumentModel().remove(document.getId());
-            break;
-        case REMOVED:   // fall through
-        default:
-            Assert.assertUnreachable("UNKNOWN ARTIFACT STATE");
+        try {
+            assertDraftExists("DRAFT DOES NOT EXIST", containerId);
+            assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
+                    containerId, documentId, ContainerDraft.ArtifactState.REMOVED);
+            final ContainerDraft draft = readDraft(containerId);
+            final Document document = draft.getDocument(documentId);
+            final DocumentLock lock = lockDocument(document);
+            final Map<DocumentVersion, DocumentVersionLock> versionLocks = lockDocumentVersions(document);
+            try {
+                containerIO.deleteDraftArtifactRel(containerId, document.getId());
+                switch (draft.getState(document.getId())) {
+                case ADDED:     // delete the document
+                    getDocumentModel().delete(lock, versionLocks, document.getId());
+                    break;
+                case MODIFIED:  // fall through
+                case NONE:
+                    containerIO.createDraftArtifactRel(
+                            containerId, document.getId(), ContainerDraft.ArtifactState.REMOVED);
+                    getDocumentModel().remove(lock, document.getId());
+                    break;
+                case REMOVED:   // fall through
+                default:
+                    Assert.assertUnreachable("UNKNOWN ARTIFACT STATE");
+                }
+                // fire event
+                final Container postAdditionContainer = read(containerId);        
+                final ContainerDraft postAdditionDraft = readDraft(containerId);
+                notifyDocumentRemoved(postAdditionContainer, postAdditionDraft, document, localEventGenerator);
+            } finally {
+                releaseDocument(lock);
+                releaseDocumentVersions(versionLocks.values());
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
         }
-        // fire event
-        final Container postAdditionContainer = read(containerId);        
-        final ContainerDraft postAdditionDraft = readDraft(containerId);
-        notifyDocumentRemoved(postAdditionContainer, postAdditionDraft, document, localEventGenerator);
     }
 
     /**
@@ -1725,8 +1726,18 @@ logger.logTraceId();
             final List<Container> containers = read();
             if (0 < containers.size()) {
                 logger.logWarning("{0} containers will be deleted.", containers.size());
+                final Map<Container, List<Document>> allDocuments = readAllDocuments();
+                final Map<Document, DocumentLock> allDocumentsLocks = new HashMap<Document, DocumentLock>();
+                final Map<DocumentVersion, DocumentVersionLock> allDocumentsVersionsLocks = new HashMap<DocumentVersion, DocumentVersionLock>();
+                for (final List<Document> documents : allDocuments.values()) {
+                    for (final Document document : documents) {
+                        allDocumentsLocks.put(document, lockDocument(document));
+                        allDocumentsVersionsLocks.putAll(lockDocumentVersions(document));
+                    }
+                }
                 for (final Container container : containers) {
-                    deleteLocal(container.getId());
+                    deleteLocal(container.getId(), allDocuments.get(container),
+                            allDocumentsLocks, allDocumentsVersionsLocks);
                 }
             }
 
@@ -1774,25 +1785,30 @@ logger.logTraceId();
      *            A document id <code>Long</code>.
      */
     public void revertDocument(final Long containerId, final Long documentId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("documentId", documentId);
-        assertDraftExists("DRAFT DOES NOT EXIST", containerId);
-        assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
-                containerId, documentId, ContainerDraft.ArtifactState.NONE);
-        assertDoesExistLatestVersion("LATEST VERSION DOES NOT EXIST", containerId);
-        final ContainerDraft draft = readDraft(containerId);
-        final Document document = draft.getDocument(documentId);
-        containerIO.deleteDraftArtifactRel(containerId, document.getId());
-        containerIO.createDraftArtifactRel(containerId, document.getId(),
-                ContainerDraft.ArtifactState.NONE);
-        getDocumentModel().revertDraft(documentId);
-
-        final Container postRevertContainer = read(containerId);        
-        final ContainerDraft postRevertDraft = readDraft(containerId);
-        notifyDocumentReverted(postRevertContainer, postRevertDraft, document,
-                localEventGenerator);
-
+        try {
+            assertDraftExists("DRAFT DOES NOT EXIST", containerId);
+            assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
+                    containerId, documentId, ContainerDraft.ArtifactState.NONE);
+            assertDoesExistLatestVersion("LATEST VERSION DOES NOT EXIST", containerId);
+            final ContainerDraft draft = readDraft(containerId);
+            final Document document = draft.getDocument(documentId);
+            final DocumentLock lock = lockDocument(document);
+            try {
+                containerIO.deleteDraftArtifactRel(containerId, document.getId());
+                containerIO.createDraftArtifactRel(containerId, document.getId(),
+                        ContainerDraft.ArtifactState.NONE);
+                getDocumentModel().revertDraft(lock, documentId);
+        
+                final Container postRevertContainer = read(containerId);        
+                final ContainerDraft postRevertDraft = readDraft(containerId);
+                notifyDocumentReverted(postRevertContainer, postRevertDraft, document,
+                        localEventGenerator);
+            } finally {
+                releaseDocument(lock);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -2183,15 +2199,16 @@ logger.logTraceId();
      * @param containerId
      *            The container id.
      */
-    private void deleteLocal(final Long containerId) {
+    private void deleteLocal(
+            final Long containerId,
+            final List<Document> documents,
+            final Map<Document, DocumentLock> documentLocks,
+            final Map<DocumentVersion, DocumentVersionLock> documentVersionLocks) {
         // delete the draft
-        final List<Document> allDocuments = new ArrayList<Document>();
         final ContainerDraft draft = readDraft(containerId);
         if (null != draft) {
             for(final Document document : draft.getDocuments()) {
                 containerIO.deleteDraftArtifactRel(containerId, document.getId());
-                if (!allDocuments.contains(document))
-                    allDocuments.add(document);
             }
             containerIO.deleteDraft(containerId);
         }
@@ -2205,14 +2222,7 @@ logger.logTraceId();
         // delete versions
         final InternalDocumentModel documentModel = getDocumentModel();
         final List<ContainerVersion> versions = readVersions(containerId);
-        List<Document> documents;
         for (final ContainerVersion version : versions) {
-            documents =
-                containerIO.readDocuments(version.getArtifactId(), version.getVersionId());
-            for (final Document document : documents) {
-                if (!allDocuments.contains(document))
-                    allDocuments.add(document);
-            }
             // remove the version's artifact versions
             containerIO.removeVersions(containerId, version.getVersionId());
             // delete the version's deltas
@@ -2221,8 +2231,9 @@ logger.logTraceId();
             containerIO.deleteVersion(containerId, version.getVersionId());
         }
         // delete documents
-        for(final Document document : allDocuments) {
-            documentModel.delete(document.getId());
+        for (final Document document : documents) {
+            documentModel.delete(documentLocks.get(document),
+                    documentVersionLocks, document.getId());
         }
         // delete the index
         getIndexModel().deleteContainer(containerId);
@@ -2434,7 +2445,6 @@ logger.logTraceId();
         return container;
     }
 
-
     /**
      * Handle the resolution of a container version. If the version does not
      * exist it will be created.
@@ -2489,6 +2499,74 @@ logger.logTraceId();
      */
     private boolean isLocalTeamMember(final Long containerId) {
         return contains(getArtifactModel().readTeam2(containerId), localUser());
+    }
+
+    /**
+     * Lock a document.
+     * 
+     * @param document
+     *            A <code>Document</code>.
+     * @return A <code>DocumentLock</code>.
+     */
+    private DocumentLock lockDocument(final Document document) {
+        return getDocumentModel().lock(document);
+    }
+
+    /**
+     * Lock a list of documents.
+     * 
+     * @param documents
+     *            A <code>List</code> of <code>Document</code>s.
+     * @return A <code>Map</code> of <code>Document</code>s to their
+     *         <code>DocumentLock</code>s.
+     */
+    private Map<Document, DocumentLock> lockDocuments(
+            final List<Document> documents) {
+        final Map<Document, DocumentLock> locks = new HashMap<Document, DocumentLock>();
+        for (final Document document : documents) {
+            locks.put(document, lockDocument(document));
+        }
+        return locks;
+    }
+
+    /**
+     * Lock a document's versions.
+     * 
+     * @param document
+     *            A <code>Document</code>.
+     * @return A <code>Map</code> of <code>DocumentVersion</code>s to their
+     *         <code>DocumentVersionLock</code>s.
+     */
+    private Map<DocumentVersion, DocumentVersionLock> lockDocumentVersions(
+            final Document document) {
+        final List<DocumentVersion> versions = getDocumentModel().readVersions(document.getId());
+        final Map<DocumentVersion, DocumentVersionLock> locks = new HashMap<DocumentVersion, DocumentVersionLock>(versions.size(), 1.0F);
+        for (final DocumentVersion version : versions) {
+            locks.put(version, getDocumentModel().lockVersion(version));
+        }
+        return locks;
+    }
+
+    /**
+     * Lock a list of documents' versions.
+     * 
+     * @param documents
+     *            A <code>List</code> of <code>Document</code>s.
+     * @return A <code>Map</code> of <code>Document</code>s to their
+     *         <code>DocumentLock</code>s.
+     */
+    private Map<DocumentVersion, DocumentVersionLock> lockDocumentVersions(
+            final List<Document> documents) {
+        final Map<DocumentVersion, DocumentVersionLock> locks = new HashMap<DocumentVersion, DocumentVersionLock>();
+        final List<DocumentVersion> versions = new ArrayList<DocumentVersion>();
+        for (final Document document : documents) {
+            versions.clear();
+            versions.addAll(getDocumentModel().readVersions(document.getId()));
+            for (final DocumentVersion version : versions) {
+                locks.put(version, getDocumentModel().lockVersion(version));
+            }
+        }
+        return locks;
     }
 
     /**
@@ -2558,7 +2636,7 @@ logger.logTraceId();
             }
         });
     }
-    
+
     /**
      * Notify that the container has been received.
      * 
@@ -2592,7 +2670,7 @@ logger.logTraceId();
             }
         });
     }
-
+    
     /**
      * Fire a container restored notification.
      * 
@@ -2823,6 +2901,48 @@ logger.logTraceId();
     }
 
     /**
+     * Read a flat list of all documents for all containers. This will look in
+     * the draft as well as all versions.
+     * 
+     * @return A <code>Map</code> of <code>Container</code>s to their
+     *         <code>Document</code>s.
+     */
+    private Map<Container, List<Document>> readAllDocuments() {
+        final List<Container> containers = read();
+        final Map<Container, List<Document>> allDocuments = new HashMap<Container, List<Document>>(containers.size(), 1.0F);
+        for (final Container container : containers) {
+            allDocuments.put(container, readAllDocuments(container.getId()));
+        }
+        return allDocuments;
+    }
+
+    /**
+     * Read a flat list of all documents for a container. This will
+     * look in the draft as well as all versions.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A <code>List</code> of <code>Document</code>s.
+     */
+    private List<Document> readAllDocuments(final Long containerId) {
+        final List<Document> allDocuments = new ArrayList<Document>();
+        final ContainerDraft draft = readDraft(containerId);
+        if (null != draft) {
+            for(final Document document : draft.getDocuments()) {
+                if (!allDocuments.contains(document))
+                    allDocuments.add(document);
+            }
+        }
+        final List<ContainerVersion> versions = readVersions(containerId);
+        for (final ContainerVersion version : versions)
+            for (final Document document :
+                readDocuments(version.getArtifactId(), version.getVersionId()))
+                if (!allDocuments.contains(document))
+                    allDocuments.add(document);
+        return allDocuments;
+    }
+
+    /**
      * Read the documents for the container.
      * 
      * @param containerId
@@ -2959,6 +3079,39 @@ logger.logTraceId();
      */
     private User readUser(final JabberId userId) {
         return getUserModel().read(userId);
+    }
+
+    /**
+     * Release the exclusive lock.
+     * 
+     * @param lock
+     *            A <code>DocumentLock</code>.
+     */
+    private void releaseDocument(final DocumentLock lock) {
+        getDocumentModel().release(lock);
+    }
+
+    /**
+     * Release the exclusive lock.
+     * 
+     * @param lock
+     *            A <code>DocumentLock</code>.
+     */
+    private void releaseDocuments(final Iterable<DocumentLock> locks) {
+        for (final DocumentLock lock : locks)
+            getDocumentModel().release(lock);
+    }
+
+    /**
+     * Release the exclusive lock.
+     * 
+     * @param lock
+     *            A <code>DocumentLock</code>.
+     */
+    private void releaseDocumentVersions(
+            final Iterable<DocumentVersionLock> locks) {
+        for (final DocumentVersionLock lock : locks)
+            getDocumentModel().release(lock);
     }
 
     /**

@@ -3,18 +3,27 @@
  */
 package com.thinkparity.ophelia.model.document;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -58,10 +67,21 @@ public final class DocumentModelImpl extends
         Model<DocumentListener> implements DocumentModel,
         InternalDocumentModel {
 
+    /** The size of the buffer used by print draft when copying a file. */
+    private static final Integer PRINT_DRAFT_COPY_BUFFER;
+
+    /** The size of the buffer used by print version when copying a file. */
+    private static final Integer PRINT_VERSION_COPY_BUFFER;
+
+    static {
+        PRINT_DRAFT_COPY_BUFFER = 1024;
+        PRINT_VERSION_COPY_BUFFER = 1024;
+    }
+
     /** A document auditor. */
 	private DocumentModelAuditor auditor;
 
-    /** The default document comparator. */
+	/** The default document comparator. */
 	private final Comparator<Artifact> defaultComparator;
 
 	/** The default history comparator. */
@@ -73,13 +93,13 @@ public final class DocumentModelImpl extends
 	/** The default document version comparator. */
 	private final Comparator<ArtifactVersion> defaultVersionComparator;
 
-	/** A document reader/writer. */
+    /** A document reader/writer. */
 	private DocumentIOHandler documentIO;
 
-    /** A document event generator for local events. */
+	/** A document event generator for local events. */
     private final DocumentModelEventGenerator localEventGen;
 
-	/**
+    /**
 	 * Create a DocumentModelImpl
 	 * 
 	 * @param workspace
@@ -104,7 +124,7 @@ public final class DocumentModelImpl extends
         super.addListener(listener);
     }
 
-    /**
+	/**
      * Create a document.
      * 
      * @param name
@@ -114,9 +134,6 @@ public final class DocumentModelImpl extends
      * @return The document.
      */
     public Document create(final String name, final InputStream content) {
-        logger.logApiId();
-        logger.logVariable("name", name);
-        logger.logVariable("content", content);
         try {
             assertIsSetCredentials();
             // create
@@ -130,16 +147,12 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
-     * Create a draft for a document. Take the content of the latest version and
-     * copy it into a local file for the draft.
+    /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#createDraft(com.thinkparity.codebase.model.document.DocumentLock,
+     *      java.lang.Long)
      * 
-     * @param documentId
-     *            A document id <code>Long</code>.
      */
-    public void createDraft(final Long documentId) {
-        logger.logApiId();
-        logger.logVariable("documentId", documentId);
+    public void createDraft(final DocumentLock lock, final Long documentId) {
         try {
             final Document document = read(documentId);
             final DocumentVersion latestVersion = readLatestVersion(documentId);
@@ -148,7 +161,8 @@ public final class DocumentModelImpl extends
             final InputStream versionStream = openVersionStream(
                     document.getId(), latestVersion.getVersionId());
             try {
-                draftFile.write(versionStream, latestVersion);
+                draftFile.write(lock, versionStream,
+                        latestVersion.getCreatedOn().getTimeInMillis());
             } finally {
                 versionStream.close();
             }
@@ -158,21 +172,16 @@ public final class DocumentModelImpl extends
     }
 
     /**
-     * Create a duplicate document version.
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#createVersion(java.lang.Long,
+     *      java.util.Calendar)
      * 
-     * @param documentId
-     *            A document id.
-     * @return The new version.
-     * @throws ParityException
      */
     public DocumentVersion createVersion(final Long documentId,
             final Calendar createdOn) {
-        logger.logApiId();
-        logger.logVariable("documentId", documentId);
         try {
             assertDraftIsModified(documentId, "Draft has not been modified.");
             final LocalFile localFile = getLocalFile(read(documentId));
-            final InputStream content = localFile.openStream();
+            final InputStream content = localFile.openInputStream();
             try {
                 return createVersion(documentId, readNextVersionId(documentId),
                         content, localUserId(), createdOn);
@@ -185,48 +194,33 @@ public final class DocumentModelImpl extends
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#remove(java.lang.Long)
-     *
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#delete(com.thinkparity.codebase.model.document.DocumentLock,
+     *      java.lang.Long)
+     * 
      */
-    public void remove(final Long documentId) {
+    public void delete(final DocumentLock lock,
+            final Map<DocumentVersion, DocumentVersionLock> versionLocks,
+            final Long documentId) {
         try {
-            final LocalFile localFile = getLocalFile(get(documentId));
-            localFile.lock();
+            deleteLocal(lock, versionLocks, documentId);
+            // fire event
+            notifyDocumentDeleted(null, localEventGen);
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
     /**
-     * Delete a document.
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#deleteDraft(com.thinkparity.codebase.model.document.DocumentLock,
+     *      java.lang.Long)
      * 
-     * @param documentId
-     *                The document unique id.
-     * @throws ParityException
      */
-    public void delete(final Long documentId) {
-        logger.logApiId();
-        logger.logVariable("documentId", documentId);
-        deleteLocal(documentId);
-        // fire event
-        notifyDocumentDeleted(null, localEventGen);
-    }
-
-    /**
-     * Delete the draft for a document. This will delete the a file on the file
-     * system representing the draft.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     */
-    public void deleteDraft(final Long documentId) {
-        logger.logApiId();
-        logger.logVariable("documentId", documentId);
+    public void deleteDraft(final DocumentLock lock, final Long documentId) {
         try {
             assertDoesExistDraft(documentId, "Draft does not exist.");
             final Document document = read(documentId);
             final LocalFile draftFile = getLocalFile(document);
-            draftFile.delete();
+            draftFile.delete(lock);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -369,22 +363,53 @@ public final class DocumentModelImpl extends
                     readVersion(documentId, latestVersionId);
 
                 final LocalFile draftFile = getLocalFile(document);
-                final Long draftModifiedTime = draftFile.lastModified();
-                final Long latestVersionModifiedTime = latestVersion.getCreatedOn().getTimeInMillis();
+                final long latestVersionModifiedTime =
+                    latestVersion.getCreatedOn().getTimeInMillis();
 
                 /* the time stamp is checked first because it is fast;
                  * however documents are considered different only if the
                  * checksums are different */
-                if (draftModifiedTime.equals(latestVersionModifiedTime)) {
+                if (draftFile.lastModified() == latestVersionModifiedTime) {
                     return Boolean.FALSE;
                 } else {
-                    draftFile.read();
-                    final String draftChecksum = draftFile.getFileChecksum();
-                    return !latestVersion.getChecksum().equals(draftChecksum);
+                    return !latestVersion.getChecksum().equals(
+                            draftFile.readChecksum());
                 }
             }
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#lock(com.thinkparity.codebase.model.document.Document)
+     *
+     */
+    public DocumentLock lock(final Document document) {
+        try {
+            final LocalFile localFile = getLocalFile(document);
+            final DocumentLock lock = new DocumentLock();
+            lock.setDocumentId(document.getId());
+            return localFile.lock(lock);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+	/**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#lockVersion(com.thinkparity.codebase.model.document.DocumentVersion)
+     * 
+     */
+    public DocumentVersionLock lockVersion(final DocumentVersion version) {
+        try {
+            final Document document = read(version.getArtifactId());
+            final LocalFile localFile = getLocalFile(document, version);
+            final DocumentVersionLock lock = new DocumentVersionLock();
+            lock.setDocumentId(version.getArtifactId());
+            lock.setVersionId(version.getVersionId());
+            return localFile.lock(lock);
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 
@@ -406,12 +431,18 @@ public final class DocumentModelImpl extends
 			final LocalFile localFile = getLocalFile(document);
             if (!localFile.exists()) {
                 final DocumentVersion latestVersion = readLatestVersion(documentId);
-                final InputStream stream = openVersionStream(documentId,
-                        latestVersion.getVersionId());
+                final DocumentLock lock = lock(document);
                 try {
-                    localFile.write(stream, latestVersion);
+                    final InputStream stream = openVersionStream(documentId,
+                            latestVersion.getVersionId());
+                    try {
+                        localFile.write(lock, stream,
+                                latestVersion.getCreatedOn().getTimeInMillis());
+                    } finally {
+                        stream.close();
+                    }
                 } finally {
-                    stream.close();
+                    release(lock);
                 }
             }
             
@@ -422,13 +453,10 @@ public final class DocumentModelImpl extends
 	}
 
 	/**
-	 * Open a document version. Extract the version's content and open it.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @param versionId
-	 *            The version id.
-	 */
+     * @see com.thinkparity.ophelia.model.document.DocumentModel#openVersion(java.lang.Long,
+     *      java.lang.Long, com.thinkparity.ophelia.model.util.Opener)
+     * 
+     */
     public void openVersion(final Long documentId, final Long versionId,
             final Opener opener) {
         logger.logApiId();
@@ -440,12 +468,18 @@ public final class DocumentModelImpl extends
 			final DocumentVersion version = readVersion(documentId, versionId);
 			final LocalFile localFile = getLocalFile(document, version);
             if (!localFile.exists()) {
-                final InputStream stream = openVersionStream(
-                        documentId, versionId);
+                final DocumentVersionLock lock = lockVersion(version);
                 try {
-                    localFile.write(stream, version);
+                    final InputStream stream = openVersionStream(
+                            documentId, versionId);
+                    try {
+                        localFile.write(lock, stream,
+                                version.getCreatedOn().getTimeInMillis());
+                    } finally {
+                        stream.close();
+                    }
                 } finally {
-                    stream.close();
+                    release(lock);
                 }
             }
 
@@ -488,13 +522,20 @@ public final class DocumentModelImpl extends
         try {
             final Document document = read(documentId);
             final LocalFile localFile = getLocalFile(document);
-            printer.print(localFile.createTempClone(workspace), document.getName());
+            final File copyTo = workspace.createTempFile(document.getName());
+            try {
+                localFile.copy(copyTo, PRINT_DRAFT_COPY_BUFFER);
+                printer.print(copyTo);
+            } finally {
+                Assert.assertTrue(copyTo.delete(),
+                        "Could not delete temporary file {0}.", copyTo);
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
-	/**
+    /**
      * Print a document version.
      * 
      * @param documentId
@@ -514,13 +555,21 @@ public final class DocumentModelImpl extends
             final Document document = read(documentId);
             final DocumentVersion version = readVersion(documentId, versionId);
             final LocalFile localFile = getLocalFile(document, version);
-            printer.print(localFile.createTempClone(workspace), document.getName());
+
+            final File copyTo = workspace.createTempFile(document.getName());
+            try {
+                localFile.copy(copyTo, PRINT_VERSION_COPY_BUFFER);
+                printer.print(copyTo);
+            } finally {
+                Assert.assertTrue(copyTo.delete(),
+                        "Could not delete temporary file {0}.", copyTo);
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
-    /**
+	/**
      * Read a document.
      * 
      * @param documentId
@@ -615,7 +664,7 @@ public final class DocumentModelImpl extends
         return readHistory(documentId, comparator, defaultHistoryFilter);
     }
 
-	/**
+    /**
      * Read the document history.
      * 
      * @param documentId
@@ -750,6 +799,34 @@ public final class DocumentModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#release(com.thinkparity.codebase.model.document.Document)
+     *
+     */
+    public void release(final DocumentLock lock) {
+        try {
+            final Document document = read(lock.getDocumentId());
+            final LocalFile localFile = getLocalFile(document);
+            localFile.release(lock);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#remove(com.thinkparity.codebase.model.document.DocumentLock,
+     *      java.lang.Long)
+     * 
+     */
+    public void remove(final DocumentLock lock, final Long documentId) {
+        try {
+            final LocalFile localFile = getLocalFile(get(documentId));
+            localFile.setReadOnly(lock);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.Model#removeListener(com.thinkparity.ophelia.model.util.EventListener)
      */
     @Override
@@ -758,43 +835,38 @@ public final class DocumentModelImpl extends
     }
 
     /**
-     * Rename a document.
-     *
-     * @param documentId
-     *      A document id.
-     * @param documentName
-     *      A document name.
+     * @see com.thinkparity.ophelia.model.document.DocumentModel#rename(java.lang.Long,
+     *      java.lang.String)
+     * 
      */
     public void rename(final Long documentId, final String documentName) {
-        logger.logApiId();
-        logger.logVariable("documentId", documentId);
-        logger.logVariable("documentName", documentName);
         try {
             final Document document = read(documentId);
             final LocalFile localFile = getLocalFile(document);
-    
-            // rename the document
-            document.setName(documentName);
-            documentIO.update(document);
-    
-            // rename the local file
-            localFile.rename(documentName);
+            final DocumentLock lock = lock(document);
+            try {
+                // rename the document
+                document.setName(documentName);
+                documentIO.update(document);
+
+                // rename the local file
+                localFile.rename(lock, documentName);
+            } finally {
+                release(lock);
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
-	/**
-     * Revert a document from a previous version.
+    /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#revertDraft(com.thinkparity.codebase.model.document.DocumentLock,
+     *      java.lang.Long)
      * 
-     * @param documentId
-     *            A document id.
      */
-    public void revertDraft(final Long documentId) {
-        logger.logApiId();
-        logger.logVariable("documentId", documentId);
+    public void revertDraft(final DocumentLock lock, final Long documentId) {
         try {
-            revertDraft(documentId, readLatestVersion(documentId).getVersionId());
+            revertDraft(lock, documentId, readLatestVersion(documentId).getVersionId());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -813,9 +885,15 @@ public final class DocumentModelImpl extends
 	    logger.logApiId();
         logger.logVariable("documentId", documentId);
         logger.logVariable("content", content);
-        final LocalFile localFile = getLocalFile(read(documentId));
         try {
-            localFile.write(content, currentDateTime().getTimeInMillis());
+            final Document document = read(documentId);
+            final LocalFile localFile = getLocalFile(document);
+            final DocumentLock lock = lock(document);
+            try {
+                localFile.write(lock, content, currentDateTime().getTimeInMillis());
+            } finally {
+                release(lock);
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -831,7 +909,6 @@ public final class DocumentModelImpl extends
         this.documentIO = IOFactory.getDefault(workspace).createDocumentHandler();
         this.auditor = new DocumentModelAuditor(modelFactory);
     }
-
 
     /**
 	 * Audit a key received event.
@@ -924,7 +1001,7 @@ public final class DocumentModelImpl extends
 		return list(defaultComparator, filter);
 	}
 
-    /**
+	/**
 	 * Obtain a list of document versions for a document.
 	 * 
 	 * @param documentId
@@ -990,7 +1067,7 @@ public final class DocumentModelImpl extends
                 assertArguments);
     }
 
-	/**
+    /**
      * Assert that the document's draft is modified.
      * 
      * @param documentId
@@ -1029,7 +1106,12 @@ public final class DocumentModelImpl extends
         final Document document = create(uniqueId, name, createdBy, createdOn);
         // create local file
         final LocalFile localFile = getLocalFile(document);
-        localFile.write(content, createdOn.getTimeInMillis());
+        final DocumentLock lock = lock(document);
+        try {
+            localFile.write(lock, content, createdOn.getTimeInMillis());
+        } finally {
+            release(lock);
+        }
         return read(document.getId());
     }
 
@@ -1089,8 +1171,11 @@ public final class DocumentModelImpl extends
         try {
             // create a temp file with the content
             final OutputStream tempOutput = new BufferedOutputStream(new FileOutputStream(tempContentFile));
-            try { StreamUtil.copy(content, tempOutput); }
-            finally { tempOutput.close(); }
+            try {
+                StreamUtil.copy(content, tempOutput);
+            } finally {
+                tempOutput.close();
+            }
 
     		// create version
             final Document document = read(documentId);
@@ -1122,12 +1207,18 @@ public final class DocumentModelImpl extends
             }
     		// write local version file
     		final LocalFile localFile = getLocalFile(document, version);
-            final InputStream tempInput = new BufferedInputStream(new FileInputStream(tempContentFile));
+            final DocumentVersionLock lock = lockVersion(version);
             try {
-                localFile.write(tempInput, version.getCreatedOn().getTimeInMillis());
+                final InputStream tempInput = new BufferedInputStream(new FileInputStream(tempContentFile));
+                try {
+                    localFile.write(lock, tempInput, version.getCreatedOn().getTimeInMillis());
+                } finally {
+                    tempInput.close();
+                }
+        		localFile.setReadOnly(lock);
+            } finally {
+                release(lock);
             }
-            finally { tempInput.close(); }
-    		localFile.lock();
     		// update document
     		document.setUpdatedBy(version.getUpdatedBy());
     		document.setUpdatedOn(version.getUpdatedOn());
@@ -1147,7 +1238,9 @@ public final class DocumentModelImpl extends
      *            A document.
      * @throws ParityException
      */
-    private void deleteLocal(final Long documentId) {
+    private void deleteLocal(final DocumentLock lock,
+            final Map<DocumentVersion, DocumentVersionLock> versionLocks,
+            final Long documentId) {
         final Document document = read(documentId);
         // delete audit
         final InternalAuditModel iAuditModel = getAuditModel();
@@ -1155,14 +1248,15 @@ public final class DocumentModelImpl extends
         // delete versions
         final Collection<DocumentVersion> versions = listVersions(documentId);
 		for(final DocumentVersion version : versions) {
-            getLocalFile(document, version).delete();
+            getLocalFile(document, version).delete(versionLocks.get(version));
 			documentIO.deleteVersion(version.getArtifactId(), version.getVersionId());
         }
         // delete  index
         getIndexModel().deleteDocument(documentId);
         // delete document
         final LocalFile localFile = getLocalFile(document);
-		localFile.deleteParentTree();
+		if (localFile.exists())
+            localFile.delete(lock);
 		documentIO.delete(documentId);
     }
 
@@ -1174,10 +1268,10 @@ public final class DocumentModelImpl extends
 	 * @return The document local file reference.
 	 */
 	private LocalFile getLocalFile(final Document document) {
-		return new LocalFile(workspace, document);
+		return new LocalFile(this, workspace, document);
 	}
 
-	/**
+    /**
 	 * Create a document local file reference for a given version.
 	 * 
 	 * @param version
@@ -1186,7 +1280,7 @@ public final class DocumentModelImpl extends
 	 */
 	private LocalFile getLocalFile(final Document document,
 			final DocumentVersion version) {
-		return new LocalFile(workspace, document, version);
+		return new LocalFile(this, workspace, document, version);
 	}
 
     /**
@@ -1241,6 +1335,23 @@ public final class DocumentModelImpl extends
     }
 
     /**
+     * Release a document version lock.
+     * 
+     * @param lock
+     *            A <code>DocumentVersionLock</code>.
+     */
+    private void release(final DocumentVersionLock lock) {
+        try {
+            final Document document = read(lock.getDocumentId());
+            final DocumentVersion version = readVersion(lock.getDocumentId(), lock.getVersionId());
+            final LocalFile localFile = getLocalFile(document, version);
+            localFile.release(lock);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Revert a document draft to a version's content.
      * 
      * @param documentId
@@ -1248,14 +1359,16 @@ public final class DocumentModelImpl extends
      * @param versionId
      *            A version id <code>Long</code>.
      */
-    private void revertDraft(final Long documentId, final Long versionId)
-            throws IOException {
+    private void revertDraft(final DocumentLock lock, final Long documentId,
+            final Long versionId) throws IOException {
         final Document document = read(documentId);
         final LocalFile draftFile = getLocalFile(document);
-        draftFile.delete();
+        draftFile.delete(lock);
         final InputStream inputStream = openVersionStream(documentId, versionId);
+        final DocumentVersion version = readVersion(documentId, versionId);
         try {
-            draftFile.write(inputStream, readVersion(documentId, versionId));
+            draftFile.write(lock, inputStream,
+                    version.getCreatedOn().getTimeInMillis());
         } finally {
             inputStream.close();
         }

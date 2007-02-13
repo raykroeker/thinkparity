@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
 import java.awt.Container;
+import java.awt.EventQueue;
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -15,6 +16,7 @@ import java.util.Map;
 import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -114,6 +116,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      *            Animate flag <code>Boolean</code>.           
      */
     public void collapsePanel(final T panelId, final Boolean animate) {
+        checkThread();
         final TabPanel tabPanel = (TabPanel)lookupPanel(panelId);
         if (isExpanded(tabPanel)) {
             toggleExpansion(tabPanel, animate);
@@ -129,6 +132,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      *            Animate flag <code>Boolean</code>.           
      */
     public void expandPanel(final T panelId, final Boolean animate) {
+        checkThread();
         final TabPanel tabPanel = (TabPanel)lookupPanel(panelId);
         if (!isExpanded(tabPanel)) {
             toggleExpansion(tabPanel, animate);
@@ -147,6 +151,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      * @return A sorted list of panel id <code>T</code>s.
      */
     public List<T> getCurrentVisibleOrder(final List<T> panelIds) {
+        checkThread();
         final List<T> sortedIds = new ArrayList<T>();
         for (final TabPanel visiblePanel : visiblePanels) {
             final T panelId = lookupId(visiblePanel);
@@ -174,7 +179,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     public Boolean isOnline() {
         return browser.getConnection() == Connection.ONLINE;
     }
-    
+
     /**
      * Scroll the panel so it is visible.
      * 
@@ -182,6 +187,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      *            A panel id <code>T</code>.
      */
     public void scrollPanelToVisible(final T panelId) {
+        checkThread();
         final JComponent panel = (JComponent) lookupPanel(panelId);
         final Rectangle rectangle = panel.getBounds();
         rectangle.x = rectangle.y = 0;
@@ -195,6 +201,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      *            A panel id <code>T</code>.    
      */
     public void selectPanel(final T panelId) {
+        checkThread();
         final TabPanel panel = lookupPanel(panelId);
         selectPanel(panel);
     }
@@ -203,6 +210,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate#selectPanel(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
      */
     public void selectPanel(final TabPanel tabPanel) {
+        checkThread();
         if (isSelected(tabPanel)) {
             return;
         }
@@ -257,6 +265,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      *            Animate flag <code>Boolean</code>.           
      */
     public void toggleExpansion(final TabPanel tabPanel, final Boolean animate) {
+        checkThread();
         doToggleExpansion(tabPanel, animate);
         synchronize();
     }
@@ -266,6 +275,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      * 
      */
     protected void applyFilters() {
+        checkThread();
         filteredPanels.clear();
         if (isSearchApplied()) {
             TabPanel searchResultPanel;
@@ -289,6 +299,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      */
     @Override
     protected void applySearch(final String searchExpression) {
+        checkThread();
         debug();
         if (searchExpression.equals(this.searchExpression)) {
             return;
@@ -304,6 +315,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      *
      */
     protected void clearPanels() {
+        checkThread();
         panels.clear();
     }
        
@@ -316,6 +328,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      *            Animate flag <code>Boolean</code>.             
      */
     protected void doToggleExpansion(final TabPanel tabPanel, final Boolean animate) {
+        checkThread();
         if (isExpanded(tabPanel)) {
             // if the panel is already expanded; just collapse it
             tabPanel.collapse(animate);
@@ -377,6 +390,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      * @return True if the panel is expanded; false otherwise.
      */
     protected boolean isExpanded(final TabPanel tabPanel) {
+        checkThread();
         if (expandedState.containsKey(tabPanel)) {
             return expandedState.get(tabPanel).booleanValue();
         } else {
@@ -440,6 +454,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      */
     @Override
     protected void removeSearch() {
+        checkThread();
         debug();
         if (null == searchExpression) {
             return;
@@ -456,6 +471,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      */
     @Override
     protected void synchronizeImpl() {
+        checkThread();
         debug();
         applyFilters();
         applySort();
@@ -499,5 +515,12 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     private void applySearch() {
         this.searchResults.clear();
         this.searchResults.addAll(readSearchResults());
+    }
+
+    /**
+     * Check we are on the AWT event dispatching thread.
+     */
+    private void checkThread() {
+        Assert.assertTrue(EventQueue.isDispatchThread(), "Tab panel model not on the AWT event dispatch thread.");
     }
 }

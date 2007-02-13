@@ -3,8 +3,11 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
+import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -39,7 +42,15 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      */
     public void collapseContact(final JabberId contactId) {
         final ContactPanelId contactPanelId = new ContactPanelId(contactId);
-        model.collapsePanel(contactPanelId, Boolean.FALSE);
+        if (EventQueue.isDispatchThread()) {
+            model.collapsePanel(contactPanelId, Boolean.FALSE);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.collapsePanel(contactPanelId, Boolean.FALSE);
+                }
+            });
+        }
     }
 
     /**
@@ -62,15 +73,17 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            The index of the invitation to show (0 indicates the invitation displayed at top).   
      */
     public void showContactInvitation(final List<Long> invitationIds, final int index) {
-        final List<ContactPanelId> panelIds = new ArrayList<ContactPanelId>(invitationIds.size());
-        for (final Long invitationId : invitationIds)
-            panelIds.add(new ContactPanelId(invitationId));
-        final List<ContactPanelId> sortedInvitationIds = model.getCurrentVisibleOrder(panelIds);
-        if (index < sortedInvitationIds.size()) {
-            showPanel(sortedInvitationIds.get(index), false);
+        if (EventQueue.isDispatchThread()) {
+            showContactInvitationImpl(invitationIds, index);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    showContactInvitationImpl(invitationIds, index);
+                }
+            });
         }
     }
-    
+
     /**
      * Synchronize the contact in the list, for example if it is deleted.
      * 
@@ -80,7 +93,15 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            Indicates whether the sync is the result of a remote event
      */
     public void syncContact(final JabberId contactId, final Boolean remote) {
-        model.syncContact(contactId, remote);
+        if (EventQueue.isDispatchThread()) {
+            model.syncContact(contactId, remote);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.syncContact(contactId, remote);
+                }
+            });
+        }
     }
 
     /**
@@ -93,7 +114,15 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      */
     public void syncIncomingInvitation(final Long invitationId,
             final Boolean remote) {
-        model.syncIncomingInvitation(invitationId, remote);
+        if (EventQueue.isDispatchThread()) {
+            model.syncIncomingInvitation(invitationId, remote);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.syncIncomingInvitation(invitationId, remote);
+                }
+            });
+        }
         getController().runDisplayContactInvitationInfo();
     }
 
@@ -107,7 +136,15 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      */
     public void syncOutgoingInvitation(final Long invitationId,
             final Boolean remote) {
-        model.syncOutgoingInvitation(invitationId, remote);
+        if (EventQueue.isDispatchThread()) {
+            model.syncOutgoingInvitation(invitationId, remote);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.syncOutgoingInvitation(invitationId, remote);
+                }
+            });
+        }
     }
 
     /**
@@ -117,7 +154,87 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            Indicates whether the sync is the result of a remote event
      */
     public void syncProfile(final Boolean remote) {
-        model.syncProfile(remote);
+        if (EventQueue.isDispatchThread()) {
+            model.syncProfile(remote);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.syncProfile(remote);
+                }
+            });
+        }
+    }
+
+    /**
+     * Expand a panel.
+     * 
+     * @param panelId
+     *            A panel id <code>ContactPanelId</code>.
+     */
+    private void expandPanel(final ContactPanelId panelId) {
+        if (EventQueue.isDispatchThread()) {
+            model.expandPanel(panelId, Boolean.FALSE);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.expandPanel(panelId, Boolean.FALSE);
+                }
+            });
+        }
+    }
+
+    /**
+     * Scroll a panel to make it visible.
+     * 
+     * @param panelId
+     *            A panel id <code>ContactPanelId</code>.
+     */
+    private void scrollPanelToVisible(final ContactPanelId panelId) {
+        if (EventQueue.isDispatchThread()) {
+            model.scrollPanelToVisible(panelId);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.scrollPanelToVisible(panelId);
+                }
+            });
+        }
+    }
+
+    /**
+     * Select a panel.
+     * 
+     * @param panelId
+     *            A panel id <code>ContactPanelId</code>.
+     */
+    private void selectPanel(final ContactPanelId panelId) {
+        if (EventQueue.isDispatchThread()) {
+            model.selectPanel(panelId);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.selectPanel(panelId);
+                }
+            });
+        }
+    }
+
+    /**
+     * Show the contact invitation (select the panel and scroll so it visible).
+     * 
+     * @param invitationIds
+     *            The list of invitationIds.
+     * @param index
+     *            The index of the invitation to show (0 indicates the invitation displayed at top).   
+     */
+    private void showContactInvitationImpl(final List<Long> invitationIds, final int index) {
+        final List<ContactPanelId> panelIds = new ArrayList<ContactPanelId>(invitationIds.size());
+        for (final Long invitationId : invitationIds)
+            panelIds.add(new ContactPanelId(invitationId));
+        final List<ContactPanelId> sortedInvitationIds = model.getCurrentVisibleOrder(panelIds);
+        if (index < sortedInvitationIds.size()) {
+            showPanel(sortedInvitationIds.get(index), false);
+        }
     }
 
     /**
@@ -127,10 +244,10 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            A panel id <code>ContactPanelId</code>.
      */
     private void showPanel(final ContactPanelId panelId, final boolean expand) {
-        model.selectPanel(panelId);
+        selectPanel(panelId);
         if (expand) {
-            model.expandPanel(panelId, Boolean.FALSE);
+            expandPanel(panelId);
         }
-        model.scrollPanelToVisible(panelId); 
+        scrollPanelToVisible(panelId); 
     }  
 }

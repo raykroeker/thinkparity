@@ -3,9 +3,12 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
 
+import java.awt.EventQueue;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
+
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
@@ -48,7 +51,15 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A container id <code>Long</code>.
      */
     public void collapseContainer(final Long containerId) {
-        model.collapsePanel(containerId, Boolean.FALSE);
+        if (EventQueue.isDispatchThread()) {
+            model.collapsePanel(containerId, Boolean.FALSE);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.collapsePanel(containerId, Boolean.FALSE);
+                }
+            });
+        }
     }
 
     /**
@@ -117,7 +128,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     public void fireDocumentRemoved(final ContainerEvent e) {
         sync(e);
     }
-    
+
     /**
      * Notify the avatar that a document has been reverted.
      * 
@@ -167,7 +178,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
         
         sync(e);
     }
-    
+
     /**
      * Notify the avatar that a container has been flagged.
      * (eg. bookmark added or removed, latest flag changed, etc.)
@@ -178,7 +189,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     public void fireFlagged(final ContainerEvent e) {
         sync(e);
     }
-    
+
     /**
      * Notify the avatar that a container has been received.
      * 
@@ -188,7 +199,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     public void fireReceived(final ContainerEvent e) {
         sync(e);
     }
-    
+
     /**
      * Notify the avatar that a container has been renamed.
      * 
@@ -198,7 +209,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     public void fireRenamed(final ContainerEvent e) {
         sync(e); 
     }
-    
+
     /**
      * Notify the avatar that a container has been restored.
      * 
@@ -211,7 +222,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
         }
         sync(e);
     }
-    
+
     /**
      * Notify the avatar that a "seen" flag has been updated.
      * 
@@ -241,7 +252,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     public void fireTeamMemberRemoved(final ContainerEvent e) {
         sync(e);
     }
-    
+
     /**
      * Notify the avatar that a container has been updated.
      *
@@ -251,7 +262,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     public void fireUpdated(final ContainerEvent e) {
         sync(e);
     }
-    
+
     /**
      * Notify the avatar that a container version has been published.
      * 
@@ -268,7 +279,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
         }
         sync(e); 
     }
-    
+
     /**
      * Show the container (expand the panel and scroll so it
      * is visible).
@@ -279,9 +290,14 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            The index of the container to show (0 indicates the container displayed at top). 
      */
     public void showContainer(final List<Long> containerIds, final int index) {
-        final List<Long> sortedContainerIds = model.getCurrentVisibleOrder(containerIds);
-        if (index < sortedContainerIds.size()) {
-            showPanel(sortedContainerIds.get(index));
+        if (EventQueue.isDispatchThread()) {
+            showContainerImpl(containerIds, index);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    showContainerImpl(containerIds, index);
+                }
+            });
         }
     }
 
@@ -294,7 +310,15 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A remote event <code>Boolean</code> indicator.
      */
     public void syncContainer(final Long containerId, final Boolean remote) {
-        model.syncContainer(containerId, remote);
+        if (EventQueue.isDispatchThread()) {
+            model.syncContainer(containerId, remote);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.syncContainer(containerId, remote);
+                }
+            });
+        }
     }
 
     /**
@@ -306,7 +330,33 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A remote event <code>Boolean</code> indicator.
      */
     public void syncDocument(final Long documentId, final Boolean remote) {
-        model.syncDocument(documentId, remote);
+        if (EventQueue.isDispatchThread()) {
+            model.syncDocument(documentId, remote);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.syncDocument(documentId, remote);
+                }
+            });
+        }
+    }
+
+    /**
+     * Expand a panel.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void expandPanel(final Long containerId) {
+        if (EventQueue.isDispatchThread()) {
+            model.expandPanel(containerId, Boolean.FALSE);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.expandPanel(containerId, Boolean.FALSE);
+                }
+            });
+        }
     }
 
     /**
@@ -320,15 +370,75 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     }
 
     /**
+     * Scroll a panel to make it visible.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void scrollPanelToVisible(final Long containerId) {
+        if (EventQueue.isDispatchThread()) {
+            model.scrollPanelToVisible(containerId);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.scrollPanelToVisible(containerId);
+                }
+            });
+        }
+    }
+
+    /**
+     * Select a panel.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void selectPanel(final Long containerId) {
+        if (EventQueue.isDispatchThread()) {
+            model.selectPanel(containerId);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.selectPanel(containerId);
+                }
+            });
+        }
+    }
+
+    /**
      * Select the draft for a container.
      * 
      * @param e
      *            A <code>ContainerEvent</code>.
      */
     private void setDraftSelection(final ContainerEvent e) {
-        model.setDraftSelection(e.getContainer().getId());
+        if (EventQueue.isDispatchThread()) {
+            model.setDraftSelection(e.getContainer().getId());
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.setDraftSelection(e.getContainer().getId());
+                }
+            });
+        }
     }
-    
+
+    /**
+     * Show the container (expand the panel and scroll so it
+     * is visible).
+     * 
+     * @param containerIds
+     *            A list of container id <code>Long</code>.
+     * @param displayIndex
+     *            The index of the container to show (0 indicates the container displayed at top). 
+     */
+    private void showContainerImpl(final List<Long> containerIds, final int index) {
+        final List<Long> sortedContainerIds = model.getCurrentVisibleOrder(containerIds);
+        if (index < sortedContainerIds.size()) {
+            showPanel(sortedContainerIds.get(index));
+        }
+    }
+
     /**
      * Show the panel (expand the panel and scroll so it
      * is visible).
@@ -337,9 +447,9 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A container id <code>Long</code>.
      */
     private void showPanel(final Long containerId) {
-        model.selectPanel(containerId);
-        model.expandPanel(containerId, Boolean.FALSE);
-        model.scrollPanelToVisible(containerId);
+        selectPanel(containerId);
+        expandPanel(containerId);
+        scrollPanelToVisible(containerId);
     }
 
     /**
@@ -349,6 +459,14 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A container id <code>Long</code>.
      */
     private void sync(final ContainerEvent e) {
-        model.syncContainer(e.getContainer().getId(), e.isRemote());
+        if (EventQueue.isDispatchThread()) {
+            model.syncContainer(e.getContainer().getId(), e.isRemote());
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.syncContainer(e.getContainer().getId(), e.isRemote());
+                }
+            });
+        }
     }
 }

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,6 +67,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
      *
      */
     public List<TabAvatarSortBy> getSortBy() {
+        checkThread();
         final List<TabAvatarSortBy> sortBy = new ArrayList<TabAvatarSortBy>();
         for (final SortBy sortByValue : SortBy.values()) {
             sortBy.add(new TabAvatarSortBy() {
@@ -88,29 +90,11 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     /**
-     * Get the sort direction.
-     * 
-     * @param sortBy
-     *            A <code>SortBy</code>.
-     * @return A <code>SortDirection</code>.        
-     */
-    public SortDirection getSortDirection(final SortBy sortBy) {
-        if (isSortApplied(sortBy)) {
-            if (sortBy.ascending) {
-                return SortDirection.ASCENDING;
-            } else {
-                return SortDirection.DESCENDING;
-            }
-        } else {
-            return SortDirection.NONE;
-        }
-    }
-
-    /**
      * Apply the sort to the filtered list of panels.
      *
      */
     protected void applySort() {
+        checkThread();
         final DefaultComparator<TabPanel> comparator = new DefaultComparator<TabPanel>();
         for (final SortBy sortBy : sortedBy) {
             comparator.add(sortBy);
@@ -124,6 +108,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
      */
     @Override
     protected void debug() {
+        checkThread();
         logger.logDebug("{0} container panels.", panels.size());
         logger.logDebug("{0} filtered panels.", filteredPanels.size());
         logger.logDebug("{0} visible panels.", visiblePanels.size());
@@ -207,6 +192,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
      */
     @Override
     protected List<ContactPanelId> readSearchResults() {
+        checkThread();
         final List<JabberId> contactIds = ((ContactProvider) contentProvider).search(searchExpression);
         final List<ContactPanelId> panelIds = new ArrayList<ContactPanelId>(contactIds.size());
         for (final JabberId contactId : contactIds)
@@ -224,6 +210,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
     
     void syncContact(final JabberId contactId, final Boolean remote) {
+        checkThread();
         debug();
         final Contact contact = read(contactId);
         // remove the container from the panel list
@@ -250,6 +237,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     void syncIncomingInvitation(final Long invitationId, final Boolean remote) {
+        checkThread();
         debug();
         final IncomingInvitation invitation = readIncomingInvitation(invitationId);
         // remove the container from the panel list
@@ -276,6 +264,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     void syncOutgoingInvitation(final Long invitationId, final Boolean remote) {
+        checkThread();
         debug();
         final OutgoingInvitation invitation = readOutgoingInvitation(invitationId);
         // remove the container from the panel list
@@ -303,6 +292,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     void syncProfile(final Boolean remote) {
+        checkThread();
         debug();
         final Profile profile = readProfile();
         final int panelIndex = lookupIndex(profile.getId());
@@ -432,7 +422,14 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         persistence.set(sortAscendingKey, sortBy.ascending);
         synchronize();
     }
-    
+
+    /**
+     * Check we are on the AWT event dispatching thread.
+     */
+    private void checkThread() {
+        Assert.assertTrue(EventQueue.isDispatchThread(), "Contact tab model not on the AWT event dispatch thread.");
+    }
+
     /**
      * Get the initial sort from persistence.
      * 
@@ -442,6 +439,25 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         final SortBy sortBy = (SortBy)(Comparator<TabPanel>)persistence.get(sortByKey, SortBy.NAME);
         sortBy.ascending = persistence.get(sortAscendingKey, true);
         return sortBy;
+    }
+
+    /**
+     * Get the sort direction.
+     * 
+     * @param sortBy
+     *            A <code>SortBy</code>.
+     * @return A <code>SortDirection</code>.        
+     */
+    private SortDirection getSortDirection(final SortBy sortBy) {
+        if (isSortApplied(sortBy)) {
+            if (sortBy.ascending) {
+                return SortDirection.ASCENDING;
+            } else {
+                return SortDirection.DESCENDING;
+            }
+        } else {
+            return SortDirection.NONE;
+        }
     }
 
     /**

@@ -3,8 +3,11 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.archive;
 
+import java.awt.EventQueue;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
@@ -47,7 +50,15 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
      *            A container id <code>Long</code>.
      */
     public void collapseContainer(final Long containerId) {
-        model.collapsePanel(containerId, Boolean.FALSE);
+        if (EventQueue.isDispatchThread()) {
+            model.collapsePanel(containerId, Boolean.FALSE);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.collapsePanel(containerId, Boolean.FALSE);
+                }
+            });
+        }
     }
 
     /**
@@ -57,7 +68,7 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
      *            A container id <code>Long</code>.
      */
     public void expandContainer(final Long containerId) {
-        model.expandPanel(containerId, Boolean.FALSE);
+        showPanel(containerId);
     }
 
     /**
@@ -67,7 +78,7 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
      *            A <code>ContainerEvent</code>.
      */
     public void fireArchived(final ContainerEvent e) {
-        syncContainer(e.getContainer().getId(), e.isRemote());
+        sync(e);
     }
 
     /**
@@ -77,7 +88,7 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
      *            A <code>ContainerEvent</code>.
      */
     public void fireDeleted (final ContainerEvent e) {
-        syncContainer(e.getContainer().getId(), e.isRemote());
+        sync(e);
     }
 
     /**
@@ -87,18 +98,91 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
      *            A <code>ContainerEvent</code>.
      */
     public void fireRestored(final ContainerEvent e) {
-        syncContainer(e.getContainer().getId(), e.isRemote());
+        sync(e);
     }
 
     /**
-     * Synchronize a container in the avatar.
+     * Expand a panel.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
-     * @param remote
-     *            A remote event <code>Boolean</code> indicator.
      */
-    private void syncContainer(final Long containerId, final Boolean remote) {
-        model.syncContainer(containerId, remote);
+    private void expandPanel(final Long containerId) {
+        if (EventQueue.isDispatchThread()) {
+            model.expandPanel(containerId, Boolean.FALSE);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.expandPanel(containerId, Boolean.FALSE);
+                }
+            });
+        }
+    }
+
+    /**
+     * Scroll a panel to make it visible.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void scrollPanelToVisible(final Long containerId) {
+        if (EventQueue.isDispatchThread()) {
+            model.scrollPanelToVisible(containerId);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.scrollPanelToVisible(containerId);
+                }
+            });
+        }
+    }
+
+    /**
+     * Select a panel.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void selectPanel(final Long containerId) {
+        if (EventQueue.isDispatchThread()) {
+            model.selectPanel(containerId);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.selectPanel(containerId);
+                }
+            });
+        }
+    }
+
+    /**
+     * Show the panel (expand the panel and scroll so it
+     * is visible).
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void showPanel(final Long containerId) {
+        selectPanel(containerId);
+        expandPanel(containerId);
+        scrollPanelToVisible(containerId);
+    }
+
+    /**
+     * Synchronize a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void sync(final ContainerEvent e) {
+        if (EventQueue.isDispatchThread()) {
+            model.syncContainer(e.getContainer().getId(), e.isRemote());
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    model.syncContainer(e.getContainer().getId(), e.isRemote());
+                }
+            });
+        }
     }
 }

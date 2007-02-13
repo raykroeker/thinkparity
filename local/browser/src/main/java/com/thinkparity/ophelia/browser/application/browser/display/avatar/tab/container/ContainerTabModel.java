@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
 
+import java.awt.EventQueue;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
@@ -12,6 +13,7 @@ import java.util.*;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -90,6 +92,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      *
      */
     public List<TabAvatarSortBy> getSortBy() {
+        checkThread();
         final List<TabAvatarSortBy> sortBy = new ArrayList<TabAvatarSortBy>();
         for (final SortBy sortByValue : SortBy.values()) {
             sortBy.add(new TabAvatarSortBy() {
@@ -110,31 +113,13 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         }
         return sortBy;
     }
-   
-    /**
-     * Get the sort direction.
-     * 
-     * @param sortBy
-     *            A <code>SortBy</code>.
-     * @return A <code>SortDirection</code>.        
-     */
-    public SortDirection getSortDirection(final SortBy sortBy) {
-        if (isSortApplied(sortBy)) {
-            if (sortBy.ascending) {
-                return SortDirection.ASCENDING;
-            } else {
-                return SortDirection.DESCENDING;
-            }
-        } else {
-            return SortDirection.NONE;
-        }
-    }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#toggleExpansion(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.lang.Boolean)
      */
     @Override
-    public void toggleExpansion(TabPanel tabPanel, Boolean animate) {        
+    public void toggleExpansion(TabPanel tabPanel, Boolean animate) {
+        checkThread();
         ContainerPanel containerPanel = (ContainerPanel) tabPanel;
         if (!containerPanel.getContainer().isSeen()) {
             final Long containerId = containerPanel.getContainer().getId();  
@@ -151,6 +136,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      *
      */
     protected void applySort() {
+        checkThread();
         final DefaultComparator<TabPanel> comparator = new DefaultComparator<TabPanel>();
         for (final SortBy sortBy : sortedBy) {
             comparator.add(sortBy);
@@ -164,6 +150,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      */
     @Override
     protected boolean canImportData(final DataFlavor[] transferFlavors) {
+        checkThread();
         return containerTabImportHelper.canImportData(transferFlavors);
     }
 
@@ -174,6 +161,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     @Override
     protected boolean canImportData(final TabPanel tabPanel,
             final DataFlavor[] transferFlavors) {
+        checkThread();
         return containerTabImportHelper.canImportData(tabPanel, transferFlavors);
     }
 
@@ -183,6 +171,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      */
     @Override
     protected void debug() {
+        checkThread();
         logger.logDebug("{0} container panels.", panels.size());
         logger.logDebug("{0} filtered panels.", filteredPanels.size());
         logger.logDebug("{0} visible panels.", visiblePanels.size());
@@ -208,6 +197,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      */
     @Override
     protected void importData(final TabPanel tabPanel, final Transferable transferable) {
+        checkThread();
         Assert.assertTrue(canImportData(tabPanel,
                 transferable.getTransferDataFlavors()),
                 "Cannot import data {0} onto {1}.", transferable, tabPanel);
@@ -220,6 +210,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      */
     @Override
     protected void importData(final Transferable transferable) {
+        checkThread();
         Assert.assertTrue(canImportData(transferable.getTransferDataFlavors()),
                 "Cannot import data {0}.", transferable);
         containerTabImportHelper.importData(transferable);
@@ -267,6 +258,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      */
     @Override
     protected List<Long> readSearchResults() {
+        checkThread();
         return ((ContainerProvider) contentProvider).search(searchExpression);
     }
 
@@ -287,6 +279,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      * @return True if this container has been distributed; false otherwise.
      */
     Boolean readIsDistributed(final Long containerId) {
+        checkThread();
         return ((ContainerProvider) contentProvider).isDistributed(containerId).booleanValue();
     }
 
@@ -298,6 +291,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      * @return True if this is the local user; false otherwise.
      */
     Boolean readIsLocalUser(final User user) {
+        checkThread();
         final Profile profile = readProfile();
         return (user.getId().equals(profile.getId()));
     }
@@ -309,9 +303,11 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      *            A container id <code>Long</code>.
      */
     void setDraftSelection(final Long containerId) {
+        checkThread();
         final TabPanel tabPanel = lookupPanel(containerId);
-        if (isExpanded(tabPanel))
+        if (isExpanded(tabPanel)) {
             ((ContainerPanel) tabPanel).setDraftSelection();
+        }
     }
 
     /**
@@ -323,31 +319,15 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      *            A remote event <code>Boolean</code> indicator.             
      */
     void syncContainer(final Long containerId, final Boolean remote) {
-        debug();
-        final Container container = read(containerId);
-        // remove the container from the panel list
-        if (null == container) {
-            removeContainerPanel(containerId, true);
+        if (EventQueue.isDispatchThread()) {
+            syncContainerImpl(containerId, remote);
         } else {
-            final int panelIndex = lookupIndex(container.getId());
-            if (-1 < panelIndex) {
-                // if the reload is the result of a remote event add the container
-                // at the top of the list; otherwise add it in the same location
-                // it previously existed
-                removeContainerPanel(containerId, false);
-                if (remote) {
-                    addContainerPanel(0, container);
-                } else {
-                    addContainerPanel(panelIndex, container);
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    syncContainerImpl(containerId, remote);
                 }
-            } else {
-                addContainerPanel(0, container);
-            }
+            });
         }
-        
-        synchronize();
-        
-        debug();
     }
 
     /**
@@ -447,6 +427,13 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Check we are on the AWT event dispatching thread.
+     */
+    private void checkThread() {
+        Assert.assertTrue(EventQueue.isDispatchThread(), "Container tab model not on the AWT event dispatch thread.");
+    }
+
+    /**
      * Obtain a container draft monitor created by the model.
      * 
      * @param containerId
@@ -480,7 +467,26 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     private ContainerDraftMonitor getSessionDraftMonitor() {
         return (ContainerDraftMonitor) session.getAttribute(SK_DRAFT_MONITOR);        
     }
-    
+
+    /**
+     * Get the sort direction.
+     * 
+     * @param sortBy
+     *            A <code>SortBy</code>.
+     * @return A <code>SortDirection</code>.        
+     */
+    private SortDirection getSortDirection(final SortBy sortBy) {
+        if (isSortApplied(sortBy)) {
+            if (sortBy.ascending) {
+                return SortDirection.ASCENDING;
+            } else {
+                return SortDirection.DESCENDING;
+            }
+        } else {
+            return SortDirection.NONE;
+        }
+    }
+
     /**
      * Obtain a localized string for an ordering.
      * 
@@ -569,22 +575,6 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Read the draft's document list.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @return A <code>List</code> of <code>Document</code>s.
-     */
-    protected List<Document> readDraftDocuments(final Long containerId) {
-        final DraftView draftView = readDraftView(containerId);
-        if (null == draftView) {
-            return Collections.emptyList();
-        } else {
-            return draftView.getDocuments();
-        }
-    }
-
-    /**
      * Read the draft for a container.
      *
      * @param containerId
@@ -602,7 +592,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      *            A document id.
      * @return True if the draft document has been modified; false otherwise.
      */
-    protected boolean readIsDraftDocumentModified(final Long documentId) {
+    private boolean readIsDraftDocumentModified(final Long documentId) {
         return ((ContainerProvider) contentProvider).isDraftDocumentModified(documentId).booleanValue();
     }
     
@@ -758,6 +748,42 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
             monitor.stop();
             session.removeAttribute(SK_DRAFT_MONITOR);
         }
+    }
+
+    /**
+     * Synchronize the container in the display.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param remote
+     *            A remote event <code>Boolean</code> indicator.             
+     */
+    private void syncContainerImpl(final Long containerId, final Boolean remote) {
+        debug();
+        final Container container = read(containerId);
+        // remove the container from the panel list
+        if (null == container) {
+            removeContainerPanel(containerId, true);
+        } else {
+            final int panelIndex = lookupIndex(container.getId());
+            if (-1 < panelIndex) {
+                // if the reload is the result of a remote event add the container
+                // at the top of the list; otherwise add it in the same location
+                // it previously existed
+                removeContainerPanel(containerId, false);
+                if (remote) {
+                    addContainerPanel(0, container);
+                } else {
+                    addContainerPanel(panelIndex, container);
+                }
+            } else {
+                addContainerPanel(0, container);
+            }
+        }
+        
+        synchronize();
+        
+        debug();
     }
 
     /**

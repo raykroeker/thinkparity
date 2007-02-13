@@ -3,13 +3,16 @@
  */
 package com.thinkparity.ophelia.browser.util.jdic;
 
+import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.IOException;
 
-import com.thinkparity.codebase.OSUtil;
+import javax.print.PrintService;
 
 import org.jdesktop.jdic.desktop.Desktop;
 import org.jdesktop.jdic.desktop.DesktopException;
+
+import com.thinkparity.codebase.OSUtil;
 
 /**
  * @author raymond@thinkparity.com
@@ -45,6 +48,27 @@ public class DesktopUtil {
                 }
             }
         }
+    }
+
+    /**
+     * Determine if the file is printable.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @return true if the file is printable; false otherwise.
+     */
+    public static boolean isPrintable(final File file) {
+        return Desktop.isPrintable(file);
+    }
+
+    /**
+     * Determine if there is a printer.
+     * 
+     * @return true if there is a printer attached; false otherwise.
+     */
+    public static boolean isPrinter() {
+        final PrintService[] printServices = PrinterJob.lookupPrintServices();
+        return (printServices.length > 0);
     }
 
     /**

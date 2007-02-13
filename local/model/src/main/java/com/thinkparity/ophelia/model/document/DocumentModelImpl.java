@@ -3,14 +3,7 @@
  */
 package com.thinkparity.ophelia.model.document;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,7 +15,6 @@ import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -496,7 +488,7 @@ public final class DocumentModelImpl extends
         try {
             final Document document = read(documentId);
             final LocalFile localFile = getLocalFile(document);
-            printer.print(localFile.createTempClone(workspace));
+            printer.print(localFile.createTempClone(workspace), document.getName());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -522,7 +514,7 @@ public final class DocumentModelImpl extends
             final Document document = read(documentId);
             final DocumentVersion version = readVersion(documentId, versionId);
             final LocalFile localFile = getLocalFile(document, version);
-            printer.print(localFile.createTempClone(workspace));
+            printer.print(localFile.createTempClone(workspace), document.getName());
         } catch (final Throwable t) {
             throw translateError(t);
         }

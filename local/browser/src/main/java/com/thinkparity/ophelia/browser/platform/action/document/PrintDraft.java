@@ -22,14 +22,18 @@ import com.thinkparity.ophelia.model.util.Printer;
  */
 public class PrintDraft extends AbstractAction {
 
+    /** The browser application. */
+    private final Browser browser;
+
     /**
-     * Create Export.
+     * Create PrintDraft.
      * 
      * @param browser
      *            The thinkParity browser application.
      */
     public PrintDraft(final Browser browser) {
         super(ActionId.DOCUMENT_PRINT_DRAFT);
+        this.browser = browser;
     }
 
     /**
@@ -39,16 +43,23 @@ public class PrintDraft extends AbstractAction {
     public void invoke(final Data data) {
         final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
         final DocumentModel documentModel = getDocumentModel();
-
-        documentModel.printDraft(documentId, new Printer() {
-            public void print(final File file) {
-                try {
-                    DesktopUtil.print(file);
-                } catch (final DesktopException dx) {
-                    throw translateError(dx);
+        if (DesktopUtil.isPrinter()) {
+            documentModel.printDraft(documentId, new Printer() {
+                public void print(final File file, final String documentName) {
+                    if (DesktopUtil.isPrintable(file)) {
+                        try {
+                            DesktopUtil.print(file);
+                        } catch (final DesktopException dx) {
+                            throw translateError(dx);
+                        }
+                    } else {
+                        browser.displayErrorDialog("ErrorPrintDocumentNotPrintable", new Object[] {documentName});         
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            browser.displayErrorDialog("ErrorPrintDocumentNoPrinter");
+        }
     }
 
     public enum DataKey { DOCUMENT_ID }

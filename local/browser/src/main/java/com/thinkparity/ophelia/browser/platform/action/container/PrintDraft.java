@@ -10,8 +10,6 @@ import org.jdesktop.jdic.desktop.DesktopException;
 
 import com.thinkparity.codebase.model.container.Container;
 
-
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -26,14 +24,18 @@ import com.thinkparity.ophelia.model.util.Printer;
  */
 public class PrintDraft extends AbstractAction {
 
+    /** The browser application. */
+    private final Browser browser;
+
     /**
-     * Create Export.
+     * Create PrintDraft.
      * 
      * @param browser
      *            The thinkParity browser application.
      */
     public PrintDraft(final Browser browser) {
         super(ActionId.CONTAINER_PRINT_DRAFT);
+        this.browser = browser;
     }
 
     /**
@@ -45,18 +47,25 @@ public class PrintDraft extends AbstractAction {
         final ContainerModel containerModel = getContainerModel();
         final Container container = containerModel.read(containerId);
 
-        final Browser browser = getBrowserApplication();
-        if(browser.confirm("ContainerPrintDraft.ConfirmPrintMessage", new Object[] {
-                container.getName() })) {
-            containerModel.printDraft(containerId, new Printer() {
-                public void print(final File file) {
-                    try {
-                        DesktopUtil.print(file);
-                    } catch (final DesktopException dx) {
-                        throw translateError(dx);
+        if (DesktopUtil.isPrinter()) {
+            if (browser.confirm("ContainerPrintDraft.ConfirmPrintMessage", new Object[] {
+                    container.getName() })) {
+                containerModel.printDraft(containerId, new Printer() {
+                    public void print(final File file, final String documentName) {
+                        if (DesktopUtil.isPrintable(file)) {
+                            try {
+                                DesktopUtil.print(file);
+                            } catch (final DesktopException dx) {
+                                throw translateError(dx);
+                            }
+                        } else {
+                            browser.displayErrorDialog("ErrorPrintDraftNotPrintable", new Object[] {documentName});         
+                        }
                     }
-                }
-            });
+                });
+            }
+        } else {
+            browser.displayErrorDialog("ErrorPrintDraftNoPrinter");
         }
     }
 

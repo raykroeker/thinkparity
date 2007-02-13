@@ -22,14 +22,18 @@ import com.thinkparity.ophelia.model.util.Printer;
  */
 public class PrintVersion extends AbstractAction {
 
+    /** The browser application. */
+    private final Browser browser;
+
     /**
-     * Create Export.
+     * Create PrintVersion.
      * 
      * @param browser
      *            The thinkParity browser application.
      */
     public PrintVersion(final Browser browser) {
         super(ActionId.DOCUMENT_PRINT_VERSION);
+        this.browser = browser;
     }
 
     /**
@@ -41,15 +45,23 @@ public class PrintVersion extends AbstractAction {
         final Long versionId = (Long) data.get(DataKey.VERSION_ID);
         final DocumentModel documentModel = getDocumentModel();
 
-        documentModel.printVersion(documentId, versionId, new Printer() {
-            public void print(final File file) {
-                try {
-                    DesktopUtil.print(file);
-                } catch (final DesktopException dx) {
-                    throw translateError(dx);
+        if (DesktopUtil.isPrinter()) {
+            documentModel.printVersion(documentId, versionId, new Printer() {
+                public void print(final File file, final String documentName) {
+                    if (DesktopUtil.isPrintable(file)) {
+                        try {
+                            DesktopUtil.print(file);
+                        } catch (final DesktopException dx) {
+                            throw translateError(dx);
+                        }
+                    } else {
+                        browser.displayErrorDialog("ErrorPrintDocumentNotPrintable", new Object[] {documentName});         
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            browser.displayErrorDialog("ErrorPrintDocumentNoPrinter");
+        }
     }
 
     public enum DataKey { DOCUMENT_ID, VERSION_ID }

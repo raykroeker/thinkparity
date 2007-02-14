@@ -72,6 +72,8 @@ public class UpdateDraft extends AbstractAction {
      *            A document id <code>Long</code>.
      */
     private void invoke(final Document document, final File file) {
+        this.document = document;
+        this.file = file;
         try {
             final InputStream inputStream = new FileInputStream(file);
             try {

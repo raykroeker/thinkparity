@@ -67,15 +67,44 @@ public final class DocumentModelImpl extends
         Model<DocumentListener> implements DocumentModel,
         InternalDocumentModel {
 
+    /** The size of the buffer used by create draft when writing a file. */
+    private static final Integer CREATE_DRAFT_WRITE_BUFFER;
+
+    /** The size of the buffer used by create version when writing a file. */
+    private static final Integer CREATE_VERSION_WRITE_BUFFER;
+
+    /** The size of the buffer used by create when writing a file. */
+    private static final Integer CREATE_WRITE_BUFFER;
+
+    /** The size of the buffer used by open version when writing a file. */
+    private static final Integer OPEN_VERSION_WRITE_BUFFER;
+
+    /** The size of the buffer used by open when writing a file. */
+    private static final Integer OPEN_WRITE_BUFFER;
+
     /** The size of the buffer used by print draft when copying a file. */
     private static final Integer PRINT_DRAFT_COPY_BUFFER;
 
     /** The size of the buffer used by print version when copying a file. */
     private static final Integer PRINT_VERSION_COPY_BUFFER;
 
+    /** The size of the buffer used by revert draft when copying a file. */
+    private static final Integer REVERT_DRAFT_WRITE_BUFFER;
+
+    /** The size of the buffer used by update draft when copying a file. */
+    private static final Integer UPDATE_DRAFT_WRITE_BUFFER;
+
     static {
-        PRINT_DRAFT_COPY_BUFFER = 1024;
-        PRINT_VERSION_COPY_BUFFER = 1024;
+        final Integer buffer = 1024;
+        CREATE_DRAFT_WRITE_BUFFER = buffer;
+        CREATE_WRITE_BUFFER = buffer;
+        CREATE_VERSION_WRITE_BUFFER = buffer;
+        OPEN_WRITE_BUFFER = buffer;
+        OPEN_VERSION_WRITE_BUFFER = buffer;
+        PRINT_DRAFT_COPY_BUFFER = buffer;
+        PRINT_VERSION_COPY_BUFFER = buffer;
+        REVERT_DRAFT_WRITE_BUFFER = buffer;
+        UPDATE_DRAFT_WRITE_BUFFER = buffer;
     }
 
     /** A document auditor. */
@@ -162,7 +191,8 @@ public final class DocumentModelImpl extends
                     document.getId(), latestVersion.getVersionId());
             try {
                 draftFile.write(lock, versionStream,
-                        latestVersion.getCreatedOn().getTimeInMillis());
+                        latestVersion.getCreatedOn().getTimeInMillis(),
+                        CREATE_DRAFT_WRITE_BUFFER);
             } finally {
                 versionStream.close();
             }
@@ -437,7 +467,8 @@ public final class DocumentModelImpl extends
                             latestVersion.getVersionId());
                     try {
                         localFile.write(lock, stream,
-                                latestVersion.getCreatedOn().getTimeInMillis());
+                                latestVersion.getCreatedOn().getTimeInMillis(),
+                                OPEN_WRITE_BUFFER);
                     } finally {
                         stream.close();
                     }
@@ -474,7 +505,8 @@ public final class DocumentModelImpl extends
                             documentId, versionId);
                     try {
                         localFile.write(lock, stream,
-                                version.getCreatedOn().getTimeInMillis());
+                                version.getCreatedOn().getTimeInMillis(),
+                                OPEN_VERSION_WRITE_BUFFER);
                     } finally {
                         stream.close();
                     }
@@ -890,7 +922,9 @@ public final class DocumentModelImpl extends
             final LocalFile localFile = getLocalFile(document);
             final DocumentLock lock = lock(document);
             try {
-                localFile.write(lock, content, currentDateTime().getTimeInMillis());
+                localFile.write(lock, content,
+                        currentDateTime().getTimeInMillis(),
+                        UPDATE_DRAFT_WRITE_BUFFER);
             } finally {
                 release(lock);
             }
@@ -1108,7 +1142,8 @@ public final class DocumentModelImpl extends
         final LocalFile localFile = getLocalFile(document);
         final DocumentLock lock = lock(document);
         try {
-            localFile.write(lock, content, createdOn.getTimeInMillis());
+            localFile.write(lock, content, createdOn.getTimeInMillis(),
+                    CREATE_WRITE_BUFFER);
         } finally {
             release(lock);
         }
@@ -1211,7 +1246,9 @@ public final class DocumentModelImpl extends
             try {
                 final InputStream tempInput = new BufferedInputStream(new FileInputStream(tempContentFile));
                 try {
-                    localFile.write(lock, tempInput, version.getCreatedOn().getTimeInMillis());
+                    localFile.write(lock, tempInput,
+                            version.getCreatedOn().getTimeInMillis(),
+                            CREATE_VERSION_WRITE_BUFFER);
                 } finally {
                     tempInput.close();
                 }
@@ -1368,7 +1405,8 @@ public final class DocumentModelImpl extends
         final DocumentVersion version = readVersion(documentId, versionId);
         try {
             draftFile.write(lock, inputStream,
-                    version.getCreatedOn().getTimeInMillis());
+                    version.getCreatedOn().getTimeInMillis(),
+                    REVERT_DRAFT_WRITE_BUFFER);
         } finally {
             inputStream.close();
         }

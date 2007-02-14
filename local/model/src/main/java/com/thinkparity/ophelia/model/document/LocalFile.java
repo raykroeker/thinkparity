@@ -3,15 +3,14 @@
  */
 package com.thinkparity.ophelia.model.document;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 import com.thinkparity.codebase.StreamUtil;
@@ -23,7 +22,6 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 
 import com.thinkparity.ophelia.model.ModelHelper;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
-import com.thinkparity.ophelia.model.Constants.IO;
 import com.thinkparity.ophelia.model.util.MD5Util;
 import com.thinkparity.ophelia.model.util.Opener;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -267,14 +265,13 @@ class LocalFile extends ModelHelper<DocumentModelImpl> {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    void write(final LocalFileLock lock, final InputStream is, final Long time)
-            throws FileNotFoundException, IOException {
+    void write(final LocalFileLock lock, final InputStream is, final Long time,
+            final Integer buffer) throws IOException {
         assertIsValid(lock);
-        final OutputStream os = openOutputStream(lock);
-        try {
-            StreamUtil.copy(is, os, IO.BUFFER_SIZE);
-        } finally {
-            os.close();
+        final FileChannel fileChannel = lock.getFileChannel();
+        final byte[] bytes = new byte[buffer];
+        while (is.read(bytes) > 0) {
+            fileChannel.write(ByteBuffer.wrap(bytes));
         }
         lock.getFile().setLastModified(time);
     }
@@ -348,16 +345,5 @@ class LocalFile extends ModelHelper<DocumentModelImpl> {
                     "Cannot create directory {0}.", parent);
         }
         return parent;
-    }
-
-    /**
-     * Create an output stream for the local file.
-     * 
-     * @return The output stream.
-     * @throws FileNotFoundException
-     */
-    private OutputStream openOutputStream(final LocalFileLock lock)
-            throws FileNotFoundException {
-        return new BufferedOutputStream(new FileOutputStream(lock.getFile()));
     }
 }

@@ -79,13 +79,9 @@ public class UserIOHandler extends AbstractIOHandler implements
         final Session session = openSession();
         try {
             create(session, user);
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -98,14 +94,14 @@ public class UserIOHandler extends AbstractIOHandler implements
             session.setQualifiedUsername(1, jabberId);
             session.executeQuery();
 
-            if(session.nextResult()) { return extractUser(session); }
-            else { return null; }
+            if (session.nextResult()) {
+                return extractUser(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -118,14 +114,14 @@ public class UserIOHandler extends AbstractIOHandler implements
             session.setLong(1, userId);
             session.executeQuery();
 
-            if(session.nextResult()) { return extractUser(session); }
-            else { return null; }
+            if (session.nextResult()) {
+                return extractUser(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**

@@ -420,6 +420,7 @@ public final class DocumentModelImpl extends
             final LocalFile localFile = getLocalFile(document);
             final DocumentLock lock = new DocumentLock();
             lock.setDocumentId(document.getId());
+            lock.setWritable(Boolean.TRUE);
             return localFile.lock(lock);
         } catch (final Throwable t) {
             throw panic(t);
@@ -437,6 +438,7 @@ public final class DocumentModelImpl extends
             final DocumentVersionLock lock = new DocumentVersionLock();
             lock.setDocumentId(version.getArtifactId());
             lock.setVersionId(version.getVersionId());
+            lock.setWritable(Boolean.FALSE);
             return localFile.lock(lock);
         } catch (final Throwable t) {
             throw panic(t);

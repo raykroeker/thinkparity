@@ -133,7 +133,6 @@ class LocalFile extends ModelHelper<DocumentModelImpl> {
      */
     <T extends LocalFileLock> T lock(final T instance) {
         try {
-            instance.setWritable(Boolean.valueOf(file.canWrite()));
             file.setWritable(true, true);
             final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rwd");
             try {
@@ -213,20 +212,16 @@ class LocalFile extends ModelHelper<DocumentModelImpl> {
     void release(final LocalFileLock lock) {
         try {
             file.setWritable(lock.isWritable(), true);
-            lock.getFileLock().release();
+            if (lock.getFileLock().isValid())
+                lock.getFileLock().release();
         } catch (final Throwable t) {
             throw panic(t);
         } finally {
             try {
-                lock.getFileChannel().close();
+                if (lock.getFileChannel().isOpen())
+                    lock.getFileChannel().close();
             } catch (final Throwable t1) {
                 logger.logError(t1, "Could not release file lock for {0}.", file);
-            } finally {
-                try {
-                    lock.getRandomAccessFile().close();                    
-                } catch (final Throwable t2) {
-                    logger.logError(t2, "Could not release file lock for {0}.", file);
-                }
             }
         }
     }
@@ -269,10 +264,18 @@ class LocalFile extends ModelHelper<DocumentModelImpl> {
             final Integer buffer) throws IOException {
         assertIsValid(lock);
         final FileChannel fileChannel = lock.getFileChannel();
-        final byte[] bytes = new byte[buffer];
-        final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-        while (is.read(bytes) > 0) {
-            fileChannel.write(byteBuffer);
+        try {
+            final byte[] bytes = new byte[buffer];
+            final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+            int bytesRead;
+            while ((bytesRead = is.read(bytes)) > 0) {
+                byteBuffer.position(0);
+                byteBuffer.limit(bytesRead);
+                fileChannel.write(byteBuffer);
+//                fileChannel.position(fileChannel.position() + bytesRead);
+            }
+        } finally {
+//            fileChannel.close();
         }
         lock.getFile().setLastModified(time);
     }

@@ -3,8 +3,10 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.container;
 
-
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
+
+import com.thinkparity.ophelia.model.document.CannotLockException;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
@@ -12,13 +14,28 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
 /**
+ * <b>Title:</b>thinkParity OpheliaUI Remove Document Action<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.13
+ * @version 1.1.2.3
  */
 public class RemoveDocument extends AbstractAction {
-    
+
     /** The thinkParity browser application. */
     private final Browser browser;
+
+	/**
+     * A <code>Container</code>. Used by the invoke and retry to maintain the
+     * previous container.
+     */
+    private Container container;
+
+	/**
+     * A <code>Document</code>. Used by the invoke and retry to maintain the
+     * previous container.
+     */
+    private Document document;
 
 	/**
 	 * Create RemoveDocument.
@@ -31,19 +48,52 @@ public class RemoveDocument extends AbstractAction {
         this.browser = browser;
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.action.AbstractAction#invoke(com.thinkparity.ophelia.browser.platform.action.Data)
      * 
      */
 	public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
+        final Container container = getContainerModel().read(containerId);
         final Document document = getDocumentModel().get(documentId);
         if (browser.confirm("DocumentRemove.ConfirmRemoveMessage",
-                new Object[] { document.getName() })) {
-            getContainerModel().removeDocument(containerId, documentId);
+                new Object[] {document.getName()})) {
+            invoke(container, document);
         }
 	}
 
-	public enum DataKey { CONTAINER_ID, DOCUMENT_ID }
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.AbstractAction#retryInvokeAction()
+     *
+     */
+    @Override
+    public void retryInvokeAction() {
+        invoke(container, document);
+    }
+
+    /**
+     * Invoke remove on a container document.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param document
+     *            A <code>Document</code>.
+     * @throws CannotLockException
+     */
+    private void invoke(final Container container, final Document document) {
+        this.container = container;
+        this.document = document;
+        try {
+            getContainerModel().removeDocument(container.getId(), document.getId());
+        } catch (final CannotLockException clx) {
+            browser.retry(this, document.getName());
+        }
+    }
+
+    /**
+     * <b>Title:</b>Remove Document Action Data Keys<br>
+     * <b>Description:</b>The remove document action input data keys.<br>
+     */
+    public enum DataKey { CONTAINER_ID, DOCUMENT_ID }
 }

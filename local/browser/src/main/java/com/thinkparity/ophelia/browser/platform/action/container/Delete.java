@@ -5,21 +5,30 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 
 import com.thinkparity.codebase.model.container.Container;
 
+import com.thinkparity.ophelia.model.document.CannotLockException;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.container.ContainerModel;
 
 /**
+ * <b>Title:</b>thinkParity OpheliaUI Delete Action<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.2
  */
 public class Delete extends AbstractAction {
 
     /** The thinkParity browser application. */
     private final Browser browser;
+
+    /**
+     * A <code>Container</code>. Used by invoke and retry invoke to maintain
+     * the previous container.
+     */
+    private Container container;
 
     /**
      * Create Delete.
@@ -39,11 +48,34 @@ public class Delete extends AbstractAction {
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
 
-        final ContainerModel containerModel = getContainerModel();
-        final Container container = containerModel.read(containerId);
+        final Container container = getContainerModel().read(containerId);
         if (browser.confirm("ContainerDelete.ConfirmDeleteMessage",
                 new Object[] { container.getName() })) {
-            containerModel.delete(containerId);
+            invoke(container);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.AbstractAction#retryInvokeAction()
+     *
+     */
+    @Override
+    public void retryInvokeAction() {
+        invoke(container);
+    }
+
+    /**
+     * Invoke delete.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    private void invoke(final Container container) {
+        this.container = container;
+        try {
+            getContainerModel().delete(container.getId());
+        } catch (final CannotLockException clx) {
+            browser.retry(this, container.getName());
         }
     }
 

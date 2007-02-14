@@ -44,6 +44,16 @@ final class PublishContainerSwingMonitor implements ThinkParitySwingMonitor {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#reset()
+     *
+     */
+    public void reset() {
+        this.step = 0;
+        this.note = "";
+        display.resetProgressBar(containerId);
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#setStep(int)
      *
      */

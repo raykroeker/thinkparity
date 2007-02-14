@@ -12,16 +12,19 @@ import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.document.CannotLockException;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.util.DocumentUtil;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerModel;
 
 /**
  * @author raymond@thinkparity.com
@@ -97,7 +100,11 @@ public class AddDocument extends AbstractAction {
                 // Update the document. If necessary, undelete the document first.
                 if (update) {
                     if (ContainerDraft.ArtifactState.REMOVED == containerDraft.getState(document)) {
-                        getContainerModel().revertDocument(containerId, document.getId());
+                        try {
+                            getContainerModel().revertDocument(containerId, document.getId());
+                        } catch (final CannotLockException clx) {
+                            throw translateError(clx);
+                        }
                     }
                     updateDocument(file, containerId, document.getId());   
                 }
@@ -160,11 +167,14 @@ public class AddDocument extends AbstractAction {
             try {
                 getDocumentModel().updateDraft(documentId, inputStream);
                 browser.fireDocumentDraftUpdated(documentId);
+            } catch (final CannotLockException clx) {
+                throw translateError(clx);
             } finally {
                 inputStream.close();
             }
+        } catch (final IOException iox) {
+            throw translateError(iox);
         }
-        catch(final IOException iox) { throw translateError(iox); }
     }
 
 	public enum DataKey { CONTAINER_ID, FILES }

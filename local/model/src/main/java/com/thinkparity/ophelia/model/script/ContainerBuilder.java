@@ -23,6 +23,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
 import com.thinkparity.ophelia.model.container.monitor.PublishStage;
+import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -100,8 +101,7 @@ public class ContainerBuilder {
             try {
                 stream.close();
             } catch (final Throwable t) {
-                throw translateError(t,
-                        "Cannot add document {0}.", name);
+                throw panic(t, "Cannot add document {0}.", name);
             }
         }
         getContainerModel().addDocument(id, document.getId());
@@ -167,12 +167,13 @@ public class ContainerBuilder {
         final InputStream stream = scriptUtil.openResource(modifiedName);
         try {
             getDocumentModel().updateDraft(document.getId(), stream);
+        } catch (final CannotLockException clx) {
+            throw panic(clx, "Cannot lock document {0}", name);
         } finally {
             try {
                 stream.close();
             } catch (final Throwable t) {
-                throw translateError(t,
-                        "Cannot modify document {0}.", name);
+                throw panic(t, "Cannot modify document {0}.", name);
             }
         }
         return this;
@@ -190,7 +191,11 @@ public class ContainerBuilder {
         final ContainerModel containerModel = getContainerModel();
         final List<TeamMember> teamMembers = containerModel.readTeam(id);
         final List<Contact> contacts = Collections.emptyList();
-        containerModel.publish(PUBLISH_MONITOR, id, comment, contacts, teamMembers);
+        try {
+            containerModel.publish(PUBLISH_MONITOR, id, comment, contacts, teamMembers);
+        } catch (final CannotLockException clx) {
+            throw panic(clx, "Cannot lock container {0}", id);
+        }
         return this;
     }
 
@@ -212,7 +217,11 @@ public class ContainerBuilder {
         final List<Contact> contacts = contactModel.read();
         filter(teamMembers, names);
         filter(contacts, names);
-        containerModel.publish(PUBLISH_MONITOR, id, comment, contacts, teamMembers);
+        try {
+            containerModel.publish(PUBLISH_MONITOR, id, comment, contacts, teamMembers);
+        } catch (final CannotLockException clx) {
+            throw panic(clx, "Cannot lock container {0}", id);
+        }
         return this;
     }
 
@@ -227,7 +236,11 @@ public class ContainerBuilder {
         logger.logApiId();
         logger.logVariable("name", name);
         final Document document = findDocument(name);
-        getContainerModel().removeDocument(id, document.getId());
+        try {
+            getContainerModel().removeDocument(id, document.getId());
+        } catch (final CannotLockException clx) {
+            throw panic(clx, "Cannot lock document {0}", name);
+        }
         return this;
     }
 
@@ -307,13 +320,13 @@ public class ContainerBuilder {
     }
 
     /**
-     * Translate an error.
+     * Panic.  No option other than to create an error and throw it.
      * 
      * @param t
      *            An error <code>Throwable</code>.
      * @return A <code>RuntimeException</code>.
      */
-    private RuntimeException translateError(final Throwable t,
+    private RuntimeException panic(final Throwable t,
             final String errorPattern, final Object... errorArguments) {
         return new RuntimeException(
                 MessageFormat.format(errorPattern, errorArguments), t);

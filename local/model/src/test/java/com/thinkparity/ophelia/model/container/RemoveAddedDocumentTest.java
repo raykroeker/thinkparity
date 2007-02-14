@@ -9,8 +9,10 @@ import java.util.List;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 
-import com.thinkparity.ophelia.OpheliaTestUser;
+import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
+
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * <b>Title:</b>thinkParity Container Remove Document Test<br>
@@ -35,7 +37,11 @@ public class RemoveAddedDocumentTest extends ContainerTestCase {
      *
      */
     public void testRemoveDocument() {
-        datum.containerModel.removeDocument(datum.container.getId(), datum.document.getId());
+        try {
+            datum.containerModel.removeDocument(datum.container.getId(), datum.document.getId());
+        } catch (final CannotLockException clx) {
+            fail(createFailMessage(clx));
+        }
         assertTrue(NAME + " [REMOVE DOCUMENT EVENT NOT FIRED]", datum.didNotify);
 
         final ContainerDraft draft = datum.containerModel.readDraft(datum.container.getId());

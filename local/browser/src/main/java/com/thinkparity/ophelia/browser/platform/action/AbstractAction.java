@@ -159,17 +159,21 @@ public abstract class AbstractAction implements ActionInvocation {
 	 */
 	protected abstract void invoke(final Data data);
     
-    /**
-     * Invoke the action.
+	/**
+     * @see com.thinkparity.ophelia.browser.platform.action.ActionInvocation#invokeAction(com.thinkparity.ophelia.browser.platform.action.Data)
      * 
-     * @param data
-     *            The action data.
      */
     public void invokeAction(final Data data) {
         getBrowserApplication().fireActionInvoked();
         invoke(data);
     }
-    
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.ActionInvocation#retryInvokeAction()
+     * 
+     */
+    public void retryInvokeAction() {}
+
     /**
      * Determine if the accelerator is set.
      * 

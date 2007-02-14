@@ -28,7 +28,12 @@ public class RenameTest extends DocumentTestCase {
 
     /** Test the parity document interface close api. */ 
 	public void testRename() {
-        datum.documentModel.rename(datum.document.getId(), datum.documentName);
+        try {
+            datum.documentModel.rename(datum.document.getId(), datum.documentName);
+        } catch (final CannotLockException clx) {
+            fail("Cannot rename document {0} to {1}.",
+                    datum.document.getName(), datum.documentName);
+        }
         final Document document = datum.documentModel.get(datum.document.getId());
         assertEquals(NAME + " [DOCUMENT NAME DOES NOT MATCH EXPECTATION]", datum.documentName, document.getName());
 	}

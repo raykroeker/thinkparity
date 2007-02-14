@@ -199,13 +199,16 @@ public interface DocumentModel {
 
 	/**
      * Rename a document.
-     *
+     * 
      * @param documentId
-     *      A document id.
+     *            A document id.
      * @param documentName
-     *      A document name.
+     *            A document name.
+     * @throws CannotLockException
+     *             if the document cannot be locked
      */
-    public void rename(final Long documentId, final String documentName);
+    public void rename(final Long documentId, final String documentName)
+            throws CannotLockException;
 
     /**
      * Update the draft of a document.
@@ -215,5 +218,6 @@ public interface DocumentModel {
      * @param content
      *            The new content.
      */
-    public void updateDraft(final Long documentId, final InputStream content); 
+    public void updateDraft(final Long documentId, final InputStream content)
+            throws CannotLockException; 
 }

@@ -1,9 +1,6 @@
 /*
- * ConfirmAvatar.java
- *
  * Created on January 23, 2007, 2:19 PM
  */
-
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog;
 
 import java.awt.event.ActionEvent;
@@ -19,18 +16,27 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
- *
- * @author  user
+ * <b>Title:</b>thinkParity OpheliaUI Confirm Avatar<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class ConfirmAvatar extends Avatar {
-    
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
-    
+public final class ConfirmAvatar extends Avatar {
+
     /** Flag indicating whether or not the user confirmed. */
     private Boolean confirm;
-    
-    /** Creates new form ConfirmAvatar */
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JButton confirmJButton = new javax.swing.JButton();
+    private final javax.swing.JLabel confirmMessageJLabel = new javax.swing.JLabel();
+    private final javax.swing.JButton denyJButton = new javax.swing.JButton();
+    // End of variables declaration//GEN-END:variables
+
+    /**
+     * Create ConfirmAvatar.
+     *
+     */
     public ConfirmAvatar() {
         super("ConfirmDialog", BrowserConstants.DIALOGUE_BACKGROUND);
         bindEscapeKey("Cancel", new AbstractAction() {
@@ -40,7 +46,7 @@ public class ConfirmAvatar extends Avatar {
         });
         initComponents();
     }
-    
+
     /**
      * Determine whether or not the user confirmed.
      * 
@@ -49,7 +55,7 @@ public class ConfirmAvatar extends Avatar {
     public Boolean didConfirm() {
         return confirm;
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getAvatarTitle()
      */
@@ -57,41 +63,40 @@ public class ConfirmAvatar extends Avatar {
     public String getAvatarTitle() {
         if (null == input) {
             return null;
-        } else if (null == getInputConfirmMessageKey()) {
+        } else if (null == getInputString(DataKey.MESSAGE_KEY, null)) {
             return getString("Title");
         } else {
             final StringBuffer confirmKey = new StringBuffer(getInputConfirmMessageKey()).append(".Title");
             return getString(confirmKey.toString());
         }
     }
-    
+
     public AvatarId getId() { return AvatarId.DIALOG_CONFIRM; }
 
     public State getState() { return null; }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
      * 
      */
     public void reload() {
         confirm = Boolean.FALSE;
+        reloadConfirmJButton();
+        reloadDenyJButton();
         reloadConfirmMessage();
     }
 
     public void setState(final State state) {}
-    
-    /**
-     * Obtain a confirm message.
-     * 
-     * @return A confirm message <code>String</code>.
-     */
-    private String getInputLocalizedConfirmMessage() {
-        if (null == input) {
-            return null;
-        } else {
-            return (String) ((Data) input).get(DataKey.LOCALIZED_MESSAGE);
-        }
-    }
+
+    private void confirmJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmJButtonActionPerformed
+        confirm = Boolean.TRUE;
+        disposeWindow();
+    }//GEN-LAST:event_confirmJButtonActionPerformed
+
+    private void denyJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_denyJButtonActionPerformed
+        confirm = Boolean.FALSE;
+        disposeWindow();
+    }//GEN-LAST:event_denyJButtonActionPerformed
 
     /**
      * Obtain the confirmation arguments from the input data.
@@ -118,7 +123,30 @@ public class ConfirmAvatar extends Avatar {
             return (String) ((Data) input).get(DataKey.MESSAGE_KEY);
         }
     }
-    
+
+    /**
+     * Obtain an input string.
+     * 
+     * @param key
+     *            The input key <code>DataKey</code>.
+     * @param defaultValue
+     *            The default value to provide if the input value is null.
+     * @return The value of the input; or the default value if the input is
+     *         null.
+     */
+    private String getInputString(final DataKey key, final String defaultValue) {
+        if (null == input) {
+            return defaultValue;
+        } else {
+            final String inputString = (String) ((Data) input).get(key);
+            if (null == inputString) {
+                return defaultValue;
+            } else {
+                return inputString;
+            }
+        }
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -126,25 +154,24 @@ public class ConfirmAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        final javax.swing.JButton confirmJButton = new javax.swing.JButton();
-        final javax.swing.JButton denyJButton = new javax.swing.JButton();
 
         confirmMessageJLabel.setFont(Fonts.DialogFont);
         confirmMessageJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         confirmJButton.setFont(Fonts.DialogButtonFont);
-        confirmJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ConfirmDialog.Confirm"));
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
+        confirmJButton.setText(bundle.getString("ConfirmDialog.Confirm")); // NOI18N
         confirmJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                confirmJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                confirmJButtonActionPerformed(e);
             }
         });
 
         denyJButton.setFont(Fonts.DialogButtonFont);
-        denyJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ConfirmDialog.Deny"));
+        denyJButton.setText(bundle.getString("ConfirmDialog.Deny")); // NOI18N
         denyJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                denyJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                denyJButtonActionPerformed(e);
             }
         });
 
@@ -178,24 +205,24 @@ public class ConfirmAvatar extends Avatar {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void denyJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_denyJButtonActionPerformed
-        confirm = Boolean.FALSE;
-        disposeWindow();
-    }//GEN-LAST:event_denyJButtonActionPerformed
+    /**
+     * Reload the confirm button text.
+     *
+     */
+    private void reloadConfirmJButton() {
+        final String text = getString(getInputString(DataKey.CONFIRM_BUTTON_KEY,
+                "Confirm"));
+        confirmJButton.setText(text);
+    }
 
-    private void confirmJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmJButtonActionPerformed
-        confirm = Boolean.TRUE;
-        disposeWindow();
-    }//GEN-LAST:event_confirmJButtonActionPerformed
-    
     /**
      * Reload the confirmation message.
      *
      */
     private void reloadConfirmMessage() {
         confirmMessageJLabel.setText("");
-        final String localizedConfirmMessage = getInputLocalizedConfirmMessage();
-        final String confirmMessageKey = getInputConfirmMessageKey();
+        final String localizedConfirmMessage = getInputString(DataKey.LOCALIZED_MESSAGE, null);
+        final String confirmMessageKey = getInputString(DataKey.MESSAGE_KEY, null);
         final Object[] confirmMessageArguments = getInputConfirmMessageArguments();
         if (null != localizedConfirmMessage) {
             confirmMessageJLabel.setText(MessageFormat.format("<html>{0}</html>", localizedConfirmMessage));
@@ -209,11 +236,20 @@ public class ConfirmAvatar extends Avatar {
             confirmMessageJLabel.setText(MessageFormat.format("<html>{0}</html>", text));
         }
     }
-       
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel confirmMessageJLabel = new javax.swing.JLabel();
-    // End of variables declaration//GEN-END:variables
-    
+
+    /**
+     * Reload the deny button text.
+     *
+     */
+    private void reloadDenyJButton() {
+        final String text = getString(getInputString(DataKey.DENY_BUTTON_KEY,
+                "Deny"));
+        denyJButton.setText(text);
+    }
+
     /** Data keys. */
-    public enum DataKey { LOCALIZED_MESSAGE, MESSAGE_ARGUMENTS, MESSAGE_KEY }
+    public enum DataKey {
+        CONFIRM_BUTTON_KEY, DENY_BUTTON_KEY, LOCALIZED_MESSAGE,
+        MESSAGE_ARGUMENTS, MESSAGE_KEY
+    }
 }

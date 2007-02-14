@@ -415,13 +415,16 @@ public final class DocumentModelImpl extends
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#lock(com.thinkparity.codebase.model.document.Document)
      *
      */
-    public DocumentLock lock(final Document document) {
+    public DocumentLock lock(final Document document)
+            throws CannotLockException {
         try {
             final LocalFile localFile = getLocalFile(document);
             final DocumentLock lock = new DocumentLock();
             lock.setDocumentId(document.getId());
             lock.setWritable(Boolean.TRUE);
             return localFile.lock(lock);
+        } catch (final CannotLockException clx) {
+            throw clx;
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -839,8 +842,11 @@ public final class DocumentModelImpl extends
     public void release(final DocumentLock lock) {
         try {
             final Document document = read(lock.getDocumentId());
-            final LocalFile localFile = getLocalFile(document);
-            localFile.release(lock);
+            if (null == document) {
+                logger.logInfo("Document {0} no longer exists.", lock.getDocumentId());
+            } else {
+                getLocalFile(document).release(lock);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -873,7 +879,8 @@ public final class DocumentModelImpl extends
      *      java.lang.String)
      * 
      */
-    public void rename(final Long documentId, final String documentName) {
+    public void rename(final Long documentId, final String documentName)
+            throws CannotLockException {
         try {
             final Document document = read(documentId);
             final LocalFile localFile = getLocalFile(document);
@@ -888,6 +895,8 @@ public final class DocumentModelImpl extends
             } finally {
                 release(lock);
             }
+        } catch (final CannotLockException clx) {
+            throw clx;
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -907,18 +916,12 @@ public final class DocumentModelImpl extends
     }
 
     /**
-     * Update the working version of a document. Note that the content stream is
-     * not closed.
+     * @see com.thinkparity.ophelia.model.document.DocumentModel#updateDraft(java.lang.Long,
+     *      java.io.InputStream)
      * 
-     * @param documentId
-     *            The document id.
-     * @param content
-     *            The new content.
      */
-    public void updateDraft(final Long documentId, final InputStream content) {
-	    logger.logApiId();
-        logger.logVariable("documentId", documentId);
-        logger.logVariable("content", content);
+    public void updateDraft(final Long documentId, final InputStream content)
+            throws CannotLockException {
         try {
             final Document document = read(documentId);
             final LocalFile localFile = getLocalFile(document);
@@ -930,6 +933,8 @@ public final class DocumentModelImpl extends
             } finally {
                 release(lock);
             }
+        } catch (final CannotLockException clx) {
+            throw clx;
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -1137,7 +1142,7 @@ public final class DocumentModelImpl extends
      */
     private Document create(final UUID uniqueId, final String name,
             final InputStream content, final JabberId createdBy,
-            final Calendar createdOn) throws IOException {
+            final Calendar createdOn) throws CannotLockException, IOException {
         // create document
         final Document document = create(uniqueId, name, createdBy, createdOn);
         // create local file

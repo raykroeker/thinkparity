@@ -17,12 +17,13 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -44,7 +45,7 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  */
 public final class PublishContainerAvatar extends Avatar implements
         PublishContainerSwingDisplay {
-    
+
     /** The names list model <code>PublishContainerAvatarUserListModel</code>. */
     private final PublishContainerAvatarUserListModel namesListModel;
 
@@ -79,7 +80,7 @@ public final class PublishContainerAvatar extends Avatar implements
     public AvatarId getId() {
         return AvatarId.DIALOG_CONTAINER_PUBLISH;
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getState()
      */
@@ -119,6 +120,15 @@ public final class PublishContainerAvatar extends Avatar implements
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerSwingDisplay#resetProgressBar(java.lang.Long)
+     * 
+     */
+    public void resetProgressBar(final Long containerId) {
+        reloadProgressBar();
+        publishJButton.setEnabled(isInputValid());
+    }
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerSwingDisplay#setDetermination(java.lang.Long, java.lang.Integer)
      *
@@ -209,19 +219,6 @@ public final class PublishContainerAvatar extends Avatar implements
     private Long getInputContainerId() {
         if (input!=null) {
             return (Long) ((Data) input).get(DataKey.CONTAINER_ID);
-        } else {
-            return null;
-        }
-    }
-    
-    /**
-     * Obtain the input delete draft flag.
-     *
-     * @return A Boolean.
-     */
-    private Boolean getInputDeleteDraft() {
-        if (input!=null) {
-            return (Boolean) ((Data) input).get(DataKey.DELETE_DRAFT);
         } else {
             return null;
         }
@@ -474,12 +471,6 @@ public final class PublishContainerAvatar extends Avatar implements
         final List<TeamMember> teamMembers = model.getSelectedTeamMembers();
         final List<Contact> contacts = model.getSelectedContacts();
         
-        // Maybe delete the draft
-        // TODO move this to the publish action
-        if (getInputDeleteDraft()) {
-            getController().runDeleteContainerDraft(containerId, Boolean.FALSE);
-        }
-        
         // Publish
         if (publishType == PublishType.PUBLISH_VERSION) {
             final Long versionId = getInputVersionId();
@@ -674,26 +665,28 @@ public final class PublishContainerAvatar extends Avatar implements
         validate();
     }
     
+    public enum DataKey { CONTAINER_ID, PUBLISH_TYPE, VERSION_ID }
+    
     public class PublishContainerAvatarUser {
-        
-        /** The user. */
-        private User user;
         
         /** The selection status. */
         private Boolean selected;
+        
+        /** The user. */
+        private User user;
         
         public PublishContainerAvatarUser(final User user, final Boolean selected) {
             this.user = user;
             this.selected = selected;
         }
         
-        public User getUser() {
-            return user;
-        }
-        
         public String getExtendedName() {
             return localization.getString("UserName",
                     new Object[] {user.getName(), user.getTitle(), user.getOrganization()} );
+        }
+        
+        public User getUser() {
+            return user;
         }
         
         public Boolean isSelected() {
@@ -708,22 +701,12 @@ public final class PublishContainerAvatar extends Avatar implements
             selected = !selected;
         }
     }
-    
+        
+    public enum PublishType { PUBLISH, PUBLISH_VERSION }    
     private class PublishContainerAvatarUserListModel extends DefaultListModel {
         
         public PublishContainerAvatarUserListModel() {
             super();
-        }
-        
-        public Boolean isItemSelected() {
-            for (int index = 0; index < getSize(); index++) {
-                PublishContainerAvatarUser user = (PublishContainerAvatarUser)getElementAt(index);
-                if (user.isSelected()) {
-                    return Boolean.TRUE;
-                }
-            }
-            
-            return Boolean.FALSE;
         }
         
         public List<Contact> getSelectedContacts() {
@@ -749,9 +732,17 @@ public final class PublishContainerAvatar extends Avatar implements
             
             return selectedTeamMembers;
         }
-    }
         
-    public enum DataKey { CONTAINER_ID, DELETE_DRAFT, PUBLISH_TYPE, VERSION_ID }    
-    public enum PublishType { PUBLISH, PUBLISH_VERSION }
+        public Boolean isItemSelected() {
+            for (int index = 0; index < getSize(); index++) {
+                PublishContainerAvatarUser user = (PublishContainerAvatarUser)getElementAt(index);
+                if (user.isSelected()) {
+                    return Boolean.TRUE;
+                }
+            }
+            
+            return Boolean.FALSE;
+        }
+    }
     private enum PublishTypeSpecific { PUBLISH_FIRST_TIME, PUBLISH_NOT_FIRST_TIME, PUBLISH_VERSION }
 }

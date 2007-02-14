@@ -52,6 +52,7 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
 import com.thinkparity.ophelia.model.container.monitor.PublishStage;
+import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentHistoryItem;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
@@ -879,7 +880,11 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         final Container container = getContainerModel(deleteAs).read(localContainerId);
         logger.logInfo("Deleting container \"{0}\" as \"{1}\".", container
                 .getName(), deleteAs.getSimpleUsername());
-        getContainerModel(deleteAs).delete(localContainerId);
+        try {
+            getContainerModel(deleteAs).delete(localContainerId);
+        } catch (final CannotLockException clx) {
+            fail("Cannot lock container {0} for deletion.", container.getName());   
+        }
     }
 
     /**
@@ -896,7 +901,11 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         final Container c = getContainerModel(deleteAs).read(localContainerId);
         logger.logInfo("Deleting draft for container \"{0}\" as \"{1}.\"",
                 c.getName(), deleteAs.getSimpleUsername());
-        getContainerModel(deleteAs).deleteDraft(localContainerId);
+        try {
+            getContainerModel(deleteAs).deleteDraft(localContainerId);
+        } catch (final CannotLockException clx) {
+            fail("Cannot delete draft for container {0}.", c.getName());
+        }
     }
 
     /**
@@ -1180,6 +1189,8 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             final InputStream content = new FileInputStream(tempFile);
             try {
                 getDocumentModel(modifyAs).updateDraft(localDocumentId, content);
+            } catch (final CannotLockException clx) {
+                fail("Cannot lock document {0} for modification.", document.getName());
             } finally {
                 content.close();
             }
@@ -1358,7 +1369,11 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 fail("Cannot publish to nobody.");
             }
         }
-        getContainerModel(publishAs).publish(PUBLISH_MONITOR, localContainerId, comment, contacts, teamMembers);
+        try {
+            getContainerModel(publishAs).publish(PUBLISH_MONITOR, localContainerId, comment, contacts, teamMembers);
+        } catch (final CannotLockException clx) {
+            fail("Cannot publish container {0}.", c.getName());
+        }
     }
 
     /**
@@ -1523,6 +1538,24 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * 
      * @param readAs
      *            An <code>OpheliaTestUser</code> to read as.
+     * @param localDocumentId
+     *            A document id <code>Long</code>.
+     * @return A <code>Document</code>.
+     */
+    protected Document readDocument(final OpheliaTestUser readAs,
+            final Long localDocumentId) {
+        if (null == localDocumentId) {
+            return null;
+        } else {
+            return getDocumentModel(readAs).read(localDocumentId);
+        }
+    }
+
+    /**
+     * Read a document for a user.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
      * @param uniqueId
      *            A document unique id <code>UUID</code>.
      * @return A <code>Document</code>.
@@ -1665,7 +1698,12 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         final Container container = getContainerModel(removeAs).read(localContainerId);
         logger.logInfo("Removing document \"{0}\" from container \"{1}\" as \"{2}.\"",
                 document.getName(), container.getName(), removeAs.getSimpleUsername());
-        getContainerModel(removeAs).removeDocument(localContainerId, localDocumentId);
+        try {
+            getContainerModel(removeAs).removeDocument(localContainerId, localDocumentId);
+        } catch (final CannotLockException clx) {
+            fail("Cannot lock document {0} for removal from container {1}.",
+                    document.getName(), container.getName());
+        }
         return getDocumentModel(removeAs).read(localDocumentId);
     }
 
@@ -1686,7 +1724,12 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         for (final Document document : documents) {
             logger.logInfo("Removing document \"{0}\" from container \"{1}\" as \"{2}.\"",
                     document.getName(), container.getName(), removeAs.getSimpleUsername());
-            getContainerModel(removeAs).removeDocument(localContainerId, document.getId());
+            try {
+                getContainerModel(removeAs).removeDocument(localContainerId, document.getId());
+            } catch (final CannotLockException clx) {
+                fail("Cannot lock document {0} for removal from container {1}.",
+                    document.getName(), container.getName());
+            }
         }
     }
 
@@ -1696,6 +1739,18 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         logger.logInfo("Renaming container \"{0}\" as \"{1}\" to \"{2}\".",
                 container.getName(), renameAs.getSimpleUsername(), renameTo);
         getContainerModel(renameAs).rename(localContainerId, renameTo);
+    }
+
+    protected void renameDocument(final OpheliaTestUser renameAs,
+            final Long localDocumentId, final String renameTo) {
+        final Document document = readDocument(renameAs, localDocumentId);
+        logger.logInfo("Renaming document \"{0}\" as \"{1}\" to \"{2}\".",
+                document.getName(), renameAs.getSimpleUsername(), renameTo);
+        try {
+            getDocumentModel(renameAs).rename(localDocumentId, renameTo);
+        } catch (final CannotLockException clx) {
+            fail("Cannot rename document {0}.", document.getName());
+        }
     }
 
     /**
@@ -1719,7 +1774,12 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         final Container container = getContainerModel(revertAs).read(localContainerId);
         logger.logInfo("Reverting document \"{0}\" for container \"{1}\" as \"{2}.\"",
                 document.getName(), container.getName(), revertAs.getSimpleUsername());
-        getContainerModel(revertAs).revertDocument(localContainerId, localDocumentId);
+        try {
+            getContainerModel(revertAs).revertDocument(localContainerId, localDocumentId);
+        } catch (final CannotLockException clx) {
+            fail("Cannot revert document {0} for container {1}.", document
+                    .getName(), container.getName());
+        }
         return getDocumentModel(revertAs).read(localDocumentId);
     }
 

@@ -324,9 +324,9 @@ public class RenameDocumentAvatar extends Avatar {
             final Long documentId = getInputDocumentId();
             final String documentName = extractName();
             if (!documentName.equals(getInputDocumentName())) {
+                disposeWindow();
                 getController().runRenameDocument(documentId, documentName);
             }
-            disposeWindow();
         }
     }// GEN-LAST:event_okJButtonActionPerformed
     

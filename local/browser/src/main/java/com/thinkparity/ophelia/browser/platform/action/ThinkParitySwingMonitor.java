@@ -16,4 +16,5 @@ public interface ThinkParitySwingMonitor {
     public void setStep(final int step);
     public void setStep(final int step, final String note);
     public void monitor();
+    public void reset();
 }

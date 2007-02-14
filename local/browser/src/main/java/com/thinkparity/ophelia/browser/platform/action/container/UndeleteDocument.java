@@ -4,6 +4,11 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.container;
 
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.document.Document;
+
+import com.thinkparity.ophelia.model.document.CannotLockException;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -15,6 +20,21 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  */
 public class UndeleteDocument extends AbstractAction {
 
+    /** The <code>Browser</code> application. */
+    private final Browser browser;
+
+    /**
+     * A <code>Container</code>. Used by the invoke and retry to maintain the
+     * previous container.
+     */
+    private Container container;
+
+    /**
+     * A <code>Document</code>. Used by the invoke and retry to maintain the
+     * previous container.
+     */
+    private Document document;
+
     /**
      * Create Export.
      * 
@@ -23,6 +43,7 @@ public class UndeleteDocument extends AbstractAction {
      */
     public UndeleteDocument(final Browser browser) {
         super(ActionId.CONTAINER_UNDELETE_DOCUMENT);
+        this.browser = browser;
     }
 
     /**
@@ -32,8 +53,37 @@ public class UndeleteDocument extends AbstractAction {
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
-        getContainerModel().revertDocument(containerId, documentId);   
+        final Container container = getContainerModel().read(containerId);
+        final Document document = getDocumentModel().get(documentId);
+        invoke(container, document);
     }
-    
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.AbstractAction#retryInvokeAction()
+     *
+     */
+    @Override
+    public void retryInvokeAction() {
+        invoke(container, document);
+    }
+
+    /**
+     * Invoke revoke document on a container.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param document
+     *            A <code>Document</code>.
+     */
+    private void invoke(final Container container, final Document document) {
+        this.container = container;
+        this.document = document;
+        try {
+            getContainerModel().revertDocument(container.getId(), document.getId());
+        } catch (final CannotLockException clx) {
+            browser.retry(this, document.getName());
+        }
+    }
+
     public enum DataKey { CONTAINER_ID, DOCUMENT_ID }
 }

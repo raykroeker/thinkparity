@@ -53,10 +53,10 @@ public class PublishVersion extends AbstractAction {
         final List<User> contactsIn = getDataUsers(data, DataKey.CONTACTS);
         final List<User> teamMembersIn = getDataUsers(data, DataKey.TEAM_MEMBERS);
         
-        if (((null==contactsIn) || contactsIn.isEmpty()) &&
-            ((null==teamMembersIn) || teamMembersIn.isEmpty())) {
+        if ((null == contactsIn || contactsIn.isEmpty()) &&
+            (null == teamMembersIn || teamMembersIn.isEmpty())) {
                 // Launch publish dialog
-                browser.displayPublishContainerDialog(containerId, versionId, Boolean.FALSE);
+                browser.displayPublishContainerDialog(containerId, versionId);
         } else {
             final Profile profile = getProfileModel().read();
             final ArrayList<TeamMember> teamMembers = new ArrayList<TeamMember>();

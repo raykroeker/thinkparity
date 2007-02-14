@@ -28,7 +28,11 @@ public class UpdateDraftTest extends DocumentTestCase {
 
     /** Test the update draft api. */
     public void testUpdateDraft() {
-        datum.documentModel.updateDraft(datum.document.getId(), datum.modFileContent);
+        try {
+            datum.documentModel.updateDraft(datum.document.getId(), datum.modFileContent);
+        } catch (final CannotLockException clx) {
+            fail("Cannot lock document for update.");
+        }
 
         assertTrue(NAME + " [DRAFT NOT MODIFIED]",
                 datum.documentModel.isDraftModified(datum.document.getId()));

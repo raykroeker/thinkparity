@@ -20,6 +20,14 @@ interface PublishContainerSwingDisplay {
     void installProgressBar(final Long containerId);
 
     /**
+     * Reset the progress bar.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    void resetProgressBar(final Long containerId);
+
+    /**
      * Set the number of steps to complete.
      * 
      * @param steps

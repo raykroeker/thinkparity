@@ -42,7 +42,7 @@ public final class DeleteTest extends ContainerTestCase {
         getContainerModel(datum.junit).addListener(datum);
         logger.logInfo("Deleting container \"{0}\" as \"{1}.\"", c.getName(),
                 datum.junit_x.getSimpleUsername());
-        getContainerModel(datum.junit).delete(c.getId());
+        deleteContainer(datum.junit, c.getId());
         getContainerModel(datum.junit).removeListener(datum);
 
         assertDeleted(datum.junit, c);
@@ -61,7 +61,7 @@ public final class DeleteTest extends ContainerTestCase {
         datum.waitForEvents();
 
         getContainerModel(datum.junit).addListener(datum);
-        getContainerModel(datum.junit).delete(c.getId());
+        deleteContainer(datum.junit, c.getId());
         datum.waitForEvents();
         getContainerModel(datum.junit).removeListener(datum);
 
@@ -95,7 +95,7 @@ public final class DeleteTest extends ContainerTestCase {
         getContainerModel(datum.junit).addListener(datum);
         logger.logInfo("Deleting container \"{0}\" as \"{1}.\"", c.getName(),
                 datum.junit_x.getSimpleUsername());
-        getContainerModel(datum.junit).delete(c.getId());
+        deleteContainer(datum.junit, c.getId());
         getContainerModel(datum.junit).removeListener(datum);
 
         assertDeleted(datum.junit, c, d);
@@ -128,7 +128,7 @@ public final class DeleteTest extends ContainerTestCase {
         getContainerModel(datum.junit).addListener(datum);
         logger.logInfo("Deleting container \"{0}\" as \"{1}.\"", c.getName(),
                 datum.junit.getSimpleUsername());
-        getContainerModel(datum.junit).delete(c.getId());
+        deleteContainer(datum.junit, c.getId());
         getContainerModel(datum.junit).removeListener(datum);
         datum.waitForEvents();
 
@@ -169,7 +169,7 @@ public final class DeleteTest extends ContainerTestCase {
                     documentVersion.getVersionId());
         logger.logInfo("Deleting container \"{0}\" as \"{1}.\"", c.getName(),
                 datum.junit.getSimpleUsername());
-        getContainerModel(datum.junit).delete(c.getId());
+        deleteContainer(datum.junit, c.getId());
         getContainerModel(datum.junit).removeListener(datum);
         datum.waitForEvents();
 
@@ -193,7 +193,7 @@ public final class DeleteTest extends ContainerTestCase {
         getContainerModel(datum.junit).addListener(datum);
         logger.logInfo("Deleting container \"{0}\" as \"{1}.\"", c.getName(),
                 datum.junit.getSimpleUsername());
-        getContainerModel(datum.junit).delete(c.getId());
+        deleteContainer(datum.junit, c.getId());
         getContainerModel(datum.junit).removeListener(datum);
         datum.waitForEvents();
 
@@ -219,7 +219,7 @@ public final class DeleteTest extends ContainerTestCase {
         getContainerModel(datum.junit_x).addListener(datum);
         logger.logInfo("Deleting container \"{0}\" as \"{1}.\"", c_x.getName(),
                 datum.junit_x.getSimpleUsername());
-        getContainerModel(datum.junit_x).delete(c_x.getId());
+        deleteContainer(datum.junit_x, c_x.getId());
         getContainerModel(datum.junit_x).removeListener(datum);
         datum.waitForEvents();
 

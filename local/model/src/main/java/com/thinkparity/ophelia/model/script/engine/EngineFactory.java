@@ -8,8 +8,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.ophelia.model.script.ScriptException;
-
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
@@ -75,16 +73,17 @@ public final class EngineFactory {
      * Create an instance of an engine.
      * 
      * @return An <code>Engine</code>.
-     * @throws ScriptException
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     * @throws InvocationTargetException
+     * @throws NoSuchMethodException
      */
-    public Engine newEngine() throws ScriptException {
-        try {
-            final Engine engine = newInstance(engineClass);
-            engine.initialize(environment);
-            return engine;
-        } catch (final Throwable t) {
-            throw new ScriptException(t);
-        }
+    public Engine newEngine() throws IllegalAccessException,
+        InstantiationException, InvocationTargetException,
+        NoSuchMethodException {
+        final Engine engine = newInstance(engineClass);
+        engine.initialize(environment);
+        return engine;
     }
 
     /** A definition of all possible script engine frameworks. */

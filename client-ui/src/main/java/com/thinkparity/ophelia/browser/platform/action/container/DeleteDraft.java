@@ -5,13 +5,17 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 
 import com.thinkparity.codebase.model.container.Container;
 
+import com.thinkparity.ophelia.model.document.CannotLockException;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
-
 /**
+ * <b>Title:</b>thinkParity OpheliaUI Delete Draft Action<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
@@ -19,6 +23,12 @@ public class DeleteDraft extends AbstractAction {
 
     /** The thinkParity browser application. */
     private final Browser browser;
+
+    /**
+     * A <code>Container</code>. Used by invoke and retry invoke to maintain
+     * the container.
+     */
+    private Container container;
 
     /**
      * Create DeleteDraft.
@@ -37,23 +47,37 @@ public class DeleteDraft extends AbstractAction {
     @Override
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
-        final Boolean confirm = (Boolean) data.get(DataKey.CONFIRM);
-
         final Container container = getContainerModel().read(containerId);
         
-        final Boolean proceed;
-        if (confirm) {
-            proceed = browser.confirm(
-                    "ContainerDeleteDraft.ConfirmDeleteDraftMessage",
-                    new Object[] { container.getName() });
-        } else {
-            proceed = Boolean.TRUE;
-        }
-        
-        if (proceed) {
-            getContainerModel().deleteDraft(containerId);
+        if (browser.confirm("ContainerDeleteDraft.ConfirmDeleteDraftMessage",
+                    new Object[] { container.getName() })) {
+            invoke(container);
+        } 
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.AbstractAction#retryInvokeAction()
+     *
+     */
+    @Override
+    public void retryInvokeAction() {
+        invoke(container);
+    }
+
+    /**
+     * Invoke the delete draft api.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    private void invoke(final Container container) {
+        this.container = container;
+        try {
+            getContainerModel().deleteDraft(container.getId());
+        } catch (final CannotLockException clx) {
+            browser.retry(this, container.getName());
         }
     }
 
-    public enum DataKey { CONTAINER_ID, CONFIRM }
+    public enum DataKey { CONTAINER_ID }
 }

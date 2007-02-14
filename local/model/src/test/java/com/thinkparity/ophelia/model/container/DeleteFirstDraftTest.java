@@ -4,8 +4,11 @@
 package com.thinkparity.ophelia.model.container;
 
 import com.thinkparity.codebase.model.container.Container;
-import com.thinkparity.ophelia.OpheliaTestUser;
+
+import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
+
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * @author raymond@thinkparity.com
@@ -24,7 +27,11 @@ public class DeleteFirstDraftTest extends ContainerTestCase {
 
     /** Test the delete draft api. */
     public void testDeleteDraft() {
-        datum.containerModel.deleteDraft(datum.container.getId());
+        try {
+            datum.containerModel.deleteDraft(datum.container.getId());
+        } catch (final CannotLockException clx) {
+            fail("Cannot delete container {0}.", datum.container.getName());
+        }
         assertTrue("Draft deleted event not fired.", datum.didNotify);
         final ContainerDraft draft = datum.containerModel.readDraft(datum.container.getId());
         assertNull("Draft has not been deleted correctly.", draft);

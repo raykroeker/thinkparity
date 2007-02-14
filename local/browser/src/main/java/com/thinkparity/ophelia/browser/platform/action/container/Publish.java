@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
@@ -15,40 +16,58 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
+import com.thinkparity.ophelia.model.container.monitor.PublishStage;
+import com.thinkparity.ophelia.model.document.CannotLockException;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
-import com.thinkparity.ophelia.model.container.monitor.PublishStage;
 
 /**
- * Publish a document.  This will send a given document version to
- * every member of the team.
- *
+ * Publish a document. This will send a given document version to every member
+ * of the team.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class Publish extends AbstractAction {
 
-	/** @see java.io.Serializable */
-	private static final long serialVersionUID = 1;
-
-    /** The browser application. */
+    /** The <code>Browser</code> application. */
     private final Browser browser;
 
-	/** Create Publish. */
+	private String comment;
+
+	private List<Contact> contacts;
+
+    private Container container;
+
+    /**
+     * A <code>ThinkParitySwingMonitor</code>.  Used by invoke and retry invoke.
+     * 
+     */
+    private ThinkParitySwingMonitor monitor;
+
+    private List<TeamMember> teamMembers;
+
+    /**
+     * Create Publish.
+     * 
+     * @param browser
+     *            The <code>Browser</code> application.
+     */
 	public Publish(final Browser browser) {
 		super(ActionId.CONTAINER_PUBLISH);
         this.browser = browser;
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.action.AbstractAction#invoke(com.thinkparity.ophelia.browser.platform.action.Data)
 	 * 
 	 */
@@ -58,12 +77,11 @@ public class Publish extends AbstractAction {
         final List<User> teamMembersIn = getDataUsers(data, DataKey.TEAM_MEMBERS);
         final String comment = (String) data.get(DataKey.COMMENT);
         final ContainerModel containerModel = getContainerModel();
-        
-        // Check there are documents with changes to publish.
+        final Container container = containerModel.read(containerId);
+        // check there are documents with changes to publish.
         Boolean publishableDocuments = Boolean.FALSE;
         Boolean changes = Boolean.FALSE;
         List<Document> documents = Collections.emptyList();
-        final Container container = containerModel.read(containerId);
         if (container.isLocalDraft()) {
             final ContainerDraft draft = containerModel.readDraft(containerId);
             if (null != draft) {
@@ -87,33 +105,29 @@ public class Publish extends AbstractAction {
                 }
             }
         }
-
         if (!publishableDocuments) {
             browser.displayErrorDialog("ErrorNoDocumentToPublish",
                     new Object[] {container.getName()});
         } else if (!changes) {
-            // In this case, publish the most recent version.
-            // After publishing we want to delete the draft.
+            /* in this case, publish the most recent version. */
             long versionId = getContainerModel().readLatestVersion(containerId).getVersionId();
-            browser.displayPublishContainerDialog(containerId, versionId, Boolean.TRUE);
+            browser.displayPublishContainerDialog(containerId, versionId);
         } else if ((null == contactsIn || contactsIn.isEmpty()) &&
             (null == teamMembersIn || teamMembersIn.isEmpty())) {
             // TODO raymond@thinkparity.com - Adjust such that the list input is never null 
-            // Launch publish dialog
+            // launch publish dialog
             browser.displayPublishContainerDialog(containerId);
         } else {
             final Profile profile = getProfileModel().read();
             final ArrayList<TeamMember> teamMembers = new ArrayList<TeamMember>();
             final ArrayList<Contact> contacts = new ArrayList<Contact>();
-            
-            // Build team members list, minus the current user
+            // build team members list, minus the current user
             for (final User teamMemberIn : teamMembersIn) {
                 if (!teamMemberIn.getId().equals(profile.getId())) {
                     teamMembers.add((TeamMember)teamMemberIn);
                 }
             }
-            
-            // Build contacts list, minus any overlap with team members
+            // build contacts list, minus any overlap with team members
             for (final User contactIn : contactsIn) {
                 Boolean found = Boolean.FALSE;
                 for (final TeamMember teamMember : teamMembers) {
@@ -126,40 +140,86 @@ public class Publish extends AbstractAction {
                     contacts.add((Contact) contactIn);
                 }
             }
-            final ThinkParitySwingMonitor monitor =
-                (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
-            final ThinkParitySwingWorker worker = new PublishWorker(this,
-                    comment, contacts, containerId, teamMembers);
-            worker.setMonitor(monitor);
-            worker.start();
+            final ThinkParitySwingMonitor monitor = (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
+            invoke(monitor, comment, contacts, container, teamMembers);
         }
 	}
 
-	/** Data keys. */
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.AbstractAction#retryInvokeAction()
+     *
+     */
+    @Override
+    public void retryInvokeAction() {
+        invoke(monitor, comment, contacts, container, teamMembers);
+    }
+
+	/**
+     * Invoke publish.
+     * 
+     * @param worker
+     *            A <code>ThinkParitySwingWorker</code>.
+     */
+    private void invoke(final ThinkParitySwingMonitor monitor,
+            final String comment, final List<Contact> contacts,
+            final Container container, final List<TeamMember> teamMembers) {
+        this.monitor = monitor;
+        this.comment = comment;
+        this.contacts = contacts;
+        this.container = container;
+        this.teamMembers = teamMembers;
+        final ThinkParitySwingWorker worker = new PublishWorker(this,
+                    comment, contacts, container, teamMembers);
+        worker.setMonitor(monitor);
+        worker.start();
+    }
+
+    /** Data keys. */
 	public enum DataKey {
         COMMENT, CONTACTS, CONTAINER_ID, MONITOR, TEAM_MEMBERS
     }
 
     /** A publish action worker object. */
-    private static class PublishWorker extends ThinkParitySwingWorker {
+    private static class PublishWorker extends ThinkParitySwingWorker<Publish> {
         private final ArtifactModel artifactModel;
         private final String comment;
         private final List<Contact> contacts;
-        private final Long containerId;
+        private final Container container;
         private final ContainerModel containerModel;
-        private final PublishMonitor publishMonitor;
+        private PublishMonitor publishMonitor;
         private final List<TeamMember> teamMembers;
         private PublishWorker(final Publish publish, final String comment,
-                final List<Contact> contacts, final Long containerId,
+                final List<Contact> contacts, final Container container,
                 final List<TeamMember> teamMembers) {
             super(publish);
             this.artifactModel = publish.getArtifactModel();
             this.comment = comment;
             this.contacts = contacts;
-            this.containerId = containerId;
+            this.container = container;
             this.containerModel = publish.getContainerModel();
             this.teamMembers = teamMembers;
-            this.publishMonitor = new PublishMonitor() {
+            this.publishMonitor = newPublishMonitor();
+        }
+        @Override
+        public Object construct() {
+            try {
+                containerModel.publish(publishMonitor, container.getId(), comment,
+                        contacts, teamMembers);
+            } catch (final CannotLockException clx) {
+                monitor.reset();
+                publishMonitor = newPublishMonitor();
+                action.browser.retry(action, container.getName());
+            }
+            artifactModel.applyFlagSeen(container.getId());
+            return containerModel.readLatestVersion(container.getId());
+        }
+        /**
+         * Create a new publish monitor.
+         * 
+         * @return A <code>PublishMonitor</code>.
+         */
+        private PublishMonitor newPublishMonitor() {
+            return new PublishMonitor() {
                 private Integer stageIndex;
                 private Integer stages;
                 public void determine(final Integer stages) {
@@ -188,13 +248,6 @@ public class Publish extends AbstractAction {
                     }
                 }
             };
-        }
-        @Override
-        public Object construct() {
-            containerModel.publish(publishMonitor, containerId, comment,
-                    contacts, teamMembers);
-            artifactModel.applyFlagSeen(containerId);
-            return containerModel.readLatestVersion(containerId);
         }
     }
 }

@@ -108,8 +108,12 @@ public interface InternalDocumentModel extends DocumentModel {
      * @param document
      *            A <code>Document</code>.
      * @return A <code>DocumentLock</code>.
+     * 
+     * @throws CannotLockException
+     *             if an exclusive lock cannot be obtained
      */
-    public DocumentLock lock(final Document document);
+    public DocumentLock lock(final Document document)
+            throws CannotLockException;
 
     /**
      * Obtain an exclusive lock on a document.

@@ -19,15 +19,16 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.swing.JFileChooserUtil;
 import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.user.TeamMember;
+
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -53,7 +54,14 @@ import com.thinkparity.ophelia.browser.application.browser.window.WindowFactory;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowId;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
-import com.thinkparity.ophelia.browser.platform.action.*;
+import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
+import com.thinkparity.ophelia.browser.platform.action.ActionId;
+import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
+import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
+import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.LinkAction;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.artifact.RemoveFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation;
@@ -62,7 +70,17 @@ import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingIn
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.DisplayContactInvitationInfo;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.*;
+import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.Create;
+import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.DisplayFlagSeenInfo;
+import com.thinkparity.ophelia.browser.platform.action.container.Publish;
+import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.Rename;
+import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.AddEmail;
@@ -81,7 +99,8 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
+
+import org.apache.log4j.Logger;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -228,6 +247,47 @@ public class Browser extends AbstractApplication {
         input.set(ConfirmAvatar.DataKey.MESSAGE_KEY, messageKey);
         input.set(ConfirmAvatar.DataKey.MESSAGE_ARGUMENTS, messageArguments);
         return confirm(input);
+    }
+
+    /**
+     * Open a confirmation dialog.
+     * 
+     * @param confirmButtonKey
+     *            The confirm button text key <code>String</code>.
+     * @param denyButtonKey
+     *            The deny button text key <code>String</code>.
+     * @param messageKey
+     *            The message key <code>String</code>.
+     * @param messageArguments
+     *            The message arguments <code>Object[]</code>.
+     * @return True if the user confirms the response.
+     */
+    public Boolean confirm(final String confirmButtonKey,
+            final String denyButtonKey, final String messageKey,
+            final Object... messageArguments) {
+        final Data input = new Data(4);
+        input.set(ConfirmAvatar.DataKey.CONFIRM_BUTTON_KEY, confirmButtonKey);
+        input.set(ConfirmAvatar.DataKey.DENY_BUTTON_KEY, denyButtonKey);
+        input.set(ConfirmAvatar.DataKey.MESSAGE_KEY, messageKey);
+        input.set(ConfirmAvatar.DataKey.MESSAGE_ARGUMENTS, messageArguments);
+        return confirm(input);
+
+    }
+
+    /**
+     * Confirm an attempt to retry an invocation of an action with the user and
+     * if positive retry.
+     * 
+     * @param action
+     *            An <code>AbstractAction</code>.
+     */
+    public void retry(final AbstractAction action,
+            final Object... retryMessageArguments) {
+        final String messageKey = "Retry." + action.getId();
+        if (confirm("Retry.Confirm", "Retry.Deny", messageKey,
+                retryMessageArguments)) {
+            action.retryInvokeAction();
+        }
     }
 
     /**
@@ -425,7 +485,6 @@ public class Browser extends AbstractApplication {
         final Data input = new Data(3);
         input.set(PublishContainerAvatar.DataKey.PUBLISH_TYPE, PublishContainerAvatar.PublishType.PUBLISH);
         input.set(PublishContainerAvatar.DataKey.CONTAINER_ID, containerId);
-        input.set(PublishContainerAvatar.DataKey.DELETE_DRAFT, Boolean.FALSE);
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
@@ -438,16 +497,13 @@ public class Browser extends AbstractApplication {
      *            The container id.
      * @param versionId
      *            A version id.
-     * @param deleteDraft
-     *            Flag indicating if the draft should be deleted after.                
      */
-    public void displayPublishContainerDialog(final Long containerId, final Long versionId,
-            final Boolean deleteDraft) {
+    public void displayPublishContainerDialog(final Long containerId,
+            final Long versionId) {
         final Data input = new Data(4);
         input.set(PublishContainerAvatar.DataKey.PUBLISH_TYPE, PublishContainerAvatar.PublishType.PUBLISH_VERSION);
         input.set(PublishContainerAvatar.DataKey.CONTAINER_ID, containerId);
         input.set(PublishContainerAvatar.DataKey.VERSION_ID, versionId);
-        input.set(PublishContainerAvatar.DataKey.DELETE_DRAFT, deleteDraft);
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
@@ -1344,21 +1400,6 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(Delete.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_DELETE, data);        
-    }
-    
-    /**
-     * Delete the draft for the container.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param confirm
-     *            Flag indicating if a confirm dialog is displayed.           
-     */
-    public void runDeleteContainerDraft(final Long containerId, final Boolean confirm) {
-        final Data data = new Data(2);
-        data.set(DeleteDraft.DataKey.CONTAINER_ID, containerId);
-        data.set(DeleteDraft.DataKey.CONFIRM, confirm);
-        invoke(ActionId.CONTAINER_DELETE_DRAFT, data);         
     }
     
     /**

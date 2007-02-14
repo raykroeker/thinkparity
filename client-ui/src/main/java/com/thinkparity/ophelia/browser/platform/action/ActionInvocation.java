@@ -17,4 +17,10 @@ public interface ActionInvocation {
      *            The action data.
      */
     public void invokeAction(final Data data);
+
+    /**
+     * Retry invoking the action.
+     *
+     */
+    public void retryInvokeAction();
 }

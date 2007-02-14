@@ -24,6 +24,7 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
+import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.util.Printer;
@@ -98,8 +99,10 @@ public interface ContainerModel {
      * 
      * @param containerId
      *            A container id.
+     * @throws CannotLockException
+     *             if the container documents cannot be locked
      */
-    public void delete(final Long containerId);
+    public void delete(final Long containerId) throws CannotLockException;
 
     /**
      * Delete a draft.
@@ -107,7 +110,7 @@ public interface ContainerModel {
      * @param containerId
      *            A container id.
      */
-    public void deleteDraft(final Long containerId);
+    public void deleteDraft(final Long containerId) throws CannotLockException;
 
     /**
      * Export a container version to a directory. The 
@@ -190,7 +193,7 @@ public interface ContainerModel {
      */
     public void publish(final PublishMonitor monitor, final Long containerId,
             final String comment, final List<Contact> contacts,
-            final List<TeamMember> teamMembers);
+            final List<TeamMember> teamMembers) throws CannotLockException;
 
     /**
      * Publish the container version.
@@ -525,7 +528,8 @@ public interface ContainerModel {
      * @param documentId
      *            A document id.
      */
-    public void removeDocument(final Long containerId, final Long documentId);
+    public void removeDocument(final Long containerId, final Long documentId)
+            throws CannotLockException;
 
     /**
      * Remove a container listener.
@@ -560,7 +564,8 @@ public interface ContainerModel {
      * @param documentId
      *            A document id.
      */
-    public void revertDocument(final Long containerId, final Long documentId);
+    public void revertDocument(final Long containerId, final Long documentId)
+            throws CannotLockException;
 
     /**
      * Search for containers.

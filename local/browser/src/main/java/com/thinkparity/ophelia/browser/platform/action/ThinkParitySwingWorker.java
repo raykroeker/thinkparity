@@ -13,7 +13,10 @@ import com.thinkparity.codebase.swing.SwingWorker;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public abstract class ThinkParitySwingWorker extends SwingWorker {
+public abstract class ThinkParitySwingWorker<T extends AbstractAction> extends SwingWorker {
+
+    /** An <code>AbstractAction</code>. */
+    protected final T action;
 
     /** The <code>ThinkParitySwingMonitor</code>. */
     protected ThinkParitySwingMonitor monitor;
@@ -22,8 +25,9 @@ public abstract class ThinkParitySwingWorker extends SwingWorker {
      * Create ThinkParitySwingWorker.
      *
      */
-    protected ThinkParitySwingWorker(final AbstractAction action) {
+    protected ThinkParitySwingWorker(final T action) {
         super();
+        this.action = action;
     }
 
     /**

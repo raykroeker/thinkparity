@@ -59,6 +59,7 @@ import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.container.export.PDFWriter;
 import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
 import com.thinkparity.ophelia.model.container.monitor.PublishStage;
+import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentLock;
 import com.thinkparity.ophelia.model.document.DocumentNameGenerator;
 import com.thinkparity.ophelia.model.document.DocumentVersionLock;
@@ -370,12 +371,10 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Delete a container.
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#delete(java.lang.Long)
      * 
-     * @param containerId
-     *            A container id.
      */
-    public void delete(final Long containerId) {
+    public void delete(final Long containerId) throws CannotLockException {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
@@ -404,6 +403,8 @@ public final class ContainerModelImpl extends
             }
             // fire event
             notifyContainerDeleted(container, localEventGenerator);
+        } catch (final CannotLockException clx) {
+            throw clx;
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -415,7 +416,7 @@ public final class ContainerModelImpl extends
      * @param containerId
      *            A container id.
      */
-    public void deleteDraft(final Long containerId) {
+    public void deleteDraft(final Long containerId) throws CannotLockException {
         try {
             assertDoesExistDraft(containerId, "Draft does not exist.");
             final InternalDocumentModel documentModel = getDocumentModel();
@@ -441,6 +442,8 @@ public final class ContainerModelImpl extends
             } finally {
                 releaseDocuments(draftDocumentLocks.values());
             }
+        } catch (final CannotLockException clx) {
+            throw clx;
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -855,7 +858,7 @@ public final class ContainerModelImpl extends
      */
     public void publish(final PublishMonitor monitor, final Long containerId,
             final String comment, final List<Contact> contacts,
-            final List<TeamMember> teamMembers) {
+            final List<TeamMember> teamMembers) throws CannotLockException {
         logger.logApiId();
         logger.logVariable("monitor", monitor);
         logger.logVariable("containerId", containerId);
@@ -941,6 +944,8 @@ public final class ContainerModelImpl extends
             } finally {
                 releaseDocuments(draftDocumentLocks.values());
             }
+        } catch (final CannotLockException clx) {
+            throw clx;
         } catch (final Throwable t) {
             throw translateError(t);
         } finally {
@@ -1613,14 +1618,12 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Remove a document from a container.
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#removeDocument(java.lang.Long,
+     *      java.lang.Long)
      * 
-     * @param containerId
-     *            A container id.
-     * @param documentId
-     *            A document id.
      */
-    public void removeDocument(final Long containerId, final Long documentId) {
+    public void removeDocument(final Long containerId, final Long documentId)
+            throws CannotLockException {
         try {
             assertDraftExists("DRAFT DOES NOT EXIST", containerId);
             assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
@@ -1653,6 +1656,8 @@ public final class ContainerModelImpl extends
                 releaseDocument(lock);
                 releaseDocumentVersions(versionLocks.values());
             }
+        } catch (final CannotLockException clx) {
+            throw clx;
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1783,8 +1788,11 @@ public final class ContainerModelImpl extends
      * 
      * @param documentId
      *            A document id <code>Long</code>.
+     * @throws CannotLockException
+     *             if the document cannot be locked
      */
-    public void revertDocument(final Long containerId, final Long documentId) {
+    public void revertDocument(final Long containerId, final Long documentId)
+            throws CannotLockException {
         try {
             assertDraftExists("DRAFT DOES NOT EXIST", containerId);
             assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
@@ -1806,6 +1814,8 @@ public final class ContainerModelImpl extends
             } finally {
                 releaseDocument(lock);
             }
+        } catch (final CannotLockException clx) {
+            throw clx;
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -2508,7 +2518,8 @@ public final class ContainerModelImpl extends
      *            A <code>Document</code>.
      * @return A <code>DocumentLock</code>.
      */
-    private DocumentLock lockDocument(final Document document) {
+    private DocumentLock lockDocument(final Document document)
+            throws CannotLockException {
         return getDocumentModel().lock(document);
     }
 
@@ -2521,7 +2532,7 @@ public final class ContainerModelImpl extends
      *         <code>DocumentLock</code>s.
      */
     private Map<Document, DocumentLock> lockDocuments(
-            final List<Document> documents) {
+            final List<Document> documents) throws CannotLockException {
         final Map<Document, DocumentLock> locks = new HashMap<Document, DocumentLock>();
         for (final Document document : documents) {
             locks.put(document, lockDocument(document));

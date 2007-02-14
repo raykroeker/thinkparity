@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
@@ -131,34 +132,33 @@ class LocalFile extends ModelHelper<DocumentModelImpl> {
      * 
      * @return A <code>DocumentLock</code>.
      */
-    <T extends LocalFileLock> T lock(final T instance) {
+    <T extends LocalFileLock> T lock(final T instance)
+            throws CannotLockException {
         try {
-            file.setWritable(true, true);
             final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rwd");
+            final FileChannel fileChannel = randomAccessFile.getChannel();
             try {
-                final FileChannel fileChannel = randomAccessFile.getChannel();
-                try {
-                    instance.setFile(file);
-                    instance.setRandomAccessFile(randomAccessFile);
-                    instance.setFileChannel(fileChannel);
-                    instance.setFileLock(fileChannel.lock());
-                    return instance;
-                } catch (final Throwable t) {
-                    try {
-                        fileChannel.close();
-                    } catch (final IOException iox) {
-                        logger.logError(iox, "Could not close file channel for {0}.", file);
-                    }
-                    throw panic(t);
-                }
+                instance.setFile(file);
+                instance.setRandomAccessFile(randomAccessFile);
+                instance.setFileChannel(fileChannel);
+                final FileLock fileLock = fileChannel.tryLock();
+                if (null == fileLock)
+                    throw new CannotLockException(file.getName());
+                instance.setFileLock(fileLock);
+                file.setWritable(true, true);
+                return instance;
+            } catch (final CannotLockException clx) {
+                throw clx;
             } catch (final Throwable t) {
                 try {
-                    randomAccessFile.close();
+                    fileChannel.close();
                 } catch (final IOException iox) {
-                    logger.logError(iox, "Could not close file {0}.", file);
+                    logger.logError(iox, "Could not close file channel for {0}.", file);
                 }
                 throw panic(t);
             }
+        } catch (final CannotLockException clx) {
+            throw clx;
         } catch (final Throwable t) {
             throw panic(t);
         }

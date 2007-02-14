@@ -270,8 +270,9 @@ class LocalFile extends ModelHelper<DocumentModelImpl> {
         assertIsValid(lock);
         final FileChannel fileChannel = lock.getFileChannel();
         final byte[] bytes = new byte[buffer];
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         while (is.read(bytes) > 0) {
-            fileChannel.write(ByteBuffer.wrap(bytes));
+            fileChannel.write(byteBuffer);
         }
         lock.getFile().setLastModified(time);
     }

@@ -44,7 +44,7 @@ public abstract class TestCase extends junit.framework.TestCase {
         final String a = DateUtil.format(actual, DateImage.ISO);
         assertEquals(assertion, e, a);
     }
-
+    
     /**
      * Assert the contents of two streams are equal.
      * 
@@ -77,10 +77,23 @@ public abstract class TestCase extends junit.framework.TestCase {
         }
     }
 
-	protected static void assertTrue(final boolean expression,
+    protected static void assertTrue(final boolean expression,
             final String assertionPattern, final Object... assertionArguments) {
         assertTrue(new MessageFormat(assertionPattern)
                 .format(assertionArguments), expression);
+    }
+
+	/**
+     * Fail a test.
+     * 
+     * @param message
+     *            A fail message <code>String</code>.
+     * @param arguments
+     *            The fail message arguments <code>Object[]</code>.
+     */
+    protected static final void fail(final String message,
+            final Object... arguments) {
+        fail(MessageFormat.format(message, arguments));
     }
 
     /**

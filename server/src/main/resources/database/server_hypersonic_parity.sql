@@ -103,7 +103,8 @@ create table parityUserEmail (
   verified boolean not null,
   verificationKey varchar null,
   primary key (email),
-  foreign key (username) references jiveUser(username)
+  foreign key (username) references jiveUser(username),
+  unique(email)
 );
 
 create table PARITY_USER_PROFILE (

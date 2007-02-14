@@ -54,7 +54,7 @@ public class AddDocument extends AbstractAction {
 	    final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
 		final File[] files = (File[]) data.get(DataKey.FILES);
 
-        if(0 == files.length) {
+        if (0 == files.length) {
             // prompt for files
             browser.runAddContainerDocuments(containerId);
         } else {
@@ -63,12 +63,10 @@ public class AddDocument extends AbstractAction {
             Assert.assertTrue(getContainerModel().read(containerId).isLocalDraft(),
                     "Cannot add documents to container {0}, no local draft.", container.getName());
 
-            // Get the list of existing draft documents in this container.
+            // get the list of existing draft documents in this container.
             final List<Document> draftDocuments = readDraftDocuments(containerId);;
-            
-            // Determine which files are for adding and which are for updating.
-            // A file is added to the 'update' list if the draft contains a
-            // document of the same name; otherwise, the file is added to the 'add' list.
+            /* determine which files are added and which are for updated
+             * based upon the file name */
             final DocumentUtil documentUtil = DocumentUtil.getInstance();
             final List<File> addFileList = new ArrayList<File>();
             final List<File> updateFileList = new ArrayList<File>();
@@ -106,7 +104,7 @@ public class AddDocument extends AbstractAction {
                             throw translateError(clx);
                         }
                     }
-                    updateDocument(file, containerId, document.getId());   
+                    browser.runUpdateDocumentDraft(document.getId(), file);
                 }
             }
         }
@@ -148,32 +146,6 @@ public class AddDocument extends AbstractAction {
             return containerModel.readDraft(containerId).getDocuments();
         } else {
             return Collections.emptyList();
-        }
-    }
-
-    /**
-     * Update a document.
-     * 
-     * @param file
-     *            A <code>File</code>.
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param documentId
-     *            A document id <code>Long</code>.
-     */
-    private void updateDocument(final File file, final Long containerId, final Long documentId) {
-        try {
-            final InputStream inputStream = new FileInputStream(file);
-            try {
-                getDocumentModel().updateDraft(documentId, inputStream);
-                browser.fireDocumentDraftUpdated(documentId);
-            } catch (final CannotLockException clx) {
-                throw translateError(clx);
-            } finally {
-                inputStream.close();
-            }
-        } catch (final IOException iox) {
-            throw translateError(iox);
         }
     }
 

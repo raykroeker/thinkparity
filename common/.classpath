@@ -6,15 +6,19 @@
 	<classpathentry kind="src" path="model/src/test/java"/>
 	<classpathentry kind="src" path="junitx/src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/commons-codec/1.3/commons-codec.jar" sourcepath="/THINKPARITY_HOME/vendor/commons-codec/1.3/commons-codec-sources.jar"/>
-	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/dom4j/1.6.1/dom4j.jar" sourcepath="/THINKPARITY_HOME/vendor/dom4j/1.6.1/dom4j-sources.jar"/>
+	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/commons-codec/1.3/commons-codec.jar" sourcepath="/THINKPARITY_HOME/vendor/commons-codec/1.3/commons-codec-sources.jar"/>
+	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/dom4j/1.6.1/dom4j.jar" sourcepath="/THINKPARITY_HOME/vendor/dom4j/1.6.1/dom4j-sources.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jotm/2.0.10/jotm.jar" sourcepath="/THINKPARITY_HOME/vendor/jotm/2.0.10/jotm-sources.jar"/>
-	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jotm/2.0.10/jta-spec1_0_1.jar"/>
-	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/junit/3.8.1/junit.jar" sourcepath="/THINKPARITY_HOME/vendor/junit/3.8.1/junit-sources.jar"/>
-	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/log4j/1.2.13/log4j.jar" sourcepath="/THINKPARITY_HOME/vendor/log4j/1.2.13/log4j-sources.jar"/>
-	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jotm/2.0.10/ow_carol.jar"/>
-	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jotm/2.0.10/xapool.jar"/>
+	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/jotm/2.0.10/jta-spec1_0_1.jar"/>
+	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/junit/3.8.1/junit.jar" sourcepath="/THINKPARITY_HOME/vendor/junit/3.8.1/junit-sources.jar"/>
+	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/log4j/1.2.13/log4j.jar" sourcepath="/THINKPARITY_HOME/vendor/log4j/1.2.13/log4j-sources.jar"/>
+	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/jotm/2.0.10/ow_carol.jar"/>
+	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/jotm/2.0.10/xapool.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xpp3/1.1.3.4.O/xpp3.jar" sourcepath="/THINKPARITY_HOME/vendor/xpp3/1.1.3.4.O/xpp3-sources.jar"/>
-	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xstream/1.2.1/xstream.jar" sourcepath="/THINKPARITY_HOME/vendor/xstream/1.2.1/xstream-sources.jar"/>
+	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/xstream/1.2.1/xstream.jar" sourcepath="/THINKPARITY_HOME/vendor/xstream/1.2.1/xstream-sources.jar"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jotm/2.0.10/commons-logging.jar"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jotm/2.0.10/connector-1_5.jar"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jotm/2.0.10/howl.jar"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jotm/2.0.10/jotm_jrmp_stubs.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

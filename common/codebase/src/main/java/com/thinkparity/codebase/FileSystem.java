@@ -238,7 +238,7 @@ public class FileSystem {
         Assert.assertTrue(file.isDirectory(), "{0} is not a directory.", path);
 
         if (recurse) {
-            return list(file).toArray(new File[] {});
+            return list(file, filter).toArray(new File[] {});
         } else {
             return file.listFiles(filter);
         }

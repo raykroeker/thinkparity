@@ -7,14 +7,14 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
 import com.thinkparity.ophelia.browser.Constants.Directories;
 import com.thinkparity.ophelia.browser.Constants.FileExtensions;
 import com.thinkparity.ophelia.browser.platform.Platform;
+
+import org.apache.log4j.Logger;
 
 /**
  * <b>Title:</b>thinkParity Browser Platform Plugin Helper<br>
@@ -104,8 +104,8 @@ public final class PluginHelper {
      */
     public void start() {
         // install all plugin files
-        if (Directories.PARITY_PLUGIN_ROOT.exists()) {
-            final FileSystem pluginFileSystem = new FileSystem(Directories.PARITY_PLUGIN_ROOT);
+        if (Directories.ThinkParity.PLUGIN_ROOT.exists()) {
+            final FileSystem pluginFileSystem = new FileSystem(Directories.ThinkParity.PLUGIN_ROOT);
 
             // install
             final File[] pluginFiles = pluginFileSystem.list("/", PLUGIN_FILE_FILTER);

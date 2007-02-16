@@ -8,16 +8,18 @@ import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.model.container.ContainerModel;
+import com.thinkparity.desdemona.model.migrator.MigratorModel;
 import com.thinkparity.desdemona.model.profile.ProfileModel;
 import com.thinkparity.desdemona.model.queue.QueueModel;
 import com.thinkparity.desdemona.model.stream.StreamModel;
 import com.thinkparity.desdemona.model.user.UserModel;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity Service Model Provider<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.2
  */
 public interface ServiceModelProvider {
 
@@ -55,6 +57,13 @@ public interface ServiceModelProvider {
      * @return A <code>ContainerModel</code>.
      */
     public ContainerModel getContainerModel();
+
+    /**
+     * Obtain a migrator model.
+     * 
+     * @return An instance of <code>MigratorModel</code>.
+     */
+    public MigratorModel getMigratorModel();
 
     /**
      * Obtain a profile model.

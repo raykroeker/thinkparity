@@ -19,9 +19,8 @@ import com.thinkparity.ophelia.model.io.handler.ContactIOHandler;
 import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
 import com.thinkparity.ophelia.model.io.handler.DocumentHistoryIOHandler;
 import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
-import com.thinkparity.ophelia.model.io.handler.LibraryIOHandler;
+import com.thinkparity.ophelia.model.io.handler.MigratorIOHandler;
 import com.thinkparity.ophelia.model.io.handler.ProfileIOHandler;
-import com.thinkparity.ophelia.model.io.handler.ReleaseIOHandler;
 import com.thinkparity.ophelia.model.io.handler.SystemMessageIOHandler;
 import com.thinkparity.ophelia.model.io.handler.UserIOHandler;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -38,7 +37,7 @@ public class HypersonicIOFactory extends IOFactory {
     /** A sql <code>DataSource</code>. */
     private final DataSource dataSource;
 
-	/**
+    /**
      * Create a HypersonicIOFactory [Concrete Factory]
      * 
      */
@@ -108,12 +107,12 @@ public class HypersonicIOFactory extends IOFactory {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.IOFactory#createLibraryHandler()
+     * @see com.thinkparity.ophelia.model.io.IOFactory#createMigratorHandler()
+     *
      */
     @Override
-    public LibraryIOHandler createLibraryHandler() {
-        throw Assert
-                .createNotYetImplemented("HypersonicIOFactory#createLibraryHandler");
+    public MigratorIOHandler createMigratorHandler() {
+        return (MigratorIOHandler) createHandler("MigratorIOHandler");
     }
 
     /**
@@ -122,15 +121,6 @@ public class HypersonicIOFactory extends IOFactory {
     @Override
     public ProfileIOHandler createProfileHandler() {
         return (ProfileIOHandler) createHandler("ProfileIOHandler");
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.io.IOFactory#createReleaseHandler()
-     */
-    @Override
-    public ReleaseIOHandler createReleaseHandler() {
-        throw Assert
-                .createNotYetImplemented("HypersonicIOFactory#createReleaseHandler");
     }
 
     /**

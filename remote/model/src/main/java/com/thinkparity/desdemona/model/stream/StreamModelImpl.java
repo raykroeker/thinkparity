@@ -11,12 +11,12 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
-import com.thinkparity.desdemona.util.MD5Util;
 
 import org.jivesoftware.util.JiveProperties;
 
@@ -268,9 +268,8 @@ final class StreamModelImpl extends AbstractModelImpl {
         /*
          * NOTE A stream id is a UUID
          */
-        final String hashString = new StringBuffer()
-            .append(UUIDGenerator.nextUUID())
-            .toString();
-        return MD5Util.md5Hex(hashString.getBytes());
+        final StringBuffer hashString = new StringBuffer()
+            .append(UUIDGenerator.nextUUID());
+        return MD5Util.md5Hex(hashString.toString());
     }
 }

@@ -145,7 +145,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
             audit(session, event);
 
             auditMetaData(session, event,
-                    MetaDataType.USER_ID, MetaDataKey.TEAM_MEMBER, event.getTeamMember().getLocalId());
+                    MetaDataType.LONG, MetaDataKey.TEAM_MEMBER, event.getTeamMember().getLocalId());
 
             session.commit();
         }
@@ -163,7 +163,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
             audit(session, event);
 
             auditMetaData(session, event,
-                    MetaDataType.USER_ID, MetaDataKey.TEAM_MEMBER, event.getTeamMember().getLocalId());
+                    MetaDataType.LONG, MetaDataKey.TEAM_MEMBER, event.getTeamMember().getLocalId());
 
             session.commit();
         }
@@ -202,7 +202,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			audit(session, event);
 
 			auditMetaData(session, event,
-					MetaDataType.USER_ID, MetaDataKey.CLOSED_BY, event.getClosedBy().getLocalId());
+                    MetaDataType.LONG, MetaDataKey.CLOSED_BY, event.getClosedBy().getLocalId());
 
 			session.commit();
 		}
@@ -241,7 +241,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			audit(session, event);
 
             auditMetaData(session, event,
-                    MetaDataType.USER_ID, MetaDataKey.RECEIVED_FROM, event.getReceivedFrom().getLocalId());
+                    MetaDataType.LONG, MetaDataKey.RECEIVED_FROM, event.getReceivedFrom().getLocalId());
 
             session.commit();
 		}
@@ -262,7 +262,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			audit(session, event);
 
 			auditMetaData(session, event,
-					MetaDataType.USER_ID, MetaDataKey.DENIED_BY, event.getDeniedBy().getLocalId());
+                    MetaDataType.LONG, MetaDataKey.DENIED_BY, event.getDeniedBy().getLocalId());
 			
 			session.commit();
 		}
@@ -282,7 +282,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			audit(session, event);
 
 			auditMetaData(session, event,
-					MetaDataType.USER_ID, MetaDataKey.REQUESTED_BY, event.getRequestedBy().getLocalId());
+                    MetaDataType.LONG, MetaDataKey.REQUESTED_BY, event.getRequestedBy().getLocalId());
 
 			session.commit();
 		}
@@ -300,7 +300,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
             auditVersion(session, event, event.getArtifactVersionId());
 
             auditMetaData(session, event,
-                    MetaDataType.USER_ID, MetaDataKey.PUBLISHED_BY,
+                    MetaDataType.LONG, MetaDataKey.PUBLISHED_BY,
                     readLocalId(session, event.getPublishedBy()));
             auditMetaData(session, event,
                     MetaDataType.CALENDAR, MetaDataKey.PUBLISHED_ON,
@@ -326,7 +326,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
             auditVersion(session, event, event.getArtifactVersionId());
 
             auditMetaData(session, event,
-                    MetaDataType.USER_ID, MetaDataKey.REACTIVATED_BY, event.getReactivatedBy().getLocalId());
+                    MetaDataType.LONG, MetaDataKey.REACTIVATED_BY, event.getReactivatedBy().getLocalId());
             session.commit();
         }
         catch(final HypersonicException hx) {
@@ -347,7 +347,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			auditVersion(session, event, event.getArtifactVersionId());
 
             auditMetaData(session, event,
-                    MetaDataType.USER_ID, MetaDataKey.RECEIVED_BY,
+                    MetaDataType.LONG, MetaDataKey.RECEIVED_BY,
                     readLocalId(session, event.getReceivedBy()));
             auditMetaData(session, event,
                     MetaDataType.CALENDAR, MetaDataKey.RECEIVED_ON,
@@ -371,7 +371,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			audit(session, event);
 
 			auditMetaData(session, event,
-					MetaDataType.USER_ID, MetaDataKey.RECEIVED_FROM, event.getReceivedFrom().getLocalId());
+                    MetaDataType.LONG, MetaDataKey.RECEIVED_FROM, event.getReceivedFrom().getLocalId());
 
 			session.commit();
 		}
@@ -412,10 +412,10 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			audit(session, event);
 
 			auditMetaData(session, event,
-					MetaDataType.USER_ID, MetaDataKey.REQUESTED_BY, event.getRequestedBy().getLocalId());
+                    MetaDataType.LONG, MetaDataKey.REQUESTED_BY, event.getRequestedBy().getLocalId());
 
 			auditMetaData(session, event,
-					MetaDataType.USER_ID, MetaDataKey.REQUESTED_FROM, event.getRequestedFrom().getLocalId());
+                    MetaDataType.LONG, MetaDataKey.REQUESTED_FROM, event.getRequestedFrom().getLocalId());
 
 			session.commit();
 		}
@@ -438,7 +438,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
             auditVersion(session, event, event.getArtifactVersionId());
 
             auditMetaData(session, event,
-                    MetaDataType.USER_ID, MetaDataKey.CONFIRMED_BY, event.getConfirmedBy().getLocalId());
+                    MetaDataType.LONG, MetaDataKey.CONFIRMED_BY, event.getConfirmedBy().getLocalId());
 
             session.commit();
         }
@@ -460,7 +460,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			auditVersion(session, event, event.getArtifactVersionId());
 
 			auditMetaData(session, event,
-					MetaDataType.USER_ID, MetaDataKey.SENT_TO, event.getSentTo().getLocalId());
+                    MetaDataType.LONG, MetaDataKey.SENT_TO, event.getSentTo().getLocalId());
 
 			session.commit();
 		}
@@ -482,7 +482,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			auditVersion(session, event, event.getArtifactVersionId());
 
 			auditMetaData(session, event,
-                    MetaDataType.USER_ID, MetaDataKey.SENT_TO, event.getSentTo().getLocalId());
+                    MetaDataType.LONG, MetaDataKey.SENT_TO, event.getSentTo().getLocalId());
 
 			session.commit();
 		}

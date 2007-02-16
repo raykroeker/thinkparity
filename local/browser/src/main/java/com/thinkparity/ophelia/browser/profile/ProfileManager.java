@@ -36,7 +36,6 @@ public class ProfileManager {
             fileSystemRoot = new File(System.getProperty("thinkparity.profile.root"));
         } else {
             switch(OSUtil.getOS()) {
-                case WINDOWS_2000:
                 case WINDOWS_XP:
                     final StringBuffer win32Path = new StringBuffer()
                             .append(System.getenv("APPDATA"))

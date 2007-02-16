@@ -124,16 +124,26 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public DocumentVersionLock lockVersion(final DocumentVersion version);
 
+    /**
+     * Open the document draft input stream.
+     *
+     * @param documentId
+     *      A document id <code>Long</code>.
+     * @return A document draft content <code>InputStream</code>.
+     */
+    public InputStream openDraft(final Long documentId);
+
 	/**
      * Open an input stream to read a document version. Note: It is a good idea
      * to buffer the input stream.
      * 
      * @param documentId
-     *            A document id.
-     * @return An input stream.
+     *      A document id <code>Long</code>.
+     * @param versionId
+     *      A document version id <code>Long</code>.
+     * @return A document version content <code>InputStream</code>.
      */
-	public InputStream openVersionStream(final Long documentId,
-            final Long versionId);
+	public InputStream openVersion(final Long documentId, final Long versionId);
 
     /**
      * Read a document.

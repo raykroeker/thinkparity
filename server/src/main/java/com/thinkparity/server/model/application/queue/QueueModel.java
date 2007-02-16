@@ -59,19 +59,27 @@ public class QueueModel extends AbstractModel<QueueModelImpl> {
 		super(new QueueModelImpl(session));
 	}
 
-    public void createEvent(final JabberId userId, final JabberId eventUserId,
-            final XMPPEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().createEvent(userId, eventUserId, event);
-        }
-    }
-
+    /**
+     * Delete an event for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param eventId
+     *            The event id <code>String</code>.
+     */
 	public void deleteEvent(final JabberId userId, final String eventId) {
         synchronized (getImplLock()) {
             getImpl().deleteEvent(userId, eventId);
         }
     }
 
+    /**
+     * Read events for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List</code> of <code>XMPPEvent</code>s.
+     */
 	public List<XMPPEvent> readEvents(final JabberId userId) {
         synchronized (getImplLock()) {
             return getImpl().readEvents(userId);

@@ -11,7 +11,7 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public enum MetaDataType {
 
-	BOOLEAN(0), CALENDAR(1), JABBER_ID(2), LONG(3), STRING(4), USER_ID(5);
+	BOOLEAN(0), CALENDAR(1), INTEGER(2), JABBER_ID(3), LONG(4), STRING(5), UNIQUE_ID(6);
 
 	/**
 	 * Resolve the meta data type by it's id.
@@ -24,10 +24,11 @@ public enum MetaDataType {
 		switch(id) {
 		case 0: return BOOLEAN;
 		case 1: return CALENDAR;
-		case 2: return JABBER_ID;
-		case 3: return LONG;
-		case 4: return STRING;
-        case 5: return USER_ID;
+        case 2: return INTEGER;
+		case 3: return JABBER_ID;
+		case 4: return LONG;
+		case 5: return STRING;
+        case 6: return UNIQUE_ID;
 		default:
 			throw Assert.createUnreachable("UNKNOWN META DATA TYPE");
 		}

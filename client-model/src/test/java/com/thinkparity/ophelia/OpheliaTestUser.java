@@ -41,6 +41,9 @@ public class OpheliaTestUser extends User {
     /** A test user. */
     public static final OpheliaTestUser JUNIT_Z;
 
+    /** A system user. */
+    public static final OpheliaTestUser THINKPARITY;
+
     /** The test users' password. */
     private static final String PASSWORD = "parity";
 
@@ -50,6 +53,7 @@ public class OpheliaTestUser extends User {
         JUNIT_X = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.x");
         JUNIT_Y = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.y");
         JUNIT_Z = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.z");
+        THINKPARITY = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "thinkparity");
     }
 
     /** The test user's <code>Context</code>. */

@@ -58,7 +58,7 @@ public final class Ticket298Test extends TicketTestCase {
         // ensure the contents are equal
         final DocumentVersion dv_odt_latest = readDocumentLatestVersion(datum.junit, d_odt.getId());
         final InputStream dv_odt_latest_stream =
-            getDocumentModel(datum.junit).openVersionStream(d_odt.getId(),
+            getDocumentModel(datum.junit).openVersion(d_odt.getId(),
                     dv_odt_latest.getVersionId());
         getDocumentModel(datum.junit).open(d_odt.getId(), new Opener() {
             public void open(final File file) {

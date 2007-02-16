@@ -20,6 +20,8 @@ import com.thinkparity.ophelia.model.document.DocumentModelImpl;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.index.IndexModelImpl;
 import com.thinkparity.ophelia.model.index.InternalIndexModel;
+import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
+import com.thinkparity.ophelia.model.migrator.MigratorModelImpl;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.profile.ProfileModelImpl;
 import com.thinkparity.ophelia.model.script.InternalScriptModel;
@@ -152,6 +154,16 @@ public final class InternalModelFactory {
     public final InternalIndexModel getIndexModel() {
         return (InternalIndexModel) newModelProxy(
                 InternalIndexModel.class, IndexModelImpl.class);
+    }
+
+    /**
+     * Obtain an internal migrator model.
+     * 
+     * @return An instance of <code>InternalMigratorModel</code>.
+     */
+    public final InternalMigratorModel getMigratorModel() {
+        return (InternalMigratorModel) newModelProxy(
+                InternalMigratorModel.class, MigratorModelImpl.class);
     }
 
     /**

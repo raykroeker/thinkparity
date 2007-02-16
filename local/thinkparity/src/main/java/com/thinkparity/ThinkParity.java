@@ -28,8 +28,9 @@ public class ThinkParity {
      *            The command line arguments.
      */
     public static void main(String[] args) {
-        try { new ThinkParity(); }
-        catch(final Throwable t) {
+        try {
+            new ThinkParity().executeImage();
+        } catch (final Throwable t) {
             t.printStackTrace(System.err);
             System.exit(1);
         }
@@ -93,29 +94,48 @@ public class ThinkParity {
         checkProperty(System.getProperties(), key);
     }
 
-    /** thinkParity image. */
-    private Image image;
+    /** The configuration <code>Properties</code>. */
+    private final Properties properties;
 
-    /** thinkParity properties. */
-    private Properties properties;
+    /** The configuration <code>File</code>. */
+    private final File propertiesFile;
 
-    /** Create ThinkParity. */
-    private ThinkParity() throws IOException {
+    /**
+     * Create ThinkParity.
+     *
+     */
+    private ThinkParity() {
         super();
-        checkSystemProperty(PropertyNames.ParityInstall);
-        loadProperties();
-        executeImage();
-        saveProperties();
+        checkSystemProperty(PropertyNames.ThinkParity.Dir);
+        this.properties = new Properties();
+        this.propertiesFile = new File(Directories.ThinkParity.Dir, FileNames.ThinkParityProperties);
+        ThinkParity.checkFileExists(propertiesFile);
     }
 
     /**
-     * Create a new image; mount it and execute it.
+     * Execute an image.
      *
      */
-    private void executeImage() {
-        this.image = new Image(properties);
-        this.image.mount();
-        this.image.execute();
+    private void executeImage() throws IOException {
+        loadProperties();
+        final Image image = new Image(getProperty(PropertyNames.ThinkParity.Image));
+        try {
+            image.mount();
+            image.execute();
+        } finally {
+            storeProperties();
+        }
+    }
+
+    /**
+     * Obtain a property.
+     * 
+     * @param key
+     *            A property key <code>String</code>.
+     * @return A property value <code>String</code>.
+     */
+    private String getProperty(final String key) {
+        return properties.getProperty(key);
     }
 
     /**
@@ -123,10 +143,6 @@ public class ThinkParity {
      *
      */
     private void loadProperties() throws IOException {
-        final File propertiesFile = new File(
-                Directories.ParityInstall, FileNames.ThinkParityProperties);
-        checkFileExists(propertiesFile);
-        this.properties = new Properties();
         PropertiesUtil.load(properties, propertiesFile);
     }
 
@@ -134,8 +150,7 @@ public class ThinkParity {
      * Save thinkParity.properties.
      *
      */
-    private void saveProperties() throws IOException {
-        properties.setProperty(PropertyNames.ParityImageName, image.getName());
-        PropertiesUtil.store(properties, new File(Directories.ParityInstall, FileNames.ThinkParityProperties), Sundry.ThinkParityHeader);
+    private void storeProperties() throws IOException {
+        PropertiesUtil.store(properties, propertiesFile, Sundry.ThinkParityHeader);
     }
 }

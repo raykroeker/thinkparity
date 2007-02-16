@@ -26,10 +26,10 @@ public class QueueSql extends AbstractSql {
 
     /** Sql to create an event. */
     private static final String SQL_CREATE_EVENT =
-            new StringBuffer("insert into PARITY_EVENT_QUEUE ")
-            .append("(EVENT_ID,EVENT_XML,EVENT_DATE,USERNAME) ")
-            .append("values (?,?,?,?)")
-            .toString();
+        new StringBuffer("insert into PARITY_EVENT_QUEUE ")
+        .append("(EVENT_ID,EVENT_XML,EVENT_DATE,EVENT_PRIORITY,USERNAME) ")
+        .append("values (?,?,?,?,?)")
+        .toString();
 
     /** Sql to delete an event. */
     private static final String SQL_DELETE_EVENT =
@@ -55,7 +55,7 @@ public class QueueSql extends AbstractSql {
         new StringBuffer("select EVENT_ID,EVENT_DATE,EVENT_XML,USERNAME ")
         .append("from PARITY_EVENT_QUEUE PEQ ")
         .append("where PEQ.USERNAME=? ")
-        .append("order by EVENT_DATE asc")
+        .append("order by EVENT_PRIORITY asc,EVENT_DATE asc")
         .toString();
 
 	/**
@@ -73,7 +73,8 @@ public class QueueSql extends AbstractSql {
             eventWriter.write(event, writer);
             session.setString(2, writer.toString());
             session.setCalendar(3, event.getDate());
-            session.setString(4, userId.getUsername());
+            session.setInt(4, event.getPriority().priority());
+            session.setString(5, userId.getUsername());
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not create queue event.");
 

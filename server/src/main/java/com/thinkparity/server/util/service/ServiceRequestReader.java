@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -15,6 +16,9 @@ import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -130,7 +134,42 @@ public interface ServiceRequestReader {
      */
     public List<String> readNames();
 
+    /**
+     * Read the operating system.
+     * 
+     * @param name
+     *            A name <code>String</code>.
+     * @return An <code>OS</code>.
+     */
+    public OS readOs(final String name);
+
+    /**
+     * Read a product from the service request.
+     * 
+     * @param name
+     *            The name <code>String</code>.
+     * @return A <code>Product</code>.
+     */
+    public Product readProduct(final String name);
+
     public ProfileVCard readProfileVCard(final String name);
+    /**
+     * Read release datum.
+     * 
+     * @param name
+     *            The datum name <code>String</code>.
+     * @return The datum value <code>Release</code>.
+     */
+    public Release readRelease(final String name);
+
+    /**
+     * Read resource datum.
+     * 
+     * @param name
+     *            The datum name <code>String</code>.
+     * @return The datum value <code>List</code> of <code>Resource</code>s.
+     */
+    public List<Resource> readResources(final String name);
 
     /**
      * Read string data.

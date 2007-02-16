@@ -18,6 +18,9 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -33,6 +36,26 @@ import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
  * @version 1.1.2.1
  */
 public interface ServiceResponseWriter {
+
+    /**
+     * Write the product to the service response.
+     * 
+     * @param name
+     *            A name <code>String</code>.
+     * @param value
+     *            A <code>Product</code> value.
+     */
+    public void write(final String name, final Product value);
+
+    /**
+     * Write the release to the service response.
+     * 
+     * @param name
+     *            A name <code>String</code>.
+     * @param value
+     *            A <code>Release</code> value.
+     */
+    public void write(final String name, final Release value);
 
     /**
      * Write the artifact type to the internet query.
@@ -158,6 +181,16 @@ public interface ServiceResponseWriter {
      */
     public void writeProfileEMails(final String name,
             List<ProfileEMail> value);
+
+    /**
+     * Write the resources to the query.
+     * 
+     * @param name
+     *            The element name <code>String</code>.
+     * @param values
+     *            The element <code>Resource</code> values.
+     */
+    public void writeResources(final String name, final List<Resource> values);
 
     public void writeStreamSession(final String name, StreamSession value);
 

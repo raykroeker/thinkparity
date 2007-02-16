@@ -155,7 +155,7 @@ public final class BackupTest extends BackupTestCase {
                 
                 logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\" stream.", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getName(), dv_backup.getVersionId());
                 dv_stream_backup = getBackupModel(datum.junit_z).openDocumentVersion(dv_backup.getArtifactUniqueId(), dv_backup.getVersionId());
-                dv_stream_local = getDocumentModel(datum.junit_z).openVersionStream(dv_local.getArtifactId(), dv_local.getVersionId());
+                dv_stream_local = getDocumentModel(datum.junit_z).openVersion(dv_local.getArtifactId(), dv_local.getVersionId());
                 try {
                     assertEquals("Document version content has not been properly backed up.", dv_stream_local, dv_stream_backup);
                 } catch (final IOException iox) {

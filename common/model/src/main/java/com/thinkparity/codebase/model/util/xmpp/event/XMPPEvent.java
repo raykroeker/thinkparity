@@ -6,8 +6,9 @@ package com.thinkparity.codebase.model.util.xmpp.event;
 import java.util.Calendar;
 
 /**
- * <b>Title:</b><br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity XMPP Event<br>
+ * <b>Description:</b>An xmpp event.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
@@ -18,6 +19,9 @@ public abstract class XMPPEvent {
 
     /** The xmpp event id <code>String</code>. */
     private String id;
+
+    /** The xmpp event priority. */
+    private Priority priority;
 
     /**
      * Create XMPPEvent.
@@ -46,6 +50,15 @@ public abstract class XMPPEvent {
     }
 
     /**
+     * Obtain priority.
+     *
+     * @return A Priority.
+     */
+    public Priority getPriority() {
+        return priority;
+    }
+
+    /**
      * Set date.
      *
      * @param date
@@ -63,5 +76,46 @@ public abstract class XMPPEvent {
      */
     public void setId(final String id) {
         this.id = id;
+    }
+
+    /**
+     * Set priority.
+     *
+     * @param priority
+     *		A Priority.
+     */
+    public void setPriority(Priority priority) {
+        this.priority = priority;
+    }
+
+    /**
+     * <b>Title:</b>XMPPEvent Priority<br>
+     * <b>Description:</b>The event priority class.<br>
+     */
+    public enum Priority {
+
+        HIGH(10), LOW(-10), NORMAL(0);
+
+        /** An <code>Integer</code> priority. */
+        private Integer priority;
+
+        /**
+         * Create Priority.
+         * 
+         * @param priority
+         *            An <code>Integer</code> priority.
+         */
+        private Priority(final Integer priority) {
+            this.priority = priority;
+        }
+
+        /**
+         * Obtain the priority. This is used when storing a priority.
+         * 
+         * @return The <code>Integer</code> priority.
+         */
+        public Integer priority() {
+            return priority;
+        }
     }
 }

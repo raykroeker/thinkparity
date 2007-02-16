@@ -183,6 +183,25 @@ public final class HypersonicSession {
             throw panic(sqlx);
 		}
 	}
+    /**
+     * Obtain the input stream from the result.
+     * 
+     * @param columnName
+     *            The column name.
+     * @return An input stream.
+     * @see ResultSet#getBinaryStream(String)
+     */
+    public InputStream getBinaryStream(final String columnName) {
+        assertConnectionIsOpen();
+        assertResultSetIsSet();
+        try {
+            final InputStream value = resultSet.getBinaryStream(columnName);
+            logColumnExtraction(columnName, value);
+            return resultSet.wasNull() ? null : value;
+        } catch (final SQLException sqlx) {
+            throw panic(sqlx);
+        }
+    }
 
     public Boolean getBoolean(final String columnName) {
         assertConnectionIsOpen();
@@ -443,6 +462,17 @@ public final class HypersonicSession {
             throw panic(sqlx);
 		}
 	}
+    public void setBinaryStream(final Integer index, final InputStream value,
+            final Integer valueLength) {
+        assertConnectionIsOpen();
+        assertPreparedStatementIsSet();
+        logColumnInjection(index, value, valueLength);
+        try {
+            preparedStatement.setBinaryStream(index, value, valueLength);
+        } catch (final SQLException sqlx) {
+            throw panic(sqlx);
+        }
+    }
 
 	public void setBoolean(final Integer index, final Boolean value) {
         assertConnectionIsOpen();
@@ -706,6 +736,21 @@ public final class HypersonicSession {
      */
     private void logColumnInjection(final Integer index, final Object columnValue) {
         LOGGER.logDebug("Inject {0}:{1}", index, columnValue);
+    }
+
+    /**
+     * Log the column name, value and extra data.
+     * 
+     * @param index
+     *            The column index <code>Integer</code>.
+     * @param columnValue
+     *            The column value <code>Object</code>.
+     * @param columnValueData
+     *            The column value data <code>Object</code>.
+     */
+    private void logColumnInjection(final Integer index,
+            final Object columnValue, final Object columnValueData) {
+        LOGGER.logDebug("Inject {0}:{1} - {2}", index, columnValue, columnValueData);
     }
 
     /**

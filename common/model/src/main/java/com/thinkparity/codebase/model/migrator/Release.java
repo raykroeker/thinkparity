@@ -4,142 +4,201 @@
  */
 package com.thinkparity.codebase.model.migrator;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import com.thinkparity.codebase.OS;
+
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
- * @version 1.1
+ * @version 1.1.2.1
  */
-public class Release {
+public class Release implements Comparable<Release> {
 
-    /** The artifact id. */
-    private String artifactId;
+    public static final Release THIS;
 
-    /** The creation date. */
-    private Calendar createdOn;
+    static {
+        THIS = new Release();
+    }
 
-    /** The group id. */
-    private String groupId;
+    /** A checksum <code>String</code>. */
+    private String checksum;
 
-    /** The id. */
+    /** A date <code>Calendar</code>. */
+    private Calendar date;
+
+    /** A release id <code>Long</code>. */
     private Long id;
 
-    /** The version. */
-    private String version;
+    /** A name <code>String</code>. */
+    private String name;
 
-    /** Create Release. */
-    public Release() { super(); }
+    /** An <code>OS</code>. */
+    private OS os;
 
-    /** @see java.lang.Object#equals(java.lang.Object) */
+    /** A product name <code>String</code>. */
+    private Product product;
+
+    /**
+     * Create Release.
+     *
+     */
+    public Release() {
+        super();
+    }
+
+    /**
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     *
+     */
+    public int compareTo(final Release o) {
+        return date.compareTo(o.date);
+    }
+
+
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     *
+     */
+    @Override
     public boolean equals(final Object obj) {
-        if(null != obj && obj instanceof Release) {
-            return ((Release) obj).getId().equals(id);
-        }
-        return false;
+        if (null == obj)
+            return false;
+        if (this == obj)
+            return true;
+        if (!getClass().equals(obj.getClass()))
+            return false;
+        final Release objRelease = (Release) obj;
+        return objRelease.name.equals(name) && objRelease.os.equals(os)
+                && objRelease.product.equals(product);
     }
 
     /**
-     * Obtain the artifactId
+     * Obtain checksum.
      *
-     * @return The artifact id.
+     * @return A String.
      */
-    public String getArtifactId() { return artifactId; }
-
-    /**
-     * Obtain the creation date.
-     *
-     * @return The creation date.
-     */
-    public Calendar getCreatedOn() { return createdOn; }
-
-    /**
-     * Obtain the group id
-     * 
-     * @return The group id.
-     */
-    public String getGroupId() { return groupId; }
-
-    /**
-     * Obtain the id
-     *
-     * @return The Long.
-     */
-    public Long getId() { return id; }
-
-    /**
-     * Obtain the version
-     *
-     * @return The version string.
-     */
-    public String getVersion() { return version; }
-
-    /** @see java.lang.Object#hashCode() */
-    public int hashCode() { return id.hashCode(); }
-
-    /**
-     * Determine if the release version is a snapshot.
-     *
-     * @return True if the release version is a snapshot.
-     */
-    public Boolean isSnapshot() {
-        return getVersion().endsWith("-SNAPSHOT");
+    public String getChecksum() {
+        return checksum;
     }
 
     /**
-     * Set the artifact id.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     */
-    public void setArtifactId(final String artifactId) {
-        this.artifactId = artifactId;
-    }
-
-    /**
-     * Set the creation date.
+     * Obtain date.
      *
-     * @param createdOn
-     *      The creation date.
+     * @return A Calendar.
      */
-    public void setCreatedOn(final Calendar createdOn) {
-        this.createdOn = createdOn;
+    public Calendar getDate() {
+        return date;
     }
 
     /**
-     * Set the group id.
-     * 
-     * @param groupId
-     *            The group id.
+     * Obtain id.
+     *
+     * @return A Long.
      */
-    public void setGroupId(final String groupId) { this.groupId = groupId; }
+    public Long getId() {
+        return id;
+    }
 
     /**
-     * Set the release id.
-     * 
+     * Obtain name.
+     *
+     * @return A String.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Obtain os.
+     *
+     * @return A OS.
+     */
+    public OS getOs() {
+        return os;
+    }
+
+    /**
+     * Obtain product.
+     *
+     * @return A Product.
+     */
+    public Product getProduct() {
+        return product;
+    }
+
+    /**
+     * @see java.lang.Object#hashCode()
+     *
+     */
+    @Override
+    public int hashCode() {
+        final int PRIME = 31;
+        int result = 1;
+        result = PRIME * result + ((name == null) ? 0 : name.hashCode());
+        result = PRIME * result + ((os == null) ? 0 : os.hashCode());
+        result = PRIME * result + ((product == null) ? 0 : product.hashCode());
+        return result;
+    }
+
+    /**
+     * Set checksum.
+     *
+     * @param checksum
+     *		A String.
+     */
+    public void setChecksum(final String checksum) {
+        this.checksum = checksum;
+    }
+
+    /**
+     * Set date.
+     *
+     * @param date
+     *		A Calendar.
+     */
+    public void setDate(final Calendar date) {
+        this.date = date;
+    }
+
+    /**
+     * Set id.
+     *
      * @param id
-     *            The release id..
+     *		A Long.
      */
-    public void setId(final Long id) { this.id = id; }
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
     /**
-     * Set version.
-     * 
-     * @param version
-     *            A version string.
+     * Set name.
+     *
+     * @param name
+     *		A String.
      */
-    public void setVersion(final String version) { this.version = version; }
+    public void setName(final String name) {
+        this.name = name;
+    }
 
-    /** @see java.lang.Object#toString() */
-    public String toString() {
-        final StringBuffer buffer = new StringBuffer(groupId)
-            .append(":").append(artifactId)
-            .append(":").append(version);
-        if(null != createdOn) {
-            buffer.append(":")
-                    .append(new SimpleDateFormat("yyyy MM dd HH:mm:ss")
-                    .format(getCreatedOn().getTime()));
-        }
-        return buffer.toString();
+    /**
+     * Set os.
+     *
+     * @param os
+     *		A OS.
+     */
+    public void setOs(final OS os) {
+        this.os = os;
+    }
+
+    /**
+     * Set product.
+     *
+     * @param product
+     *		A Product.
+     */
+    public void setProduct(final Product product) {
+        this.product = product;
     }
 }

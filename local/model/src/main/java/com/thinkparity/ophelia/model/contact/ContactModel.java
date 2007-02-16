@@ -78,12 +78,6 @@ public interface ContactModel {
     public void deleteOutgoingInvitation(final Long invitationId);
 
     /**
-     * Download the contacts from the server and create local contacts.
-     *
-     */
-    public void download();
-
-    /**
      * Read a list of contacts.
      * 
      * @return A list of contacts.

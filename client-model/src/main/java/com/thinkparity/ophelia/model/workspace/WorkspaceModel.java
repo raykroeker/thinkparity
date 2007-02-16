@@ -14,17 +14,18 @@ import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
 
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 
-import com.thinkparity.ophelia.model.ModelFactory;
+import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.ParityErrorTranslator;
 import com.thinkparity.ophelia.model.ParityUncheckedException;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookNames;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookPriorities;
 import com.thinkparity.ophelia.model.Constants.ThreadNames;
+import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.session.LoginMonitor;
-import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.workspace.impl.WorkspaceImpl;
 
@@ -85,6 +86,9 @@ public class WorkspaceModel {
         return new WorkspaceModel(environment);
     }
 
+    /** A thinkParity <code>Context</code>. */
+    private final Context context;
+
     /** A thinkParity <code>Environment</code>. */
     private final Environment environment;
 
@@ -94,6 +98,7 @@ public class WorkspaceModel {
      */
     protected WorkspaceModel(final Environment environment) {
         super();
+        this.context = new Context();
         this.environment = environment;
     }
 
@@ -161,21 +166,30 @@ public class WorkspaceModel {
 
     /**
      * Initialize the workspace. If the workspace fails to initialize; it will
-     * be deleted.
+     * be deleted. The login monitor will allow the client to capture incorrect
+     * passwords as well as confirmation of synchronization.
      * 
      * @param workspace
-     *            A thinkParity <code>Workspace</code>.
+     *            A <code>Workspace</code>.
+     * @param loginMonitor
+     *            A <code>LoginMonitor</code>.
      * @param credentials
-     *            A user's <code>Credentials</code>.
+     *            The user's login <code>Credentials</code>.
      */
     public void initialize(final Workspace workspace,
             final LoginMonitor loginMonitor, final Credentials credentials) {
         try {
-            final ModelFactory modelFactory = ModelFactory.getInstance(environment, workspace);
-            final SessionModel sessionModel = modelFactory.getSessionModel();
+            final InternalModelFactory modelFactory = InternalModelFactory.getInstance(context, environment, workspace);
+
+            // login
+            final InternalSessionModel sessionModel = modelFactory.getSessionModel();
             sessionModel.login(loginMonitor, credentials);
-            Assert.assertTrue("User was not logged in.", sessionModel.isLoggedIn());            
+            Assert.assertTrue("User was not logged in.", sessionModel.isLoggedIn());
+            // initialize migrator
+            modelFactory.getMigratorModel().initialize();
+            // download contacts
             modelFactory.getContactModel().download();
+
             findImpl(workspace).initialize();
         } catch (final Throwable t) {
             final WorkspaceImpl impl = findImpl(workspace);

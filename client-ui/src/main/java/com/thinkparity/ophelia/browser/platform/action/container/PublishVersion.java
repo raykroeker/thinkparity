@@ -98,7 +98,7 @@ public class PublishVersion extends AbstractAction {
     }
     
     /** A publish action worker object. */
-    private static class PublishVersionWorker extends ThinkParitySwingWorker {
+    private static class PublishVersionWorker extends ThinkParitySwingWorker<PublishVersion> {
         private final ArtifactModel artifactModel;
         private final List<Contact> contacts;
         private final Long containerId;

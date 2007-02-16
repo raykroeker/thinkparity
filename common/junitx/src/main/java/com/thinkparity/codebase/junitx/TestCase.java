@@ -3,6 +3,7 @@
  */
 package com.thinkparity.codebase.junitx;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,9 +14,11 @@ import java.text.MessageFormat;
 import java.util.Calendar;
 
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 
 /**
@@ -164,6 +167,26 @@ public abstract class TestCase extends junit.framework.TestCase {
 		}
 	}
 
+	/**
+     * Calculate a checksum for a file's contents.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @param buffer
+     *            The <code>Integer</code> size of a buffer to use.
+     * @return An MD5 checksum <code>String</code>.
+     */
+    protected String checksum(final File file, final Integer buffer)
+            throws IOException {
+        final InputStream stream = new BufferedInputStream(
+                new FileInputStream(file), buffer);
+        try {
+            return MD5Util.md5Hex(stream);
+        } finally {
+            stream.close();
+        }
+    }
+
     /**
 	 * Clear the session data.
 	 *
@@ -173,6 +196,23 @@ public abstract class TestCase extends junit.framework.TestCase {
 	}
 
 	/**
+     * Copy the input files to a target directory.
+     * 
+     * @param target
+     *            A target directory <code>File</code>.
+     */
+    protected void copyInputFiles(final File target) throws IOException {
+        assertNotNull("Target cannot be null.", target);
+        assertTrue(target.isDirectory(), "Target must be a directory.");
+        assertTrue(target.canRead(), "Target must be readable.");
+        assertTrue(target.canWrite(), "Target must be writable.");
+        final File[] inputFiles = getInputFiles();
+        for (final File inputFile : inputFiles) {
+            FileUtil.copy(inputFile, new File(target, inputFile.getName()));
+        }
+    }
+
+    /**
 	 * Create a test directory.
 	 * 
 	 * @param directoryName
@@ -259,6 +299,15 @@ public abstract class TestCase extends junit.framework.TestCase {
 	protected File[] getModFiles() throws IOException {
 		return TestCaseHelper.getModFiles();
 	}
+
+	/**
+     * Obtain the test case directory.
+     * 
+     * @return A test case specific directory <code>File</code>.
+     */
+    protected File getTestCaseDirectory() {
+        return testCaseHelper.getTestCaseDirectory();
+    }
 
     /**
 	 * Obtain random text of a given length.

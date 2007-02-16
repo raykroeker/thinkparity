@@ -74,7 +74,6 @@ import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
 import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
-import com.thinkparity.ophelia.model.util.Printer;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
@@ -721,6 +720,7 @@ public final class ContainerModelImpl extends
             auditContainerPublished(postPublish, draft,
                     postPublishVersion, event.getPublishedBy(),
                     publishedToIds, event.getPublishedOn());
+            // TODO this is incorrect here
             if (null == draft) {
                 notifyVersionPublished(postPublish, postPublishVersion,
                         publishedBy, remoteEventGenerator);
@@ -800,15 +800,13 @@ public final class ContainerModelImpl extends
      * @param printer
      *            An <code>Printer</code>.
      */
-    public void printDraft(final Long containerId, final Printer printer) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("printer", printer);
+    public void printDraft(final Long containerId,
+            final ContainerDraftPrinter printer) {
         try {
             final ContainerDraft draft = readDraft(containerId);
             final InternalDocumentModel documentModel = getDocumentModel();
             for (final Document document : draft.getDocuments()) {
-                documentModel.printDraft(document.getId(), printer);
+                printer.print(document, documentModel.openDraft(document.getId()));
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -826,18 +824,13 @@ public final class ContainerModelImpl extends
      *            An <code>Printer</code>.
      */
     public void printVersion(final Long containerId, final Long versionId,
-            final Printer printer) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("printer", printer);
+            final ContainerVersionPrinter printer) {
         try {
             final InternalDocumentModel documentModel = getDocumentModel();
             final List<DocumentVersion> documentVersions =
                 containerIO.readDocumentVersions(containerId, versionId);
             for (final DocumentVersion documentVersion : documentVersions) {
-                documentModel.printVersion(documentVersion.getArtifactId(),
-                        documentVersion.getVersionId(), printer);
+                printer.print(documentVersion, documentModel.openVersion(documentVersion.getArtifactId(), documentVersion.getVersionId()));
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -2317,7 +2310,7 @@ public final class ContainerModelImpl extends
                             documentNameGenerator.exportFileName(documentVersion));
                     Assert.assertTrue(file.createNewFile(),
                             "Cannot create file {0}.", file);
-                    stream = documentModel.openVersionStream(
+                    stream = documentModel.openVersion(
                             documentVersion.getArtifactId(),
                             documentVersion.getVersionId());
                     try {
@@ -3008,7 +3001,7 @@ public final class ContainerModelImpl extends
         for(final Document document : documents) {
             documentVersion = documentModel.readLatestVersion(document.getId());
             documentVersionStreams.put(documentVersion,
-                    documentModel.openVersionStream(
+                    documentModel.openVersion(
                             documentVersion.getArtifactId(),
                             documentVersion.getVersionId()));
         }

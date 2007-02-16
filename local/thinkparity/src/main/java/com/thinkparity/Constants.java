@@ -24,7 +24,9 @@ public final class Constants {
     }
 
     public static final class Directories {
-        public static final File ParityInstall = new File(System.getProperty(PropertyNames.ParityInstall));
+        public static final class ThinkParity {
+            public static final File Dir = new File(System.getProperty(PropertyNames.ThinkParity.Dir));
+        }
     }
 
     public static final class FileNames {
@@ -33,14 +35,21 @@ public final class Constants {
     }
 
     public static final class PropertyNames {
-        public static final String JavaLibraryPath = "java.library.path";
-        public static final String ParityImageClassPath = "parity.image.classpath";
-        public static final String ParityImageLastRun = "parity.image.lastrun";
-        public static final String ParityImageLibraryPath = "parity.image.librarypath";
-        public static final String ParityImageMain = "parity.image.main";
-        public static final String ParityImageMainArgs = "parity.image.mainargs";
-        public static final String ParityImageName = "parity.image.name";
-        public static final String ParityInstall = "thinkparity.install";
+        public static final class System {
+            public static final String JavaLibraryPath = "java.library.path";
+        }
+        public static final class ThinkParity {
+            public static final String Dir = "thinkparity-dir";
+            public static final String Image = "thinkparity.image";
+            public static final String ImageClassPath = "thinkparity.image-classpath";
+            public static final String ImageLastRun = "thinkparity.image-lastrun";
+            public static final String ImageLibraryPath = "thinkparity.image-librarypath";
+            public static final String ImageMain = "thinkparity.image-main";
+            public static final String ImageMainArgs = "thinkparity.image-mainargs";
+            public static final String ProductName = "thinkparity.product-name";
+            public static final String ReleaseName = "thinkparity.release-name";
+            public static final String ReleaseOs = "thinkparity.release-os";
+        }
     }
 
     public static final class Sundry {

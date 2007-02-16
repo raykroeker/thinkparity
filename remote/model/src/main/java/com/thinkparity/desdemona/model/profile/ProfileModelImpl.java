@@ -25,13 +25,13 @@ import com.thinkparity.codebase.model.profile.VerificationKey;
 import com.thinkparity.codebase.model.user.Feature;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.codec.MD5Util;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.model.session.Session;
-import com.thinkparity.desdemona.util.MD5Util;
 import com.thinkparity.desdemona.util.smtp.MessageFactory;
 import com.thinkparity.desdemona.util.smtp.TransportManager;
 
@@ -114,8 +114,7 @@ class ProfileModelImpl extends AbstractModelImpl {
                 getQueueModel().deleteEvents(userId);
 
             final Token newToken = new Token();
-            newToken.setValue(MD5Util.md5Hex(
-                    String.valueOf(currentTimeMillis()).getBytes()));
+            newToken.setValue(MD5Util.md5Hex(String.valueOf(currentTimeMillis())));
             userSql.updateProfileToken(userId, newToken);
             return userSql.readProfileToken(userId);
         } catch (final Throwable t) {

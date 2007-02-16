@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -19,6 +20,9 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
@@ -114,6 +118,17 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void createDraft(final List<JabberId> team, final UUID uniqueId);
 
+    /**
+     * Create a migrator stream for a list of resources.
+     * 
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @param resources
+     *            A <code>List</code> of <code>Resource</code>s.
+     */
+    public void createMigratorStream(final String streamId,
+            final List<Resource> resources);
+
     public String createStream(final StreamSession session);
 
 	/**
@@ -183,6 +198,19 @@ public interface InternalSessionModel extends SessionModel {
      *            A <code>StreamSession</code>.
      */
     public void deleteStreamSession(final StreamSession session);
+
+    /**
+     * Deploy a migrator release.
+     * 
+     * @param release
+     *            A <code>Release</code>.
+     * @param resources
+     *            A <code>List</code> of <code>Resource</code>s.
+     * @param streamId
+     *            A stream id <code>String</code>.
+     */
+    public void deployMigrator(final Product product, final Release release,
+            final List<Resource> resources, final String streamId);
 
     /**
      * Extend an invitation to a contact.
@@ -425,7 +453,56 @@ public interface InternalSessionModel extends SessionModel {
      */
     public JabberId readKeyHolder(final JabberId userId, final UUID uniqueId);
 
-	/**
+    /**
+     * Read the latest release.
+     * 
+     * @param productUniqueId
+     *            A product unique id <code>UUID</code>.
+     * @param os
+     *            An <code>OS</code>.
+     * @return A <code>Release</code>.
+     */
+    public Release readMigratorLatestRelease(final UUID productUniqueId,
+            final OS os);
+
+    /**
+     * Read a migrator product.
+     * 
+     * @param name
+     *            A product name.
+     * @return A <code>Product</code>.
+     */
+    public Product readMigratorProduct(final String name);
+
+    /**
+     * Read a migrator release.
+     * 
+     * @param productUniqueId
+     *            A product unique id <code>UUID</code>.
+     * @param name
+     *            A release name.
+     * @param os
+     *            An <code>OS</code>.
+     * @return A <code>Release</code>.
+     */
+    public Release readMigratorRelease(final UUID productUniqueId,
+            final String name, final OS os);
+
+    /**
+     * Read migrator release resources.
+     * 
+     * @param productUniqueId
+     *            A product unique id <code>UUID</code>.
+     * @param name
+     *            A release name.
+     * @param os
+     *            An <code>OS</code>.
+     * @return A <code>Release</code>.
+     */
+    public List<Resource> readMigratorResources(final UUID productUniqueId,
+            final String releaseName, final OS os);
+
+    /**
      * Read the user's profile.
      * 
      * @return A profile.

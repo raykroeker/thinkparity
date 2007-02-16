@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
 import java.text.ParseException;
 import java.util.Calendar;
+import java.util.UUID;
 
 import javax.sql.DataSource;
 
@@ -214,13 +215,16 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
             } catch (final ParseException px) {
                 throw translateError(px);
             }
+        case INTEGER:
+            return Integer.valueOf(session.getString(columnName));
+        case JABBER_ID:
+            return session.getQualifiedUsername(columnName);
 		case LONG:
-		case USER_ID:
 			return Long.valueOf(session.getString(columnName));
 		case STRING:
 			return session.getString(columnName);
-		case JABBER_ID:
-			return session.getQualifiedUsername(columnName);
+        case UNIQUE_ID:
+            return session.getUniqueId(columnName);
 		default:
 			throw Assert.createUnreachable("Unknown meta data type:  " + metaDataType);
 		}
@@ -309,16 +313,21 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
             final String valueGMTISO = DateUtil.toGMTISO((Calendar) value);
             session.setString(index, valueGMTISO);
             break;
+        case INTEGER:
+            session.setString(index, ((Integer) value).toString());
+            break;
+        case JABBER_ID:
+            session.setQualifiedUsername(index, (JabberId) value);
+            break;
 		case LONG:
-        case USER_ID:
 			session.setString(index, ((Long) value).toString());
 			break;
 		case STRING:
 			session.setString(index, (String) value);
 			break;
-		case JABBER_ID:
-			session.setQualifiedUsername(index, (JabberId) value);
-			break;
+        case UNIQUE_ID:
+            session.setUniqueId(index, (UUID) value);
+            break;
 		default: Assert.assertUnreachable("Unknown meta data type:  " + metaDataType);
 		}
 	}

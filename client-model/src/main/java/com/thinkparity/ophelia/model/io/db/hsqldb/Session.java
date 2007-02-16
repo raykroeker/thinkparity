@@ -30,7 +30,6 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
-import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
@@ -812,17 +811,6 @@ public final class Session {
 		}
 	}
 
-    public void setTypeAsInteger(final Integer index, final Library.Type value) {
-        assertConnectionIsOpen();
-        assertPreparedStatementIsSet();
-        logColumnInjection(index, value);
-        try {
-            preparedStatement.setInt(index, value.getId());
-        } catch (final SQLException sqlx) {
-            throw new HypersonicException(sqlx);
-        }
-    }
-
     public void setTypeAsInteger(final Integer index, final MetaDataType value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
@@ -878,16 +866,6 @@ public final class Session {
 		}
 	}
 
-    public void setTypeAsString(final Integer index, final Library.Type value) {
-        assertConnectionIsOpen();
-        assertPreparedStatementIsSet();
-        logColumnInjection(index, value);
-        try {
-            preparedStatement.setString(index, value.toString());
-        } catch (final SQLException sqlx) {
-            throw new HypersonicException(sqlx);
-        }
-    }
 
 	public void setTypeAsString(final Integer index, final MetaDataType value) {
 		assertConnectionIsOpen();

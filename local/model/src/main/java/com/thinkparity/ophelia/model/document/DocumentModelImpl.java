@@ -24,6 +24,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -31,8 +32,8 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.util.codec.MD5Util;
 
-import com.thinkparity.ophelia.model.DownloadMonitor;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.Constants.Compression;
@@ -45,7 +46,6 @@ import com.thinkparity.ophelia.model.events.DocumentEvent;
 import com.thinkparity.ophelia.model.events.DocumentListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
-import com.thinkparity.ophelia.model.util.MD5Util;
 import com.thinkparity.ophelia.model.util.Opener;
 import com.thinkparity.ophelia.model.util.Printer;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
@@ -187,7 +187,7 @@ public final class DocumentModelImpl extends
             final DocumentVersion latestVersion = readLatestVersion(documentId);
 
             final LocalFile draftFile = getLocalFile(document);
-            final InputStream versionStream = openVersionStream(
+            final InputStream versionStream = openVersion(
                     document.getId(), latestVersion.getVersionId());
             try {
                 draftFile.write(lock, versionStream,
@@ -468,7 +468,7 @@ public final class DocumentModelImpl extends
                 final DocumentVersion latestVersion = readLatestVersion(documentId);
                 final DocumentLock lock = lock(document);
                 try {
-                    final InputStream stream = openVersionStream(documentId,
+                    final InputStream stream = openVersion(documentId,
                             latestVersion.getVersionId());
                     try {
                         localFile.write(lock, stream,
@@ -506,7 +506,7 @@ public final class DocumentModelImpl extends
             if (!localFile.exists()) {
                 final DocumentVersionLock lock = lockVersion(version);
                 try {
-                    final InputStream stream = openVersionStream(
+                    final InputStream stream = openVersion(
                             documentId, versionId);
                     try {
                         localFile.write(lock, stream,
@@ -527,6 +527,24 @@ public final class DocumentModelImpl extends
 	}
 
     /**
+     * Open an input stream to read the document draft. Note: It is a good
+     * idea to buffer the input stream.
+     * 
+     * @param documentId
+     *            A document id.
+     * @return A document draft content <code>InputStream</code>.
+     */
+    public InputStream openDraft(final Long documentId) {
+        try {
+            final Document document = read(documentId);
+            final LocalFile localFile = getLocalFile(document);
+            return localFile.openInputStream();
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Open an input stream to read the document version. Note: It is a good
      * idea to buffer the input stream.
      * 
@@ -536,12 +554,12 @@ public final class DocumentModelImpl extends
      *            A document version id.
      * @return A list of document versions and their streams.
      */
-    public InputStream openVersionStream(final Long documentId,
-            final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("documentId", documentId);
-        logger.logVariable("versionId", versionId);
-        return documentIO.openStream(documentId, versionId);
+    public InputStream openVersion(final Long documentId, final Long versionId) {
+        try {
+            return documentIO.openStream(documentId, versionId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
 	/**
@@ -1408,7 +1426,7 @@ public final class DocumentModelImpl extends
         final Document document = read(documentId);
         final LocalFile draftFile = getLocalFile(document);
         draftFile.delete(lock);
-        final InputStream inputStream = openVersionStream(documentId, versionId);
+        final InputStream inputStream = openVersion(documentId, versionId);
         final DocumentVersion version = readVersion(documentId, versionId);
         try {
             draftFile.write(lock, inputStream,

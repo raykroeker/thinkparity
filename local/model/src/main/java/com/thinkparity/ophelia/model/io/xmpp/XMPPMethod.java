@@ -26,6 +26,8 @@ import java.util.Map.Entry;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.ErrorHelper;
+import com.thinkparity.codebase.OS;
+import com.thinkparity.codebase.Constants.XmlRpc;
 import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
@@ -46,7 +48,9 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
-import com.thinkparity.codebase.model.migrator.Library;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
@@ -232,15 +236,6 @@ public class XMPPMethod extends IQ {
         this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
     }
 
-    public final void setLibraryParameters(final String listName, final String name,
-            final List<Library> values) {
-        final List<XMPPMethodParameter> parameters = new LinkedList<XMPPMethodParameter>();
-        for(final Library value : values)
-            parameters.add(new XMPPMethodParameter(name, Library.class, value));
-
-        this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
-    }
-
     public final void setLongParameters(final String listName, final String name,
             final List<Long> values) {
         final List<XMPPMethodParameter> parameters = new LinkedList<XMPPMethodParameter>();
@@ -270,10 +265,6 @@ public class XMPPMethod extends IQ {
         parameters.add(new XMPPMethodParameter(name, JabberId.class, value));
     }
 
-    public final void setParameter(final String name, final Library.Type value) {
-        parameters.add(new XMPPMethodParameter(name, Library.Type.class, value));
-    }
-
     /**
      * Set a named parameter.
      * 
@@ -286,8 +277,20 @@ public class XMPPMethod extends IQ {
         parameters.add(new XMPPMethodParameter(name, Long.class, value));
     }
 
+    public final void setParameter(final String name, final OS value) {
+        parameters.add(new XMPPMethodParameter(name, OS .class, value));
+    }
+
+    public final void setParameter(final String name, final Product value) {
+        parameters.add(new XMPPMethodParameter(name, Product.class, value));
+    }
+
     public final void setParameter(final String name, final ProfileEMail value) {
         parameters.add(new XMPPMethodParameter(name, ProfileEMail.class, value));
+    }
+
+    public final void setParameter(final String name, final Release value) {
+        parameters.add(new XMPPMethodParameter(name, Release.class, value));
     }
 
     /**
@@ -340,6 +343,14 @@ public class XMPPMethod extends IQ {
      */
     public final void setParameter(final String name, final UUID value) {
         parameters.add(new XMPPMethodParameter(name, UUID.class, value));
+    }
+    
+    public final void setResourceParameters(final String name,
+            final List<Resource> values) {
+        final List<XMPPMethodParameter> parameters = new LinkedList<XMPPMethodParameter>();
+        for(final Resource value : values)
+            parameters.add(new XMPPMethodParameter(XmlRpc.LIST_ITEM, Resource.class, value));
+        this.parameters.add(new XMPPMethodParameter(name, List.class, parameters));
     }
 
     public final void setTeamMembersParameter(final String name,
@@ -420,6 +431,8 @@ public class XMPPMethod extends IQ {
                     .append(getParameterXML(new XMPPMethodParameter("versionId", Long.class, dvc.getVersion().getVersionId())))
                     .append(getParameterXML(new XMPPMethodParameter("bytes", byte[].class, dvc.getContent())))
                     .toString();
+        } else if (parameter.javaType.equals(EMail.class)) {
+            return parameter.javaValue.toString();
         } else if (parameter.javaType.equals(Contact.class)
                 || parameter.javaType.equals(User.class)
                 || parameter.javaType.equals(TeamMember.class)) {
@@ -442,8 +455,6 @@ public class XMPPMethod extends IQ {
             return ((JabberId) parameter.javaValue).getQualifiedJabberId();
         } else if (parameter.javaType.equals(Long.class)) {
             return parameter.javaValue.toString();
-        } else if (parameter.javaType.equals(Library.Type.class)) {
-            return parameter.javaValue.toString();
         } else if (parameter.javaType.equals(List.class)) {
             final List<XMPPMethodParameter> listItems = (List<XMPPMethodParameter>) parameter.javaValue;
             final StringBuffer xmlValue = new StringBuffer("");
@@ -464,10 +475,24 @@ public class XMPPMethod extends IQ {
                 }
             }
             return xmlValue.toString();
+        } else if (parameter.javaType.equals(OS.class)) {
+            return ((OS) parameter.javaValue).name();
         } else if (parameter.javaType.equals(String.class)) {
             return parameter.javaValue.toString();
         } else if (parameter.javaType.equals(UUID.class)) {
             return parameter.javaValue.toString();
+        } else if (Product.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (Release.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (Resource.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
         } else if (UserVCard.class.isAssignableFrom(parameter.javaType)) {
             final StringWriter xmlWriter = new StringWriter();
             XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
@@ -663,6 +688,24 @@ public class XMPPMethod extends IQ {
                     parser.next();
                     parser.next();
                     return container;
+                } else if (javaType.equals(Product.class)) {
+                    Product product = null;
+                    product = (Product) xstreamUtil.unmarshal(new SmackXppReader(parser), product);
+                    parser.next();
+                    parser.next();
+                    return product;
+                } else if (javaType.equals(Release.class)) {
+                    Release javaValue = null;
+                    javaValue = (Release) xstreamUtil.unmarshal(new SmackXppReader(parser), javaValue);
+                    parser.next();
+                    parser.next();
+                    return javaValue;
+                } else if (javaType.equals(Resource.class)) {
+                    Resource javaValue = null;
+                    javaValue = (Resource) xstreamUtil.unmarshal(new SmackXppReader(parser), javaValue);
+                    parser.next();
+                    parser.next();
+                    return javaValue;
                 } else if (javaType.equals(TeamMember.class)) {
                     TeamMember teamMember = null;
                     teamMember = xstreamUtil.unmarshalTeamMember(new SmackXppReader(parser), teamMember);

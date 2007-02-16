@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="common/codebase/src/main/java"/>
-	<classpathentry kind="src" path="common/model/src/main/java"/>
 	<classpathentry kind="src" path="local/browser/src/main/java"/>
 	<classpathentry kind="src" path="local/model/src/main/java"/>
 	<classpathentry kind="src" path="local/thinkparity/src/main/java"/>
-	<classpathentry kind="src" output="target/test-classes" path="common/junitx/src/main/java"/>
-	<classpathentry kind="src" output="target/test-classes" path="common/codebase/src/test/java"/>
-	<classpathentry kind="src" output="target/test-classes" path="common/model/src/test/java"/>
 	<classpathentry kind="src" output="target/test-classes" path="local/browser/src/test/java"/>
 	<classpathentry kind="src" output="target/test-classes" path="local/model/src/test/java"/>
 	<classpathentry kind="lib" path="vendor/commons-codec/1.3/commons-codec.jar" sourcepath="vendor/commons-codec/1.3/commons-codec-sources.jar"/>
@@ -36,7 +31,13 @@
 	<classpathentry kind="lib" path="vendor/jotm/2.0.10/howl.jar"/>
 	<classpathentry kind="lib" path="vendor/jotm/2.0.10/jotm_jrmp_stubs.jar"/>
 	<classpathentry kind="lib" path="vendor/groovy/1.0/groovy.jar"/>
-	<classpathentry kind="lib" path="vendor/jdic/0.9.1/linux/jdic.jar"/>
 	<classpathentry kind="lib" path="vendor/jdic_icon/0.1.1/linux/jdic_icon.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
+	<classpathentry kind="lib" path="vendor/jdic/20061102/linux/jdic.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="ophelia/vendor/i686/linux/jdic/20061102"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="vendor/fop/0.20.5/batik.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

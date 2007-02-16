@@ -161,7 +161,10 @@ public interface Platform extends ApplicationListener {
      */
     public void removeListener(final LifeCycleListener listener);
 
-    /** Restart the platform. */
+    /**
+     * Restart the platform.
+     * 
+     */
     public void restart();
 
     /**
@@ -185,12 +188,6 @@ public interface Platform extends ApplicationListener {
      *
      */
     public void start();
-
-    /**
-     * Update the browser platform.
-     *
-     */
-    public void update();
 
     /** Connection status. */
     public enum Connection { OFFLINE, ONLINE }

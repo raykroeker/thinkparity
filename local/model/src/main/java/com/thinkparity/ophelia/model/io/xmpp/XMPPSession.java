@@ -13,7 +13,6 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Credentials;
 
@@ -105,17 +104,6 @@ public class XMPPSession {
     }
 
     /**
-     * Obtain a library list result value.
-     * 
-     * @param name
-     *            The result name.
-     * @return The result value.
-     */
-    public List<Library> getLibraries(final String name) {
-        return xmppMethodResponse.readResultLibraries(name);
-    }
-
-    /**
      * Obatain a release list result value.
      * 
      * @param name
@@ -124,10 +112,6 @@ public class XMPPSession {
      */
     public List<Release> getReleases(final String name) {
         return xmppMethodResponse.readResultReleases(name);
-    }
-
-    public Library.Type getLibraryType(final String name) {
-        return xmppMethodResponse.readResultLibraryType(name);
     }
 
     /**
@@ -199,12 +183,6 @@ public class XMPPSession {
         assertMethod("[SET LONG PARAMETERS]");
         debugLongParameters(listName, name, longs);
         xmppMethod.setLongParameters(listName, name, longs);
-    }
-
-    public void setParameter(final String name, final Library.Type value) {
-        assertMethod("[SET PARAMETER]");
-        debugParameter(name, value);
-        xmppMethod.setParameter(name, value);
     }
 
     /**
@@ -289,8 +267,6 @@ public class XMPPSession {
 
     private final void debugLongParameters(final String listName,
             final String name, final List<Long> values) {}
-
-    private void debugParameter(final String name, final Library.Type value) {}
 
     /**
      * Debug a long parameter.

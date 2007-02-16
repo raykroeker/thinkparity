@@ -18,11 +18,13 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEv
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEvent;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
+import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.util.xmpp.event.SessionListener;
 import com.thinkparity.ophelia.model.util.xmpp.event.XMPPEventListener;
@@ -130,6 +132,12 @@ class SessionModelEventDispatcher {
                 logger.logApiId();
                 getContainerModel().handlePublished(event);
             }});
+        xmppSession.addListener(ProductReleaseDeployedEvent.class,
+                new XMPPEventListener<ProductReleaseDeployedEvent>() {
+            public void handleEvent(final ProductReleaseDeployedEvent event) {
+                logger.logApiId();
+                getMigratorModel().handleProductReleaseDeployed(event);
+            }});
         xmppSession.addListener(new SessionListener() {
             public void sessionEstablished() {
                 logger.logApiId();
@@ -156,6 +164,10 @@ class SessionModelEventDispatcher {
 
     private InternalContainerModel getContainerModel() {
         return modelFactory.getContainerModel();
+    }
+
+    private InternalMigratorModel getMigratorModel() {
+        return modelFactory.getMigratorModel();
     }
 
     private InternalSessionModel getSessionModel() {

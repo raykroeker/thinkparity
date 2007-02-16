@@ -14,8 +14,7 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.stream.StreamReader;
 import com.thinkparity.codebase.model.stream.StreamSession;
-
-import com.thinkparity.ophelia.model.util.MD5Util;
+import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.desdemona.DesdemonaTestUser;
 

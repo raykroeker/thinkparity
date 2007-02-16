@@ -230,6 +230,48 @@ public abstract class FileUtil {
 					0, fileName.lastIndexOf(Separator.Period.toString()));
 		return fileName;
 	}
+	/**
+     * Obtain the relative path of the file within the root using
+     * <code>File.separatorChar</code> as the separator.
+     * 
+     * @param root
+     *            A root directory <code>File</code>.
+     * @param file
+     *            A <code>File</code>.
+     * @return A relative path <code>String</code>.
+     */
+    public static String getRelativePath(final File root, final File file) {
+        return getRelativePath(root, file, File.separatorChar);
+    }
+
+	/**
+     * Obtain the relative path of the file within the root.
+     * 
+     * @param root
+     *            A root directory <code>File</code>.
+     * @param file
+     *            A <code>File</code>.
+     * @param separatorChar
+     *            The separator character to use in the relative path.
+     * @return A relative path <code>String</code>.
+     */
+    public static String getRelativePath(final File root, final File file,
+            final char separatorChar) {
+        if (null == root)
+            throw new NullPointerException("Root cannot be null.");
+        if (null == file)
+            throw new NullPointerException("File cannot be null.");
+        if (!root.isDirectory())
+            throw new IllegalArgumentException("Root must be a directory.");
+        final String rootPath = root.getAbsolutePath();
+        final String filePath = file.getAbsolutePath();
+        if (!filePath.startsWith(rootPath))
+            throw new IllegalArgumentException(MessageFormat.format(
+                    "Path {0} does not contain {1}.", filePath, rootPath));
+        String relativePath = filePath.replace(rootPath, "");
+        relativePath = relativePath.replace(File.separatorChar, separatorChar);
+        return relativePath;
+    }
 
     /**
      * Test a potential directory name for validity.

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
@@ -20,6 +21,9 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
@@ -247,6 +251,26 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createMigratorStream(java.lang.String, java.util.List)
+     *
+     */
+    public void createMigratorStream(final String streamId,
+            final List<Resource> resources) {
+        logger.logApiId();
+        logger.logVariable("streamId", streamId);
+        logger.logVariable("resources", resources);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                xmppSession.createMigratorStream(localUserId(),
+                        streamId, resources);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     public String createStream(final StreamSession session) {
         logger.logApiId();
         logger.logVariable("session", session);
@@ -399,6 +423,25 @@ public final class SessionModelImpl extends Model<SessionListener>
             }
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+	/**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deployMigratorRelease(java.util.UUID)
+     *
+     */
+    public void deployMigrator(final Product product,
+            final Release release, final List<Resource> resources,
+            final String streamId) {
+        try {
+            assertOnline();
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                xmppSession.deployMigrator(localUserId(), product, release,
+                        resources, streamId);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 
@@ -1072,6 +1115,76 @@ public final class SessionModelImpl extends Model<SessionListener>
 	}
 
 	/**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorLatestRelease(java.util.UUID, com.thinkparity.codebase.OS)
+     *
+     */
+    public Release readMigratorLatestRelease(final UUID productUniqueId, final OS os) {
+        try {
+            assertOnline();
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readMigratorLatestRelease(localUserId(),
+                        productUniqueId, os);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorProduct(java.lang.String)
+     *
+     */
+    public Product readMigratorProduct(final String name) {
+        try {
+            assertOnline();
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readMigratorProduct(localUserId(), name);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorRelease(java.lang.String)
+     *
+     */
+    public Release readMigratorRelease(final UUID productUniqueId,
+            final String name, final OS os) {
+        try {
+            assertOnline();
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readMigratorRelease(localUserId(),
+                        productUniqueId, name, os);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorResources(java.util.UUID, java.lang.String, com.thinkparity.codebase.OS)
+     *
+     */
+    public List<Resource> readMigratorResources(final UUID productUniqueId,
+            final String releaseName, final OS os) {
+        try {
+            assertOnline();
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readMigratorResources(localUserId(),
+                        productUniqueId, releaseName, os);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Read the logged in user's profile.
      * 
      * @return A profile.

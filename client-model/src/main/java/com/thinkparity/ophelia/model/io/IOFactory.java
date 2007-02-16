@@ -13,9 +13,8 @@ import com.thinkparity.ophelia.model.io.handler.ContactIOHandler;
 import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
 import com.thinkparity.ophelia.model.io.handler.DocumentHistoryIOHandler;
 import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
-import com.thinkparity.ophelia.model.io.handler.LibraryIOHandler;
+import com.thinkparity.ophelia.model.io.handler.MigratorIOHandler;
 import com.thinkparity.ophelia.model.io.handler.ProfileIOHandler;
-import com.thinkparity.ophelia.model.io.handler.ReleaseIOHandler;
 import com.thinkparity.ophelia.model.io.handler.SystemMessageIOHandler;
 import com.thinkparity.ophelia.model.io.handler.UserIOHandler;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPIOFactory;
@@ -111,12 +110,12 @@ public abstract class IOFactory {
 	 */
 	public abstract DocumentHistoryIOHandler createDocumentHistoryIOHandler();
 
-	/**
-     * Create a library io handler.
+    /**
+     * Create a migrator handler.
      * 
-     * @return A library io handler.
+     * @return An instance of <code>MigratorIOHandler</code>.
      */
-    public abstract LibraryIOHandler createLibraryHandler();
+    public abstract MigratorIOHandler createMigratorHandler();
 
     /**
      * Create a thinkParity profile db io handler.
@@ -124,13 +123,6 @@ public abstract class IOFactory {
      * @return A thinkParity profile db io handler.
      */
     public abstract ProfileIOHandler createProfileHandler();
-
-    /**
-     * Create a release io handler.
-     * 
-     * @return A release io handler.
-     */
-    public abstract ReleaseIOHandler createReleaseHandler();
 
     /**
 	 * Create a system message io handler.

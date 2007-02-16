@@ -398,7 +398,7 @@ public class TestCaseHelper {
 	 * 
 	 * @return The directory for the test case.
 	 */
-	private File getTestCaseDirectory() {
+	File getTestCaseDirectory() {
 		if(null == testCaseDirectory) {
 			testCaseDirectory =
 				new File(testSession.getSessionDirectory(), testCase.getName());

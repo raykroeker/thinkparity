@@ -45,15 +45,22 @@ class QueueModelImpl extends AbstractModelImpl {
 
     void createEvent(final JabberId userId, final JabberId eventUserId,
             final XMPPEvent event) {
+        createEvent(userId, eventUserId, event, XMPPEvent.Priority.NORMAL);
+    }
+
+    void createEvent(final JabberId userId, final JabberId eventUserId,
+            final XMPPEvent event, final XMPPEvent.Priority priority) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("eventUserId", eventUserId);
         logger.logVariable("event", event);
+        logger.logVariable("priority", priority);
         try {
             assertIsAuthenticatedUser(userId);
 
             event.setDate(currentDateTime());
             event.setId(buildEventId(eventUserId));
+            event.setPriority(priority);
             queueSql.createEvent(eventUserId, event, new XMPPEventWriter() {
                 public void write(final XMPPEvent event, final Writer writer) {
                     toXML(event, writer);

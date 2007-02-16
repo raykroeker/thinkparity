@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="codebase/src/main/java"/>
+	<classpathentry kind="src" path="codebase/src/test/java"/>
+	<classpathentry kind="src" path="model/src/main/java"/>
+	<classpathentry kind="src" path="model/src/test/java"/>
+	<classpathentry kind="src" path="junitx/src/main/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="vendor/commons-codec/1.3/commons-codec.jar"/>
+	<classpathentry exported="true" kind="lib" path="vendor/dom4j/1.6.1/dom4j.jar"/>
+	<classpathentry kind="lib" path="vendor/jotm/2.0.10/jotm.jar"/>
+	<classpathentry kind="lib" path="vendor/jotm/2.0.10/jta-spec1_0_1.jar"/>
+	<classpathentry exported="true" kind="lib" path="vendor/junit/3.8.1/junit.jar"/>
+	<classpathentry exported="true" kind="lib" path="vendor/log4j/1.2.13/log4j.jar"/>
+	<classpathentry kind="lib" path="vendor/jotm/2.0.10/ow_carol.jar"/>
+	<classpathentry kind="lib" path="vendor/jotm/2.0.10/xapool.jar"/>
+	<classpathentry exported="true" kind="lib" path="vendor/xstream/1.2.1/xstream.jar"/>
+	<classpathentry exported="true" kind="lib" path="vendor/xpp3/1.1.3.4.O/xpp3.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

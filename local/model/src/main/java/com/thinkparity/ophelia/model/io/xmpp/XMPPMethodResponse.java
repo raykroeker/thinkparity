@@ -19,8 +19,9 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.migrator.Library;
+import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.stream.StreamSession;
@@ -63,7 +64,7 @@ public class XMPPMethodResponse extends IQ {
         return (byte[]) readResult(name);
     }
 
-    public Boolean readResultBoolean(final String name) {
+    public final Boolean readResultBoolean(final String name) {
         return (Boolean) readResult(name);
     }
 
@@ -144,27 +145,19 @@ public class XMPPMethodResponse extends IQ {
      *            The result name.
      * @return The result value.
      */
-    public List<Library> readResultLibraries(final String name) {
-        final List<Object> genericLibraries = (List<Object>) readResult(name);
-        final List<Library> libraries = new LinkedList<Library>();
-        for(final Object genericLibrary : genericLibraries)
-            libraries.add((Library) genericLibrary);
-        return libraries;
-    }
-
-    public Library.Type readResultLibraryType(final String name) {
-        return (Library.Type) readResult(name);
+    public Long readResultLong(final String name) {
+        return (Long) readResult(name);
     }
 
     /**
-     * Read a result value.
+     * Read a result product.
      * 
      * @param name
-     *            The result name.
-     * @return The result value.
+     *            The result name <code>String</code>.
+     * @return The result value <code>Product</code>.
      */
-    public Long readResultLong(final String name) {
-        return (Long) readResult(name);
+    public Product readResultProduct(final String name) {
+        return (Product) readResult(name);
     }
 
     public List<ProfileEMail> readResultProfileEMails(final String name) {
@@ -175,6 +168,10 @@ public class XMPPMethodResponse extends IQ {
         return (ProfileVCard) readResult(name);
     }
 
+    public final Release readResultRelease(final String name) {
+        return (Release) readResult(name);
+    }
+
     public List<Release> readResultReleases(final String name) {
         final List<Object> genericReleases = (List<Object>) readResult(name);
         final List<Release> releases = new LinkedList<Release>();
@@ -182,6 +179,10 @@ public class XMPPMethodResponse extends IQ {
             releases.add((Release) genericRelease);
         }
         return releases;
+    }
+
+    public List<Resource> readResultResources(final String name) {
+        return (List<Resource>) readResult(name);
     }
 
     public StreamSession readResultStreamSession(final String name) {

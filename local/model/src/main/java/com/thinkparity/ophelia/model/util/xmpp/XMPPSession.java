@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -18,6 +19,9 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
@@ -171,6 +175,20 @@ public interface XMPPSession {
     public void createDraft(final JabberId userId, final List<JabberId> team,
             final UUID uniqueId);
 
+    public void createMigratorProduct(final JabberId userId,
+            final Product product);
+
+    /**
+     * Create a migrator stream for a list of resources.
+     * 
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @param resources
+     *            A <code>List</code> of <code>Resource</code>s.
+     */
+    public void createMigratorStream(final JabberId userId,
+            final String streamId, final List<Resource> resources);
+
     /**
      * Create a stream.
      * 
@@ -279,6 +297,24 @@ public interface XMPPSession {
      */
     public void deleteStreamSession(final JabberId userId,
             final StreamSession session);
+
+    /**
+     * Deploy a migrator release.
+     * 
+     * @param userId
+     *            A user id <coder>JabberId</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>
+     * @param resources
+     *            A <code>List</code> of <code>Resource</code>s.
+     * @param streamId
+     *            A stream id <code>String</code>.
+     */
+    public void deployMigrator(final JabberId userId, final Product product,
+            final Release release, final List<Resource> resources,
+            final String streamId);
 
     /**
      * Extend an invitation for a user.
@@ -550,6 +586,58 @@ public interface XMPPSession {
      * @return A jabber id.
      */
 	public JabberId readKeyHolder(final JabberId userId, final UUID uniqueId);
+    /**
+     * Read the latest release.
+     * 
+     * @param productUniqueId
+     *            A product unique id <code>UUID</code>.
+     * @param os
+     *            An <code>OS</code>.
+     * @return A <code>Release</code>.
+     */
+    public Release readMigratorLatestRelease(final JabberId userId,
+            final UUID productUniqueId, final OS os);
+
+    /**
+     * Read a migrator product.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param name
+     *            A product name.
+     * @return A <code>Product</code>.
+     */
+    public Product readMigratorProduct(final JabberId userId, final String name);
+
+    /**
+     * Read a migrator release.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param productUniqueId
+     *            A product unique id <code>UUID</code>.
+     * @param name
+     *            A release name.
+     * @param os
+     *            An <code>OS</code>.
+     * @return A <code>Release</code>.
+     */
+    public Release readMigratorRelease(final JabberId userId,
+            final UUID productUniqueId, final String name, final OS os);
+
+    /**
+     * Read migrator release resources.
+     * 
+     * @param productUniqueId
+     *            A product unique id <code>UUID</code>.
+     * @param name
+     *            A release name.
+     * @param os
+     *            An <code>OS</code>.
+     * @return A <code>Release</code>.
+     */
+    public List<Resource> readMigratorResources(final JabberId userId,
+            final UUID productUniqueId, final String releaseName, final OS os);
 
     /**
      * Read the user's profile.

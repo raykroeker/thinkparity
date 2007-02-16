@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 
 import com.thinkparity.codebase.DateFormatUtil;
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.Constants.XmlRpc;
 import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
@@ -28,6 +29,9 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
@@ -467,6 +471,42 @@ public class ElementBuilder {
         }
     }
 
+    public static final Element addElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final Product value) {
+        if (null == value) {
+            return addNullElement(parent, name, Product.class);
+        } else {
+            final Element element = addElement(parent, name, value.getClass());
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
+            return element;
+        }
+    }
+
+    public static final Element addElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final Release value) {
+        if (null == value) {
+            return addNullElement(parent, name, Release.class);
+        } else {
+            final Element element = addElement(parent, name, value.getClass());
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
+            return element;
+        }
+    }
+
+    public static final Element addElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final Resource value) {
+        if (null == value) {
+            return addNullElement(parent, name, Resource.class);
+        } else {
+            final Element element = addElement(parent, name, value.getClass());
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
+            return element;
+        }
+    }
+
     /**
      * Add a list of string values.
      * 
@@ -570,6 +610,20 @@ public class ElementBuilder {
             final Element element = addElement(parent, parentName, List.class);
             for (final ProfileEMail value : values) {
                 addElement(element, name, value);
+            }
+            return element;
+        }
+    }
+
+    public static final Element addResourceElements(
+            final XStreamUtil xstreamUtil, final Element parent,
+            final String name, final List<Resource> values) {
+        if (values.size() < 1) {
+            return addNullElement(parent, name, List.class);
+        } else {
+            final Element element = addElement(parent, name, List.class);
+            for (final Resource value : values) {
+                addElement(xstreamUtil, element, XmlRpc.LIST_ITEM, value);
             }
             return element;
         }

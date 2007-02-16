@@ -42,7 +42,7 @@ public class OpenVersionStreamTest extends DocumentTestCase {
 	 */
 	public void testOpenVersion() {
 	    final InputStream inputStream =
-            datum.documentModel.openVersionStream(
+            datum.documentModel.openVersion(
                     datum.version.getArtifactId(), datum.version.getVersionId());
         final File outputFile = new File(getTestSession().getOutputDirectory(), datum.version.getName());
         OutputStream outputStream = null;

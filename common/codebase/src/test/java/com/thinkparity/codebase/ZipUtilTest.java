@@ -4,7 +4,8 @@
 package com.thinkparity.codebase;
 
 import java.io.File;
-import java.util.Vector;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * @author raykroeker@gmail.com
@@ -12,33 +13,42 @@ import java.util.Vector;
  */
 public class ZipUtilTest extends CodebaseTestCase {
 
-	private class Fixture {
-		private final File inputDirectory;
-		private final File zipFile;
-		private Fixture(final File inputDirectory, final File zipFile) {
-			super();
-			this.inputDirectory = inputDirectory;
-			this.zipFile = zipFile;
-		}
-	}
-
-	private Vector<Fixture> data;
+	private Fixture datum;
 
 	/**
-	 * Create a ZipUtilTest.
+	 * Create ZipUtilTest.
 	 * 
 	 */
-	public ZipUtilTest() { super("ZipUtilTest"); }
+	public ZipUtilTest() {
+        super("ZipUtilTest");
+	}
 
-	public void testCreateZipFile() {
-		try {
-			for(Fixture datum : data) {
-				ZipUtil.createZipFile(datum.zipFile, datum.inputDirectory);
-
-				assertTrue("Could not delete zip file.", datum.zipFile.delete());
-			}
-		}
-		catch(final Throwable t) { fail(createFailMessage(t)); }
+    /**
+     * Test zip creation/extraction.
+     *
+     */
+	public void testZipUtil() {
+        logger.logTrace("Test zip creation.");
+        final FileSystem inputFileSystem = new FileSystem(datum.inputDirectory);
+        try {
+    	    ZipUtil.createZipFile(datum.outputZipFile, datum.inputDirectory);
+        } catch (final FileNotFoundException fnfx) {
+            fail(createFailMessage(fnfx));
+        } catch (final IOException iox) {
+            fail(createFailMessage(iox));
+        }
+        logger.logTrace("Test zip extraction.");
+        final FileSystem outputFileSystem = new FileSystem(datum.outputDirectory);
+        try {
+            ZipUtil.extractZipFile(datum.outputZipFile, datum.outputDirectory);
+        } catch (final FileNotFoundException fnfx) {
+            fail(createFailMessage(fnfx));
+        } catch (final IOException iox) {
+            fail(createFailMessage(iox));
+        }
+        final File[] inputFiles = inputFileSystem.list("/", Boolean.TRUE);
+        final File[] outputFiles = outputFileSystem.list("/", Boolean.TRUE);
+        assertEquals("Input files do not match output files.", inputFiles.length, outputFiles.length);
 	}
 
 	/**
@@ -46,10 +56,23 @@ public class ZipUtilTest extends CodebaseTestCase {
 	 * 
 	 */
 	protected void setUp() throws Exception {
-		data = new Vector<Fixture>(1);
-		final File zipFile = new File(createDirectory("Output"), getName() + ".zip");
+        final FileSystem inputDirectoryFileSystem = new FileSystem(createDirectory("zipInput"));
+        inputDirectoryFileSystem.createDirectory("/level 1/level 2");
+        File file;
+        for (final File inputFile : getInputFiles()) {
+            file = new File(inputDirectoryFileSystem.getRoot(), inputFile.getName());
+            FileUtil.copy(inputFile, file);
 
-		data.add(new Fixture(getInputFilesDirectory(), zipFile));
+            file = new File(inputDirectoryFileSystem.find("/level 1"), inputFile.getName());
+            FileUtil.copy(inputFile, file);
+
+            file = new File(inputDirectoryFileSystem.find("/level 1/level 2"), inputFile.getName());
+            FileUtil.copy(inputFile, file);
+        }
+
+		final File outputZipFile = new File(getTestCaseDirectory(), "zipOutput.zip");
+        final File outputDirectory = createDirectory("zipExtract");
+        datum = new Fixture(inputDirectoryFileSystem.getRoot(), outputDirectory, outputZipFile);
 	}
 
 	/**
@@ -57,7 +80,19 @@ public class ZipUtilTest extends CodebaseTestCase {
 	 * 
 	 */
 	protected void tearDown() throws Exception {
-		data.clear();
-		data = null;
+		datum = null;
+	}
+
+	private class Fixture {
+		private final File inputDirectory;
+        private final File outputDirectory;
+        private final File outputZipFile;
+		private Fixture(final File inputDirectory, final File outputDirectory,
+                final File outputZipFile) {
+			super();
+			this.inputDirectory = inputDirectory;
+            this.outputDirectory = outputDirectory;
+			this.outputZipFile = outputZipFile;
+		}
 	}
 }

@@ -12,9 +12,7 @@ import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
-import com.thinkparity.ophelia.model.download.DownloadModel;
-import com.thinkparity.ophelia.model.install.InstallModel;
-import com.thinkparity.ophelia.model.migrator.ReleaseModel;
+import com.thinkparity.ophelia.model.migrator.MigratorModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.UserModel;
@@ -56,80 +54,125 @@ public class ModelFactory {
 		super();
 	}
 
-    public ArtifactModel getArtifactModel(final Class clasz) {
+    /**
+     * Obtain an artifact model.
+     * 
+     * @param clasz
+     *            The name of clasz will be used to obtain an appropriate model.
+     * @return An instance of <code>ArtifactModel</code>.
+     */
+    public final ArtifactModel getArtifactModel(final Class clasz) {
         return modelFactory.getArtifactModel();
     }
-    
-    public ContactModel getContactModel(final Class clasz) {
+    /**
+     * Obtain a contact model.
+     * 
+     * @param clasz
+     *            The name of clasz will be used to obtain an appropriate model.
+     * @return An instance of <code>ContactModel</code>.
+     */
+    public final ContactModel getContactModel(final Class clasz) {
         return modelFactory.getContactModel();
     }
-    
-    public ContainerModel getContainerModel(final Class clasz) {
+    /**
+     * Obtain a container model.
+     * 
+     * @param clasz
+     *            The name of clasz will be used to obtain an appropriate model.
+     * @return An instance of <code>ContainerModel</code>.
+     */
+    public final ContainerModel getContainerModel(final Class clasz) {
         return modelFactory.getContainerModel();
     }
 
-	public DocumentModel getDocumentModel(final Class clasz) {
+    /**
+     * Obtain a document model.
+     * 
+     * @param clasz
+     *            The name of clasz will be used to obtain an appropriate model.
+     * @return An instance of <code>DocumentModel</code>.
+     */
+	public final DocumentModel getDocumentModel(final Class clasz) {
 		return modelFactory.getDocumentModel();
 	}
     
     /**
-     * Obtain a download model.
+     * Obtain a migrator model.
      * 
      * @param clasz
-     *            A calling <code>Class</code>.
-     * @return A <code>DownloadModel</code>.
+     *            The name of clasz will be used to obtain an appropriate model.
+     * @return An instance of <code>MigratorModel</code>.
      */
-    public DownloadModel getDownloadModel(final Class clasz) {
-        return modelFactory.getDownloadModel();
+    public final MigratorModel getMigratorModel(final Class clasz) {
+        return modelFactory.getMigratorModel();
     }
 
-    public InstallModel getInstallModel(final Class clasz) {
-        return modelFactory.getInstallModel();
-    }
-
-    public Preferences getPreferences(final Class clasz) {
+	/**
+     * Obtain thinkParity <code>Preferences</code>.
+     * 
+     * @param clasz
+     *            The name of clasz will be used to obtain appropriate
+     *            preferences.
+     * @return An instance of <code>Preferences</code>.
+     */
+    public final Preferences getPreferences(final Class clasz) {
 		return preferences;
 	}
 
-	/**
-     * Obtain the thinkParity profileModel interface.
+    /**
+     * Obtain a profile model.
      * 
      * @param clasz
-     *            The model consumer.
-     * @return The thinkParity profileModel interface.
+     *            The name of clasz will be used to obtain an appropriate model.
+     * @return An instance of <code>ProfileModel</code>.
      */
-    public ProfileModel getProfileModel(final Class clasz) {
+    public final ProfileModel getProfileModel(final Class clasz) {
         return modelFactory.getProfileModel();
     }
 
-	public ReleaseModel getReleaseModel(final Class clasz) {
-        return modelFactory.getReleaseModel();
-    }
-
-	public SessionModel getSessionModel(final Class clasz) {
+    /**
+     * Obtain a session model.
+     * 
+     * @param clasz
+     *            The name of clasz will be used to obtain an appropriate model.
+     * @return An instance of <code>SessionModel</code>.
+     */
+	public final SessionModel getSessionModel(final Class clasz) {
 		return modelFactory.getSessionModel();
 	}
 
-	/**
-     * Obtain a parity user interface.
-     *
+    /**
+     * Obtain a user model.
+     * 
      * @param clasz
-     *      The name of the class will be used to obtain the user model.
-     * @return A parity user interface.
+     *            The name of clasz will be used to obtain an appropriate model.
+     * @return An instance of <code>UserModel</code>.
      */
-    public UserModel getUserModel(final Class clasz) {
+    public final UserModel getUserModel(final Class clasz) {
         return modelFactory.getUserModel();
     }
 
-	public Workspace getWorkspace(final Class clasz) {
+    /**
+     * Obtain workspace.
+     * 
+     * @param clasz
+     *            The name of clasz will be used to obtain an appropriate
+     *            workspace.
+     * @return An instance of <code>Workspace</code>.
+     */
+	public final Workspace getWorkspace(final Class clasz) {
 		return workspace;
 	}
 
-    /**
-	 * Initialize the model factory.
-	 * 
-	 */
-	public void initialize(final Environment environment,
+	/**
+     * Initialize the model factory.
+     * 
+     * @param environment
+     *            A thinkParity <code>Environment</code>.
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>.
+     */
+	public final void initialize(final Environment environment,
             final Workspace workspace) {
         Assert.assertIsNull("The model factory has already been initialized.",
                 this.workspace);

@@ -5,11 +5,16 @@
 package com.thinkparity.ophelia.browser.platform.action.container;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.IOException;
+
+import com.thinkparity.codebase.FileUtil;
 
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.util.Printer;
+import com.thinkparity.ophelia.model.container.ContainerDraftPrinter;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
@@ -51,8 +56,16 @@ public class PrintDraft extends AbstractAction {
         if (DesktopUtil.isPrintServiceAvailable()) {
             if (browser.confirm("ContainerPrintDraft.ConfirmPrintMessage", new Object[] {
                     container.getName() })) {
-                containerModel.printDraft(containerId, new Printer() {
-                    public void print(final File file) {
+                containerModel.printDraft(containerId, new ContainerDraftPrinter() {
+                    public void print(final Document document, final InputStream content) {
+                        final File file;
+                        try {
+                            file = File.createTempFile("", document.getName());
+                            file.deleteOnExit();
+                            FileUtil.write(content, file);
+                        } catch (final IOException iox) {
+                            throw translateError(iox);
+                        }
                         if (DesktopUtil.isPrintable(file)) {
                             try {
                                 DesktopUtil.print(file);
@@ -60,7 +73,7 @@ public class PrintDraft extends AbstractAction {
                                 throw translateError(dx);
                             }
                         } else {
-                            browser.displayErrorDialog("ErrorPrintDraftNotPrintable", new Object[] {container.getName()});         
+                            browser.displayErrorDialog("ErrorPrintDraftNotPrintable", new Object[] {document.getName()});         
                         }
                     }
                 });

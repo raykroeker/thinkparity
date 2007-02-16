@@ -20,6 +20,9 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -82,6 +85,22 @@ public final class IQWriter implements ServiceResponseWriter {
 
     public final Element toEvent() {
         return iq.getChildElement();
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#write(java.lang.String, com.thinkparity.codebase.model.migrator.Product)
+     *
+     */
+    public void write(final String name, final Product value) {
+        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#write(java.lang.String, com.thinkparity.codebase.model.migrator.Release)
+     *
+     */
+    public void write(final String name, final Release value) {
+        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
     }
 
     /**
@@ -261,6 +280,14 @@ public final class IQWriter implements ServiceResponseWriter {
             final List<ProfileEMail> value) {
         ElementBuilder.addProfileEMailElements(iq.getChildElement(), name,
                 name, value);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeResources(java.lang.String, java.util.List)
+     *
+     */
+    public void writeResources(final String name, final List<Resource> values) {
+        ElementBuilder.addResourceElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
     }
 
     public final void writeStreamSession(final String name, final StreamSession value) {

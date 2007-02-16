@@ -3,8 +3,9 @@
  */
 package com.thinkparity.ophelia.model;
 
+import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
@@ -30,25 +31,23 @@ import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.l10n.L18n;
-import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
-import com.thinkparity.codebase.model.migrator.Library;
-import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
-import com.thinkparity.codebase.model.stream.StreamReader;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.StreamWriter;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.ophelia.model.Constants.Versioning;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -65,7 +64,6 @@ import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.util.Base64;
-import com.thinkparity.ophelia.model.util.MD5Util;
 import com.thinkparity.ophelia.model.util.localization.Localization;
 import com.thinkparity.ophelia.model.util.localization.LocalizationContext;
 import com.thinkparity.ophelia.model.workspace.InternalWorkspaceModel;
@@ -116,9 +114,6 @@ public abstract class Model<T extends EventListener> extends
     /** A localization interface. */
 	protected final L18n l18n;
 
-	/** An apache logger. */
-	protected final Log4JWrapper logger;
-
 	/** A thinkParity <code>InternalModelFactory</code>. */
     protected InternalModelFactory modelFactory;
 
@@ -150,7 +145,6 @@ public abstract class Model<T extends EventListener> extends
 	protected Model() {
 		super();
         this.l18n = new Localization(LocalizationContext.MODEL);
-        this.logger = new Log4JWrapper(getClass());
         this.notifiers = new Vector<EventNotifier<T>>(3);
 	}
 
@@ -436,6 +430,26 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
+     * Calculate a checksum for a file's contents.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @param buffer
+     *            The <code>Integer</code> size of a buffer to use.
+     * @return An MD5 checksum <code>String</code>.
+     */
+    protected String checksum(final File file, final Integer buffer)
+            throws IOException {
+        final InputStream stream = new BufferedInputStream(
+                new FileInputStream(file), buffer);
+        try {
+            return MD5Util.md5Hex(stream);
+        } finally {
+            stream.close();
+        }
+    }
+
+    /**
      * Determine if the list of team members contains the user id..
      * 
      * @param team
@@ -487,9 +501,9 @@ public abstract class Model<T extends EventListener> extends
     protected Credentials createCredentials(final Credentials credentials) {
         final String cipherKey = getCipherKey();
         try {
-            getConfigurationHandler().create(ConfigurationKeys.PASSWORD, encrypt(cipherKey, credentials.getPassword()));
-            getConfigurationHandler().create(ConfigurationKeys.RESOURCE, encrypt(cipherKey, credentials.getResource()));
-            getConfigurationHandler().create(ConfigurationKeys.USERNAME, encrypt(cipherKey, credentials.getUsername()));
+            configurationIO.create(ConfigurationKeys.Credentials.PASSWORD, encrypt(cipherKey, credentials.getPassword()));
+            configurationIO.create(ConfigurationKeys.Credentials.RESOURCE, encrypt(cipherKey, credentials.getResource()));
+            configurationIO.create(ConfigurationKeys.Credentials.USERNAME, encrypt(cipherKey, credentials.getUsername()));
             return readCredentials();
         } catch (final Throwable t) {
             throw translateError(t);
@@ -505,7 +519,7 @@ public abstract class Model<T extends EventListener> extends
      */
     protected Token createToken(final Token token) {
         try {
-            getConfigurationHandler().create(ConfigurationKeys.TOKEN, encrypt(getCipherKey(), token.getValue()));
+            configurationIO.create(ConfigurationKeys.TOKEN, encrypt(getCipherKey(), token.getValue()));
             return readToken();
         } catch (final Throwable t) {
             throw translateError(t);
@@ -519,9 +533,9 @@ public abstract class Model<T extends EventListener> extends
     protected void deleteCredentials() {
         assertIsSetCredentials();
         try {
-            getConfigurationHandler().delete(ConfigurationKeys.PASSWORD);
-            getConfigurationHandler().delete(ConfigurationKeys.RESOURCE);
-            getConfigurationHandler().delete(ConfigurationKeys.USERNAME);
+            configurationIO.delete(ConfigurationKeys.Credentials.PASSWORD);
+            configurationIO.delete(ConfigurationKeys.Credentials.RESOURCE);
+            configurationIO.delete(ConfigurationKeys.Credentials.USERNAME);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -563,55 +577,6 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
-     * Download from the stream server.
-     * 
-     * @param downloadMonitor
-     *            A download monitor.
-     * @param streamMonitor
-     *            A <code>StreamMonitor</code>.
-     * @param streamId
-     *            A stream id <code>String</code>.
-     * @return The downloaded <code>File</code>.
-     * @throws IOException
-     */
-    protected final File downloadStream(final DownloadMonitor downloadMonitor,
-            final StreamMonitor streamMonitor, final String streamId,
-            final Long streamOffset) throws IOException {
-        final File streamFile = buildStreamFile(streamId);
-        final Long actualStreamOffset;
-        if (streamFile.length() < streamOffset) {
-            logger.logWarning("Cannot resume download for {0} at {1}.  Starting over.",
-                    streamId, streamOffset);
-            actualStreamOffset = 0L;
-        } else {
-            actualStreamOffset = streamOffset;
-        }
-        final FileOutputStream stream;
-        if (0 == actualStreamOffset) {
-            stream = new FileOutputStream(streamFile);
-            logger.logInfo("Starting download for {0}.", streamId);
-        } else {
-            stream = new FileOutputStream(streamFile, true);
-            logger.logInfo("Resuming download for {0} at {1}.", streamId,
-                    actualStreamOffset);
-        }
-
-        final StreamSession session = getSessionModel().createStreamSession();
-        final StreamReader reader = new StreamReader(streamMonitor, session);
-        try {
-            reader.open();
-            reader.read(streamId, stream, actualStreamOffset);
-        } finally {
-            try {
-                stream.close();
-            } finally {
-                reader.close();
-            }
-        }
-        return streamFile;
-    }
-
-    /**
      * Start a download from the stream server.
      * 
      * @param downloadMonitor
@@ -623,6 +588,8 @@ public abstract class Model<T extends EventListener> extends
      */
     protected final File downloadStream(final DownloadMonitor downloadMonitor,
             final String streamId) throws IOException {
+        final File streamFile = buildStreamFile(streamId);
+        final StreamSession streamSession = getSessionModel().createStreamSession();
         final StreamMonitor streamMonitor = new StreamMonitor() {
             long recoverChunkOffset = 0;
             long totalChunks = 0;
@@ -642,7 +609,8 @@ public abstract class Model<T extends EventListener> extends
                         recoverChunkOffset = totalChunks;
                         try {
                             // attempt to resume the download
-                            downloadStream(downloadMonitor, this, streamId,
+                            downloadStream(downloadMonitor, this,
+                                    streamSession, streamId, streamFile,
                                     Long.valueOf(recoverChunkOffset));
                         } catch (final IOException iox) {
                             throw translateError(iox);
@@ -655,7 +623,9 @@ public abstract class Model<T extends EventListener> extends
                 }
             }
         };
-        return downloadStream(downloadMonitor, streamMonitor, streamId, 0L);
+        downloadStream(downloadMonitor, streamMonitor, streamSession,
+                streamId, streamFile, 0L);
+        return streamFile;
     }
 
     /**
@@ -698,7 +668,7 @@ public abstract class Model<T extends EventListener> extends
         return modelFactory.getBackupModel();
     }
 
-    /**
+	/**
      * Obtain an internal contact model.
      * 
      * @return An instance of <code>InternalContactModel</code>.
@@ -725,7 +695,7 @@ public abstract class Model<T extends EventListener> extends
 		return modelFactory.getDocumentModel();
 	}
 
-	/**
+    /**
      * Obtain an internal index model.
      * 
      * @return An instance of <code>InternalIndexModel</code>.
@@ -740,32 +710,6 @@ public abstract class Model<T extends EventListener> extends
 	 * @return The model's localization.
 	 */
 	protected L18n getL18n() { return l18n; }
-
-    protected StringBuffer getLogId(final Library library) {
-        if(null == library) { return new StringBuffer("null"); }
-        else {
-            return new StringBuffer()
-                .append(library.getId())
-                .append(":").append(library.getGroupId())
-                .append(":").append(library.getArtifactId())
-                .append(":").append(library.getVersion())
-                .append(":").append(DateUtil.format(
-                        library.getCreatedOn(), DateUtil.DateImage.ISO));
-        }
-    }
-
-    protected StringBuffer getLogId(final Release release) {
-        if(null == release) { return new StringBuffer("null"); }
-        else {
-            return new StringBuffer()
-                .append(release.getId())
-                .append(":").append(release.getGroupId())
-                .append(":").append(release.getArtifactId())
-                .append(":").append(release.getVersion())
-                .append(":").append(DateUtil.format(
-                        release.getCreatedOn(), DateUtil.DateImage.ISO));
-        }
-    }
 
     /**
      * Obtain an internal profile model.
@@ -836,9 +780,10 @@ public abstract class Model<T extends EventListener> extends
     protected final void initialize(final Environment environment,
             final Workspace workspace) {
         this.environment = environment;
-        this.modelFactory = InternalModelFactory.getInstance(
-                getContext(), environment, workspace);
         this.workspace = workspace;
+
+        this.configurationIO = IOFactory.getDefault(workspace).createConfigurationHandler();
+        this.modelFactory = InternalModelFactory.getInstance(getContext(), environment, workspace);
         this.preferences = (null == workspace ? null : workspace.getPreferences());
     }
 
@@ -1017,9 +962,9 @@ public abstract class Model<T extends EventListener> extends
      */
     protected Credentials readCredentials() {
         final String cipherKey = getCipherKey();
-        final String password = getConfigurationHandler().read(ConfigurationKeys.PASSWORD);
-        final String resource = getConfigurationHandler().read(ConfigurationKeys.RESOURCE);
-        final String username = getConfigurationHandler().read(ConfigurationKeys.USERNAME);
+        final String password = configurationIO.read(ConfigurationKeys.Credentials.PASSWORD);
+        final String resource = configurationIO.read(ConfigurationKeys.Credentials.RESOURCE);
+        final String username = configurationIO.read(ConfigurationKeys.Credentials.USERNAME);
 
         if (null == username || null == password || null == resource) {
             return null;
@@ -1054,7 +999,7 @@ public abstract class Model<T extends EventListener> extends
      * @return The user's <code>Token</code>.
      */
     protected Token readToken() {
-        final String tokenValue = getConfigurationHandler().read(ConfigurationKeys.TOKEN);
+        final String tokenValue = configurationIO.read(ConfigurationKeys.TOKEN);
         if (null == tokenValue) {
             return null;
         } else {
@@ -1126,11 +1071,12 @@ public abstract class Model<T extends EventListener> extends
     protected void updateCredentials(final Credentials credentials) {
         final String cipherKey = "18273-4897-12-53974-816523-49-81623-95-4-91-8723-56974812-63498-612395-498-7125-349871265-47892-1539784-1523954-19-287356-4";
         try {
-            getConfigurationHandler().update(ConfigurationKeys.PASSWORD, encrypt(cipherKey, credentials.getPassword()));
-            getConfigurationHandler().update(ConfigurationKeys.RESOURCE, encrypt(cipherKey, credentials.getResource()));
-            getConfigurationHandler().update(ConfigurationKeys.USERNAME, encrypt(cipherKey, credentials.getUsername()));
+            configurationIO.update(ConfigurationKeys.Credentials.PASSWORD, encrypt(cipherKey, credentials.getPassword()));
+            configurationIO.update(ConfigurationKeys.Credentials.RESOURCE, encrypt(cipherKey, credentials.getResource()));
+            configurationIO.update(ConfigurationKeys.Credentials.USERNAME, encrypt(cipherKey, credentials.getUsername()));
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
-        catch(final Throwable t) { throw translateError(t); }
     }
 
     /**
@@ -1153,11 +1099,11 @@ public abstract class Model<T extends EventListener> extends
         }
         final Long actualStreamOffset;
         if (skipped == streamOffset.longValue()) {
-            logger.logInfo("Resuming upload for {0} at {1}.",
+            logger.logInfo("Resuming download for {0} at {1}.",
                     session, streamOffset);
             actualStreamOffset = streamOffset;
         } else {
-            logger.logWarning("Could not resume upload for {0} at {1}.  Starting over.",
+            logger.logWarning("Could not resume download for {0} at {1}.  Starting over.",
                     session, streamOffset);
             actualStreamOffset = 0L;
         }
@@ -1214,6 +1160,7 @@ public abstract class Model<T extends EventListener> extends
                 }
             }
         };
+        stream.mark(stream.available());
         return uploadStream(uploadMonitor, streamMonitor, session, stream,
                 streamSize, 0L);
     }
@@ -1299,18 +1246,6 @@ public abstract class Model<T extends EventListener> extends
      */
     private String getCipherKey() {
         return "18273-4897-12-53974-816523-49-81623-95-4-91-8723-56974812-63498-612395-498-7125-349871265-47892-1539784-1523954-19-287356-4";
-    }
-
-    /**
-     * Obtain the configuration io interface.
-     * 
-     * @return The configuraion io interface.
-     */
-    private ConfigurationIOHandler getConfigurationHandler() {
-        if(null == configurationIO) {
-            configurationIO = IOFactory.getDefault(workspace).createConfigurationHandler();
-        }
-        return configurationIO;
     }
 
     /**
@@ -1402,9 +1337,11 @@ public abstract class Model<T extends EventListener> extends
 
     /** Configuration keys. */
     private static class ConfigurationKeys {
-        private static final String PASSWORD = "PASSWORD";
-        private static final String RESOURCE = "RESOURCE";
         private static final String TOKEN = "TOKEN";
-        private static final String USERNAME = "USERNAME";
+        private class Credentials {
+            private static final String PASSWORD = "Credentials.PASSWORD";
+            private static final String RESOURCE = "Credentials.RESOURCE";
+            private static final String USERNAME = "Credentials.USERNAME";
+        }
     }
 }

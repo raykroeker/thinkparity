@@ -30,7 +30,6 @@ import com.thinkparity.codebase.model.util.jta.Transaction;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.Constants.FileNames;
-import com.thinkparity.ophelia.model.Constants.Files;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl;
@@ -170,7 +169,7 @@ public class WorkspaceImpl implements Workspace {
      */
     public File createTempFile(final String suffix) throws IOException {
         final File temp = initChild(DirectoryNames.Workspace.TEMP);
-        return File.createTempFile(Files.TEMP_FILE_PREFIX, suffix, temp);
+        return File.createTempFile(Constants.File.TEMP_FILE_PREFIX, suffix, temp);
     }
 
     /**

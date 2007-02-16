@@ -32,7 +32,7 @@ import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.Directories;
 import com.thinkparity.ophelia.browser.Constants.Java;
-import com.thinkparity.ophelia.browser.Constants.SystemPropertyNames;
+import com.thinkparity.ophelia.browser.Constants.PropertyNames;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.ophelia.browser.platform.application.Application;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationFactory;
@@ -42,10 +42,10 @@ import com.thinkparity.ophelia.browser.platform.application.window.WindowRegistr
 import com.thinkparity.ophelia.browser.platform.event.LifeCycleEvent;
 import com.thinkparity.ophelia.browser.platform.event.LifeCycleListener;
 import com.thinkparity.ophelia.browser.platform.firstrun.FirstRunHelper;
+import com.thinkparity.ophelia.browser.platform.migrator.MigratorHelper;
 import com.thinkparity.ophelia.browser.platform.online.OnlineHelper;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginHelper;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
-import com.thinkparity.ophelia.browser.platform.update.UpdateHelper;
 import com.thinkparity.ophelia.browser.profile.Profile;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
 
@@ -87,15 +87,6 @@ public class BrowserPlatform implements Platform {
         return SINGLETON;
     }
 
-    /**
-     * Obtain a log id for the platform class.
-     * 
-     * @return A log id.
-     */
-    private static StringBuffer getLogId(final String suffix) {
-        return new StringBuffer("[LBROWSER] [PLATFORM] ").append(suffix);
-    }
-
     /** The platform's log4j wrapper. */
 	protected final Log4JWrapper logger;
 
@@ -120,13 +111,16 @@ public class BrowserPlatform implements Platform {
      */
     private final ListenerHelper listenerHelper;
 
-	/** A thinkParity <code>Mode</code>. */
+	/** The platform migrator helper. */
+    private final MigratorHelper migratorHelper;
+
+    /** A thinkParity <code>Mode</code>. */
     private final Mode mode;
 
     /** The parity model factory. */
 	private final ModelFactory modelFactory;
 
-    /** The platform online helper. */
+	/** The platform online helper. */
     private final OnlineHelper onlineHelper;
 
 	/** The platform settings. */
@@ -135,11 +129,8 @@ public class BrowserPlatform implements Platform {
 	/** The platform plugin helper. */
     private final PluginHelper pluginHelper;
 
-	/** The parity preferences. */
+    /** The parity preferences. */
 	private final Preferences preferences;
-
-    /** The platform update helper. */
-    private final UpdateHelper updateHelper;
 
 	/** The thinkParity <code>WindowRegistry</code>. */
 	private final WindowRegistry windowRegistry;
@@ -173,7 +164,7 @@ public class BrowserPlatform implements Platform {
         this.listenerHelper = new ListenerHelper(this);
         this.onlineHelper = new OnlineHelper(this);
         this.pluginHelper = new PluginHelper(this);
-        this.updateHelper = new UpdateHelper(this);
+        this.migratorHelper = new MigratorHelper(this);
 	}
 
     /**
@@ -429,38 +420,42 @@ public class BrowserPlatform implements Platform {
         listenerHelper.addListener(listener);
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.Platform#restart() */
-    public void restart() { restart(System.getProperties()); }
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#restart()
+     *
+     */
+    public void restart() {
+        restart(System.getProperties());
+    }
 
-    /** @see com.thinkparity.ophelia.browser.platform.Platform#restart(java.util.Properties) */
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#restart(java.util.Properties)
+     *
+     */
     public void restart(final Properties properties) {
-        logApiId();
-        logVariable("properties", properties);
-
+        logger.logApiId();
+        logger.logVariable("properties", properties);
         // attach a process to the jvm shutdown
         final List<String> commands = new ArrayList<String>();
         commands.add(Java.EXECUTABLE);
         if(properties.containsKey("parity.image.name"))
             commands.add(Java.OPTION_PARITY_IMAGE.format(new Object[] {properties.getProperty("parity.image.name")}));
-        commands.add(Java.OPTION_PARITY_INSTALL.format(new Object[] {SystemPropertyNames.THINKPARITY_INSTALL, Directories.PARITY_INSTALL.getAbsolutePath()}));
-        Assert.assertNotYetImplemented("BrowserPlatform#restart");
+        commands.add(Java.OPTION_PARITY_INSTALL.format(new Object[] {PropertyNames.ThinkParity.DIR, Directories.ThinkParity.DIR.getAbsolutePath()}));
         commands.add(Java.OPTION_CLASS_PATH);
         commands.add(Java.OPTION_CLASS_PATH_VALUE);
         commands.add(Java.MAIN_CLASS);
         for (final String command : commands) {
-            logVariable("command", command);
+            logger.logVariable("command", command);
         }
-
         final ProcessBuilder pb = new ProcessBuilder();
         pb.command(commands);
-        logVariable("Directories.PARITY_INSTALL", Directories.PARITY_INSTALL);
-        pb.directory(Directories.PARITY_INSTALL);
-
+        pb.directory(Directories.ThinkParity.DIR);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                try { pb.start(); }
-                catch(final IOException iox) {
-                    throw new BrowserException(getLogId("[RESTARTING PLATFORM] [RESTART IO ERROR]").toString(), iox);
+                try {
+                    pb.start();
+                } catch (final IOException iox) {
+                    throw new BrowserException("Could not restart browser platform.", iox);
                 }
             }
         });
@@ -484,14 +479,15 @@ public class BrowserPlatform implements Platform {
 	public void start() {
 	    notifyLifeCycleStarting();
         logApiId();
-        if (isUpdateAvailable()) {
-            update();
+        if (!isWorkspaceInitialized()) {
+            initializeWorkspace();
+        } 
+        if (!isWorkspaceInitialized()) {
+            deleteWorkspace();
         } else {
-            if (!isWorkspaceInitialized()) {
-                initializeWorkspace();
-            } 
-            if (!isWorkspaceInitialized()) {
-                deleteWorkspace();
+            if (isMigrationPossible()) {
+                migrate();
+                restart();
             } else {
                 startPlugins();
                 startApplications();
@@ -500,16 +496,7 @@ public class BrowserPlatform implements Platform {
         notifyLifeCycleStarted();
 	}
 
-    /** Update the browser. */
-    public void update() {
-        logApiId();
-        updateHelper.update();
-    }
-
-    /**
-     * @see Log4JWrapper#logApiId()
-     */
-    protected final void logApiId() {
+	protected final void logApiId() {
         logger.logApiId();
     }
 
@@ -566,11 +553,13 @@ public class BrowserPlatform implements Platform {
     }
 
     /**
-     * Determine whether or not an update is available.
-     *
-     * @return True if a newer release is available.
+     * Determine if an update is available.
+     * 
+     * @return True if an update is available.
      */
-    private Boolean isUpdateAvailable() { return Boolean.FALSE; }
+    private boolean isMigrationPossible() {
+        return migratorHelper.isMigrationPossible().booleanValue();
+    }
 
     /**
      * Determine if the workspace has been initialized.
@@ -580,6 +569,14 @@ public class BrowserPlatform implements Platform {
     private Boolean isWorkspaceInitialized() {
         return WorkspaceModel.getInstance(environment).isInitialized(
                 modelFactory.getWorkspace(getClass()));
+    }
+
+    /**
+     * Migrate.
+     * 
+     */
+    private void migrate() {
+        migratorHelper.migrate();
     }
 
 	private void notifyLifeCycleEnded() {

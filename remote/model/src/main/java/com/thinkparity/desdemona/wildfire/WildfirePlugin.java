@@ -19,6 +19,7 @@ import com.thinkparity.desdemona.model.Version;
 import com.thinkparity.desdemona.model.archive.ArchiveModel;
 import com.thinkparity.desdemona.model.stream.StreamModel;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
+import com.thinkparity.desdemona.wildfire.util.SessionUtil;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.PropertyConfigurator;
@@ -28,13 +29,15 @@ import org.dom4j.io.XPP3Reader;
 import org.jivesoftware.util.JiveGlobals;
 import org.jivesoftware.util.JiveProperties;
 import org.jivesoftware.wildfire.IQRouter;
+import org.jivesoftware.wildfire.Session;
 import org.jivesoftware.wildfire.XMPPServer;
 import org.jivesoftware.wildfire.XMPPServerListener;
 import org.jivesoftware.wildfire.container.Plugin;
 import org.jivesoftware.wildfire.container.PluginClassLoader;
 import org.jivesoftware.wildfire.container.PluginManager;
+import org.jivesoftware.wildfire.event.SessionEventDispatcher;
+import org.jivesoftware.wildfire.event.SessionEventListener;
 import org.jivesoftware.wildfire.handler.IQHandler;
-
 
 /**
  * <b>Title:</b>thinkParity Jive Plugin<br>
@@ -45,22 +48,28 @@ import org.jivesoftware.wildfire.handler.IQHandler;
  */
 public class WildfirePlugin implements Plugin, XMPPServerListener {
 
-	/** An apache logger. */
+    /** An apache logger. */
     protected Log4JWrapper logger;
 
     /** The plugin's handlers. */
     private final List<IQHandler> handlers;
 
     /** The wildfire router. */
-	private final IQRouter router;
+    private final IQRouter router;
 
-	/** Create WildfirePlugin. */
-	public WildfirePlugin() {
-		super();
+    /** A wildfire <code>SessionEventListener</code>. */
+    private SessionEventListener sessionEventListener;
+
+    /** A <code>SessionUtil</code>. */
+    private SessionUtil sessionUtil;
+
+    /** Create WildfirePlugin. */
+    public WildfirePlugin() {
+        super();
         this.handlers = new LinkedList<IQHandler>();
-		this.router = XMPPServer.getInstance().getIQRouter();
+        this.router = XMPPServer.getInstance().getIQRouter();
         XMPPServer.getInstance().addServerListener(this);
-	}
+    }
 
     /**
      * @see org.jivesoftware.wildfire.container.Plugin#destroyPlugin()
@@ -68,7 +77,8 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      */
 	public void destroyPlugin() {
         stopStream();
-	    destroyHandlers();
+        destroyListeners();
+        destroyHandlers();
         final String message = getDestroyMessage();
         new Log4JWrapper(getClass()).logInfo(message);
         System.out.println(message);
@@ -96,9 +106,13 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 		logger.logInfo("{0}:{1}", "xmpp.socket.ssl.active", jiveProperties.get("xmpp.socket.ssl.active"));
 		logger.logInfo("{0}:{1}", "xmpp.socket.ssl.keypass", jiveProperties.get("xmpp.socket.ssl.keypass"));
 		logger.logInfo("{0}:{1}", "xmpp.socket.ssl.port", jiveProperties.get("xmpp.socket.ssl.port"));
+		logger.logInfo("{0}:{1}", "thinkparity.archive.root", jiveProperties.get("thinkparity.archive.root"));
         logger.logInfo("{0}:{1}", "thinkparity.environment", jiveProperties.get("thinkparity.environment"));
         logger.logInfo("{0}:{1}", "thinkparity.mode", jiveProperties.get("thinkparity.mode"));
+        logger.logInfo("{0}:{1}", "thinkparity.stream.root", jiveProperties.get("thinkparity.stream.root"));
+        logger.logInfo("{0}:{1}", "thinkparity.temp.root", jiveProperties.get("thinkparity.temp.root"));
 		initializeHandlers(pluginClassLoader, pluginDirectory);
+        initializeListeners();
 		startStream();
         startArchive();
         final String message = getStartupMessage();
@@ -109,9 +123,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
     /**
      * @see org.jivesoftware.wildfire.XMPPServerListener#serverStarted()
      */
-    public void serverStarted() {
-        startArchive();
-    }
+    public void serverStarted() {}
 
 	/**
      * @see org.jivesoftware.wildfire.XMPPServerListener#serverStopping()
@@ -364,6 +376,16 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 	}
 
     /**
+     * Destroy the wildfire session listener.
+     *
+     */
+    private void destroyListeners() {
+        SessionEventDispatcher.removeListener(sessionEventListener);
+        sessionEventListener = null;
+        sessionUtil = null;
+    }
+
+    /**
 	 * Destroy the logging framework.
 	 *
 	 */
@@ -418,6 +440,33 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
         } catch(final Throwable t) {
             logger.logFatal("Handler could not be initialized.", t);
         }
+    }
+    /**
+     * Initialize wildfire listeners. We add a session listener such that we can
+     * manage thinkParity sessions.
+     * 
+     */
+    private void initializeListeners() {
+        sessionUtil = SessionUtil.getInstance();
+        sessionEventListener = new SessionEventListener() {
+            public void anonymousSessionCreated(final Session session) {
+                logger.logInfo("Anonymous session {0} created.", session.getAddress());
+                sessionUtil.initializeAnonymousSession(session);
+            }
+            public void anonymousSessionDestroyed(final Session session) {
+                logger.logInfo("Anonymous session {0} destroyed.", session.getAddress());
+                sessionUtil.destroySession(session);
+            }
+            public void sessionCreated(final Session session) {
+                logger.logInfo("Session {0} created.", session.getAddress());
+                sessionUtil.initializeSession(session);
+            }
+            public void sessionDestroyed(final Session session) {
+                logger.logInfo("Session {0} created.", session.getAddress());
+                sessionUtil.destroySession(session);
+            }
+        };
+        SessionEventDispatcher.addListener(sessionEventListener);
     }
         
     /**

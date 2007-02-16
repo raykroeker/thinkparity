@@ -51,10 +51,6 @@ public final class Constants {
         }
     }
 
-    public static final class Files {
-        public static final String TEMP_FILE_PREFIX = "thinkParity.";
-    }
-
     public static final class Image {
         public static final String MAIN = "com.thinkparity.browser.Browser";
         public static final String MAIN_ARGS = "";

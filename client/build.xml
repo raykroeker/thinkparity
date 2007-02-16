@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="ophelia" default="help" basedir="."
+<project name="OpheliaProduct" default="help" basedir="."
         xmlns:cs="antlib:com.puppycrawl.tools.checkstyle"
         xmlns:antx="antlib:com.thinkparity.antx">
     <property name="build.sysclasspath" value="ignore"/>
@@ -7,29 +7,109 @@
     <!-- build configuration -->
     <property environment="env"/>
     <tstamp>
-        <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="PST"/>
+        <format property="thinkparity.build-id" pattern="yyyyMMddHHmmssZ" timezone="PST"/>
     </tstamp>
+    <property name="javac.compilerargs" value="-Xlint:deprecation -Xlint:unchecked"/>
+    <property name="javac.debug" value="true"/>
+    <property name="javac.debug-level" value="lines,vars,source"/>
+    <property name="java.jvmarg-debug" value="-Xdebug -Xint -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"/>
+
     <!-- local configuration  -->
     <property name="localconfig" value="local.properties"/>
     <property file="${localconfig}"/>
-
-    <!-- release configuration -->
-    <property name="release.name" value="${ant.project.name}"/>
+    <fail>
+        <condition>
+            <not>
+                <contains string="${ant.version}" substring="1.7.0"/>
+            </not>
+        </condition>
+Please install version 1.7.0 of ant.
+http://ant.apache.org
+    </fail>
+    <fail>
+        <condition>
+            <not>
+                <available file="${localconfig}"/>
+            </not>
+        </condition>
+Local configuration ${localconfig} does not exist.  Please create:
+    scm.credentials             Source control credentials.     username:password
+    thinkparity.environment     Environment                     com.thinkparity.codebase.model.session.Environment
+    thinkparity.mode            Mode                            com.thinkparity.codebase.Mode
+    thinkparity.os              Operating System                com.thinkparity.codebase.OS
+    thinkparity.os-platform     Operating System Platform       com.thinkparity.codebase.Platform
+    thinkparity.product-name    Product Name                    ${ant.project.name}
+    thinkparity.release-name    Release Name                    1.0.0-DEVELOPMENT
+    </fail>
+    <fail>
+        <condition>
+            <not>
+                <and>
+                    <isset property="scm.credentials"/>
+                    <isset property="thinkparity.environment"/>
+                    <isset property="thinkparity.os"/>
+                    <isset property="thinkparity.os-platform"/>
+                    <isset property="thinkparity.product-name"/>
+                    <isset property="thinkparity.release-name"/>
+                </and>
+            </not>
+        </condition>
+Local configuration ${localconfig} is incomplete.  Please specify:
+    scm.credentials             XXXXXXXXXXXXXXXXXXXXXXXXXX
+    thinkparity.environment     ${thinkparity.environment}
+    thinkparity.mode            ${thinkparity.mode}
+    thinkparity.os              ${thinkparity.os}
+    thinkparity.os-platform     ${thinkparity.os-platform}
+    thinkparity.product-name    ${thinkparity.product-name}
+    thinkparity.release-name    ${thinkparity.release-name}
+    </fail>
+    <echo>
+Environment Configuration:
+    Groovy Home:                ${env.GROOVY_HOME}
+    Launch4J Home:              ${env.LAUNCH4J_HOME}
+Build Configuration:
+    Build Id:                   ${thinkparity.build-id}
+    Compiler Arguments:         ${javac.compilerargs}
+    Compiler Debugging:         ${javac.debug} ${javac.debug-level}
+    Java JVM Debug:             ${java.jvmarg-debug}
+Local Configuration:            ${localconfig}
+    Source Control Credentials: XXXXXXXXXXXXXXXXXXXXXXXXXX
+    Environment:                ${thinkparity.environment}
+    Mode:                       ${thinkparity.mode}
+    Operating System:           ${thinkparity.os}
+    Operating System Platform:  ${thinkparity.os-platform}
+    Product Name:               ${thinkparity.product-name}
+    Release Name:               ${thinkparity.release-name}
+    </echo>
 
     <!-- cvs configuration -->
     <property name="cvs.compressionlevel" value="9"/>
     <property name="cvs.cvsroot" value=":pserver:${scm.credentials}@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
-    <property name="cvs.modules" value="common/codebase common/junitx common/migrator common/model local/browser local/model local/thinkparity"/>
+    <property name="cvs.modules" value="local/browser local/model local/thinkparity"/>
 
-    <!-- javac/java configuration -->
-    <property name="javac.compilerarg" value="-Xlint:deprecation -Xlint:unchecked"/>
-    <property name="java.jvmarg-debug" value="-Xdebug -Xint -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"/>
+    <!-- groovy configuration -->
+    <path id="groovy.classpath">
+        <pathelement location="${env.GROOVY_HOME}/lib/groovy-1.0.jar"/>
+        <pathelement location="${env.GROOVY_HOME}/lib/antlr-2.7.5.jar"/>
+        <pathelement location="${env.GROOVY_HOME}/lib/asm-2.2.jar"/>
+        <pathelement location="${basedir}/local/browser/src/main/groovy"/>
+        <path refid="runtime.classpath"/>
+    </path>
+
+    <!-- launch4j configuration -->
+    <path id="launch4j.classpath">
+        <pathelement location="${env.LAUNCH4J_HOME}/launch4j.jar"/>
+        <pathelement location="${env.LAUNCH4J_HOME}/lib/xstream.jar"/>
+    </path>
+
+    <!-- input directories -->
+    <property name="thinkparity.common.home" value="${basedir}/../common"/>
 
     <!-- output directories -->
     <property name="target.dir" value="${basedir}/target"/>
     <property name="target.analyze-report.dir" value="${basedir}/target/analyze-report"/>   
-    <property name="target.release.dir" value="${target.dir}/release"/>
+    <property name="target.package.dir" value="${target.dir}/package"/>
     <property name="target.classes.dir" value="${target.dir}/classes"/>
     <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
     <property name="target.test-javadoc.dir" value="${target.dir}/test-docs/api"/>
@@ -55,9 +135,9 @@
     <antx:dependency type="java" scope="compile" provider="dom4j.org" version="1.6.1"
         path="dom4j/1.6.1/dom4j.jar"/>
     <antx:dependency type="java" scope="compile" provider="java.net" version="0.9.1"
-        path="jdic/0.9.1/${platform}/jdic.jar"/>
+        path="jdic/0.9.1/${thinkparity.os-platform}/jdic.jar"/>
     <antx:dependency type="java" scope="compile" provider="java.net" version="0.1.1"
-        path="jdic_icon/0.1.1/${platform}/jdic_icon.jar"/>
+        path="jdic_icon/0.1.1/${thinkparity.os-platform}/jdic_icon.jar"/>
     <antx:dependency type="java" scope="compile" provider="java.net" version="1.0"
         path="swing-layout/1.0/swing-layout.jar"/>
     <antx:dependency type="java" scope="compile" provider="jivesoftware.org" version="2.2.1"
@@ -74,10 +154,10 @@
         path="jotm/2.0.10/ow_carol.jar"/>
 
     <!-- runtime dependencies -->
-    <antx:dependency type="java" scope="compile" provider="apache.org" version="0.20.5"
-        path="fop/0.20.5/batik.jar"/>
     <antx:dependency type="java" scope="runtime" provider="hsqldb.org" version="1.8.0.2"
         path="hsqldb/1.8.0.2/hsqldb.jar"/>
+    <antx:dependency type="java" scope="compile" provider="apache.org" version="0.20.5"
+        path="fop/0.20.5/batik.jar"/>
     <antx:dependency type="java" scope="runtime" provider="jivesoftware.org" version="2.0.10"
         path="smackx/2.2.1/smackx.jar"/>
     <antx:dependency type="java" scope="runtime" provider="objectweb.org" version="2.0.10"
@@ -90,117 +170,15 @@
         path="jotm/2.0.10/howl.jar"/>
     <!-- runtime native dependencies -->
     <antx:dependency type="native" scope="runtime" provider="l2fprod.com" version="6.7"
-        path="i686/${platform}/nativeskin/6.7"/>
+        path="i686/${thinkparity.os-platform}/nativeskin/6.7"/>
     <antx:dependency type="native" scope="runtime" provider="java.net" version="0.9.1"
-        path="i686/${platform}/jdic/0.9.1"/>
+        path="i686/${thinkparity.os-platform}/jdic/0.9.1"/>
     <antx:dependency type="native" scope="runtime" provider="java.net" version="0.1.1"
-        path="i686/${platform}/jdic_icon/0.1.1"/>
+        path="i686/${thinkparity.os-platform}/jdic_icon/0.1.1"/>
 
     <!-- test dependencies -->
     <antx:dependency type="java" scope="test" provider="junit.org" version="3.8.1"
         path="junit/3.8.1/junit.jar"/>
-
-    <!-- release -->
-    <target name="release">
-        <antcall target="clean" inheritAll="true" inheritRefs="true"/>
-        <antcall target="test" inheritAll="true" inheritRefs="true"/>
-        <antcall target="clean" inheritAll="true" inheritRefs="true"/>
-        <antcall target="compile" inheritAll="true" inheritRefs="true"/>
-        <antcall target="release-impl" inheritAll="true" inheritRefs="true"/>
-    </target>
-
-    <!-- release -->
-    <target name="release-impl" depends="init">
-        <mkdir dir="${target.release.dir}/${release.version}/core"/>
-        <!-- /thinkparity.jar -->
-        <jar destfile="${target.release.dir}/thinkParity.jar"
-                duplicate="fail" update="false" whenempty="fail">
-            <manifest>
-                <attribute name="Main-Class" value="com.thinkparity.ThinkParity"/>
-            </manifest>
-            <fileset dir="${target.classes.dir}">
-                <include name="com/thinkparity/"/>
-                <exclude name="com/thinkparity/codebase/"/>
-                <exclude name="com/thinkparity/ophelia/"/>
-            </fileset>
-        </jar>
-        <!-- /core/codebase.jar -->
-        <jar destfile="${target.release.dir}/${release.version}/core/codebase.jar"
-                duplicate="fail" update="false" whenempty="fail">
-            <fileset dir="${target.classes.dir}">
-                <include name="com/thinkparity/codebase/"/>
-                <include name="carol.properties"/>
-            </fileset>
-        </jar>
-        <!-- /core/model.jar -->
-        <jar destfile="${target.release.dir}/${release.version}/core/model.jar"
-                duplicate="fail" update="false" whenempty="fail">
-            <fileset dir="${target.classes.dir}">
-                <include name="com/thinkparity/ophelia/model/"/>
-                <include name="database/"/>
-                <include name="localization/Model_Messages*"/>
-                <include name="security/*_client_*"/>
-                <include name="xml/"/>
-            </fileset>
-        </jar>
-        <!-- /core/browser.jar -->
-        <jar destfile="${target.release.dir}/${release.version}/core/browser.jar"
-                duplicate="fail" update="false" whenempty="fail">
-            <fileset dir="${target.classes.dir}">
-                <include name="com/thinkparity/ophelia/browser/"/>
-                <include name="demo/"/>
-                <include name="fonts/"/>
-                <include name="images/"/>
-                <include name="localization/"/>
-                <exclude name="localization/Model_Messages*"/>
-                <include name="log4j.properties"/>
-                <include name="version.properties"/>
-            </fileset>
-        </jar>
-        <copy todir="${target.release.dir}">
-            <fileset file="${basedir}/LICENSE.txt"/>
-            <fileset file="${basedir}/README.txt"/>
-            <fileset file="${target.classes.dir}/thinkParity.properties"/>
-            <fileset file="${target.classes.dir}/install.nsi"/>
-        </copy>
-        <copy todir="${target.release.dir}/${release.version}">
-            <fileset file="${target.classes.dir}/thinkParityImage.properties"/>
-        </copy>
-        <copy todir="${target.release.dir}/${release.version}/lib">
-            <fileset refid="runtime.dependencies-java"/>
-            <mapper type="flatten"/>
-        </copy>
-        <copy todir="${target.release.dir}/${release.version}/lib/${platform}">
-            <fileset refid="runtime.dependencies-native"/>
-            <mapper type="flatten"/>
-        </copy>
-        <!-- launch4j -->
-        <mkdir dir="${target.release.dir}/${release.version}/lib"/>
-        <property name="launch4j.install.dir" value="${env.ProgramFiles}\Launch4J"/>
-        <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask"
-                classpath="${launch4j.install.dir}/launch4j.jar:${launch4j.install.dir}/lib/xstream.jar"/>
-        <launch4j>
-            <config dontWrapJar="true" headerType="0"
-                    jarPath="thinkParity.jar"
-                    outfile="${target.release.dir}/thinkParity.exe"
-                    errTitle="thinkParity - Error" customProcName="true"
-                    stayAlive="false"
-                    icon="${target.classes.dir}/images/ThinkParity32x32.ico"
-                    chdir="${release.version}/lib/${platform}">
-                    <jre minVersion="1.6.0"
-                            args="-Dthinkparity.install=&quot;%EXEDIR%&quot; -Dthinkparity.mode=${thinkparity.innerMode} -Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
-            </config>
-        </launch4j>
-        <!-- nsis -->
-        <property name="nsis.install.dir" value="${env.ProgramFiles}\NSIS"/>
-        <exec executable="${nsis.install.dir}/makensis.exe" dir="${target.release.dir}">
-            <arg value="install.nsi"/>
-        </exec>
-        <checksum file="${target.release.dir}/thinkParity-${release.version}.exe"
-            algorithm="MD5"/>
-        <checksum file="${target.release.dir}/thinkParity-${release.version}.exe"
-            algorithm="SHA"/>
-    </target>
 
     <!-- checkout -->
     <target name="checkout">
@@ -223,34 +201,39 @@
     <!-- compile -->
     <target name="compile" depends="init,process-resources">
         <!-- common/codebase -->
-        <javac srcdir="common/codebase/src/main/java"
-                destdir="${target.classes.dir}" debug="${compile.innerDebug}">
+        <javac srcdir="${thinkparity.common.home}/codebase/src/main/java"
+                destdir="${target.classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
             <classpath refid="compile.classpath"/>
-            <compilerarg line="${javac.compilerarg}"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <!-- commmon/model -->
-        <javac srcdir="common/model/src/main/java"
-                destdir="${target.classes.dir}" debug="${compile.innerDebug}">
+        <javac srcdir="${thinkparity.common.home}/model/src/main/java"
+                destdir="${target.classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
             <classpath refid="compile.classpath"/>
-            <compilerarg line="${javac.compilerarg}"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <!-- local/thinkparity -->
         <javac srcdir="local/thinkparity/src/main/java"
-                destdir="${target.classes.dir}" debug="${compile.innerDebug}">
+                destdir="${target.classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
             <classpath refid="compile.classpath"/>
-            <compilerarg line="${javac.compilerarg}"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <!-- local/model -->
         <javac srcdir="local/model/src/main/java"
-                destdir="${target.classes.dir}" debug="${compile.innerDebug}">
+                destdir="${target.classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
             <classpath refid="compile.classpath"/>
-            <compilerarg line="${javac.compilerarg}"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <!-- local/browser -->
         <javac srcdir="local/browser/src/main/java"
-                destdir="${target.classes.dir}" debug="${compile.innerDebug}">
+                destdir="${target.classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
             <classpath refid="compile.classpath"/>
-            <compilerarg line="${javac.compilerarg}"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
     </target>
 
@@ -259,59 +242,61 @@
         <pathconvert property="runtime.librarypath" refid="runtime.librarypath"/>
         <java classname="com.thinkparity.ophelia.browser.Browser" fork="true">
             <classpath refid="runtime.classpath"/>
-            <jvmarg line="-Djava.library.path=&quot;${runtime.librarypath}&quot; -Dthinkparity.install=&quot;${target.classes.dir}&quot; -Dthinkparity.mode=${thinkparity.innerMode} -Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
+            <jvmarg line="-Djava.library.path=&quot;${runtime.librarypath}&quot; -Dthinkparity-dir=&quot;${target.classes.dir}&quot; -Dthinkparity.mode=${thinkparity.mode} -Dthinkparity.environment=${thinkparity.environment}"/>
         </java>
     </target>
 
-    <!-- run -->
+    <!-- debug -->
     <target name="debug" depends="compile">
         <pathconvert property="runtime.librarypath" refid="runtime.librarypath"/>
         <java classname="com.thinkparity.ophelia.browser.Browser" fork="true">
             <classpath refid="runtime.classpath"/>
-            <jvmarg line="${java.jvmarg-debug} -Djava.library.path=&quot;${runtime.librarypath}&quot; -Dthinkparity.install=&quot;${target.classes.dir}&quot; -Dthinkparity.mode=${thinkparity.innerMode} -Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
+            <jvmarg line="${java.jvmarg-debug} -Djava.library.path=&quot;${runtime.librarypath}&quot; -Dthinkparity-dir=&quot;${target.classes.dir}&quot; -Dthinkparity.mode=${thinkparity.mode} -Dthinkparity.environment=${thinkparity.environment}"/>
         </java>
     </target>
 
-    <!-- run release -->
-    <target name="run-release" depends="init,release-impl">
-        <java jar="${target.release.dir}/thinkParity.jar"
-                dir="${target.release.dir}" fork="true">
-            <jvmarg line="-Dthinkparity.install=&quot;${target.release.dir}&quot; -Dthinkparity.mode=DEVELOPMENT -Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
+    <!-- run package -->
+    <target name="run-package" depends="package">
+        <java jar="${target.package.dir}/thinkParity.jar"
+                dir="${target.package.dir}" fork="true">
+            <jvmarg line="-Dthinkparity-dir=&quot;${target.package.dir}&quot; -Dthinkparity.mode=DEVELOPMENT -Dthinkparity.environment=${thinkparity.environment}"/>
         </java>
     </target>
 
-    <!-- debug release -->
-    <target name="debug-release" depends="init,release-impl">
-        <java jar="${target.release.dir}/thinkParity.jar"
-                dir="${target.release.dir}" fork="true">
-            <jvmarg line="${java.jvmarg-debug} -Dthinkparity.install=&quot;${target.release.dir}&quot; -Dthinkparity.mode=DEVELOPMENT -Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
+    <!-- debug package -->
+    <target name="debug-package" depends="package">
+        <java jar="${target.package.dir}/thinkParity.jar"
+                dir="${target.package.dir}" fork="true">
+            <jvmarg line="${java.jvmarg-debug} -Dthinkparity-dir=&quot;${target.package.dir}&quot; -Dthinkparity.mode=DEVELOPMENT -Dthinkparity.environment=${thinkparity.environment}"/>
         </java>
     </target>
 
-    <!-- print help -->
+    <!-- help -->
     <target name="help">
         <echo>
-Options:
-    -Dthinkparity.environment=DEVELOPMENT_LOCALHOST,DEVELOPMENT_RAYMOND,  Specify the location of the environment the compiled 
-                              DEVELOPMENT_ROBERT,PRODUCTION,TESTING,      executable will connect to.
-                              TESTING_LOCALHOST
-    -Dthinkparity.mode=DEVELOPMENT,PRODUCTION,TESTING                     Specify the mode of operation for the compiled
-                                                                          executable.  This will affect the size of the compiled
-                                                                          code as well
-
+Build Configuration:
+    Build Id:                   ${thinkparity.build-id}
+    Compiler Arguments:         ${javac.compilerargs}
+    Compiler Debugging:         ${javac.debug} ${javac.debug-level}
+    Java JVM Debug:             ${java.jvmarg-debug}
+Local Configuration:            ${localconfig}
+    Source Control Credentials: XXXXXXXXXXXXXXXXXXXXXXXXXX
+    Environment:                ${thinkparity.environment}
+    Mode:                       ${thinkparity.mode}
+    Operating System:           ${thinkparity.os}
+    Operating System Platform:  ${thinkparity.os-platform}
+    Product Name:               ${thinkparity.product-name}
+    Release Name:               ${thinkparity.release-name}
 Targets:
     analyze                     Analyze the source.   
-    checkout                    Checkout all source.
+    checkout                    Checkout the source.
     clean                       Delete output.
     compile                     Compile source.
     javadoc                     Generate javadoc (html) documentation.
     process-resources           Process resources.
-    tag                         Tag the release.
     test                        Run tests.
-    test-compile                Compile test source.
+    test-compile                Compile the test source.
     test-process-resources      Process test resources.
-    test-report                 Produce a test report.
-    update                      Update source with latest from CVS.
 Examples:
     First Run:
     ant checkout test           Will grab all source from cvs; process all
@@ -323,58 +308,16 @@ Examples:
         </echo>
     </target>
 
-    <!-- initialize output -->
+    <!-- initialize -->
     <target name="init">
-        <fail message="Please create local configuration.  Run ant help more information.">
-            <condition>
-                <not>
-                    <and>
-                        <available file="${localconfig}"/>
-                        <isset property="platform"/>
-                        <isset property="release.version"/>
-                        <isset property="scm.credentials"/>
-                        <isset property="thinkparity.environment"/>
-                        <isset property="thinkparity.mode"/>
-                    </and>
-                </not>
-            </condition>
-        </fail>
-        <echo>
-Local Configuration:
-    platform:                 ${platform}
-    release.version:          ${release.version}
-    scm.credentials:          XXXXXXXXXXXX
-    thinkparity.environment:  ${thinkparity.environment}
-    thinkparity.mode:         ${thinkparity.mode}
-</echo>
-
         <mkdir dir="${target.analyze-report.dir}"/>
         <mkdir dir="${target.classes.dir}"/>
         <mkdir dir="${target.javadoc.dir}"/>
-        <mkdir dir="${target.release.dir}"/>
+        <mkdir dir="${target.package.dir}"/>
         <mkdir dir="${target.test-javadoc.dir}"/>
-                <mkdir dir="${target.test-classes.dir}"/>
-                <mkdir dir="${target.test-report.dir}"/>
+        <mkdir dir="${target.test-classes.dir}"/>
+        <mkdir dir="${target.test-report.dir}"/>
         <mkdir dir="${target.test-sessions.dir}"/>
-
-        <condition property="thinkparity.innerEnvironment" value="${thinkparity.environment}"
-                else="PRODUCTION">
-            <isset property="thinkparity.environment"/>
-        </condition>
-        <!-- if the thinkparity.mode property is not set use DEBUG as a default
-            otherwise use the value itself -->
-        <condition property="thinkparity.innerMode" value="${thinkparity.mode}"
-                else="DEVELOPMENT">
-            <isset property="thinkparity.mode"/>
-        </condition>
-        <!-- set the compile.debug flag based upon the mode; production implies
-            false testing and development imply true -->
-        <condition property="compile.innerDebug" value="true" else="false">
-            <or>
-                <equals arg1="DEVELOPMENT" arg2="${thinkparity.innerMode}"/>
-                <equals arg1="TESTING" arg2="${thinkparity.innerMode}"/>
-            </or>
-        </condition>
         <sleep seconds="1"/>
     </target>
 
@@ -384,15 +327,15 @@ Local Configuration:
             failureProperty="checkstyle.didFail" failOnViolation="false">
             <formatter type="xml" tofile="target/analyze-report/checkstyle.xml"/>
             <!-- common/codebase -->   
-            <fileset dir="common/codebase/src/main/java">
+            <fileset dir="${thinkparity.common.home}/codebase/src/main/java">
                 <include name="**/*.java"/>
             </fileset>
             <!-- common/junitx -->   
-            <fileset dir="common/junitx/src/main/java">
+            <fileset dir="${thinkparity.common.home}/junitx/src/main/java">
                 <include name="**/*.java"/>
             </fileset>
             <!-- common/model -->   
-            <fileset dir="common/model/src/main/java">
+            <fileset dir="${thinkparity.common.home}/model/src/main/java">
                 <include name="**/*.java"/>
             </fileset>
             <!-- local/model -->   
@@ -420,7 +363,7 @@ Local Configuration:
                 doctitle="thinkParity"
                 group="thinkParity Codebase com.thinkparity.codebase*,thinkParity Model com.thinkparity.ophelia.model*,thinkParity Browser com.thinkparity.ophelia.browser*,thinkParity Bootstrap com.thinkparity.*"
                 packagenames="com.thinkparity.*"
-                sourcepath="${basedir}/common/codebase/src/main/java:${basedir}/common/model/src/main/java:${basedir}/local/model/src/main/java:${basedir}/local/browser/src/main/java:${basedir}/local/thinkparity/src/main/java">
+                sourcepath="${thinkparity.common.home}/codebase/src/main/java:${thinkparity.common.home}/model/src/main/java:${basedir}/local/model/src/main/java:${basedir}/local/browser/src/main/java:${basedir}/local/thinkparity/src/main/java">
             <group packages="com.thinkparity*" title="thinkParity Bootstrap"/>
             <group packages="com.thinkparity.codebase*" title="thinkParity Codebase"/>
             <group packages="com.thinkparity.ophelia.model*" title="thinkParity Model"/>
@@ -435,7 +378,7 @@ Local Configuration:
                 doctitle="thinkParity"
                 group="thinkParity Codebase com.thinkparity.codebase*,thinkParity Model com.thinkparity.ophelia.model*,thinkParity Browser com.thinkparity.ophelia.browser*,thinkParity Bootstrap com.thinkparity.*"
                 packagenames="com.thinkparity.*"
-                sourcepath="${basedir}/common/codebase/src/test/java:${basedir}/common/model/src/test/java:${basedir}/local/model/src/test/java:${basedir}/local/browser/src/test/java">
+                sourcepath="${thinkparity.common.home}/codebase/src/test/java:${thinkparity.common.home}/model/src/test/java:${basedir}/local/model/src/test/java:${basedir}/local/browser/src/test/java">
             <group packages="com.thinkparity*" title="thinkParity Bootstrap"/>
             <group packages="com.thinkparity.codebase*" title="thinkParity Codebase"/>
             <group packages="com.thinkparity.ophelia.model*" title="thinkParity Model"/>
@@ -446,8 +389,8 @@ Local Configuration:
     <!-- process resources -->
     <target name="process-resources" depends="init">
         <copy todir="${target.classes.dir}">
-            <fileset dir="${basedir}/common/codebase/src/main/resources"/>
-            <fileset dir="${basedir}/common/model/src/main/resources"/>
+            <fileset dir="${thinkparity.common.home}/codebase/src/main/resources"/>
+            <fileset dir="${thinkparity.common.home}/model/src/main/resources"/>
             <fileset dir="${basedir}/local/browser/src/main/resources"/>
             <fileset dir="${basedir}/local/model/src/main/resources"/>
         </copy>
@@ -455,22 +398,12 @@ Local Configuration:
             <fileset dir="${basedir}/local/browser/src/main/filters"/>
             <filterset begintoken="$${" endtoken="}">
                 <filter token="pom.version" value="${release.version}"/>
-                <filter token="com.thinkparity.parity.buildId" value="${build.id}"/>
-                <filter token="com.thinkparity.parity.mode" value="${thinkparity.innerMode}"/>
+                <filter token="com.thinkparity.parity.buildId" value="${thinkparity.build-id}"/>
+                <filter token="com.thinkparity.parity.mode" value="${thinkparity.mode}"/>
                 <filtersfile file="${basedir}/build.filters"/>
                 <filtersfile file="${basedir}/local/browser/build.filters"/>
             </filterset>
         </copy>
-    </target>
-
-    <!-- tag cvs -->
-    <target name="tag">
-        <input addproperty="cvs.tag" message="Release tag (REL_vX_X[_RCX]:"/>
-        <echo message="${cvs.tag}"/>
-        <echo message="${cvs.cvsroot}"/>
-        <echo message="${cvs.tag}"/>
-        <cvs cvsroot="${cvs.cvsroot}"
-            command="tag -c -F -R ${cvs.tag} .cvsignore build.filters build.xml LICENSE.txt README.txt ${cvs.modules}"/>
     </target>
 
     <!-- unit test -->
@@ -492,8 +425,8 @@ Local Configuration:
 
         <junit fork="on" forkmode="once" reloading="false"
                         errorproperty="junit.didError" failureproperty="junit.didFail">
-            <jvmarg value="-Dthinkparity.mode=${thinkparity.innerMode}"/>
-            <jvmarg value="-Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
+            <jvmarg value="-Dthinkparity.mode=${thinkparity.mode}"/>
+            <jvmarg value="-Dthinkparity.environment=${thinkparity.environment}"/>
             <jvmarg value="-Djunitx.log4j.level=${inner.junitx.log4j.level}"/>
             <jvmarg value="-Djunitx.log4j.console=${inner.junitx.log4j.console}"/>
 
@@ -506,14 +439,6 @@ Local Configuration:
                 <fileset dir="${target.test-classes.dir}" includes="${inner.test}"/>
             </batchtest>
         </junit>
-        <antcall target="test-report" inheritRefs="true" inheritAll="true"/>
-
-        <fail message="JUnit failure." if="junit.didFail"/>
-        <fail message="JUnit error." if="junit.didError"/>
-    </target>
-
-    <!-- unit test report -->
-    <target name="test-report">
         <delete dir="${target.test-report.dir}"/>
         <mkdir dir="${target.test-report.dir}"/>
         <junitreport todir="${target.test-report.dir}">
@@ -522,54 +447,134 @@ Local Configuration:
             </fileset>
             <report styledir="${basedir}" format="noframes" todir="${target.test-report.dir}"/>
         </junitreport>
+
+        <fail message="JUnit failure." if="junit.didFail"/>
+        <fail message="JUnit error." if="junit.didError"/>
     </target>
 
     <!-- compile tests -->
     <target name="test-compile" depends="compile,test-process-resources">
         <!-- common/junitx -->
-        <javac srcdir="common/junitx/src/main/java"
-                destdir="${target.test-classes.dir}" debug="${compile.innerDebug}">
+        <javac srcdir="${thinkparity.common.home}/junitx/src/main/java"
+                destdir="${target.test-classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
             <classpath refid="test.classpath"/>
-            <compilerarg line="${javac.compilerarg}"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <!-- common/codebase -->
-        <javac srcdir="common/codebase/src/test/java"
-                destdir="${target.test-classes.dir}" debug="${compile.innerDebug}">
+        <javac srcdir="${thinkparity.common.home}/codebase/src/test/java"
+                destdir="${target.test-classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
             <classpath refid="test.classpath"/>
-            <compilerarg line="${javac.compilerarg}"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <!-- common/model -->
-        <javac srcdir="common/model/src/test/java"
-                destdir="${target.test-classes.dir}" debug="${compile.innerDebug}">
+        <javac srcdir="${thinkparity.common.home}/model/src/test/java"
+                destdir="${target.test-classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
             <classpath refid="test.classpath"/>
-            <compilerarg line="${javac.compilerarg}"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <!-- local/model -->
         <javac srcdir="local/model/src/test/java"
-                destdir="${target.test-classes.dir}" debug="${compile.innerDebug}">
+                destdir="${target.test-classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
             <classpath refid="test.classpath"/>
-            <compilerarg line="${javac.compilerarg}"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <!-- local/browser -->
         <javac srcdir="local/browser/src/test/java"
-                destdir="${target.test-classes.dir}" debug="${compile.innerDebug}">
+                destdir="${target.test-classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
             <classpath refid="test.classpath"/>
-            <compilerarg line="${javac.compilerarg}"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
     </target>
 
     <!-- process test resources -->
     <target name="test-process-resources" depends="init">
         <copy todir="${target.test-classes.dir}">
-            <fileset dir="${basedir}/common/junitx/src/main/resources"/>
+            <fileset dir="${thinkparity.common.home}/junitx/src/main/resources"/>
             <fileset dir="${basedir}/local/model/src/test/resources"/>
         </copy>
     </target>
 
-    <!-- quick release -->
-    <target name="quick-release">
-        <antcall target="clean" inheritAll="true" inheritRefs="true"/>
-        <antcall target="compile" inheritAll="true" inheritRefs="true"/>
-        <antcall target="release-impl" inheritAll="true" inheritRefs="true"/>
+    <!-- deploy -->
+    <target name="deploy" depends="package">
+        <property name="thinkparity.target.classes-dir" value="${target.classes.dir}"/>
+        <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
+        <property name="thinkparity.target.workspace-dir" value="${target.dir}/workspace"/>
+        <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="groovy.classpath"/>
+        <groovy src="${basedir}/local/browser/src/main/groovy/DeployTask.groovy"/>
+    </target>
+
+    <!-- package-image -->
+    <target name="package-image" depends="compile">
+        <property name="thinkparity.target.classes-dir" value="${target.classes.dir}"/>
+        <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
+        <property name="thinkparity.target.workspace-dir" value="${target.dir}/workspace"/>
+        <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="groovy.classpath"/>
+        <groovy src="${basedir}/local/browser/src/main/groovy/PackageImageTask.groovy"/>
+    </target>
+
+    <!-- package -->
+    <target name="package" depends="compile">
+        <property name="thinkparity.target.classes-dir" value="${target.classes.dir}"/>
+        <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
+        <property name="thinkparity.target.workspace-dir" value="${target.dir}/workspace"/>
+        <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="groovy.classpath"/>
+        <groovy src="${basedir}/local/browser/src/main/groovy/PackageTask.groovy"/>
+        <groovy src="${basedir}/local/browser/src/main/groovy/PackageImageTask.groovy"/>
+        <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpathref="launch4j.classpath"/>
+        <launch4j>
+            <config dontWrapJar="true" headerType="0" jarPath="thinkParity.jar"
+                    outfile="${target.package.dir}/thinkParity.exe"
+                    errTitle="thinkParity - Error" customProcName="true"
+                    stayAlive="false"
+                    icon="${target.classes.dir}/images/ThinkParity32x32.ico"
+                    chdir="${release.version}/lib/${thinkparity.os-platform}">
+                <jre minVersion="1.6.0"
+                    args="-Dthinkparity-dir=&quot;%EXEDIR%&quot; -Dthinkparity.mode=${thinkparity.mode} -Dthinkparity.environment=${thinkparity.environment}"/>
+            </config>
+        </launch4j>
+    </target>
+
+    <!-- pathinfo -->
+    <target name="pathinfo">
+        <pathconvert refid="compile.classpath" property="tmp.cc"/>
+        <echo>
+Compile Classpath:
+${tmp.cc}
+        </echo>
+        <pathconvert refid="test.classpath" property="tmp.tc"/>
+        <echo>
+Test Classpath:
+${tmp.tc}
+        </echo>
+        <pathconvert refid="runtime.classpath" property="tmp.rc"/>
+        <echo>
+Runtime Classpath:
+${tmp.rc}
+        </echo>
+        <pathconvert refid="runtime.dependencies-java" property="tmp.rdj"/>
+        <echo>
+Runtime Dependencies (Java):
+${tmp.rdj}
+        </echo>
+        <pathconvert refid="runtime.dependencies-native" property="tmp.rdn"/>
+        <echo>
+Runtime Dependencies (Native):
+${tmp.rdn}
+        </echo>
+        <pathconvert refid="test.dependencies-java" property="tmp.tdj"/>
+        <echo>
+Test Dependencies (Java):
+${tmp.tdj}
+        </echo>
+        <pathconvert refid="test.dependencies-native" property="tmp.tdn"/>
+        <echo>
+Test Dependencies (Native):
+${tmp.tdn}
+        </echo>
     </target>
 </project>

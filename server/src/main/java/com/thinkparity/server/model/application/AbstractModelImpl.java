@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.model;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
@@ -28,12 +29,14 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.StreamWriter;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.codec.MD5Util;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
@@ -50,7 +53,6 @@ import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.stream.InternalStreamModel;
 import com.thinkparity.desdemona.model.stream.StreamModel;
 import com.thinkparity.desdemona.model.user.UserModel;
-import com.thinkparity.desdemona.util.MD5Util;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
 import com.thinkparity.desdemona.wildfire.JIDBuilder;
 
@@ -80,9 +82,6 @@ public abstract class AbstractModelImpl
         XMPP_IQ_LOGGER = new Log4JWrapper("DESDEMONA_XMPP_DEBUGGER");
     }
 
-    /** An apache logger. */
-	protected final Log4JWrapper logger;
-
     /**
 	 * Handle to the user's session.
 	 */
@@ -92,12 +91,12 @@ public abstract class AbstractModelImpl
     private final ConfigurationSql configurationSql;
 
     /**
-	 * Create an AbstractModelImpl.
+	 * Create AbstractModelImpl.
+     *
 	 */
-	protected AbstractModelImpl(final Session session) {
+     protected AbstractModelImpl(final Session session) {
 		super();
         this.configurationSql = new ConfigurationSql();
-        this.logger = new Log4JWrapper(getClass());
 		this.session = session;
 	}
 
@@ -178,6 +177,18 @@ public abstract class AbstractModelImpl
                 session.getJabberId(), keyHolder);
 	}
 
+    /**
+     * Assert that the user id matches that of a system user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @see #isSystemUser(JabberId)
+     */
+    protected void assertIsSystemUser(final JabberId userId) {
+        Assert.assertTrue(isSystemUser(userId),
+                "User {0} is not a system user.", userId);
+    }
+
 	/**
      * Assert that the thinkParity system is the current key holder.
      * 
@@ -218,7 +229,7 @@ public abstract class AbstractModelImpl
        // TIME A global timestamp
        final String hashString = new StringBuffer(userId.toString())
            .append(currentTimeMillis()).toString();
-       return MD5Util.md5Hex(hashString.getBytes());
+       return MD5Util.md5Hex(hashString);
     }
 
     /**
@@ -241,6 +252,68 @@ public abstract class AbstractModelImpl
         return System.currentTimeMillis();
     }
 
+    /**
+     * Start a download from the stream server.
+     * 
+     * @param downloadMonitor
+     *            A download monitor.
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @return The downloaded <code>File</code>.
+     * @throws IOException
+     */
+    protected final File downloadStream(final DownloadMonitor downloadMonitor,
+            final JabberId userId, final String streamId) throws IOException {
+        final File streamFile = buildStreamFile(streamId);
+        final StreamSession streamSession = getStreamModel().createSession(userId);
+        final StreamMonitor streamMonitor = new StreamMonitor() {
+            long recoverChunkOffset = 0;
+            long totalChunks = 0;
+            public void chunkReceived(final int chunkSize) {
+                logger.logApiId();
+                logger.logVariable("chunkSize", chunkSize);
+                totalChunks += chunkSize;
+                downloadMonitor.chunkDownloaded(chunkSize);
+            }
+            public void chunkSent(final int chunkSize) {}
+            public void headerReceived(final String header) {}
+            public void headerSent(final String header) {}
+            public void streamError(final StreamException error) {
+                if (error.isRecoverable()) {
+                    if (recoverChunkOffset <= totalChunks) {
+                        logger.logWarning(error, "Network error.");
+                        recoverChunkOffset = totalChunks;
+                        try {
+                            // attempt to resume the download
+                            downloadStream(downloadMonitor, this,
+                                    streamSession, streamId, streamFile,
+                                    Long.valueOf(recoverChunkOffset));
+                        } catch (final IOException iox) {
+                            throw translateError(iox);
+                        }
+                    } else {
+                        throw translateError(error);
+                    }
+                } else {
+                    throw translateError(error);
+                }
+            }
+        };
+        downloadStream(downloadMonitor, streamMonitor, streamSession,
+                streamId, streamFile, 0L);
+        return streamFile;
+    }
+
+    /**
+     * Enqueue an event for a user.
+     * 
+     * @param userId
+     *            The event creator user id <code>JabberId</code>.
+     * @param eventUserId
+     *            The event target user id <code>JabberId</code>.
+     * @param event
+     *            The <code>XMPPEvent</code>.
+     */
     protected void enqueueEvent(final JabberId userId,
             final JabberId eventUserId, final XMPPEvent event) {
         final List<JabberId> eventUserIds = new ArrayList<JabberId>(1);
@@ -248,6 +321,16 @@ public abstract class AbstractModelImpl
         enqueueEvent(userId, eventUserIds, event);
     }
 
+    /**
+     * Enqueue an event for a user.
+     * 
+     * @param userId
+     *            The event creator user id <code>JabberId</code>.
+     * @param eventUserIds
+     *            The event target user ids <code>JabberId</code>.
+     * @param event
+     *            The <code>XMPPEvent</code>.
+     */
     protected void enqueueEvent(final JabberId userId,
             final List<JabberId> eventUserIds, final XMPPEvent event) {
         logApiId();
@@ -267,7 +350,52 @@ public abstract class AbstractModelImpl
         }
     }
 
-	/**
+    /**
+     * Enqueue a priority event for a user.
+     * 
+     * @param userId
+     *            The event creator user id <code>JabberId</code>.
+     * @param eventUserId
+     *            The event target user id <code>JabberId</code>.
+     * @param event
+     *            The <code>XMPPEvent</code>.
+     */
+    protected void enqueuePriorityEvent(final JabberId userId,
+            final JabberId eventUserId, final XMPPEvent event) {
+        final List<JabberId> eventUserIds = new ArrayList<JabberId>(1);
+        eventUserIds.add(eventUserId);
+        enqueuePriorityEvent(userId, eventUserIds, event);
+    }
+    /**
+     * Enqueue a priority event for a user.
+     * 
+     * @param userId
+     *            The event creator user id <code>JabberId</code>.
+     * @param eventUserIds
+     *            The event target user ids <code>JabberId</code>.
+     * @param event
+     *            The <code>XMPPEvent</code>.
+     */
+    protected void enqueuePriorityEvent(final JabberId userId,
+            final List<JabberId> eventUserIds, final XMPPEvent event) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("eventUserIds", eventUserIds);
+        logVariable("event", event);
+        for (final JabberId eventUserId : eventUserIds) {
+            createPriorityEvent(userId, eventUserId, event);
+            if (isOnline(eventUserId)) {
+                sendQueueUpdated(eventUserId);
+            }
+            backupEvent(userId, eventUserId, event);
+        }
+        // do not backup the same user twice
+        if (!eventUserIds.contains(userId)) {
+            backupEvent(userId, userId, event);
+        }
+    }
+
+    /**
      * Obtain a thinkParity archive interface.
      * 
      * @return A thinkParity archive interface.
@@ -399,7 +527,18 @@ public abstract class AbstractModelImpl
 		return readKeyHolder(uniqueId).equals(session.getJabberId());
 	}
 
-	/** Log an api id. */
+	/**
+     * Determine if the user id is a system user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return True if the user is a system user.
+     */
+    protected Boolean isSystemUser(final JabberId userId) {
+        return userId.equals(User.THINK_PARITY.getId());
+    }
+
+    /** Log an api id. */
     protected final void logApiId() {
         logger.logApiId();
     }
@@ -642,6 +781,20 @@ public abstract class AbstractModelImpl
     }
 
     /**
+     * Build a local file to back a stream. Note that the file is transient in
+     * nature and will be deleted when the user logs out or the next time the
+     * session is established.
+     * 
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @return A <code>File</code>.
+     * @throws IOException
+     */
+    private File buildStreamFile(final String streamId) throws IOException {
+        return session.createTempFile(streamId);
+    }
+
+    /**
      * Create a client session filter for a user.
      * 
      * @param userId
@@ -654,9 +807,36 @@ public abstract class AbstractModelImpl
         return filter;
     }
 
+    /**
+     * Create an event for user.
+     * 
+     * @param userId
+     *            The event creator user id <code>JabberId</code>.
+     * @param eventUserId
+     *            The event destination user id <code>JabberId</code>.
+     * @param event
+     *            The <code>XMPPEvent</code>.
+     */
     private void createEvent(final JabberId userId,
             final JabberId eventUserId, final XMPPEvent event) {
-        QueueModel.getModel(session).createEvent(userId, eventUserId, event);
+        getQueueModel().createEvent(userId, eventUserId, event);
+    }
+
+
+    /**
+     * Create a priority event for user.
+     * 
+     * @param userId
+     *            The event creator user id <code>JabberId</code>.
+     * @param eventUserId
+     *            The event destination user id <code>JabberId</code>.
+     * @param event
+     *            The <code>XMPPEvent</code>.
+     */
+    private void createPriorityEvent(final JabberId userId,
+            final JabberId eventUserId, final XMPPEvent event) {
+        getQueueModel().createEvent(userId, eventUserId, event,
+                XMPPEvent.Priority.HIGH);
     }
 
     /**

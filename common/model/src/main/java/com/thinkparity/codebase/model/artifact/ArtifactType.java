@@ -14,7 +14,7 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public enum ArtifactType {
 
-	CONTAINER(1), DOCUMENT(0);
+	CONTAINER(1), DOCUMENT(0), PRODUCT(2);
 
 	/**
 	 * Obtain an artifact type from its id.
@@ -25,10 +25,14 @@ public enum ArtifactType {
 	 */
 	public static ArtifactType fromId(final Integer id) {
 		switch(id) {
-        case 1: return CONTAINER;
-		case 0: return DOCUMENT;
+        case 1:
+            return CONTAINER;
+		case 0:
+            return DOCUMENT;
+		case 2:
+            return PRODUCT;
 		default:
-            throw Assert.createUnreachable("[ARTIFACT] [UNKNOWN ARTIFACT TYPE]");
+            throw Assert.createUnreachable("Cannot resolve artifact type.");
 		}
 	}
 
@@ -41,12 +45,16 @@ public enum ArtifactType {
      * @param id
      *            The artifact type id.
      */
-    private ArtifactType(final Integer id) { this.id = id; }
+    private ArtifactType(final Integer id) {
+        this.id = id;
+    }
 
 	/**
 	 * Obtain the artifact type id.
 	 * 
 	 * @return The artifact type id.
 	 */
-	public Integer getId() { return id; }
+	public Integer getId() {
+        return id;
+	}
 }

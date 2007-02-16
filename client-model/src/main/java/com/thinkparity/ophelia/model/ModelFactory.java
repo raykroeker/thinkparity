@@ -15,14 +15,10 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.ContainerModelImpl;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.document.DocumentModelImpl;
-import com.thinkparity.ophelia.model.download.DownloadModel;
-import com.thinkparity.ophelia.model.download.DownloadModelImpl;
 import com.thinkparity.ophelia.model.index.IndexModel;
 import com.thinkparity.ophelia.model.index.IndexModelImpl;
-import com.thinkparity.ophelia.model.install.InstallModel;
-import com.thinkparity.ophelia.model.install.InstallModelImpl;
-import com.thinkparity.ophelia.model.migrator.ReleaseModel;
-import com.thinkparity.ophelia.model.migrator.ReleaseModelImpl;
+import com.thinkparity.ophelia.model.migrator.MigratorModel;
+import com.thinkparity.ophelia.model.migrator.MigratorModelImpl;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.profile.ProfileModelImpl;
 import com.thinkparity.ophelia.model.script.ScriptModel;
@@ -149,16 +145,6 @@ public final class ModelFactory {
     }
 
     /**
-     * Obtain a download model.
-     * 
-     * @return An instance of <code>DownloadModel</code>.
-     */
-    public final DownloadModel getDownloadModel() {
-        return (DownloadModel) newModelProxy(
-                DownloadModel.class, DownloadModelImpl.class);
-    }
-
-    /**
      * Obtain an index model.
      * 
      * @return An instance of <code>IndexModel</code>.
@@ -169,13 +155,13 @@ public final class ModelFactory {
     }
 
     /**
-     * Obtain an install model.
+     * Obtain a migrator model.
      * 
-     * @return An instance of <code>InstallModel</code>.
+     * @return An instance of <code>MigratorModel</code>.
      */
-    public final InstallModel getInstallModel() {
-        return (InstallModel) newModelProxy(
-                InstallModel.class, InstallModelImpl.class);
+    public final MigratorModel getMigratorModel() {
+        return (MigratorModel) newModelProxy(
+                MigratorModel.class, MigratorModelImpl.class);
     }
 
     /**
@@ -186,16 +172,6 @@ public final class ModelFactory {
     public final ProfileModel getProfileModel() {
         return (ProfileModel) newModelProxy(
                 ProfileModel.class, ProfileModelImpl.class);
-    }
-
-    /**
-     * Obtain a release model.
-     * 
-     * @return An instance of <code>ReleaseModel</code>.
-     */
-    public final ReleaseModel getReleaseModel() {
-        return (ReleaseModel) newModelProxy(
-                ReleaseModel.class, ReleaseModelImpl.class);
     }
 
     /**

@@ -111,7 +111,7 @@ final class BackupModelImpl extends AbstractModelImpl {
                 final InternalDocumentModel documentModel = modelFactory.getDocumentModel(getClass());
 
                 final Long documentId = artifactModel.readId(uniqueId);
-                final InputStream stream = documentModel.openVersionStream(documentId, versionId);
+                final InputStream stream = documentModel.openVersion(documentId, versionId);
                 final Long streamSize = documentModel.readVersionSize(documentId, versionId);
                 logger.logVariable("documentId", documentId);
                 logger.logVariable("streamSize", streamSize);

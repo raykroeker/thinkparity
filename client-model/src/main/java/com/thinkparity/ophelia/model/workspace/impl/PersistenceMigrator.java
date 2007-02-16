@@ -81,6 +81,7 @@ public class PersistenceMigrator {
                 CONFIG.getProperty("CreateArtifactAuditMetaData"),
                 CONFIG.getProperty("CreateArtifactAuditVersion"),
                 CONFIG.getProperty("CreateConfiguration"),
+                CONFIG.getProperty("CreateMigratorMetaData"),
                 CONFIG.getProperty("CreateSystemMessageType"),
                 CONFIG.getProperty("CreateSystemMessage"),
                 CONFIG.getProperty("CreateSystemMessageMetaData"),

@@ -27,7 +27,6 @@ import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 import com.thinkparity.ophelia.model.events.ContainerListener;
-import com.thinkparity.ophelia.model.util.Printer;
 
 /**
  * <b>Title:</b>thinkParity Container Model<br>
@@ -166,7 +165,7 @@ public interface ContainerModel {
      * @param printer
      *            An <code>Printer</code>.
      */
-    public void printDraft(final Long containerId, final Printer printer);
+    public void printDraft(final Long containerId, final ContainerDraftPrinter printer);
 
     /**
      * Print a container version.
@@ -179,7 +178,7 @@ public interface ContainerModel {
      *            An <code>Printer</code>.
      */
     public void printVersion(final Long containerId, final Long versionId,
-            final Printer printer);
+            final ContainerVersionPrinter printer);
 
     /**
      * Publish the container.

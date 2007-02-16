@@ -11,6 +11,13 @@ package com.thinkparity.codebase;
  * @version 1.1.2.1
  */
 public class Constants {
+    /**
+     * <b>Title:</b>thinkParity File Constants<br>
+     * <b>Description:</b>thinkParity file constants.<br>
+     */
+    public static final class File {
+        public static final String TEMP_FILE_PREFIX = "thinkParity.";
+    }
 
     /**
      * <b>Title:</b>thinkParity Jabber Constants<br>
@@ -40,5 +47,13 @@ public class Constants {
         public static final String NAME = "query";
         public static final String NAMESPACE = "jabber:iq:parity";
         public static final String RESPONSE_NAMESPACE = "jabber:iq:parity:response";
+    }
+    /**
+     * <b>Title:</b>thinkParity XML RPC Constants<br>
+     * <b>Description:</b>thinkParity specific constants for the xml rpc
+     * framework.<br>
+     */
+    public static final class XmlRpc {
+        public static final String LIST_ITEM = "list-item";
     }
 }

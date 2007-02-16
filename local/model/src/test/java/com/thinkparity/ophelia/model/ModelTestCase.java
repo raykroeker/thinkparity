@@ -57,6 +57,7 @@ import com.thinkparity.ophelia.model.document.DocumentHistoryItem;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerListener;
+import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.script.InternalScriptModel;
 import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
@@ -955,6 +956,16 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     protected final InternalArtifactModel getArtifactModel(
             final OpheliaTestUser testUser) {
         return testUser.getModelFactory().getArtifactModel();
+    }
+
+    /**
+     * Obtain an internal migrator model.
+     * 
+     * @return An instance of <code>InternalMigratorModel</code>.
+     */
+    protected final InternalMigratorModel getMigratorModel(
+            final OpheliaTestUser testUser) {
+        return testUser.getModelFactory().getMigratorModel();
     }
 
     /**

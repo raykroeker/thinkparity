@@ -55,7 +55,7 @@ public class CreateVersionTest extends DocumentTestCase {
         assertEquals(NAME + " [DOCUMENT BYTES CHECKSUM DOES NOT MATCH EXPECTATION]",
                 datum.documentChecksum, version.getChecksum());
 
-        final InputStream stream = datum.documentModel.openVersionStream(version.getArtifactId(), version.getVersionId());
+        final InputStream stream = datum.documentModel.openVersion(version.getArtifactId(), version.getVersionId());
         final File outputFile = new File(getOutputDirectory(), datum.file.getName());
         OutputStream output = null;
         try {

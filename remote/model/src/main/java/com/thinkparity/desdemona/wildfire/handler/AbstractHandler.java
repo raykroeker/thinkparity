@@ -16,6 +16,7 @@ import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.model.container.ContainerModel;
+import com.thinkparity.desdemona.model.migrator.MigratorModel;
 import com.thinkparity.desdemona.model.profile.ProfileModel;
 import com.thinkparity.desdemona.model.queue.QueueModel;
 import com.thinkparity.desdemona.model.session.Session;
@@ -108,12 +109,15 @@ public abstract class AbstractHandler extends
         final ServiceRequestReader reader = new IQReader(iq);
         final IQ response = createResponse(iq);
         final ServiceResponseWriter writer = new IQWriter(response);
-        final Session session = SESSION_UTIL.createSession(iq);
+        final Session session = SESSION_UTIL.lookupSession(iq);
         try {
             synchronized (getServiceLock(session, reader)) {
                 IQ_LOGGER.logVariable("iq", iq);
                 IQ_LOGGER.logVariable("iq length", iq.getChildElement().asXML().length());
                 service(new ServiceModelProvider() {
+                    public MigratorModel getMigratorModel() {
+                        return MigratorModel.getModel(session);
+                    }
                     public ArchiveModel getArchiveModel() {
                         return ArchiveModel.getModel(session);
                     }

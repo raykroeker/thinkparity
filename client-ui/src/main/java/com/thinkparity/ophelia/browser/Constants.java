@@ -138,21 +138,18 @@ public final class Constants {
     }
     /** thinkParity directories. */
     public static final class Directories {
-        public static final File PARITY_INSTALL = new File(SystemProperties.THINKPARITY_INSTALL);
-        public static final File PARITY_PLUGIN_ROOT = new File(PARITY_INSTALL, "plugins");
         /** A user's home directory <code>File</code>. */
         public static final File USER_HOME;
         /** A user's data directory <code>File</code>. */
         public static final File USER_DATA;
         static {
             switch (OSUtil.getOS()) {
-            case WINDOWS_2000:
             case WINDOWS_XP:
                 USER_HOME = new File(System.getenv("USERPROFILE"));
                 USER_DATA = new File(USER_HOME, "My Documents\\thinkParity");
                 break;
             case LINUX:
-            case OSX:
+            case MAC_OSX:
                 USER_HOME = new File(System.getenv("HOME"));
                 USER_DATA = new File(USER_HOME, "Documents/thinkParity");
                 break;
@@ -168,6 +165,10 @@ public final class Constants {
                         "{0} is not a directory.",
                         USER_DATA.getAbsolutePath());
             }
+        }
+        public static final class ThinkParity {
+            public static final File DIR = new File(System.getProperty(PropertyNames.ThinkParity.DIR));
+            public static final File PLUGIN_ROOT = new File(DIR, "plugins");
         }
     }
     /** thinkParity directory names. */
@@ -294,6 +295,15 @@ public final class Constants {
         public static final Integer ACTIVATION_DELAY = 200; // Milliseconds
     }
 
+    /**
+     * <b>Title:</b>thinkParity OpheliaUI Property Name Constants<br>
+     */
+    public static final class PropertyNames {
+        public static final class ThinkParity {
+            public static final String DIR = "thinkparity-dir";
+        }
+    }
+
     public static final class Release {
         public static final String ARTIFACT_ID = "lBrowser";
         public static final String GROUP_ID = "com.thinkparity.parity";
@@ -317,15 +327,5 @@ public final class Constants {
     public static final class Session {
         public static final Long CONNECT_TIMER_PERIOD = 1 * 60 * 1000L;
         public static final Long RECONNECT_DELAY = 1 * 60 * 1000L;
-    }
-    
-    /** thinkParity system properties. */
-    public static final class SystemProperties {
-        private static final String THINKPARITY_INSTALL = System.getProperty(SystemPropertyNames.THINKPARITY_INSTALL);
-    }
-
-    /** thinkParity system property names. */
-    public static final class SystemPropertyNames {
-        public static final String THINKPARITY_INSTALL = "thinkparity.install";
     }
 }

@@ -90,8 +90,8 @@ public class Ticket410Test extends TicketTestCase {
             cv_latest_dv = cv_latest_dv_list.get(i);
             cv_latest_dv_x = cv_latest_dv_list_x.get(i);
             assertSimilar("Document version does not match expectation.", cv_latest_dv, cv_latest_dv_x);
-            is = getDocumentModel(datum.junit).openVersionStream(cv_latest_dv.getArtifactId(), cv_latest_dv.getVersionId());
-            is_x = getDocumentModel(datum.junit_x).openVersionStream(cv_latest_dv_x.getArtifactId(), cv_latest_dv_x.getVersionId());
+            is = getDocumentModel(datum.junit).openVersion(cv_latest_dv.getArtifactId(), cv_latest_dv.getVersionId());
+            is_x = getDocumentModel(datum.junit_x).openVersion(cv_latest_dv_x.getArtifactId(), cv_latest_dv_x.getVersionId());
             try {
                 assertEquals("Document version content does not match expectation.", is, is_x);
             } catch (final IOException iox) {
@@ -166,8 +166,8 @@ public class Ticket410Test extends TicketTestCase {
             cv_latest_dv = cv_latest_dv_list.get(i);
             cv_latest_dv_x = cv_latest_dv_list_x.get(i);
             assertSimilar("Document version does not match expectation.", cv_latest_dv, cv_latest_dv_x);
-            is = getDocumentModel(datum.junit).openVersionStream(cv_latest_dv.getArtifactId(), cv_latest_dv.getVersionId());
-            is_x = getDocumentModel(datum.junit_x).openVersionStream(cv_latest_dv_x.getArtifactId(), cv_latest_dv_x.getVersionId());
+            is = getDocumentModel(datum.junit).openVersion(cv_latest_dv.getArtifactId(), cv_latest_dv.getVersionId());
+            is_x = getDocumentModel(datum.junit_x).openVersion(cv_latest_dv_x.getArtifactId(), cv_latest_dv_x.getVersionId());
             try {
                 assertEquals("Document version content does not match expectation.", is, is_x);
             } catch (final IOException iox) {
@@ -243,8 +243,8 @@ public class Ticket410Test extends TicketTestCase {
             cv_latest_dv = cv_latest_dv_list.get(i);
             cv_latest_dv_x = cv_latest_dv_list_x.get(i);
             assertSimilar("Document version does not match expectation.", cv_latest_dv, cv_latest_dv_x);
-            is = getDocumentModel(datum.junit).openVersionStream(cv_latest_dv.getArtifactId(), cv_latest_dv.getVersionId());
-            is_x = getDocumentModel(datum.junit_x).openVersionStream(cv_latest_dv_x.getArtifactId(), cv_latest_dv_x.getVersionId());
+            is = getDocumentModel(datum.junit).openVersion(cv_latest_dv.getArtifactId(), cv_latest_dv.getVersionId());
+            is_x = getDocumentModel(datum.junit_x).openVersion(cv_latest_dv_x.getArtifactId(), cv_latest_dv_x.getVersionId());
             try {
                 assertEquals("Document version content does not match expectation.", is, is_x);
             } catch (final IOException iox) {
@@ -305,8 +305,8 @@ public class Ticket410Test extends TicketTestCase {
             cv_latest_dv = cv_latest_dv_list.get(i);
             cv_latest_dv_y = cv_latest_dv_list_y.get(i);
             assertSimilar("Document version does not match expectation.", cv_latest_dv, cv_latest_dv_y);
-            is = getDocumentModel(datum.junit).openVersionStream(cv_latest_dv.getArtifactId(), cv_latest_dv.getVersionId());
-            is_y = getDocumentModel(datum.junit_y).openVersionStream(cv_latest_dv_y.getArtifactId(), cv_latest_dv_y.getVersionId());
+            is = getDocumentModel(datum.junit).openVersion(cv_latest_dv.getArtifactId(), cv_latest_dv.getVersionId());
+            is_y = getDocumentModel(datum.junit_y).openVersion(cv_latest_dv_y.getArtifactId(), cv_latest_dv_y.getVersionId());
             try {
                 assertEquals("Document version content does not match expectation.", is, is_y);
             } catch (final IOException iox) {

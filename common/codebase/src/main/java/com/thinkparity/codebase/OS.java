@@ -4,19 +4,33 @@
 package com.thinkparity.codebase;
 
 /**
- * OS
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Operating System<br>
+ * <b>Description:</b>Represents enumerated operating systems; their platforms
+ * and their versions.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
 public enum OS {
 
-	LINUX, OSX, WINDOWS_2000, WINDOWS_XP;
+	LINUX(Platform.LINUX), MAC_OSX(Platform.UNIX), WINDOWS_XP(Platform.WIN32);
 
     /** The <code>Platform</code>. */
-    private Platform platform;
+    private final Platform platform;
 
 	/** The version <code>String</code>. */
-	private String version;
+	private final String version;
+
+    /**
+     * Create OS.
+     * 
+     * @param platform
+     *            A <code>Platform</code>.
+     */
+    private OS(final Platform platform) {
+        this.platform = platform;
+        this.version = System.getProperty("os.version");
+    }
 
     /**
      * Obtain the platform of the os.
@@ -32,24 +46,7 @@ public enum OS {
 	 * 
 	 * @return The version of the os.
 	 */
-	public String getVersion() { return version; }
-
-	/**
-     * Set the platform of the os.
-     * 
-     * @param platform
-     *            The <code>Platform</code>.
-     */
-    void setPlatform(final Platform platform) {
-        this.platform = platform;
+	public String getVersion() {
+        return version;
     }
-
-    /**
-	 * Set the version of the os.
-	 * 
-	 * @param version
-	 *            The version of the os.
-	 */
-	void setVersion(final String version) { this.version = version; }
-
 }

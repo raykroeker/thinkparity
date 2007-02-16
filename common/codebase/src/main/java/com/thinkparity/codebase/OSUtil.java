@@ -3,6 +3,8 @@
  */
 package com.thinkparity.codebase;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 /**
  * OSUtil
  * @author raykroeker@gmail.com
@@ -11,39 +13,51 @@ package com.thinkparity.codebase;
 public class OSUtil {
 
 	/** The value of os. */
-	private static final OS os;
+	private static final OS SYSTEM_OS;
 
     static {
-        final String osName = System.getProperty("os.name");
-        if ("Windows XP".equals(osName)) {
-            os = OS.WINDOWS_XP;
-            os.setPlatform(Platform.WIN32);
-        } else if ("Windows 2000".equals(osName)) {
-            os = OS.WINDOWS_2000;
-            os.setPlatform(Platform.WIN32);
-        } else if ("Linux".equals(osName)) {
-            os = OS.LINUX;
-            os.setPlatform(Platform.LINUX);
-        } else if ("Mac OS X".equals(osName)) {
-            os = OS.OSX;
-            os.setPlatform(Platform.UNIX);
-        } else {
-            os = null;
-        }
-
-        // set the version
-        if (null != os)
-            os.setVersion(System.getProperty("os.version"));
+        SYSTEM_OS = getOs(System.getProperty("os.name"));
     }
 
 	/**
-     * Obtain the underlying operating system based upon the os.name and
-     * os.version system properties.
+     * Obtain the operating system.
      * 
-     * @return An enumerated operating system value.
+     * @return The <code>OS</code>.
+     */
+    public static OS getOs() {
+        return getOS();
+    }
+	
+    /**
+     * Obtain the enumerated operating system based upon the os name. The os
+     * determination is based upon the possible values for the java system
+     * property "os.name".
+     * 
+     * @param osName
+     *            The operating system name <code>String</code>.
+     * @return An <code>OS</code>.
+     */
+    public static OS getOs(final String osName) {
+        final OS os;
+        if ("Windows XP".equals(osName)) {
+            os = OS.WINDOWS_XP;
+        } else if ("Linux".equals(osName)) {
+            os = OS.LINUX;
+        } else if ("Mac OS X".equals(osName)) {
+            os = OS.MAC_OSX;
+        } else {
+            throw Assert.createUnreachable("Unknown operating system.");
+        }
+        return os;
+    }
+
+    /**
+     * Obtain the operating system.
+     * 
+     * @return The <code>OS</code>.
      */
 	public static OS getOS() {
-        return os;
+        return SYSTEM_OS;
 	}
 
     /**
@@ -53,11 +67,14 @@ public class OSUtil {
      */
     public static Boolean isWindows() {
         switch (getOS()) {
-        case WINDOWS_2000:
         case WINDOWS_XP:
             return Boolean.TRUE;
-        default:
+        case LINUX:
             return Boolean.FALSE;
+        case MAC_OSX:
+            return Boolean.FALSE;
+        default:
+            throw Assert.createUnreachable("Unknown operating system.");
         }
     }
 

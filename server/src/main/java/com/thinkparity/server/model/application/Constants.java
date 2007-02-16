@@ -23,7 +23,7 @@ public interface Constants {
 
     /** Jabber Constants */
     public static final class Jabber {
-        public static final String SYSTEM_QUALIFIED_JABBER_ID = "thinkparity@thinkparity.dyndns.org/parity";
+        public static final String SYSTEM_QUALIFIED_JABBER_ID = "thinkparity@thinkparity.net/parity";
     }
 
     public static final class Jdbc {
@@ -34,6 +34,7 @@ public interface Constants {
     public static final class JivePropertyNames {
         public static final String THINKPARITY_ARCHIVE_ROOT = "thinkparity.archive.root";
         public static final String THINKPARITY_STREAM_ROOT = "thinkparity.stream.root";
+        public static final String THINKPARITY_TEMP_ROOT = "thinkparity.temp.root";
         public static final String THINKPARITY_ENVIRONMENT = "thinkparity.environment";
         public static final String XMPP_DOMAIN = "xmpp.domain";
     }

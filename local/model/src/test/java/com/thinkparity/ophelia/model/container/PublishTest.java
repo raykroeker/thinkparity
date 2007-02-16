@@ -101,16 +101,16 @@ public class PublishTest extends ContainerTestCase {
             assertSimilar("Document version does not match expectation.", dv_latest, dv_latest_x);
             assertSimilar("Document version does not match expectation.", dv_latest, dv_latest_y);
 
-            is = getDocumentModel(datum.junit).openVersionStream(d.getId(), dv_latest.getVersionId());
-            is_x = getDocumentModel(datum.junit_x).openVersionStream(d_x.getId(), dv_latest_x.getVersionId());
+            is = getDocumentModel(datum.junit).openVersion(d.getId(), dv_latest.getVersionId());
+            is_x = getDocumentModel(datum.junit_x).openVersion(d_x.getId(), dv_latest_x.getVersionId());
             try {
                 assertEquals("Document version content does not match expectation.", is, is_x);
             } catch (final IOException iox) {
                 fail(createFailMessage(iox));
             }
 
-            is = getDocumentModel(datum.junit).openVersionStream(d.getId(), dv_latest.getVersionId());
-            is_y = getDocumentModel(datum.junit_y).openVersionStream(d_y.getId(), dv_latest_y.getVersionId());
+            is = getDocumentModel(datum.junit).openVersion(d.getId(), dv_latest.getVersionId());
+            is_y = getDocumentModel(datum.junit_y).openVersion(d_y.getId(), dv_latest_y.getVersionId());
             try {
                 assertEquals("Document version content does not match expectation.", is, is_y);
             } catch (final IOException iox) {

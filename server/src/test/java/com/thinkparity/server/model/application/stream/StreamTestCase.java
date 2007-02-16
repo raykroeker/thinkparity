@@ -17,10 +17,10 @@ import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.desdemona.DesdemonaTestUser;
 import com.thinkparity.desdemona.model.ModelTestCase;
-import com.thinkparity.desdemona.util.MD5Util;
 
 abstract class StreamTestCase extends ModelTestCase {
     protected StreamTestCase(final String name) {
@@ -44,7 +44,7 @@ abstract class StreamTestCase extends ModelTestCase {
         final String hashString = new StringBuffer(userId.toString())
                 .append(System.currentTimeMillis())
                 .toString();
-        return MD5Util.md5Hex(hashString.getBytes());
+        return MD5Util.md5Hex(hashString);
     }
     protected String createStream(final StreamServer server,
             final StreamSession session, final String streamIdSeed) {

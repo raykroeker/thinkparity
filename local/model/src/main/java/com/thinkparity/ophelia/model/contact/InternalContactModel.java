@@ -23,6 +23,12 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 public interface InternalContactModel extends ContactModel {
 
     /**
+     * Download the contacts from the server and create local contacts.
+     *
+     */
+    public void download();
+
+    /**
      * Handle the remote event generated when a contact is deleted.
      * 
      * @param deletedBy

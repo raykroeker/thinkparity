@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import com.thinkparity.codebase.OS;
+import com.thinkparity.codebase.Constants.XmlRpc;
 import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
@@ -28,6 +30,9 @@ import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -316,6 +321,27 @@ public final class IQReader implements ServiceRequestReader {
     }
 
     /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readOs(java.lang.String)
+     *
+     */
+    public OS readOs(final String name) {
+        final String value = readString(name);
+        if (null == value) {
+            return null;
+        } else {
+            return OS.valueOf(value);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readProduct(java.lang.String)
+     *
+     */
+    public Product readProduct(final String name) {
+        return (Product) readXStreamObject(name, new Product());
+    }
+
+    /**
      * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readProfileVCard(java.lang.String)
      *
      */
@@ -332,6 +358,29 @@ public final class IQReader implements ServiceRequestReader {
             xmlReader.close();
         }
     }
+
+    public final Release readRelease(final String name) {
+        return (Release) readXStreamObject(name, new Release());
+    }
+
+    public final List<Resource> readResources(final String name) {
+        final Element element = iq.getChildElement().element(name);
+        final Iterator iChildren = element.elementIterator(XmlRpc.LIST_ITEM);
+        final List<Resource> resources = new ArrayList<Resource>();
+        Dom4JReader dom4JReader;
+        while (iChildren.hasNext()) {
+            dom4JReader = new Dom4JReader((Element) iChildren.next());
+            try {
+                dom4JReader.moveDown();
+                resources.add((Resource) XSTREAM_UTIL.unmarshal(dom4JReader, new Resource()));
+            } finally {
+                dom4JReader.moveUp();
+                dom4JReader.close();
+            }
+        }
+        return resources;
+    }
+
 
     /**
      * Read string data.
@@ -415,6 +464,19 @@ public final class IQReader implements ServiceRequestReader {
             return null;
         } else {
             return e.getData();
+        }
+    }
+    private final <T extends Object> T readXStreamObject(final String name,
+            final T object) {
+        final Element element = iq.getChildElement().element(name);
+        final Dom4JReader xmlReader = new Dom4JReader(element);
+        xmlReader.moveDown();
+        try {
+            XSTREAM_UTIL.unmarshal(xmlReader, object);
+            return object;
+        } finally {
+            xmlReader.moveUp();
+            xmlReader.close();
         }
     }
 }

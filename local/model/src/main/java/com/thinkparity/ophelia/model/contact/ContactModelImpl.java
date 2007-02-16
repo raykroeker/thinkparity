@@ -413,7 +413,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             contactIO.createIncomingInvitation(incoming, extendedByUser);
             // fire event
             final IncomingInvitation postCreation = contactIO.readIncomingInvitation(incoming.getId());
-            notifyIncomingInvitationCreated(postCreation, localEventGenerator);
+            notifyIncomingInvitationCreated(postCreation, remoteEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }

@@ -114,7 +114,8 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      */
     public void syncIncomingInvitation(final Long invitationId,
             final Boolean remote) {
-        if (EventQueue.isDispatchThread()) {
+        // NOCOMMIT
+/*        if (EventQueue.isDispatchThread()) {
             model.syncIncomingInvitation(invitationId, remote);
         } else {
             SwingUtilities.invokeLater(new Runnable() {
@@ -123,7 +124,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
                 }
             });
         }
-        getController().runDisplayContactInvitationInfo();
+        getController().runDisplayContactInvitationInfo();*/
     }
 
     /**

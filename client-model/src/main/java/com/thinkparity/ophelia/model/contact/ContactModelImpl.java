@@ -418,6 +418,21 @@ public final class ContactModelImpl extends Model<ContactListener>
             throw translateError(t);
         }
     }
+    
+    // NOCOMMIT
+    public void TEST_sendInvitation(final User user) {
+        try {
+            // create user data
+            final IncomingInvitation incoming = new IncomingInvitation();
+            incoming.setCreatedBy(localUser().getLocalId());
+            incoming.setCreatedOn(currentDateTime());
+            //incoming.setInvitedAs(event.getInvitedAs());
+            incoming.setInvitedBy(user.getId());
+            notifyIncomingInvitationCreated(incoming, remoteEventGenerator);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     /**
      * Read a list of contacts.

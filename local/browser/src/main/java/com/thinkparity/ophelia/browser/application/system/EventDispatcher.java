@@ -3,14 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.system;
 
-import com.thinkparity.ophelia.model.events.ContactAdapter;
-import com.thinkparity.ophelia.model.events.ContactListener;
-import com.thinkparity.ophelia.model.events.ContainerAdapter;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
-import com.thinkparity.ophelia.model.events.ContainerListener;
-import com.thinkparity.ophelia.model.events.DocumentAdapter;
-import com.thinkparity.ophelia.model.events.DocumentListener;
-import com.thinkparity.ophelia.model.events.SessionListener;
+import com.thinkparity.ophelia.model.events.*;
 
 /**
  * The system application's event dispatcher.  
@@ -90,25 +83,29 @@ class EventDispatcher {
      * @return A <code>ContactListener</code>.
      */
     private ContactListener createContactListener() {
-        return new ContactAdapter() {};
+        return new ContactAdapter() {
+            @Override
+            public void incomingInvitationCreated(final ContactEvent e) {
+                if (e.isRemote()) {
+                    systemApplication.fireContactIncomingInvitationCreated(e);                    
+                }
+            }
+        };
     }
 
 	private ContainerListener createContainerListener() {
         return new ContainerAdapter() {
             @Override
             public void draftPublished(final ContainerEvent e) {
-                if (e.isRemote())
+                if (e.isRemote()) {
                     systemApplication.fireContainerDraftPublished(e);
+                }
             }
             @Override
-            public void teamMemberAdded(final ContainerEvent e) {
-                if (e.isRemote())
-                    systemApplication.fireContainerTeamMemberAdded(e);
-            }
-            @Override
-            public void teamMemberRemoved(final ContainerEvent e) {
-                if (e.isRemote())
-                    systemApplication.fireContainerTeamMemberRemoved(e);
+            public void versionPublished(final ContainerEvent e) {
+                if (e.isRemote()) {
+                    systemApplication.fireContainerVersionPublished(e);
+                }
             }
         };
     }

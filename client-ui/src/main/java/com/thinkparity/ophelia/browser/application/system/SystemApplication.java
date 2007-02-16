@@ -26,6 +26,7 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
 import com.thinkparity.ophelia.browser.platform.util.State;
+import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
@@ -250,7 +251,17 @@ public class SystemApplication extends AbstractApplication {
     }
 
     /**
-     * Fire the container draft created event.
+     * Fire the contact incoming invitation created event.
+     * 
+     * @param e
+     *            A <code>ContactEvent</code>.
+     */
+    void fireContactIncomingInvitationCreated(final ContactEvent e) {
+        fireNotification("Notification.ContactIncomingInvitationCreatedMessage");
+    }
+
+    /**
+     * Fire the container draft published event.
      * 
      * @param e
      *            A <code>ContainerEvent</code>.
@@ -263,24 +274,16 @@ public class SystemApplication extends AbstractApplication {
     }
 
     /**
-     * Fire the container draft created event.
+     * Fire the container version published event.
      * 
      * @param e
      *            A <code>ContainerEvent</code>.
      */
-    void fireContainerTeamMemberAdded(final ContainerEvent e) {
-        fireNotification("Notification.ContainerTeamMemberAddedMessage",
-                getName(e.getTeamMember()), e.getContainer().getName());
-    }
-    /**
-     * Fire the container draft created event.
-     * 
-     * @param e
-     *            A <code>ContainerEvent</code>.
-     */
-    void fireContainerTeamMemberRemoved(final ContainerEvent e) {
-        fireNotification("Notification.ContainerTeamMemberRemovedMessage",
-                getName(e.getTeamMember()), e.getContainer().getName());
+    void fireContainerVersionPublished(final ContainerEvent e) {
+        fireNotification("Notification.ContainerVersionPublishedMessage",
+                getName(e.getTeamMember()),
+                e.getContainer().getName(),
+                fuzzyDateFormat.format(e.getVersion().getUpdatedOn()));
     }
 
     /**

@@ -38,10 +38,13 @@ public class Delete extends AbstractAction {
     public void invoke(final Data data) {
         final JabberId contactId = (JabberId) data.get(DataKey.CONTACT_ID);
         final Contact contact = getContactModel().read(contactId);
+        
+        // NOCOMMIT
+        getContactModel().TEST_sendInvitation(contact);
 
-        if(browser.confirm("ContactDelete.ConfirmDeleteMessage", new Object[] {contact.getName()})) {
+/*        if(browser.confirm("ContactDelete.ConfirmDeleteMessage", new Object[] {contact.getName()})) {
             getContactModel().delete(contactId);
-        }
+        }*/
     }
 
     /**

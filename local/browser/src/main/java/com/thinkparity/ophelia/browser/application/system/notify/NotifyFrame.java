@@ -7,13 +7,17 @@
 package com.thinkparity.ophelia.browser.application.system.notify;
 
 import java.awt.AWTException;
+import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import com.thinkparity.codebase.swing.AbstractJDialog;
 
 import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.ophelia.browser.Constants.Dimensions;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
@@ -75,7 +79,7 @@ public class NotifyFrame extends AbstractJDialog {
                         framePersistence.set("location", frame.getLocation());
                     }
                 });
-                frame.setLocation(framePersistence.get("location", new Point(0, 0)));
+                frame.setLocation(framePersistence.get("location", frame.getDefaultLocation()));
             } catch (final AWTException awtx) {
                 throw new BrowserException("Could not instantiate notification dialogue.", awtx);
             }
@@ -120,7 +124,7 @@ public class NotifyFrame extends AbstractJDialog {
     private NotifyFrame() throws AWTException {
         super(null, Boolean.FALSE, "");
         initComponents();
-        new NativeSkin().roundCorners(this);
+        new NativeSkin().roundCorners(this, Dimensions.BrowserWindow.CORNER_SIZE);
         getRootPane().setBorder(new WindowBorder2());
     }
 
@@ -131,7 +135,23 @@ public class NotifyFrame extends AbstractJDialog {
     private void doDisplay(final Notification notification) {
         notifyPanel.display(notification);
     }
-    
+
+    /**
+     * Get the default location for the notify frame.
+     * This will be bottom right, accounting for the location of the taskbar.
+     * 
+     * @return The location for the frame.
+     */
+    private Point getDefaultLocation() {
+        final GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        final Rectangle maxBounds = env.getMaximumWindowBounds();
+        final Dimension windowSize = getSize();
+        final Point location = new Point(
+                maxBounds.x + maxBounds.width - windowSize.width - 20,
+                maxBounds.y + maxBounds.height - windowSize.height - 20);
+        return location;
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

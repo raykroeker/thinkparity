@@ -5,39 +5,30 @@
 	<classpathentry kind="src" path="local/thinkparity/src/main/java"/>
 	<classpathentry kind="src" output="target/test-classes" path="local/browser/src/test/java"/>
 	<classpathentry kind="src" output="target/test-classes" path="local/model/src/test/java"/>
-	<classpathentry kind="lib" path="vendor/commons-codec/1.3/commons-codec.jar" sourcepath="vendor/commons-codec/1.3/commons-codec-sources.jar"/>
-	<classpathentry kind="lib" path="vendor/swing-layout/1.0/swing-layout.jar" sourcepath="vendor/swing-layout/1.0/swing-layout-sources.jar"/>
-	<classpathentry kind="lib" path="vendor/smackx/2.2.1/smackx.jar" sourcepath="vendor/smackx/2.2.1/smackx-sources.jar"/>
-	<classpathentry kind="lib" path="vendor/smack/2.2.1/smack.jar" sourcepath="vendor/smack/2.2.1/smack-sources.jar"/>
-	<classpathentry kind="lib" path="vendor/lucene/1.9.1/lucene.jar" sourcepath="vendor/lucene/1.9.1/lucene-sources.jar"/>
-	<classpathentry kind="lib" path="vendor/log4j/1.2.13/log4j.jar" sourcepath="vendor/log4j/1.2.13/log4j-sources.jar"/>
-	<classpathentry kind="lib" path="vendor/junit/3.8.1/junit.jar" sourcepath="vendor/junit/3.8.1/junit-sources.jar"/>
-	<classpathentry kind="lib" path="vendor/nativeskin/6.7/nativeskin.jar" sourcepath="vendor/nativeskin/6.7/nativeskin-sources.jar">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/smack/2.2.1/smack.jar" sourcepath="/THINKPARITY_HOME/vendor/smack/2.2.1/smack-sources.jar"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/smackx/2.2.1/smackx.jar" sourcepath="/THINKPARITY_HOME/vendor/smackx/2.2.1/smackx-sources.jar"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/lucene/1.9.1/lucene.jar" sourcepath="/THINKPARITY_HOME/vendor/lucene/1.9.1/lucene-sources.jar"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/fop/0.20.5/avalon-framework-cvs-20020806.jar"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/fop/0.20.5/batik.jar"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/fop/0.20.5/fop.jar" sourcepath="/THINKPARITY_HOME/vendor/fop/0.20.5/fop-sources.jar"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/groovy/1.0/groovy.jar" sourcepath="/THINKPARITY_HOME/vendor/groovy/1.0/groovy-sources.jar"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jdic/0.9.1/win32/jdic.jar" sourcepath="/THINKPARITY_HOME/vendor/jdic_icon/0.1.1/win32/jdic_icon-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="ophelia/vendor/i686/win32/jdic/0.9.1"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jdic_icon/0.1.1/win32/jdic_icon.jar" sourcepath="/THINKPARITY_HOME/vendor/jdic/0.9.1/win32/jdic-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="ophelia/vendor/i686/win32/jdic_icon/0.1.1"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/swing-layout/1.0/swing-layout.jar" sourcepath="/THINKPARITY_HOME/vendor/swing-layout/1.0/swing-layout-sources.jar"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/nativeskin/6.7/nativeskin.jar" sourcepath="/THINKPARITY_HOME/vendor/nativeskin/6.7/nativeskin-sources.jar">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="ophelia/vendor/i686/win32/nativeskin/6.7"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="vendor/fop/0.20.5/fop.jar" sourcepath="vendor/fop/0.20.5/fop-sources.jar"/>
-	<classpathentry kind="lib" path="vendor/fop/0.20.5/avalon-framework-cvs-20020806.jar"/>
-	<classpathentry kind="lib" path="vendor/xstream/1.2.1/xstream.jar" sourcepath="vendor/xstream/1.2.1/xstream-sources.jar"/>
-	<classpathentry kind="lib" path="vendor/dom4j/1.6.1/dom4j.jar" sourcepath="vendor/dom4j/1.6.1/dom4j-sources.jar"/>
-	<classpathentry kind="lib" path="vendor/jotm/2.0.10/ow_carol.jar" sourcepath="vendor/jotm/2.0.10/carol-sources.jar"/>
-	<classpathentry kind="lib" path="vendor/jotm/2.0.10/jotm.jar" sourcepath="vendor/jotm/2.0.10/jotm-sources.jar"/>
-	<classpathentry kind="lib" path="vendor/jotm/2.0.10/jta-spec1_0_1.jar"/>
-	<classpathentry kind="lib" path="vendor/jotm/2.0.10/xapool.jar" sourcepath="vendor/jotm/2.0.10/xapool-sources.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="vendor/jotm/2.0.10/commons-logging.jar"/>
-	<classpathentry kind="lib" path="vendor/jotm/2.0.10/connector-1_5.jar"/>
-	<classpathentry kind="lib" path="vendor/jotm/2.0.10/howl.jar"/>
-	<classpathentry kind="lib" path="vendor/jotm/2.0.10/jotm_jrmp_stubs.jar"/>
-	<classpathentry kind="lib" path="vendor/groovy/1.0/groovy.jar"/>
-	<classpathentry kind="lib" path="vendor/jdic_icon/0.1.1/linux/jdic_icon.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
-	<classpathentry kind="lib" path="vendor/jdic/20061102/linux/jdic.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="ophelia/vendor/i686/linux/jdic/20061102"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="vendor/fop/0.20.5/batik.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

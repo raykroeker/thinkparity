@@ -96,15 +96,9 @@ class EventDispatcher {
 	private ContainerListener createContainerListener() {
         return new ContainerAdapter() {
             @Override
-            public void draftPublished(final ContainerEvent e) {
+            public void containerPublished(final ContainerEvent e) {
                 if (e.isRemote()) {
-                    systemApplication.fireContainerDraftPublished(e);
-                }
-            }
-            @Override
-            public void versionPublished(final ContainerEvent e) {
-                if (e.isRemote()) {
-                    systemApplication.fireContainerVersionPublished(e);
+                    systemApplication.fireContainerPublished(e);
                 }
             }
         };

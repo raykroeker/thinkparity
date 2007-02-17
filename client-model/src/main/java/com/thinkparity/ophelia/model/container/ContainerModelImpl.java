@@ -720,14 +720,8 @@ public final class ContainerModelImpl extends
             auditContainerPublished(postPublish, draft,
                     postPublishVersion, event.getPublishedBy(),
                     publishedToIds, event.getPublishedOn());
-            // TODO this is incorrect here
-            if (null == draft) {
-                notifyVersionPublished(postPublish, postPublishVersion,
-                        publishedBy, remoteEventGenerator);
-            } else {
-                notifyDraftPublished(postPublish, draft, postPublishVersion,
-                        publishedBy, remoteEventGenerator);
-            }
+            notifyContainerPublished(postPublish, draft, previous,
+                    postPublishVersion, publishedBy, remoteEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -932,8 +926,9 @@ public final class ContainerModelImpl extends
                 final Container postPublish = read(container.getId());
                 final ContainerVersion postPublishVersion = readVersion(
                         version.getArtifactId(), version.getVersionId());
-                notifyDraftPublished(postPublish, draft, postPublishVersion,
-                        localTeamMember(container.getId()), localEventGenerator);
+                notifyContainerPublished(postPublish, draft, previous,
+                        postPublishVersion, localTeamMember(container.getId()),
+                        localEventGenerator);
             } finally {
                 releaseDocuments(draftDocumentLocks.values());
             }
@@ -996,8 +991,10 @@ public final class ContainerModelImpl extends
             final Container postPublish = read(containerId);
             final ContainerVersion postPublishVersion =
                 readVersion(containerId, versionId);
-            notifyVersionPublished(postPublish, postPublishVersion,
-                    localTeamMember(containerId), localEventGenerator);
+            notifyContainerPublished(postPublish, null,
+                    readPreviousVersion(containerId, versionId),
+                    postPublishVersion, localTeamMember(containerId),
+                    localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         } finally {
@@ -2812,35 +2809,14 @@ public final class ContainerModelImpl extends
      * @param eventGenerator
      *            A <code>ContainerEventGenerator</code>.
      */
-    private void notifyDraftPublished(final Container container,
-            final ContainerDraft draft, final ContainerVersion version,
-            final TeamMember teamMember,
-            final ContainerEventGenerator eventGenerator) {
-        notifyListeners(new EventNotifier<ContainerListener>() {
-            public void notifyListener(final ContainerListener listener) {
-                listener.draftPublished(eventGenerator.generate(container,
-                        draft, version, teamMember));
-            }
-        });
-    }
-
-    /**
-     * Fire a version published event.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     * @param version
-     *            A <code>ContainerVersion</code>.
-     * @param eventGenerator
-     *            A <code>ContainerEventGenerator</code>.
-     */
-    private void notifyVersionPublished(final Container container,
+    private void notifyContainerPublished(final Container container,
+            final ContainerDraft draft, final ContainerVersion previousVersion,
             final ContainerVersion version, final TeamMember teamMember,
             final ContainerEventGenerator eventGenerator) {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
-                listener.versionPublished(eventGenerator.generate(container,
-                        teamMember, version));
+                listener.containerPublished(eventGenerator.generate(container,
+                        draft, previousVersion, version, teamMember));
             }
         });
     }

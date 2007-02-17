@@ -54,6 +54,14 @@ public interface ContainerListener extends EventListener {
     public void containerFlagged(final ContainerEvent e);
     
     /**
+     * A container was published.
+     * 
+     * @param e
+     *            The container event.
+     */
+    public void containerPublished(final ContainerEvent e);
+
+    /**
      * A container has been received.
      * 
      * @param e
@@ -126,14 +134,6 @@ public interface ContainerListener extends EventListener {
     public void draftDeleted(final ContainerEvent e);
 
     /**
-     * A container draft was published.
-     * 
-     * @param e
-     *            The container event.
-     */
-    public void draftPublished(final ContainerEvent e);
-
-    /**
      * A team member was added to a container.
      * 
      * @param e
@@ -148,12 +148,4 @@ public interface ContainerListener extends EventListener {
      *            The container event.
      */
     public void teamMemberRemoved(final ContainerEvent e);
-
-    /**
-     * A container version was published.
-     * 
-     * @param e
-     *            A <code>ContainerEvent</code>.
-     */
-    public void versionPublished(final ContainerEvent e);
 }

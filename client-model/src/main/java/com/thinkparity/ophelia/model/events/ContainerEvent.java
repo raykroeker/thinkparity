@@ -25,6 +25,9 @@ public class ContainerEvent {
     /** A draft. */
     private final ContainerDraft draft;
 
+    /** The previous <code>ContainerVersion</code>. */
+    private final ContainerVersion previousVersion;
+
     /** The event source. */
     private final Source source;
 
@@ -38,29 +41,12 @@ public class ContainerEvent {
      * Create ContainerEvent.
      * 
      * @param source
-     *            The <code>Source</code>.
-     * @param container
-     *            A <code>Container</code>.
-     * @param teamMember
-     *            A <code>TeamMember</code>.
-     * @param version
-     *            A <code>ContainerVersion</code>.
-     */
-    public ContainerEvent(final Source source, final Container container,
-            final TeamMember teamMember, final ContainerVersion version) {
-        this(source, container, null, version, teamMember, null);
-    }
-
-    /**
-     * Create ContainerEvent.
-     * 
-     * @param source
      *            The event source
      * @param container
      *            The container.
      */
     public ContainerEvent(final Source source, final Container container) {
-        this(source, container, null, null, null, null);
+        this(source, container, null, null, null, null, null);
     }
 
     /**
@@ -75,7 +61,7 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container,
             final ContainerDraft draft) {
-        this(source, container, draft, null, null, null);
+        this(source, container, draft, null, null, null, null);
     }
 
     /**
@@ -91,9 +77,9 @@ public class ContainerEvent {
      *            A container version.
      */
     public ContainerEvent(final Source source, final Container container,
-            final ContainerDraft draft, final ContainerVersion version,
-            final TeamMember teamMember) {
-        this(source, container, draft, version, teamMember, null);
+            final ContainerDraft draft, final ContainerVersion previousVersion,
+            final ContainerVersion version, final TeamMember teamMember) {
+        this(source, container, draft, previousVersion, version, teamMember, null);
     }
 
     /**
@@ -110,7 +96,7 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container,
             final ContainerDraft draft, final Document document) {
-        this(source, container, draft, null, null, document);
+        this(source, container, draft, null, null, null, document);
     }
 
     /**
@@ -125,7 +111,7 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container,
             final ContainerVersion version) {
-        this(source, container, null, version, null, null);
+        this(source, container, null, null, version, null, null);
     }
 
     /**
@@ -140,7 +126,24 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container,
             final TeamMember teamMember) {
-        this(source, container, null, null, teamMember, null);
+        this(source, container, null, null, null, teamMember, null);
+    }
+
+    /**
+     * Create ContainerEvent.
+     * 
+     * @param source
+     *            The <code>Source</code>.
+     * @param container
+     *            A <code>Container</code>.
+     * @param teamMember
+     *            A <code>TeamMember</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     */
+    public ContainerEvent(final Source source, final Container container,
+            final TeamMember teamMember, final ContainerVersion version) {
+        this(source, container, null, null, version, teamMember, null);
     }
 
     /**
@@ -152,7 +155,7 @@ public class ContainerEvent {
      *            The draft.
      */
     public ContainerEvent(final Source source, final ContainerDraft draft) {
-        this(source, null, draft, null, null, null);
+        this(source, null, draft, null, null, null, null);
     }
 
     /**
@@ -172,13 +175,15 @@ public class ContainerEvent {
      *            A document.
      */
     private ContainerEvent(final Source source, final Container container,
-            final ContainerDraft draft, final ContainerVersion version,
-            final TeamMember teamMember, final Document document) {
+            final ContainerDraft draft, final ContainerVersion previousVersion,
+            final ContainerVersion version, final TeamMember teamMember,
+            final Document document) {
         super();
         this.source = source;
         this.container = container;
         this.draft = draft;
         this.document = document;
+        this.previousVersion = previousVersion;
         this.teamMember = teamMember;
         this.version = version;
     }
@@ -203,6 +208,15 @@ public class ContainerEvent {
      * @return The draft.
      */
     public ContainerDraft getDraft() { return draft; }
+
+    /**
+     * Obtain the previous container version.
+     *
+     * @return A <code>ContainerVersion</code>.
+     */
+    public ContainerVersion getPreviousVersion() {
+        return previousVersion;
+    }
 
     /**
      * Obtain the user

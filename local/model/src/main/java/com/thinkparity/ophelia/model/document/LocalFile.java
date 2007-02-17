@@ -9,10 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
+import java.io.OutputStream;
 
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
@@ -104,8 +101,10 @@ class LocalFile extends ModelHelper<DocumentModelImpl> {
      */
     void delete(final LocalFileLock lock) {
         assertIsValid(lock);
-        if(lock.getFile().exists())
-            Assert.assertTrue(file.delete(), "Could not delete file {0}.", file);
+        Assert.assertTrue(file.delete(), "Could not delete file {0}.", file);
+// NOCOMMIT
+//        if(lock.getFile().exists())
+//            Assert.assertTrue(file.delete(), "Could not delete file {0}.", file);
     }
 
     /**
@@ -134,34 +133,36 @@ class LocalFile extends ModelHelper<DocumentModelImpl> {
      */
     <T extends LocalFileLock> T lock(final T instance)
             throws CannotLockException {
-        try {
-            final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rwd");
-            final FileChannel fileChannel = randomAccessFile.getChannel();
-            try {
-                instance.setFile(file);
-                instance.setRandomAccessFile(randomAccessFile);
-                instance.setFileChannel(fileChannel);
-                final FileLock fileLock = fileChannel.tryLock();
-                if (null == fileLock)
-                    throw new CannotLockException(file.getName());
-                instance.setFileLock(fileLock);
-                file.setWritable(true, true);
-                return instance;
-            } catch (final CannotLockException clx) {
-                throw clx;
-            } catch (final Throwable t) {
-                try {
-                    fileChannel.close();
-                } catch (final IOException iox) {
-                    logger.logError(iox, "Could not close file channel for {0}.", file);
-                }
-                throw panic(t);
-            }
-        } catch (final CannotLockException clx) {
-            throw clx;
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
+        return instance;
+// NOCOMMIT
+//        try {
+//            final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rwd");
+//            final FileChannel fileChannel = randomAccessFile.getChannel();
+//            try {
+//                instance.setFile(file);
+//                instance.setRandomAccessFile(randomAccessFile);
+//                instance.setFileChannel(fileChannel);
+//                final FileLock fileLock = fileChannel.tryLock();
+//                if (null == fileLock)
+//                    throw new CannotLockException(file.getName());
+//                instance.setFileLock(fileLock);
+//                file.setWritable(true, true);
+//                return instance;
+//            } catch (final CannotLockException clx) {
+//                throw clx;
+//            } catch (final Throwable t) {
+//                try {
+//                    fileChannel.close();
+//                } catch (final IOException iox) {
+//                    logger.logError(iox, "Could not close file channel for {0}.", file);
+//                }
+//                throw panic(t);
+//            }
+//        } catch (final CannotLockException clx) {
+//            throw clx;
+//        } catch (final Throwable t) {
+//            throw panic(t);
+//        }
     }
 
     /**
@@ -210,20 +211,21 @@ class LocalFile extends ModelHelper<DocumentModelImpl> {
      *            A <code>DocumentLock</code>.
      */
     void release(final LocalFileLock lock) {
-        try {
-            file.setWritable(lock.isWritable(), true);
-            if (lock.getFileLock().isValid())
-                lock.getFileLock().release();
-        } catch (final Throwable t) {
-            throw panic(t);
-        } finally {
-            try {
-                if (lock.getFileChannel().isOpen())
-                    lock.getFileChannel().close();
-            } catch (final Throwable t1) {
-                logger.logError(t1, "Could not release file lock for {0}.", file);
-            }
-        }
+// NOCOMMIT
+//        try {
+//            file.setWritable(lock.isWritable(), true);
+//            if (lock.getFileLock().isValid())
+//                lock.getFileLock().release();
+//        } catch (final Throwable t) {
+//            throw panic(t);
+//        } finally {
+//            try {
+//                if (lock.getFileChannel().isOpen())
+//                    lock.getFileChannel().close();
+//            } catch (final Throwable t1) {
+//                logger.logError(t1, "Could not release file lock for {0}.", file);
+//            }
+//        }
     }
 
     /**
@@ -235,9 +237,14 @@ class LocalFile extends ModelHelper<DocumentModelImpl> {
     void rename(final LocalFileLock lock, final String filename) {
         assertIsValid(lock);
         final File renameTo = new File(lock.getFile().getParentFile(), filename);
-        Assert.assertTrue(lock.getFile().renameTo(renameTo),
+        Assert.assertTrue(file.renameTo(renameTo),
                 "Cannot rename file {0} to {1}.",
                 lock.getFile(), renameTo);
+// NOCOMMIT
+//        final File renameTo = new File(lock.getFile().getParentFile(), filename);
+//        Assert.assertTrue(lock.getFile().renameTo(renameTo),
+//                "Cannot rename file {0} to {1}.",
+//                lock.getFile(), renameTo);
     }
 
     /**
@@ -246,7 +253,9 @@ class LocalFile extends ModelHelper<DocumentModelImpl> {
      */
     void setReadOnly(final LocalFileLock lock) {
         assertIsValid(lock);
-        lock.getFile().setReadOnly();
+        file.setReadOnly();
+// NOCOMMIT
+//        lock.getFile().setReadOnly();
     }
 
     /**
@@ -262,17 +271,30 @@ class LocalFile extends ModelHelper<DocumentModelImpl> {
      */
     void write(final LocalFileLock lock, final InputStream is, final Long time,
             final Integer buffer) throws IOException {
-        assertIsValid(lock);
-        final FileChannel fileChannel = lock.getFileChannel();
-        final byte[] bytes = new byte[buffer];
-        final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-        int bytesRead;
-        while ((bytesRead = is.read(bytes)) > 0) {
-            byteBuffer.position(0);
-            byteBuffer.limit(bytesRead);
-            fileChannel.write(byteBuffer);
+        write2(is, time, buffer);
+// NOCOMMIT
+//        assertIsValid(lock);
+//        final FileChannel fileChannel = lock.getFileChannel();
+//        final byte[] bytes = new byte[buffer];
+//        final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+//        int bytesRead;
+//        while ((bytesRead = is.read(bytes)) > 0) {
+//            byteBuffer.position(0);
+//            byteBuffer.limit(bytesRead);
+//            fileChannel.write(byteBuffer);
+//        }
+//        lock.getFile().setLastModified(time);
+    }
+
+    private void write2(final InputStream is, final Long time,
+            final Integer buffer) throws IOException {
+        final OutputStream os = new FileOutputStream(file);
+        try {
+            StreamUtil.copy(is, os, buffer);
+        } finally {
+            os.close();
         }
-        lock.getFile().setLastModified(time);
+        file.setLastModified(time);
     }
 
     /**
@@ -282,12 +304,13 @@ class LocalFile extends ModelHelper<DocumentModelImpl> {
      *            A <code>DocumentLock</code>.
      */
     private void assertIsValid(final LocalFileLock lock) {
-        Assert.assertNotNull(lock, "Local file lock for {0} is null.", file);
-        Assert.assertNotNull(lock.getFile(), "File for {0} is null.", file);
-        Assert.assertNotNull(lock.getFileChannel(), "File channel for {0} is null.", file);
-        Assert.assertNotNull(lock.getFileLock(), "File lock for {0} is null.", file);
-        Assert.assertTrue(lock.getFileLock().isValid(), "File lock for {0} is not valid.", file);
-        Assert.assertNotNull(lock.getRandomAccessFile(), "Random access file for {0} is null.", file);
+// NOCOMMIT
+//        Assert.assertNotNull(lock, "Local file lock for {0} is null.", file);
+//        Assert.assertNotNull(lock.getFile(), "File for {0} is null.", file);
+//        Assert.assertNotNull(lock.getFileChannel(), "File channel for {0} is null.", file);
+//        Assert.assertNotNull(lock.getFileLock(), "File lock for {0} is null.", file);
+//        Assert.assertTrue(lock.getFileLock().isValid(), "File lock for {0} is not valid.", file);
+//        Assert.assertNotNull(lock.getRandomAccessFile(), "Random access file for {0} is null.", file);
     }
 
     /**

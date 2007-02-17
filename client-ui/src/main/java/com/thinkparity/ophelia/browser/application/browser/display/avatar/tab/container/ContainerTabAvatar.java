@@ -10,10 +10,11 @@ import java.util.List;
 
 import javax.swing.SwingUtilities;
 
+import com.thinkparity.ophelia.model.events.ContainerEvent;
+
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.container.ContainerTabDispatcher;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * <b>Title:</b>thinkParity Container Tab Avatar<br>
@@ -167,16 +168,10 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      * @param e
      *            A <code>ContainerEvent</code>.
      */
-    public void fireDraftPublished(final ContainerEvent e) {
-        if (e.isRemote()) {
+    public void fireContainerPublished(final ContainerEvent e) {
+        if (e.isRemote())
             removeFlagSeen(e);
-            // Display information when containers are seen for
-            // the first time. In this case we can't assume that
-            // fireSeenFlagUpdated() will be called.
-            getController().runDisplayContainerSeenFlagInfo();
-        }
-        
-        sync(e);
+        sync(e); 
     }
 
     /**
@@ -261,23 +256,6 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      */
     public void fireUpdated(final ContainerEvent e) {
         sync(e);
-    }
-
-    /**
-     * Notify the avatar that a container version has been published.
-     * 
-     * @param e
-     *            A <code>ContainerEvent</code>.       
-     */
-    public void fireVersionPublished(final ContainerEvent e) {
-        if (e.isRemote()) {
-            removeFlagSeen(e);
-            // Display information when containers are seen for
-            // the first time. In this case we can't assume that
-            // fireSeenFlagUpdated() will be called.
-            getController().runDisplayContainerSeenFlagInfo();
-        }
-        sync(e); 
     }
 
     /**

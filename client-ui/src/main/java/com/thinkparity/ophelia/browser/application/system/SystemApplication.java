@@ -5,12 +5,14 @@ package com.thinkparity.ophelia.browser.application.system;
 
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.ophelia.model.events.ContactEvent;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -26,8 +28,8 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
 import com.thinkparity.ophelia.browser.platform.util.State;
-import com.thinkparity.ophelia.model.events.ContactEvent;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -266,24 +268,20 @@ public class SystemApplication extends AbstractApplication {
      * @param e
      *            A <code>ContainerEvent</code>.
      */
-    void fireContainerDraftPublished(final ContainerEvent e) {
-        fireNotification("Notification.ContainerDraftPublishedMessage",
-                getName(e.getTeamMember()),
-                e.getContainer().getName(),
-                fuzzyDateFormat.format(e.getVersion().getUpdatedOn()));
-    }
-
-    /**
-     * Fire the container version published event.
-     * 
-     * @param e
-     *            A <code>ContainerEvent</code>.
-     */
-    void fireContainerVersionPublished(final ContainerEvent e) {
-        fireNotification("Notification.ContainerVersionPublishedMessage",
-                getName(e.getTeamMember()),
-                e.getContainer().getName(),
-                fuzzyDateFormat.format(e.getVersion().getUpdatedOn()));
+    void fireContainerPublished(final ContainerEvent e) {
+        if (null == e.getPreviousVersion()) {
+            // this is the first publish event
+            fireNotification("Notification.ContainerDraftPublishedMessage",
+                    getName(e.getTeamMember()),
+                    e.getContainer().getName(),
+                    fuzzyDateFormat.format(e.getVersion().getUpdatedOn()));
+        } else {
+            // this is a subsequent publish event
+            fireNotification("Notification.ContainerDraftPublishedMessage",
+                    getName(e.getTeamMember()),
+                    e.getContainer().getName(),
+                    fuzzyDateFormat.format(e.getVersion().getUpdatedOn()));
+        }
     }
 
     /**

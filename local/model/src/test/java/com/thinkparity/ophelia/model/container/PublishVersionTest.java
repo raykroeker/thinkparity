@@ -81,7 +81,7 @@ public class PublishVersionTest extends ContainerTestCase {
             this.junit_y = junit_y;
             this.listener = new ContainerAdapter() {
                 @Override
-                public void versionPublished(final ContainerEvent e) {
+                public void containerPublished(final ContainerEvent e) {
                     published = true;
                     assertNotNull("Container event is null.", e);
                     assertNotNull("Container event container is null.", e.getContainer());

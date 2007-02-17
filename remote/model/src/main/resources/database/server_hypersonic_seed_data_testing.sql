@@ -35,6 +35,13 @@ insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISA
     values('junit', 'What is my username?', 'junit',false,'<com.thinkparity.codebase.model.user.UserVCard><name>JUnit thinkParity</name></com.thinkparity.codebase.model.user.UserVCard>');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('junit.w','parity',0,0);
+insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
+    values('junit.w', 'junit.w@thinkparity.com', true);
+insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
+    values('junit.w','What is my username?','junit.w',false,'<com.thinkparity.codebase.model.user.UserVCard><name>JUnit.W thinkParity</name></com.thinkparity.codebase.model.user.UserVCard>');
+
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('junit.x','parity',0,0);
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('junit.x', 'junit.x@thinkparity.com', true);

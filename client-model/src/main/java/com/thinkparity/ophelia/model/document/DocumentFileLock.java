@@ -83,6 +83,16 @@ public class DocumentFileLock {
             fileLock.release();
             fileLock = null;
         }
+        if (null != fileChannel) {
+            if (fileChannel.isOpen()) {
+                fileChannel.close();
+            }
+            fileChannel = null;
+        }
+        if (null != randomAccessFile) {
+            randomAccessFile.close();
+            randomAccessFile = null;
+        }
     }
 
     /**

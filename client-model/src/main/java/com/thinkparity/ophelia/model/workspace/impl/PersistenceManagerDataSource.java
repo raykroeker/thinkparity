@@ -7,7 +7,10 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import com.thinkparity.codebase.StringUtil.Separator;
+
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
+import com.thinkparity.ophelia.model.Constants.FileNames;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import org.enhydra.jdbc.standard.StandardXADataSource;
@@ -31,7 +34,7 @@ class PersistenceManagerDataSource extends StandardXADataSource {
     private static final String DS_USER;
 
     static {
-        DS_DRIVER_NAME = "org.apache.derby.jdbc.EmbeddedDriver";
+        DS_DRIVER_NAME = "org.hsqldb.jdbcDriver";
         DS_USER = "sa";
         DS_PASSWORD = "";
     }
@@ -45,13 +48,21 @@ class PersistenceManagerDataSource extends StandardXADataSource {
         setDriverName(DS_DRIVER_NAME);
         setPassword(DS_PASSWORD);
         setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
-        final File persistenceDirectory = new File(workspace.getDataDirectory(),
-                DirectoryNames.Workspace.Data.DB);
-        final StringBuffer url = new StringBuffer("jdbc:derby:")
-            .append(persistenceDirectory.getAbsolutePath());
-        if (!persistenceDirectory.exists())
-            url.append(";create=true");
-        setUrl(url.toString());
+        setUrl(new StringBuffer("jdbc:hsqldb:file:")
+            .append(workspace.getDataDirectory().getAbsolutePath())
+            .append(File.separator)
+            .append(DirectoryNames.Workspace.Data.DB)
+            .append(File.separator)
+            .append(FileNames.Workspace.Data.DB)
+            .append(Separator.SemiColon)
+            .append("hsqldb.default_table_type")
+            .append(Separator.Equals)
+            .append("cached")
+            .append(Separator.SemiColon)
+            .append("sql.tx_no_multi_rewrite")
+            .append(Separator.Equals)
+            .append("TRUE")
+            .toString());
         setUser(DS_USER);
     }
 

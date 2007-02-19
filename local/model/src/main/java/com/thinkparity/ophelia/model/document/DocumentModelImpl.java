@@ -446,6 +446,7 @@ public final class DocumentModelImpl extends
                     try {
                         writeFile(lock, stream);
                         draftFile.setLastModified(latestVersion.getCreatedOn().getTimeInMillis());
+                        draftFile.setWritable(true, true);
                     } finally {
                         stream.close();
                     }

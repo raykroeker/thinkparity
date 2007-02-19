@@ -208,7 +208,9 @@ public final class DocumentModelImpl extends
     public void deleteDraft(final DocumentFileLock lock, final Long documentId) {
         try {
             assertDoesExistDraft(documentId, "Draft does not exist.");
-            lock.getFile().delete();
+            lock.release();
+            Assert.assertTrue(lock.getFile().delete(),
+                    "Could not delete draft file {0}.", lock.getFile());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -389,7 +391,6 @@ public final class DocumentModelImpl extends
         try {
             final DocumentFileLock lock = new DocumentFileLock();
             final File draftFile = getDraftFile(document);
-            lock.setWritable(draftFile.canWrite());
             draftFile.setWritable(true, true);
             final FileChannel draftFileChannel = new RandomAccessFile(draftFile, "rws").getChannel();
             final FileLock draftFileLock = draftFileChannel.tryLock();
@@ -1228,7 +1229,6 @@ public final class DocumentModelImpl extends
         final DocumentFileLock lock = new DocumentFileLock();
         final Document document = read(version.getArtifactId());
         final File versionFile = getVersionFile(document, version);
-        lock.setWritable(versionFile.canWrite());
         versionFile.setWritable(true, true);
         final FileChannel versionFileChannel = new RandomAccessFile(versionFile, mode).getChannel();
         final FileLock versionFileLock = versionFileChannel.tryLock();

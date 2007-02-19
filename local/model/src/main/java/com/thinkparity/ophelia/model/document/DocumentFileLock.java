@@ -30,9 +30,6 @@ public class DocumentFileLock {
     /** The <code>RandomAccessFile</code>. */
     private RandomAccessFile randomAccessFile;
 
-    /** Whether or not the file started out as writable. */
-    private Boolean writable;
-
     /**
      * Create DocumentLock.
      *
@@ -78,22 +75,14 @@ public class DocumentFileLock {
     }
 
     /**
-     * Obtain writable.
-     *
-     * @return A Boolean.
-     */
-    public Boolean isWritable() {
-        return writable;
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.document.LocalFileLock#release()
      *
      */
     public void release() throws IOException {
-        if (null != fileLock)
+        if (null != fileLock) {
             fileLock.release();
-        file.setWritable(isWritable(), true);
+            fileLock = null;
+        }
     }
 
     /**
@@ -134,15 +123,5 @@ public class DocumentFileLock {
      */
     public void setRandomAccessFile(final RandomAccessFile randomAccessFile) {
         this.randomAccessFile = randomAccessFile;
-    }
-
-    /**
-     * Set writable.
-     *
-     * @param writable
-     *		A Boolean.
-     */
-    public void setWritable(final Boolean writable) {
-        this.writable = writable;
     }
 }

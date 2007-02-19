@@ -66,6 +66,21 @@ public interface InternalDocumentModel extends DocumentModel {
             final Calendar createdOn);
 
     /**
+     * Create a new document version based upon an existing document. This will
+     * check the cache for updates to the document, write the updates to the
+     * document, then create a new version based upon that document.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @param createdOn
+     *            A created on <code>Calendar</code>.
+     * @return The newly created version.
+     */
+    public DocumentVersion createVersion(final DocumentFileLock lock,
+            final Long documentId, final InputStream stream,
+            final Integer buffer, final Calendar createdOn);
+
+    /**
      * Delete a document.
      * 
      * @param lock

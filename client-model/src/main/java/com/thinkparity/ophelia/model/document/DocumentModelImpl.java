@@ -184,6 +184,23 @@ public final class DocumentModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#createVersion(com.thinkparity.ophelia.model.document.DocumentFileLock, java.lang.Long, java.io.InputStream, java.lang.Integer, java.util.Calendar)
+     *
+     */
+    public DocumentVersion createVersion(final DocumentFileLock lock,
+            final Long documentId, final InputStream stream,
+            final Integer buffer, final Calendar createdOn) {
+        try {
+            assertDraftIsModified(lock, documentId, "Draft has not been modified.");
+
+            return createVersion(documentId, readNextVersionId(documentId),
+                        stream, buffer, localUserId(), createdOn);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#delete(com.thinkparity.codebase.model.document.DocumentLock,
      *      java.lang.Long)
      * 
@@ -943,6 +960,23 @@ public final class DocumentModelImpl extends
     private void assertDraftIsModified(final Long documentId,
             final String assertMessage, final Object... assertArguments) {
         Assert.assertTrue(isDraftModified(documentId), assertMessage,
+                assertArguments);
+    }
+
+    /**
+     * Assert that the document's draft is modified.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @param assertMessage
+     *            An assertion message <code>String</code>.
+     * @param assertArguments
+     *            An assertion message's arguments <code>Object...</code>.
+     */
+    private void assertDraftIsModified(final DocumentFileLock lock,
+            final Long documentId, final String assertMessage,
+            final Object... assertArguments) {
+        Assert.assertTrue(isDraftModified(lock, documentId), assertMessage,
                 assertArguments);
     }
 

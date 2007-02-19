@@ -936,6 +936,7 @@ public final class ContainerModelImpl extends
                             try {
                                 draftDocumentLatestVersion =
                                     documentModel.createVersion(
+                                            locks.get(document),
                                             document.getId(), stream,
                                             PUBLISH_CREATE_VERSION_BUFFER,
                                             publishedOn);

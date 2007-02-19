@@ -40,6 +40,17 @@ public interface InternalDocumentModel extends DocumentModel {
             final Long documentId);
 
     /**
+     * Determine whether or not the draft of the document has been modified by
+     * the user.
+     * 
+     * @param documentId
+     *            The document id.
+     * @return True if the draft of the document has been modified.
+     */
+    public Boolean isDraftModified(final DocumentFileLock lock,
+            final Long documentId);
+
+    /**
      * Create a new document version based upon an existing document. This will
      * check the cache for updates to the document, write the updates to the
      * document, then create a new version based upon that document.

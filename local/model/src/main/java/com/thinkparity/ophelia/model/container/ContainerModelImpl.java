@@ -1916,7 +1916,7 @@ public final class ContainerModelImpl extends
                 File file;
                 InputStream stream;
                 for (final Document document : draft.getDocuments()) {
-                    if (documentModel.isDraftModified(document.getId())) {
+                    if (documentModel.isDraftModified(locks.get(document), document.getId())) {
                         documentDraft = documentModel.readDraft(locks.get(document), document.getId());
                         draftDocument = containerIO.readDraftDocument(
                                 containerId, document.getId());

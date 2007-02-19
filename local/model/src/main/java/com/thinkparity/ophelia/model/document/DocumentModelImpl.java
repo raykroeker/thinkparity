@@ -74,7 +74,7 @@ public final class DocumentModelImpl extends
 
     private static final Integer WRITE_FILE_BUFFER;
 
-	static {
+    static {
         final Integer buffer = 1024;
         CHECKSUM_FILE_BUFFER = buffer;
         COPY_FILE_BUFFER = buffer;
@@ -86,18 +86,18 @@ public final class DocumentModelImpl extends
 	/** The default document version comparator. */
 	private final Comparator<ArtifactVersion> defaultVersionComparator;
 
-    /** A document reader/writer. */
+	/** A document reader/writer. */
 	private DocumentIOHandler documentIO;
 
-	/** A document event generator for local events. */
+    /** A document event generator for local events. */
     private final DocumentModelEventGenerator localEventGen;
 
-    /** The directory beneath which all files are stored. */
+	/** The directory beneath which all files are stored. */
     private File localFilesDirectory;
 
     private final DocumentNameGenerator nameGenerator;
 
-	/**
+    /**
 	 * Create a DocumentModelImpl
 	 * 
 	 * @param workspace
@@ -111,7 +111,7 @@ public final class DocumentModelImpl extends
         this.nameGenerator = new DocumentNameGenerator();
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.Model#addListener(com.thinkparity.codebase.event.EventListener)
      *
 	 */
@@ -234,27 +234,15 @@ public final class DocumentModelImpl extends
         }
     }
 
-
-    /**
-     * Determine whether or not a draft exists.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @return True if the draft exists.
-     */
-    private Boolean doesExistDraft(final DocumentFileLock lock) {
-        final File draftFile = getDraftFile(lock);
-        return draftFile.exists();
-    }
-
     /**
      * @see com.thinkparity.ophelia.model.document.DocumentModel#get(java.lang.Long)
      *
      */
     public Document get(final Long documentId) {
         return read(documentId);
-    }        
-        
+    }
+
+
     /**
      * Obtain a document name generator.
      * 
@@ -343,6 +331,38 @@ public final class DocumentModelImpl extends
                 getIndexModel().indexDocument(containerId, document.getId());
             }
             return localVersion;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }        
+        
+    /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#isDraftModified(com.thinkparity.ophelia.model.document.DocumentFileLock, java.lang.Long)
+     *
+     */
+    public Boolean isDraftModified(final DocumentFileLock lock,
+            final Long documentId) {
+        try {
+            final File draftFile = getDraftFile(lock);
+            if (draftFile.exists()) {
+                final DocumentVersion latestVersion = readLatestVersion(documentId);
+                if (null == latestVersion) {
+                    return Boolean.TRUE;
+                } else {
+                    final long latestVersionCreatedOn =
+                        latestVersion.getCreatedOn().getTimeInMillis();
+                    /* the time stamp is checked first because it is fast;
+                     * however documents are considered different only if the
+                     * checksums are different */
+                    if (draftFile.lastModified() == latestVersionCreatedOn) {
+                        return Boolean.FALSE;
+                    } else {
+                        return !latestVersion.getChecksum().equals(checksum(lock));
+                    }
+                }
+            } else {
+                return Boolean.FALSE;
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -461,8 +481,6 @@ public final class DocumentModelImpl extends
 		}
 	}
 
-    
-
     /**
      * Open an input stream to read the document draft. Note: It is a good
      * idea to buffer the input stream.
@@ -480,6 +498,8 @@ public final class DocumentModelImpl extends
             throw panic(t);
         }
     }
+
+    
 
     /**
      * Open an input stream to read the document version. Note: It is a good
@@ -597,7 +617,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * Read a document.
      * 
      * @param documentId
@@ -610,7 +630,7 @@ public final class DocumentModelImpl extends
         return documentIO.get(documentId);
     }
 
-    /**
+	/**
 	 * Obtain a document with the specified unique id.
 	 * 
 	 * @param documentUniqueId
@@ -626,28 +646,6 @@ public final class DocumentModelImpl extends
             throw translateError(t);
 		}
 	}
-
-    /**
-     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#readDraft(java.lang.Long)
-     *
-     */
-    public DocumentDraft readDraft(final Long documentId) {
-        try {
-            if (doesExistDraft(documentId)) {
-                final File draftFile = getDraftFile(read(documentId));
-                final DocumentDraft draft = new DocumentDraft();
-                draft.setChecksum(checksum(draftFile, CHECKSUM_FILE_BUFFER));
-                draft.setChecksumAlgorithm(getChecksumAlgorithm());
-                draft.setDocumentId(documentId);
-                draft.setSize(draftFile.length());
-                return draft;
-            } else {
-                return null;
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
 
     /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#readDraft(com.thinkparity.ophelia.model.document.DocumentFileLock)
@@ -673,19 +671,28 @@ public final class DocumentModelImpl extends
     }
 
     /**
-     * Calculate a checksum for the lock.
-     * 
-     * @param lock
-     *            A <code>DocumentFileLock</code>.
-     * @return A checksum <code>String</code>.
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#readDraft(java.lang.Long)
+     *
      */
-    private String checksum(final DocumentFileLock lock) throws IOException {
-        final FileChannel fileChannel = lock.getFileChannel();
-        fileChannel.position(0);
-        return checksum(fileChannel, CHECKSUM_FILE_BUFFER);
+    public DocumentDraft readDraft(final Long documentId) {
+        try {
+            if (doesExistDraft(documentId)) {
+                final File draftFile = getDraftFile(read(documentId));
+                final DocumentDraft draft = new DocumentDraft();
+                draft.setChecksum(checksum(draftFile, CHECKSUM_FILE_BUFFER));
+                draft.setChecksumAlgorithm(getChecksumAlgorithm());
+                draft.setDocumentId(documentId);
+                draft.setSize(draftFile.length());
+                return draft;
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
-	/**
+    /**
      * Obtain the first available version.
      * 
      * @param documentId
@@ -728,7 +735,7 @@ public final class DocumentModelImpl extends
 		}
 	}
 
-    /**
+	/**
      * Read a document version.
      * 
      * @param documentId
@@ -748,7 +755,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#readVersions(java.lang.Long)
      *
      */
@@ -796,7 +803,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#release(com.thinkparity.codebase.model.document.Document)
      *
      */
@@ -808,7 +815,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#remove(com.thinkparity.codebase.model.document.DocumentLock,
      *      java.lang.Long)
      * 
@@ -858,7 +865,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#revertDraft(com.thinkparity.codebase.model.document.DocumentLock,
      *      java.lang.Long)
      * 
@@ -937,6 +944,19 @@ public final class DocumentModelImpl extends
             final String assertMessage, final Object... assertArguments) {
         Assert.assertTrue(isDraftModified(documentId), assertMessage,
                 assertArguments);
+    }
+
+    /**
+     * Calculate a checksum for the lock.
+     * 
+     * @param lock
+     *            A <code>DocumentFileLock</code>.
+     * @return A checksum <code>String</code>.
+     */
+    private String checksum(final DocumentFileLock lock) throws IOException {
+        final FileChannel fileChannel = lock.getFileChannel();
+        fileChannel.position(0);
+        return checksum(fileChannel, CHECKSUM_FILE_BUFFER);
     }
 
     /**
@@ -1144,6 +1164,18 @@ public final class DocumentModelImpl extends
         // delete document
         deleteFile(lock);
 		documentIO.delete(documentId);
+    }
+
+    /**
+     * Determine whether or not a draft exists.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return True if the draft exists.
+     */
+    private Boolean doesExistDraft(final DocumentFileLock lock) {
+        final File draftFile = getDraftFile(lock);
+        return draftFile.exists();
     }
 
     /**

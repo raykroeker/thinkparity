@@ -159,7 +159,7 @@ public final class DocumentModelImpl extends
             } finally {
                 stream.close();
             }
-            return readDraft(documentId);
+            return readDraft(lock, documentId);
         } catch (final Throwable t) {
             throw translateError(t);
         }

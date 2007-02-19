@@ -3,9 +3,7 @@
  */
 package com.thinkparity.ophelia.model.document;
 
-import java.io.File;
-import java.util.Vector;
-
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
@@ -18,80 +16,80 @@ import com.thinkparity.ophelia.OpheliaTestUser;
  */
 public class ReadVersionTest extends DocumentTestCase {
 
-	private Vector<Fixture> data;
+    /** Test the read version api. */
+    private static final String NAME = "Test read version.";
 
-	/**
-	 * Create a GetVersionTest.
-	 */
-	public ReadVersionTest() { super("testGetVersion"); }
+    /** Test datum <code>Fixture</code>. */
+	private Fixture datum;
+
+    /**
+     * Create ReadVersionTest.
+     *
+     */
+	public ReadVersionTest() {
+        super(NAME);
+    }
 
 	/**
 	 * Test the document model getVersion api.
 	 *
 	 */
 	public void testGetVersion() {
-		try {
-			DocumentVersion documentVersion;
-			for(Fixture datum : data) {
-				documentVersion =
-					datum.documentModel.readVersion(datum.documentId, datum.versionId);
+        final Container c = createContainer(datum.junit, NAME);
+        final Document d = addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity");
+        datum.waitForEvents();
 
-				assertNotNull(documentVersion);
-				assertEquals(datum.documentVersion.getArtifactId(), documentVersion.getArtifactId());
-				assertEquals(datum.documentVersion.getArtifactType(), documentVersion.getArtifactType());
-				assertEquals(datum.documentVersion.getArtifactUniqueId(), documentVersion.getArtifactUniqueId());
-				assertEquals(datum.documentVersion.getCreatedBy(), documentVersion.getCreatedBy());
-				assertEquals(datum.documentVersion.getCreatedOn(), documentVersion.getCreatedOn());
-				assertEquals(datum.documentVersion.getMetaData(), documentVersion.getMetaData());
-				assertEquals(datum.documentVersion.getName(), documentVersion.getName());
-				assertEquals(datum.documentVersion.getUpdatedBy(), documentVersion.getUpdatedBy());
-				assertEquals(datum.documentVersion.getUpdatedOn(), documentVersion.getUpdatedOn());
-				assertEquals(datum.documentVersion.getVersionId(), documentVersion.getVersionId());
-			}
-		}
-		catch(Throwable t) { fail(createFailMessage(t)); }
+        final DocumentVersion dv_latest = getDocumentModel(datum.junit).readLatestVersion(d.getId());
+        final DocumentVersion dv = getDocumentModel(datum.junit).readVersion(d.getId(), dv_latest.getVersionId());
+
+        assertNotNull("Document version is null.", dv);
+		assertEquals("Document version artifact id does not match expectation.", dv_latest.getArtifactId(), dv.getArtifactId());
+		assertEquals("Document version artifact type does not match expectation.", dv_latest.getArtifactType(), dv.getArtifactType());
+		assertEquals("Document version unique id does not match expectation.", dv_latest.getArtifactUniqueId(), dv.getArtifactUniqueId());
+		assertEquals("Document version created by does not match expectation.", dv_latest.getCreatedBy(), dv.getCreatedBy());
+		assertEquals("Document version created on does not match expectation.", dv_latest.getCreatedOn(), dv.getCreatedOn());
+		assertEquals("Document version meta data does not match expectation.", dv_latest.getMetaData(), dv.getMetaData());
+		assertEquals("Document version name does not match expectation.", dv_latest.getName(), dv.getName());
+		assertEquals("Document version updated by does not match expectation.", dv_latest.getUpdatedBy(), dv.getUpdatedBy());
+		assertEquals("Document version updated on does not match expectation.", dv_latest.getUpdatedOn(), dv.getUpdatedOn());
+		assertEquals("Document version version id does not match expectation.", dv_latest.getVersionId(), dv.getVersionId());
 	}
 
-	/**
-	 * @see com.thinkparity.ophelia.model.ModelTestCase#setUp()
-	 */
-	protected void setUp() throws Exception {
-		super.setUp();
-		final InternalDocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
-		data = new Vector<Fixture>(getInputFilesLength());
+    /**
+     * @see com.thinkparity.ophelia.model.test.ticket.TicketTestCase#setUp()
+     *
+     */
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        datum = new Fixture(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X);
+        login(datum.junit);
+        login(datum.junit_x);
+    }
 
-		Document document;
-		DocumentVersion documentVersion;
-		for(File testFile : getInputFiles()) {
-			document = create(OpheliaTestUser.JUNIT, testFile);
-			documentModel.createVersion(document.getId(), currentDateTime());
-			documentVersion = documentModel.readVersions(document.getId()).iterator().next();
-			data.add(new Fixture(document.getId(), documentModel, documentVersion, documentVersion.getVersionId()));
-		}
-	}
+    /**
+     * @see com.thinkparity.ophelia.model.test.ticket.TicketTestCase#tearDown()
+     *
+     */
+    @Override
+    protected void tearDown() throws Exception {
+        logout(datum.junit);
+        logout(datum.junit_x);
+        datum = null;
+        super.tearDown();
+    }
 
-	/**
-	 * @see com.thinkparity.ophelia.model.ModelTestCase#tearDown()
-	 */
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		data.clear();
-		data = null;
-	}
-
-	private class Fixture {
-		private final Long documentId;
-		private final InternalDocumentModel documentModel;
-		private final DocumentVersion documentVersion;
-		private final Long versionId;
-		private Fixture(final Long documentId,
-				final InternalDocumentModel documentModel,
-				final DocumentVersion documentVersion, final Long versionId) {
-			super();
-			this.documentId = documentId;
-			this.documentModel = documentModel;
-			this.documentVersion = documentVersion;
-			this.versionId = versionId;
-		}
-	}
+    /** Test datum fixture. */
+    private class Fixture extends DocumentTestCase.Fixture {
+        private final OpheliaTestUser junit;
+        private final OpheliaTestUser junit_x;
+        private Fixture(final OpheliaTestUser junit,
+                final OpheliaTestUser junit_x) {
+            this.junit = junit;
+            this.junit_x = junit_x;
+            addQueueHelper(junit);
+            addQueueHelper(junit_x);
+        }
+    }
 }

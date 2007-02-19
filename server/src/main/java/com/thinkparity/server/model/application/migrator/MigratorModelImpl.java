@@ -464,7 +464,7 @@ class MigratorModelImpl extends AbstractModelImpl {
                 new FileInputStream(releaseFile), VALIDATE_RELEASE_CHECKSUM_BUFFER);
         final String streamFileChecksum;
         try {
-            streamFileChecksum = MD5Util.md5Hex(streamFileInput);
+            streamFileChecksum = MD5Util.md5Hex(streamFileInput, VALIDATE_RELEASE_CHECKSUM_BUFFER);
         } finally {
             streamFileInput.close();
         }

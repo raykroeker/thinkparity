@@ -20,12 +20,9 @@ public class DocumentVersion extends ArtifactVersion {
 
     /** The content checksum. */
     private String checksum;
-
-    /** The level of compression. */
-    private Integer compression;
-
-    /** The content encoding. */
-    private String encoding;
+    
+    /** The checksum algorithm. */
+    private String checksumAlgorithm;
 
     /** The content size. */
     private Long size;
@@ -41,18 +38,13 @@ public class DocumentVersion extends ArtifactVersion {
     public String getChecksum() { return checksum; }
 
     /**
-     * Obtain the compression
+     * Obtain checksumAlgorithm.
      *
-     * @return The Integer.
+     * @return A String.
      */
-    public Integer getCompression() { return compression; }
-
-    /**
-     * Obtain the encoding
-     *
-     * @return The String.
-     */
-    public String getEncoding() { return encoding; }
+    public String getChecksumAlgorithm() {
+        return checksumAlgorithm;
+    }
 
     /**
      * Obtain size.
@@ -68,23 +60,19 @@ public class DocumentVersion extends ArtifactVersion {
      *
      * @param checksum The String.
      */
-    public void setChecksum(final String checksum) { this.checksum = checksum; }
-
-    /**
-     * Set compression.
-     *
-     * @param compression The Integer.
-     */
-    public void setCompression(final Integer compression) {
-        this.compression = compression;
+    public void setChecksum(final String checksum) {
+        this.checksum = checksum;
     }
 
     /**
-     * Set encoding.
+     * Set checksumAlgorithm.
      *
-     * @param encoding The String.
+     * @param checksumAlgorithm
+     *		A String.
      */
-    public void setEncoding(final String encoding) { this.encoding = encoding; }
+    public void setChecksumAlgorithm(final String checksumAlgorithm) {
+        this.checksumAlgorithm = checksumAlgorithm;
+    }
 
     /**
      * Set size.

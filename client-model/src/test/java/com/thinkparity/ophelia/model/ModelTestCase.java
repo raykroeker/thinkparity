@@ -5,12 +5,10 @@ package com.thinkparity.ophelia.model;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,8 +51,6 @@ import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
 import com.thinkparity.ophelia.model.container.monitor.PublishStage;
 import com.thinkparity.ophelia.model.document.CannotLockException;
-import com.thinkparity.ophelia.model.document.DocumentHistoryItem;
-import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
@@ -263,10 +259,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertEquals(assertion + " [ARTIFACT TYPE DOES NOT MATCH EXPECTATION]", expected.getArtifactType(), actual.getArtifactType());
         assertEquals(assertion + " [ARTIFACT UNIQUE ID DOES NOT MATCH EXPECTATION]", expected.getArtifactUniqueId(), actual.getArtifactUniqueId());
         assertEquals(assertion + " [CHECKSUM DOES NOT MATCH EXPECTATION]", expected.getChecksum(), actual.getChecksum());
-        assertEquals(assertion + " [COMPRESSION DOES NOT MATCH EXPECTATION]", expected.getCompression(), actual.getCompression());
+        assertEquals(assertion + " [CHECKSUM ALGORITHM DOES NOT MATCH EXPECTATION]", expected.getChecksumAlgorithm(), actual.getChecksumAlgorithm());
         assertEquals(assertion + " [CREATED BY DOES NOT MATCH EXPECTATION]", expected.getCreatedBy(), actual.getCreatedBy());
         assertEquals(assertion + " [CREATED ON DOES NOT MATCH EXPECTATION]", expected.getCreatedOn(), actual.getCreatedOn());
-        assertEquals(assertion + " [ENCODING DOES NOT MATCH EXPECTATION]", expected.getEncoding(), actual.getEncoding());
         assertEquals(assertion + " [NAME DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
         assertEquals(assertion + " [UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getUpdatedBy(), actual.getUpdatedBy());
         assertEquals(assertion + " [UPDATED ON DOES NOT MATCH EXPECTATION]", expected.getUpdatedOn(), actual.getUpdatedOn());
@@ -405,20 +400,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
-     * Assert the history item and all of its required memebers are not null.
-     * 
-     * @param assertion
-     *            The assertion.
-     * @param historyItem
-     *            The history item.
-     */
-    protected static void assertNotNull(final String assertion,
-            final DocumentHistoryItem historyItem) {
-        assertNotNull(assertion + " [HISTORY ITEM IS NULL]", (HistoryItem) historyItem);
-        assertNotNull(assertion + " [DOCUMENT HISTORY ITEM DOCUMENT ID IS NULL]", historyItem.getDocumentId());
-    }
-
-    /**
      * Assert that the document version and all of its required fields are not
      * null.
      * 
@@ -431,10 +412,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [DOCUMENT VERSION ARTIFACT TYPE IS NULL]", version.getArtifactType());
         assertNotNull(assertion + " [DOCUMENT VERSION UNIQUE ID IS NULL]", version.getArtifactUniqueId());
         assertNotNull(assertion + " [DOCUMENT VERSION CHECKSUM IS NULL]", version.getChecksum());
-        assertNotNull(assertion + " [DOCUMENT VERSION COMPRESSION IS NULL]", version.getCompression());
+        assertNotNull(assertion + " [DOCUMENT VERSION CHECKSUM ALGORITHM IS NULL]", version.getChecksumAlgorithm());
         assertNotNull(assertion + " [DOCUMENT VERSION CREATED BY IS NULL]", version.getCreatedBy());
         assertNotNull(assertion + " [DOCUMENT VERSION CREATED ON IS NULL]", version.getCreatedOn());
-        assertNotNull(assertion + " [DOCUMENT VERSION ENCODING IS NULL]", version.getEncoding());
         assertNotNull(assertion + " [DOCUMENT VERSION NAME IS NULL]", version.getName());
         assertNotNull(assertion + " [DOCUMENT VERSION UPDATED ON IS NULL]", version.getUpdatedBy());
         assertNotNull(assertion + " [DOCUMENT VERSION UPDATED BY IS NULL]", version.getUpdatedOn());
@@ -609,9 +589,8 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertEquals(assertion + " [ARTIFACT TYPE DOES NOT MATCH EXPECTATION]", expected.getArtifactType(), actual.getArtifactType());
         assertEquals(assertion + " [ARTIFACT UNIQUE ID DOES NOT MATCH EXPECTATION]", expected.getArtifactUniqueId(), actual.getArtifactUniqueId());
         assertEquals(assertion + " [CHECKSUM DOES NOT MATCH EXPECTATION]", expected.getChecksum(), actual.getChecksum());
-        assertEquals(assertion + " [COMPRESSION DOES NOT MATCH EXPECTATION]", expected.getCompression(), actual.getCompression());
+        assertEquals(assertion + " [CHECKSUM ALGORITHM DOES NOT MATCH EXPECTATION]", expected.getChecksumAlgorithm(), actual.getChecksumAlgorithm());
         assertEquals(assertion + " [CREATED BY DOES NOT MATCH EXPECTATION]", expected.getCreatedBy(), actual.getCreatedBy());
-        assertEquals(assertion + " [ENCODING DOES NOT MATCH EXPECTATION]", expected.getEncoding(), actual.getEncoding());
         assertEquals(assertion + " [NAME DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
         assertEquals(assertion + " [UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getUpdatedBy(), actual.getUpdatedBy());
         assertEquals(assertion + " [VERSION ID DOES NOT MATCH EXPECTATION]", expected.getVersionId(), actual.getVersionId());
@@ -833,19 +812,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
-     * Create a document version.
-     * 
-     * @param document
-     *            A document.
-     * @return A version.
-     */
-    protected DocumentVersion createDocumentVersion(
-            final OpheliaTestUser testUser, final Document document,
-            final Calendar createdOn) {
-        return getDocumentModel(testUser).createVersion(document.getId(), createdOn);
-    }
-
-    /**
      * Create a draft.
      * 
      * @param testUser
@@ -959,16 +925,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
-     * Obtain an internal migrator model.
-     * 
-     * @return An instance of <code>InternalMigratorModel</code>.
-     */
-    protected final InternalMigratorModel getMigratorModel(
-            final OpheliaTestUser testUser) {
-        return testUser.getModelFactory().getMigratorModel();
-    }
-
-    /**
      * Obtain an internal backup model.
      * 
      * @return An instance of <code>InternalBackupModel</code>.
@@ -1025,6 +981,20 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         }
 	}
 
+    protected String getInputFileMD5Checksum(final String name) {
+        try {
+            final File[] inputFiles = getInputFiles();
+            for (int i = 0; i < inputFiles.length; i++) {
+                if (inputFiles[i].getName().equals(name)) {
+                    return getInputFileMD5Checksums()[i];
+                }
+            }
+            return null;
+        } catch (final IOException iox) {
+            throw new RuntimeException(iox);
+        }
+    }
+
     protected String[] getInputFileMD5Checksums() {
         final String[] inputFileMD5Checksums = new String[NUMBER_OF_INPUT_FILES];
         System.arraycopy(super.getInputFileMD5Checksums(), 0, inputFileMD5Checksums, 0, NUMBER_OF_INPUT_FILES);
@@ -1051,6 +1021,16 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 		System.arraycopy(super.getInputFiles(), 0, inputFiles, 0, NUMBER_OF_INPUT_FILES);
 		return inputFiles;
 	}
+
+    /**
+     * Obtain an internal migrator model.
+     * 
+     * @return An instance of <code>InternalMigratorModel</code>.
+     */
+    protected final InternalMigratorModel getMigratorModel(
+            final OpheliaTestUser testUser) {
+        return testUser.getModelFactory().getMigratorModel();
+    }
 
     /**
      * @see com.thinkparity.codebase.junitx.TestCase#getModFiles()
@@ -1174,14 +1154,14 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
-     * Modify a document.
+     * Modify an existing document. Writes the current date/time to the document
+     * content regardless of the document type.
      * 
-     * @param document
-     *            A document.
-     * @throws FileNotFoundException
-     * @throws IOException
-     * @see DocumentModel#updateDraft(Long, InputStream)
-     * @return The file that contains the new content.
+     * @param modifyAs
+     *            An <code>OpheliaTestUser</code> to modify as.
+     * @param localDocumentId
+     *            A local document id <code>Long</code>.
+     * @return The modified <code>File</code>.
      */
     protected File modifyDocument(final OpheliaTestUser modifyAs,
             final Long localDocumentId) {
@@ -1792,6 +1772,27 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                     .getName(), container.getName());
         }
         return getDocumentModel(revertAs).read(localDocumentId);
+    }
+
+    /**
+     * Save a container draft.
+     * 
+     * @param saveAs
+     *            An <code>OpheliaTestUser</code> to save the draft as.
+     * @param localContainerId
+     *            A local container id <code>Long</code>.
+     */
+    protected void saveDraft(final OpheliaTestUser saveAs,
+            final Long localContainerId) {
+        final Container c = getContainerModel(saveAs).read(localContainerId);
+        logger.logInfo("Saving draft for container \"{0}\" as \"{1}.\"",
+                c.getName(), saveAs.getSimpleUsername());
+        try {
+            getContainerModel(saveAs).saveDraft(localContainerId);
+        } catch (final CannotLockException clx) {
+            fail("Cannot save draft for container \"{0}\" as \"{1}.\"",
+                    c.getName(), saveAs.getSimpleUsername());
+        }
     }
 
     /**

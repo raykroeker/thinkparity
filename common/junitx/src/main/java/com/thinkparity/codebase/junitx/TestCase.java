@@ -181,7 +181,7 @@ public abstract class TestCase extends junit.framework.TestCase {
         final InputStream stream = new BufferedInputStream(
                 new FileInputStream(file), buffer);
         try {
-            return MD5Util.md5Hex(stream);
+            return MD5Util.md5Hex(stream, buffer);
         } finally {
             stream.close();
         }

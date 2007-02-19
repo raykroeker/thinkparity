@@ -558,6 +558,14 @@ public interface ContainerModel {
     public void restore(final Long containerId);
 
     /**
+     * Restore the draft. The draft that has previously been saved is restored.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void restoreDraft(final Long containerId) throws CannotLockException;
+
+    /**
      * Revert a document to it's pre-draft state.
      * 
      * @param documentId
@@ -565,6 +573,14 @@ public interface ContainerModel {
      */
     public void revertDocument(final Long containerId, final Long documentId)
             throws CannotLockException;
+
+    /**
+     * Save the draft. All "dirty" draft documents are saved to the database.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void saveDraft(final Long containerId) throws CannotLockException;
 
     /**
      * Search for containers.

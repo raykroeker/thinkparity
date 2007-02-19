@@ -83,14 +83,10 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		try {
 			final Long metaDataId =
 				create(session, metaDataType, metaDataKey, metaDataValue);
-			session.commit();
 			return metaDataId;
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -101,13 +97,9 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		final Session session = openSession();
 		try {
 			delete(session, metaDataId);
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -117,14 +109,10 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		final Session session = openSession();
 		try {
 			final MetaData metaData = read(session, metaDataId);
-			session.commit();
 			return metaData;
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -139,13 +127,9 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		final Session session = openSession();
 		try {
 			update(session, metaDataId, metaDataType, metaDataKey, metaDataValue);
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/**

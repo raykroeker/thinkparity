@@ -35,8 +35,8 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	private static final String SQL_CREATE_VERSION =
         new StringBuffer("insert into DOCUMENT_VERSION ")
 		.append("(DOCUMENT_ID,DOCUMENT_VERSION_ID,CONTENT,CONTENT_SIZE,")
-        .append("CONTENT_ENCODING,CONTENT_CHECKSUM,CONTENT_COMPRESSION) ")
-		.append("values (?,?,?,?,?,?,?);")
+        .append("CONTENT_CHECKSUM,CHECKSUM_ALGORITHM) ")
+		.append("values (?,?,?,?,?,?);")
 		.toString();
 
     private static final String SQL_DELETE =
@@ -82,7 +82,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
     private static final String SQL_GET_VERSION =
 		new StringBuffer("select DOCUMENT_ID,DOCUMENT_VERSION_ID,")
 		.append("ARTIFACT_NAME,ARTIFACT_TYPE,ARTIFACT_UNIQUE_ID,")
-		.append("CONTENT_CHECKSUM,CONTENT_COMPRESSION,CONTENT_ENCODING,CONTENT_SIZE,")
+		.append("CONTENT_CHECKSUM,CHECKSUM_ALGORITHM,CONTENT_SIZE,")
         .append("UC.JABBER_ID CREATED_BY,CREATED_ON,UU.JABBER_ID UPDATED_BY,UPDATED_ON ")
 		.append("from DOCUMENT_VERSION DV ")
         .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID = AV.ARTIFACT_ID ")
@@ -109,7 +109,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	private static final String SQL_LIST_VERSIONS =
 		new StringBuffer("select DOCUMENT_ID,DOCUMENT_VERSION_ID,")
 		.append("ARTIFACT_NAME,ARTIFACT_TYPE,ARTIFACT_UNIQUE_ID,")
-		.append("CONTENT_CHECKSUM,CONTENT_COMPRESSION,CONTENT_ENCODING,CONTENT_SIZE,")
+		.append("CONTENT_CHECKSUM,CHECKSUM_ALGORITHM,CONTENT_SIZE,")
         .append("UC.JABBER_ID CREATED_BY,CREATED_ON,UU.JABBER_ID UPDATED_BY,UPDATED_ON ")
 		.append("from DOCUMENT_VERSION DV ")
         .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID=AV.ARTIFACT_ID ")
@@ -180,7 +180,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
      * 
      */
 	public void createVersion(final DocumentVersion version,
-            final InputStream content) {
+            final InputStream content, final Integer buffer) {
 		final Session session = openSession();
 		try {
 			artifactIO.createVersion(session, version);
@@ -189,19 +189,14 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			session.setLong(1, version.getArtifactId());
 			session.setLong(2, version.getVersionId());
             // NOTE Possible loss of precision here
-            session.setStream(3, new BufferedInputStream(content, 512), version.getSize().intValue());
+            session.setStream(3, new BufferedInputStream(content, buffer), version.getSize().intValue());
             session.setLong(4, version.getSize());
-			session.setString(5, version.getEncoding());
-			session.setString(6, version.getChecksum());
-			session.setInt(7, version.getCompression());
+			session.setString(5, version.getChecksum());
+			session.setString(6, version.getChecksumAlgorithm());
 			if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not create document version.");
 
 			version.setVersionId(version.getVersionId());
-			session.commit();
-		} catch (final HypersonicException hx) {
-			session.rollback();
-			throw hx;
 		} finally {
             session.close();
 		}
@@ -221,13 +216,9 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 				throw new HypersonicException("Could not delete document.");
 			artifactIO.deleteRemoteInfo(session, documentId);
 			artifactIO.delete(session, documentId);
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final RuntimeException rx) {
-			session.rollback();
-			throw rx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -246,13 +237,9 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 				throw new HypersonicException("Could not delete version.");
 			
 			artifactIO.deleteVersion(session, documentId, versionId);
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -266,14 +253,14 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			session.setLong(1, documentId);
 			session.executeQuery();
 
-			if(session.nextResult()) { return extractDocument(session); }
-			else { return null; }
+			if (session.nextResult()) {
+                return extractDocument(session);
+			} else {
+                return null;
+			}
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -286,14 +273,14 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			session.setUniqueId(1, documentUniqueId);
 			session.executeQuery();
 
-			if(session.nextResult()) { return extractDocument(session); }
-			else { return null; }
+			if (session.nextResult()) {
+                return extractDocument(session);
+			} else {
+                return null;
+			}
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 			
 	}
 
@@ -314,9 +301,6 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			} else {
                 return null;
 			}
-		} catch(final RuntimeException rx) {
-			session.rollback();
-			throw rx;
 		} finally {
             session.close();
 		}
@@ -336,12 +320,9 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 				documents.add(extractDocument(session));
 			}
 			return documents;
+		} finally {
+            session.close();
 		}
-		catch(final RuntimeException rx) {
-			session.rollback();
-			throw rx;
-		}
-		finally { session.close(); }
 	}
 
     /**
@@ -390,12 +371,9 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			latestVersionId =
 				artifactIO.getLatestVersionId(session, documentId);
 			return getVersion(documentId, latestVersionId);
+		} finally {
+            session.close();
 		}
-		catch(final RuntimeException rx) {
-			session.rollback();
-			throw rx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -436,14 +414,9 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			session.setLong(4, document.getId());
 			if(1 != session.executeUpdate())
 				throw new HypersonicException("Could not update document.");
-
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -483,10 +456,9 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		dv.setArtifactType(session.getTypeFromString("ARTIFACT_TYPE"));
 		dv.setArtifactUniqueId(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
 		dv.setChecksum(session.getString("CONTENT_CHECKSUM"));
-		dv.setCompression(session.getInteger("CONTENT_COMPRESSION"));
+        dv.setChecksumAlgorithm(session.getString("CHECKSUM_ALGORITHM"));
 		dv.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		dv.setCreatedOn(session.getCalendar("CREATED_ON"));
-		dv.setEncoding(session.getString("CONTENT_ENCODING"));
 		dv.setName(session.getString("ARTIFACT_NAME"));
         dv.setSize(session.getLong("CONTENT_SIZE"));
 		dv.setUpdatedBy(session.getQualifiedUsername("UPDATED_BY"));

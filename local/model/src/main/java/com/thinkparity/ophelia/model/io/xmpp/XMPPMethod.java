@@ -788,10 +788,9 @@ public class XMPPMethod extends IQ {
                         ((DocumentVersion) javaValue).setArtifactType((ArtifactType) parseJavaValue(parser, ArtifactType.class));
                         ((DocumentVersion) javaValue).setArtifactUniqueId((UUID) parseJavaValue(parser, UUID.class));
                         ((DocumentVersion) javaValue).setChecksum((String) parseJavaValue(parser, String.class));
-                        ((DocumentVersion) javaValue).setCompression((Integer) parseJavaValue(parser, Integer.class));
+                        ((DocumentVersion) javaValue).setChecksumAlgorithm((String) parseJavaValue(parser, String.class));
                         ((DocumentVersion) javaValue).setCreatedBy((JabberId) parseJavaValue(parser, JabberId.class));
                         ((DocumentVersion) javaValue).setCreatedOn((Calendar) parseJavaValue(parser, Calendar.class));
-                        ((DocumentVersion) javaValue).setEncoding((String) parseJavaValue(parser, String.class));
                         ((DocumentVersion) javaValue).setName((String) parseJavaValue(parser, String.class));
                         ((DocumentVersion) javaValue).setSize((Long) parseJavaValue(parser, Long.class));
                         ((DocumentVersion) javaValue).setUpdatedBy((JabberId) parseJavaValue(parser, JabberId.class));

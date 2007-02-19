@@ -26,16 +26,9 @@ public interface DocumentIOHandler extends IOHandler {
      */
 	public void create(final Document document);
 
-    /**
-     * Create a new document version.
-     * 
-     * @param version
-     *            The version.
-     * @param content
-     *            The content <code>InputStream</code>.
-     */
+	// TODO-javadoc DocumentIOHandler#createVersion
     public void createVersion(final DocumentVersion version,
-            final InputStream content);
+            final InputStream stream, final Integer buffer);
 
 	public void delete(final Long documentId);
 

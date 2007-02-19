@@ -11,6 +11,13 @@ package com.thinkparity.codebase;
  * @version 1.1.2.1
  */
 public class Constants {
+
+    /**
+     * <b>Title:</b>Checksum Algorithms<br>
+     * <b>Description:</b>Enumerated checksum algorithms.<br>
+     */
+    public enum ChecksumAlgorithm{ MD5 }
+
     /**
      * <b>Title:</b>thinkParity File Constants<br>
      * <b>Description:</b>thinkParity file constants.<br>

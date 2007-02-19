@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -18,6 +20,7 @@ import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerDraftDocument;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta;
 import com.thinkparity.codebase.model.container.ContainerVersionDelta;
@@ -80,6 +83,14 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("(CONTAINER_DRAFT_ID,ARTIFACT_ID,ARTIFACT_STATE) ")
             .append("values (?,?,?)")
             .toString();
+
+    /** Sql to create a draft document. */
+    private static final String SQL_CREATE_DRAFT_DOCUMENT =
+        new StringBuffer("insert into CONTAINER_DRAFT_DOCUMENT ")
+        .append("(CONTAINER_DRAFT_ID,DOCUMENT_ID,CONTENT,CONTENT_SIZE,")
+        .append("CONTENT_CHECKSUM,CHECKSUM_ALGORITHM) ")
+        .append("values(?,?,?,?,?,?)")
+        .toString();
 
     /** Sql to read the container published to list. */
     private static final String SQL_CREATE_PUBLISHED_TO =
@@ -152,6 +163,12 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("and ARTIFACT_ID=?")
             .toString();
 
+    /** Sql to delete the draft document. */
+    private static final String SQL_DELETE_DRAFT_DOCUMENTS =
+        new StringBuffer("delete from CONTAINER_DRAFT_DOCUMENT ")
+        .append("where CONTAINER_DRAFT_ID=?")
+        .toString();
+
     /** Sql to delete the published to user list. */
     private static final String SQL_DELETE_PUBLISHED_TO =
             new StringBuffer("delete from CONTAINER_VERSION_PUBLISHED_TO ")
@@ -179,6 +196,13 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         new StringBuffer("select CONTAINER_VERSION_DELTA_ID,DELTA,DELTA_ARTIFACT_ID,DELTA_ARTIFACT_VERSION_ID ")
         .append("from CONTAINER_VERSION_ARTIFACT_VERSION_DELTA CVAVD ")
         .append("where CVAVD.CONTAINER_VERSION_DELTA_ID=?")
+        .toString();
+
+    /** Sql to open a draft document input stream. */
+    private static final String SQL_OPEN_DRAFT_DOCUMENT =
+        new StringBuffer("select CONTENT ")
+        .append("from CONTAINER_DRAFT_DOCUMENT ")
+        .append("where CONTAINER_DRAFT_ID=? and DOCUMENT_ID=?")
         .toString();
 
     /** Sql to read a container. */
@@ -260,8 +284,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,")
             .append("A.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,AV.CREATED_ON,")
             .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON,D.DOCUMENT_ID,")
-            .append("DV.CONTENT_CHECKSUM,DV.CONTENT_COMPRESSION,")
-            .append("DV.CONTENT_ENCODING,DV.CONTENT_SIZE,DV.DOCUMENT_VERSION_ID,")
+            .append("DV.CONTENT_CHECKSUM,DV.CHECKSUM_ALGORITHM,")
+            .append("DV.CONTENT_SIZE,DV.DOCUMENT_VERSION_ID,")
             .append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
             .append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
             .append("from CONTAINER_VERSION_ARTIFACT_VERSION_REL CVAVR ")
@@ -303,6 +327,21 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("and CD.CONTAINER_DRAFT_USER_ID=ATR.USER_ID ")
             .append("where CD.CONTAINER_DRAFT_ID=?")
             .toString();
+
+    /** Sql to read a container draft document. */
+    private static final String SQL_READ_DRAFT_DOCUMENT =
+        new StringBuffer("select CONTAINER_DRAFT_ID,DOCUMENT_ID,CONTENT_SIZE,")
+        .append("CONTENT_CHECKSUM,CHECKSUM_ALGORITHM ")
+        .append("from CONTAINER_DRAFT_DOCUMENT ")
+        .append("where CONTAINER_DRAFT_ID=? and DOCUMENT_ID=?")
+        .toString();
+
+    /** Sql to count the draft documents. */
+    private static final String SQL_READ_DRAFT_DOCUMENT_COUNT =
+        new StringBuffer("select COUNT(CONTAINER_DRAFT_ID) \"DOCUMENT_COUNT\" ")
+        .append("from CONTAINER_DRAFT_DOCUMENT ")
+        .append("where CONTAINER_DRAFT_ID=?")
+        .toString();
 
     /** Sql to read draft documents. */
     private static final String SQL_READ_DRAFT_DOCUMENTS =
@@ -419,6 +458,13 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
         .toString();
 
+    /** Sql to update a draft document. */
+    private static final String SQL_UPDATE_DRAFT_DOCUMENT =
+        new StringBuffer("update CONTAINER_DRAFT_DOCUMENT ")
+        .append("set CONTENT=?,CONTENT_SIZE=?,CONTENT_CHECKSUM=? ")
+        .append("where CONTAINER_DRAFT_ID=? and DOCUMENT_ID=?")
+        .toString();
+
     /** Sql to update the container name. */
     private static final String SQL_UPDATE_NAME =
             new StringBuffer("update ARTIFACT ")
@@ -435,10 +481,10 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Generic artifact io. */
     private final ArtifactIOHandler artifactIO;
-
+    
     /** Document io. */
     private final DocumentIOHandler documentIO;
-
+    
     /** User io. */
     private final UserIOHandler userIO;
 
@@ -496,7 +542,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.close();
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createDelta(com.thinkparity.codebase.model.container.ContainerVersionDelta)
      *
@@ -525,7 +571,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.close();
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createDraft(com.thinkparity.ophelia.model.container.ContainerDraft)
      */
@@ -567,6 +613,31 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         } finally {
             session.close();
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createDraftDocument(java.lang.Long, java.lang.Long, java.lang.Integer, java.io.InputStream, java.lang.Long, java.lang.String, java.lang.String, java.lang.String)
+     *
+     */
+    public void createDraftDocument(final ContainerDraftDocument draftDocument, final InputStream stream,
+            final Integer buffer) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_DRAFT_DOCUMENT);
+            session.setLong(1, draftDocument.getContainerDraftId());
+            session.setLong(2, draftDocument.getDocumentId());
+            // NOTE possible loss of precision
+            session.setStream(3, new BufferedInputStream(
+                    stream, buffer), draftDocument.getSize().intValue());
+            session.setLong(4, draftDocument.getSize());
+            session.setString(5, draftDocument.getChecksum());
+            session.setString(6, draftDocument.getChecksumAlgorithm());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not update draft document.");
+        } finally {
+            session.close();
+        }
+        checkpoint();
     }
 
     /**
@@ -726,6 +797,23 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#deleteDraftDocument(java.lang.Long, java.lang.Long)
+     *
+     */
+    public void deleteDraftDocuments(final Long containerDraftId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_DRAFT_DOCUMENTS);
+            session.setLong(1, containerDraftId);
+            session.executeUpdate();
+            if (0 != readDraftDocumentCount(session, containerDraftId).intValue())
+                throw new HypersonicException("Could not delete draft documents.");
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#deleteVersion(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -778,6 +866,28 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                 return Boolean.TRUE;
             } else {
                 throw new HypersonicException("Could not determine artifact existance.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#openDraftDocument(java.lang.Long, java.lang.Long)
+     *
+     */
+    public InputStream openDraftDocument(final Long containerDraftId,
+            final Long documentId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_OPEN_DRAFT_DOCUMENT);
+            session.setLong(1, containerDraftId);
+            session.setLong(2, documentId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getInputStream("CONTENT");
+            } else {
+                return null;
             }
         } finally {
             session.close();
@@ -902,6 +1012,28 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readDraftDocument(java.lang.Long, java.lang.Long)
+     *
+     */
+    public ContainerDraftDocument readDraftDocument(
+            final Long containerDraftId, final Long documentId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_DRAFT_DOCUMENT);
+            session.setLong(1, containerDraftId);
+            session.setLong(2, documentId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractDraftDocument(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readVersion(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -959,6 +1091,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         }
     }
 
+    
     /**
      * Read a container version.
      * 
@@ -1024,7 +1157,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.close();
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#removeVersions(java.lang.Long, java.lang.Long)
      */
@@ -1040,7 +1173,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         }
     }
 
-    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#restore(com.thinkparity.codebase.model.container.Container)
      */
@@ -1074,6 +1206,32 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         } finally {
             session.close();
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#updateDraftDocument(java.lang.Long,
+     *      java.lang.Long, java.lang.Integer, java.io.InputStream,
+     *      java.lang.Long, java.lang.String)
+     * 
+     */
+    public void updateDraftDocument(final ContainerDraftDocument draftDocument,
+            final InputStream stream, final Integer buffer) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_DRAFT_DOCUMENT);
+            // NOTE possible loss of precision
+            session.setStream(1, new BufferedInputStream(
+                    stream, buffer), draftDocument.getSize().intValue());
+            session.setLong(2, draftDocument.getSize());
+            session.setString(3, draftDocument.getChecksum());
+            session.setLong(4, draftDocument.getContainerDraftId());
+            session.setLong(5, draftDocument.getDocumentId());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not update draft document.");
+        } finally {
+            session.close();
+        }
+        checkpoint();
     }
 
     /**
@@ -1178,6 +1336,17 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         draft.setOwner(artifactIO.extractTeamMember(session));
         addAllDraftDocuments(draft);
         return draft;
+    }
+
+    // TODO-javadoc ContainerIOHandler#extractDraftDocument
+    ContainerDraftDocument extractDraftDocument(final Session session) {
+        final ContainerDraftDocument draftDocument = new ContainerDraftDocument();
+        draftDocument.setChecksum(session.getString("CONTENT_CHECKSUM"));
+        draftDocument.setChecksumAlgorithm(session.getString("CHECKSUM_ALGORITHM"));
+        draftDocument.setDocumentId(session.getLong("DOCUMENT_ID"));
+        draftDocument.setContainerDraftId(session.getLong("CONTAINER_DRAFT_ID"));
+        draftDocument.setSize(session.getLong("CONTENT_SIZE"));
+        return draftDocument;
     }
 
     /**
@@ -1287,10 +1456,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         dv.setArtifactType(session.getTypeFromInteger("ARTIFACT_TYPE_ID"));
         dv.setArtifactUniqueId(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
         dv.setChecksum(session.getString("CONTENT_CHECKSUM"));
-        dv.setCompression(session.getInteger("CONTENT_COMPRESSION"));
+        dv.setChecksumAlgorithm(session.getString("CHECKSUM_ALGORITHM"));
         dv.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
         dv.setCreatedOn(session.getCalendar("CREATED_ON"));
-        dv.setEncoding(session.getString("CONTENT_ENCODING"));
         dv.setName(session.getString("ARTIFACT_NAME"));
         dv.setSize(session.getLong("CONTENT_SIZE"));
         dv.setUpdatedBy(session.getQualifiedUsername("UPDATED_BY"));
@@ -1401,6 +1569,26 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         session.executeQuery();
         session.nextResult();
         return session.getInteger("COUNT");
+    }
+
+    /**
+     * Obtain the draft document count.
+     * 
+     * @param session
+     *            A <code>Session</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return The draft document count <code>Integer</code>.
+     */
+    private Integer readDraftDocumentCount(final Session session, final Long containerId) {
+        session.prepareStatement(SQL_READ_DRAFT_DOCUMENT_COUNT);
+        session.setLong(1, containerId);
+        session.executeQuery();
+        if (session.nextResult()) {
+            return session.getInteger("DOCUMENT_COUNT");
+        } else {
+            return null;
+        }
     }
 
     private Long readLocalId(final JabberId userId) {

@@ -36,10 +36,6 @@ public final class Constants {
             }
         }
     }
-    public static final class Encoding {
-        public static final String BASE_64 = "Base64";
-    }
-
     public static final class FileNames {
         public static final class Workspace {
             public static final class Data {

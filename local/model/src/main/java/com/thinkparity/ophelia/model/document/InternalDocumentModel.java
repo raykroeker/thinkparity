@@ -14,10 +14,9 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
-
-import com.thinkparity.ophelia.model.audit.event.AuditEvent;
 
 /**
  * <b>Title:</b>thinkParity Internal Document Model<br>
@@ -33,11 +32,12 @@ public interface InternalDocumentModel extends DocumentModel {
      * Create a draft for a document.
      * 
      * @param lock
-     *            A <code>DocumentLock</code>.
+     *            A <code>DocumentFileLock</code>.
      * @param documentId
      *            A document id <code>Long</code>.
      */
-    public void createDraft(final DocumentLock lock, final Long documentId);
+    public DocumentDraft createDraft(final DocumentFileLock lock,
+            final Long documentId);
 
     /**
      * Create a new document version based upon an existing document. This will
@@ -51,29 +51,30 @@ public interface InternalDocumentModel extends DocumentModel {
      * @return The newly created version.
      */
     public DocumentVersion createVersion(final Long documentId,
+            final InputStream stream, final Integer buffer,
             final Calendar createdOn);
 
     /**
      * Delete a document.
      * 
      * @param lock
-     *            A <code>DocumentLock</code>.
+     *            A <code>DocumentFileLock</code>.
      * @param documentId
      *            A document id.
      */
-    public void delete(final DocumentLock lock,
-            final Map<DocumentVersion, DocumentVersionLock> versionLocks,
+    public void delete(final DocumentFileLock lock,
+            final Map<DocumentVersion, DocumentFileLock> versionLocks,
             final Long documentId);
 
     /**
      * Delete the document draft.
      * 
      * @param lock
-     *            A <code>DocumentLock</code>.
+     *            A <code>DocumentFileLock</code>.
      * @param documentId
      *            A document id <code>Long</code>.
      */
-    public void deleteDraft(final DocumentLock lock, final Long documentId);
+    public void deleteDraft(final DocumentFileLock lock, final Long documentId);
 
     /**
      * Determine whether or not a draft exists for a document.
@@ -90,14 +91,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public DocumentNameGenerator getNameGenerator();
 
-    /**
-     * Handle the receipt of a document version from the thinkParity network.
-     * @param version
-     * @param streamId
-     * @param publishedBy
-     * @param publishedOn
-     * @return
-     */
+    // TODO-javadoc InternalDocumentModel#handleDocumentPublished
     public DocumentVersion handleDocumentPublished(
             final DocumentVersion version, final String streamId,
             final JabberId publishedBy, final Calendar publishedOn);
@@ -107,12 +101,11 @@ public interface InternalDocumentModel extends DocumentModel {
      * 
      * @param document
      *            A <code>Document</code>.
-     * @return A <code>DocumentLock</code>.
-     * 
+     * @return A <code>DocumentFileLock</code>.
      * @throws CannotLockException
      *             if an exclusive lock cannot be obtained
      */
-    public DocumentLock lock(final Document document)
+    public DocumentFileLock lock(final Document document)
             throws CannotLockException;
 
     /**
@@ -121,8 +114,11 @@ public interface InternalDocumentModel extends DocumentModel {
      * @param version
      *            A <code>DocumentVersion</code>.
      * @return A <code>DocumentVersionLock</code>.
+     * @throws CannotLockException
+     *             if an exclusive lock cannot be obtained
      */
-    public DocumentVersionLock lockVersion(final DocumentVersion version);
+    public DocumentFileLock lockVersion(final DocumentVersion version)
+            throws CannotLockException;
 
     /**
      * Open the document draft input stream.
@@ -133,7 +129,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public InputStream openDraft(final Long documentId);
 
-	/**
+    /**
      * Open an input stream to read a document version. Note: It is a good idea
      * to buffer the input stream.
      * 
@@ -145,7 +141,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
 	public InputStream openVersion(final Long documentId, final Long versionId);
 
-    /**
+	/**
      * Read a document.
      * 
      * @param documentId
@@ -155,13 +151,13 @@ public interface InternalDocumentModel extends DocumentModel {
     public Document read(final Long documentId);
 
     /**
-     * Read a list of audit events for a document.
+     * Obtain the document draft.
      * 
      * @param documentId
-     *            A document id.
-     * @return A list of audit events.
+     *            A document draft <code>Long</code>.
+     * @return A <code>DocumentDraft</code>.
      */
-	public List<AuditEvent> readAuditEvents(final Long documentId);
+    public DocumentDraft readDraft(final Long documentId);
 
 	/**
      * Read a list of document versions.
@@ -194,22 +190,14 @@ public interface InternalDocumentModel extends DocumentModel {
     public Long readVersionSize(final Long documentId, final Long versionId);
 
     /**
-     * Release the exclusive lock.
-     * 
-     * @param lock
-     *            A <code>DocumentLock</code>.
-     */
-    public void release(final DocumentLock lock);
-
-    /**
      * Remove a document.
      * 
      * @param lock
-     *            A <code>DocumentLock</code>.
+     *            A <code>DocumentFileLock</code>.
      * @param documentId
      *            A document id <code>Long</code>.
      */
-    public void remove(final DocumentLock lock, final Long documentId);
+    public void remove(final DocumentFileLock lock, final Long documentId);
 
     /**
      * Revert the document draft to its previous state.
@@ -217,5 +205,5 @@ public interface InternalDocumentModel extends DocumentModel {
      * @param documentId
      *            A document id <code>Long</code>.
      */
-    public void revertDraft(final DocumentLock lock, final Long documentId);
+    public void revertDraft(final DocumentFileLock lock, final Long documentId);
 }

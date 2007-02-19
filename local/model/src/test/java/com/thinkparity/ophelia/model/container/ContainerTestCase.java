@@ -139,6 +139,9 @@ public abstract class ContainerTestCase extends ModelTestCase {
         public void containerFlagged(final ContainerEvent e) {
             fail(getName() + " - Container flagged event was fired.");
         }
+        public void containerPublished(ContainerEvent e) {
+            fail(getName() + " - Draft published event was fired.");
+        }
         public void containerReceived(final ContainerEvent e) {
             fail(getName() + " - Container received event was fired.");
         }
@@ -168,9 +171,6 @@ public abstract class ContainerTestCase extends ModelTestCase {
         }
         public void draftDeleted(ContainerEvent e) {
             fail(getName() + " - Draft deleted event was fired.");
-        }
-        public void containerPublished(ContainerEvent e) {
-            fail(getName() + " - Draft published event was fired.");
         }
         public void teamMemberAdded(ContainerEvent e) {
             fail(getName() + " - Team member added event was fired.");

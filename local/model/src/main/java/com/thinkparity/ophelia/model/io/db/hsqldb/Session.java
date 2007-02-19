@@ -269,7 +269,7 @@ public final class Session {
 		}
 	}
 
-    public ContainerDraft.ArtifactState getContainerStateFromString(
+	public ContainerDraft.ArtifactState getContainerStateFromString(
             final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
@@ -282,7 +282,7 @@ public final class Session {
         }
     }
 
-	public EMail getEMail(final String columnName) {
+    public EMail getEMail(final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
         try {
@@ -313,7 +313,7 @@ public final class Session {
 		}
 	}
 
-	public ArtifactFlag getFlagFromString(final String columnName) {
+    public ArtifactFlag getFlagFromString(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -325,6 +325,7 @@ public final class Session {
 		}
 	}
 
+    
     /**
 	 * Obtain the session id.
 	 * 
@@ -332,7 +333,6 @@ public final class Session {
 	 */
 	public JVMUniqueId getId() { return id; }
 
-    
     /**
      * Execute a query to obtain the identity created.
      * 
@@ -445,7 +445,7 @@ public final class Session {
 		}
 	}
 
-    public ArtifactState getStateFromInteger(final String columnName) {
+	public ArtifactState getStateFromInteger(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -560,7 +560,7 @@ public final class Session {
 		return id.hashCode();
 	}
 
-	public boolean nextResult() {
+    public boolean nextResult() {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -570,7 +570,7 @@ public final class Session {
 		}
 	}
 
-    /**
+	/**
 	 * Obtain the database metadata.
 	 * 
 	 * @return The database metadata.
@@ -616,7 +616,7 @@ public final class Session {
         }
     }
 
-	public void setBytes(final Integer index, final byte[] value) {
+    public void setBytes(final Integer index, final byte[] value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -627,7 +627,7 @@ public final class Session {
 		}
 	}
 
-    public void setCalendar(final Integer index, final Calendar value) {
+	public void setCalendar(final Integer index, final Calendar value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -641,7 +641,7 @@ public final class Session {
 		}
 	}
 
-	public void setEMail(final Integer index, final EMail value) {
+    public void setEMail(final Integer index, final EMail value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -652,7 +652,7 @@ public final class Session {
         }
     }
 
-	public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
+    public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -663,7 +663,7 @@ public final class Session {
         }
     }
 
-    public void setFlagAsInteger(final Integer index, final ArtifactFlag value) {
+	public void setFlagAsInteger(final Integer index, final ArtifactFlag value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -674,7 +674,7 @@ public final class Session {
 		}
 	}
 
-    public void setFlagAsString(final Integer index, final ArtifactFlag value) {
+	public void setFlagAsString(final Integer index, final ArtifactFlag value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -707,7 +707,7 @@ public final class Session {
 		}
 	}
 
-	public void setMetaDataAsString(final Integer index, final MetaData value) {
+    public void setMetaDataAsString(final Integer index, final MetaData value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -729,7 +729,7 @@ public final class Session {
 		}
 	}
 
-    public void setStateAsInteger(final Integer index, final ArtifactState value) {
+	public void setStateAsInteger(final Integer index, final ArtifactState value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -740,7 +740,7 @@ public final class Session {
 		}
 	}
 
-	public void setStateAsString(final Integer index, final ArtifactState value) {
+    public void setStateAsString(final Integer index, final ArtifactState value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -751,7 +751,7 @@ public final class Session {
         }
     }
 
-	public void setStateAsString(final Integer index, final ContainerDraft.ArtifactState value) {
+    public void setStateAsString(final Integer index, final ContainerDraft.ArtifactState value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);

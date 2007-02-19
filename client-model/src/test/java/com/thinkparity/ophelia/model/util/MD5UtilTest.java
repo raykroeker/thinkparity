@@ -7,6 +7,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.ophelia.model.ModelTestCase;
@@ -32,17 +35,41 @@ public final class MD5UtilTest extends ModelTestCase {
     }
 
     /**
-     * Test the md5Hex api.
+     * Test the md5 hex channel api.
      *
      */
-    public void testMD5Hex() {
+    public void testMD5HexChannel() {
+        String md5Checksum;
+        FileChannel fileChannel;
+        for (int i = 0; i < datum.inputFiles.length; i++) {
+            try {
+                fileChannel = new RandomAccessFile(datum.inputFiles[i], "r").getChannel();
+                try {
+                    md5Checksum = MD5Util.md5Hex(fileChannel, 1024);
+                } catch (final Throwable t) {
+                    md5Checksum = null;
+                } finally {
+                    fileChannel.close();
+                }
+                assertEquals(md5Checksum, datum.inputFileMD5Checksums[i]);
+            } catch (final IOException iox) {
+                fail(createFailMessage(iox));
+            }
+        }
+    }
+
+    /**
+     * Test the md5 hex stream api.
+     *
+     */
+    public void testMD5HexStream() {
         String md5Checksum;
         InputStream inputFileStream;
         for (int i = 0; i < datum.inputFiles.length; i++) {
             try {
                 inputFileStream = new FileInputStream(datum.inputFiles[i]);
                 try {
-                    md5Checksum = MD5Util.md5Hex(inputFileStream);
+                    md5Checksum = MD5Util.md5Hex(inputFileStream, 1024);
                 } catch (final Throwable t) {
                     md5Checksum = null;
                 } finally {

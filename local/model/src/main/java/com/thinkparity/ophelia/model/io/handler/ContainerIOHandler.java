@@ -4,6 +4,7 @@
  */
 package com.thinkparity.ophelia.model.io.handler;
 
+import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerDraftDocument;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionDelta;
 import com.thinkparity.codebase.model.document.Document;
@@ -81,6 +83,10 @@ public interface ContainerIOHandler {
      */
     public void createDraftArtifactRel(final Long containerId,
             final Long artifactId, final ContainerDraft.ArtifactState state);
+
+    // TODO-javadoc ContainerIOHandler#createDraftDocument
+    public void createDraftDocument(final ContainerDraftDocument draftDocument,
+            final InputStream stream, final Integer buffer);
 
     /**
      * Create a published to list for a container version.
@@ -166,6 +172,9 @@ public interface ContainerIOHandler {
     public void deleteDraftArtifactRel(final Long containerId,
             final Long artifactId);
 
+    // TODO-javadoc ContainerIOHandler#deleteDraftDocument
+    public void deleteDraftDocuments(final Long containerDraftId);
+
     /**
      * Delete a container version.
      * 
@@ -193,6 +202,10 @@ public interface ContainerIOHandler {
     public Boolean doesExistVersion(final Long containerId,
             final Long containerVersionId, final Long artifactId,
             final Long artifactVersionId);
+
+    // TODO-javadoc ContainerIOHandler#openDraftDocument
+    public InputStream openDraftDocument(final Long containerDraftId,
+            final Long documentId);
 
     /**
      * Read a container.
@@ -260,6 +273,10 @@ public interface ContainerIOHandler {
      * @return A container draft.
      */
     public ContainerDraft readDraft(final Long containerId);
+
+    // TODO-javadoc ContainerIOHandler#readDraftDocument
+    public ContainerDraftDocument readDraftDocument(final Long containerDraftId,
+            final Long documentId);
 
     /**
      * Read the latest container version.
@@ -336,7 +353,6 @@ public interface ContainerIOHandler {
     public void removeVersion(final Long containerId,
             final Long containerVersionId, final Long artifactId,
             final Long artifactVersionId);
-
     /**
      * Remove all artifact versions.
      * 
@@ -346,7 +362,6 @@ public interface ContainerIOHandler {
      *            A version id.
      */
     public void removeVersions(final Long containerId, final Long versionId);
-
     /**
      * Restore a container.
      * 
@@ -354,7 +369,6 @@ public interface ContainerIOHandler {
      *            A <code>Container</code>.
      */
     public void restore(final Container container);
-
     /**
      * Update a container version comment.
      * 
@@ -368,6 +382,9 @@ public interface ContainerIOHandler {
     @Deprecated
     public void updateComment(final Long containerId, final Long versionId,
             final String comment);
+    // TODO-javadoc ContainerIOHandler#updateDraftDocument
+    public void updateDraftDocument(final ContainerDraftDocument draftDocument,
+            final InputStream stream, final Integer buffer);
 
     /**
      * Update a container.

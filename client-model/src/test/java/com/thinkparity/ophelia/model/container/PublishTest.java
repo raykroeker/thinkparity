@@ -41,14 +41,13 @@ public class PublishTest extends ContainerTestCase {
     public PublishTest() { super(NAME); }
 
     /**
-     * The fourth test in the publish test case. Create a package; add a series
-     * of documents (>1); publish it to 2 users; modify a single document and
-     * publish to the same users.
+     * Create a package; add a series of documents (>1); publish it to 2 users;
+     * modify a single document and publish to the same users.
      * 
      * The validation is about ensuring that the document state and content for
      * the published to users is the same as for the publishing user.
      */
-    public void test4() {
+    public void testPublishPostMod() {
         final Container c_initial = createContainer(datum.junit, getName());
         final List<Document> d_list_initial = addDocuments(datum.junit, c_initial.getId());
         publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
@@ -56,6 +55,7 @@ public class PublishTest extends ContainerTestCase {
         createDraft(datum.junit, c_initial.getId());
         datum.waitForEvents();
         modifyDocument(datum.junit, d_list_initial.get(0).getId());
+        saveDraft(datum.junit, c_initial.getId());
         publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
 

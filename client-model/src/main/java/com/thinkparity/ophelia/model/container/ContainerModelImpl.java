@@ -36,11 +36,13 @@ import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerDraftDocument;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta;
 import com.thinkparity.codebase.model.container.ContainerVersionDelta;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
@@ -60,9 +62,8 @@ import com.thinkparity.ophelia.model.container.export.PDFWriter;
 import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
 import com.thinkparity.ophelia.model.container.monitor.PublishStage;
 import com.thinkparity.ophelia.model.document.CannotLockException;
-import com.thinkparity.ophelia.model.document.DocumentLock;
+import com.thinkparity.ophelia.model.document.DocumentFileLock;
 import com.thinkparity.ophelia.model.document.DocumentNameGenerator;
-import com.thinkparity.ophelia.model.document.DocumentVersionLock;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 import com.thinkparity.ophelia.model.events.ContainerListener;
@@ -91,8 +92,32 @@ public final class ContainerModelImpl extends
         Model<ContainerListener> implements ContainerModel,
         InternalContainerModel {
 
+    /** The create draft buffer size. */
+    private static final Integer CREATE_DRAFT_BUFFER;
+
+    /** The create draft document api's buffer size. */
+    private static final Integer CREATE_DRAFT_DOCUMENT_BUFFER;
+
+    /** The publish create version buffer size. */
+    private static final int PUBLISH_CREATE_VERSION_BUFFER;
+
+    /** The restore api create version buffer size. */
+    private static final Integer RESTORE_CREATE_VERSION_BUFFER;
+
+    /** The save draft api update draft document buffer size. */
+    private static final Integer SAVE_DRAFT_UPDATE_DRAFT_DOCUMENT_BUFFER;
+
     /** The upload stream step increment. */
     private static final int STEP_SIZE = 1024;
+
+    static {
+        final Integer buffer = 1024;
+        CREATE_DRAFT_BUFFER = buffer;
+        CREATE_DRAFT_DOCUMENT_BUFFER = buffer;
+        RESTORE_CREATE_VERSION_BUFFER = buffer;
+        SAVE_DRAFT_UPDATE_DRAFT_DOCUMENT_BUFFER = buffer;
+        PUBLISH_CREATE_VERSION_BUFFER = buffer;
+    }
 
     /** The artifact io layer. */
     private ArtifactIOHandler artifactIO;
@@ -194,12 +219,12 @@ public final class ContainerModelImpl extends
      *            A document id.
      */
     public void addDocument(final Long containerId, final Long documentId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("documentId", documentId);
         try {
-            assertDraftExists("DRAFT DOES NOT EXIST", containerId);
-            containerIO.createDraftArtifactRel(containerId, documentId, ContainerDraft.ArtifactState.ADDED);
+            assertDraftExists("Draft does not exist.", containerId);
+
+            containerIO.createDraftArtifactRel(containerId, documentId,
+                    ContainerDraft.ArtifactState.ADDED);
+            createDraftDocument(containerId, documentId);
             getIndexModel().indexDocument(containerId, documentId);
             final Container postAdditionContainer = read(containerId);        
             final ContainerDraft postAdditionDraft = readDraft(containerId);
@@ -318,8 +343,6 @@ public final class ContainerModelImpl extends
      * @see InternalSessionModel#createDraft(UUID)
      */
     public ContainerDraft createDraft(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
         try {
             assertContainerDraftDoesNotExist(containerId);
             if (isFirstDraft(containerId)) {
@@ -337,26 +360,47 @@ public final class ContainerModelImpl extends
                         readLatestVersion(container.getId());
                 final List<Document> documents = readDocuments(
                         latestVersion.getArtifactId(), latestVersion.getVersionId());
-                final Map<Document, DocumentLock> documentLocks = lockDocuments(documents);
+                final Map<Document, DocumentFileLock> documentLocks = lockDocuments(documents);
                 try {
                     // create
                     final ContainerDraft draft = new ContainerDraft();
                     draft.setOwner(localTeamMember(containerId));
                     draft.setContainerId(containerId);
+
                     final InternalDocumentModel documentModel = getDocumentModel();
+                    Long versionId;
+                    InputStream stream;
                     for (final Document document : documents) {
                         draft.addDocument(document);
                         draft.putState(document, ContainerDraft.ArtifactState.NONE);
-                        documentModel.createDraft(documentLocks.get(document), document.getId());
                     }
                     containerIO.createDraft(draft);
+                    ContainerDraftDocument draftDocument;
+                    DocumentDraft documentDraft;
+                    for (final Document document : documents) {
+                        documentDraft = documentModel.createDraft(
+                                documentLocks.get(document), document.getId());
+                        versionId = artifactModel.readLatestVersionId(document.getId());
+                        draftDocument = new ContainerDraftDocument();
+                        draftDocument.setChecksum(documentDraft.getChecksum());
+                        draftDocument.setChecksumAlgorithm(documentDraft.getChecksumAlgorithm());
+                        draftDocument.setContainerDraftId(containerId);
+                        draftDocument.setDocumentId(document.getId());
+                        draftDocument.setSize(documentDraft.getSize());
+                        stream = documentModel.openVersion(document.getId(), versionId);
+                        try {
+                            containerIO.createDraftDocument(draftDocument, stream, CREATE_DRAFT_BUFFER);
+                        } finally {
+                            stream.close();
+                        }
+                    }
                     artifactModel.applyFlagKey(container.getId());
                     // remote create
                     final List<JabberId> team = artifactModel.readTeamIds(containerId);
                     team.remove(localUserId());
                     getSessionModel().createDraft(team, container.getUniqueId());
                 } finally {
-                    releaseDocuments(documentLocks.values());
+                    releaseLocks(documentLocks.values());
                 }
             }
             // fire event
@@ -379,8 +423,8 @@ public final class ContainerModelImpl extends
         try {
             final Container container = read(containerId);
             final List<Document> allDocuments = readAllDocuments(containerId);
-            final Map<Document, DocumentLock> allDocumentsLocks = lockDocuments(allDocuments);
-            final Map<DocumentVersion, DocumentVersionLock> allDocumentVersionsLocks = lockDocumentVersions(allDocuments);
+            final Map<Document, DocumentFileLock> allDocumentsLocks = lockDocuments(allDocuments);
+            final Map<DocumentVersion, DocumentFileLock> allDocumentVersionsLocks = lockDocumentVersions(allDocuments);
             if (isDistributed(container.getId())) {
                 // delete the draft
                 if (container.isLocalDraft()) {
@@ -422,7 +466,7 @@ public final class ContainerModelImpl extends
             final Container container = read(containerId);
             final ContainerDraft draft = readDraft(containerId);
             final List<Document> draftDocuments = draft.getDocuments();
-            final Map<Document, DocumentLock> draftDocumentLocks = lockDocuments(draftDocuments);
+            final Map<Document, DocumentFileLock> draftDocumentLocks = lockDocuments(draftDocuments);
             try {
                 if (doesExistLocalDraft(containerId)) {
                     if (!isFirstDraft(container.getId())) {
@@ -436,10 +480,11 @@ public final class ContainerModelImpl extends
                     documentModel.deleteDraft(draftDocumentLocks.get(draftDocument), draftDocument.getId());
                     containerIO.deleteDraftArtifactRel(containerId, draftDocument.getId());
                 }
+                containerIO.deleteDraftDocuments(containerId);
                 containerIO.deleteDraft(containerId);
                 notifyDraftDeleted(container, draft, localEventGenerator);
             } finally {
-                releaseDocuments(draftDocumentLocks.values());
+                releaseLocks(draftDocumentLocks.values());
             }
         } catch (final CannotLockException clx) {
             throw clx;
@@ -846,20 +891,16 @@ public final class ContainerModelImpl extends
     public void publish(final PublishMonitor monitor, final Long containerId,
             final String comment, final List<Contact> contacts,
             final List<TeamMember> teamMembers) throws CannotLockException {
-        logger.logApiId();
-        logger.logVariable("monitor", monitor);
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("comment", comment);
-        logger.logVariable("contacts", contacts);
-        logger.logVariable("teamMembers", teamMembers);
-        assertOnline("USER NOT ONLINE");
-        assertDoesExistLocalDraft("LOCAL DRAFT DOES NOT EXIST", containerId);
-        assertDoesNotContain("CANNOT PUBLISH TO SELF", teamMembers, localUser());
+        assertOnline("The local user is currently offline.");
+        assertDoesNotContain("The local user cannot be published to.", teamMembers, localUser());
+        assertDoesExistLocalDraft("A local draft does not exist.", containerId);
+        assertLocalDraftIsSaved("The local draft has not been saved.", containerId);
+        assertLocalDraftIsModified("The local draft has not been modified.", containerId);
         try {
             // lock the documents
             final ContainerDraft draft = readDraft(containerId);
-            final List<Document> draftDocuments = draft.getDocuments();
-            final Map<Document, DocumentLock> draftDocumentLocks = lockDocuments(draftDocuments);
+            final List<Document> documents = draft.getDocuments();
+            final Map<Document, DocumentFileLock> draftDocumentLocks = lockDocuments(documents);
             try {
                 final Calendar publishedOn = getSessionModel().readDateTime();
                 final Container container = read(containerId);
@@ -880,15 +921,24 @@ public final class ContainerModelImpl extends
                 // attach artifacts to the version
                 final InternalDocumentModel documentModel = getDocumentModel();
                 DocumentVersion draftDocumentLatestVersion;
-                for (final Document draftDocument : draftDocuments) {
+                InputStream stream;
+                for (final Document document : documents) {
                     if(ContainerDraft.ArtifactState.REMOVED !=
-                            draft.getState(draftDocument)) {
-                        if (documentModel.isDraftModified(draftDocument.getId())) {
-                            draftDocumentLatestVersion =
-                                documentModel.createVersion(draftDocument.getId(), publishedOn);
+                            draft.getState(document)) {
+                        if (documentModel.isDraftModified(document.getId())) {
+                            stream = openDraftDocument(containerId, document.getId());
+                            try {
+                                draftDocumentLatestVersion =
+                                    documentModel.createVersion(
+                                            document.getId(), stream,
+                                            PUBLISH_CREATE_VERSION_BUFFER,
+                                            publishedOn);
+                            } finally {
+                                stream.close();
+                            }
                         } else {
                             draftDocumentLatestVersion =
-                                documentModel.readLatestVersion(draftDocument.getId());
+                                documentModel.readLatestVersion(document.getId());
                         }
                         containerIO.addVersion(
                                 version.getArtifactId(), version.getVersionId(),
@@ -906,10 +956,11 @@ public final class ContainerModelImpl extends
                 }
                 fireStageEnd(monitor, PublishStage.CreateVersion);
                 // delete draft
-                for (final Document draftDocument : draftDocuments) {
-                    documentModel.deleteDraft(draftDocumentLocks.get(draftDocument), draftDocument.getId());
-                    containerIO.deleteDraftArtifactRel(containerId, draftDocument.getId());
+                for (final Document document : documents) {
+                    documentModel.deleteDraft(draftDocumentLocks.get(document), document.getId());
+                    containerIO.deleteDraftArtifactRel(containerId, document.getId());
                 }
+                containerIO.deleteDraftDocuments(containerId);
                 containerIO.deleteDraft(containerId);
                 // remove key
                 getArtifactModel().removeFlagKey(container.getId());
@@ -930,7 +981,7 @@ public final class ContainerModelImpl extends
                         postPublishVersion, localTeamMember(container.getId()),
                         localEventGenerator);
             } finally {
-                releaseDocuments(draftDocumentLocks.values());
+                releaseLocks(draftDocumentLocks.values());
             }
         } catch (final CannotLockException clx) {
             throw clx;
@@ -1620,8 +1671,8 @@ public final class ContainerModelImpl extends
                     containerId, documentId, ContainerDraft.ArtifactState.REMOVED);
             final ContainerDraft draft = readDraft(containerId);
             final Document document = draft.getDocument(documentId);
-            final DocumentLock lock = lockDocument(document);
-            final Map<DocumentVersion, DocumentVersionLock> versionLocks = lockDocumentVersions(document);
+            final DocumentFileLock lock = lockDocument(document);
+            final Map<DocumentVersion, DocumentFileLock> versionLocks = lockDocumentVersions(document);
             try {
                 containerIO.deleteDraftArtifactRel(containerId, document.getId());
                 switch (draft.getState(document.getId())) {
@@ -1643,8 +1694,8 @@ public final class ContainerModelImpl extends
                 final ContainerDraft postAdditionDraft = readDraft(containerId);
                 notifyDocumentRemoved(postAdditionContainer, postAdditionDraft, document, localEventGenerator);
             } finally {
-                releaseDocument(lock);
-                releaseDocumentVersions(versionLocks.values());
+                releaseLock(lock);
+                releaseLocks(versionLocks.values());
             }
         } catch (final CannotLockException clx) {
             throw clx;
@@ -1722,8 +1773,8 @@ public final class ContainerModelImpl extends
             if (0 < containers.size()) {
                 logger.logWarning("{0} containers will be deleted.", containers.size());
                 final Map<Container, List<Document>> allDocuments = readAllDocuments();
-                final Map<Document, DocumentLock> allDocumentsLocks = new HashMap<Document, DocumentLock>();
-                final Map<DocumentVersion, DocumentVersionLock> allDocumentsVersionsLocks = new HashMap<DocumentVersion, DocumentVersionLock>();
+                final Map<Document, DocumentFileLock> allDocumentsLocks = new HashMap<Document, DocumentFileLock>();
+                final Map<DocumentVersion, DocumentFileLock> allDocumentsVersionsLocks = new HashMap<DocumentVersion, DocumentFileLock>();
                 for (final List<Document> documents : allDocuments.values()) {
                     for (final Document document : documents) {
                         allDocumentsLocks.put(document, lockDocument(document));
@@ -1774,6 +1825,37 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#restoreDraft(java.lang.Long)
+     *
+     */
+    public void restoreDraft(final Long containerId) throws CannotLockException {
+        try {
+            assertDoesExistLocalDraft("A local draft does not exist.", containerId);
+            assertLocalDraftIsSaved("The local draft has not been saved.", containerId);
+            final InternalDocumentModel documentModel = getDocumentModel();
+            final ContainerDraft draft = readDraft(containerId);
+            final Map<Document, DocumentFileLock> locks = lockDocuments(draft.getDocuments());
+            try {
+                for (final Document document : draft.getDocuments()) {
+                    final InputStream stream = containerIO.openDraftDocument(containerId, document.getId());
+                    try {
+                        documentModel.updateDraft(document.getId(), stream);
+                    } finally {
+                        stream.close();
+                    }
+                }
+            } finally {
+                releaseLocks(locks.values());
+            }
+        } catch (final CannotLockException clx) { 
+            throw clx;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+
+    }
+
+    /**
      * Revert a document to it's pre-draft state.
      * 
      * @param documentId
@@ -1790,7 +1872,7 @@ public final class ContainerModelImpl extends
             assertDoesExistLatestVersion("LATEST VERSION DOES NOT EXIST", containerId);
             final ContainerDraft draft = readDraft(containerId);
             final Document document = draft.getDocument(documentId);
-            final DocumentLock lock = lockDocument(document);
+            final DocumentFileLock lock = lockDocument(document);
             try {
                 containerIO.deleteDraftArtifactRel(containerId, document.getId());
                 containerIO.createDraftArtifactRel(containerId, document.getId(),
@@ -1802,10 +1884,47 @@ public final class ContainerModelImpl extends
                 notifyDocumentReverted(postRevertContainer, postRevertDraft, document,
                         localEventGenerator);
             } finally {
-                releaseDocument(lock);
+                releaseLock(lock);
             }
         } catch (final CannotLockException clx) {
             throw clx;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#saveDraft(java.lang.Long)
+     * 
+     */
+    public void saveDraft(final Long containerId) {
+        try {
+            assertDoesExistLocalDraft("A local draft does not exist.", containerId);
+            final InternalDocumentModel documentModel = getDocumentModel();
+            final ContainerDraft draft = readDraft(containerId);
+            final Map<Document, DocumentFileLock> locks = lockDocuments(draft.getDocuments());
+            try {
+                ContainerDraftDocument draftDocument;
+                DocumentDraft documentDraft;
+                for (final Document document : draft.getDocuments()) {
+                    if (documentModel.isDraftModified(document.getId())) {
+                        documentDraft = documentModel.readDraft(document.getId());
+                        draftDocument = containerIO.readDraftDocument(containerId,
+                                document.getId());
+                        draftDocument.setChecksum(documentDraft.getChecksum());
+                        draftDocument.setSize(documentDraft.getSize());
+                        final InputStream stream = documentModel.openDraft(document.getId());
+                        try {
+                            containerIO.updateDraftDocument(draftDocument, stream,
+                                    SAVE_DRAFT_UPDATE_DRAFT_DOCUMENT_BUFFER);
+                        } finally {
+                            stream.close();
+                        }
+                    }
+                }
+            } finally {
+                releaseLocks(locks.values());
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -2000,6 +2119,32 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Assert that the local draft is modified.
+     * 
+     * @param message
+     *            The assertion message.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void assertLocalDraftIsModified(final String message,
+            final Long containerId) {
+        Assert.assertTrue(isLocalDraftModified(containerId), message);
+    }
+
+    /**
+     * Assert that the local draft has been saved.
+     * 
+     * @param message
+     *            The assertion message.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void assertLocalDraftIsSaved(final String message,
+            final Long containerId) {
+        Assert.assertTrue(isLocalDraftSaved(containerId), message);
+    }
+
+    /**
      * Audit a container created event.
      * 
      * @param container
@@ -2130,6 +2275,32 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Create a container draft.
+     * 
+     * @param containerDraftId
+     *            A container draft id <code>Long</code>.
+     * @param documentId
+     *            A document id <code>Long</code>.
+     */
+    private void createDraftDocument(final Long containerDraftId,
+            final Long documentId) throws IOException {
+
+        final DocumentDraft documentDraft = getDocumentModel().readDraft(documentId);
+        final ContainerDraftDocument draftDocument = new ContainerDraftDocument();
+        draftDocument.setChecksum(documentDraft.getChecksum());
+        draftDocument.setChecksumAlgorithm(documentDraft.getChecksumAlgorithm());
+        draftDocument.setContainerDraftId(containerDraftId);
+        draftDocument.setDocumentId(documentDraft.getDocumentId());
+        draftDocument.setSize(documentDraft.getSize());
+        final InputStream stream = getDocumentModel().openDraft(documentId);
+        try {
+            containerIO.createDraftDocument(draftDocument, stream, CREATE_DRAFT_DOCUMENT_BUFFER);
+        } finally {
+            stream.close();
+        }
+    }
+
+    /**
      * Create the first draft for a cotnainer.
      * 
      * @param containerId
@@ -2202,8 +2373,8 @@ public final class ContainerModelImpl extends
     private void deleteLocal(
             final Long containerId,
             final List<Document> documents,
-            final Map<Document, DocumentLock> documentLocks,
-            final Map<DocumentVersion, DocumentVersionLock> documentVersionLocks) {
+            final Map<Document, DocumentFileLock> documentLocks,
+            final Map<DocumentVersion, DocumentFileLock> documentVersionLocks) {
         // delete the draft
         final ContainerDraft draft = readDraft(containerId);
         if (null != draft) {
@@ -2490,6 +2661,51 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Determine whether or not the local draft is different from the previous
+     * version. If an artifact has a state other than none, the artifact is
+     * modified.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if the local draft is modified.
+     */
+    private Boolean isLocalDraftModified(final Long containerId) {
+        boolean modified = false;
+        final ContainerDraft draft = readDraft(containerId);
+        for (final Artifact artifact : draft.getDocuments()) {
+            modified |= ContainerDraft.ArtifactState.NONE != draft.getState(artifact);
+        }
+        return Boolean.valueOf(modified);
+    }
+
+    /**
+     * Determine whether or not the local draft is saved. A local draft is
+     * considered saved if all of the draft documents are considered
+     * non-modified.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if the local draft has been saved.
+     */
+    private Boolean isLocalDraftSaved(final Long containerId) {
+        boolean saved = true;
+        final InternalDocumentModel documentModel = getDocumentModel();
+        final ContainerDraft draft = readDraft(containerId);
+        DocumentDraft documentDraft;
+        ContainerDraftDocument draftDocument;
+        for (final Document document : draft.getDocuments()) {
+            documentDraft = documentModel.readDraft(document.getId());
+            if (null == documentDraft) {
+                saved &= true;
+            } else {
+                draftDocument = containerIO.readDraftDocument(containerId, document.getId());
+                saved &= documentDraft.getChecksum().equals(draftDocument.getChecksum());
+            }
+        }
+        return Boolean.valueOf(saved);
+    }
+
+    /**
      * Determine if the local user ia a team member. The only scenaio where this
      * will not be the case is for archive users.
      * 
@@ -2508,7 +2724,7 @@ public final class ContainerModelImpl extends
      *            A <code>Document</code>.
      * @return A <code>DocumentLock</code>.
      */
-    private DocumentLock lockDocument(final Document document)
+    private DocumentFileLock lockDocument(final Document document)
             throws CannotLockException {
         return getDocumentModel().lock(document);
     }
@@ -2521,9 +2737,9 @@ public final class ContainerModelImpl extends
      * @return A <code>Map</code> of <code>Document</code>s to their
      *         <code>DocumentLock</code>s.
      */
-    private Map<Document, DocumentLock> lockDocuments(
+    private Map<Document, DocumentFileLock> lockDocuments(
             final List<Document> documents) throws CannotLockException {
-        final Map<Document, DocumentLock> locks = new HashMap<Document, DocumentLock>();
+        final Map<Document, DocumentFileLock> locks = new HashMap<Document, DocumentFileLock>();
         for (final Document document : documents) {
             locks.put(document, lockDocument(document));
         }
@@ -2538,10 +2754,10 @@ public final class ContainerModelImpl extends
      * @return A <code>Map</code> of <code>DocumentVersion</code>s to their
      *         <code>DocumentVersionLock</code>s.
      */
-    private Map<DocumentVersion, DocumentVersionLock> lockDocumentVersions(
-            final Document document) {
+    private Map<DocumentVersion, DocumentFileLock> lockDocumentVersions(
+            final Document document) throws CannotLockException {
         final List<DocumentVersion> versions = getDocumentModel().readVersions(document.getId());
-        final Map<DocumentVersion, DocumentVersionLock> locks = new HashMap<DocumentVersion, DocumentVersionLock>(versions.size(), 1.0F);
+        final Map<DocumentVersion, DocumentFileLock> locks = new HashMap<DocumentVersion, DocumentFileLock>(versions.size(), 1.0F);
         for (final DocumentVersion version : versions) {
             locks.put(version, getDocumentModel().lockVersion(version));
         }
@@ -2556,9 +2772,9 @@ public final class ContainerModelImpl extends
      * @return A <code>Map</code> of <code>Document</code>s to their
      *         <code>DocumentLock</code>s.
      */
-    private Map<DocumentVersion, DocumentVersionLock> lockDocumentVersions(
-            final List<Document> documents) {
-        final Map<DocumentVersion, DocumentVersionLock> locks = new HashMap<DocumentVersion, DocumentVersionLock>();
+    private Map<DocumentVersion, DocumentFileLock> lockDocumentVersions(
+            final List<Document> documents) throws CannotLockException {
+        final Map<DocumentVersion, DocumentFileLock> locks = new HashMap<DocumentVersion, DocumentFileLock>();
         final List<DocumentVersion> versions = new ArrayList<DocumentVersion>();
         for (final Document document : documents) {
             versions.clear();
@@ -2639,6 +2855,30 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Fire a container published event.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param eventGenerator
+     *            A <code>ContainerEventGenerator</code>.
+     */
+    private void notifyContainerPublished(final Container container,
+            final ContainerDraft draft, final ContainerVersion previousVersion,
+            final ContainerVersion version, final TeamMember teamMember,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerPublished(eventGenerator.generate(container,
+                        draft, previousVersion, version, teamMember));
+            }
+        });
+    }
+
+    /**
      * Notify that the container has been received.
      * 
      * @param container
@@ -2654,7 +2894,7 @@ public final class ContainerModelImpl extends
             }
         });
     }
-
+    
     /**
      * Fire a container renamed event.
      * 
@@ -2671,7 +2911,7 @@ public final class ContainerModelImpl extends
             }
         });
     }
-    
+
     /**
      * Fire a container restored notification.
      * 
@@ -2798,27 +3038,17 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Fire a container published event.
+     * Open a container draft document stream.
      * 
-     * @param container
-     *            A <code>Container</code>.
-     * @param draft
-     *            A <code>ContainerDraft</code>.
-     * @param version
-     *            A <code>ContainerVersion</code>.
-     * @param eventGenerator
-     *            A <code>ContainerEventGenerator</code>.
+     * @param containerDraftId
+     *            A container draft id <code>Long</code>.
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return A container draft document <code>InputStream</code>.
      */
-    private void notifyContainerPublished(final Container container,
-            final ContainerDraft draft, final ContainerVersion previousVersion,
-            final ContainerVersion version, final TeamMember teamMember,
-            final ContainerEventGenerator eventGenerator) {
-        notifyListeners(new EventNotifier<ContainerListener>() {
-            public void notifyListener(final ContainerListener listener) {
-                listener.containerPublished(eventGenerator.generate(container,
-                        draft, previousVersion, version, teamMember));
-            }
-        });
+    private InputStream openDraftDocument(final Long containerDraftId,
+            final Long documentId) {
+        return containerIO.openDraftDocument(containerDraftId, documentId);
     }
 
     /**
@@ -3067,8 +3297,12 @@ public final class ContainerModelImpl extends
      * @param lock
      *            A <code>DocumentLock</code>.
      */
-    private void releaseDocument(final DocumentLock lock) {
-        getDocumentModel().release(lock);
+    private void releaseLock(final DocumentFileLock lock) {
+        try {
+            lock.release();
+        } catch (final IOException iox) {
+            logger.logError("Could not release lock.", iox);
+        }
     }
 
     /**
@@ -3077,21 +3311,10 @@ public final class ContainerModelImpl extends
      * @param lock
      *            A <code>DocumentLock</code>.
      */
-    private void releaseDocuments(final Iterable<DocumentLock> locks) {
-        for (final DocumentLock lock : locks)
-            getDocumentModel().release(lock);
-    }
-
-    /**
-     * Release the exclusive lock.
-     * 
-     * @param lock
-     *            A <code>DocumentLock</code>.
-     */
-    private void releaseDocumentVersions(
-            final Iterable<DocumentVersionLock> locks) {
-        for (final DocumentVersionLock lock : locks)
-            getDocumentModel().release(lock);
+    private void releaseLocks(final Iterable<DocumentFileLock> locks) {
+        for (final DocumentFileLock lock : locks) {
+            releaseLock(lock);
+        }
     }
 
     /**
@@ -3183,7 +3406,8 @@ public final class ContainerModelImpl extends
                                 restoreModel.openDocumentVersion(
                                         document.getUniqueId(), documentVersion.getVersionId());
                             try {
-                                documentIO.createVersion(documentVersion, documentVersionStream);
+                                documentIO.createVersion(documentVersion,
+                                        documentVersionStream, RESTORE_CREATE_VERSION_BUFFER);
                             } finally {
                                 documentVersionStream.close();
                             }

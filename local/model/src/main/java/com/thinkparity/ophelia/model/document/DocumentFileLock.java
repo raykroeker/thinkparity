@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.document;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -15,10 +16,7 @@ import java.nio.channels.FileLock;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class DocumentLock implements LocalFileLock {
-
-    /** A document id <code>Long</code>. */
-    private Long documentId;
+public class DocumentFileLock {
 
     /** The <code>File</code>. */
     private File file;
@@ -32,24 +30,15 @@ public class DocumentLock implements LocalFileLock {
     /** The <code>RandomAccessFile</code>. */
     private RandomAccessFile randomAccessFile;
 
-    /** A writable flag. */
+    /** Whether or not the file started out as writable. */
     private Boolean writable;
 
     /**
      * Create DocumentLock.
      *
      */
-    public DocumentLock() {
+    public DocumentFileLock() {
         super();
-    }
-
-    /**
-     * Obtain documentId.
-     *
-     * @return A Long.
-     */
-    public Long getDocumentId() {
-        return documentId;
     }
 
     /**
@@ -89,21 +78,22 @@ public class DocumentLock implements LocalFileLock {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.document.LocalFileLock#isWritable()
-     * 
+     * Obtain writable.
+     *
+     * @return A Boolean.
      */
     public Boolean isWritable() {
         return writable;
     }
 
     /**
-     * Set documentId.
+     * @see com.thinkparity.ophelia.model.document.LocalFileLock#release()
      *
-     * @param documentId
-     *		A Long.
      */
-    public void setDocumentId(final Long documentId) {
-        this.documentId = documentId;
+    public void release() throws IOException {
+        if (null != fileLock)
+            fileLock.release();
+        file.setWritable(isWritable(), true);
     }
 
     /**
@@ -147,8 +137,10 @@ public class DocumentLock implements LocalFileLock {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.document.LocalFileLock#setWritable(java.lang.Boolean, java.lang.Boolean)
+     * Set writable.
      *
+     * @param writable
+     *		A Boolean.
      */
     public void setWritable(final Boolean writable) {
         this.writable = writable;

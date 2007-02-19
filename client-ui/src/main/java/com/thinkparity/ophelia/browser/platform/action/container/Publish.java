@@ -203,9 +203,20 @@ public class Publish extends AbstractAction {
         @Override
         public Object construct() {
             try {
+                containerModel.saveDraft(container.getId());
+            } catch (final CannotLockException clx) {
+                monitor.reset();
+                publishMonitor = newPublishMonitor();
+                action.browser.retry(action, container.getName());
+            }
+            try {
                 containerModel.publish(publishMonitor, container.getId(), comment,
                         contacts, teamMembers);
             } catch (final CannotLockException clx) {
+                try {
+                    containerModel.restoreDraft(container.getId());
+                } catch (final CannotLockException clx2) {}
+
                 monitor.reset();
                 publishMonitor = newPublishMonitor();
                 action.browser.retry(action, container.getName());

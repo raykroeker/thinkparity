@@ -4,19 +4,15 @@
 package com.thinkparity.ophelia.model.document;
 
 import java.io.InputStream;
-import java.util.Comparator;
-import java.util.List;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
-import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.events.DocumentListener;
 import com.thinkparity.ophelia.model.util.Opener;
 import com.thinkparity.ophelia.model.util.Printer;
-import com.thinkparity.ophelia.model.util.filter.Filter;
 
 /**
  * <b>Title:</b>thinkParity Document Model<br>
@@ -120,53 +116,6 @@ public interface DocumentModel {
      */
     public DocumentVersion readEarliestVersion(final Long documentId);
 
-	/**
-	 * Read the document's history.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 * @return A list of a history items.
-	 */
-	public List<DocumentHistoryItem> readHistory(final Long documentId);
-
-	/**
-	 * Read the document's history.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 * @param comparator
-	 *            The sort to use when returning the history.
-	 * @return A list of a history items.
-	 */
-	public List<DocumentHistoryItem> readHistory(final Long documentId,
-            final Comparator<? super HistoryItem> comparator);
-
-	/**
-     * Read the document's history.
-     * 
-     * @param documentId
-     *            The document id.
-     * @param comparator
-     *            A history item comparator.
-     * @param filter
-     *            A history item filter.
-     * @return A list of a history items.
-     */
-    public List<DocumentHistoryItem> readHistory(final Long documentId,
-            final Comparator<? super HistoryItem> comparator,
-            final Filter<? super HistoryItem> filter);
-
-	/**
-     * Read the document's history.
-     * 
-     * @param documentId
-     *            The document id.
-     * @param filter
-     *            A history filter.
-     * @return A list of a history items.
-     */
-    public List<DocumentHistoryItem> readHistory(final Long documentId,
-            final Filter<? super HistoryItem> filter);
     /**
      * Obtain the latest document version.
      * 

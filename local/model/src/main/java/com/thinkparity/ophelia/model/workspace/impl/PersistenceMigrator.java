@@ -95,6 +95,7 @@ public class PersistenceMigrator {
                 CONFIG.getProperty("CreateContainerDraftArtifactRel"),
                 CONFIG.getProperty("CreateDocument"),
                 CONFIG.getProperty("CreateDocumentVersion"),
+                CONFIG.getProperty("CreateContainerDraftDocument"),
                 CONFIG.getProperty("CreateIndexUserName"),
                 CONFIG.getProperty("CreateIndexUserOrganization"),
                 CONFIG.getProperty("CreateIndexEmail")

@@ -23,6 +23,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.ErrorHelper;
+import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
@@ -438,12 +439,12 @@ public abstract class Model<T extends EventListener> extends
      *            The <code>Integer</code> size of a buffer to use.
      * @return An MD5 checksum <code>String</code>.
      */
-    protected String checksum(final File file, final Integer buffer)
+    protected final String checksum(final File file, final Integer buffer)
             throws IOException {
         final InputStream stream = new BufferedInputStream(
                 new FileInputStream(file), buffer);
         try {
-            return MD5Util.md5Hex(stream);
+            return MD5Util.md5Hex(stream, buffer);
         } finally {
             stream.close();
         }
@@ -666,6 +667,10 @@ public abstract class Model<T extends EventListener> extends
      */
     protected final InternalBackupModel getBackupModel() {
         return modelFactory.getBackupModel();
+    }
+
+    protected final String getChecksumAlgorithm() {
+        return ChecksumAlgorithm.MD5.name();
     }
 
 	/**

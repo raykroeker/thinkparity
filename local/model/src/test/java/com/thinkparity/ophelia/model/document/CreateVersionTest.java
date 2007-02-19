@@ -3,16 +3,20 @@
  */
 package com.thinkparity.ophelia.model.document;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Calendar;
 
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
@@ -43,83 +47,91 @@ public class CreateVersionTest extends DocumentTestCase {
 	 * Test the document model create version api.
 	 */
 	public void testCreateVersion() {
-		final DocumentVersion version = datum.documentModel.createVersion(datum.document.getId(), currentDateTime());
+	    final Container c = createContainer(datum.junit, NAME);
+        final Document d = addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
 
-        assertNotNull(NAME, version);
-		assertEquals(datum.document.getId(), version.getArtifactId());
-		assertEquals(datum.document.getType(), version.getArtifactType());
-		assertEquals(datum.document.getUniqueId(), version.getArtifactUniqueId());
-		assertEquals(datum.document.getCreatedBy(), version.getCreatedBy());
-		assertEquals(datum.document.getName(), version.getName());
-		assertEquals(datum.document.getUpdatedBy(), version.getUpdatedBy());
-        assertEquals(NAME + " [DOCUMENT BYTES CHECKSUM DOES NOT MATCH EXPECTATION]",
-                datum.documentChecksum, version.getChecksum());
-
-        final InputStream stream = datum.documentModel.openVersion(version.getArtifactId(), version.getVersionId());
-        final File outputFile = new File(getOutputDirectory(), datum.file.getName());
-        OutputStream output = null;
+        final Calendar createdOn = currentDateTime();
+        DocumentVersion dv = null;
         try {
-            Assert.assertTrue(outputFile.createNewFile(), "Could not create file {0}", outputFile);
-            output = new FileOutputStream(outputFile);
-            StreamUtil.copy(stream, output);
-            
-            final InputStream outputFileStream = new FileInputStream(outputFile);
+            final InputStream dv_is = new BufferedInputStream(new FileInputStream(getInputFile("JUnitTestFrameworkMod.doc")), 1024);
             try {
-                final String checksum = MD5Util.md5Hex(outputFileStream);
-                assertEquals("File checksums do not match", datum.documentChecksum, checksum);
+                 dv = getDocumentModel(datum.junit).createVersion(d.getId(), dv_is, 1024, createdOn);
             } finally {
-                outputFileStream.close();
+                dv_is.close();
             }
         } catch (final IOException iox) {
-            fail(createFailMessage(iox));
-        } finally {
-            try {
-                output.flush();
-                output.close();
-            } catch (final IOException iox) {
-                fail(createFailMessage(iox));
-            }
+            fail(createFailMessage("Could not test create version.", iox));
         }
-    }
 
-	/**
-	 * @see com.thinkparity.ophelia.model.ModelTestCase#setUp()
-	 */
-	protected void setUp() throws Exception {
-		super.setUp();
-		final File inputFile = getInputFiles()[0];
-		final InternalDocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
-        final Document document = createDocument(OpheliaTestUser.JUNIT, inputFile);
-        final InputStream inputFileStream = new FileInputStream(inputFile);
+        assertNotNull("Document version is null.", dv);
+		assertEquals("Document version artifact id does not match expectation.", d.getId(), dv.getArtifactId());
+		assertEquals("Document version artifact type does not match expectation.", d.getType(), dv.getArtifactType());
+		assertEquals("Document version unique id does not match expectation.", d.getUniqueId(), dv.getArtifactUniqueId());
+		assertEquals("Document version created by does not match expectation.", d.getCreatedBy(), dv.getCreatedBy());
+		assertEquals("Document version name does not match expectation.", d.getName(), dv.getName());
+		assertEquals("Document version version id does not match expectation.", d.getUpdatedBy(), dv.getUpdatedBy());
+        assertEquals("Document version checksum does not match expectation.", getInputFileMD5Checksum("JUnitTestFramework.doc"), dv.getChecksum());
+
+        final InputStream stream = getDocumentModel(datum.junit).openVersion(dv.getArtifactId(), dv.getVersionId());
+        final File file = new File(getOutputDirectory(), d.getName());
         try {
-            datum = new Fixture(document, MD5Util.md5Hex(inputFileStream), documentModel, inputFile);
-        } finally {
-            inputFileStream.close();
+            try {
+                final OutputStream os = new BufferedOutputStream(new FileOutputStream(file), 1024);
+                try {
+                    StreamUtil.copy(stream, os, 1024);
+                } finally {
+                    os.close();
+                }
+    
+                final InputStream is = new BufferedInputStream(new FileInputStream(file), 1024);
+                try {
+                    final String checksum = MD5Util.md5Hex(is);
+                    assertEquals("Open version calculated checksum does not match expectation.", dv.getChecksum(), checksum);
+                } finally {
+                    is.close();
+                }
+            } finally {
+                Assert.assertTrue("Could not delete file {0}.", file.delete());
+            }
+        } catch (final IOException iox) {
+            fail(createFailMessage("Could not test create version.", iox));
         }
     }
 
-	/**
-	 * @see com.thinkparity.ophelia.model.ModelTestCase#tearDown()
-	 */
-	protected void tearDown() throws Exception {
-		datum = null;
-		super.tearDown();
-	}
+    /**
+     * @see com.thinkparity.ophelia.model.test.ticket.TicketTestCase#setUp()
+     *
+     */
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        datum = new Fixture(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X);
+        login(datum.junit);
+        login(datum.junit_x);
+    }
 
-	/**
-	 * Test data fixture.
-	 */
-	private class Fixture extends DocumentTestCase.Fixture {
-		private final Document document;
-        private final String documentChecksum;
-		private final InternalDocumentModel documentModel;
-        private final File file;
-		private Fixture(final Document document, final String documentChecksum,
-                final InternalDocumentModel documentModel, final File file) {
-			this.document = document;
-            this.documentChecksum = documentChecksum;
-			this.documentModel = documentModel;
-            this.file = file;
-		}
-	}
+    /**
+     * @see com.thinkparity.ophelia.model.test.ticket.TicketTestCase#tearDown()
+     *
+     */
+    @Override
+    protected void tearDown() throws Exception {
+        logout(datum.junit);
+        logout(datum.junit_x);
+        datum = null;
+        super.tearDown();
+    }
+
+    /** Test datum fixture. */
+    private class Fixture extends DocumentTestCase.Fixture {
+        private final OpheliaTestUser junit;
+        private final OpheliaTestUser junit_x;
+        private Fixture(final OpheliaTestUser junit,
+                final OpheliaTestUser junit_x) {
+            this.junit = junit;
+            this.junit_x = junit_x;
+            addQueueHelper(junit);
+            addQueueHelper(junit_x);
+        }
+    }
 }

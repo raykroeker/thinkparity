@@ -281,10 +281,9 @@ public class ElementBuilder {
             addElement(element, "artifactType", value.getArtifactType());
             addElement(element, "artifactUniqueId", value.getArtifactUniqueId());
             addElement(element, "checksum", value.getChecksum());
-            addElement(element, "compression", value.getCompression());
+            addElement(element, "checksumAlgorithm", value.getChecksumAlgorithm());
             addElement(element, "createdBy", value.getCreatedBy());
             addElement(element, "createdOn", value.getCreatedOn());
-            addElement(element, "encoding", value.getEncoding());
             addElement(element, "name", value.getName());
             addElement(element, "size", value.getSize());
             addElement(element, "updatedBy", value.getUpdatedBy());

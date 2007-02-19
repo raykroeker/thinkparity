@@ -39,16 +39,34 @@ public class CreateDraftTest extends ContainerTestCase {
     }
 
     /**
+     * Test the creation of the first draft.
+     *
+     */
+    public void testCreateFirstDraft() {
+        final Container c = createContainer(datum.junit, NAME);
+
+        final ContainerDraft df = readContainerDraft(datum.junit, c.getId());
+        assertNotNull("First draft is null.", df);
+        assertEquals("First draft artifact list size does not match expectation.", 0, df.getArtifacts().size());
+        assertEquals("First draft container id does not match expectation.", c.getId(), df.getContainerId());
+        assertEquals("First draft document count does not match expectation.", 0, df.getDocumentCount().intValue());
+        assertEquals("First draft document list size does not match expectation.", 0, df.getDocuments().size());
+        assertEquals("First draft owner id does not match expectation.", c.getCreatedBy(), df.getOwner().getId());
+        assertEquals("First draft owner team member artifact id does not match expectation.", c.getId(), df.getOwner().getArtifactId());
+    }
+
+    /**
      * Test the container model create draft api.
      * 
      */
-    public void testCreateDraft() {
+    public void testCreateSecondDraft() {
         final Container c = createContainer(datum.junit, NAME);
         addDocuments(datum.junit, c.getId());
         publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         final Container c_x = readContainer(datum.junit_x, c.getUniqueId());
         final Container c_y = readContainer(datum.junit_x, c.getUniqueId());
+
         datum.addListener(datum.junit);
         ContainerDraft draftCreate = getContainerModel(datum.junit).createDraft(c.getId());
         datum.removeListener(datum.junit);

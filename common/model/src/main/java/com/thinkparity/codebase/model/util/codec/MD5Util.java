@@ -5,6 +5,8 @@ package com.thinkparity.codebase.model.util.codec;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -30,16 +32,43 @@ public class MD5Util {
 	}
 
     /**
+     * Create and MD5 hex encoded checksum of a byte channel.
+     * 
+     * @param byteChannel
+     *            A <code>ByteChannel</code>.
+     * @param bufferSize
+     *            A buffer size <code>Integer</code> to use.
+     * @return An MD5 hex encoded checksum.
+     * @throws IOException
+     */
+    public static String md5Hex(final ReadableByteChannel channel,
+            final Integer bufferSize) throws IOException {
+        final MessageDigest messageDigest = getDigest();
+        final byte[] bytes = new byte[bufferSize];
+        final ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        int bytesRead;
+        while (-1 != (bytesRead = channel.read(buffer))) {
+            buffer.position(0);
+            buffer.limit(bytesRead);
+            messageDigest.update(bytes, 0, bytesRead);
+        }
+        return new String(Hex.encodeHex(messageDigest.digest()));
+    }
+    
+    /**
      * Create an MD5 hex encoded checksum of an input stream.
      * 
      * @param inputStream
      *            An <code>InputStream</code>.
+     * @param bufferSize
+     *            A buffer size <code>Integer</code> to use.
      * @return An MD5 hex encoded checksum.
      * @throws IOException
      */
-    public static String md5Hex(final InputStream inputStream) throws IOException {
+    public static String md5Hex(final InputStream inputStream,
+            final Integer bufferSize) throws IOException {
         final MessageDigest messageDigest = getDigest();
-        final byte[] bytes = new byte[512];
+        final byte[] bytes = new byte[bufferSize];
         int bytesRead;
         while (-1 != (bytesRead = inputStream.read(bytes))) {
             messageDigest.update(bytes, 0, bytesRead);

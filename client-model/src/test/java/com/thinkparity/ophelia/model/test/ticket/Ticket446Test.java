@@ -42,6 +42,7 @@ public class Ticket446Test extends TicketTestCase {
         // create a container; add a document; publish
         final Container c_initial = createContainer(datum.junit, NAME);
         final Document d_txt = addDocument(datum.junit, c_initial.getId(), "JUnitTestFramework.txt");
+        saveDraft(datum.junit, c_initial.getId());
         publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
 
@@ -50,6 +51,7 @@ public class Ticket446Test extends TicketTestCase {
         datum.waitForEvents();
         removeDocument(datum.junit, c_initial.getId(), d_txt.getId());
         // publish
+        saveDraft(datum.junit, c_initial.getId());
         publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
 

@@ -1904,7 +1904,7 @@ public final class ContainerModelImpl extends
      * @see com.thinkparity.ophelia.model.container.ContainerModel#saveDraft(java.lang.Long)
      * 
      */
-    public void saveDraft(final Long containerId) {
+    public void saveDraft(final Long containerId) throws CannotLockException {
         try {
             assertDoesExistLocalDraft("A local draft does not exist.", containerId);
             final InternalDocumentModel documentModel = getDocumentModel();
@@ -1944,6 +1944,8 @@ public final class ContainerModelImpl extends
             } finally {
                 releaseLocks(locks.values());
             }
+        } catch (final CannotLockException clx) {
+            throw clx;
         } catch (final Throwable t) {
             throw panic(t);
         }

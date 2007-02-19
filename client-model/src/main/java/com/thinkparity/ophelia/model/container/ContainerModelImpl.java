@@ -1908,7 +1908,7 @@ public final class ContainerModelImpl extends
                 DocumentDraft documentDraft;
                 for (final Document document : draft.getDocuments()) {
                     if (documentModel.isDraftModified(document.getId())) {
-                        documentDraft = documentModel.readDraft(document.getId());
+                        documentDraft = documentModel.readDraft(locks.get(document), document.getId());
                         draftDocument = containerIO.readDraftDocument(containerId,
                                 document.getId());
                         draftDocument.setChecksum(documentDraft.getChecksum());

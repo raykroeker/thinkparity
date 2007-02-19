@@ -159,6 +159,16 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public DocumentDraft readDraft(final Long documentId);
 
+    /**
+     * Obtain the document draft.
+     * 
+     * @param lock
+     *            A <code>DocumentFileLock</code>.
+     * @return A <code>DocumentDraft</code>.
+     */
+    public DocumentDraft readDraft(final DocumentFileLock lock,
+            final Long documentId);
+
 	/**
      * Read a list of document versions.
      * 

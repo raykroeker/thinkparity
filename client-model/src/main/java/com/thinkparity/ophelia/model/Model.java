@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.ByteChannel;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
@@ -428,6 +429,20 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertTrue(environment.isXMPPReachable(),
                 "XMPP environment {0} is not reachable.",
                 environment.getXMPPService());
+    }
+
+    /**
+     * Calculate a checksum for a file's contents.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @param buffer
+     *            The <code>Integer</code> size of a buffer to use.
+     * @return An MD5 checksum <code>String</code>.
+     */
+    protected final String checksum(final ByteChannel byteChannel,
+            final Integer buffer) throws IOException {
+        return MD5Util.md5Hex(byteChannel, buffer);
     }
 
     /**

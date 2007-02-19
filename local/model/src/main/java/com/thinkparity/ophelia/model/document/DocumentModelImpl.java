@@ -213,6 +213,7 @@ public final class DocumentModelImpl extends
             throw translateError(t);
         }
     }
+
     /**
      * Determine whether or not a draft exists.
      * 
@@ -230,6 +231,20 @@ public final class DocumentModelImpl extends
             throw translateError(t);
         }
     }
+
+
+    /**
+     * Determine whether or not a draft exists.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return True if the draft exists.
+     */
+    private Boolean doesExistDraft(final DocumentFileLock lock) {
+        final File draftFile = getDraftFile(lock);
+        return draftFile.exists();
+    }
+
     /**
      * @see com.thinkparity.ophelia.model.document.DocumentModel#get(java.lang.Long)
      *
@@ -630,6 +645,42 @@ public final class DocumentModelImpl extends
         } catch (final Throwable t) {
             throw panic(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#readDraft(com.thinkparity.ophelia.model.document.DocumentFileLock)
+     * 
+     */
+    public DocumentDraft readDraft(final DocumentFileLock lock,
+            final Long documentId) {
+        try {
+            if (doesExistDraft(lock)) {
+                final File draftFile = getDraftFile(lock);
+                final DocumentDraft draft = new DocumentDraft();
+                draft.setChecksum(checksum(lock));
+                draft.setChecksumAlgorithm(getChecksumAlgorithm());
+                draft.setDocumentId(documentId);
+                draft.setSize(draftFile.length());
+                return draft;
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * Calculate a checksum for the lock.
+     * 
+     * @param lock
+     *            A <code>DocumentFileLock</code>.
+     * @return A checksum <code>String</code>.
+     */
+    private String checksum(final DocumentFileLock lock) throws IOException {
+        final FileChannel fileChannel = lock.getFileChannel();
+        fileChannel.position(0);
+        return checksum(fileChannel, CHECKSUM_FILE_BUFFER);
     }
 
 	/**
@@ -1120,6 +1171,17 @@ public final class DocumentModelImpl extends
     private File getDraftFile(final Document document) {
         final String child = nameGenerator.fileName(document);
         return new File(getDocumentRoot(document), child);
+    }
+
+    /**
+     * Obtain the draft file.
+     * 
+     * @param document
+     *            A <code>Document</code>.
+     * @return A draft <code>File</code>.
+     */
+    private File getDraftFile(final DocumentFileLock lock) {
+        return lock.getFile();
     }
 
     /**

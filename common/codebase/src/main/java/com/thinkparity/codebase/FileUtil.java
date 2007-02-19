@@ -13,7 +13,9 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.MessageFormat;
@@ -375,6 +377,40 @@ public abstract class FileUtil {
     }
 
     /**
+     * Write a byte channel to a file.
+     * 
+     * @param byteChannel
+     *            A <code>ByteChannel</code>.
+     * @param file
+     *            A <code>File</code>.
+     * @param bufferSize
+     *            The size of the buffer to use when writing the file.
+     * @throws IOException
+     */
+    public static void write(final ByteChannel byteChannel, final File file,
+            final Integer bufferSize) throws IOException {
+        if (null == byteChannel || null == file || null == bufferSize)
+            throw new NullPointerException();
+        if (!byteChannel.isOpen())
+            throw new IllegalArgumentException("Channel is not open.");
+        final OutputStream os = new FileOutputStream(file);
+        final byte[] bytes = new byte[bufferSize];
+        final ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        try {
+            int totalAmountRead = 0, amountRead = 0;
+            while (-1 != (amountRead = byteChannel.read(buffer))) {
+                totalAmountRead += amountRead;
+                buffer.position(0);
+                buffer.limit(amountRead);
+                os.write(bytes);
+                os.flush();
+            }
+        } finally {
+            os.close();
+        }
+    }
+
+    /**
      * Write a stream to a file.
      * 
      * @param input
@@ -397,7 +433,6 @@ public abstract class FileUtil {
         }
     }
 
-    
     /**
 	 * Write a byte[] to a file.
 	 * 

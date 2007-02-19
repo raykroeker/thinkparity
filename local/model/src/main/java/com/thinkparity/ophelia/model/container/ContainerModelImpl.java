@@ -4,8 +4,10 @@
 package com.thinkparity.ophelia.model.container;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -107,6 +109,9 @@ public final class ContainerModelImpl extends
     /** The save draft api update draft document buffer size. */
     private static final Integer SAVE_DRAFT_UPDATE_DRAFT_DOCUMENT_BUFFER;
 
+    /** The save draft api write file buffer size. */
+    private static final Integer SAVE_DRAFT_WRITE_FILE_BUFFER;
+
     /** The upload stream step increment. */
     private static final int STEP_SIZE = 1024;
 
@@ -116,6 +121,7 @@ public final class ContainerModelImpl extends
         CREATE_DRAFT_DOCUMENT_BUFFER = buffer;
         RESTORE_CREATE_VERSION_BUFFER = buffer;
         SAVE_DRAFT_UPDATE_DRAFT_DOCUMENT_BUFFER = buffer;
+        SAVE_DRAFT_WRITE_FILE_BUFFER = buffer;
         PUBLISH_CREATE_VERSION_BUFFER = buffer;
     }
 
@@ -1906,19 +1912,31 @@ public final class ContainerModelImpl extends
             try {
                 ContainerDraftDocument draftDocument;
                 DocumentDraft documentDraft;
+                FileChannel documentFileChannel;
+                File file;
+                InputStream stream;
                 for (final Document document : draft.getDocuments()) {
                     if (documentModel.isDraftModified(document.getId())) {
                         documentDraft = documentModel.readDraft(locks.get(document), document.getId());
-                        draftDocument = containerIO.readDraftDocument(containerId,
-                                document.getId());
+                        draftDocument = containerIO.readDraftDocument(
+                                containerId, document.getId());
                         draftDocument.setChecksum(documentDraft.getChecksum());
                         draftDocument.setSize(documentDraft.getSize());
-                        final InputStream stream = documentModel.openDraft(document.getId());
+                        documentFileChannel = locks.get(document).getFileChannel();
+                        documentFileChannel.position(0);
+                        file = workspace.createTempFile();
                         try {
-                            containerIO.updateDraftDocument(draftDocument, stream,
-                                    SAVE_DRAFT_UPDATE_DRAFT_DOCUMENT_BUFFER);
+                            FileUtil.write(documentFileChannel, file, SAVE_DRAFT_WRITE_FILE_BUFFER);
+                            stream = new FileInputStream(file);
+                            try {
+                                containerIO.updateDraftDocument(draftDocument, stream,
+                                        SAVE_DRAFT_UPDATE_DRAFT_DOCUMENT_BUFFER);
+                            } finally {
+                                stream.close();
+                            }                            
                         } finally {
-                            stream.close();
+                            Assert.assertTrue(file.delete(),
+                                    "Could not delete temporary file {0}.", file);
                         }
                     }
                 }

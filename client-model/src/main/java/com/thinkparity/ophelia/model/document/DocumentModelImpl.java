@@ -1088,7 +1088,7 @@ public final class DocumentModelImpl extends
             try {
                 versionStream = new FileInputStream(temp);
                 try {
-                    writeFile(versionLock, stream);
+                    writeFile(versionLock, versionStream);
                     versionLock.getFile().setLastModified(version.getCreatedOn().getTimeInMillis());
                     versionLock.getFile().setReadOnly();
                 } finally {
@@ -1335,6 +1335,7 @@ public final class DocumentModelImpl extends
             final InputStream stream) throws IOException {
         final FileChannel fileChannel = lock.getFileChannel();
         fileChannel.position(0);
+
         final byte[] bytes = new byte[WRITE_FILE_BUFFER];
         final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         int bytesRead;

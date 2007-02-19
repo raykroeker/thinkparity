@@ -906,7 +906,7 @@ public final class ContainerModelImpl extends
             // lock the documents
             final ContainerDraft draft = readDraft(containerId);
             final List<Document> documents = draft.getDocuments();
-            final Map<Document, DocumentFileLock> draftDocumentLocks = lockDocuments(documents);
+            final Map<Document, DocumentFileLock> locks = lockDocuments(documents);
             try {
                 final Calendar publishedOn = getSessionModel().readDateTime();
                 final Container container = read(containerId);
@@ -931,7 +931,7 @@ public final class ContainerModelImpl extends
                 for (final Document document : documents) {
                     if(ContainerDraft.ArtifactState.REMOVED !=
                             draft.getState(document)) {
-                        if (documentModel.isDraftModified(document.getId())) {
+                        if (documentModel.isDraftModified(locks.get(document), document.getId())) {
                             stream = openDraftDocument(containerId, document.getId());
                             try {
                                 draftDocumentLatestVersion =
@@ -963,7 +963,7 @@ public final class ContainerModelImpl extends
                 fireStageEnd(monitor, PublishStage.CreateVersion);
                 // delete draft
                 for (final Document document : documents) {
-                    documentModel.deleteDraft(draftDocumentLocks.get(document), document.getId());
+                    documentModel.deleteDraft(locks.get(document), document.getId());
                     containerIO.deleteDraftArtifactRel(containerId, document.getId());
                 }
                 containerIO.deleteDraftDocuments(containerId);
@@ -987,7 +987,7 @@ public final class ContainerModelImpl extends
                         postPublishVersion, localTeamMember(container.getId()),
                         localEventGenerator);
             } finally {
-                releaseLocks(draftDocumentLocks.values());
+                releaseLocks(locks.values());
             }
         } catch (final CannotLockException clx) {
             throw clx;

@@ -163,14 +163,17 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     }
 
     /**
-     * Notify the avatar that a draft has been published.
+     * Notify the avatar that a container draft or version
+     * has been published.
      * 
      * @param e
      *            A <code>ContainerEvent</code>.
      */
     public void fireContainerPublished(final ContainerEvent e) {
-        if (e.isRemote())
+        if (e.isRemote()) {
             removeFlagSeen(e);
+        }
+        getController().runDisplayContainerSeenFlagInfo();
         sync(e); 
     }
 

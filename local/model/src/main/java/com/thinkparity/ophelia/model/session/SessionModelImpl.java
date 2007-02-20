@@ -28,6 +28,7 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
@@ -1497,7 +1498,12 @@ public final class SessionModelImpl extends Model<SessionListener>
                 new SessionModelEventDispatcher(workspace, modelFactory, xmppSession);
 
                 // login
-                xmppSession.login(environment, credentials);
+                try {
+                    xmppSession.login(environment, credentials);
+                } catch (final InvalidCredentialsException icx) {
+                    monitor.notifyInvalidCredentials(credentials);
+                    return;
+                }
 
                 // this was the first login
                 if (null == localCredentials) {

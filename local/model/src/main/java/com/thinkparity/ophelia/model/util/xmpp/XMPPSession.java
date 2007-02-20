@@ -25,6 +25,7 @@ import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
@@ -357,7 +358,7 @@ public interface XMPPSession {
      * @throws SmackException
      */
 	public void login(final Environment environment,
-            final Credentials credentials);
+            final Credentials credentials) throws InvalidCredentialsException;
 
     /**
      * Logout.

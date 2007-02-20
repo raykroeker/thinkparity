@@ -35,6 +35,7 @@ import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
@@ -56,6 +57,7 @@ import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
@@ -517,7 +519,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * 
      */
 	public void login(final Environment environment,
-            final Credentials credentials) {
+            final Credentials credentials) throws InvalidCredentialsException {
         login(1, environment, credentials);
     }
 
@@ -549,7 +551,12 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         } catch (final Throwable t) {
             logger.logFatal(t, "A fatal error occured whilst processing a remote event.  Re-establishing connection now.");
             logout();
-            login(0, environment, credentials);
+            try {
+                login(0, environment, credentials);
+            } catch (final InvalidCredentialsException icx) {
+                logger.logFatal("Could not re-establish connection.");
+                logout();
+            }
         } finally {
             logger.popContext();
         }
@@ -900,7 +907,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         else {
             final String errorId = new ErrorHelper().getErrorId(t);
             logger.logError(t, errorId);
-            return SmackErrorTranslator.translate(this, errorId, t);
+            return SmackErrorTranslator.translate(this, t.getMessage(), t);
         }
     }
 
@@ -1071,7 +1078,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * @throws SmackException
      */
     private void login(final Integer attempt, final Environment environment,
-            final Credentials credentials) {
+            final Credentials credentials) throws InvalidCredentialsException {
         logVariable("attempt", attempt);
         logVariable("environment", environment);
         logVariable("credentials", credentials);
@@ -1147,6 +1154,12 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
             // JIRA http://www.jivesoftware.org/issues/browse/SMACK-141
             if ("Not connected to server.".equals(isx.getMessage())) {
                 login(attempt + 1, environment, credentials);
+            }
+        } catch (final XMPPException xmppx) {
+            if ("SASL authentication failed".equals(xmppx.getMessage())) {
+                throw new InvalidCredentialsException();
+            } else {
+                throw translateError(xmppx);
             }
 		} catch (final Throwable t) {
 			throw translateError(t);

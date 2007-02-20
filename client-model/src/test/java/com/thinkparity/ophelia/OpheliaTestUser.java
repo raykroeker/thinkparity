@@ -7,10 +7,12 @@ import java.io.File;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
@@ -88,7 +90,11 @@ public class OpheliaTestUser extends User {
             workspaceModel.getWorkspace(
                     new File(OpheliaTestCase.SESSION.getOutputDirectory(),
                             "TEST." + username));
-        processOfflineQueue();
+        try {
+            processOfflineQueue();
+        } catch (final InvalidCredentialsException icx) {
+            new Log4JWrapper().logFatal("Could not login as {0}.", username);
+        }
         initialize();
 	}
 
@@ -178,7 +184,7 @@ public class OpheliaTestUser extends User {
      * test sessions.
      * 
      */
-    private void processOfflineQueue() {
+    private void processOfflineQueue() throws InvalidCredentialsException {
         assertIsReachable(environment);
         XMPPSession session = null;
         try {

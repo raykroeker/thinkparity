@@ -459,7 +459,9 @@ public abstract class Avatar extends AbstractJPanel {
         if (isAvatarBackgroundImage()) {
             final Graphics g2 = g.create();
             try {
-                final int extra = 5;
+                // NOTE This constant affects dialog resize performance. It can be made larger (eg. 5)
+                // if dialog resize performance becomes an issue.
+                final int extra = 1;
                 
                 // Scale the background image to the correct size or slightly larger.
                 // For performance reasons, don't use scaling to resize with every pixel change.

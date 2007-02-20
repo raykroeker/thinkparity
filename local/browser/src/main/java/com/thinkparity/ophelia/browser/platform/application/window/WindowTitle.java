@@ -29,19 +29,48 @@ public class WindowTitle extends AbstractJPanel {
     
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
-    
+
     /** Close label icon. */
     private static final Icon CLOSE_ICON = ImageIOUtil.readIcon("BrowserTitle_Close.png");
-    
+
     /** Close label rollover icon. */
     private static final Icon CLOSE_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_CloseRollover.png");
+
+    /** The border type. */
+    private BorderType borderType = BorderType.DEFAULT;
+
+    /** Creates new form WindowTitle */
+    public WindowTitle() {
+        initComponents();
+        setTitleText(null);
+    }
 
     /** Creates new form WindowTitle */
     public WindowTitle(final String title) {
         initComponents();
+        setTitleText(title);
+    }
+
+    /**
+     * Set the border type. This affects painting on top left and top right.
+     * 
+     * @param borderType
+     *            The border type.           
+     */
+    public void setBorderType(final BorderType borderType) {
+        this.borderType = borderType;
+    }
+
+    /**
+     * Set the title text.
+     * 
+     * @param title
+     *            The title text.           
+     */
+    public void setTitleText(final String title) {
         titleJLabel.setText(title);
     }
-    
+
     /** @see javax.swing.JComponent#paintComponent(java.awt.Graphics) */
     protected void paintComponent(final Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
@@ -54,16 +83,29 @@ public class WindowTitle extends AbstractJPanel {
             g2.fillRect(0, 0, getWidth(), getHeight());
             
             // These images put borders on rounded corners.
-            g2.drawImage(Images.BrowserTitle.DIALOG_TOP_LEFT,
-                    0,
-                    0,
-                    Images.BrowserTitle.DIALOG_TOP_LEFT.getWidth(),
-                    Images.BrowserTitle.DIALOG_TOP_LEFT.getHeight(), this);
-            g2.drawImage(Images.BrowserTitle.DIALOG_TOP_RIGHT,
-                    getWidth() - Images.BrowserTitle.DIALOG_TOP_RIGHT.getWidth(),
-                    0,
-                    Images.BrowserTitle.DIALOG_TOP_RIGHT.getWidth(),
-                    Images.BrowserTitle.DIALOG_TOP_RIGHT.getHeight(), this);
+            if (borderType == BorderType.WINDOW_BORDER2) {
+                g.drawImage(Images.BrowserTitle.BROWSER_TOP_LEFT_INNER,
+                        0,
+                        0,
+                        Images.BrowserTitle.BROWSER_TOP_LEFT_INNER.getWidth(),
+                        Images.BrowserTitle.BROWSER_TOP_LEFT_INNER.getHeight(), this);
+                g.drawImage(Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER,
+                        getSize().width - Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
+                        0,
+                        Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
+                        Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getHeight(), this);
+            } else {
+                g2.drawImage(Images.BrowserTitle.DIALOG_TOP_LEFT,
+                        0,
+                        0,
+                        Images.BrowserTitle.DIALOG_TOP_LEFT.getWidth(),
+                        Images.BrowserTitle.DIALOG_TOP_LEFT.getHeight(), this);
+                g2.drawImage(Images.BrowserTitle.DIALOG_TOP_RIGHT,
+                        getWidth() - Images.BrowserTitle.DIALOG_TOP_RIGHT.getWidth(),
+                        0,
+                        Images.BrowserTitle.DIALOG_TOP_RIGHT.getWidth(),
+                        Images.BrowserTitle.DIALOG_TOP_RIGHT.getHeight(), this);
+            }
             
         }
         finally { g2.dispose(); }    
@@ -143,4 +185,6 @@ public class WindowTitle extends AbstractJPanel {
     private final javax.swing.JLabel titleJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 
+    /** The border types. */
+    public enum BorderType { DEFAULT, WINDOW_BORDER2 }
 }

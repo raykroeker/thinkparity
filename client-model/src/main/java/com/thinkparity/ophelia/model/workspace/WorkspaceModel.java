@@ -184,13 +184,14 @@ public class WorkspaceModel {
             // login
             final InternalSessionModel sessionModel = modelFactory.getSessionModel();
             sessionModel.login(loginMonitor, credentials);
-            Assert.assertTrue("User was not logged in.", sessionModel.isLoggedIn());
-            // initialize migrator
-            modelFactory.getMigratorModel().initialize();
-            // download contacts
-            modelFactory.getContactModel().download();
-
-            findImpl(workspace).initialize();
+            if (sessionModel.isLoggedIn()) {
+                // initialize migrator
+                modelFactory.getMigratorModel().initialize();
+                // download contacts
+                modelFactory.getContactModel().download();
+    
+                findImpl(workspace).initialize();
+            }
         } catch (final Throwable t) {
             final WorkspaceImpl impl = findImpl(workspace);
             final File workspaceDirectory = impl.getWorkspaceDirectory();

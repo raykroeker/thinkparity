@@ -6,14 +6,20 @@
 
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
@@ -38,9 +44,11 @@ public class LoginAvatar extends Avatar {
     private String password;
 
     /** Create LoginAvatar. */
-    public LoginAvatar() {
+    public LoginAvatar(final String username, final String password) {
         super("LoginAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
+        reload(username, password);
+        initDocumentHandlers();
         bindEscapeKey("Cancel", new AbstractAction() {
             private static final long serialVersionUID = 1;
             public void actionPerformed(final ActionEvent e) {
@@ -71,19 +79,40 @@ public class LoginAvatar extends Avatar {
                 && null != password && 0 < password.length();
     }
 
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#paintComponent(java.awt.Graphics)
+     */
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        // These images help to make the rounded corners look good.
+        // Note that top left and top right are drawn by the window title.
+        g.drawImage(Images.BrowserTitle.DIALOG_BOTTOM_LEFT,
+                0,
+                getSize().height - Images.BrowserTitle.DIALOG_BOTTOM_LEFT.getHeight(),
+                Images.BrowserTitle.DIALOG_BOTTOM_LEFT.getWidth(),
+                Images.BrowserTitle.DIALOG_BOTTOM_LEFT.getHeight(), this);
+        g.drawImage(Images.BrowserTitle.DIALOG_BOTTOM_RIGHT,
+                getSize().width - Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getWidth(),
+                getSize().height - Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getHeight(),
+                Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getWidth(),
+                Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getHeight(), this);
+    }
+
     /** @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload() */
-    public void reload() { usernameJTextField.requestFocusInWindow(); }
+    public void reload() {
+        usernameJTextField.requestFocusInWindow();
+    }
 
     /** @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.ophelia.browser.platform.util.State) */
     public void setState(final State state) {
         throw Assert.createNotYetImplemented("LoginAvatar#setState");
     }
 
-    String getPassword() { return password; }
+    protected String getPassword() { return password; }
 
-    String getTitle() { return getString("Title"); }
-
-    String getUsername() { return username; }
+    protected String getUsername() { return username; }
 
     private void cancelJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_cancelJButtonActionPerformed
         password = username = null;
@@ -101,28 +130,27 @@ public class LoginAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        javax.swing.JButton cancelJButton;
-        javax.swing.JLabel eaJLabel;
-        javax.swing.JButton nextJButton;
-        javax.swing.JLabel passwordJLabel;
-        javax.swing.JLabel usernameJLabel;
+        final javax.swing.JLabel usernameJLabel = LabelFactory.create();
+        final javax.swing.JLabel passwordJLabel = LabelFactory.create();
+        final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
-        eaJLabel = LabelFactory.create();
-        usernameJLabel = LabelFactory.create();
-        usernameJTextField = TextFactory.create();
-        passwordJLabel = LabelFactory.create();
-        passwordJPasswordField = TextFactory.createPassword();
-        nextJButton = ButtonFactory.create();
-        cancelJButton = ButtonFactory.create();
-
-        eaJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.EmbeddedAssistance"));
-
+        usernameJLabel.setFont(Fonts.DialogFont);
         usernameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.UsernameLabel"));
 
+        usernameJTextField.setFont(Fonts.DialogTextEntryFont);
+
+        passwordJLabel.setFont(Fonts.DialogFont);
         passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.PasswordLabel"));
 
         passwordJPasswordField.setFont(usernameJTextField.getFont());
 
+        errorMessageJLabel.setFont(Fonts.DialogFont);
+        errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
+        errorMessageJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.ErrorBadCredentials"));
+
+        forgotPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.ForgotPassword"));
+
+        nextJButton.setFont(Fonts.DialogButtonFont);
         nextJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.LoginButton"));
         nextJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -130,6 +158,7 @@ public class LoginAvatar extends Avatar {
             }
         });
 
+        cancelJButton.setFont(Fonts.DialogButtonFont);
         cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.CancelButton"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -141,14 +170,9 @@ public class LoginAvatar extends Avatar {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
-                        .add(nextJButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(cancelJButton))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                             .add(usernameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 103, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -156,7 +180,14 @@ public class LoginAvatar extends Avatar {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, passwordJPasswordField)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, usernameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE))))
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, usernameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 253, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(forgotPasswordJLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 138, Short.MAX_VALUE)
+                        .add(nextJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cancelJButton)))
                 .addContainerGap())
         );
 
@@ -169,9 +200,7 @@ public class LoginAvatar extends Avatar {
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(eaJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(33, 33, 33)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(usernameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(usernameJLabel))
@@ -179,24 +208,81 @@ public class LoginAvatar extends Avatar {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(passwordJPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(passwordJLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 28, Short.MAX_VALUE)
+                .add(15, 15, 15)
+                .add(errorMessageJLabel)
+                .add(14, 14, 14)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(nextJButton)
-                    .add(cancelJButton))
-                .addContainerGap())
+                    .add(cancelJButton)
+                    .add(forgotPasswordJLabel))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     *  Initialize the document handler for the username and password fields.
+     */
+    private void initDocumentHandlers() {
+        final DocumentHandler documentHandler = new DocumentHandler();
+        javax.swing.text.Document usernameDocument = usernameJTextField.getDocument();
+        javax.swing.text.Document passwordDocument = passwordJPasswordField.getDocument();
+        usernameDocument.addDocumentListener(documentHandler);
+        passwordDocument.addDocumentListener(documentHandler);
+    }
+
     private void nextJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_nextJButtonActionPerformed
-        if(isInputValid()) {
+        if (isInputValid()) {
             username = extractUsername();
             password = extractPassword();
             disposeWindow();
         }
     }//GEN-LAST:event_nextJButtonActionPerformed
 
+    private void reload(final String username, final String password) {
+        reloadUsername(username);
+        reloadPassword(password);
+        reloadError(username, password);
+        nextJButton.setEnabled(isInputValid());
+    }
+
+    private void reloadError(final String username, final String password) {
+        if (null!=username && username.length()>0 && null!=password && password.length()>0) {
+            errorMessageJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.ErrorBadCredentials"));
+        } else {
+            // Note the space to ensure the dialog leaves room.
+            errorMessageJLabel.setText(" ");
+        }
+    }
+
+    private void reloadPassword(final String password) {
+        passwordJPasswordField.setText(password);
+    }
+
+    private void reloadUsername(final String username) {
+        usernameJTextField.setText(username);
+    }
+
+    // Enable or disable the OK control.
+    class DocumentHandler implements DocumentListener {
+        public void changedUpdate(final DocumentEvent e) {
+            maybeEnableOKButton();
+        }
+        public void insertUpdate(final DocumentEvent e) {
+            maybeEnableOKButton();
+        }
+        public void removeUpdate(final DocumentEvent e) {
+            maybeEnableOKButton();
+        }
+        private void maybeEnableOKButton() {
+            nextJButton.setEnabled(isInputValid());
+        }
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPasswordField passwordJPasswordField;
-    private javax.swing.JTextField usernameJTextField;
+    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel forgotPasswordJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JButton nextJButton = ButtonFactory.create();
+    private final javax.swing.JPasswordField passwordJPasswordField = TextFactory.createPassword();
+    private final javax.swing.JTextField usernameJTextField = TextFactory.create();
     // End of variables declaration//GEN-END:variables
 }

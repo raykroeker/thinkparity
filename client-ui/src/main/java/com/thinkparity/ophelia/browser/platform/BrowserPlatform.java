@@ -484,6 +484,7 @@ public class BrowserPlatform implements Platform {
         } 
         if (!isWorkspaceInitialized()) {
             deleteWorkspace();
+            end();
         } else {
             if (isMigrationPossible()) {
                 migrate();
@@ -492,8 +493,8 @@ public class BrowserPlatform implements Platform {
                 startPlugins();
                 startApplications();
             }
-        }
         notifyLifeCycleStarted();
+        }
 	}
 
 	protected final void logApiId() {

@@ -12,7 +12,8 @@ import javax.swing.SwingUtilities;
 import com.thinkparity.codebase.swing.AbstractJFrame;
 
 import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder;
+import com.thinkparity.ophelia.browser.Constants.Dimensions;
+import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2;
 import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
 
 /**
@@ -29,7 +30,7 @@ public abstract class OpheliaJFrame extends AbstractJFrame {
      */
     protected OpheliaJFrame(final String l18Context) {
         super(l18Context);
-        getRootPane().setBorder(new WindowBorder());
+        getRootPane().setBorder(new WindowBorder2());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setIconImage(com.thinkparity.ophelia.browser.Constants.Images.WINDOW_ICON_IMAGE);
         setUndecorated(true);
@@ -47,7 +48,7 @@ public abstract class OpheliaJFrame extends AbstractJFrame {
     @Override
     public void setVisible(boolean b) {
         if (b) {
-            new NativeSkin().roundCorners(this);
+            new NativeSkin().roundCorners(this, Dimensions.BrowserWindow.CORNER_SIZE);
             setLocation(calculateLocation());
         }
         super.setVisible(b);

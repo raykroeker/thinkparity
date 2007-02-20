@@ -22,7 +22,7 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
  * @author raykroeker@gmail.com
  * @version 1.1.2.7
  */
-class WindowPanel extends AbstractJPanel {
+public class WindowPanel extends AbstractJPanel {
 
 	/**
 	 * @see java.io.Serializable
@@ -41,6 +41,11 @@ class WindowPanel extends AbstractJPanel {
 	 * 
 	 */
 	private final List<AbstractJPanel> jPanels;
+    
+    /**
+     * The window title.
+     */
+    private final WindowTitle windowTitle;
 
 	/**
 	 * Create a MainPanel.
@@ -54,6 +59,7 @@ class WindowPanel extends AbstractJPanel {
         this.ac.weighty = 1;
         this.ac.gridy = 1;
         this.jPanels = new LinkedList<AbstractJPanel>();
+        this.windowTitle = new WindowTitle();
         setLayout(new GridBagLayout());
         setOpaque(false);
     }
@@ -72,15 +78,16 @@ class WindowPanel extends AbstractJPanel {
 	 * @param avatar
 	 *            The avatar to add.
      * @param titleText
-     *            Whether or not to display title text.            
+     *            Whether or not to display title text.              
 	 */
-	void addPanel(final Avatar avatar, final Boolean titleText) {
+	public void addPanel(final Avatar avatar, final Boolean titleText) {
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
         if (avatar.isAvatarTitle()) {
             final String title = titleText ? avatar.getAvatarTitle() : null;
-		    add(new WindowTitle(title), c.clone());
+            windowTitle.setTitleText(title);
+		    add(windowTitle, c.clone());
         }
 
 		jPanels.add(avatar);
@@ -92,7 +99,7 @@ class WindowPanel extends AbstractJPanel {
 	 * Clear all jPanels from the window panel.
 	 *
 	 */
-	void clearAvatars() {
+    public void clearAvatars() {
 		ac.gridy = 1;
 		for(final AbstractJPanel jPanel : jPanels) {
 			remove(jPanel);
@@ -100,13 +107,22 @@ class WindowPanel extends AbstractJPanel {
 		jPanels.clear();
 	}
 
+    /**
+     * Get the window title.
+     * 
+     * @return The <code>WindowTitle</code>.
+     */
+    public WindowTitle getWindowTitle() {
+        return windowTitle;
+    }
+
 	/**
 	 * Remove an avatar from the window panel.
 	 * 
 	 * @param avatar
 	 *            The avatar to remove.
 	 */
-	void removeAvatar(final AbstractJPanel avatar) {
+    public void removeAvatar(final AbstractJPanel avatar) {
 		jPanels.remove(avatar);
 		ac.gridy--;
 		remove(avatar);

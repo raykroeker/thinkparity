@@ -224,7 +224,11 @@ public final class Constants {
             public static final BufferedImage DIALOG_TOP_LEFT =
                 ImageIOUtil.read("DialogTopLeft.png");
             public static final BufferedImage DIALOG_TOP_RIGHT =
-                ImageIOUtil.read("DialogTopRight.png");            
+                ImageIOUtil.read("DialogTopRight.png");
+            public static final BufferedImage DIALOG_BOTTOM_LEFT =
+                ImageIOUtil.read("DialogBottomLeft.png");
+            public static final BufferedImage DIALOG_BOTTOM_RIGHT =
+                ImageIOUtil.read("DialogBottomRight.png");   
             public static final BufferedImage HALO =
                 ImageIOUtil.read("BrowserTitle_SearchHalo.png");
             public static final BufferedImage SEARCH_BACKGROUND =

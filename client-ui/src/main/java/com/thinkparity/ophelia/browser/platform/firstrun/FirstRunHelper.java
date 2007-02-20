@@ -21,6 +21,9 @@ public final class FirstRunHelper {
     /** An apache logger. */
     final Logger logger;
 
+    /** Login done flag. */
+    private boolean loginDone;
+
     /** The thinkParity <code>Workspace</code>. */
     private final Workspace workspace;
 
@@ -47,25 +50,32 @@ public final class FirstRunHelper {
      * @return True if first run completed.
      */
     public void firstRun() {
-        final LoginWindow window = new LoginWindow();
-        window.setVisibleAndWait();
-
-        final String username = window.getUsername();
-        final String password = window.getPassword();
-        if(null != username && null != password) {
-            final Credentials credentials = new Credentials();
-            credentials.setPassword(password);
-            credentials.setUsername(username);
-
-            platform.initializeWorkspace(workspace, new LoginMonitor() {
-                public Boolean confirmSynchronize() {
-                    final ConfirmSynchronizeWindow confirmWindow = new ConfirmSynchronizeWindow();
-                    confirmWindow.setVisibleAndWait();
-                    return confirmWindow.didConfirm();
-                }
-                public void notifyInvalidCredentials(final Credentials credentials) {
-                }
-            }, credentials);
+        loginDone = false;
+        String username = null;
+        String password = null;
+        while (!loginDone) {
+            loginDone = true;
+            final LoginWindow window = new LoginWindow(username, password);
+            window.setVisibleAndWait();
+    
+            username = window.getUsername();
+            password = window.getPassword();
+            if (null != username && null != password) {
+                final Credentials credentials = new Credentials();
+                credentials.setPassword(password);
+                credentials.setUsername(username);
+    
+                platform.initializeWorkspace(workspace, new LoginMonitor() {
+                    public Boolean confirmSynchronize() {
+                        final ConfirmSynchronizeWindow confirmWindow = new ConfirmSynchronizeWindow();
+                        confirmWindow.setVisibleAndWait();
+                        return confirmWindow.didConfirm();
+                    }
+                    public void notifyInvalidCredentials(final Credentials credentials) {
+                        loginDone = false;
+                    }
+                }, credentials);
+            }
         }
     }
 }

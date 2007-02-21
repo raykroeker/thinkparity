@@ -9,12 +9,11 @@ import java.util.ResourceBundle;
 
 import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.email.EMail;
-import com.thinkparity.codebase.http.Link;
-import com.thinkparity.codebase.http.LinkFactory;
+
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.desdemona.model.Version;
-
+import com.thinkparity.codebase.model.util.http.Link;
+import com.thinkparity.codebase.model.util.http.LinkFactory;
 
 /**
  * @author raymond@thinkparity.com
@@ -44,13 +43,14 @@ public class InvitationText {
      * @param inviter
      *            The inviter user.
      */
-    InvitationText(final Locale locale, final EMail invitee, final User inviter) {
+    InvitationText(final Environment environment, final Locale locale,
+            final EMail invitee, final User inviter) {
         super();
         this.invitee = invitee;
         this.inviter = inviter;
         this.resourceBundle = ResourceBundle.getBundle(
                 "localization.Invitation_Messages", locale);
-        this.linkFactory = LinkFactory.getInstance(Application.ROSALINE, Version.getMode());
+        this.linkFactory = LinkFactory.getInstance(Application.ROSALINE, environment);
     }
 
     /**
@@ -61,10 +61,10 @@ public class InvitationText {
      * @return The invitation body.
      */
     public String getBody() {
-        final Link acceptInvitation = linkFactory.create("user", "invite");
+        final Link acceptInvitation = linkFactory.create("invitation/accept");
         acceptInvitation.addParameter("JabberId", inviter.getId().getQualifiedJabberId());
 
-        final Link createAccount = linkFactory.create("user", "create");
+        final Link createAccount = linkFactory.create("user/create");
         createAccount.addParameter("Email", invitee.toString());
         createAccount.addParameter("JabberId", inviter.getId().getQualifiedJabberId());
         createAccount.addParameter("PostCompletion", "AcceptInvitation");

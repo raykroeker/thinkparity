@@ -90,6 +90,9 @@ public abstract class AbstractModelImpl
     /** A thinkParity configuration sql interface. */
     private final ConfigurationSql configurationSql;
 
+    /** An instance of the jive properties. */
+    private JiveProperties jiveProperties;
+
     /**
 	 * Create AbstractModelImpl.
      *
@@ -146,7 +149,7 @@ public abstract class AbstractModelImpl
         Assert.assertTrue(message, actualJID.equals(expectedJID));
     }
 
-    /**
+	/**
      * Assert that the user id matched that of the authenticated user.
      * 
      * @param userId
@@ -159,7 +162,7 @@ public abstract class AbstractModelImpl
                 userId, session.getJabberId());
     }
 
-	/**
+    /**
 	 * Assert that the session user is the artifact key holder.
 	 * 
 	 * @param artifact
@@ -177,7 +180,7 @@ public abstract class AbstractModelImpl
                 session.getJabberId(), keyHolder);
 	}
 
-    /**
+	/**
      * Assert that the user id matches that of a system user.
      * 
      * @param userId
@@ -189,7 +192,7 @@ public abstract class AbstractModelImpl
                 "User {0} is not a system user.", userId);
     }
 
-	/**
+    /**
      * Assert that the thinkParity system is the current key holder.
      * 
      * @param assertion
@@ -349,7 +352,6 @@ public abstract class AbstractModelImpl
             backupEvent(userId, userId, event);
         }
     }
-
     /**
      * Enqueue a priority event for a user.
      * 
@@ -366,6 +368,7 @@ public abstract class AbstractModelImpl
         eventUserIds.add(eventUserId);
         enqueuePriorityEvent(userId, eventUserIds, event);
     }
+
     /**
      * Enqueue a priority event for a user.
      * 
@@ -404,7 +407,7 @@ public abstract class AbstractModelImpl
         return ArchiveModel.getInternalModel(getContext(), session);
     }
 
-	/**
+    /**
      * Obtain the parity artifact interface.
      * 
      * @return The parity artifact interface.
@@ -438,7 +441,7 @@ public abstract class AbstractModelImpl
         return sessionList;
     }
 
-    /**
+	/**
      * Obtain the parity contact interface.
      * 
      * @return The parity contact interface.
@@ -446,6 +449,15 @@ public abstract class AbstractModelImpl
 	protected ContactModel getContactModel() {
 		return ContactModel.getModel(session);
 	}
+
+    /**
+     * Obtain the local environment.
+     * 
+     * @return An instance of <code>Environment</code>.
+     */
+    protected Environment getEnvironment() {
+        return Environment.valueOf(getJiveProperty("thinkparity.environment"));
+    }
 
     /**
      * Obtain an error id.
@@ -464,7 +476,7 @@ public abstract class AbstractModelImpl
         return QueueModel.getInternalModel(getContext(), session);
     }
 
-	protected InternalStreamModel getStreamModel() {
+    protected InternalStreamModel getStreamModel() {
         return StreamModel.getInternalModel(getContext(), session);
     }
 
@@ -497,7 +509,7 @@ public abstract class AbstractModelImpl
         return logVariable("type", type);
     }
 
-	/**
+    /**
      * Determine if the user id is the authenticated user.
      * 
      * @param userId
@@ -523,7 +535,7 @@ public abstract class AbstractModelImpl
 		else { return Boolean.FALSE; }
 	}
 
-    protected Boolean isSessionUserKeyHolder(final UUID uniqueId) {
+	protected Boolean isSessionUserKeyHolder(final UUID uniqueId) {
 		return readKeyHolder(uniqueId).equals(session.getJabberId());
 	}
 
@@ -543,7 +555,7 @@ public abstract class AbstractModelImpl
         logger.logApiId();
     }
 
-    /**
+	/**
      * Log an api id with a message.
      * 
      * @param message
@@ -553,7 +565,7 @@ public abstract class AbstractModelImpl
         logger.logApiId();
     }
 
-	/**
+    /**
      * Log an info message.
      * 
      * @param infoPattern
@@ -571,7 +583,7 @@ public abstract class AbstractModelImpl
         logger.logApiId();
     }
 
-    /**
+	/**
      * Log a named variable. Note that the logging renderer will be used only
      * for the value.
      * 
@@ -585,7 +597,7 @@ public abstract class AbstractModelImpl
         return logger.logVariable(name, value);
     }
 
-	/**
+    /**
      * Log a warning.
      * 
      * @param warning
@@ -596,7 +608,7 @@ public abstract class AbstractModelImpl
         logger.logWarning(warningPattern, warningArguments);
     }
 
-	/**
+    /**
      * Process an xmpp internet query for a jive client session. The to portion
      * of the query will be set according to the session.
      * 
@@ -614,7 +626,7 @@ public abstract class AbstractModelImpl
         session.process(query);
     }
 
-    /**
+	/**
      * Read thinkParity configuration.
      * 
      * @return A configuration <code>Properties</code>.
@@ -628,7 +640,7 @@ public abstract class AbstractModelImpl
         return properties;
     }
 
-    /**
+	/**
      * Read the jive property for the environment.
      * 
      * @return An environment.
@@ -680,7 +692,7 @@ public abstract class AbstractModelImpl
         }
     }
 
-	/**
+    /**
      * Upload a stream to the stream server using an existing session.
      * 
      * @param session
@@ -718,7 +730,7 @@ public abstract class AbstractModelImpl
         }
     }
 
-	/**
+    /**
      * Upload a stream to the stream server using an existing session.
      * 
      * @param session
@@ -764,7 +776,7 @@ public abstract class AbstractModelImpl
                 stream, streamSize, 0L);
     }
 
-    private void backupEvent(final JabberId userId, final JabberId eventUserId,
+	private void backupEvent(final JabberId userId, final JabberId eventUserId,
             final XMPPEvent event) {
         final JabberId archiveId = getUserModel().readArchiveId(eventUserId);
         if (null == archiveId) {
@@ -780,7 +792,7 @@ public abstract class AbstractModelImpl
         }
     }
 
-    /**
+	/**
      * Build a local file to back a stream. Note that the file is transient in
      * nature and will be deleted when the user logs out or the next time the
      * session is established.
@@ -822,7 +834,6 @@ public abstract class AbstractModelImpl
         getQueueModel().createEvent(userId, eventUserId, event);
     }
 
-
     /**
      * Create a priority event for user.
      * 
@@ -848,6 +859,30 @@ public abstract class AbstractModelImpl
      */
     private final JID getJID(final JabberId jabberId) {
         return JIDBuilder.buildQualified(jabberId.getQualifiedJabberId());
+    }
+
+
+    /**
+     * Obtain an instance of the jive properties.
+     * 
+     * @return An instance of <code>JiveProperties</code>.
+     */
+    private JiveProperties getJiveProperties() {
+        if (null == jiveProperties) {
+            jiveProperties = JiveProperties.getInstance();
+        }
+        return jiveProperties;
+    }
+
+    /**
+     * Obtain a jive property.
+     * 
+     * @param name
+     *            A property name.
+     * @return A property value.
+     */
+    private String getJiveProperty(final String name) {
+        return (String) getJiveProperties().get(name);
     }
 
     /**

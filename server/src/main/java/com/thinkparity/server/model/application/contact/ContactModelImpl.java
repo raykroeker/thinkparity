@@ -284,7 +284,8 @@ class ContactModelImpl extends AbstractModelImpl {
 
 	private void createInvitation(final MimeMessage mimeMessage,
             final EMail email, final User inviter) throws MessagingException {
-        final InvitationText text = new InvitationText(Locale.getDefault(), email, inviter);
+        final InvitationText text = new InvitationText(getEnvironment(),
+                Locale.getDefault(), email, inviter);
 	    mimeMessage.setSubject(text.getSubject());
 
         final MimeBodyPart invitationBody = new MimeBodyPart();

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLException;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -69,6 +70,7 @@ abstract class StreamClient {
             }
         };
         RECOVERABLE_MESSAGES = new ArrayList<String>(2);
+        RECOVERABLE_MESSAGES.add("bad record MAC");
         RECOVERABLE_MESSAGES.add("Connection reset");
         RECOVERABLE_MESSAGES.add("Socket closed");
         RECOVERABLE_MESSAGES.add("Software caused connection abort: socket write error");
@@ -185,7 +187,8 @@ abstract class StreamClient {
                 stream.flush();
             }
         } catch (final IOException iox) {
-            if(SocketException.class.isAssignableFrom(iox.getClass())) {
+            if (SocketException.class.isAssignableFrom(iox.getClass()) ||
+                    SSLException.class.isAssignableFrom(iox.getClass())) {
                 if (RECOVERABLE_MESSAGES.contains(iox.getMessage())) {
                     if (isResumable()) {
                         fireStreamError(new StreamException(Boolean.TRUE, iox));

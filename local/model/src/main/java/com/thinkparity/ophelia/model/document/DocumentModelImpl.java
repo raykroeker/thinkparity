@@ -209,6 +209,7 @@ public final class DocumentModelImpl extends
             final Map<DocumentVersion, DocumentFileLock> versionLocks,
             final Long documentId) {
         try {
+            release(lock);
             deleteLocal(lock, versionLocks, documentId);
             // fire event
             notifyDocumentDeleted(null, localEventGen);
@@ -225,7 +226,7 @@ public final class DocumentModelImpl extends
     public void deleteDraft(final DocumentFileLock lock, final Long documentId) {
         try {
             assertDoesExistDraft(documentId, "Draft does not exist.");
-            lock.release();
+            release(lock);
             Assert.assertTrue(lock.getFile().delete(),
                     "Could not delete draft file {0}.", lock.getFile());
         } catch (final Throwable t) {
@@ -244,8 +245,7 @@ public final class DocumentModelImpl extends
         logger.logApiId();
         logger.logVariable("documentId", documentId);
         try {
-            final File draftFile = getDraftFile(read(documentId));
-            return draftFile.exists();
+            return getDraftFile(read(documentId)).exists();
         } catch (final Throwable t) {
             throw translateError(t);
         }

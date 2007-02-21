@@ -1,7 +1,7 @@
 /*
  * Created On: Jul 21, 2006 2:08:58 PM
  */
-package com.thinkparity.codebase.http;
+package com.thinkparity.codebase.model.util.http;
 
 import java.util.HashMap;
 import java.util.LinkedList;

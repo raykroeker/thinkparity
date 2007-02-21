@@ -1,7 +1,7 @@
 /*
  * Created On: Jul 21, 2006 2:08:16 PM
  */
-package com.thinkparity.codebase.http;
+package com.thinkparity.codebase.model.util.http;
 
 import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.ApplicationNature;

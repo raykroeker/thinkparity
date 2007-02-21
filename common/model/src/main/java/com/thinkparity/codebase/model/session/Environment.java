@@ -12,28 +12,36 @@ import com.thinkparity.codebase.NetworkUtil;
 public enum Environment {
 
     /** The demo environment. */
-    DEMO("thinkparity.dyndns.org", 5231, Boolean.TRUE, "thinkparity.net", "thinkparity.dyndns.org", 20004, Boolean.TRUE),
+    DEMO("thinkparity.dyndns.org", 5231, Boolean.TRUE, "thinkparity.net", "thinkparity.dyndns.org", 20004, Boolean.TRUE,
+            "thinkparity.dyndns.org", 80, Boolean.TRUE),
 
     /** A localhost demo environment. */
-    DEMO_LOCALHOST("localhost", 5231, Boolean.TRUE, "thinkparity.net", "localhost", 20004, Boolean.TRUE),
+    DEMO_LOCALHOST("localhost", 5231, Boolean.TRUE, "thinkparity.net", "localhost", 20004, Boolean.TRUE,
+            "localhost", 80, Boolean.TRUE),
 
     /** A localhost development environment. */
-    DEVELOPMENT_LOCALHOST("localhost", 5226, Boolean.FALSE, "thinkparity.net", "localhost", 20002, Boolean.FALSE),
+    DEVELOPMENT_LOCALHOST("localhost", 5226, Boolean.FALSE, "thinkparity.net", "localhost", 20002, Boolean.FALSE,
+            "localhost", 80, Boolean.FALSE),
 
     /** Raymond's development environment. */
-    DEVELOPMENT_RAYMOND("thinkparity.dyndns.org", 5226, Boolean.FALSE, "thinkparity.net", "thinkparity.dyndns.org", 20002, Boolean.TRUE),
+    DEVELOPMENT_RAYMOND("thinkparity.dyndns.org", 5226, Boolean.FALSE, "thinkparity.net", "thinkparity.dyndns.org", 20002, Boolean.TRUE,
+            "thinkparity.dyndns.org", 80, Boolean.FALSE),
 
     /** Robert's development environment. */
-    DEVELOPMENT_ROBERT("thinkparity.dyndns.org", 5228, Boolean.FALSE, "thinkparity.net", "thinkparity.dyndns.org", 20003, Boolean.TRUE),
+    DEVELOPMENT_ROBERT("thinkparity.dyndns.org", 5228, Boolean.FALSE, "thinkparity.net", "thinkparity.dyndns.org", 20003, Boolean.TRUE,
+            "thinkparity.com", 80, Boolean.FALSE),
 
     /** Production environment. */
-    PRODUCTION("thinkparity.net", 5223, Boolean.TRUE, "thinkparity.net", "yvr.thinkparity.net", 20000, Boolean.TRUE),
+    PRODUCTION("thinkparity.net", 5223, Boolean.TRUE, "thinkparity.net", "yvr.thinkparity.net", 20000, Boolean.TRUE,
+            "thinkparity.com", 80, Boolean.TRUE),
 
     /** Testing environment. */
-    TESTING("thinkparity.dyndns.org", 5225, Boolean.TRUE, "thinkparity.net", "thinkparity.dyndns.org", 20001, Boolean.TRUE),
+    TESTING("thinkparity.dyndns.org", 5225, Boolean.TRUE, "thinkparity.net", "thinkparity.dyndns.org", 20001, Boolean.TRUE,
+            "thinkparity.dyndns.org", 80, Boolean.TRUE),
 
     /** A localhost testing environment. */
-    TESTING_LOCALHOST("localhost", 5225, Boolean.TRUE, "thinkparity.net", "localhost", 20001, Boolean.TRUE);
+    TESTING_LOCALHOST("localhost", 5225, Boolean.TRUE, "thinkparity.net", "localhost", 20001, Boolean.TRUE,
+            "localhost", 80, Boolean.TRUE);
 
     /** The stream server host. */
     private final transient String streamHost;
@@ -56,6 +64,15 @@ public enum Environment {
     /** The xmpp protocol. */
     private final transient Boolean xmppTLSEnabled;
 
+    /** The web host. */
+    private final transient String webHost;
+
+    /** The web port. */
+    private final transient Integer webPort;
+
+    /** The web tls enabled <code>Boolean</code> flag. */
+    private final transient Boolean webTLSEnabled;
+
     /**
      * Create Environment.
      * 
@@ -73,11 +90,19 @@ public enum Environment {
      *            The stream server port
      * @param streamProtocol
      *            The stream server protocol.
+     * @param webHost
+     *            The web host.
+     * @param webPort
+     *            The web port
+     * @param webTLSEnabled
+     *            The web TLS enabled flag.
      */
     private Environment(final String xmppHost, final Integer xmppPort,
             final Boolean xmppTLSEnabled, final String xmppService,
             final String streamHost, final Integer streamPort,
-            final Boolean streamTLSEnabled) {
+            final Boolean streamTLSEnabled,
+            final String webHost, final Integer webPort,
+            final Boolean webTLSEnabled) {
         this.xmppHost = xmppHost;
         this.xmppPort = xmppPort;
         this.xmppTLSEnabled = xmppTLSEnabled;
@@ -85,6 +110,9 @@ public enum Environment {
         this.streamHost = streamHost;
         this.streamPort = streamPort;
         this.streamTLSEnabled = streamTLSEnabled;
+        this.webHost = webHost;
+        this.webPort = webPort;
+        this.webTLSEnabled = webTLSEnabled;
     }
 
     /**
@@ -103,6 +131,24 @@ public enum Environment {
      */
     public Integer getStreamPort() {
         return streamPort;
+    }
+
+    /**
+     * Obtain the webHost
+     * 
+     * @return The web host <code>String</code>.
+     */
+    public String getWebHost() {
+        return webHost;
+    }
+
+    /**
+     * Obtain the webPort
+     *
+     * @return The Integer.
+     */
+    public Integer getWebPort() {
+        return webPort;
     }
 
     /**
@@ -159,6 +205,15 @@ public enum Environment {
      */
     public Boolean isStreamTLSEnabled() {
         return streamTLSEnabled;
+    }
+
+    /**
+     * Obtain the webProtocol
+     *
+     * @return The WebProtocol.
+     */
+    public Boolean isWebTLSEnabled() {
+        return webTLSEnabled;
     }
 
     /**

@@ -162,11 +162,14 @@ public final class PublishContainerAvatar extends Avatar implements
             documentJLabel.setText(" ");
             documentNameJLabel.setText(" ");
         }
-        /* NOTE The avatar assumes that at some point the worker will become
-         * determinate. */
-        if (publishJProgressBar.getValue() == publishJProgressBar.getMaximum()) {
-            disposeWindow();
-        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerSwingDisplay#dispose()
+     *
+     */
+    public void dispose() {
+        disposeWindow();
     }
 
     /**

@@ -73,6 +73,14 @@ final class PublishContainerSwingMonitor implements ThinkParitySwingMonitor {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#complete()
+     *
+     */
+    public void complete() {
+        display.dispose();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#setSteps(int)
      *
      */

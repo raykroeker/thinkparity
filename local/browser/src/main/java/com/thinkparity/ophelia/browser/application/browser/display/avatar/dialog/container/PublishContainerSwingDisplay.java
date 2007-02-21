@@ -12,6 +12,12 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialo
 interface PublishContainerSwingDisplay {
 
     /**
+     * Dispose of the display.
+     *
+     */
+    void dispose();
+
+    /**
      * Install a progress bar.
      * 
      * @param containerId

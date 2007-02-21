@@ -545,7 +545,9 @@ public class UpdateProfileAvatar extends Avatar {
             updateProfile();
             updateEmail();
         } else {
+            // This is done because we may learn the email is unavailable for the first time here.
             reloadErrorMessage();
+            okJButton.setEnabled(isInputValid());
         }
     }//GEN-LAST:event_okJButtonActionPerformed
 

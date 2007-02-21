@@ -7,6 +7,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider.dia
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
@@ -61,5 +62,16 @@ public class UpdateProfileProvider extends CompositeFlatSingleContentProvider {
      */
     public List<ProfileEMail> readEmails() {
         return profileModel.readEmails();
+    }
+
+    /**
+     * Determine whether or not an e-mail address is available.
+     * 
+     * @param email
+     *            An <code>EMail</code>.
+     * @return True if the address is not in use.
+     */
+    public Boolean readIsEmailAvailable(final EMail email) {
+        return profileModel.isAvailable(email);
     }
 }

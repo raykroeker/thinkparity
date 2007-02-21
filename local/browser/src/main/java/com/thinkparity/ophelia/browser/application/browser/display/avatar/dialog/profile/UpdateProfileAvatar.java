@@ -21,12 +21,12 @@ import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.UpdateProfileProvider;
@@ -42,6 +42,9 @@ public class UpdateProfileAvatar extends Avatar {
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
+    
+    /** Unavailable email. */
+    private String unavailableEmail = null;
 
     /** The country <code>DefaultComboBoxModel</code>. */
     private final DefaultComboBoxModel countryModel;
@@ -87,7 +90,7 @@ public class UpdateProfileAvatar extends Avatar {
             isEmpty(extractInputOrganization())) {
             return Boolean.FALSE;
         } else {
-            return isInputEmailValid();
+            return (isInputEmailValid() && isInputEmailAvailableQuick());
         }
     }
 
@@ -211,7 +214,6 @@ public class UpdateProfileAvatar extends Avatar {
         final javax.swing.JLabel mobilePhoneJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel addressJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel cityJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel countryJLabel = new javax.swing.JLabel();
 
         okJButton.setFont(Fonts.DialogButtonFont);
         okJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.OK"));
@@ -287,6 +289,7 @@ public class UpdateProfileAvatar extends Avatar {
         emailJTextField.setFont(Fonts.DialogTextEntryFont);
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
+        errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
         errorMessageJLabel.setText("!Error Message!");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -467,6 +470,39 @@ public class UpdateProfileAvatar extends Avatar {
     }
 
     /**
+     * Determine if the input email is available.
+     * 
+     * @return True if the input email is available; false otherwise.
+     */
+    private Boolean isInputEmailAvailable() {
+        final String inputEmail = extractInputEmail();
+        if (isChanged(inputEmail, getEmailString())) {
+            final EMail newEmail = EMailBuilder.parse(inputEmail);
+            final Boolean available = readIsEmailAvailable(newEmail);
+            if (!available) {
+                unavailableEmail = inputEmail;
+            }
+            return available;
+        } else {
+            return Boolean.TRUE;
+        }
+    }
+
+    /**
+     * Determine if the input email is different from the last
+     * known unavailable email.
+     * 
+     * @return True if the input email is available; false otherwise.
+     */
+    private Boolean isInputEmailAvailableQuick() {
+        if (null != unavailableEmail) {
+            return (!unavailableEmail.equals(extractInputEmail()));
+        } else {
+            return Boolean.TRUE;
+        }
+    }
+
+    /**
      * Determine if the input email is valid.
      * 
      * @return True if the input email is valid; false otherwise.
@@ -504,12 +540,25 @@ public class UpdateProfileAvatar extends Avatar {
      *            An <code>ActionEvent</code>.
      */
     private void okJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
-        if (isInputValid()) {
+        if (isInputValid() && isInputEmailAvailable()) {
             disposeWindow();
             updateProfile();
             updateEmail();
+        } else {
+            reloadErrorMessage();
         }
     }//GEN-LAST:event_okJButtonActionPerformed
+
+    /**
+     * Determine whether or not an e-mail address is available.
+     * 
+     * @param email
+     *            An <code>EMail</code>.
+     * @return True if the address is not in use.
+     */
+    private Boolean readIsEmailAvailable(final EMail email) {
+        return ((UpdateProfileProvider) contentProvider).readIsEmailAvailable(email);
+    }
 
     /**
      * Read the profile from the content provider.
@@ -568,10 +617,14 @@ public class UpdateProfileAvatar extends Avatar {
             errorMessageJLabel.setText(getString("ErrorRequiredField", new Object[] {getLabelText(titleJLabel)}));
         } else if (isEmpty(extractInputOrganization())) {
             errorMessageJLabel.setText(getString("ErrorRequiredField", new Object[] {getLabelText(organizationJLabel)}));
+        } else if (isEmpty(extractInputCountry())) {
+            errorMessageJLabel.setText(getString("ErrorRequiredField", new Object[] {getLabelText(countryJLabel)}));
         } else if (isEmpty(extractInputEmail())) {
             errorMessageJLabel.setText(getString("ErrorRequiredField", new Object[] {getLabelText(emailJLabel)}));
         } else if (!isInputEmailValid()) {
             errorMessageJLabel.setText(getString("ErrorEmailInvalid"));
+        } else if (!isInputEmailAvailableQuick()) {
+            errorMessageJLabel.setText(getString("ErrorEmailNotAvailable"));
         } else if (isChanged(extractInputEmail(), getEmailString())) {
             errorMessageJLabel.setText(getString("ErrorEmailChanged"));
         } else {
@@ -661,6 +714,7 @@ public class UpdateProfileAvatar extends Avatar {
     private final javax.swing.JTextField addressJTextField = new javax.swing.JTextField();
     private final javax.swing.JTextField cityJTextField = new javax.swing.JTextField();
     private final javax.swing.JComboBox countryJComboBox = new javax.swing.JComboBox();
+    private final javax.swing.JLabel countryJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel emailJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField emailJTextField = new javax.swing.JTextField();
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();

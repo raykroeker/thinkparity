@@ -131,6 +131,10 @@ public class UpdatePasswordAvatar extends Avatar {
         }
     }
 
+    private void forgotPasswordJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_forgotPasswordJLabelMousePressed
+        getController().runResetProfilePassword();
+    }//GEN-LAST:event_forgotPasswordJLabelMousePressed
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -183,6 +187,12 @@ public class UpdatePasswordAvatar extends Avatar {
         forgotPasswordJPanel.setOpaque(false);
         forgotPasswordJLabel.setFont(Fonts.DialogFont);
         forgotPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdatePasswordDialog.ForgotPassword"));
+        forgotPasswordJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                forgotPasswordJLabelMousePressed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -318,12 +328,7 @@ public class UpdatePasswordAvatar extends Avatar {
             checkInputValid();
         }
         private void checkInputValid() {
-            if (isInputValid()) {
-                okJButton.setEnabled(Boolean.TRUE);
-            }
-            else {
-                okJButton.setEnabled(Boolean.FALSE);
-            }
+            okJButton.setEnabled(isInputValid());
         }
     }
 }

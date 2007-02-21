@@ -17,6 +17,7 @@ import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
@@ -78,7 +79,7 @@ public class DisplayInfoAvatar extends Avatar {
     }
     
     private Link getWebPage() {
-        return LinkFactory.getInstance(Application.OPHELIA, Version.getMode()).create();
+        return LinkFactory.getInstance(Application.OPHELIA, BrowserPlatform.getInstance().getEnvironment()).create();
     }
 
     private String getWebPageString() {

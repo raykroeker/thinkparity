@@ -24,6 +24,7 @@ import com.thinkparity.ophelia.browser.application.browser.component.ButtonFacto
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
@@ -123,6 +124,17 @@ public class LoginAvatar extends Avatar {
 
     private String extractUsername() { return SwingUtil.extract(usernameJTextField); }
 
+    private void forgotPasswordJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_forgotPasswordJLabelMousePressed
+        try {
+            // NOTE If ActionFactory.create() is used here then ActionFactory will be initialized prematurely,
+            // causing problems later.
+            new com.thinkparity.ophelia.browser.platform.action.profile.ResetPassword(null).invoke(Data.emptyData());
+        } catch(final Throwable t) {
+            logger.logError(t, "Could not run reset password action.");
+            throw new RuntimeException(t);
+        }
+    }//GEN-LAST:event_forgotPasswordJLabelMousePressed
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -149,6 +161,11 @@ public class LoginAvatar extends Avatar {
         errorMessageJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.ErrorBadCredentials"));
 
         forgotPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.ForgotPassword"));
+        forgotPasswordJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                forgotPasswordJLabelMousePressed(evt);
+            }
+        });
 
         nextJButton.setFont(Fonts.DialogButtonFont);
         nextJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.LoginButton"));

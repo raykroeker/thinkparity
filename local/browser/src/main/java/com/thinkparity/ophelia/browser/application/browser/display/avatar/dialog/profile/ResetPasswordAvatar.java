@@ -197,7 +197,7 @@ public class ResetPasswordAvatar extends Avatar {
     private void resetJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_resetJButtonActionPerformed
         final String securityAnswer = extractSecurityAnswer();
         if (null != securityAnswer) {
-            getController().runResetProfilePassword(securityAnswer);
+            //getController().runResetProfilePassword(securityAnswer);
             reloadNewPassword(readCredentials());
         }
     }//GEN-LAST:event_resetJButtonActionPerformed

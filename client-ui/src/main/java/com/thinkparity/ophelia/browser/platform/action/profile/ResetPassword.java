@@ -4,11 +4,16 @@
 package com.thinkparity.ophelia.browser.platform.action.profile;
 
 
+import com.thinkparity.codebase.Application;
+import com.thinkparity.codebase.http.Link;
+import com.thinkparity.codebase.http.LinkFactory;
+
+import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 /**
  * @author raymond@thinkparity.com
@@ -16,13 +21,9 @@ import com.thinkparity.ophelia.model.profile.ProfileModel;
  */
 public class ResetPassword extends AbstractAction {
 
-    /** The thinkParity browser application. */
-    private final Browser browser;
-
     /** Create ResetPassword. */
     public ResetPassword(final Browser browser) {
         super(ActionId.PROFILE_RESET_PASSWORD);
-        this.browser = browser;
     }
 
     /**
@@ -30,17 +31,12 @@ public class ResetPassword extends AbstractAction {
      */
     @Override
     public void invoke(final Data data) {
-        final Boolean displayAvatar = (Boolean) data.get(DataKey.DISPLAY_AVATAR);
-
-        if (displayAvatar) {
-            browser.displayResetProfilePasswordDialog();
-        } else {
-            final String securityAnswer = (String) data.get(DataKey.SECURITY_ANSWER);
-
-            final ProfileModel profileModel = getProfileModel();
-            profileModel.resetPassword(securityAnswer);
+        try {
+            final Link helpLink = LinkFactory.getInstance(Application.OPHELIA, BrowserPlatform.getInstance().getEnvironment()).create("password");
+            String runString = "rundll32 url.dll,FileProtocolHandler " + helpLink.toString();
+            Runtime.getRuntime().exec(runString);
+        } catch (final Throwable t) {
+            throw new BrowserException("Cannot open Reset Password web page", t);
         }
     }
-
-    public enum DataKey { DISPLAY_AVATAR, SECURITY_ANSWER }
 }

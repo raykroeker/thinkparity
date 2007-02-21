@@ -211,6 +211,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      */
     public void selectPanel(final TabPanel tabPanel) {
         checkThread();
+        requestFocusInWindow(tabPanel);
         if (isSelected(tabPanel)) {
             return;
         }
@@ -444,7 +445,15 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      * @return A list of ids.
      */
     protected abstract List<T> readSearchResults();
-    
+
+    /**
+     * Request focus.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     */
+    protected abstract void requestFocusInWindow(final TabPanel tabPanel);
+
     /**
      * Remove the search.
      * 

@@ -199,7 +199,15 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             panelIds.add(new ContactPanelId(contactId));
         return panelIds;
     }
-    
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#requestFocusInWindow(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    @Override
+    protected void requestFocusInWindow(final TabPanel tabPanel) {
+        ((ContactTabPanel)tabPanel).requestFocusInWindow();
+    }
+
     /**
      * Obtain the popup delegate.
      * 

@@ -219,6 +219,14 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#requestFocusInWindow(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    @Override
+    protected void requestFocusInWindow(final TabPanel tabPanel) {
+        ((ArchiveTabPanel)tabPanel).requestFocusInWindow();
+    }
+
+    /**
      * Obtain the popup delegate.
      * 
      * @return An <code>ArchiveTabPopupDelegate</code>.

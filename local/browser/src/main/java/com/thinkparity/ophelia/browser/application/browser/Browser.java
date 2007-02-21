@@ -1434,7 +1434,15 @@ public class Browser extends AbstractApplication {
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
 	}
-    
+
+    /**
+     * Run the platform browser restore action.
+     *
+     */
+    public void runPlatformBrowserRestore() {
+        invoke(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
+    }
+
     /**
      * Run the profile sign-up action.
      *
@@ -1762,7 +1770,21 @@ public class Browser extends AbstractApplication {
     public void setStatus(final LinkAction linkAction) {
         setStatus("Empty", null, linkAction);
     }
-    
+
+    /**
+     * Show the contact invitation.
+     * 
+     * @param invitationId
+     *            The invitationId.
+     */
+    public void showContactInvitation(final Long invitationId) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().showContactInvitation(invitationId);
+            }
+        });   
+    }
+
     /**
      * Show the contact invitation.
      * 

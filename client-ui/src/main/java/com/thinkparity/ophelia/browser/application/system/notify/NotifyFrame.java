@@ -11,16 +11,12 @@ import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 import com.thinkparity.codebase.swing.AbstractJDialog;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.Dimensions;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2;
-import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
-import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
 
 /**
@@ -31,9 +27,6 @@ public class NotifyFrame extends AbstractJDialog {
 
     /** The <code>NotifyFrame</code> singleton instance. */
     private static NotifyFrame frame;
-
-    /** The notification frame <code>Persistence</code>. */
-    private static Persistence framePersistence;
 
     /**
      * Test the notification display.
@@ -71,15 +64,8 @@ public class NotifyFrame extends AbstractJDialog {
     public static void display(final Notification notification) {
         if (null == frame) {
             try {
-                framePersistence = PersistenceFactory.getPersistence(NotifyFrame.class);
                 frame = new NotifyFrame();
-                frame.addWindowListener(new WindowAdapter() {
-                    @Override
-                    public void windowClosed(final WindowEvent e) {
-                        framePersistence.set("location", frame.getLocation());
-                    }
-                });
-                frame.setLocation(framePersistence.get("location", frame.getDefaultLocation()));
+                frame.setLocation(frame.getDefaultLocation());
             } catch (final AWTException awtx) {
                 throw new BrowserException("Could not instantiate notification dialogue.", awtx);
             }
@@ -147,8 +133,8 @@ public class NotifyFrame extends AbstractJDialog {
         final Rectangle maxBounds = env.getMaximumWindowBounds();
         final Dimension windowSize = getSize();
         final Point location = new Point(
-                maxBounds.x + maxBounds.width - windowSize.width - 20,
-                maxBounds.y + maxBounds.height - windowSize.height - 20);
+                maxBounds.x + maxBounds.width - windowSize.width - 1,
+                maxBounds.y + maxBounds.height - windowSize.height - 1);
         return location;
     }
 

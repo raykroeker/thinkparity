@@ -5,14 +5,13 @@ package com.thinkparity.ophelia.browser.application.system;
 
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
-
+import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.events.ContactEvent;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -28,8 +27,8 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
 import com.thinkparity.ophelia.browser.platform.util.State;
-
-import org.apache.log4j.Logger;
+import com.thinkparity.ophelia.model.events.ContactEvent;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * @author raykroeker@gmail.com
@@ -259,65 +258,72 @@ public class SystemApplication extends AbstractApplication {
      *            A <code>ContactEvent</code>.
      */
     void fireContactIncomingInvitationCreated(final ContactEvent e) {
-        fireNotification("Notification.ContactIncomingInvitationCreatedMessage");
+        final Data data = new Data(1);
+        data.set(com.thinkparity.ophelia.browser.platform.action.contact.Show.DataKey.INVITATION_ID, e.getIncomingInvitation().getId());
+        final String name = getName(e.getIncomingInvitation().getInvitedBy());
+        fireNotification(ActionId.CONTACT_SHOW,
+                data,
+                name,
+                "Notification.ContactIncomingInvitationCreatedMessage",
+                name);
     }
 
     /**
-     * Fire the container draft published event.
+     * Fire the container published event.
      * 
      * @param e
      *            A <code>ContainerEvent</code>.
      */
     void fireContainerPublished(final ContainerEvent e) {
+        final Data data = new Data(1);
+        data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.CONTAINER_ID, e.getContainer().getId());
         if (null == e.getPreviousVersion()) {
             // this is the first publish event
-            fireNotification("Notification.ContainerDraftPublishedMessage",
-                    getName(e.getTeamMember()),
+            fireNotification(ActionId.CONTAINER_SHOW,
+                    data,
                     e.getContainer().getName(),
-                    fuzzyDateFormat.format(e.getVersion().getUpdatedOn()));
+                    "Notification.ContainerPublishedFirstTimeMessage",
+                    fuzzyDateFormat.format(e.getVersion().getUpdatedOn()),
+                    getName(e.getTeamMember()));
         } else {
             // this is a subsequent publish event
-            fireNotification("Notification.ContainerDraftPublishedMessage",
-                    getName(e.getTeamMember()),
+            fireNotification(ActionId.CONTAINER_SHOW,
+                    data,
                     e.getContainer().getName(),
-                    fuzzyDateFormat.format(e.getVersion().getUpdatedOn()));
+                    "Notification.ContainerPublishedNotFirstTimeMessage",
+                    fuzzyDateFormat.format(e.getVersion().getUpdatedOn()),
+                    getName(e.getTeamMember()));
         }
     }
 
     /**
      * Fire a notification message.
      * 
+     * @param actionId
+     *            A <code>ActionId</code>.
+     * @param data
+     *            The action <code>Data</code>.
+     * @param title
+     *            A notification title <code>String</code>.
      * @param messageKey
-     *            A notification message key.
+     *            A notification message key <code>String</code>.
      * @param messageArguments
-     *            A notification message arguments.
+     *            A variable length list of message argument <code>Object</code>.
      */
     private void fireNotification(final ActionId actionId,
+            final Data data, final String title,
             final String messageKey, final Object... messageArguments) {
         impl.fireNotification(new Notification() {
             public String getMessage() {
                 return getString(messageKey, messageArguments);
             }
-            public void invokeAction() {
-                run(actionId, Data.emptyData());
+            public String getTitle() {
+                return title;
             }
-            
+            public void invokeAction() {
+                run(actionId, data);
+            }
         });
-    }
-
-    /**
-     * Fire a notification; using the default action of restoring the browser
-     * window.
-     * 
-     * @param messageKey
-     *            A message key <code>String</code>.
-     * @param messageArguments
-     *            A variable length list of message argument <code>Object</code>.
-     */
-    private void fireNotification(final String messageKey,
-            final Object... messageArguments) {
-        fireNotification(ActionId.PLATFORM_BROWSER_RESTORE, messageKey,
-                messageArguments);
     }
 
     /**
@@ -329,6 +335,18 @@ public class SystemApplication extends AbstractApplication {
      */
     private String getName(final User user) {
         return user.getName();
+    }
+
+    /**
+     * Extract the name from the user id.
+     * 
+     * @param userId
+     *            A <code>JabberId</code>.
+     * @return The <code>User</code>'s name.
+     */
+    private String getName(final JabberId userId) {
+        // NOCOMMIT
+        return "Angelina Jolie";
     }
 
     /**

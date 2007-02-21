@@ -67,6 +67,24 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
     /**
      * Show the contact invitation (select the panel and scroll so it visible).
      * 
+     * @param invitationId
+     *            The invitationId. 
+     */
+    public void showContactInvitation(final Long invitationId) {
+        if (EventQueue.isDispatchThread()) {
+            showPanel(new ContactPanelId(invitationId), false);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    showPanel(new ContactPanelId(invitationId), false);
+                }
+            });
+        }
+    }
+
+    /**
+     * Show the contact invitation (select the panel and scroll so it visible).
+     * 
      * @param invitationIds
      *            The list of invitationIds.
      * @param index
@@ -114,8 +132,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      */
     public void syncIncomingInvitation(final Long invitationId,
             final Boolean remote) {
-        // NOCOMMIT
-/*        if (EventQueue.isDispatchThread()) {
+        if (EventQueue.isDispatchThread()) {
             model.syncIncomingInvitation(invitationId, remote);
         } else {
             SwingUtilities.invokeLater(new Runnable() {
@@ -124,7 +141,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
                 }
             });
         }
-        getController().runDisplayContactInvitationInfo();*/
+        getController().runDisplayContactInvitationInfo();
     }
 
     /**

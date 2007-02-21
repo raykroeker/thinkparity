@@ -11,7 +11,6 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.events.ContactListener;
@@ -224,7 +223,4 @@ public interface ContactModel {
      * @return A <code>List&lt;JabberId&gt;</code>.
      */
     public List<JabberId> search(final String expression);
-    
-    // NOCOMMIT
-    public void TEST_sendInvitation(final User user);
 }

@@ -11,7 +11,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
@@ -414,21 +413,6 @@ public final class ContactModelImpl extends Model<ContactListener>
             // fire event
             final IncomingInvitation postCreation = contactIO.readIncomingInvitation(incoming.getId());
             notifyIncomingInvitationCreated(postCreation, remoteEventGenerator);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-    
-    // NOCOMMIT
-    public void TEST_sendInvitation(final User user) {
-        try {
-            // create user data
-            final IncomingInvitation incoming = new IncomingInvitation();
-            incoming.setCreatedBy(localUser().getLocalId());
-            incoming.setCreatedOn(currentDateTime());
-            //incoming.setInvitedAs(event.getInvitedAs());
-            incoming.setInvitedBy(user.getId());
-            notifyIncomingInvitationCreated(incoming, remoteEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }

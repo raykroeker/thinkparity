@@ -14,12 +14,12 @@ import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
 /**
@@ -37,25 +37,13 @@ public final class NotifyPanel extends AbstractJPanel {
     /** Close label rollover icon. */
     private static final Icon CLOSE_ROLLOVER_ICON;
 
-    /** A set of next button <code>ImageIcon</code>s. */
-    private static final ImageIcon[] NEXT_ICONS;
-
     /** A singleton list of notifications. */
     private static final List<Notification> NOTIFICATIONS;
-
-    /** A set of previous button <code>ImageIcon</code>s. */
-    private static final ImageIcon[] PREVIOUS_ICONS;
 
     static {
         BACKGROUND = ImageIOUtil.read("Dialog_Background.png");
         CLOSE_ICON = ImageIOUtil.readIcon("Dialog_CloseButton.png");
         CLOSE_ROLLOVER_ICON = ImageIOUtil.readIcon("Dialog_CloseButtonRollover.png");
-        PREVIOUS_ICONS = new ImageIcon[] {
-                ImageIOUtil.readIcon("ScrollLeftButton.png"),
-                ImageIOUtil.readIcon("ScrollLeftButtonRollover.png") };
-        NEXT_ICONS = new ImageIcon[] {
-                ImageIOUtil.readIcon("ScrollRightButton.png"),
-                ImageIOUtil.readIcon("ScrollRightButtonRollover.png") };
         NOTIFICATIONS = new Vector<Notification>();
     }
 
@@ -78,13 +66,13 @@ public final class NotifyPanel extends AbstractJPanel {
         initComponents();
         this.notificationIndex = 0;
         this.notificationText = new StringBuffer();
-        addMoveListener(notificationJLabel);
         bindEscapeKey("Close", new AbstractAction() {
             public void actionPerformed(final ActionEvent e) {
                 closeNotifyPanel();
             }
         });
     }
+
     /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
@@ -110,16 +98,16 @@ public final class NotifyPanel extends AbstractJPanel {
                 0,
                 Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
                 Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getHeight(), this);
-        g.drawImage(Images.BrowserTitle.BROWSER_BOTTOM_LEFT_INNER,
+        g.drawImage(Images.BrowserTitle.DIALOG_BOTTOM_LEFT,
                 0,
-                getSize().height - Images.BrowserTitle.BROWSER_BOTTOM_LEFT_INNER.getHeight(),
-                Images.BrowserTitle.BROWSER_BOTTOM_LEFT_INNER.getWidth(),
-                Images.BrowserTitle.BROWSER_BOTTOM_LEFT_INNER.getHeight(), this);
-        g.drawImage(Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER,
-                getSize().width - Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER.getWidth(),
-                getSize().height - Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER.getHeight(),
-                Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER.getWidth(),
-                Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER.getHeight(), this);
+                getSize().height - Images.BrowserTitle.DIALOG_BOTTOM_LEFT.getHeight(),
+                Images.BrowserTitle.DIALOG_BOTTOM_LEFT.getWidth(),
+                Images.BrowserTitle.DIALOG_BOTTOM_LEFT.getHeight(), this);
+        g.drawImage(Images.BrowserTitle.DIALOG_BOTTOM_RIGHT,
+                getSize().width - Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getWidth(),
+                getSize().height - Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getHeight(),
+                Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getWidth(),
+                Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getHeight(), this);
     }
 
     /**
@@ -128,8 +116,9 @@ public final class NotifyPanel extends AbstractJPanel {
      * @param notifications
      *            A <code>Notification</code> <code>List</code>.
      */
-    void display(final Notification notification) {
+    public void display(final Notification notification) {
         NOTIFICATIONS.add(notification);
+        notificationIndex = NOTIFICATIONS.size()-1;
         reload();
     }
 
@@ -151,10 +140,25 @@ public final class NotifyPanel extends AbstractJPanel {
      *
      */
     private void closeNotifyPanel() {
-        NOTIFICATIONS.remove(notificationIndex);
-        reload();
-        if (!isNextEnabled()) {
+        NOTIFICATIONS.clear();
+        disposeWindow();
+    }
+
+    /**
+     * Close one entry of the notify panel.
+     * 
+     * @param index
+     *          The index to close.
+     */
+    private void closeNotifyPanel(final int index) {
+        NOTIFICATIONS.remove(index);
+        if (NOTIFICATIONS.size() == 0) {
             disposeWindow();
+        } else {
+            if (notificationIndex >= NOTIFICATIONS.size()) {
+                notificationIndex = NOTIFICATIONS.size()-1;
+            }
+            reload();
         }
     }
 
@@ -167,95 +171,15 @@ public final class NotifyPanel extends AbstractJPanel {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        oldcontrolJPanel = new javax.swing.JPanel();
-        oldcountJLabel = new javax.swing.JLabel();
-        oldnextJLabel = new javax.swing.JLabel();
-        oldpreviousJLabel = new javax.swing.JLabel();
-        controlJPanel = new javax.swing.JPanel();
-        final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
         closeJButton = new javax.swing.JButton();
         logoJLabel = new javax.swing.JLabel();
-
-        oldcontrolJPanel.setOpaque(false);
-        oldcountJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        oldcountJLabel.setText(" ");
-
-        oldnextJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/ScrollRightButton.png")));
-        oldnextJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                oldnextJLabelMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                oldnextJLabelMouseExited(evt);
-            }
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                oldnextJLabelMousePressed(evt);
-            }
-        });
-
-        oldpreviousJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/ScrollLeftButton.png")));
-        oldpreviousJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                oldpreviousJLabelMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                oldpreviousJLabelMouseExited(evt);
-            }
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                oldpreviousJLabelMousePressed(evt);
-            }
-        });
-
-        org.jdesktop.layout.GroupLayout oldcontrolJPanelLayout = new org.jdesktop.layout.GroupLayout(oldcontrolJPanel);
-        oldcontrolJPanel.setLayout(oldcontrolJPanelLayout);
-        oldcontrolJPanelLayout.setHorizontalGroup(
-            oldcontrolJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 17, Short.MAX_VALUE)
-            .add(oldnextJLabel)
-            .add(oldpreviousJLabel)
-            .add(oldcountJLabel)
-        );
-        oldcontrolJPanelLayout.setVerticalGroup(
-            oldcontrolJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 73, Short.MAX_VALUE)
-            .add(oldnextJLabel)
-            .add(oldpreviousJLabel)
-            .add(oldcountJLabel)
-        );
+        notificationTitleJPanel = new javax.swing.JPanel();
+        notificationTitleJLabel = LabelFactory.createLink("",Fonts.DefaultFontBold);
+        notificationTitleFillerJLabel = new javax.swing.JLabel();
+        controlJPanel = new javax.swing.JPanel();
+        final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
 
         setOpaque(false);
-        controlJPanel.setLayout(new java.awt.GridBagLayout());
-
-        controlJPanel.setOpaque(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        controlJPanel.add(fillerJLabel, gridBagConstraints);
-
-        previousJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NotifyPanel.Previous"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
-        controlJPanel.add(previousJLabel, gridBagConstraints);
-
-        countJLLabel.setText("!count!");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
-        controlJPanel.add(countJLLabel, gridBagConstraints);
-
-        nextJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NotifyPanel.Next"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
-        controlJPanel.add(nextJLabel, gridBagConstraints);
-
         closeJButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Dialog_CloseButton.png")));
         closeJButton.setBorderPainted(false);
         closeJButton.setContentAreaFilled(false);
@@ -278,29 +202,92 @@ public final class NotifyPanel extends AbstractJPanel {
             }
         });
 
-        notificationJLabel.setText("!Notification text!");
-        notificationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-
         logoJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         logoJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/thinkParityLogo.png")));
         logoJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        logoJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+
+        notificationTitleJPanel.setLayout(new java.awt.GridBagLayout());
+
+        notificationTitleJPanel.setOpaque(false);
+        notificationTitleJLabel.setText("!Title!");
+        notificationTitleJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
-                logoJLabelMousePressed(evt);
+                notificationTitleJLabelMousePressed(evt);
             }
         });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        notificationTitleJPanel.add(notificationTitleJLabel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        notificationTitleJPanel.add(notificationTitleFillerJLabel, gridBagConstraints);
+
+        controlJPanel.setLayout(new java.awt.GridBagLayout());
+
+        controlJPanel.setOpaque(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        controlJPanel.add(fillerJLabel, gridBagConstraints);
+
+        previousJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NotifyPanel.Previous"));
+        previousJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                previousJLabelMousePressed(evt);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
+        controlJPanel.add(previousJLabel, gridBagConstraints);
+
+        countJLabel.setText("!count!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
+        controlJPanel.add(countJLabel, gridBagConstraints);
+
+        nextJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NotifyPanel.Next"));
+        nextJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                nextJLabelMousePressed(evt);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
+        controlJPanel.add(nextJLabel, gridBagConstraints);
+
+        notificationJLabel.setText("!Notification text!");
+        notificationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, closeJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(notificationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
-                    .add(controlJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
-                    .add(logoJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, notificationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, notificationTitleJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
+                    .add(closeJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, logoJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, controlJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -311,10 +298,12 @@ public final class NotifyPanel extends AbstractJPanel {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(logoJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 47, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(notificationJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 39, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(notificationTitleJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(notificationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(controlJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -349,46 +338,24 @@ public final class NotifyPanel extends AbstractJPanel {
         return false;
     }
 
-    private void logoJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoJLabelMousePressed
-        NOTIFICATIONS.get(notificationIndex).invokeAction();
-    }//GEN-LAST:event_logoJLabelMousePressed
-
-    private void oldnextJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_oldnextJLabelMouseEntered
-        if (isNextEnabled()) {
-            ((JLabel) evt.getSource()).setIcon(NEXT_ICONS[1]);
-        }
-    }//GEN-LAST:event_oldnextJLabelMouseEntered
-    private void oldnextJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_oldnextJLabelMouseExited
-        if (isNextEnabled()) {
-            ((JLabel) evt.getSource()).setIcon(NEXT_ICONS[0]);
-        }
-    }//GEN-LAST:event_oldnextJLabelMouseExited
-
-    private void oldnextJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_oldnextJLabelMousePressed
+    private void nextJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextJLabelMousePressed
         if (isNextEnabled()) {
             notificationIndex++;
             reload();
         }
-    }//GEN-LAST:event_oldnextJLabelMousePressed
+    }//GEN-LAST:event_nextJLabelMousePressed
 
-    private void oldpreviousJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_oldpreviousJLabelMouseEntered
-        if (isPreviousEnabled()) {
-            ((JLabel) evt.getSource()).setIcon(PREVIOUS_ICONS[1]);
-        }
-    }//GEN-LAST:event_oldpreviousJLabelMouseEntered
+    private void notificationTitleJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_notificationTitleJLabelMousePressed
+        NOTIFICATIONS.get(notificationIndex).invokeAction();
+        closeNotifyPanel(notificationIndex);
+    }//GEN-LAST:event_notificationTitleJLabelMousePressed
 
-    private void oldpreviousJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_oldpreviousJLabelMouseExited
-        if (isPreviousEnabled()) {
-            ((JLabel) evt.getSource()).setIcon(PREVIOUS_ICONS[0]);
-        }
-    }//GEN-LAST:event_oldpreviousJLabelMouseExited
-
-    private void oldpreviousJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_oldpreviousJLabelMousePressed
+    private void previousJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_previousJLabelMousePressed
         if (isPreviousEnabled()) {
             notificationIndex--;
             reload();
         }
-    }//GEN-LAST:event_oldpreviousJLabelMousePressed
+    }//GEN-LAST:event_previousJLabelMousePressed
 
     /**
      * Reload the notify panel.
@@ -398,30 +365,31 @@ public final class NotifyPanel extends AbstractJPanel {
         reloadCount();
         reloadNext();
         reloadPrevious();
+        reloadNotificationTitle();
         reloadNotification();
     }
+
     /**
      * Reload the count label.
      *
      */
     private void reloadCount() {
-/*        if (NOTIFICATIONS.size() > 0)
+        if (NOTIFICATIONS.size() > 1) {
             countJLabel.setText(MessageFormat.format("{0} of {1}",
                     notificationIndex + 1, NOTIFICATIONS.size()));
-        else
-            countJLabel.setText(" ");*/
+        } else {
+            countJLabel.setText(" ");
+        }
     }
+
     /**
      * Reload the next button.
      *
      */
     private void reloadNext() {
-        if (isNextEnabled()) {
-            nextJLabel.setEnabled(true);
-        } else {
-            nextJLabel.setEnabled(false);
-        }
+        nextJLabel.setVisible(isNextEnabled());
     }
+
     /**
      * Reload the notififcation text.
      *
@@ -437,29 +405,37 @@ public final class NotifyPanel extends AbstractJPanel {
             notificationJLabel.setText(" ");
         }
     }
+
+    /**
+     * Reload the notififcation title text.
+     *
+     */
+    private void reloadNotificationTitle() {
+        if (notificationIndex >= 0 && notificationIndex < NOTIFICATIONS.size()) {
+            notificationTitleJLabel.setText(NOTIFICATIONS.get(notificationIndex).getTitle());
+        } else {
+            notificationTitleJLabel.setText(" ");
+        }
+    }
+
     /**
      * Reload the previous button.
      *
      */
     private void reloadPrevious() {
-        if (isPreviousEnabled()) {
-            previousJLabel.setEnabled(true);
-        } else {
-            previousJLabel.setEnabled(false);
-        }
+        previousJLabel.setVisible(isPreviousEnabled());
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton closeJButton;
     private javax.swing.JPanel controlJPanel;
-    private final javax.swing.JLabel countJLLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel countJLabel = new javax.swing.JLabel();
     private javax.swing.JLabel logoJLabel;
-    private final javax.swing.JLabel nextJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel nextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JLabel notificationJLabel = new javax.swing.JLabel();
-    private javax.swing.JPanel oldcontrolJPanel;
-    private javax.swing.JLabel oldcountJLabel;
-    private javax.swing.JLabel oldnextJLabel;
-    private javax.swing.JLabel oldpreviousJLabel;
-    private final javax.swing.JLabel previousJLabel = new javax.swing.JLabel();
+    private javax.swing.JLabel notificationTitleFillerJLabel;
+    private javax.swing.JLabel notificationTitleJLabel;
+    private javax.swing.JPanel notificationTitleJPanel;
+    private final javax.swing.JLabel previousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     // End of variables declaration//GEN-END:variables
 }

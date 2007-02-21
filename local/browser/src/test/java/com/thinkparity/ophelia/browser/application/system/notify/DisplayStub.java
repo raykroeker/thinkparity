@@ -74,11 +74,17 @@ public final class DisplayStub {
             public String getMessage() {
                 return "A new something or other has arrived from elsewhere.";
             }
+            public String getTitle() {
+                return "New Something";
+            }
             public void invokeAction() {}
         };
         notifications[1] = new Notification() {
             public String getMessage() {
                 return "A second new something or other has arrived from elsewhere.";
+            }
+            public String getTitle() {
+                return "Second New Something";
             }
             public void invokeAction() {}
         };
@@ -86,11 +92,17 @@ public final class DisplayStub {
             public String getMessage() {
                 return "A third new something or other has arrived from even farther away.";
             }
+            public String getTitle() {
+                return "Third New Something";
+            }
             public void invokeAction() {}
         };
         notifications[3] = new Notification() {
             public String getMessage() {
                 return "This is just getting boring.";
+            }
+            public String getTitle() {
+                return "Boring";
             }
             public void invokeAction() {}
         };

@@ -9,5 +9,6 @@ package com.thinkparity.ophelia.browser.application.system.notify;
  */
 public interface Notification {
     public String getMessage();
+    public String getTitle();
     public void invokeAction();
 }

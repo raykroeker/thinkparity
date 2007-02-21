@@ -427,6 +427,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
     private void orderByJLabelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_orderByJLabelMousePressed
         if (null != sortByDelegate) {
             final javax.swing.JLabel orderByJLabel = (javax.swing.JLabel) e.getSource();
+            orderByJLabel.requestFocusInWindow();
             final TabAvatarSortByPanel sortByPanel = new TabAvatarSortByPanel();
             sortByPanel.setDelegate(sortByDelegate);
             // The sortByPanel is shown slightly below the button

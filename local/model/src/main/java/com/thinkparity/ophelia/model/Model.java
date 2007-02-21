@@ -1112,13 +1112,11 @@ public abstract class Model<T extends EventListener> extends
             final StreamMonitor streamMonitor, final StreamSession session,
             final InputStream stream, final Long streamSize,
             final Long streamOffset) throws IOException {
-// NOCOMMIT
-//        stream.reset();
-//        long skipped = stream.skip(streamOffset);
-//        while (skipped < streamOffset && 0 < skipped) {
-//            skipped += stream.skip(streamOffset.longValue() - skipped);
-//        }
-        long skipped = 0;
+        stream.reset();
+        long skipped = stream.skip(streamOffset);
+        while (skipped < streamOffset && 0 < skipped) {
+            skipped += stream.skip(streamOffset.longValue() - skipped);
+        }
         final Long actualStreamOffset;
         if (skipped == streamOffset.longValue()) {
             logger.logInfo("Resuming download for {0} at {1}.",
@@ -1182,8 +1180,7 @@ public abstract class Model<T extends EventListener> extends
                 }
             }
         };
-// NOCOMMIT
-//        stream.mark(stream.available());
+        stream.mark(stream.available());
         return uploadStream(uploadMonitor, streamMonitor, session, stream,
                 streamSize, 0L);
     }

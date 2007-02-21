@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.container;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,7 +14,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -100,8 +100,11 @@ public final class ContainerModelImpl extends
     /** The create draft document api's buffer size. */
     private static final Integer CREATE_DRAFT_DOCUMENT_BUFFER;
 
+    /** The upload stream buffer size. */
+    private static final Integer PUBLISH_UPLOAD_STREAM_BUFFER;
+
     /** The publish create version buffer size. */
-    private static final int PUBLISH_CREATE_VERSION_BUFFER;
+    private static final Integer PUBLISH_CREATE_VERSION_BUFFER;
 
     /** The restore api create version buffer size. */
     private static final Integer RESTORE_CREATE_VERSION_BUFFER;
@@ -119,6 +122,7 @@ public final class ContainerModelImpl extends
         final Integer buffer = 1024;
         CREATE_DRAFT_BUFFER = buffer;
         CREATE_DRAFT_DOCUMENT_BUFFER = buffer;
+        PUBLISH_UPLOAD_STREAM_BUFFER = buffer;
         RESTORE_CREATE_VERSION_BUFFER = buffer;
         SAVE_DRAFT_UPDATE_DRAFT_DOCUMENT_BUFFER = buffer;
         SAVE_DRAFT_WRITE_FILE_BUFFER = buffer;
@@ -2494,8 +2498,7 @@ public final class ContainerModelImpl extends
                 directory = exportFileSystem.createDirectory(
                         nameGenerator.exportDirectoryName(version));
                 for (final DocumentVersion documentVersion : documents.get(version)) {
-                    documentsSize.put(documentVersion, readDocumentVersionSize(
-                            documentVersion.getArtifactId(), documentVersion.getVersionId()));
+                    documentsSize.put(documentVersion, documentVersion.getSize());
 
                     file = new File(directory,
                             documentNameGenerator.exportFileName(documentVersion));
@@ -2537,11 +2540,11 @@ public final class ContainerModelImpl extends
      *            An <code>Integer</code>. number of stages.
      */
     private void fireDetermine(final PublishMonitor monitor,
-            final Iterator<DocumentVersion> iDocuments) {
+            final List<DocumentVersion> documentVersions) {
         int steps = 1;
-        while (iDocuments.hasNext()) {
+        for (final DocumentVersion documentVersion : documentVersions) {
             // each 1K is a step
-            steps += (iDocuments.next().getSize() / STEP_SIZE);
+            steps += (documentVersion.getSize() / STEP_SIZE);
         }
         monitor.determine(steps);
     }
@@ -3097,35 +3100,42 @@ public final class ContainerModelImpl extends
             final ContainerVersion version, final JabberId publishedBy,
             final Calendar publishedOn, final List<User> publishedTo)
             throws IOException {
-        final Map<DocumentVersion, InputStream> documentVersionStreams =
-            readDocumentVersionStreams(version.getArtifactId(),
-                    version.getVersionId());
+        // grab the document versions
+        final List<DocumentVersion> documentVersions = readDocumentVersions(
+                version.getArtifactId(), version.getVersionId());
         final Map<DocumentVersion, String> documentVersionStreamIds =
-            new HashMap<DocumentVersion, String>(documentVersionStreams.size(), 1.0F);
-        final StreamSession session = getSessionModel().createStreamSession();
-        fireDetermine(monitor, documentVersionStreams.keySet().iterator());
-        for (final Entry<DocumentVersion, InputStream> entry :
-                documentVersionStreams.entrySet()) {
-            fireStageBegin(monitor, PublishStage.UploadStream,
-                    entry.getKey().getName());
-            try {
-                documentVersionStreamIds.put(entry.getKey(), uploadStream(
-                        new UploadMonitor() {
-                            private long totalChunks = 0;
-                            public void chunkUploaded(final int chunkSize) {
-                                totalChunks += chunkSize;
-                                if (totalChunks >= STEP_SIZE) {
-                                    totalChunks -= STEP_SIZE;
-                                    fireStageEnd(monitor, PublishStage.UploadStream);
+            new HashMap<DocumentVersion, String>(documentVersions.size(), 1.0F);
+        // set fixed progress determination
+        fireDetermine(monitor, documentVersions);
+        // upload versions
+        final InternalDocumentModel documentModel = getDocumentModel();
+        final StreamSession streamSession = getSessionModel().createStreamSession();
+        InputStream stream;
+        for (final DocumentVersion documentVersion : documentVersions) {
+            fireStageBegin(monitor, PublishStage.UploadStream, documentVersion.getName());
+                stream = new BufferedInputStream(documentModel.openVersion(
+                        documentVersion.getArtifactId(),
+                        documentVersion.getVersionId()),
+                        PUBLISH_UPLOAD_STREAM_BUFFER);
+                try {
+                    documentVersionStreamIds.put(documentVersion,
+                            uploadStream(new UploadMonitor() {
+                                private long totalChunks = 0;
+                                public void chunkUploaded(final int chunkSize) {
+                                    totalChunks += chunkSize;
+                                    if (totalChunks >= STEP_SIZE) {
+                                        totalChunks -= STEP_SIZE;
+                                        fireStageEnd(monitor, PublishStage.UploadStream);
+                                    }
                                 }
-                            }
-                        }, session, entry.getValue(), entry.getKey().getSize()));
-                fireStageEnd(monitor, PublishStage.UploadStream);
-            } finally {
-                entry.getValue().close();
-            }
+                            }, streamSession, stream, documentVersion.getSize()));
+                    fireStageEnd(monitor, PublishStage.UploadStream);
+                } finally {
+                    stream.close();
+                    }
         }
-        getSessionModel().deleteStreamSession(session);
+        getSessionModel().deleteStreamSession(streamSession);
+        // publish
         fireStageBegin(monitor, PublishStage.PublishContainer);
         getSessionModel().publish(version, documentVersionStreamIds,
                 readTeam(version.getArtifactId()), publishedBy, publishedOn,
@@ -3204,37 +3214,6 @@ public final class ContainerModelImpl extends
         FilterManager.filter(documents, filter);
         ModelSorter.sortDocuments(documents, comparator);
         return documents;
-    }
-
-    private Long readDocumentVersionSize(final Long documentId,
-            final Long versionId) {
-        return getDocumentModel().readVersionSize(documentId, versionId);
-    }
-
-    /**
-     * Read the document version streams for a container version.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param versionId
-     *            A container version id.
-     * @return A list of document versions and their input streams.
-     */
-    private Map<DocumentVersion, InputStream> readDocumentVersionStreams(
-            final Long containerId, final Long versionId) {
-        final InternalDocumentModel documentModel = getDocumentModel();
-        final Map<DocumentVersion, InputStream> documentVersionStreams =
-            new HashMap<DocumentVersion, InputStream>();
-        final List<Document> documents = readDocuments(containerId, versionId);
-        DocumentVersion documentVersion;
-        for(final Document document : documents) {
-            documentVersion = documentModel.readLatestVersion(document.getId());
-            documentVersionStreams.put(documentVersion,
-                    documentModel.openVersion(
-                            documentVersion.getArtifactId(),
-                            documentVersion.getVersionId()));
-        }
-        return documentVersionStreams;
     }
 
     /**

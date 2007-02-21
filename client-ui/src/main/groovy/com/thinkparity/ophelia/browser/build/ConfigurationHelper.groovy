@@ -156,7 +156,7 @@ class ConfigurationHelper {
      * @return The directory name <code>String</code>.
      */
     String extractImageLibNativeDirname() {
-        return extractOs().name().toLowerCase()
+        return extractOsPlatform().name().toLowerCase()
     }
 
     /**

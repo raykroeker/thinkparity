@@ -35,6 +35,7 @@ class PackageTask {
     void execute() {
         def configuration = new ConfigurationHelper(properties:properties).extract()
 
+        def baseDir = configuration["ant.base-dir"]
         def classesDir = configuration["thinkparity.target.classes-dir"]
         def packageDir = configuration["thinkparity.target.package-dir"]
 
@@ -45,12 +46,20 @@ class PackageTask {
             jar(destfile:new File(packageDir,"thinkParity.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
                 manifest {
                     attribute(name:"Main-Class",value:"com.thinkparity.ThinkParity")
-               }
-              fileset(dir:classesDir) {
-                 include(name:"com/thinkparity/")
+                }
+                fileset(dir:classesDir) {
+                    include(name:"com/thinkparity/")
                     exclude(name:"com/thinkparity/codebase/")
                     exclude(name:"com/thinkparity/ophelia/")
-               }
+                }
+            }
+            // $/LICENSE.txt
+            // $/README.txt
+            copy(todir:packageDir) {
+                fileset(dir:baseDir) {
+                    include(name:"LICENSE.txt")
+                    include(name:"README.txt")
+                }
             }
         }
 

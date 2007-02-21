@@ -47,11 +47,11 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
 
     /** Sql to read a meta data item. */
     private static final String SQL_READ_META_DATA =
-        new StringBuffer("select MD.META_DATA_ID,MD.KEY,MD.META_DATA_TYPE_ID,")
-        .append("MD.VALUE ")
+        new StringBuffer("select MD.META_DATA_ID,MD.META_DATA_KEY,MD.META_DATA_TYPE_ID,")
+        .append("MD.META_DATA_VALUE ")
         .append("from MIGRATOR_META_DATA MMD ")
         .append("inner join META_DATA MD on MMD.META_DATA_ID=MD.META_DATA_ID ")
-        .append("where MD.KEY=? and MD.META_DATA_TYPE_ID=?")
+        .append("where MD.META_DATA_KEY=? and MD.META_DATA_TYPE_ID=?")
         .toString();
 
     /** Select a tree of meta data entries. */
@@ -59,7 +59,7 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
         new StringBuffer("select ")
         .append("from META_DATA MD ")
         .append("inner join MIGRATOR_META_DATA MMD on MD.META_DATA_ID=MMD.META_DATA_ID ")
-        .append("where MD.KEY like ?")
+        .append("where MD.META_DATA_KEY like ?")
         .toString();
 
     /** An instance of <code>MetaDataIO</code>. */

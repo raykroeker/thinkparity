@@ -105,19 +105,19 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		.append("from ARTIFACT_AUDIT AA ")
 		.append("inner join ARTIFACT_AUDIT_TYPE AAT on ")
 		.append("AA.ARTIFACT_AUDIT_TYPE_ID=AAT.ARTIFACT_AUDIT_TYPE_ID ")
-        .append("inner join USER UC on AA.CREATED_BY=UC.USER_ID ")
+        .append("inner join PARITY_USER UC on AA.CREATED_BY=UC.USER_ID ")
 		.append("left join ARTIFACT_AUDIT_VERSION AAV on ")
 		.append("AA.ARTIFACT_AUDIT_ID=AAV.ARTIFACT_AUDIT_ID ")
 		.append("where AA.ARTIFACT_ID=?")
 		.toString();
 
 	private static final String SQL_READ_META_DATA =
-		new StringBuffer("select MD.META_DATA_ID,MD.META_DATA_TYPE_ID,MD.KEY,")
-		.append("MD.VALUE ")
+		new StringBuffer("select MD.META_DATA_ID,MD.META_DATA_TYPE_ID,MD.META_DATA_KEY,")
+		.append("MD.META_DATA_VALUE ")
 		.append("from ARTIFACT_AUDIT AA inner join ARTIFACT_AUDIT_META_DATA AAMD ")
 		.append("on AA.ARTIFACT_AUDIT_ID = AAMD.ARTIFACT_AUDIT_ID ")
 		.append("inner join META_DATA MD on AAMD.META_DATA_ID = MD.META_DATA_ID ")
-		.append("where AA.ARTIFACT_AUDIT_ID=? and MD.KEY=?")
+		.append("where AA.ARTIFACT_AUDIT_ID=? and MD.META_DATA_KEY=?")
 		.toString();
 
     /** A <code>UserIOHandler</code>. */
@@ -146,14 +146,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
             auditMetaData(session, event,
                     MetaDataType.LONG, MetaDataKey.TEAM_MEMBER, event.getTeamMember().getLocalId());
-
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
 
@@ -164,14 +159,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
             auditMetaData(session, event,
                     MetaDataType.LONG, MetaDataKey.TEAM_MEMBER, event.getTeamMember().getLocalId());
-
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
 	/**
@@ -183,13 +173,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		final Session session = openSession();
 		try {
 			audit(session, event);
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -203,14 +189,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
 			auditMetaData(session, event,
                     MetaDataType.LONG, MetaDataKey.CLOSED_BY, event.getClosedBy().getLocalId());
-
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -221,13 +202,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		final Session session = openSession();
 		try {
 			audit(session, event);
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 
@@ -242,14 +219,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
             auditMetaData(session, event,
                     MetaDataType.LONG, MetaDataKey.RECEIVED_FROM, event.getReceivedFrom().getLocalId());
-
-            session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
     /**
@@ -263,14 +235,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
 			auditMetaData(session, event,
                     MetaDataType.LONG, MetaDataKey.DENIED_BY, event.getDeniedBy().getLocalId());
-			
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -283,14 +250,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
 			auditMetaData(session, event,
                     MetaDataType.LONG, MetaDataKey.REQUESTED_BY, event.getRequestedBy().getLocalId());
-
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	public void audit(final PublishEvent event) {
@@ -305,14 +267,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
             auditMetaData(session, event,
                     MetaDataType.CALENDAR, MetaDataKey.PUBLISHED_ON,
                     event.getPublishedOn());
-
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -327,13 +284,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
             auditMetaData(session, event,
                     MetaDataType.LONG, MetaDataKey.REACTIVATED_BY, event.getReactivatedBy().getLocalId());
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
 	/**
@@ -352,13 +305,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
             auditMetaData(session, event,
                     MetaDataType.CALENDAR, MetaDataKey.RECEIVED_ON,
                     event.getReceivedOn());
-            session.commit();
-        }
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
+		} finally {
+            session.close();
 		}
-		finally { session.close(); }
 	}
 
     /**
@@ -372,14 +321,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
 			auditMetaData(session, event,
                     MetaDataType.LONG, MetaDataKey.RECEIVED_FROM, event.getReceivedFrom().getLocalId());
-
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/** @see com.thinkparity.ophelia.model.io.handler.AuditIOHandler#audit(com.thinkparity.ophelia.model.audit.event.RenameEvent) */
@@ -392,14 +336,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
                 MetaDataType.STRING, MetaDataKey.RENAMED_FROM, event.getFrom());
             auditMetaData(session, event,
                 MetaDataType.STRING, MetaDataKey.RENAMED_TO, event.getTo());
-
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
     
@@ -416,15 +355,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
 			auditMetaData(session, event,
                     MetaDataType.LONG, MetaDataKey.REQUESTED_FROM, event.getRequestedFrom().getLocalId());
-
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
-		
 	}
 
 	/**
@@ -439,14 +372,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
             auditMetaData(session, event,
                     MetaDataType.LONG, MetaDataKey.CONFIRMED_BY, event.getConfirmedBy().getLocalId());
-
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
 	/**
@@ -461,14 +389,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
 			auditMetaData(session, event,
                     MetaDataType.LONG, MetaDataKey.SENT_TO, event.getSentTo().getLocalId());
-
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
     /**
@@ -483,14 +406,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
 			auditMetaData(session, event,
                     MetaDataType.LONG, MetaDataKey.SENT_TO, event.getSentTo().getLocalId());
-
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
     /**
@@ -521,14 +439,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			session.setLong(1, artifactId);
 			if(auditIds.length != session.executeUpdate())
 				throw new HypersonicException("Could not delete audit.");
-
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -541,14 +454,13 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			session.setLong(1, artifactId);
 			session.executeQuery();
 			final List<AuditEvent> events = new LinkedList<AuditEvent>();
-			while(session.nextResult()) { events.add(extract(session)); }
+			while (session.nextResult()) {
+                events.add(extract(session));
+			}
 			return events;
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -569,7 +481,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		if(1 != session.executeUpdate())
 			throw new HypersonicException("Could not create audit.");
 
-		auditEvent.setId(session.getIdentity());
+		auditEvent.setId(session.getIdentity("ARTIFACT_AUDIT"));
 	}
 
     private void auditMetaData(final Session session,
@@ -943,12 +855,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 				metaData.add(extractMetaData(session, metaDataIO));
 			}
 			return metaData.toArray(new MetaData[] {});
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
     /**

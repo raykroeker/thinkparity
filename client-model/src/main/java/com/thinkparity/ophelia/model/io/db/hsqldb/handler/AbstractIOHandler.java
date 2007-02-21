@@ -38,15 +38,6 @@ public abstract class AbstractIOHandler {
         this.sessionManager = new SessionManager(dataSource);
     }
 
-    protected void checkpoint() {
-        final Session session = openSession();
-        try {
-            session.execute("CHECKPOINT");
-        } finally {
-            session.close();
-        }
-    }
-
     /**
 	 * Extract the meta data from the session.
 	 * 
@@ -58,9 +49,9 @@ public abstract class AbstractIOHandler {
             final MetaDataIOHandler metaDataIO) {
 		final MetaData metaData = new MetaData();
 		metaData.setId(session.getLong("META_DATA_ID"));
-		metaData.setKey(session.getString("KEY"));
+		metaData.setKey(session.getString("META_DATA_KEY"));
 		metaData.setType(session.getMetaDataTypeFromInteger("META_DATA_TYPE_ID"));
-		metaData.setValue(metaDataIO.extractValue(session, metaData.getType(), "VALUE"));
+		metaData.setValue(metaDataIO.extractValue(session, metaData.getType(), "META_DATA_VALUE"));
 		return metaData;
 	}
 
@@ -74,7 +65,6 @@ public abstract class AbstractIOHandler {
 	}
 
     protected HypersonicException translateError(final Session session, final Throwable t) {
-        session.rollback();
         if (t.getClass().isAssignableFrom(HypersonicException.class)) {
             return (HypersonicException) t;
         } else {

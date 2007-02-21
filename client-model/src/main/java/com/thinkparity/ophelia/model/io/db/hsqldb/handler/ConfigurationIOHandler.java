@@ -35,7 +35,7 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
     /** Sql to read a configuration entry. */
     private static final String SQL_READ =
             new StringBuffer("select C.CONFIGURATION_KEY,MD.META_DATA_ID,")
-            .append("MD.META_DATA_TYPE_ID,MD.KEY,MD.VALUE ")
+            .append("MD.META_DATA_TYPE_ID,MD.META_DATA_KEY,MD.META_DATA_VALUE ")
             .append("from CONFIGURATION C ")
             .append("inner join META_DATA MD on C.META_DATA_ID=MD.META_DATA_ID ")
             .append("where C.CONFIGURATION_KEY=?")
@@ -68,14 +68,9 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
             session.setLong(2, metaDataId);
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not create configuration entry.");
-
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -99,14 +94,9 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
             else {
                 throw new HypersonicException("Could not find configuration entry.");
             }
-            
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -139,12 +129,9 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
             } else {
                 throw new HypersonicException("[CANNOT FIND CONFIGURATION]");
             }
-            session.commit();
-        } catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**

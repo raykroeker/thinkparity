@@ -1936,7 +1936,7 @@ public final class ContainerModelImpl extends
                                         SAVE_DRAFT_UPDATE_DRAFT_DOCUMENT_BUFFER);
                             } finally {
                                 stream.close();
-                            }                            
+                            }
                         } finally {
                             Assert.assertTrue(file.delete(),
                                     "Could not delete temporary file {0}.", file);

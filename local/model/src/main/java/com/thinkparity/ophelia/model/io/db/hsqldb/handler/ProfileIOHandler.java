@@ -50,7 +50,7 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             new StringBuffer("select P.PROFILE_ID,U.JABBER_ID,U.NAME,")
             .append("U.ORGANIZATION,U.TITLE,P.PROFILE_VCARD ")
             .append("from PROFILE P ")
-            .append("inner join USER U on P.PROFILE_ID=U.USER_ID ")
+            .append("inner join PARITY_USER U on P.PROFILE_ID=U.USER_ID ")
             .append("where U.JABBER_ID=?")
             .toString();
 
@@ -118,11 +118,6 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             session.setVCard(2, profile.getVCard());
             if(1 != session.executeUpdate())
                 throw translateError("Could not create user profile {0}.", profile);
-            session.commit();
-        }
-        catch(final Throwable t) {
-            session.rollback();
-            throw translateError(t);
         } finally {
             session.close();
         }
@@ -143,11 +138,6 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             session.setBoolean(3, email.isVerified());
             if (1 != session.executeUpdate())
                 throw new HypersonicException("COULD NOT CREATE EMAIL");
-
-            session.commit();
-        } catch (final HypersonicException hx) {
-            session.rollback();
-            throw hx;
         } finally {
             session.close();
         }
@@ -165,10 +155,6 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             if (1 != session.executeUpdate())
                 throw new HypersonicException("COULD NOT DELETE EMAIL");
             emailIO.delete(session, emailId);
-            session.commit();
-        } catch (final HypersonicException hx) {
-            session.rollback();
-            throw hx;
         } finally { 
             session.close();
         }
@@ -237,15 +223,9 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             session.setLong(2, profile.getLocalId());
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not update profile.");
-
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
-
     }
 
     /**
@@ -261,11 +241,6 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             session.setLong(3, emailId);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("COULD NOT VERIFY EMAIL");
-
-            session.commit();
-        } catch (final HypersonicException hx) {
-            session.rollback();
-            throw hx;
         } finally {
             session.close();
         }

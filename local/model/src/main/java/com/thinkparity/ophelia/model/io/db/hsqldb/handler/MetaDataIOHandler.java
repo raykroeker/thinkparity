@@ -31,7 +31,7 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 	 */
 	private static final String SQL_CREATE =
 		new StringBuffer("insert into META_DATA ")
-		.append("(META_DATA_TYPE_ID,KEY,VALUE) ")
+		.append("(META_DATA_TYPE_ID,META_DATA_KEY,META_DATA_VALUE) ")
 		.append("values (?,?,?)")
 		.toString();
 
@@ -155,7 +155,7 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		setValue(session, 3, metaDataType, metaDataValue);
 		if(1 != session.executeUpdate())
 			throw new HypersonicException("Could not create meta data:  " + metaDataKey);
-		return session.getIdentity();
+		return session.getIdentity("META_DATA");
 	}
 
 	/**

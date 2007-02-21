@@ -21,7 +21,7 @@ public class UserIOHandler extends AbstractIOHandler implements
         com.thinkparity.ophelia.model.io.handler.UserIOHandler {
 
     private static final String SQL_CREATE =
-        new StringBuffer("insert into USER ")
+        new StringBuffer("insert into PARITY_USER ")
         .append("(JABBER_ID,NAME,ORGANIZATION,TITLE) ")
         .append("values (?,?,?,?)")
         .toString();
@@ -30,34 +30,34 @@ public class UserIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_BY_JABBER_ID =
         new StringBuffer("select U.USER_ID,U.JABBER_ID,U.NAME,")
         .append("U.ORGANIZATION,U.TITLE ")
-        .append("from USER U ")
+        .append("from PARITY_USER U ")
         .append("where U.JABBER_ID=?")
         .toString();
 
     private static final String SQL_READ_BY_USER_ID =
         new StringBuffer("select U.USER_ID,U.JABBER_ID,U.NAME,")
         .append("U.ORGANIZATION,U.TITLE ")
-        .append("from USER U ")
+        .append("from PARITY_USER U ")
         .append("where U.USER_ID=?")
         .toString();
 
     /** Sql to read a user's local user id. */
     private static final String SQL_READ_LOCAL_ID =
         new StringBuffer("select U.USER_ID ")
-        .append("from USER U ")
+        .append("from PARITY_USER U ")
         .append("where U.JABBER_ID=?")
         .toString();
 
     /** Sql to read a user's user id. */
     private static final String SQL_READ_USER_ID =
         new StringBuffer("select U.JABBER_ID ")
-        .append("from USER U ")
+        .append("from PARITY_USER U ")
         .append("where U.USER_ID=?")
         .toString();
 
     /** Sql to update a user. */
     private static final String SQL_UPDATE =
-            new StringBuffer("update USER ")
+            new StringBuffer("update PARITY_USER ")
             .append("set NAME=?,ORGANIZATION=?,TITLE=? ")
             .append("where USER_ID=?")
             .toString();
@@ -140,7 +140,7 @@ public class UserIOHandler extends AbstractIOHandler implements
         session.setString(4, user.getTitle());
         if(1 != session.executeUpdate())
             throw translateError("Could not create user {0}.", user);
-        user.setLocalId(session.getIdentity());
+        user.setLocalId(session.getIdentity("PARITY_USER"));
     }
 
     /**

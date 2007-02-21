@@ -8,9 +8,10 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialo
 
 import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.StringUtil;
-import com.thinkparity.codebase.http.Link;
-import com.thinkparity.codebase.http.LinkFactory;
 import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.codebase.model.util.http.Link;
+import com.thinkparity.codebase.model.util.http.LinkFactory;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Version;

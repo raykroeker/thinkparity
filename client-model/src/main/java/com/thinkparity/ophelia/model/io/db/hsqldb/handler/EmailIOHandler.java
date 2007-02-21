@@ -61,7 +61,7 @@ class EmailIOHandler extends AbstractIOHandler {
         session.setEMail(1, email);
         if(1 != session.executeUpdate())
             throw new HypersonicException("Could not create email.");
-        return session.getIdentity();
+        return session.getIdentity("EMAIL");
     }
 
     void delete(final Session session, final Long emailId) {

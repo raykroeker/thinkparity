@@ -153,24 +153,27 @@ public class PersistenceMigrator {
 
     private String getExpectedVersionId() {
         final Session session = openSession();
-        Boolean isTableFound = Boolean.FALSE;
+        session.openMetaData();
         try {
-            session.openMetaData();
             session.getMetaDataTables();
+            boolean found = false;
             while (session.nextResult()) {
                 if (session.getString("TABLE_NAME").equals("META_DATA")) {
-                    isTableFound = Boolean.TRUE;
+                    found = true;
                     break;
                 }
             }
-            if(isTableFound) {
+            if (found) {
                 session.prepareStatement(READ_META_DATA_RELEASE_ID);
                 session.setLong(1, Constants.MetaData.RELEASE_ID_PK);
                 session.setTypeAsInteger(2, MetaDataType.STRING);
                 session.setString(3, Constants.MetaData.RELEASE_ID_KEY);
                 session.executeQuery();
-                session.nextResult();
-                return session.getString("VALUE");
+                if (session.nextResult()) {
+                    return session.getString("META_DATA_VALUE");
+                } else {
+                    return null;
+                }
             } else {
                 return null;
             }

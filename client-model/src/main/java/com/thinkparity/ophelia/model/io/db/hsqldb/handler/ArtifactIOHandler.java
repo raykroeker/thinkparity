@@ -99,7 +99,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 
     private static final String INSERT_ARTIFACT_VERSION_META_DATA =
 		new StringBuffer("insert into ARTIFACT_VERSION_META_DATA ")
-		.append("(ARTIFACT_ID,ARTIFACT_VERSION_ID,KEY,VALUE) ")
+		.append("(ARTIFACT_ID,ARTIFACT_VERSION_ID,META_DATA_KEY,META_DATA_VALUE) ")
 		.append("values (?,?,?,?)")
 		.toString();
 
@@ -118,7 +118,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 	 * 
 	 */
 	private static final String SELECT_VERSION_META_DATA_BY_ARTIFACT_ID_BY_VERSION_ID =
-		new StringBuffer("select KEY,VALUE ")
+		new StringBuffer("select META_DATA_KEY,META_DATA_VALUE ")
 		.append("from ARTIFACT_VERSION_META_DATA ")
 		.append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
 		.toString();
@@ -256,7 +256,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         new StringBuffer("select U.NAME,U.JABBER_ID,")
         .append("U.USER_ID,U.ORGANIZATION,U.TITLE,ATR.ARTIFACT_ID ")
         .append("from ARTIFACT_TEAM_REL ATR ")
-        .append("inner join USER U on ATR.USER_ID = U.USER_ID ")
+        .append("inner join PARITY_USER U on ATR.USER_ID = U.USER_ID ")
         .append("where ATR.ARTIFACT_ID=? ")
         .append("order by U.JABBER_ID asc")
         .toString();
@@ -270,7 +270,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		new StringBuffer("select U.NAME,U.JABBER_ID,")
         .append("U.USER_ID,U.ORGANIZATION,U.TITLE,ATR.ARTIFACT_ID ")
         .append("from ARTIFACT_TEAM_REL ATR ")
-        .append("inner join USER U on ATR.USER_ID = U.USER_ID ")
+        .append("inner join PARITY_USER U on ATR.USER_ID = U.USER_ID ")
         .append("where ATR.ARTIFACT_ID=? ")
         .append("and ATR.USER_ID=?")
         .append("order by U.JABBER_ID asc")
@@ -380,13 +380,9 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		final Session session = openSession();
 		try {
             deleteRemoteInfo(session, artifactId);
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
     /**
@@ -402,14 +398,9 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             session.setLong(1, artifactId);
             if(rowCount != session.executeUpdate())
                 throw new HypersonicException("[LMODEL] [ARTIFACT] [IO] [DELETE TEAM REL]");
-
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -426,14 +417,9 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             session.setLong(2, userId);
             if(1 != session.executeUpdate())
                 throw new HypersonicException("[LMODEL] [ARTIFACT] [IO] [DELETE TEAM REL]");
-
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     
@@ -572,14 +558,14 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_READ_ID);
             session.setUniqueId(1, uniqueId);
             session.executeQuery();
-            if(session.nextResult()) { return session.getLong("ARTIFACT_ID"); }
-            else { return null; }
+            if (session.nextResult()) {
+                return session.getLong("ARTIFACT_ID");
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -675,12 +661,9 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
                 team.add(userIO.extractUser(session));
             }
             return team;
+        } finally { 
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -719,14 +702,13 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             session.executeQuery();
 
             final List<TeamMember> team = new ArrayList<TeamMember>();
-            while(session.nextResult()) { team.add(extractTeamMember(session)); }
+            while (session.nextResult()) {
+                team.add(extractTeamMember(session));
+            }
             return team;
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
 
     }
 
@@ -793,17 +775,11 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 			session.setQualifiedUsername(1, updatedBy);
 			session.setCalendar(2, updatedOn);
 			session.setLong(3, artifactId);
-
 			if(1 != session.executeUpdate())
 				throw new HypersonicException("Could not update remote info.");
-
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -815,15 +791,11 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_UPDATE_STATE);
             session.setStateAsInteger(1, state);
             session.setLong(2, artifactId);
-            if(1 != session.executeUpdate())
+            if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not update state.");
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
 	/**
@@ -867,7 +839,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		if(1 != session.executeUpdate())
 			throw new HypersonicException("Could not create.");
 
-		artifact.setId(session.getIdentity());
+		artifact.setId(session.getIdentity("ARTIFACT"));
 
 		deleteFlags(session, artifact.getId());
 		insertFlags(session, artifact.getId(), artifact.getFlags());
@@ -1017,7 +989,8 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		final Properties metaData = new Properties();
 		while(session.nextResult()) {
 			metaData.setProperty(
-					session.getString("KEY"), session.getString("VALUE"));
+					session.getString("META_DATA_KEY"),
+                    session.getString("META_DATA_VALUE"));
 		}
 		return metaData;
 	}
@@ -1035,7 +1008,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         if(1 != session.executeUpdate())
             throw new HypersonicException("Could not restore.");
 
-        artifact.setId(session.getIdentity());
+        artifact.setId(session.getIdentity("ARTIFACT"));
 
         deleteFlags(session, artifact.getId());
         insertFlags(session, artifact.getId(), artifact.getFlags());

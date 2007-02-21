@@ -101,7 +101,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             new StringBuffer("select C.CONTACT_ID,C.CONTACT_VCARD,U.USER_ID,")
             .append("U.JABBER_ID,U.NAME,U.ORGANIZATION,U.TITLE ")
             .append("from CONTACT C ")
-            .append("inner join USER U on C.CONTACT_ID=U.USER_ID ")
+            .append("inner join PARITY_USER U on C.CONTACT_ID=U.USER_ID ")
             .toString();
 
     /** Sql to read a contact by its id. */
@@ -126,9 +126,9 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("from CONTACT_INVITATION CI ")
             .append("inner join CONTACT_INVITATION_INCOMING CII on ")
             .append("CI.CONTACT_INVITATION_ID=CII.CONTACT_INVITATION_ID ")
-            .append("inner join USER UI on CII.INVITED_BY=UI.USER_ID ")
+            .append("inner join PARITY_USER UI on CII.INVITED_BY=UI.USER_ID ")
             .append("inner join EMAIL E on CII.INVITED_AS=E.EMAIL_ID ")
-            .append("inner join USER U on CI.CREATED_BY=U.USER_ID ")
+            .append("inner join PARITY_USER U on CI.CREATED_BY=U.USER_ID ")
             .append("where CII.CONTACT_INVITATION_ID=?")
             .toString();
 
@@ -140,9 +140,9 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("from CONTACT_INVITATION CI ")
             .append("inner join CONTACT_INVITATION_INCOMING CII on ")
             .append("CI.CONTACT_INVITATION_ID=CII.CONTACT_INVITATION_ID ")
-            .append("inner join USER UI on CII.INVITED_BY=UI.USER_ID ")
+            .append("inner join PARITY_USER UI on CII.INVITED_BY=UI.USER_ID ")
             .append("inner join EMAIL E on CII.INVITED_AS=E.EMAIL_ID ")
-            .append("inner join USER U on CI.CREATED_BY=U.USER_ID ")
+            .append("inner join PARITY_USER U on CI.CREATED_BY=U.USER_ID ")
             .toString();
 
     /** Sql to read an outgoing contact invitation. */
@@ -153,7 +153,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("inner join CONTACT_INVITATION_OUTGOING CIO on ")
             .append("CI.CONTACT_INVITATION_ID=CIO.CONTACT_INVITATION_ID ")
             .append("inner join EMAIL E on CIO.EMAIL_ID=E.EMAIL_ID ")
-            .append("inner join USER U on CI.CREATED_BY=U.USER_ID ")
+            .append("inner join PARITY_USER U on CI.CREATED_BY=U.USER_ID ")
             .append("where E.EMAIL=?")
             .toString();
    
@@ -165,7 +165,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("inner join CONTACT_INVITATION_OUTGOING CIO on ")
             .append("CI.CONTACT_INVITATION_ID=CIO.CONTACT_INVITATION_ID ")
             .append("inner join EMAIL E on CIO.EMAIL_ID=E.EMAIL_ID ")
-            .append("inner join USER U on CI.CREATED_BY=U.USER_ID ")
+            .append("inner join PARITY_USER U on CI.CREATED_BY=U.USER_ID ")
             .append("where CI.CONTACT_INVITATION_ID=?")
             .toString();
    
@@ -187,7 +187,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("inner join CONTACT_INVITATION_OUTGOING CIO on ")
             .append("CI.CONTACT_INVITATION_ID=CIO.CONTACT_INVITATION_ID ")
             .append("inner join EMAIL E on CIO.EMAIL_ID=E.EMAIL_ID ")
-            .append("inner join USER U on CI.CREATED_BY=U.USER_ID")
+            .append("inner join PARITY_USER U on CI.CREATED_BY=U.USER_ID")
             .toString();
 
     /** Sql to update a contact. */
@@ -227,14 +227,9 @@ public class ContactIOHandler extends AbstractIOHandler implements
             session.setVCard(2, contact.getVCard());
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not create contact.");
-
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -249,10 +244,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
             session.setLong(2, emailId);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("COULD NOT CREATE EMAIL");
-            session.commit();
-        } catch (final HypersonicException hx) {
-            session.rollback();
-            throw hx;
         } finally {
             session.close();
         }
@@ -275,11 +266,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
             session.setLong(3, user.getLocalId());
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not create incoming invitation.");
-
-            session.commit();
-        } catch (final HypersonicException hx) {
-            session.rollback();
-            throw hx;
         } finally {
             session.close();
         }
@@ -300,14 +286,9 @@ public class ContactIOHandler extends AbstractIOHandler implements
             session.setLong(2, emailId);
             if(1 != session.executeUpdate())
                 throw new HypersonicException("COuld not create outgoing invitation.");
-
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -320,10 +301,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
             session.setLong(1, contactId);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("COULD NOT DELETE CONTACT");
-            session.commit();
-        } catch (final HypersonicException hx) {
-            session.rollback();
-            throw hx;
         } finally {
             session.close();
         }
@@ -342,10 +319,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
             if (1 != session.executeUpdate())
                 throw new HypersonicException("COULD NOT DELETE EMAIL");
             emailIO.delete(session, emailId);
-            session.commit();
-        } catch (final HypersonicException hx) {
-            session.rollback();
-            throw hx;
         } finally {
             session.close();
         }
@@ -362,10 +335,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not deleting incoming invitation.");
             deleteInvitation(session, invitationId);
-            session.commit();
-        } catch (final HypersonicException hx) {
-            session.rollback();
-            throw hx;
         } finally {
             session.close();
         }
@@ -385,10 +354,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
                 throw new HypersonicException("Could not delete outgoing invitation.");
             deleteInvitation(session, invitationId);
             emailIO.delete(session, emailId);
-            session.commit();
-        } catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
         } finally {
             session.close();
         }
@@ -564,13 +529,9 @@ public class ContactIOHandler extends AbstractIOHandler implements
                 throw new HypersonicException("COULD NOT UPDATE CONTACT");
 
             userIO.update(session, contact);
-            session.commit();
+        } finally {
+            session.close();
         }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
     }
 
     /**
@@ -636,7 +597,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
         session.setCalendar(2, invitation.getCreatedOn());
         if(1 != session.executeUpdate())
             throw new HypersonicException("COULD NOT CREATE INVITATION");
-        invitation.setId(session.getIdentity());
+        invitation.setId(session.getIdentity("CONTACT_INVITATION"));
     }
 
     /**

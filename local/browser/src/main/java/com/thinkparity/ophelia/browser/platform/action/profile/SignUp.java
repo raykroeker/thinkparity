@@ -5,8 +5,9 @@
 package com.thinkparity.ophelia.browser.platform.action.profile;
 
 import com.thinkparity.codebase.Application;
-import com.thinkparity.codebase.http.Link;
-import com.thinkparity.codebase.http.LinkFactory;
+
+import com.thinkparity.codebase.model.util.http.Link;
+import com.thinkparity.codebase.model.util.http.LinkFactory;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.Browser;

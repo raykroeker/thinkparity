@@ -86,7 +86,7 @@ public interface ContainerIOHandler {
 
     // TODO-javadoc ContainerIOHandler#createDraftDocument
     public void createDraftDocument(final ContainerDraftDocument draftDocument,
-            final InputStream stream, final Integer buffer);
+            final InputStream stream, final Integer bufferSize);
 
     /**
      * Create a published to list for a container version.
@@ -171,6 +171,10 @@ public interface ContainerIOHandler {
      */
     public void deleteDraftArtifactRel(final Long containerId,
             final Long artifactId);
+
+    // TODO-javadoc ContainerIOHandler#deleteDraftDocument
+    public void deleteDraftDocument(final Long containerDraftId,
+            final Long documentId);
 
     // TODO-javadoc ContainerIOHandler#deleteDraftDocument
     public void deleteDraftDocuments(final Long containerDraftId);
@@ -384,7 +388,7 @@ public interface ContainerIOHandler {
             final String comment);
     // TODO-javadoc ContainerIOHandler#updateDraftDocument
     public void updateDraftDocument(final ContainerDraftDocument draftDocument,
-            final InputStream stream, final Integer buffer);
+            final InputStream stream, final Integer bufferSize);
 
     /**
      * Update a container.

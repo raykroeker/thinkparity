@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.io.db.hsqldb;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -122,17 +123,6 @@ public final class Session {
     }
 
     /**
-     * Commit the session.
-     * 
-     * @deprecated Since moving to the transaction manager api the individual
-     *             session commit api is no longer needed.
-     */
-    @Deprecated
-    public void commit() {
-        LOGGER.logWarning("Commit for session {0} no longer supported.", getId());
-    }
-
-    /**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 * 
 	 */
@@ -154,9 +144,7 @@ public final class Session {
         try {
             final Statement s = connection.createStatement();
             s.execute(sql);
-            commit();
         } catch (final SQLException sqlx) {
-            rollback();
             throw panic(sqlx);
         }
     }
@@ -213,6 +201,25 @@ public final class Session {
         }
     }
 
+    /**
+     * Obtain the blob input stream from the result.
+     * 
+     * @param columnName
+     *            A column name <code>String</code>.
+     * @return An <code>InputStream</code>.
+     */
+    public Blob getActualBlob(final String columnName) {
+        assertConnectionIsOpen();
+        assertResultSetIsSet();
+        try {
+            final Blob value = resultSet.getBlob(columnName);
+            logColumnExtraction(columnName, value);
+            return resultSet.wasNull() ? null : value;
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
+
     public AuditEventType getAuditEventTypeFromInteger(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
@@ -224,6 +231,25 @@ public final class Session {
             throw new HypersonicException(sqlx);
 		}
 	}
+
+    /**
+     * Obtain the blob input stream from the result.
+     * 
+     * @param columnName
+     *            A column name <code>String</code>.
+     * @return An <code>InputStream</code>.
+     */
+    public InputStream getBlob(final String columnName) {
+        assertConnectionIsOpen();
+        assertResultSetIsSet();
+        try {
+            final Blob value = resultSet.getBlob(columnName);
+            logColumnExtraction(columnName, value);
+            return resultSet.wasNull() ? null : value.getBinaryStream();
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
 
     public Boolean getBoolean(final String columnName) {
         assertConnectionIsOpen();
@@ -248,7 +274,7 @@ public final class Session {
 		}
 	}
 
-    public Calendar getCalendar(final String columnName) {
+	public Calendar getCalendar(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -269,7 +295,7 @@ public final class Session {
 		}
 	}
 
-	public ContainerDraft.ArtifactState getContainerStateFromString(
+    public ContainerDraft.ArtifactState getContainerStateFromString(
             final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
@@ -282,7 +308,7 @@ public final class Session {
         }
     }
 
-    public EMail getEMail(final String columnName) {
+	public EMail getEMail(final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
         try {
@@ -301,7 +327,7 @@ public final class Session {
         }
     }
 
-	public ArtifactFlag getFlagFromInteger(final String columnName) {
+    public ArtifactFlag getFlagFromInteger(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -313,6 +339,7 @@ public final class Session {
 		}
 	}
 
+    
     public ArtifactFlag getFlagFromString(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
@@ -325,7 +352,6 @@ public final class Session {
 		}
 	}
 
-    
     /**
 	 * Obtain the session id.
 	 * 
@@ -338,9 +364,11 @@ public final class Session {
      * 
      * @return The identity value.
      */
-    public Long getIdentity() {
+    public Long getIdentity(final String table) {
         assertConnectionIsOpen();
-        final String sql = "CALL IDENTITY()";
+        final String sql = new StringBuffer("select IDENTITY_VAL_LOCAL() from ")
+            .append(table)
+            .toString();
         logStatement(sql);
         ResultSet resultSet = null;
         Statement statement = null;
@@ -367,17 +395,17 @@ public final class Session {
      * @return An input stream.
      * @see ResultSet#getBinaryStream(String)
      */
-    public InputStream getInputStream(final String columnName) {
-        assertConnectionIsOpen();
-        assertResultSetIsSet();
-        try {
-            final InputStream value = resultSet.getBinaryStream(columnName);
-            logColumnExtraction(columnName, value);
-            return resultSet.wasNull() ? null : value;
-        } catch (final SQLException sqlx) {
-            throw new HypersonicException(sqlx);
-        }
-    }
+//    public InputStream getInputStream(final String columnName) {
+//        assertConnectionIsOpen();
+//        assertResultSetIsSet();
+//        try {
+//            final InputStream value = resultSet.getBinaryStream(columnName);
+//            logColumnExtraction(columnName, value);
+//            return resultSet.wasNull() ? null : value;
+//        } catch (final SQLException sqlx) {
+//            throw new HypersonicException(sqlx);
+//        }
+//    }
 
     public Integer getInteger(final String columnName) {
         assertConnectionIsOpen();
@@ -406,9 +434,8 @@ public final class Session {
     public void getMetaDataTables() {
         assertConnectionIsOpen();
         assertMetaDataIsSet();
-        logStatement("select TABLE_NAME from PUBLIC.TABLES");
         try {
-            resultSet = metaData.getTables(null, "PUBLIC", null, new String[] {"TABLE"});
+            resultSet = metaData.getTables(null, "SA", null, new String[] {"TABLE"});
         } catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
         }
@@ -596,16 +623,29 @@ public final class Session {
 		}
 	}
 
-	/**
-     * @deprecated Since moving to the transaction manager api the individual
-     *             session commit api is no longer needed.
+    /**
+     * Set a blob column value.
+     * 
+     * @param index
+     *            The column index.
+     * @param value
+     *            The column value.
+     * @param bufferSize
+     *            The size of the buffer to use when writing the value.
      */
-    @Deprecated
-	public void rollback() {
-        LOGGER.logWarning("Rollback for session {0} no longer supported.", getId());
-	}
+    public void setBinaryStream(final Integer index, final InputStream value,
+            final Long length, final Integer bufferSize) {
+        assertConnectionIsOpen();
+        assertPreparedStatementIsSet();
+        logColumnInjection(index, value);
+        try {
+            preparedStatement.setBinaryStream(index, value, length.intValue());
+        } catch (final SQLException sqlx) {
+            throw panic(sqlx);
+        }
+    }
 
-	public void setBoolean(final Integer index, final Boolean value) {
+    public void setBoolean(final Integer index, final Boolean value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -616,7 +656,7 @@ public final class Session {
         }
     }
 
-    public void setBytes(final Integer index, final byte[] value) {
+	public void setBytes(final Integer index, final byte[] value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -627,7 +667,7 @@ public final class Session {
 		}
 	}
 
-	public void setCalendar(final Integer index, final Calendar value) {
+    public void setCalendar(final Integer index, final Calendar value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -652,7 +692,7 @@ public final class Session {
         }
     }
 
-    public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
+	public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -696,7 +736,7 @@ public final class Session {
 		}
 	}
 
-	public void setLong(final Integer index, final Long value) {
+    public void setLong(final Integer index, final Long value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -707,7 +747,7 @@ public final class Session {
 		}
 	}
 
-    public void setMetaDataAsString(final Integer index, final MetaData value) {
+	public void setMetaDataAsString(final Integer index, final MetaData value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -729,7 +769,7 @@ public final class Session {
 		}
 	}
 
-	public void setStateAsInteger(final Integer index, final ArtifactState value) {
+    public void setStateAsInteger(final Integer index, final ArtifactState value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -762,17 +802,17 @@ public final class Session {
         }
     }
 
-    public void setStream(final Integer index, final InputStream value,
-            final Integer valueLength) {
-        assertConnectionIsOpen();
-        assertPreparedStatementIsSet();
-        logColumnInjection(index, value, valueLength);
-        try {
-            preparedStatement.setBinaryStream(index, value, valueLength);
-        } catch (final SQLException sqlx) {
-            throw new HypersonicException(sqlx);
-        }
-    }
+//    public void setStream(final Integer index, final InputStream value,
+//            final Long valueLength) {
+//        assertConnectionIsOpen();
+//        assertPreparedStatementIsSet();
+//        logColumnInjection(index, value, valueLength);
+//        try {
+//            preparedStatement.setBinaryStream(index, value, valueLength.intValue());
+//        } catch (final SQLException sqlx) {
+//            throw new HypersonicException(sqlx);
+//        }
+//    }
 
 	public void setString(final Integer index, final String value) {
 		assertConnectionIsOpen();
@@ -1037,10 +1077,10 @@ public final class Session {
      * @param columnValueData
      *            The column value data <code>Object</code>.
      */
-    private void logColumnInjection(final Integer index,
-            final Object columnValue, final Object columnValueData) {
-        LOGGER.logDebug("Inject {0}:{1} - {2}", index, columnValue, columnValueData);
-    }
+//    private void logColumnInjection(final Integer index,
+//            final Object columnValue, final Object columnValueData) {
+//        LOGGER.logDebug("Inject {0}:{1} - {2}", index, columnValue, columnValueData);
+//    }
 
     /**
      * Log an sql statement.
@@ -1066,10 +1106,14 @@ public final class Session {
     /**
      * Panic. Create a hypersonic runtime exception.
      * 
-     * @param sqlx
-     *            An <code>SQLException</code>.
+     * @param t
+     *            A <code>Throwable</code>.
      */
-    private HypersonicException panic(final SQLException sqlx) {
-        return new HypersonicException(sqlx);
+    private HypersonicException panic(final Throwable t) {
+        if (HypersonicException.class.isAssignableFrom(t.getClass())) {
+            return (HypersonicException) t;
+        } else {
+            return new HypersonicException(t);
+        }
     }
 }

@@ -402,7 +402,7 @@ public abstract class FileUtil {
                 totalAmountRead += amountRead;
                 buffer.position(0);
                 buffer.limit(amountRead);
-                os.write(bytes);
+                os.write(bytes, 0, amountRead);
                 os.flush();
             }
         } finally {

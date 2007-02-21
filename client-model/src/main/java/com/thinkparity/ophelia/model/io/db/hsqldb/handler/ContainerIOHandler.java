@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
-import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -164,6 +163,12 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .toString();
 
     /** Sql to delete the draft document. */
+    private static final String SQL_DELETE_DRAFT_DOCUMENT =
+        new StringBuffer("delete from CONTAINER_DRAFT_DOCUMENT ")
+        .append("where CONTAINER_DRAFT_ID=? and DOCUMENT_ID=?")
+        .toString();
+
+    /** Sql to delete the draft document. */
     private static final String SQL_DELETE_DRAFT_DOCUMENTS =
         new StringBuffer("delete from CONTAINER_DRAFT_DOCUMENT ")
         .append("where CONTAINER_DRAFT_ID=?")
@@ -216,15 +221,15 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("CD.CONTAINER_DRAFT_USER_ID ")
             .append("from CONTAINER C ")
             .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
-            .append("inner join USER UC on A.CREATED_BY=UC.USER_ID ")
-            .append("inner join USER UU on A.UPDATED_BY=UU.USER_ID ")
+            .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
+            .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
             .append("left join CONTAINER_DRAFT CD on C.CONTAINER_ID=CD.CONTAINER_DRAFT_ID ")
             .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID")
             .toString();
 
     /** Sql to read the artifact delta count. */
     private static final String SQL_READ_ARTIFACT_DELTA_COUNT =
-        new StringBuffer("select COUNT(CONTAINER_VERSION_DELTA_ID) as \"COUNT\" ")
+        new StringBuffer("select COUNT(CVD.CONTAINER_VERSION_DELTA_ID) as \"COUNT\" ")
         .append("from CONTAINER_VERSION_DELTA CVD ")
         .append("inner join CONTAINER_VERSION_ARTIFACT_VERSION_DELTA CVAVD ")
         .append("on CVD.CONTAINER_VERSION_DELTA_ID=CVAVD.CONTAINER_VERSION_DELTA_ID ")
@@ -296,8 +301,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("and CVAVR.ARTIFACT_VERSION_ID=DV.DOCUMENT_VERSION_ID ")
             .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID=AV.ARTIFACT_ID ")
             .append("and DV.DOCUMENT_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
-            .append("inner join USER UC on AV.CREATED_BY=UC.USER_ID ")
-            .append("inner join USER UU on AV.UPDATED_BY=UU.USER_ID ")
+            .append("inner join PARITY_USER UC on AV.CREATED_BY=UC.USER_ID ")
+            .append("inner join PARITY_USER UU on AV.UPDATED_BY=UU.USER_ID ")
             .append("where CVAVR.CONTAINER_ID=? and CVAVR.CONTAINER_VERSION_ID=?")
             .toString();
 
@@ -311,8 +316,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
             .append("from CONTAINER_VERSION_ARTIFACT_VERSION_REL CVAVR ")
             .append("inner join ARTIFACT A on CVAVR.ARTIFACT_ID=A.ARTIFACT_ID ")
-            .append("inner join USER UC on A.CREATED_BY=UC.USER_ID ")
-            .append("inner join USER UU on A.UPDATED_BY=UU.USER_ID ")
+            .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
+            .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
             .append("inner join DOCUMENT D on A.ARTIFACT_ID=D.DOCUMENT_ID ")
             .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
             .append("where CVAVR.CONTAINER_ID=? and CVAVR.CONTAINER_VERSION_ID=?")
@@ -322,7 +327,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_DRAFT =
             new StringBuffer("select ATR.ARTIFACT_ID,ATR.USER_ID,")
             .append("U.JABBER_ID,U.NAME,U.ORGANIZATION,CD.CONTAINER_DRAFT_ID ")
-            .append("from ARTIFACT_TEAM_REL ATR inner join USER U on ATR.USER_ID=U.USER_ID ")
+            .append("from ARTIFACT_TEAM_REL ATR inner join PARITY_USER U on ATR.USER_ID=U.USER_ID ")
             .append("inner join CONTAINER_DRAFT CD on ATR.ARTIFACT_ID=CD.CONTAINER_DRAFT_ID ")
             .append("and CD.CONTAINER_DRAFT_USER_ID=ATR.USER_ID ")
             .append("where CD.CONTAINER_DRAFT_ID=?")
@@ -354,8 +359,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("CDAVR.ARTIFACT_STATE DRAFT_ARTIFACT_STATE ")
         .append("from CONTAINER_DRAFT_ARTIFACT_REL CDAVR ")
         .append("inner join ARTIFACT A on CDAVR.ARTIFACT_ID=A.ARTIFACT_ID ")
-        .append("inner join USER UC on A.CREATED_BY=UC.USER_ID ")
-        .append("inner join USER UU on A.UPDATED_BY=UU.USER_ID ")
+        .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
+        .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
         .append("inner join DOCUMENT D on A.ARTIFACT_ID=D.DOCUMENT_ID ")
         .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
         .append("where CDAVR.CONTAINER_DRAFT_ID=?")
@@ -373,7 +378,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
             .append("inner join CONTAINER_VERSION_PUBLISHED_TO CVPT on CV.CONTAINER_ID=CVPT.CONTAINER_ID ")
             .append("and CV.CONTAINER_VERSION_ID=CVPT.CONTAINER_VERSION_ID ")
-            .append("inner join USER U on CVPT.USER_ID=U.USER_ID ")
+            .append("inner join PARITY_USER U on CVPT.USER_ID=U.USER_ID ")
             .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=?")
             .toString();
 
@@ -389,7 +394,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
             .append("inner join CONTAINER_VERSION_PUBLISHED_TO CVPT on CV.CONTAINER_ID=CVPT.CONTAINER_ID ")
             .append("and CV.CONTAINER_VERSION_ID=CVPT.CONTAINER_VERSION_ID ")
-            .append("inner join USER U on CVPT.USER_ID=U.USER_ID ")
+            .append("inner join PARITY_USER U on CVPT.USER_ID=U.USER_ID ")
             .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=? ")
             .append("and CVPT.PUBLISHED_ON=? and CVPT.USER_ID=?")
             .toString();
@@ -409,8 +414,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
             .append("from CONTAINER_VERSION CV ")
             .append("inner join ARTIFACT_VERSION AV on CV.CONTAINER_ID=AV.ARTIFACT_ID ")
-            .append("inner join USER UC on AV.CREATED_BY=UC.USER_ID ")
-            .append("inner join USER UU on AV.UPDATED_BY=UU.USER_ID ")
+            .append("inner join PARITY_USER UC on AV.CREATED_BY=UC.USER_ID ")
+            .append("inner join PARITY_USER UU on AV.UPDATED_BY=UU.USER_ID ")
             .append("and CV.CONTAINER_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
             .append("inner join ARTIFACT A on CV.CONTAINER_ID=A.ARTIFACT_ID ")
             .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=?")
@@ -424,8 +429,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
             .append("from CONTAINER_VERSION CV ")
             .append("inner join ARTIFACT_VERSION AV on CV.CONTAINER_ID=AV.ARTIFACT_ID ")
-            .append("inner join USER UC on AV.CREATED_BY=UC.USER_ID ")
-            .append("inner join USER UU on AV.UPDATED_BY=UU.USER_ID ")
+            .append("inner join PARITY_USER UC on AV.CREATED_BY=UC.USER_ID ")
+            .append("inner join PARITY_USER UU on AV.UPDATED_BY=UU.USER_ID ")
             .append("and CV.CONTAINER_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
             .append("inner join ARTIFACT A on CV.CONTAINER_ID=A.ARTIFACT_ID ")
             .append("where CV.CONTAINER_ID=?")
@@ -556,7 +561,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(3, versionDelta.getCompareToVersionId());
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not create delta.");
-            versionDelta.setId(session.getIdentity());
+            versionDelta.setId(session.getIdentity("CONTAINER_VERSION_DELTA"));
 
             session.prepareStatement(SQL_CREATE_ARTIFACT_DELTA);
             session.setLong(1, versionDelta.getId());
@@ -619,25 +624,22 @@ public class ContainerIOHandler extends AbstractIOHandler implements
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createDraftDocument(java.lang.Long, java.lang.Long, java.lang.Integer, java.io.InputStream, java.lang.Long, java.lang.String, java.lang.String, java.lang.String)
      *
      */
-    public void createDraftDocument(final ContainerDraftDocument draftDocument, final InputStream stream,
-            final Integer buffer) {
+    public void createDraftDocument(final ContainerDraftDocument draftDocument,
+            final InputStream stream, final Integer bufferSize) {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_CREATE_DRAFT_DOCUMENT);
             session.setLong(1, draftDocument.getContainerDraftId());
             session.setLong(2, draftDocument.getDocumentId());
-            // NOTE possible loss of precision
-            session.setStream(3, new BufferedInputStream(
-                    stream, buffer), draftDocument.getSize().intValue());
+            session.setBinaryStream(3, stream, draftDocument.getSize(), bufferSize);
             session.setLong(4, draftDocument.getSize());
             session.setString(5, draftDocument.getChecksum());
             session.setString(6, draftDocument.getChecksumAlgorithm());
             if (1 != session.executeUpdate())
-                throw new HypersonicException("Could not update draft document.");
+                throw new HypersonicException("Could not create draft document.");
         } finally {
             session.close();
         }
-        checkpoint();
     }
 
     /**
@@ -797,6 +799,25 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#deleteDraftDocument(java.lang.Long,
+     *      java.lang.Long)
+     * 
+     */
+    public void deleteDraftDocument(final Long containerDraftId,
+            final Long documentId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_DRAFT_DOCUMENT);
+            session.setLong(1, containerDraftId);
+            session.setLong(2, documentId);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not delete draft document.");
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#deleteDraftDocument(java.lang.Long, java.lang.Long)
      *
      */
@@ -885,7 +906,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(2, documentId);
             session.executeQuery();
             if (session.nextResult()) {
-                return session.getInputStream("CONTENT");
+                return session.getBlob("CONTENT");
             } else {
                 return null;
             }
@@ -1215,13 +1236,11 @@ public class ContainerIOHandler extends AbstractIOHandler implements
      * 
      */
     public void updateDraftDocument(final ContainerDraftDocument draftDocument,
-            final InputStream stream, final Integer buffer) {
+            final InputStream stream, final Integer bufferSize) {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_UPDATE_DRAFT_DOCUMENT);
-            // NOTE possible loss of precision
-            session.setStream(1, new BufferedInputStream(
-                    stream, buffer), draftDocument.getSize().intValue());
+            session.setBinaryStream(1, stream, draftDocument.getSize(), bufferSize);
             session.setLong(2, draftDocument.getSize());
             session.setString(3, draftDocument.getChecksum());
             session.setLong(4, draftDocument.getContainerDraftId());
@@ -1231,7 +1250,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         } finally {
             session.close();
         }
-        checkpoint();
     }
 
     /**

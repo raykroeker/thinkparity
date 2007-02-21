@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
-import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,7 +35,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
         new StringBuffer("insert into DOCUMENT_VERSION ")
 		.append("(DOCUMENT_ID,DOCUMENT_VERSION_ID,CONTENT,CONTENT_SIZE,")
         .append("CONTENT_CHECKSUM,CHECKSUM_ALGORITHM) ")
-		.append("values (?,?,?,?,?,?);")
+		.append("values (?,?,?,?,?,?)")
 		.toString();
 
     private static final String SQL_DELETE =
@@ -57,8 +56,8 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
 		.append("from DOCUMENT D ")
         .append("inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
-        .append("inner join USER UC on A.CREATED_BY=UC.USER_ID ")
-        .append("inner join USER UU on A.UPDATED_BY=UU.USER_ID ")
+        .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
+        .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
         .append("left join ARTIFACT_REMOTE_INFO ARI ")
 		.append("on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
 		.append("where A.ARTIFACT_ID=?")
@@ -72,8 +71,8 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
 		.append("from DOCUMENT D ")
         .append("inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
-        .append("inner join USER UC on A.CREATED_BY=UC.USER_ID ")
-        .append("inner join USER UU on A.UPDATED_BY=UU.USER_ID ")
+        .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
+        .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
         .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
 		.append("where A.ARTIFACT_UNIQUE_ID=?")
 		.toString();
@@ -87,8 +86,8 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("from DOCUMENT_VERSION DV ")
         .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID = AV.ARTIFACT_ID ")
         .append("and DV.DOCUMENT_VERSION_ID = AV.ARTIFACT_VERSION_ID ")
-        .append("inner join USER UC on AV.CREATED_BY=UC.USER_ID ")
-        .append("inner join USER UU on AV.UPDATED_BY=UU.USER_ID ")
+        .append("inner join PARITY_USER UC on AV.CREATED_BY=UC.USER_ID ")
+        .append("inner join PARITY_USER UU on AV.UPDATED_BY=UU.USER_ID ")
 		.append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
 		.toString();
 
@@ -100,8 +99,8 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
 		.append("from DOCUMENT D ")
         .append("inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
-        .append("inner join USER UC on A.CREATED_BY=UC.USER_ID ")
-        .append("inner join USER UU on A.UPDATED_BY=UU.USER_ID ")
+        .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
+        .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
         .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
 		.append("order by A.ARTIFACT_ID asc")
 		.toString();
@@ -114,8 +113,8 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("from DOCUMENT_VERSION DV ")
         .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID=AV.ARTIFACT_ID ")
         .append("and DV.DOCUMENT_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
-        .append("inner join USER UC on AV.CREATED_BY=UC.USER_ID ")
-        .append("inner join USER UU on AV.UPDATED_BY=UU.USER_ID ")
+        .append("inner join PARITY_USER UC on AV.CREATED_BY=UC.USER_ID ")
+        .append("inner join PARITY_USER UU on AV.UPDATED_BY=UU.USER_ID ")
 		.append("where DV.DOCUMENT_ID=? ")
 		.append("order by DV.DOCUMENT_VERSION_ID asc")
 		.toString();
@@ -180,7 +179,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
      * 
      */
 	public void createVersion(final DocumentVersion version,
-            final InputStream content, final Integer buffer) {
+            final InputStream content, final Integer bufferSize) {
 		final Session session = openSession();
 		try {
 			artifactIO.createVersion(session, version);
@@ -188,8 +187,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			session.prepareStatement(SQL_CREATE_VERSION);
 			session.setLong(1, version.getArtifactId());
 			session.setLong(2, version.getVersionId());
-            // NOTE Possible loss of precision here
-            session.setStream(3, new BufferedInputStream(content, buffer), version.getSize().intValue());
+            session.setBinaryStream(3, content, version.getSize(), bufferSize);
             session.setLong(4, version.getSize());
 			session.setString(5, version.getChecksum());
 			session.setString(6, version.getChecksumAlgorithm());
@@ -200,7 +198,6 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		} finally {
             session.close();
 		}
-		checkpoint();
 	}
 
 	/**
@@ -354,10 +351,15 @@ public class DocumentIOHandler extends AbstractIOHandler implements
             session.setLong(1, documentId);
             session.setLong(2, versionId);
             session.executeQuery();
-            if(session.nextResult()) { return session.getInputStream("CONTENT"); }
-            else { return null; }
+            if (session.nextResult()) {
+                return session.getBlob("CONTENT");
+            }
+            else {
+                return null;
+            }
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
 	/**

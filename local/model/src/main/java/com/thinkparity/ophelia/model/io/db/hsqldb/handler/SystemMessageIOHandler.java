@@ -99,7 +99,7 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 		.append("from SYSTEM_MESSAGE SM inner join SYSTEM_MESSAGE_META_DATA SMMD ")
 		.append("on SM.SYSTEM_MESSAGE_ID = SMMD.SYSTEM_MESSAGE_ID ")
 		.append("inner join META_DATA MD on SMMD.META_DATA_ID = MD.META_DATA_ID ")
-		.append("where MD.KEY=? and MD.VALUE=?")
+		.append("where MD.META_DATA_KEY=? and MD.META_DATA_VALUE=?")
 		.toString();
 
 	/**
@@ -113,7 +113,7 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 		.append("on SM.SYSTEM_MESSAGE_ID = SMMD.SYSTEM_MESSAGE_ID ")
 		.append("inner join META_DATA MD on SMMD.META_DATA_ID = MD.META_DATA_ID ")
 		.append("where SM.SYSTEM_MESSAGE_TYPE_ID=? ")
-		.append("and (MD.KEY=? and MD.VALUE=?)")
+		.append("and (MD.META_DATA_KEY=? and MD.META_DATA_VALUE=?)")
 		.toString();
 
 	/**
@@ -121,12 +121,12 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 	 * 
 	 */
 	private static final String SQL_READ_META_DATA =
-		new StringBuffer("select MD.META_DATA_ID,MD.META_DATA_TYPE_ID,MD.KEY,")
-		.append("MD.VALUE ")
+		new StringBuffer("select MD.META_DATA_ID,MD.META_DATA_TYPE_ID,MD.META_DATA_KEY,")
+		.append("MD.META_DATA_VALUE ")
 		.append("from SYSTEM_MESSAGE SM inner join SYSTEM_MESSAGE_META_DATA SMMD ")
 		.append("on SM.SYSTEM_MESSAGE_ID = SMMD.SYSTEM_MESSAGE_ID ")
 		.append("inner join META_DATA MD on SMMD.META_DATA_ID = MD.META_DATA_ID ")
-		.append("where SM.SYSTEM_MESSAGE_ID=? and MD.KEY=?")
+		.append("where SM.SYSTEM_MESSAGE_ID=? and MD.META_DATA_KEY=?")
 		.toString();
 
 	private static final String SQL_READ_META_DATA_IDS_BY_MESSAGE_ID =
@@ -162,15 +162,9 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 			createMetaData(session, contactInvitation,
 					MetaDataType.JABBER_ID, MetaDataKey.INVITED_BY,
 					contactInvitation.getInvitedBy());
-
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
-		
 	}
 
 	public void create(
@@ -187,15 +181,9 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 			createMetaData(session, contactInvitationResponse,
 					MetaDataType.BOOLEAN, MetaDataKey.DID_ACCEPT_REQUEST,
 					contactInvitationResponse.didAcceptInvitation());
-
-			session.commit();
-		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
-		
+		} finally {
+            session.close();
+        }
 	}
 
 	/**
@@ -214,14 +202,9 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 			createMetaData(session, keyRequestMessage, MetaDataType.JABBER_ID,
 					MetaDataKey.REQUESTED_BY,
 					keyRequestMessage.getRequestedBy());
-
-			session.commit();
-		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
+		} finally {
+            session.close();
+        }
 	}
 
 	/**
@@ -243,14 +226,9 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 			createMetaData(session, keyResponseMessage, MetaDataType.BOOLEAN,
 					MetaDataKey.DID_ACCEPT_REQUEST,
 					keyResponseMessage.didAcceptRequest());
-
-			session.commit();
-		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
+		} finally {
+            session.close();
+        }
 	}
 
 	/**
@@ -276,14 +254,9 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 			session.setLong(1, messageId);
 			if(1 != session.executeUpdate())
 				throw new HypersonicException("Could not delete message.");
-
-			session.commit();
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -296,14 +269,13 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 			session.prepareStatement(SQL_READ);
 			session.executeQuery();
 			final List<SystemMessage> messages = new LinkedList<SystemMessage>();
-			while(session.nextResult()) { messages.add(extract(session)); }
+			while (session.nextResult()) {
+                messages.add(extract(session));
+			}
 			return messages;
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();;
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -316,14 +288,14 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 			session.prepareStatement(SQL_READ_BY_MESSAGE_ID);
 			session.setLong(1, messageId);
 			session.executeQuery();
-			if(session.nextResult()) { return extract(session); }
-			else { return null; }
+			if (session.nextResult()) {
+                return extract(session);
+			} else {
+                return null;
+			}
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	/**
@@ -338,14 +310,14 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 			session.setTypeAsString(1, MetaDataKey.INVITED_BY);
 			session.setQualifiedUsername(2, invitedBy);
 			session.executeQuery();
-			if(session.nextResult()) { return extractInvitation(session); }
-			else { return null; }
+			if (session.nextResult()) {
+                return extractInvitation(session);
+            } else {
+                return null;
+            }
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	public ContactInvitationResponseMessage readContactInvitationResponse(
@@ -356,14 +328,14 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 			session.setTypeAsString(1, MetaDataKey.RESPONSE_FROM);
 			session.setQualifiedUsername(2, responseBy);
 			session.executeQuery();
-			if(session.nextResult()) { return extractInvitationResponse(session); }
-			else { return null; }
-		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
+			if (session.nextResult()) {
+                return extractInvitationResponse(session);
+            } else {
+                return null;
+            }
+		} finally {
+            session.close();
+        }
 	}
 
 	public List<SystemMessage> readForArtifact(final Long artifactId)
@@ -375,14 +347,13 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 			session.setLong(2, artifactId);
 			session.executeQuery();
 			final List<SystemMessage> messages = new LinkedList<SystemMessage>();
-			while(session.nextResult()) { messages.add(extract(session)); }
+			while (session.nextResult()) {
+                messages.add(extract(session));
+            }
 			return messages;
-		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
+		} finally {
+            session.close();
+        }
 	}
 
 	public List<SystemMessage> readForArtifact(final Long artifactId,
@@ -399,12 +370,9 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 				messages.add(extract(session));
 			}
 			return messages;
+		} finally {
+            session.close();
 		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
 	}
 
 	private void create(final Session session, final SystemMessage systemMessage)
@@ -414,7 +382,7 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 		if(1 != session.executeUpdate())
 			throw new HypersonicException("Could not create system message.");
 
-		systemMessage.setId(session.getIdentity());
+		systemMessage.setId(session.getIdentity("SYSTEM_MESSAGE"));
 	}
 
 	private void createMetaData(final Session session,
@@ -555,12 +523,9 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 				metaData.add(extractMetaData(session, metaDataIO));
 			}
 			return metaData.toArray(new MetaData[] {});
-		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
+		} finally {
+            session.close();
+        }
 	}
 
 	private Long[] readMetaDataIds(final Session session, final Long messageId)

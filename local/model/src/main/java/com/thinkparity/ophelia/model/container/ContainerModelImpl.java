@@ -1689,12 +1689,14 @@ public final class ContainerModelImpl extends
                 containerIO.deleteDraftArtifactRel(containerId, document.getId());
                 switch (draft.getState(document.getId())) {
                 case ADDED:     // delete the document
+                    containerIO.deleteDraftDocument(containerId, document.getId());
                     getDocumentModel().delete(lock, versionLocks, document.getId());
                     break;
                 case MODIFIED:  // fall through
                 case NONE:
                     containerIO.createDraftArtifactRel(
                             containerId, document.getId(), ContainerDraft.ArtifactState.REMOVED);
+                    containerIO.deleteDraftDocument(containerId, document.getId());
                     getDocumentModel().remove(lock, document.getId());
                     break;
                 case REMOVED:   // fall through

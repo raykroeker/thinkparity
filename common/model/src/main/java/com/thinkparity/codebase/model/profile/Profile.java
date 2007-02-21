@@ -3,6 +3,9 @@
  */
 package com.thinkparity.codebase.model.profile;
 
+import java.util.Locale;
+import java.util.TimeZone;
+
 import com.thinkparity.codebase.model.user.User;
 
 /**
@@ -34,8 +37,7 @@ public class Profile extends User {
      * @return An address <code>String</code>.
      */
     public String getAddress() {
-        // TODO Get address
-        return "";
+        return vcard.getAddress();
     }
 
     /**
@@ -54,6 +56,24 @@ public class Profile extends User {
      */
     public String getCountry() {
         return vcard.getCountry();
+    }
+
+    /**
+     * Obtain the user's language preference.
+     * 
+     * @return A language <code>String</code>.
+     */
+    public String getLanguage() {
+        return vcard.getLanguage();
+    }
+
+    /**
+     * Obtain the locale.
+     *
+     * @return A <code>Locale</code>.
+     */
+    public Locale getLocale() {
+        return new Locale(getCountry(), getLanguage());
     }
 
     /**
@@ -80,8 +100,7 @@ public class Profile extends User {
      * @return A postal code <code>String</code>.
      */
     public String getPostalCode() {
-        // TODO Get postal code
-        return "";
+        return vcard.getPostalCode();
     }
 
     /**
@@ -90,8 +109,17 @@ public class Profile extends User {
      * @return A province <code>String</code>.
      */
     public String getProvince() {
-        // TODO Get province
-        return "";
+        return vcard.getProvince();
+    }
+
+    /**
+     * Obtain timeZone.
+     *
+     * @return A TimeZone.
+     */
+    public TimeZone getTimeZone() {
+        final TimeZone timeZone = TimeZone.getTimeZone(vcard.getTimeZone());
+        return timeZone;
     }
 
     /**
@@ -119,7 +147,7 @@ public class Profile extends User {
      *            The address <code>String</code>.
      */
     public void setAddress(final String address) {
-        // TODO Set address
+        vcard.setAddress(address);
     }
 
     /**
@@ -131,7 +159,7 @@ public class Profile extends User {
     public void setCity(final String city) {
         vcard.setCity(city);
     }
-
+   
     /**
      * Set the country.
      * 
@@ -141,7 +169,28 @@ public class Profile extends User {
     public void setCountry(final String country) {
         vcard.setCountry(country);
     }
-   
+
+    /**
+     * Set locale.
+     *
+     * @param locale
+     *		A Locale.
+     */
+    public void setLanguage(final String language) {
+        vcard.setLanguage(language);
+    }
+
+    /**
+     * Set the locale.
+     * 
+     * @param locale
+     *            A <code>Locale</code>.
+     */
+    public void setLocale(final Locale locale) {
+        setCountry(locale.getISO3Country());
+        setLanguage(locale.getISO3Language());
+    }
+
     /**
      * Set mobile phone.
      * 
@@ -194,6 +243,16 @@ public class Profile extends User {
     }
 
     /**
+     * Set the organization country.
+     * 
+     * @param organizationCountry
+     *            The organization country.
+     */
+    public void setOrganizationCountry(final String organizationCountry) {
+        vcard.setOrganizationCountry(organizationCountry);
+    }
+
+    /**
      * Set phone.
      *
      * @param phone
@@ -210,7 +269,7 @@ public class Profile extends User {
      *            A postal code <code>String</code>.
      */
     public void setPostalCode(final String postalCode) {
-        // TODO Set postal code
+        vcard.setPostalCode(postalCode);
     }
 
     /**
@@ -220,7 +279,17 @@ public class Profile extends User {
      *            A province <code>String</code>.
      */
     public void setProvince(final String province) {
-        // TODO Set province
+        vcard.setProvince(province);
+    }
+
+    /**
+     * Set timeZone.
+     *
+     * @param timeZone
+     *		A TimeZone.
+     */
+    public void setTimeZone(final TimeZone timeZone) {
+        vcard.setTimeZone(timeZone.getID());
     }
 
     /**

@@ -33,7 +33,7 @@ public class User {
     /** The local user pk. */
     private Long localId;
 
-	/** The user's name. */
+    /** The user's name. */
 	private String name;
 
 	/** The user's organization. */
@@ -71,7 +71,7 @@ public class User {
         return localId;
     }
 
-    /**
+	/**
 	 * Obtain the user's name.
 	 * 
 	 * @return The user's name.
@@ -98,7 +98,7 @@ public class User {
         return id.getUsername();
 	}
 
-	/**
+    /**
      * Obtain the title
      *
      * @return The String.
@@ -107,7 +107,7 @@ public class User {
         return title;
     }
 
-	/**
+    /**
 	 * Obtain the username of the user.
 	 * 
 	 * @return The username of the user.
@@ -121,24 +121,6 @@ public class User {
      */
     @Override
 	public int hashCode() { return id.hashCode(); }
-
-    /**
-     * Determine if the organiation is set.
-     * 
-     * @return True if the organization is set.
-     */
-    public Boolean isSetOrganization() {
-        return null != organization;
-    }
-
-    /**
-     * Determine if the user's title is set.
-     * 
-     * @return True if the title is set; false otherwise.
-     */
-    public Boolean isSetTitle() {
-        return null != title;
-    }
 
     /**
 	 * Set the user's id.

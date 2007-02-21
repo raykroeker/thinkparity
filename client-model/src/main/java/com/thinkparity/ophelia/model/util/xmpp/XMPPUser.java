@@ -39,12 +39,8 @@ final class XMPPUser extends AbstractXMPP<UserListener> {
         final User user = new User();
         user.setId(response.readResultJabberId("id"));
         user.setName(response.readResultString("name"));
-        final String organization = response.readResultString("organization");
-        if (null != organization)
-            user.setOrganization(organization);
-        final String title = response.readResultString("title");
-        if (null != title)
-            user.setTitle(title);
+        user.setOrganization(response.readResultString("organization"));
+        user.setTitle(response.readResultString("title"));
         return user;
     }
 

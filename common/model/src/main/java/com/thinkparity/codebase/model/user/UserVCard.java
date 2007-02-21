@@ -14,10 +14,14 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  */
 @XStreamAlias("v-card")
 public abstract class UserVCard {
-    
+
+    private String address;
+
     private String city;
 
     private String country;
+
+    private String language;
 
     private String mobilePhone;
 
@@ -25,7 +29,25 @@ public abstract class UserVCard {
 
     private String organization;
 
+    private String organizationCity;
+
+    private String organizationCountry;
+
+    private String organizationPhone;
+
+    private String organizationPostalCode;
+
+    private String organizationProvince;
+
+    private String organziationAddress;
+
     private String phone;
+
+    private String postalCode;
+
+    private String province;
+
+    private String timeZone;
 
     private String title;
 
@@ -35,6 +57,15 @@ public abstract class UserVCard {
      */
     protected UserVCard() {
         super();
+    }
+
+    /**
+     * Obtain address.
+     *
+     * @return A String.
+     */
+    public String getAddress() {
+        return address;
     }
 
     /**
@@ -53,6 +84,15 @@ public abstract class UserVCard {
      */
     public String getCountry() {
         return country;
+    }
+
+    /**
+     * Obtain language.
+     *
+     * @return A String.
+     */
+    public String getLanguage() {
+        return language;
     }
 
     /**
@@ -83,12 +123,93 @@ public abstract class UserVCard {
     }
 
     /**
+     * Obtain organizationCity.
+     *
+     * @return A String.
+     */
+    public String getOrganizationCity() {
+        return organizationCity;
+    }
+
+    /**
+     * Obtain organizationCountry.
+     *
+     * @return A String.
+     */
+    public String getOrganizationCountry() {
+        return organizationCountry;
+    }
+
+    /**
+     * Obtain organizationPhone.
+     *
+     * @return A String.
+     */
+    public String getOrganizationPhone() {
+        return organizationPhone;
+    }
+
+    /**
+     * Obtain organizationPostalCode.
+     *
+     * @return A String.
+     */
+    public String getOrganizationPostalCode() {
+        return organizationPostalCode;
+    }
+
+    /**
+     * Obtain organizationProvince.
+     *
+     * @return A String.
+     */
+    public String getOrganizationProvince() {
+        return organizationProvince;
+    }
+
+    /**
+     * Obtain organziationAddress.
+     *
+     * @return A String.
+     */
+    public String getOrganziationAddress() {
+        return organziationAddress;
+    }
+
+    /**
      * Obtain the phone number.
      * 
      * @return The phone number <code>String</code>.
      */
     public String getPhone() {
         return phone;
+    }
+
+    /**
+     * Obtain postalCode.
+     *
+     * @return A String.
+     */
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    /**
+     * Obtain province.
+     *
+     * @return A String.
+     */
+    public String getProvince() {
+        return province;
+    }
+
+    /**
+     * Obtain timeZone.
+     *
+     * @return A String.
+     */
+    public String getTimeZone() {
+        return timeZone;
     }
 
     /**
@@ -110,15 +231,6 @@ public abstract class UserVCard {
     }
 
     /**
-     * Determine if the country is set.
-     * 
-     * @return True if the country is set.
-     */
-    public Boolean isSetCountry() {
-        return isSet(country);
-    }
-
-    /**
      * Determine if the mobile phone is set.
      * 
      * @return True if the mobile phone is set.
@@ -128,12 +240,39 @@ public abstract class UserVCard {
     }
 
     /**
-     * Determine if the organization is set.
+     * Determine if the city is set.
      * 
-     * @return True if the organization is set.
-     */    
-    public Boolean isSetOrganization() {
-        return isSet(organization);
+     * @return True if the city is set.
+     */
+    public Boolean isSetOrganizationCity() {
+        return isSet(organizationCity);
+    }
+
+    /**
+     * Determine if the city is set.
+     * 
+     * @return True if the city is set.
+     */
+    public Boolean isSetOrganizationCountry() {
+        return isSet(organizationCountry);
+    }
+
+    /**
+     * Determine if the city is set.
+     * 
+     * @return True if the city is set.
+     */
+    public Boolean isSetOrganizationPostalCode() {
+        return isSet(organizationPostalCode);
+    }
+
+    /**
+     * Determine if the city is set.
+     * 
+     * @return True if the city is set.
+     */
+    public Boolean isSetOrganizationProvince() {
+        return isSet(organizationProvince);
     }
 
     /**
@@ -146,12 +285,13 @@ public abstract class UserVCard {
     }
 
     /**
-     * Determine if the title is set.
-     * 
-     * @return True if the title is set.
-     */    
-    public Boolean isSetTitle() {
-        return isSet(title);
+     * Set address.
+     *
+     * @param address
+     *		A String.
+     */
+    public void setAddress(final String address) {
+        this.address = address;
     }
 
     /**
@@ -172,6 +312,16 @@ public abstract class UserVCard {
      */
     public void setCountry(final String country) {
         this.country = country;
+    }
+
+    /**
+     * Set language.
+     *
+     * @param language
+     *		A String.
+     */
+    public void setLanguage(final String language) {
+        this.language = language;
     }
 
     /**
@@ -209,6 +359,66 @@ public abstract class UserVCard {
     }
 
     /**
+     * Set organizationCity.
+     *
+     * @param organizationCity
+     *		A String.
+     */
+    public void setOrganizationCity(final String organizationCity) {
+        this.organizationCity = organizationCity;
+    }
+
+    /**
+     * Set organizationCountry.
+     *
+     * @param organizationCountry
+     *		A String.
+     */
+    public void setOrganizationCountry(final String organizationCountry) {
+        this.organizationCountry = organizationCountry;
+    }
+
+    /**
+     * Set organizationPhone.
+     *
+     * @param organizationPhone
+     *		A String.
+     */
+    public void setOrganizationPhone(final String organizationPhone) {
+        this.organizationPhone = organizationPhone;
+    }
+
+    /**
+     * Set organizationPostalCode.
+     *
+     * @param organizationPostalCode
+     *		A String.
+     */
+    public void setOrganizationPostalCode(final String organizationPostalCode) {
+        this.organizationPostalCode = organizationPostalCode;
+    }
+
+    /**
+     * Set organizationProvince.
+     *
+     * @param organizationProvince
+     *		A String.
+     */
+    public void setOrganizationProvince(final String organizationProvince) {
+        this.organizationProvince = organizationProvince;
+    }
+
+    /**
+     * Set organziationAddress.
+     *
+     * @param organziationAddress
+     *		A String.
+     */
+    public void setOrganziationAddress(final String organziationAddress) {
+        this.organziationAddress = organziationAddress;
+    }
+
+    /**
      * Set phone.
      *
      * @param phone
@@ -216,6 +426,36 @@ public abstract class UserVCard {
      */
     public void setPhone(final String phone) {
         this.phone = phone;
+    }
+
+    /**
+     * Set postalCode.
+     *
+     * @param postalCode
+     *		A String.
+     */
+    public void setPostalCode(final String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    /**
+     * Set province.
+     *
+     * @param province
+     *		A String.
+     */
+    public void setProvince(final String province) {
+        this.province = province;
+    }
+
+    /**
+     * Set timeZone.
+     *
+     * @param timeZone
+     *		A String.
+     */
+    public void setTimeZone(final String timeZone) {
+        this.timeZone = timeZone;
     }
 
     /**

@@ -7,14 +7,15 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.apache.lucene.document.DateTools;
-import org.apache.lucene.document.Field;
-
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
+
+import org.apache.lucene.document.DateTools;
+import org.apache.lucene.document.Field;
 
 
 /**
@@ -254,12 +255,8 @@ public class FieldBuilder {
             if(0 < buffer.length()) { buffer.append(Separator.Comma); }
             buffer.append(nameTokenizer.nextToken());
         }
-		if (user.isSetOrganization()) {
-			buffer.append(Separator.Comma).append(user.getOrganization());
-		}
-        if (user.isSetTitle()) {
-            buffer.append(Separator.Comma).append(user.getTitle());
-        }
-		return buffer.toString();
+        return buffer.append(Separator.Comma).append(user.getOrganization())
+            .append(Separator.Comma).append(user.getTitle())
+            .toString();
 	}
 }

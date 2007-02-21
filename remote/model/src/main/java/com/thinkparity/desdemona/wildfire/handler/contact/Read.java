@@ -46,10 +46,8 @@ public final class Read extends AbstractHandler {
             writer.writeEMails(Xml.Contact.EMAILS, Xml.Contact.EMAIL, contact.getEmails());
             writer.writeJabberId(Xml.Contact.JABBER_ID, contact.getId());
             writer.writeString(Xml.Contact.NAME, contact.getName());
-            if (contact.isSetOrganization())
-                writer.writeString(Xml.Contact.ORGANIZATION, contact.getOrganization());
-            if (contact.isSetTitle())
-                writer.writeString("title", contact.getTitle());
+            writer.writeString(Xml.Contact.ORGANIZATION, contact.getOrganization());
+            writer.writeString("title", contact.getTitle());
             writer.writeVCard("vcard", contact.getVCard());
         }
     }

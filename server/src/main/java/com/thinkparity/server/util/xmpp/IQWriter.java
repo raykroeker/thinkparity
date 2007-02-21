@@ -6,7 +6,9 @@ package com.thinkparity.desdemona.util.xmpp;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import com.thinkparity.codebase.email.EMail;
@@ -244,6 +246,14 @@ public final class IQWriter implements ServiceResponseWriter {
     }
 
     /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeLocale(java.lang.String, java.util.Locale)
+     *
+     */
+    public void writeLocale(final String name, final Locale value) {
+        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
+    }
+
+    /**
      * Write a long value.
      * 
      * @param name
@@ -335,6 +345,14 @@ public final class IQWriter implements ServiceResponseWriter {
             }
         }
         IQ_LOGGER.logVariable("parent", parent.asXML());
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeTimeZone(java.lang.String, java.util.TimeZone)
+     *
+     */
+    public final void writeTimeZone(final String name, final TimeZone value) {
+        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
     }
 
     public final void writeToken(final String name, final Token value) {

@@ -265,6 +265,10 @@ public class XMPPMethod extends IQ {
         parameters.add(new XMPPMethodParameter(name, JabberId.class, value));
     }
 
+    public final void setParameter(final String name, final Locale value) {
+        parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
+    }
+
     /**
      * Set a named parameter.
      * 
@@ -325,6 +329,11 @@ public class XMPPMethod extends IQ {
     }
 
     public final <T extends ArtifactVersion> void setParameter(
+            final String name, final T value) {
+        parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
+    }
+
+    public final <T extends TimeZone> void setParameter(
             final String name, final T value) {
         parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
     }
@@ -444,6 +453,14 @@ public class XMPPMethod extends IQ {
             XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
             return xmlWriter.toString();
         } else if (parameter.javaType.equals(DocumentVersion.class)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (parameter.javaType.equals(TimeZone.class)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (parameter.javaType.equals(Locale.class)) {
             final StringWriter xmlWriter = new StringWriter();
             XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
             return xmlWriter.toString();
@@ -688,6 +705,18 @@ public class XMPPMethod extends IQ {
                     parser.next();
                     parser.next();
                     return container;
+                } else if (javaType.equals(Locale.class)) {
+                    Locale locale = null;
+                    locale = (Locale) xstreamUtil.unmarshal(new SmackXppReader(parser), locale);
+                    parser.next();
+                    parser.next();
+                    return locale;
+                } else if (javaType.equals(TimeZone.class)) {
+                    TimeZone timeZone = null;
+                    timeZone = (TimeZone) xstreamUtil.unmarshal(new SmackXppReader(parser), timeZone);
+                    parser.next();
+                    parser.next();
+                    return timeZone;
                 } else if (javaType.equals(Product.class)) {
                     Product product = null;
                     product = (Product) xstreamUtil.unmarshal(new SmackXppReader(parser), product);

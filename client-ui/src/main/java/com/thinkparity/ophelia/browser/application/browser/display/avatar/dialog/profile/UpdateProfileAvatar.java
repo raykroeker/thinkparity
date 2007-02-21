@@ -21,9 +21,10 @@ import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -136,8 +137,7 @@ public class UpdateProfileAvatar extends Avatar {
     
     private String extractInputCountry() {
         if (countryJComboBox.getSelectedIndex() >= 0) {
-            final Locale locale = (Locale) countryJComboBox.getSelectedItem();
-            return locale.getDisplayCountry();
+            return ((Locale) countryJComboBox.getSelectedItem()).getISO3Country();
         } else {
             return null;
         }
@@ -491,8 +491,7 @@ public class UpdateProfileAvatar extends Avatar {
      */
     private Boolean isUnitedStates() {
         if (countryJComboBox.getSelectedIndex() >= 0) {
-            final Locale locale = (Locale)countryJComboBox.getSelectedItem();
-            return locale.getCountry().equals("US");
+            return ((Locale) countryJComboBox.getSelectedItem()).getISO3Country().equals("US");
         } else {
             return Boolean.FALSE;
         }
@@ -553,7 +552,7 @@ public class UpdateProfileAvatar extends Avatar {
         Locale locale;
         for (int i = 0; i < countryModel.getSize(); i++) {
             locale = (Locale) countryModel.getElementAt(i);
-            if (locale.getDisplayCountry().equals(profile.getCountry())) {
+            if (locale.getISO3Country().equals(profile.getCountry())) {
                 countryModel.setSelectedItem(locale);
             }
         }

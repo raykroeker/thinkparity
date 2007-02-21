@@ -471,6 +471,18 @@ public class ElementBuilder {
     }
 
     public static final Element addElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final Locale value) {
+        if (null == value) {
+            return addNullElement(parent, name, Locale.class);
+        } else {
+            final Element element = addElement(parent, name, Locale.class);
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
+            return element;
+        }
+    }
+
+    public static final Element addElement(final XStreamUtil xstreamUtil,
             final Element parent, final String name, final Product value) {
         if (null == value) {
             return addNullElement(parent, name, Product.class);
@@ -500,6 +512,18 @@ public class ElementBuilder {
             return addNullElement(parent, name, Resource.class);
         } else {
             final Element element = addElement(parent, name, value.getClass());
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
+            return element;
+        }
+    }
+
+    public static final Element addElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final TimeZone value) {
+        if (null == value) {
+            return addNullElement(parent, name, TimeZone.class);
+        } else {
+            final Element element = addElement(parent, name, TimeZone.class);
             final Dom4JWriter writer = new Dom4JWriter(element);
             xstreamUtil.marshal(value, writer);
             return element;

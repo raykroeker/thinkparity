@@ -5,7 +5,10 @@ package com.thinkparity.ophelia.model.profile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
+import com.thinkparity.codebase.LocaleUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
@@ -13,6 +16,7 @@ import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 
@@ -284,6 +288,8 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         logger.logApiId();
         logger.logVariable("profile", profile);
         try {
+            assertIsValid(profile);
+            
             // update local data
             profileIO.update(profile);
             getSessionModel().updateProfile(localUserId(), profile);
@@ -293,34 +299,34 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         }
     }
 
-    /**
-     * Update the profile password.
-     * 
-     * @param password
-     *            The current password <code>String</code>.
-     * @param newPassword
-     *            The new password <code>String</code>.
-     */
-    public void updatePassword(final String password,
-            final String newPassword) {
-        logger.logApiId();
-        logger.logVariable("password", "XXXXX");
-        logger.logVariable("newPassword", "XXXXX");
-        try {
-            final Credentials credentials = readCredentials();
-            Assert.assertTrue("PASSWORD INCORRECT",
-                    password.equals(credentials.getPassword()));
-            // update local data
-            credentials.setPassword(newPassword);
-            updateCredentials(credentials);
-            // update remote data.
-            getSessionModel().updateProfileCredentials(localUserId(),
-                    credentials);
-            notifyPasswordUpdated(read(), localEventGenerator);
-        } catch (final Throwable t) {
-            throw translateError(t);
+        /**
+         * Update the profile password.
+         * 
+         * @param password
+         *            The current password <code>String</code>.
+         * @param newPassword
+         *            The new password <code>String</code>.
+         */
+        public void updatePassword(final String password,
+                final String newPassword) {
+            logger.logApiId();
+            logger.logVariable("password", "XXXXX");
+            logger.logVariable("newPassword", "XXXXX");
+            try {
+                final Credentials credentials = readCredentials();
+                Assert.assertTrue("PASSWORD INCORRECT",
+                        password.equals(credentials.getPassword()));
+                // update local data
+                credentials.setPassword(newPassword);
+                updateCredentials(credentials);
+                // update remote data.
+                getSessionModel().updateProfileCredentials(localUserId(),
+                        credentials);
+                notifyPasswordUpdated(read(), localEventGenerator);
+            } catch (final Throwable t) {
+                throw translateError(t);
+            }
         }
-    }
 
     /**
      * Verify an email.
@@ -355,6 +361,66 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
         this.profileIO = IOFactory.getDefault(workspace).createProfileHandler();
+    }
+
+    /**
+     * Assert that a named value is set.
+     * 
+     * @param name
+     *            A value name <code>String</code>..
+     * @param value
+     *            A value <code>String</code>.
+     */
+    private void assertIsSet(final String name, final String value) {
+       Assert.assertNotNull(value, "Profile field {0} is not set.", name);
+       Assert.assertNotTrue("".equals(value.trim()), "Profile field {0} is not set.", name);
+    }
+
+    private void assertIsValid(final Profile profile) {
+        assertIsValid(profile.getVCard());
+    }
+
+    private void assertIsValid(final ProfileVCard vcard) {
+        assertIsSet("country", vcard.getCountry());
+        assertIsValidCountry("country", vcard.getCountry());
+        assertIsSet("language", vcard.getLanguage());
+        assertIsValidLanguage("language", vcard.getLanguage());
+        assertIsSet("name", vcard.getName());
+        assertIsSet("organization", vcard.getOrganization());
+        assertIsSet("organization country", vcard.getOrganizationCountry());
+        assertIsValidCountry("organization country", vcard.getOrganizationCountry());
+        assertIsSet("timeZone", vcard.getTimeZone());
+        assertIsValidTimeZone("timeZone", vcard.getTimeZone());
+        assertIsSet("title", vcard.getTitle());
+    }
+
+    private void assertIsValidCountry(final String name, final String value) {
+        final Locale[] locales = LocaleUtil.getInstance().getAvailableLocales();
+        boolean found = false;
+        for (final Locale locale : locales) {
+            if (locale.getISO3Country().equals(value)) {
+                found = true;
+                break;
+            }
+        }
+        Assert.assertTrue(found, "Profile field {0} is invalid.", name, value);
+    }
+
+    private void assertIsValidLanguage(final String name, final String value) {
+        final Locale[] locales = LocaleUtil.getInstance().getAvailableLocales();
+        boolean found = false;
+        for (final Locale locale : locales) {
+            if (locale.getISO3Language().equals(value)) {
+                found = true;
+                break;
+            }
+        }
+        Assert.assertTrue(found, "Profile field {0} contains invalid value {1}.", name, value);
+    }
+
+    private void assertIsValidTimeZone(final String name, final String value) {
+        final TimeZone timeZone = TimeZone.getTimeZone(value);
+        Assert.assertTrue(timeZone.getID().equals(value), "Profile field {0} contains invalid value {1}.", name, value);
     }
 
     /**

@@ -14,10 +14,14 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.ophelia.model.contact.IncomingInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -26,8 +30,6 @@ import com.thinkparity.ophelia.browser.application.browser.component.LabelFactor
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
-import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 /**
  * <b>Title:</b><br>
@@ -534,29 +536,11 @@ public class ContactTabPanel extends DefaultTabPanel {
      * @return Additional display text <code>String</code>.
      */
     private <T extends User> String getAdditionalText(final T user) {
-        final String pattern;
-        final Object[] values;
-        if (user.isSetTitle()) {
-            if (user.isSetOrganization()) {
-                pattern = "({0}, {1})";
-                values = new Object[] { user.getTitle(),
-                        user.getOrganization() };
-            } else {
-                pattern = "({0})";
-                values = new Object[] { user.getTitle() };
-            }
-        } else {
-            if (user.isSetOrganization()) {
-                pattern = "({0})";
-                values = new Object[] { user.getOrganization() };
-            } else {
-                pattern = "";
-                values = new Object[] {};
-            }
-        }
+        final String pattern = "({0}, {1})";
+        final Object[] values = new Object[] { user.getTitle(), user.getOrganization() };
         return new MessageFormat(pattern).format(values);
     }
-    
+
     /**
      * Initialize the collapsed panel.
      */

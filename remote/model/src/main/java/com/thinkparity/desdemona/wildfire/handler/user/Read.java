@@ -42,10 +42,8 @@ public final class Read extends AbstractHandler {
         if (null != user) {
             writer.writeJabberId("id", user.getId());
             writer.writeString("name", user.getName());
-            if (user.isSetOrganization())
-                writer.writeString("organization", user.getOrganization());
-            if (user.isSetTitle())
-                writer.writeString("title", user.getTitle());
+            writer.writeString("organization", user.getOrganization());
+            writer.writeString("title", user.getTitle());
         }
     }
 

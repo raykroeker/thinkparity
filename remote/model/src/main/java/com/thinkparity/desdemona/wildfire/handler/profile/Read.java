@@ -45,10 +45,8 @@ public final class Read extends AbstractHandler {
         if(null != profile) {
             writer.writeJabberId("id", profile.getId());
             writer.writeString("name", profile.getName());
-            if (profile.isSetOrganization())
-                writer.writeString("organization", profile.getOrganization());
-            if (profile.isSetTitle())
-                writer.writeString("title", profile.getTitle());
+            writer.writeString("organization", profile.getOrganization());
+            writer.writeString("title", profile.getTitle());
             writer.writeVCard("vcard", profile.getVCard());
         }
     }

@@ -8,6 +8,7 @@ import java.io.Writer;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -15,6 +16,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import com.thinkparity.codebase.LocaleUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -282,6 +284,7 @@ class ProfileModelImpl extends AbstractModelImpl {
         logger.logVariable("userId", userId);
         logger.logVariable("vcard", vcard);
         try {
+            assertIsValid(vcard);
             final Writer vcardXMLWriter = new StringWriter();
             try {
                 getUserModel().updateVCard(userId, vcard);
@@ -322,6 +325,62 @@ class ProfileModelImpl extends AbstractModelImpl {
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * Assert that a named value is set.
+     * 
+     * @param name
+     *            A value name <code>String</code>..
+     * @param value
+     *            A value <code>String</code>.
+     */
+    private void assertIsSet(final String name, final String value) {
+       Assert.assertNotNull(value, "Profile field {0} is not set.", name);
+       Assert.assertNotTrue("".equals(value.trim()), "Profile field {0} is not set.", name);
+    }
+
+    private void assertIsValid(final ProfileVCard vcard) {
+        assertIsSet("country", vcard.getCountry());
+        assertIsValidCountry("country", vcard.getCountry());
+        assertIsSet("language", vcard.getLanguage());
+        assertIsValidLanguage("language", vcard.getLanguage());
+        assertIsSet("name", vcard.getName());
+        assertIsSet("organization", vcard.getOrganization());
+        assertIsSet("organization country", vcard.getOrganizationCountry());
+        assertIsValidCountry("organization country", vcard.getOrganizationCountry());
+        assertIsSet("timeZone", vcard.getTimeZone());
+        assertIsValidTimeZone("timeZone", vcard.getTimeZone());
+        assertIsSet("title", vcard.getTitle());
+    }
+
+    private void assertIsValidCountry(final String name, final String value) {
+        final Locale[] locales = LocaleUtil.getInstance().getAvailableLocales();
+        boolean found = false;
+        for (final Locale locale : locales) {
+            if (locale.getISO3Country().equals(value)) {
+                found = true;
+                break;
+            }
+        }
+        Assert.assertTrue(found, "Profile field {0} is invalid.", name, value);
+    }
+
+    private void assertIsValidLanguage(final String name, final String value) {
+        final Locale[] locales = LocaleUtil.getInstance().getAvailableLocales();
+        boolean found = false;
+        for (final Locale locale : locales) {
+            if (locale.getISO3Language().equals(value)) {
+                found = true;
+                break;
+            }
+        }
+        Assert.assertTrue(found, "Profile field {0} contains invalid value {1}.", name, value);
+    }
+
+    private void assertIsValidTimeZone(final String name, final String value) {
+        final TimeZone timeZone = TimeZone.getTimeZone(value);
+        Assert.assertTrue(timeZone.getID().equals(value), "Profile field {0} contains invalid value {1}.", name, value);
     }
 
     /**

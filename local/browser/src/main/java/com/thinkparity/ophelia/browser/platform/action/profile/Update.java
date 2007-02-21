@@ -5,11 +5,12 @@ package com.thinkparity.ophelia.browser.platform.action.profile;
 
 import com.thinkparity.codebase.model.profile.Profile;
 
+import com.thinkparity.ophelia.model.profile.ProfileModel;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 /**
  * @author raymond@thinkparity.com
@@ -50,6 +51,7 @@ public class Update extends AbstractAction {
             profile.setMobilePhone((String) data.get(DataKey.MOBILE_PHONE));
             profile.setName((String) data.get(DataKey.NAME));
             profile.setOrganization((String) data.get(DataKey.ORGANIZATION));
+            profile.setOrganizationCountry(profile.getCountry());
             profile.setPhone((String) data.get(DataKey.PHONE));
             profile.setPostalCode((String) data.get(DataKey.POSTAL_CODE));
             profile.setProvince((String) data.get(DataKey.PROVINCE));
@@ -60,7 +62,7 @@ public class Update extends AbstractAction {
 
     /** Data keys. */
     public enum DataKey {
-        ADDRESS, CITY, COUNTRY, DISPLAY_AVATAR, MOBILE_PHONE, NAME, ORGANIZATION, PHONE,
-        POSTAL_CODE, PROVINCE, TITLE
+        ADDRESS, CITY, COUNTRY, DISPLAY_AVATAR, MOBILE_PHONE, NAME,
+        ORGANIZATION, PHONE, POSTAL_CODE, PROVINCE, TITLE
     }
 }

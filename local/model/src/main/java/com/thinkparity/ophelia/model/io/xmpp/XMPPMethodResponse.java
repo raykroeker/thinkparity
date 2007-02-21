@@ -7,7 +7,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -138,6 +140,10 @@ public class XMPPMethodResponse extends IQ {
         return (List<JabberId>) readResult(name);
     }
 
+    public final Locale readResultLocale(final String name) {
+        return (Locale) readResult(name);
+    }
+
     /**
      * Read a result value.
      * 
@@ -213,6 +219,10 @@ public class XMPPMethodResponse extends IQ {
 
     public List<TeamMember> readResultTeamMembers(final String name) {
         return (List<TeamMember>) readResult(name);
+    }
+
+    public final TimeZone readResultTimeZone(final String name) {
+        return (TimeZone) readResult(name);
     }
 
     public Token readResultToken(final String name) {

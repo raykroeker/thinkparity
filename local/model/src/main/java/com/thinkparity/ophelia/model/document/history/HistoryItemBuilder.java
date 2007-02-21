@@ -396,15 +396,8 @@ public class HistoryItemBuilder {
     }
 
 	private String getName(final User user) {
-		if(user.isSetOrganization()) {
-		    final Object[] arguments = new Object[] {
-		            user.getName(), user.getOrganization()};
-		    return getString("user.name", arguments);
-		}
-		else {
-		    final Object[] arguments = new Object[] {user.getName()};
-		    return getString("user.nameMinusOrganization", arguments);
-		}
+	    final Object[] arguments = new Object[] { user.getName(), user.getOrganization()};
+	    return getString("user.name", arguments);
 	}
 
 	/**

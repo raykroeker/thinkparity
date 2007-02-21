@@ -229,10 +229,8 @@ class UserModelImpl extends AbstractModelImpl {
      */
     private User inject(final User user, final UserVCard vcard) {
         user.setName(vcard.getName());
-        if (vcard.isSetOrganization())
-            user.setOrganization(vcard.getOrganization());
-        if (vcard.isSetTitle())
-            user.setTitle(vcard.getTitle());
+        user.setOrganization(vcard.getOrganization());
+        user.setTitle(vcard.getTitle());
         return user;
     }
 }

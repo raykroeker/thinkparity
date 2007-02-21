@@ -94,10 +94,8 @@ public class ContactIndexImpl extends AbstractIndexImpl<Contact, JabberId> {
         final DocumentBuilder builder = new DocumentBuilder(4)
             .append(IDX_CONTACT_ID.setValue(o.getId()).toField())
             .append(IDX_CONTACT_NAME.setValue(o.getName()).toField());
-        if (o.isSetOrganization())
-            builder.append(IDX_CONTACT_ORGANIZATION.setValue(o.getOrganization()).toField());
-        if (o.isSetTitle())
-            builder.append(IDX_CONTACT_TITLE.setValue(o.getTitle()).toField());
+        builder.append(IDX_CONTACT_ORGANIZATION.setValue(o.getOrganization()).toField());
+        builder.append(IDX_CONTACT_TITLE.setValue(o.getTitle()).toField());
         index(builder.toDocument());
     }
 

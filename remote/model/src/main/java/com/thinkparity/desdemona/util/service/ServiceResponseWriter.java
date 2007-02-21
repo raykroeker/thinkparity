@@ -5,7 +5,9 @@ package com.thinkparity.desdemona.util.service;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import com.thinkparity.codebase.email.EMail;
@@ -151,6 +153,16 @@ public interface ServiceResponseWriter {
             String name, List<JabberId> values);
 
     /**
+     * Write a locale value.
+     * 
+     * @param name
+     *            The element name.
+     * @param value
+     *            The element value.
+     */
+//    public void writeLocale(final String name, final Locale value);
+
+    /**
      * Write a long value.
      * 
      * @param name
@@ -158,7 +170,7 @@ public interface ServiceResponseWriter {
      * @param value
      *      The element value.
      */
-    public void writeLong(final String name, Long value);
+//    public void writeLong(final String name, Long value);
 
     /**
      * Write a list of long values.
@@ -218,6 +230,16 @@ public interface ServiceResponseWriter {
             List<String> values);
 
     public void writeTeam(final String name, String childName, List<TeamMember> values);
+
+    /**
+     * Write a time zone value.
+     * 
+     * @param name
+     *            The element name.
+     * @param value
+     *            The element value.
+     */
+    public void writeTimeZone(final String name, final TimeZone value);
 
     public void writeToken(final String name, Token value);
 

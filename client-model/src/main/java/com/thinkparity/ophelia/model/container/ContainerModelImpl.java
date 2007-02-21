@@ -1825,6 +1825,8 @@ public final class ContainerModelImpl extends
                         return backupModel.readTeamIds(uniqueId);
                     }
                 });
+                // NOTE the model needs to apply the flag seen in this single case
+                getArtifactModel().applyFlagSeen(backupContainer.getId());
             }
         } catch (final Throwable t) {
             throw translateError(t);

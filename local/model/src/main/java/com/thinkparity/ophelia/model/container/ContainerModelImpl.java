@@ -475,10 +475,11 @@ public final class ContainerModelImpl extends
             final InternalDocumentModel documentModel = getDocumentModel();
             final Container container = read(containerId);
             final ContainerDraft draft = readDraft(containerId);
+            final Boolean doesExistLocalDraft = doesExistLocalDraft(containerId);
             final List<Document> draftDocuments = draft.getDocuments();
-            final Map<Document, DocumentFileLock> draftDocumentLocks = lockDocuments(draftDocuments);
+            final Map<Document, DocumentFileLock> locks = lockDocuments(draftDocuments);
             try {
-                if (doesExistLocalDraft(containerId)) {
+                if (doesExistLocalDraft) {
                     if (!isFirstDraft(container.getId())) {
                         assertOnline("User is not online.");
                         assertIsDistributed("Draft has not been distributed.", containerId);
@@ -487,14 +488,14 @@ public final class ContainerModelImpl extends
                 }
                 // delete local data
                 for (final Document draftDocument : draftDocuments) {
-                    documentModel.deleteDraft(draftDocumentLocks.get(draftDocument), draftDocument.getId());
+                    documentModel.deleteDraft(locks.get(draftDocument), draftDocument.getId());
                     containerIO.deleteDraftArtifactRel(containerId, draftDocument.getId());
                 }
                 containerIO.deleteDraftDocuments(containerId);
                 containerIO.deleteDraft(containerId);
                 notifyDraftDeleted(container, draft, localEventGenerator);
             } finally {
-                releaseLocks(draftDocumentLocks.values());
+                releaseLocks(locks.values());
             }
         } catch (final CannotLockException clx) {
             throw clx;

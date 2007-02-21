@@ -26,7 +26,6 @@ import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
-import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
@@ -91,18 +90,9 @@ public final class IQReader implements ServiceRequestReader {
     }
 
     /**
-     * Read an artifact type parameter.
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readCalendar(java.lang.String)
      * 
-     * @param name
-     *            The parameter name.
-     * @return The artifact type.
      */
-    public final ArtifactType readArtifactType(final String name) {
-        final String sData = readString(name);
-        if(null == sData) { return null; }
-        else { return ArtifactType.valueOf(sData); }
-    }
-
     public final Calendar readCalendar(final String name) {
         final String universalDateTime = readString(name);
         try {
@@ -121,7 +111,7 @@ public final class IQReader implements ServiceRequestReader {
 
     /**
      * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readContacts(java.lang.String)
-     *
+     * 
      */
     public final List<Contact> readContacts(final String name) {
         final Element element = iq.getChildElement().element(name);
@@ -143,7 +133,7 @@ public final class IQReader implements ServiceRequestReader {
 
     /**
      * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readContainerVersion(java.lang.String)
-     *
+     * 
      */
     public final ContainerVersion readContainerVersion(final String name) {
         final Element vcardElement = iq.getChildElement().element(name);
@@ -161,7 +151,7 @@ public final class IQReader implements ServiceRequestReader {
 
     /**
      * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readDocumentVersions(java.lang.String)
-     *
+     * 
      */
     public final List<DocumentVersion> readDocumentVersions(final String name) {
         final Element element = iq.getChildElement().element(name);
@@ -182,8 +172,8 @@ public final class IQReader implements ServiceRequestReader {
     }
 
     /**
-     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readStrings(java.lang.String)
-     *
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readDocumentVersionsStreamIds(java.lang.String)
+     * 
      */
     public final Map<DocumentVersion, String> readDocumentVersionsStreamIds(
             final String name) {
@@ -206,13 +196,17 @@ public final class IQReader implements ServiceRequestReader {
         return documentVersions;
     }
 
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readEMail(java.lang.String)
+     * 
+     */
     public final EMail readEMail(final String name) {
         return EMailBuilder.parse(readString(name));
     }
 
     /**
      * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readEMails(java.lang.String)
-     *
+     * 
      */
     public final List<EMail> readEMails(final String name) {
         final Element element = iq.getChildElement().element(name);
@@ -225,11 +219,8 @@ public final class IQReader implements ServiceRequestReader {
     }
 
     /**
-     * Read an integer parameter from the internet query.
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readInteger(java.lang.String)
      * 
-     * @param name
-     *            The parameter name.
-     * @return An integer value.
      */
     public final Integer readInteger(final String name) {
         final String sData = readString(name);
@@ -238,11 +229,8 @@ public final class IQReader implements ServiceRequestReader {
     }
 
     /**
-     * Read jabber id data.
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readJabberId(java.lang.String)
      * 
-     * @param name
-     *            The element name.
-     * @return The data; or null if the data does not exist.
      */
     public final JabberId readJabberId(final String name) {
         final String value = readString(name);
@@ -255,13 +243,9 @@ public final class IQReader implements ServiceRequestReader {
     }
 
     /**
-     * Read a list of jabber ids.
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readJabberIds(java.lang.String,
+     *      java.lang.String)
      * 
-     * @param parentName
-     *            The parent parameter name.
-     * @param name
-     *            The parameter name.
-     * @return A list of jabber ids.
      */
     public final List<JabberId> readJabberIds(final String parentName,
             final String name) {
@@ -275,11 +259,8 @@ public final class IQReader implements ServiceRequestReader {
     }
 
     /**
-     * Read long data.
-     *
-     * @param name
-     *      The element name.
-     * @return The data; or null if the data does not exist.
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readLong(java.lang.String)
+     * 
      */
     public final Long readLong(final String name) {
         final String sData = readString(name);
@@ -288,28 +269,8 @@ public final class IQReader implements ServiceRequestReader {
     }
 
     /**
-     * Read long data.
-     *
-     * @param parentName
-     *      The parent element name.
-     * @param name
-     *      The element name.
-     * @return The data; or null if the data does not exist.
-     */
-    public final List<Long> readLongs(final String parentName, final String name) {
-        final Element element = iq.getChildElement().element(parentName);
-        final Iterator iChildren = element.elementIterator(name);
-        final List<Long> longs = new LinkedList<Long>();
-        while(iChildren.hasNext()) {
-            longs.add(Long.valueOf((String) ((Element) iChildren.next()).getData()));
-        }
-        return longs;
-    }
-
-    /**
-     * Read the variable names within the iq.
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readNames()
      * 
-     * @return A list of the variable names.
      */
     public final List<String> readNames() {
         final List elements = iq.getChildElement().elements();
@@ -324,7 +285,7 @@ public final class IQReader implements ServiceRequestReader {
      * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readOs(java.lang.String)
      *
      */
-    public OS readOs(final String name) {
+    public final OS readOs(final String name) {
         final String value = readString(name);
         if (null == value) {
             return null;
@@ -335,15 +296,15 @@ public final class IQReader implements ServiceRequestReader {
 
     /**
      * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readProduct(java.lang.String)
-     *
+     * 
      */
-    public Product readProduct(final String name) {
+    public final Product readProduct(final String name) {
         return (Product) readXStreamObject(name, new Product());
     }
 
     /**
      * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readProfileVCard(java.lang.String)
-     *
+     * 
      */
     public final ProfileVCard readProfileVCard(final String name) {
         final Element vcardElement = iq.getChildElement().element(name);
@@ -359,10 +320,18 @@ public final class IQReader implements ServiceRequestReader {
         }
     }
 
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readRelease(java.lang.String)
+     * 
+     */
     public final Release readRelease(final String name) {
         return (Release) readXStreamObject(name, new Release());
     }
 
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readResources(java.lang.String)
+     * 
+     */
     public final List<Resource> readResources(final String name) {
         final Element element = iq.getChildElement().element(name);
         final Iterator iChildren = element.elementIterator(XmlRpc.LIST_ITEM);
@@ -381,13 +350,9 @@ public final class IQReader implements ServiceRequestReader {
         return resources;
     }
 
-
     /**
-     * Read string data.
-     *
-     * @param name
-     *      The element name.
-     * @return The data; or null if the data does not exist.
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readString(java.lang.String)
+     * 
      */
     public final String readString(final String name) {
         return (String) readObject(name);
@@ -395,7 +360,7 @@ public final class IQReader implements ServiceRequestReader {
 
     /**
      * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readTeamMembers(java.lang.String)
-     *
+     * 
      */
     public final List<TeamMember> readTeamMembers(final String name) {
         final Element element = iq.getChildElement().element(name);
@@ -428,7 +393,6 @@ public final class IQReader implements ServiceRequestReader {
             dom4JReader = new Dom4JReader((Element) iChildren.next());
             try {
                 dom4JReader.moveDown();
-//                users.add((User) XSTREAM_UTIL.unmarshal(dom4JReader, new User()));
                 users.add((User) XSTREAM_UTIL.unmarshal(dom4JReader));
             } finally {
                 dom4JReader.moveUp();
@@ -439,11 +403,8 @@ public final class IQReader implements ServiceRequestReader {
     }
 
     /**
-     * Read a unique id.
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readUUID(java.lang.String)
      * 
-     * @param name
-     *            The element name.
-     * @return The element value.
      */
     public final UUID readUUID(final String name) {
         final String sData = readString(name);
@@ -452,11 +413,11 @@ public final class IQReader implements ServiceRequestReader {
     }
 
     /**
-     * Read object data.
-     *
+     * Read the object data from the element.
+     * 
      * @param name
-     *      The element name.
-     * @return The element data; or null if the element does not exist.
+     *            An element name <code>String</code>.
+     * @return The element data <code>Object</code>.
      */
     protected final Object readObject(final String name) {
         final Element e = iq.getChildElement().element(name);
@@ -466,6 +427,16 @@ public final class IQReader implements ServiceRequestReader {
             return e.getData();
         }
     }
+
+    /**
+     * Use the xstreaming utility to unmarshal an object from the xml.
+     * 
+     * @param name
+     *            An element name <code>String</code>.
+     * @param object
+     *            An <code>Object</code> root.
+     * @return The unmarshalled <code>Object</code>.
+     */
     private final <T extends Object> T readXStreamObject(final String name,
             final T object) {
         final Element element = iq.getChildElement().element(name);

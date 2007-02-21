@@ -5,16 +5,13 @@ package com.thinkparity.desdemona.util.service;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.UUID;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
-import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
@@ -23,7 +20,6 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
-import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
@@ -32,8 +28,9 @@ import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity Service Reponse Writer<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
@@ -58,17 +55,6 @@ public interface ServiceResponseWriter {
      *            A <code>Release</code> value.
      */
     public void write(final String name, final Release value);
-
-    /**
-     * Write the artifact type to the internet query.
-     * 
-     * @param name
-     *            The element name.
-     * @param value
-     *            The element value.
-     */
-    public void writeArtifactType(final String name,
-            ArtifactType value);
 
     public void writeBoolean(final String name, final Boolean value);
 
@@ -120,16 +106,6 @@ public interface ServiceResponseWriter {
             List<XMPPEvent> values);
 
     /**
-     * Write an integer value.
-     * 
-     * @param name
-     *            The element name.
-     * @param value
-     *            The element value.
-     */
-    public void writeInteger(final String name, Integer value);
-
-    /**
      * Write a jabber id value.
      * 
      * @param name
@@ -153,26 +129,6 @@ public interface ServiceResponseWriter {
             String name, List<JabberId> values);
 
     /**
-     * Write a locale value.
-     * 
-     * @param name
-     *            The element name.
-     * @param value
-     *            The element value.
-     */
-//    public void writeLocale(final String name, final Locale value);
-
-    /**
-     * Write a long value.
-     * 
-     * @param name
-     *      The element name.
-     * @param value
-     *      The element value.
-     */
-//    public void writeLong(final String name, Long value);
-
-    /**
      * Write a list of long values.
      * 
      * @param name
@@ -182,17 +138,6 @@ public interface ServiceResponseWriter {
      */
     public void writeLongs(final String parentName, String name,
             List<Long> values);
-
-    /**
-     * Write the artifact type to the internet query.
-     * 
-     * @param name
-     *            The element name.
-     * @param value
-     *            The element value.
-     */
-    public void writeProfileEMails(final String name,
-            List<ProfileEMail> value);
 
     /**
      * Write the resources to the query.
@@ -216,30 +161,7 @@ public interface ServiceResponseWriter {
      */
     public void writeString(final String name, String value);
 
-    /**
-     * Write string values.
-     * 
-     * @param parentName
-     *            The parent element name.
-     * @param name
-     *            The element name.
-     * @param values
-     *            The element values.
-     */
-    public void writeStrings(final String parentName, String name,
-            List<String> values);
-
     public void writeTeam(final String name, String childName, List<TeamMember> values);
-
-    /**
-     * Write a time zone value.
-     * 
-     * @param name
-     *            The element name.
-     * @param value
-     *            The element value.
-     */
-    public void writeTimeZone(final String name, final TimeZone value);
 
     public void writeToken(final String name, Token value);
 
@@ -252,8 +174,6 @@ public interface ServiceResponseWriter {
      *            The element value.
      */
     public void writeUniqueId(final String name, UUID value);
-
-    public void writeUser(final String name, User value);
 
     public void writeUserReceipts(final String name,
             Map<User, ArtifactReceipt> values);

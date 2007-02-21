@@ -12,7 +12,6 @@ import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
@@ -24,15 +23,21 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity Service Request Reader<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 public interface ServiceRequestReader {
 
-    public ArtifactType readArtifactType(final String name);
-
+    /**
+     * Read a calendar.
+     * 
+     * @param name
+     *            A request parameter name <code>String</code>.
+     * @return A request parameter value.
+     */
     public Calendar readCalendar(final String name);
 
     /**
@@ -53,6 +58,13 @@ public interface ServiceRequestReader {
      */
     public ContainerVersion readContainerVersion(final String name);
 
+    /**
+     * Read a list of document versions.
+     * 
+     * @param name
+     *            A request parameter name <code>String</code>.
+     * @return A <code>List</code> of <code>DocumentVersion</code>s.
+     */
     public List<DocumentVersion> readDocumentVersions(final String name);
 
     /**
@@ -65,6 +77,13 @@ public interface ServiceRequestReader {
      */
     public Map<DocumentVersion, String> readDocumentVersionsStreamIds(final String name);
 
+    /**
+     * Read an email address.
+     * 
+     * @param name
+     *            A request parameter name <code>String</code>.
+     * @return An <code>EMail</code>.
+     */
     public EMail readEMail(final String name);
 
     /**
@@ -115,18 +134,6 @@ public interface ServiceRequestReader {
      */
     public Long readLong(final String name);
 
-
-    /**
-     * Read long data.
-     *
-     * @param parentName
-     *      The parent element name.
-     * @param name
-     *      The element name.
-     * @return The data; or null if the data does not exist.
-     */
-    public List<Long> readLongs(final String parentName, final String name);
-
     /**
      * Read the variable names within the service request.
      * 
@@ -152,7 +159,15 @@ public interface ServiceRequestReader {
      */
     public Product readProduct(final String name);
 
+    /**
+     * Read a profile vcard.
+     * 
+     * @param name
+     *            A request parameter name <code>String</code>.
+     * @return A <code>ProfileVCard</code>.
+     */
     public ProfileVCard readProfileVCard(final String name);
+
     /**
      * Read release datum.
      * 

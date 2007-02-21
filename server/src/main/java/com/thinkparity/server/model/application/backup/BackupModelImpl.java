@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.model.backup;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +38,13 @@ import com.thinkparity.desdemona.model.stream.InternalStreamModel;
  * @version 1.1
  */
 final class BackupModelImpl extends AbstractModelImpl {
+
+    /** Create stream upload buffer. */
+    private static final Integer CREATE_STREAM_UPLOAD_BUFFER;
+
+    static {
+        CREATE_STREAM_UPLOAD_BUFFER = 4096;
+    }
 
     /**
      * Create BackupModelImpl.
@@ -111,7 +119,9 @@ final class BackupModelImpl extends AbstractModelImpl {
                 final InternalDocumentModel documentModel = modelFactory.getDocumentModel(getClass());
 
                 final Long documentId = artifactModel.readId(uniqueId);
-                final InputStream stream = documentModel.openVersion(documentId, versionId);
+                final InputStream stream = new BufferedInputStream(
+                        documentModel.openVersion(documentId, versionId),
+                        CREATE_STREAM_UPLOAD_BUFFER);
                 final Long streamSize = documentModel.readVersionSize(documentId, versionId);
                 logger.logVariable("documentId", documentId);
                 logger.logVariable("streamSize", streamSize);

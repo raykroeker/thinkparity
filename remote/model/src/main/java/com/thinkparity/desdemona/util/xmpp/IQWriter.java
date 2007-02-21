@@ -6,9 +6,7 @@ package com.thinkparity.desdemona.util.xmpp;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.UUID;
 
 import com.thinkparity.codebase.email.EMail;
@@ -16,7 +14,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
-import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
@@ -25,7 +22,6 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
-import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
@@ -79,118 +75,141 @@ public final class IQWriter implements ServiceResponseWriter {
     }
 
     /**
-     * Obtain the internet query.
-     *
-     * @return The internet query.
+     * Obtain the xmpp interenet query <code>IQ</code>.
+     * 
+     * @return An xmpp <code>IQ</code>.
      */
     public final IQ getIQ() { return iq; }
 
-    public final Element toEvent() {
-        return iq.getChildElement();
-    }
-
     /**
-     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#write(java.lang.String, com.thinkparity.codebase.model.migrator.Product)
-     *
-     */
-    public void write(final String name, final Product value) {
-        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#write(java.lang.String, com.thinkparity.codebase.model.migrator.Release)
-     *
-     */
-    public void write(final String name, final Release value) {
-        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
-    }
-
-    /**
-     * Write the artifact type to the internet query.
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#write(java.lang.String,
+     *      com.thinkparity.codebase.model.migrator.Product)
      * 
-     * @param name
-     *            The element name.
-     * @param value
-     *            The element value.
      */
-    public final void writeArtifactType(final String name,
-            final ArtifactType value) {
-        ElementBuilder.addElement(iq.getChildElement(), name, value);
+    public final void write(final String name, final Product value) {
+        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
     }
 
     /**
-     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeBoolean(java.lang.String, java.lang.Boolean)
-     *
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#write(java.lang.String,
+     *      com.thinkparity.codebase.model.migrator.Release)
+     * 
+     */
+    public final void write(final String name, final Release value) {
+        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeBoolean(java.lang.String,
+     *      java.lang.Boolean)
+     * 
      */
     public final void writeBoolean(final String name, final Boolean value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
     /**
-     * Write a calendar value.
-     *
-     * @param name
-     *      The element name.
-     * @param value
-     *      The element value.
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeCalendar(java.lang.String,
+     *      java.util.Calendar)
+     * 
      */
     public final void writeCalendar(final String name, final Calendar value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeContainer(java.lang.String,
+     *      com.thinkparity.codebase.model.container.Container)
+     * 
+     */
     public final void writeContainer(final String name, final Container value) {
         ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
     }
 
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeContainers(java.lang.String,
+     *      java.lang.String, java.util.List)
+     * 
+     */
     public final void writeContainers(final String parentName,
             final String name, final List<Container> values) {
         ElementBuilder.addContainerElements(XSTREAM_UTIL, iq.getChildElement(), parentName, name, values);
     }
 
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeContainerVersions(java.lang.String,
+     *      java.lang.String, java.util.List)
+     * 
+     */
     public final void writeContainerVersions(final String parentName,
             final String name, final List<ContainerVersion> values) {
         ElementBuilder.addContainerVersionElements(iq.getChildElement(), parentName, name, values);
     }
 
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeDocuments(java.lang.String,
+     *      java.lang.String, java.util.List)
+     * 
+     */
     public final void writeDocuments(final String parentName,
             final String name, final List<Document> values) {
         ElementBuilder.addDocumentElements(iq.getChildElement(), parentName, name, values);
     }
 
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeDocumentVersion(java.lang.String,
+     *      com.thinkparity.codebase.model.document.DocumentVersion)
+     * 
+     */
     public final void writeDocumentVersion(final String name,
             final DocumentVersion value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeDocumentVersionDeltas(java.lang.String,
+     *      java.util.Map)
+     * 
+     */
     public final void writeDocumentVersionDeltas(final String name, final Map<DocumentVersion, Delta> values) {
         ElementBuilder.addDocumentVersionDeltaElements(iq.getChildElement(),
                 name, values);
     }
 
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeDocumentVersions(java.lang.String,
+     *      java.lang.String, java.util.List)
+     * 
+     */
     public final void writeDocumentVersions(final String parentName,
             final String name, final List<DocumentVersion> values) {
         ElementBuilder.addDocumentVersionElements(iq.getChildElement(), parentName, name, values);
     }
 
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeEMail(java.lang.String,
+     *      com.thinkparity.codebase.email.EMail)
+     * 
+     */
     public final void writeEMail(final String name, final EMail value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
     /**
-     * Write email values.
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeEMails(java.lang.String,
+     *      java.lang.String, java.util.List)
      * 
-     * @param parentName
-     *            The parent element name.
-     * @param name
-     *            The element name.
-     * @param values
-     *            The element values.
      */
     public final void writeEMails(final String parentName, final String name,
             final List<EMail> values) {
         ElementBuilder.addEMailElements(iq.getChildElement(), parentName, name, values);
     }
 
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeEvents(java.lang.String,
+     *      java.lang.String, java.util.List)
+     * 
+     */
     public final void writeEvents(final String name, final String childName,
             final List<XMPPEvent> values) {
         final Element parent = iq.getChildElement();
@@ -207,38 +226,18 @@ public final class IQWriter implements ServiceResponseWriter {
     }
 
     /**
-     * Write an integer value.
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeJabberId(java.lang.String,
+     *      com.thinkparity.codebase.jabber.JabberId)
      * 
-     * @param name
-     *            The element name.
-     * @param value
-     *            The element value.
-     */
-    public final void writeInteger(final String name, final Integer value) {
-        ElementBuilder.addElement(iq.getChildElement(), name, value);
-    }
-
-    /**
-     * Write a jabber id value.
-     * 
-     * @param name
-     *            The element name.
-     * @param value
-     *            The element value.
      */
     public final void writeJabberId(final String name, final JabberId value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
     /**
-     * Write a list of jabber id values.
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeJabberIds(java.lang.String,
+     *      java.lang.String, java.util.List)
      * 
-     * @param parentName
-     *            The parent element name.
-     * @param name
-     *            The element name.
-     * @param value
-     *            The element value.
      */
     public final void writeJabberIds(final String parentName,
             final String name, final List<JabberId> values) {
@@ -246,32 +245,9 @@ public final class IQWriter implements ServiceResponseWriter {
     }
 
     /**
-     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeLocale(java.lang.String, java.util.Locale)
-     *
-     */
-    public void writeLocale(final String name, final Locale value) {
-        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
-    }
-
-    /**
-     * Write a long value.
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeLongs(java.lang.String,
+     *      java.lang.String, java.util.List)
      * 
-     * @param name
-     *      The element name.
-     * @param value
-     *      The element value.
-     */
-    public final void writeLong(final String name, final Long value) {
-        ElementBuilder.addElement(iq.getChildElement(), name, value);
-    }
-
-    /**
-     * Write a list of long values.
-     * 
-     * @param name
-     *            The element name.
-     * @param value
-     *            The element values.
      */
     public final void writeLongs(final String parentName, final String name,
             final List<Long> values) {
@@ -279,58 +255,37 @@ public final class IQWriter implements ServiceResponseWriter {
     }
 
     /**
-     * Write the artifact type to the internet query.
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeResources(java.lang.String,
+     *      java.util.List)
      * 
-     * @param name
-     *            The element name.
-     * @param value
-     *            The element value.
-     */
-    public final void writeProfileEMails(final String name,
-            final List<ProfileEMail> value) {
-        ElementBuilder.addProfileEMailElements(iq.getChildElement(), name,
-                name, value);
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeResources(java.lang.String, java.util.List)
-     *
      */
     public void writeResources(final String name, final List<Resource> values) {
         ElementBuilder.addResourceElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
     }
 
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeStreamSession(java.lang.String,
+     *      com.thinkparity.codebase.model.stream.StreamSession)
+     * 
+     */
     public final void writeStreamSession(final String name, final StreamSession value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
     /**
-     * Write a string value.
-     *
-     * @param name
-     *      The element name.
-     * @param value
-     *      The element value.
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeString(java.lang.String,
+     *      java.lang.String)
+     * 
      */
     public final void writeString(final String name, final String value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
     /**
-     * Write string values.
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeTeam(java.lang.String,
+     *      java.lang.String, java.util.List)
      * 
-     * @param parentName
-     *            The parent element name.
-     * @param name
-     *            The element name.
-     * @param values
-     *            The element values.
      */
-    public final void writeStrings(final String parentName, final String name,
-            final List<String> values) {
-        ElementBuilder.addStringElements(iq.getChildElement(), parentName, name, values);
-    }
-
     public final void writeTeam(final String name, final String childName, final List<TeamMember> values) {
         final Element parent = iq.getChildElement();
         IQ_LOGGER.logVariable("parent", parent.asXML());
@@ -348,40 +303,38 @@ public final class IQWriter implements ServiceResponseWriter {
     }
 
     /**
-     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeTimeZone(java.lang.String, java.util.TimeZone)
-     *
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeToken(java.lang.String,
+     *      com.thinkparity.codebase.model.user.Token)
+     * 
      */
-    public final void writeTimeZone(final String name, final TimeZone value) {
-        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
-    }
-
     public final void writeToken(final String name, final Token value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
     /**
-     * Write unique id value.
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeUniqueId(java.lang.String,
+     *      java.util.UUID)
      * 
-     * @param name
-     *            The element name.
-     * @param value
-     *            The element value.
      */
     public final void writeUniqueId(final String name, final UUID value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
-    public final void writeUser(final String name, final User value) {
-        final Element valueElement = ElementBuilder.addElement(
-            iq.getChildElement(), name, value.getClass());
-        XSTREAM_UTIL.marshal(value, new Dom4JWriter(valueElement));
-    }
-
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeUserReceipts(java.lang.String,
+     *      java.util.Map)
+     * 
+     */
     public final void writeUserReceipts(final String name,
             final Map<User, ArtifactReceipt> values) {
         ElementBuilder.addUserReceiptElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
     }
 
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeVCard(java.lang.String,
+     *      com.thinkparity.codebase.model.user.UserVCard)
+     * 
+     */
     public void writeVCard(final String name, final UserVCard value) {
         ElementBuilder.addVCardElement(XSTREAM_UTIL, iq.getChildElement(),
                 name, value);

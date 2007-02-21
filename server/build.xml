@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <project name="desdemona" default="help" basedir="."
-        xmlns:cs="antlib:com.puppycrawl.tools.checkstyle">
+        xmlns:cs="antlib:com.puppycrawl.tools.checkstyle"
+        xmlns:antx="antlib:com.thinkparity.antx">
     <property name="build.sysclasspath" value="ignore"/>
 
     <!-- build configuration -->
@@ -41,6 +42,7 @@
 
     <!-- input directories/files/paths -->
     <property name="vendor.dir" value="${basedir}/vendor"/>
+    <property name="vendor.derby.lib" value="${vendor.dir}/apache.org/derby/10.2.2.0/derby.jar"/>
     <property name="vendor.fop.avalon.lib" value="${vendor.dir}/fop/0.20.5/avalon-framework-cvs-200200806.jar"/>
     <property name="vendor.fop.batik.lib" value="${vendor.dir}/fop/0.20.5/batik.jar"/>
     <property name="vendor.fop.lib" value="${vendor.dir}/fop/0.20.5/fop.jar"/>
@@ -493,6 +495,7 @@ Local Configuration:
             <fileset file="${vendor.fop.lib}"/>
             <fileset file="${vendor.groovy.lib}"/>
             <fileset file="${vendor.commons-codec.lib}"/>
+            <fileset file="${vendor.derby.lib}"/>
             <fileset file="${vendor.lucene.lib}"/>
             <fileset file="${vendor.smack.lib}"/>
             <fileset file="${vendor.smackx.lib}"/>

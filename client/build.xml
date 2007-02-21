@@ -38,8 +38,8 @@ Local configuration ${localconfig} does not exist.  Please create:
     thinkparity.mode            Mode                            com.thinkparity.codebase.Mode
     thinkparity.os              Operating System                com.thinkparity.codebase.OS
     thinkparity.os-platform     Operating System Platform       com.thinkparity.codebase.Platform
-    thinkparity.product-name    Product Name                    ${ant.project.name}
-    thinkparity.release-name    Release Name                    1.0.0-DEVELOPMENT
+    thinkparity.product-name    Product Name
+    thinkparity.release-name    Release Name
     </fail>
     <fail>
         <condition>
@@ -67,6 +67,7 @@ Local configuration ${localconfig} is incomplete.  Please specify:
 Environment Configuration:
     Groovy Home:                ${env.GROOVY_HOME}
     Launch4J Home:              ${env.LAUNCH4J_HOME}
+    NSIS Home:                  ${env.NSIS_HOME}
 Build Configuration:
     Build Id:                   ${thinkparity.build-id}
     Compiler Arguments:         ${javac.compilerargs}
@@ -154,8 +155,8 @@ Local Configuration:            ${localconfig}
         path="jotm/2.0.10/ow_carol.jar"/>
 
     <!-- runtime dependencies -->
-    <antx:dependency type="java" scope="runtime" provider="hsqldb.org" version="1.8.0.2"
-        path="hsqldb/1.8.0.2/hsqldb.jar"/>
+    <antx:dependency type="java" scope="runtime" provider="apache.org" version="10.2.2.0"
+        path="apache.org/derby/10.2.2.0/derby.jar"/>
     <antx:dependency type="java" scope="compile" provider="apache.org" version="0.20.5"
         path="fop/0.20.5/batik.jar"/>
     <antx:dependency type="java" scope="runtime" provider="jivesoftware.org" version="2.0.10"
@@ -537,6 +538,20 @@ Examples:
                     args="-Dthinkparity-dir=&quot;%EXEDIR%&quot; -Dthinkparity.mode=${thinkparity.mode} -Dthinkparity.environment=${thinkparity.environment}"/>
             </config>
         </launch4j>
+    </target>
+
+    <!-- package-installer -->
+    <target name="package-installer" depends="package"
+            description="compile a null-soft installer for the package">
+        <copy todir="${target.package.dir}" file="${target.classes.dir}/install.nsi"/>
+        <exec executable="${env.NSIS_HOME}/makensis.exe" dir="${target.package.dir}">
+            <arg value="${target.package.dir}/install.nsi"/>
+        </exec>
+        <checksum file="${target.package.dir}/thinkParity-${thinkparity.release-name}.exe"
+            algorithm="MD5"/>
+        <checksum file="${target.package.dir}/thinkParity-${thinkparity.release-name}.exe"
+            algorithm="SHA"/>
+        <delete file="${target.package.dir}/install.nsi"/>
     </target>
 
     <!-- pathinfo -->

@@ -13,12 +13,15 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.UpdatePasswordProvider;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
@@ -31,8 +34,12 @@ public class UpdatePasswordAvatar extends Avatar {
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
     
+    /** Bad password. */
+    private String badPassword = null;
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPasswordField confirmNewPasswordJPasswordField = new javax.swing.JPasswordField();
+    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel forgotPasswordJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JPasswordField newPasswordJPasswordField = new javax.swing.JPasswordField();
     private final javax.swing.JButton okJButton = new javax.swing.JButton();
@@ -67,8 +74,7 @@ public class UpdatePasswordAvatar extends Avatar {
      * @return True if the input is valid; false otherwise.
      */
     public Boolean isInputValid() {
-        final String oldPassword = extractOldPassword();
-        if (null != oldPassword && 0 < oldPassword.length() && isNewPasswordValid()) {
+        if (isOldPasswordValidQuick() && isNewPasswordValid()) {
             return Boolean.TRUE;
         } else {
             return Boolean.FALSE;
@@ -79,6 +85,7 @@ public class UpdatePasswordAvatar extends Avatar {
         reloadOldPassword();
         reloadNewPassword();
         reloadConfirmNewPassword();
+        reloadErrorMessage();
         okJButton.setEnabled(Boolean.FALSE);
     }
 
@@ -166,6 +173,10 @@ public class UpdatePasswordAvatar extends Avatar {
 
         confirmNewPasswordJPasswordField.setFont(Fonts.DialogTextEntryFont);
 
+        errorMessageJLabel.setFont(Fonts.DialogFont);
+        errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
+        errorMessageJLabel.setText("!Error Message!");
+
         okJButton.setFont(Fonts.DialogButtonFont);
         okJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdatePasswordDialog.OK"));
         okJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -215,6 +226,7 @@ public class UpdatePasswordAvatar extends Avatar {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(oldPasswordJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -251,7 +263,9 @@ public class UpdatePasswordAvatar extends Avatar {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(confirmNewPasswordJLabel)
                     .addComponent(confirmNewPasswordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(53, 53, 53)
+                .addGap(17, 17, 17)
+                .addComponent(errorMessageJLabel)
+                .addGap(22, 22, 22)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(cancelJButton)
@@ -271,6 +285,17 @@ public class UpdatePasswordAvatar extends Avatar {
     }
 
     /**
+     * Determine if the string is empty.
+     * 
+     * @param text
+     *            A <code>String</code>.
+     * @return true if the string is null or blank; false otherwise.
+     */
+    private Boolean isEmpty(final String text) {
+        return (null==text || 0==text.length() ? Boolean.TRUE : Boolean.FALSE);
+    }
+
+    /**
      * Determines if the new password is valid. The "confirm new password"
      * and the "new password" must be the same.
      * 
@@ -279,8 +304,7 @@ public class UpdatePasswordAvatar extends Avatar {
     private Boolean isNewPasswordValid() {
         final String newPassword = extractNewPassword();
         final String confirmNewPassword = extractConfirmNewPassword();
-        if (null != newPassword && 0 < newPassword.length() &&
-            null != confirmNewPassword && 0 < confirmNewPassword.length() &&
+        if (!isEmpty(newPassword) && !isEmpty(confirmNewPassword) &&
             newPassword.equals(confirmNewPassword)) {
             return Boolean.TRUE;
         } else {
@@ -288,15 +312,78 @@ public class UpdatePasswordAvatar extends Avatar {
         }
     }
 
+    /**
+     * Determines if the old password is empty.
+     * 
+     * @return True if the old password is empty; false otherwise.
+     */
+    private Boolean isOldPasswordEmpty() {
+        return isEmpty(extractOldPassword());
+    }
+
+    /**
+     * Determines if the old password is correct.
+     * 
+     * @return True if the old password is correct; false otherwise.
+     */
+    private Boolean isOldPasswordValid() {
+        final String oldPassword = extractOldPassword();
+        if (!isEmpty(oldPassword)) {
+            final Boolean valid = readIsPasswordCorrect(oldPassword);
+            if (!valid) {
+                badPassword = oldPassword;
+            }
+            return valid;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    /**
+     * Determine if the input password is different from the last
+     * known bad password.
+     * 
+     * @return True if the old password is correct; false otherwise.
+     */
+    private Boolean isOldPasswordValidQuick() {
+        final String oldPassword = extractOldPassword();
+        if (!isEmpty(oldPassword)) {
+            if (null != badPassword) {
+                return !badPassword.equals(extractOldPassword());
+            } else {
+                return Boolean.TRUE;
+            }
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
     private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
-        if (isInputValid()) {
+        if (isInputValid() && isOldPasswordValid()) {
             disposeWindow();
             updatePassword();
+        } else {
+            // This is done because we may learn the password is invalid for the first time here.
+            reloadErrorMessage();
+            okJButton.setEnabled(isInputValid());
         }
     }//GEN-LAST:event_okJButtonActionPerformed
+    
+    private Boolean readIsPasswordCorrect(final String password) {
+        final Credentials credentials = ((UpdatePasswordProvider) contentProvider).readCredentials();
+        return password.equals(credentials.getPassword());
+    }
 
     private void reloadConfirmNewPassword() {
         confirmNewPasswordJPasswordField.setText("");
+    }
+
+    private void reloadErrorMessage() {
+        if (!isOldPasswordEmpty() && !isOldPasswordValidQuick()) {
+            errorMessageJLabel.setText(getString("ErrorOldPasswordInvalid"));
+        } else {
+            errorMessageJLabel.setText(" ");
+        }
     }
 
     private void reloadNewPassword() {
@@ -329,6 +416,7 @@ public class UpdatePasswordAvatar extends Avatar {
         }
         private void checkInputValid() {
             okJButton.setEnabled(isInputValid());
+            reloadErrorMessage();
         }
     }
 }

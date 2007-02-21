@@ -20,7 +20,7 @@
     <property name="cvs.compressionlevel" value="9"/>
     <property name="cvs.cvsroot" value=":pserver:${scm.credentials}@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
-    <property name="cvs.modules" value="remote/codebase remote/model vendor/apache.org/derby/10.2.2.0 vendor/fop/0.20.5 vendor/groovy vendor/xstream/1.2.1 lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/lucene lib/smack lib/smackx lib/swing-layout lib/wildfire lib/xdoclet vendor/jotm/2.0.10"/>
+    <property name="cvs.modules" value="remote/codebase remote/model vendor/apache.org/derby/10.2.2.0 vendor/fop/0.20.5 vendor/groovy/1.0 vendor/xstream/1.2.1 lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/lucene lib/smack lib/smackx lib/swing-layout lib/wildfire lib/xdoclet vendor/jotm/2.0.10"/>
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
 
     <!-- javac configuration -->
@@ -46,7 +46,7 @@
     <property name="vendor.fop.avalon.lib" value="${vendor.dir}/fop/0.20.5/avalon-framework-cvs-200200806.jar"/>
     <property name="vendor.fop.batik.lib" value="${vendor.dir}/fop/0.20.5/batik.jar"/>
     <property name="vendor.fop.lib" value="${vendor.dir}/fop/0.20.5/fop.jar"/>
-    <property name="vendor.groovy.lib" value="${vendor.dir}/groovy/1.0-JSR06/groovy.jar"/>
+    <property name="vendor.groovy.lib" value="${vendor.dir}/groovy/1.0/groovy.jar"/>
     <property name="vendor.log4j.lib" value="${vendor.dir}/log4j/1.2.13/log4j.jar"/>
     <property name="vendor.commons-codec.lib" value="${vendor.dir}/commons-codec/1.3/commons-codec.jar"/>
     <property name="vendor.lucene.lib" value="${vendor.dir}/lucene/1.9.1/lucene.jar"/>
@@ -79,7 +79,7 @@
         <pathelement location="${basedir}/vendor/fop/0.20.5/avalon-framework-cvs-20020806.jar"/>
         <pathelement location="${basedir}/vendor/fop/0.20.5/batik.jar"/>
         <pathelement location="${basedir}/vendor/fop/0.20.5/fop.jar"/>
-        <pathelement location="${basedir}/vendor/groovy/1.0-JSR06/groovy.jar"/>
+        <pathelement location="${basedir}/vendor/groovy/1.0/groovy.jar"/>
         <pathelement location="${basedir}/vendor/log4j/1.2.13/log4j.jar"/>
         <pathelement location="${basedir}/vendor/commons-codec/1.3/commons-codec.jar"/>
         <pathelement location="${basedir}/vendor/lucene/1.9.1/lucene.jar"/>

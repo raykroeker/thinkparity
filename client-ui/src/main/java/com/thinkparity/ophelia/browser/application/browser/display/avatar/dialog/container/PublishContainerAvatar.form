@@ -13,16 +13,16 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="buttonBarJPanel" alignment="1" max="32767" attributes="0"/>
-                  <Component id="progressBarJPanel" alignment="1" max="32767" attributes="0"/>
-                  <Component id="commentJScrollPane" alignment="0" pref="405" max="32767" attributes="0"/>
-                  <Component id="commentJLabel" alignment="0" pref="405" max="32767" attributes="0"/>
-                  <Component id="emailsJScrollPane" alignment="0" pref="405" max="32767" attributes="0"/>
-                  <Component id="emailsJLabel" alignment="0" pref="405" max="32767" attributes="0"/>
                   <Component id="namesJScrollPane" alignment="0" pref="405" max="32767" attributes="0"/>
+                  <Component id="emailsJLabel" alignment="0" pref="405" max="32767" attributes="0"/>
+                  <Component id="emailsJScrollPane" alignment="0" pref="405" max="32767" attributes="0"/>
+                  <Component id="commentJLabel" alignment="0" pref="405" max="32767" attributes="0"/>
+                  <Component id="commentJScrollPane" alignment="0" pref="405" max="32767" attributes="0"/>
+                  <Component id="buttonBarJPanel" alignment="0" max="32767" attributes="0"/>
+                  <Component id="progressBarJPanel" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -31,12 +31,12 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Component id="namesJScrollPane" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="emailsJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="emailsJScrollPane" pref="78" max="32767" attributes="0"/>
+              <Component id="emailsJScrollPane" min="-2" pref="58" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="commentJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
@@ -45,6 +45,7 @@
               <Component id="buttonBarJPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="progressBarJPanel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -217,7 +218,7 @@
               <Connection code="Fonts.DialogFont" type="code"/>
             </Property>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[3, 14]"/>
+              <Dimension value="[3, 17]"/>
             </Property>
           </Properties>
           <AuxValues>

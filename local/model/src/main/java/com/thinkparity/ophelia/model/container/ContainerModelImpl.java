@@ -2728,7 +2728,12 @@ public final class ContainerModelImpl extends
                 saved &= true;
             } else {
                 draftDocument = containerIO.readDraftDocument(containerId, document.getId());
-                saved &= documentDraft.getChecksum().equals(draftDocument.getChecksum());
+                if (null == draftDocument) {
+                    saved &= true;
+                } else {
+                    saved &= documentDraft.getChecksum().equals(
+                            draftDocument.getChecksum());
+                }
             }
         }
         return Boolean.valueOf(saved);

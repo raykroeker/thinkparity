@@ -14,6 +14,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.dial
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.PublishContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.RenameDocumentProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.ResetPasswordProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.UpdatePasswordProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.UpdateProfileProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.VerifyEMailProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.archive.ArchiveTabProvider;
@@ -121,6 +122,9 @@ public class ProviderFactory {
             break;
         case DIALOG_PROFILE_UPDATE:
             provider = new UpdateProfileProvider(profile, profileModel);
+            break;
+        case DIALOG_PROFILE_UPDATE_PASSWORD:
+            provider = new UpdatePasswordProvider(profile, profileModel);
             break;
         case DIALOG_PROFILE_VERIFY_EMAIL:
             provider = new VerifyEMailProvider(profile, profileModel);

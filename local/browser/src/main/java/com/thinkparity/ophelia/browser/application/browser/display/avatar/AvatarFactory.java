@@ -174,6 +174,7 @@ public class AvatarFactory {
             break;
         case DIALOG_PROFILE_UPDATE_PASSWORD:
             avatar = new UpdatePasswordAvatar();
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_PROFILE_RESET_PASSWORD:
             avatar = new ResetPasswordAvatar();

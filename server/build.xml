@@ -20,7 +20,7 @@
     <property name="cvs.compressionlevel" value="9"/>
     <property name="cvs.cvsroot" value=":pserver:${scm.credentials}@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
-    <property name="cvs.modules" value="common/xdoclet remote/codebase remote/model vendor/fop/0.20.5 vendor/groovy vendor/xstream/1.2.1 lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/lucene lib/smack lib/smackx lib/swing-layout lib/wildfire lib/xdoclet vendor/jotm/2.0.10"/>
+    <property name="cvs.modules" value="remote/codebase remote/model vendor/apache.org/derby/10.2.2.0 vendor/fop/0.20.5 vendor/groovy vendor/xstream/1.2.1 lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/lucene lib/smack lib/smackx lib/swing-layout lib/wildfire lib/xdoclet vendor/jotm/2.0.10"/>
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
 
     <!-- javac configuration -->

@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.browser.util.jdic;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.print.PrintService;
 
@@ -28,6 +30,17 @@ public class DesktopUtil {
      * the open-with dialogue if no application is associated with the file.
      */
     private static final String OPEN_PARAM_WIN32_PROTOCOL = "shell32.dll,ShellExec_RunDLL";
+
+    /**
+     * Launches the system default browser to show the given URL.
+     * 
+     * @param urlString
+     *            A URL <code>String</code>.
+     */
+    public static void browse(final String urlString) throws DesktopException {
+        final URL url = getUrl(urlString);
+        Desktop.browse(url);
+    }
 
     /**
      * Open a file.
@@ -80,6 +93,24 @@ public class DesktopUtil {
      */
     public static void print(final File file) throws DesktopException {
         Desktop.print(file);
+    }
+
+    /**
+     * Convert a string to a URL.
+     * 
+     * @param urlString
+     *            A URL <code>String</code>.
+     * @return A java <code>URL</code>.
+     * @throws DesktopException
+     */
+    private static URL getUrl(final String urlString) throws DesktopException {
+        final URL url;
+        try {
+            url = new URL(urlString);
+        } catch (final MalformedURLException mux) {
+            throw new DesktopException("The given URL is invalid.");
+        }
+        return url;
     }
 
     /**

@@ -6,12 +6,13 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog;
 
+import org.jdesktop.jdic.desktop.DesktopException;
+
 import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.StringUtil;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.util.http.Link;
 import com.thinkparity.codebase.model.util.http.LinkFactory;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Version;
@@ -21,6 +22,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Avatar
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
+import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
 
 /**
  *
@@ -30,9 +32,6 @@ public class DisplayInfoAvatar extends Avatar {
       
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
-    
-    /** An apache logger error statement. */
-    private static final String LAUNCH_WEB_BROWSER_ERROR = "[LAUNCH WEB BROWSER ERROR]";
     
     /** Creates new form DisplayInfoAvatar */
     public DisplayInfoAvatar() {
@@ -221,10 +220,9 @@ public class DisplayInfoAvatar extends Avatar {
 
     private void webPageJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_webPageJLabelMousePressed
         try {
-            String runString = "rundll32 url.dll,FileProtocolHandler " + getWebPage().toString();
-            Runtime.getRuntime().exec(runString);
-        } catch (final Throwable t) {
-            throw new BrowserException(LAUNCH_WEB_BROWSER_ERROR, t);            
+            DesktopUtil.browse(getWebPage().toString());
+        } catch (final DesktopException dx) {
+            throw new BrowserException("Cannot open thinkParity web page", dx);
         }
     }//GEN-LAST:event_webPageJLabelMousePressed
 

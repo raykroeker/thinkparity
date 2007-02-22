@@ -5,8 +5,9 @@
 package com.thinkparity.ophelia.browser.platform.action.platform.browser;
 
 
-import com.thinkparity.codebase.Application;
+import org.jdesktop.jdic.desktop.DesktopException;
 
+import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.model.util.http.Link;
 import com.thinkparity.codebase.model.util.http.LinkFactory;
 
@@ -16,6 +17,7 @@ import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
 
 /**
  * @author rob_masako@shaw.ca
@@ -38,12 +40,11 @@ public class OpenHelp extends AbstractAction {
      * 
      */
     public void invoke(final Data data) {
+        final Link helpLink = LinkFactory.getInstance(Application.OPHELIA, BrowserPlatform.getInstance().getEnvironment()).create("help");   
         try {
-            final Link helpLink = LinkFactory.getInstance(Application.OPHELIA, BrowserPlatform.getInstance().getEnvironment()).create("help");
-            String runString = "rundll32 url.dll,FileProtocolHandler " + helpLink.toString();
-            Runtime.getRuntime().exec(runString);
-        } catch (final Throwable t) {
-            throw new BrowserException("Cannot open Help web page", t);
+            DesktopUtil.browse(helpLink.toString());
+        } catch (final DesktopException dx) {
+            throw new BrowserException("Cannot open Help web page", dx);
         }
     }
 }

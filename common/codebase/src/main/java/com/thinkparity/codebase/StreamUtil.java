@@ -27,7 +27,7 @@ public abstract class StreamUtil {
 	 */
 	public static void copy(final InputStream is, final OutputStream os)
 			throws IOException {
-		copy(is, os, 512);
+		copy(is, os, 512);    // BUFFER 512B
 	}
 
 	/**

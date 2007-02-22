@@ -20,8 +20,6 @@ import java.text.MessageFormat;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.config.Config;
-import com.thinkparity.codebase.config.ConfigFactory;
 
 /**
  * File util contains io utilities as well as commonly used file routines.
@@ -31,28 +29,14 @@ import com.thinkparity.codebase.config.ConfigFactory;
  */
 public abstract class FileUtil {
 
-	/**
-	 * Size of each block to be read/written
-	 */
-	private static final int BLOCK_SIZE;
-
-	/**
-	 * Config for fileUtil
-	 */
-	private static final Config fileUtilConfig;
-
-	/**
-	 * The read api's buffer size to use when reading the file.
-	 */
-	private static final int READ_BUFFER_SIZE;
-
 	/** Format for file sizes. */
     private static Format SIZE_FORMAT;
 
+    /** An internal buffer. */
+    private static final Integer BUFFER;
+
     static {
-		fileUtilConfig = ConfigFactory.newInstance(FileUtil.class);
-		READ_BUFFER_SIZE = Integer.parseInt(fileUtilConfig.getProperty("read.buffer.size"));
-		BLOCK_SIZE = Integer.parseInt(fileUtilConfig.getProperty("block.size"));
+        BUFFER = 1024 * 1024 * 2; // BUFFER 2MB
         SIZE_FORMAT =  new DecimalFormat("###.#");
 	}
 
@@ -323,7 +307,7 @@ public abstract class FileUtil {
 		try {
 			fis = new FileInputStream(file);
 			byteBuffer = ByteBuffer.allocate(fis.available());
-			final byte[] fileContentBuffer = new byte[READ_BUFFER_SIZE];
+			final byte[] fileContentBuffer = new byte[BUFFER];
 			int numBytesRead = fis.read(fileContentBuffer);
 			while(-1 != numBytesRead) {
 				byteBuffer.put(fileContentBuffer, 0, numBytesRead);
@@ -347,10 +331,10 @@ public abstract class FileUtil {
 	public static String readString(final File file)
 			throws FileNotFoundException, IOException {
 		final BufferedReader br =
-			new BufferedReader(new FileReader(file), READ_BUFFER_SIZE);
+			new BufferedReader(new FileReader(file), BUFFER);
 		try {
 			final StringBuffer sbuf = new StringBuffer();
-			char[] cbuf = new char[READ_BUFFER_SIZE];
+			char[] cbuf = new char[BUFFER];
 			int chars;
 			while((chars = br.read(cbuf)) > 0) {
 				sbuf.append(cbuf, 0, chars);
@@ -450,9 +434,8 @@ public abstract class FileUtil {
 			final int contentLength = content.length;
 			int amountToWrite;
 			while(amountWritten < contentLength) {
-				amountToWrite = BLOCK_SIZE > contentLength - amountWritten
-					? contentLength - amountWritten
-					: BLOCK_SIZE;
+				amountToWrite = BUFFER > contentLength - amountWritten
+					? contentLength - amountWritten : BUFFER;
 				fileOutputStream.write(content, amountWritten, amountToWrite);
 				amountWritten += amountToWrite;
 			}

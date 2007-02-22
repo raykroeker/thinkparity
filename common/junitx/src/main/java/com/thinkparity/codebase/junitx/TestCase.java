@@ -99,7 +99,7 @@ public abstract class TestCase extends junit.framework.TestCase {
     }
 
 	protected static final Integer getDefaultBufferSize() {
-        return 1024;
+        return 1024 * 1024 * 2; // BUFFER 2MB
     }
 
     /**

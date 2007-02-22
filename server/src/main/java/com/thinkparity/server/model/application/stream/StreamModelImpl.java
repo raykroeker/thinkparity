@@ -32,14 +32,10 @@ final class StreamModelImpl extends AbstractModelImpl {
     /** The character set used by the stream server. */
     static final Charset CHARSET;
 
-    /** The size of the stream buffer to use. */
-    private static final Integer BUFFER_SIZE;
-
     /** A thinkParity <code>StreamServer</code>. */
     private static StreamServer streamServer;
 
     static {
-        BUFFER_SIZE = 1024;
         CHARSET = Charset.forName("ISO-8859-1");
     }
 
@@ -241,7 +237,7 @@ final class StreamModelImpl extends AbstractModelImpl {
             final InetAddress inetAddress) {
         final ServerSession session = new ServerSession();
         session.setCharset(CHARSET);
-        session.setBufferSize(BUFFER_SIZE);
+        session.setBufferSize(getDefaultBufferSize("stream-session"));
         session.setEnvironment(readEnvironment());
         session.setId(buildSessionId(userId));
         session.setInetAddress(inetAddress);

@@ -13,7 +13,13 @@ import com.thinkparity.codebase.model.user.User;
  */
 public interface Preferences {
 
-	public void clearPassword();
+    public void clearPassword();
+
+    public Integer getBufferSize(final String context);
+
+	public Integer getDefaultBufferSize();
+
+	public Long getLastRun();
 
 	public Locale getLocale();
 
@@ -21,9 +27,7 @@ public interface Preferences {
 
 	public User getSystemUser();
 
-	public String getUsername();
-
-    public Long getLastRun();
+    public String getUsername();
 
 	public Boolean isSetLocale();
 

@@ -22,7 +22,7 @@ public final class StreamServerTest extends StreamTestCase {
         datum.streamServer.start();
         
         final ServerSession session = new ServerSession();
-        session.setBufferSize(1024);
+        session.setBufferSize(getDefaultBufferSize());
         session.setCharset(Charset.forName("ISO-8859-1"));
         session.setEnvironment(datum.testUser.getEnvironment());
         session.setId(createSessionId(datum.testUser.getId()));

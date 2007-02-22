@@ -3,8 +3,6 @@
  */
 package com.thinkparity.ophelia.model.document;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -53,9 +51,10 @@ public class CreateVersionTest extends DocumentTestCase {
         final Calendar createdOn = currentDateTime();
         DocumentVersion dv = null;
         try {
-            final InputStream dv_is = new BufferedInputStream(new FileInputStream(getInputFile("JUnitTestFrameworkMod.doc")), 1024);
+            final InputStream dv_is = new FileInputStream(
+                    getInputFile("JUnitTestFrameworkMod.doc"));
             try {
-                 dv = getDocumentModel(datum.junit).createVersion(d.getId(), dv_is, 1024, createdOn);
+                 dv = getDocumentModel(datum.junit).createVersion(d.getId(), dv_is, getDefaultBufferSize(), createdOn);
             } finally {
                 dv_is.close();
             }
@@ -76,16 +75,16 @@ public class CreateVersionTest extends DocumentTestCase {
         final File file = new File(getOutputDirectory(), d.getName());
         try {
             try {
-                final OutputStream os = new BufferedOutputStream(new FileOutputStream(file), 1024);
+                final OutputStream os = new FileOutputStream(file);
                 try {
-                    StreamUtil.copy(stream, os, 1024);
+                    StreamUtil.copy(stream, os, getDefaultBufferSize());
                 } finally {
                     os.close();
                 }
     
-                final InputStream is = new BufferedInputStream(new FileInputStream(file), 1024);
+                final InputStream is = new FileInputStream(file);
                 try {
-                    final String checksum = MD5Util.md5Hex(is);
+                    final String checksum = MD5Util.md5Hex(is, getDefaultBufferSize());
                     assertEquals("Open version calculated checksum does not match expectation.", dv.getChecksum(), checksum);
                 } finally {
                     is.close();

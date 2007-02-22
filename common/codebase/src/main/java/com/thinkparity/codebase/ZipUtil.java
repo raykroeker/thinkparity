@@ -27,12 +27,6 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public class ZipUtil {
 
-    /** The stream buffer size used by add file. */
-    private static final int ADD_FILE_BUFFER = 1024;
-
-    /** The stream buffer size used by extract file. */
-    private static final int EXTRACT_FILE_BUFFER = 1024;
-
     /**
 	 * Create a zip file.
 	 * 
@@ -45,8 +39,8 @@ public class ZipUtil {
 	 * @throws IOException
 	 */
 	public static void createZipFile(final File zipFile,
-            final File inputDirectory) throws FileNotFoundException,
-            IOException {
+            final File inputDirectory, final Integer bufferSize)
+            throws FileNotFoundException, IOException {
         if (null == zipFile)
             throw new NullPointerException("zipFile cannot be null.");
         if (zipFile.exists())
@@ -72,7 +66,7 @@ public class ZipUtil {
                 if (file.getAbsolutePath().equals(zipFile.getAbsolutePath()))
                     continue;
 
-                addFile(inputDirectory, file, zipStream);
+                addFile(inputDirectory, file, zipStream, bufferSize);
 			}
             zipStream.flush();
 		} finally {
@@ -91,8 +85,8 @@ public class ZipUtil {
      * @throws IOException
      */
     public static void extractZipFile(final File zipFile,
-            final File outputDirectory) throws FileNotFoundException,
-            IOException {
+            final File outputDirectory, final Integer bufferSize)
+            throws FileNotFoundException, IOException {
         if (null == zipFile)
             throw new NullPointerException("zipFile cannot be null.");
         if (!zipFile.isFile())
@@ -112,7 +106,7 @@ public class ZipUtil {
                 if (zipEntry.isDirectory())
                     createDirectory(outputDirectory, zipEntry);
                 else
-                    extractFile(outputDirectory, zip, zipEntry);
+                    extractFile(outputDirectory, zip, zipEntry, bufferSize);
             }
         } finally {
             zip.close();
@@ -131,12 +125,13 @@ public class ZipUtil {
      * @throws IOException
      */
     private static void addFile(final File inputDirectory, final File file,
-            final ZipOutputStream zipOutputStream) throws IOException {
+            final ZipOutputStream zipOutputStream, final Integer bufferSize)
+            throws IOException {
         zipOutputStream.putNextEntry(new ZipEntry(resolveName(inputDirectory, file)));
         try {
             final InputStream fileStream  = new FileInputStream(file);
             try {
-                StreamUtil.copy(fileStream, zipOutputStream, ADD_FILE_BUFFER);
+                StreamUtil.copy(fileStream, zipOutputStream, bufferSize);
             } finally {
                 fileStream.close();
             }
@@ -170,7 +165,8 @@ public class ZipUtil {
      *            A <code>ZipEntry</code>.
      */
     private static void extractFile(final File outputDirectory,
-            final ZipFile zipFile, ZipEntry zipEntry) throws IOException {
+            final ZipFile zipFile, ZipEntry zipEntry, final Integer bufferSize)
+            throws IOException {
         final InputStream zipEntryStream = zipFile.getInputStream(zipEntry);
         try {
             final File file = new File(outputDirectory, zipEntry.getName());
@@ -181,7 +177,7 @@ public class ZipUtil {
                         parentFile.getAbsolutePath());
             final OutputStream fileStream = new FileOutputStream(file);
             try {
-                StreamUtil.copy(zipEntryStream, fileStream, EXTRACT_FILE_BUFFER);
+                StreamUtil.copy(zipEntryStream, fileStream, bufferSize);
             } finally {
                 fileStream.close();
             }

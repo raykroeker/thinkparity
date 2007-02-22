@@ -4,6 +4,8 @@
 package com.thinkparity.codebase;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Vector;
 
 /**
@@ -42,9 +44,19 @@ public class FileUtilTest extends CodebaseTestCase {
 	public void testCopy() {
 		try {
 			for(final CopyData data : copyData) {
-				FileUtil.copy(data.file, data.target);
+				FileUtil.copy(data.file, data.target, getDefaultBufferSize());
 				FileUtilTest.assertTrue(data.target.exists());
-				assertContentEquals(data.file, data.target);
+                final InputStream expected = new FileInputStream(data.file);
+                try {
+                    final InputStream actual = new FileInputStream(data.target);
+                    try {
+                        assertEquals("Expected file does not match actual.", expected, actual);
+                    } finally {
+                        actual.close();
+                    }
+                } finally {
+                    expected.close();
+                }
 				assertTrue("Could not delete target file.", data.target.delete());
 			}
 		}

@@ -397,6 +397,14 @@ public class WorkspaceImpl implements Workspace {
             logging.setProperty("log4j.appender.DEFAULT.File",
                     MessageFormat.format("{0}{1}{2}", loggingRoot,
                             File.separatorChar, "thinkParity.log"));
+            // metrics appender
+            logging.setProperty("log4j.appender.METRIX_DEBUGGER", "org.apache.log4j.RollingFileAppender");
+            logging.setProperty("log4j.appender.METRIX_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
+            logging.setProperty("log4j.appender.METRIX_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
+            logging.setProperty("log4j.appender.METRIX_DEBUGGER.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
+            logging.setProperty("log4j.appender.METRIX_DEBUGGER.File",
+                    MessageFormat.format("{0}{1}{2}", loggingRoot,
+                            File.separatorChar, "thinkParity Metrics.log"));
             // sql appender
             logging.setProperty("log4j.appender.SQL_DEBUGGER", "org.apache.log4j.RollingFileAppender");
             logging.setProperty("log4j.appender.SQL_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
@@ -430,7 +438,10 @@ public class WorkspaceImpl implements Workspace {
     
                 logging.setProperty("log4j.logger.com.thinkparity.ophelia", "WARN, DEFAULT");
                 logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
-    
+
+                logging.setProperty("log4j.logger.METRIX_DEBUGGER", "NONE");
+                logging.setProperty("log4j.additivity.METRIX_DEBUGGER", "false");
+
                 logging.setProperty("log4j.logger.SQL_DEBUGGER", "NONE");
                 logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
 
@@ -447,6 +458,9 @@ public class WorkspaceImpl implements Workspace {
                 logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, CONSOLE, DEFAULT");
                 logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
     
+                logging.setProperty("log4j.logger.METRIX_DEBUGGER", "TRACE, METRIX_DEBUGGER");
+                logging.setProperty("log4j.additivity.METRIX_DEBUGGER", "false");
+
                 logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
                 logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
     
@@ -462,7 +476,10 @@ public class WorkspaceImpl implements Workspace {
     
                 logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, DEFAULT");
                 logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
-    
+
+                logging.setProperty("log4j.logger.METRIX_DEBUGGER", "DEBUG, METRIX_DEBUGGER");
+                logging.setProperty("log4j.additivity.METRIX_DEBUGGER", "false");
+
                 logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
                 logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
 
@@ -503,7 +520,9 @@ public class WorkspaceImpl implements Workspace {
             LogManager.resetConfiguration();
             PropertyConfigurator.configure(logging);
             new Log4JWrapper("DEFAULT").logInfo("{0} - {1}", "thinkParity", "1.0");
+            new Log4JWrapper("METRIX_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
             new Log4JWrapper("SQL_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
+            new Log4JWrapper("XA_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
             new Log4JWrapper("XMPP_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
         }
     }

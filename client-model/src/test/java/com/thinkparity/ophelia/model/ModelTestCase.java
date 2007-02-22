@@ -339,7 +339,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [CONTAINER'S UPDATED ON IS NULL]", container.getUpdatedOn());
     }
 
-	/**
+    /**
      * Assert the history item and all of its required memebers are not null.
      * 
      * @param assertion
@@ -374,7 +374,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [CONTAINER VERSION'S VERSION ID IS NULL]", version.getVersionId());
     }
 
-    /**
+	/**
      * Assert that the document and all of its required members are not null.
      * 
      * @param assertion
@@ -682,7 +682,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return documents;
     }
 
-
     /**
      * Add documents.
      * 
@@ -700,6 +699,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         }
         return documents;
     }
+
 
     /**
      * Archive a container.

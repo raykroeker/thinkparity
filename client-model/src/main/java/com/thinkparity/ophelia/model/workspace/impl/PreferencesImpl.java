@@ -31,17 +31,17 @@ class PreferencesImpl implements Preferences {
 		.append("The parity password cannot be modified after it has ")
 		.append("initially been set.").toString();
 
-	/**
+    /**
 	 * Assertion message for setting the username a second time.
 	 */
 	private static final String ASSERT_NOT_IS_SET_USERNAME = new StringBuffer()
 		.append("The parity username cannot be modified after it has ")
 		.append("initially been set.").toString();
 
-	/** The java properties object. */
+    /** The java properties object. */
     private final Properties javaProperties;
 
-    /** The java properties xml file to read\write. */
+	/** The java properties xml file to read\write. */
 	private final File javaPropertiesFile;
 
 	/** The workspace implementation. */
@@ -60,8 +60,24 @@ class PreferencesImpl implements Preferences {
 		this.javaPropertiesFile = new File(workspace.getWorkspaceDirectory(), "parity.xml");
 	}
 
-    public void clearPassword() {
+	public void clearPassword() {
         javaProperties.remove(Constants.Preferences.Properties.PASSWORD);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Preferences#getBufferSize(java.lang.String)
+     * 
+     */
+    public Integer getBufferSize(final String context) {
+        return getInteger("buffer." + context, getDefaultBufferSize());
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Preferences#getDefaultBufferSize()
+     * 
+     */
+    public Integer getDefaultBufferSize() {
+        return getInteger("buffer-default", 1024);
     }
 
     public Long getLastRun() {
@@ -104,33 +120,17 @@ class PreferencesImpl implements Preferences {
         javaProperties.setProperty("parity.username", username);
     }
 
-    /**
-     * Obtain a long property.
-     * 
-     * @param name
-     *            The property name.
-     * @return The property value. If the value is not specified; or it is not a
-     *         number; null will be returned.
-     */
-    Long getLong(final String name) {
-        try {
-            return Long.parseLong(javaProperties.getProperty(name));
-        } catch (final Throwable t) {
-            return null;
-        }
-    }
-
-	void initialize() {
+    void initialize() {
         javaProperties.setProperty(
                 "workspace.initialized", Boolean.TRUE.toString());
     }
 
-    Boolean isInitialized() {
+	Boolean isInitialized() {
         return Boolean.valueOf(javaProperties.getProperty(
                 "workspace.initialized", Boolean.FALSE.toString()));
     }
 
-	/**
+    /**
 	 * Load the java properties from the preferences file.
 	 * 
 	 * @return The java properties.
@@ -144,7 +144,7 @@ class PreferencesImpl implements Preferences {
 		}
 	}
 
-    /**
+	/**
 	 * Store the java properties to the preferences file.
 	 * 
 	 * @param javaProperties
@@ -158,6 +158,40 @@ class PreferencesImpl implements Preferences {
             throw workspace.translateError(t);
         }
 	}
+
+    /**
+     * Obtain a long property.
+     * 
+     * @param name
+     *            The property name.
+     * @return The property value. If the value is not specified; or it is not a
+     *         number; null will be returned.
+     */
+    private Long getLong(final String name) {
+        try {
+            return Long.parseLong(javaProperties.getProperty(name));
+        } catch (final Throwable t) {
+            return null;
+        }
+    }
+
+    /**
+     * Try to obtain an integer property.
+     * 
+     * @param name
+     *            A property name <code>String</code>.
+     * @param defaultValue
+     *            A property default value <code>Integer</code>.
+     * @return An <code>Integer</code>.
+     */
+    private Integer getInteger(final String name, final Integer defaultValue) {
+        try {
+            return Integer.parseInt(javaProperties.getProperty(name));
+            
+        } catch (final NumberFormatException nfx) {
+            return defaultValue;
+        }
+    }
 
     /**
 	 * Initialize the preferences file by creating it if it does not already

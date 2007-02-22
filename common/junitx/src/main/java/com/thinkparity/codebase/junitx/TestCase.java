@@ -6,10 +6,8 @@ package com.thinkparity.codebase.junitx;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.Calendar;
 
@@ -18,6 +16,7 @@ import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 
@@ -47,7 +46,7 @@ public abstract class TestCase extends junit.framework.TestCase {
         final String a = DateUtil.format(actual, DateImage.ISO);
         assertEquals(assertion, e, a);
     }
-    
+
     /**
      * Assert the contents of two streams are equal.
      * 
@@ -61,7 +60,7 @@ public abstract class TestCase extends junit.framework.TestCase {
     protected static void assertEquals(final String assertion,
             final InputStream expected, final InputStream actual)
             throws IOException {
-        final byte[] expectedBuffer = new byte[384];
+        final byte[] expectedBuffer = new byte[getDefaultBufferSize()];
         final byte[] actualBuffer = new byte[expectedBuffer.length];
 
         int offset = 0;
@@ -79,14 +78,14 @@ public abstract class TestCase extends junit.framework.TestCase {
             actualRead = actual.read(actualBuffer);
         }
     }
-
+    
     protected static void assertTrue(final boolean expression,
             final String assertionPattern, final Object... assertionArguments) {
         assertTrue(new MessageFormat(assertionPattern)
                 .format(assertionArguments), expression);
     }
 
-	/**
+    /**
      * Fail a test.
      * 
      * @param message
@@ -97,6 +96,10 @@ public abstract class TestCase extends junit.framework.TestCase {
     protected static final void fail(final String message,
             final Object... arguments) {
         fail(MessageFormat.format(message, arguments));
+    }
+
+	protected static final Integer getDefaultBufferSize() {
+        return 1024;
     }
 
     /**
@@ -150,24 +153,6 @@ public abstract class TestCase extends junit.framework.TestCase {
 	}
 
 	/**
-	 * Assert the content of the two files is equal.
-	 * 
-	 * @param expected
-	 *            The file with the expected content.
-	 * @param actual
-	 *            The actual content.
-	 */
-	protected void assertContentEquals(final File expected, final File actual)
-			throws FileNotFoundException, IOException {
-		final byte[] expectedBytes = readBytes(expected);
-		final byte[] actualBytes = readBytes(actual);
-		TestCase.assertEquals(expectedBytes.length, actualBytes.length);
-		for(int i = 0; i < expectedBytes.length; i++) {
-			TestCase.assertEquals(expectedBytes[i], actualBytes[i]);
-		}
-	}
-
-	/**
      * Calculate a checksum for a file's contents.
      * 
      * @param file
@@ -208,7 +193,8 @@ public abstract class TestCase extends junit.framework.TestCase {
         assertTrue(target.canWrite(), "Target must be writable.");
         final File[] inputFiles = getInputFiles();
         for (final File inputFile : inputFiles) {
-            FileUtil.copy(inputFile, new File(target, inputFile.getName()));
+            FileUtil.copy(inputFile, new File(target, inputFile.getName()),
+                    getDefaultBufferSize());
         }
     }
 
@@ -384,30 +370,4 @@ public abstract class TestCase extends junit.framework.TestCase {
         logger.logTraceId();
         super.tearDown();
     }
-
-    /**
-	 * Read the byte content from a file.
-	 * 
-	 * @param file
-	 *            The file to read.
-	 * @return The byte content.
-	 */
-	private byte[] readBytes(final File file) throws FileNotFoundException,
-			IOException {
-		FileInputStream fis = null;
-		final ByteBuffer byteBuffer;
-		try {
-			fis = new FileInputStream(file);
-			byteBuffer = ByteBuffer.allocate(fis.available());
-			final byte[] fileContentBuffer = new byte[512];
-			int numBytesRead = fis.read(fileContentBuffer);
-			while(-1 != numBytesRead) {
-				byteBuffer.put(fileContentBuffer, 0, numBytesRead);
-				// re-read from the stream
-				numBytesRead = fis.read(fileContentBuffer);
-			}
-		}
-		finally { fis.close(); }
-		return byteBuffer.array();
-	}
 }

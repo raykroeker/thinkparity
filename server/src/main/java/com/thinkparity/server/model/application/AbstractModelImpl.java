@@ -149,7 +149,7 @@ public abstract class AbstractModelImpl
         Assert.assertTrue(message, actualJID.equals(expectedJID));
     }
 
-	/**
+    /**
      * Assert that the user id matched that of the authenticated user.
      * 
      * @param userId
@@ -206,7 +206,7 @@ public abstract class AbstractModelImpl
                 uniqueId);
     }
 
-    /**
+	/**
 	 * Create a jabber id for the username.
 	 * 
 	 * @param username
@@ -352,6 +352,7 @@ public abstract class AbstractModelImpl
             backupEvent(userId, userId, event);
         }
     }
+
     /**
      * Enqueue a priority event for a user.
      * 
@@ -397,7 +398,6 @@ public abstract class AbstractModelImpl
             backupEvent(userId, userId, event);
         }
     }
-
     /**
      * Obtain a thinkParity archive interface.
      * 
@@ -441,7 +441,7 @@ public abstract class AbstractModelImpl
         return sessionList;
     }
 
-	/**
+    /**
      * Obtain the parity contact interface.
      * 
      * @return The parity contact interface.
@@ -449,6 +449,28 @@ public abstract class AbstractModelImpl
 	protected ContactModel getContactModel() {
 		return ContactModel.getModel(session);
 	}
+
+    /**
+     * Obtain the default buffer size.
+     * 
+     * @return A buffer size <code>Integer</code>.
+     */
+    protected final Integer getDefaultBufferSize() {
+        return 1024;
+    }
+
+	/**
+     * Obtain the default buffer size.
+     * 
+     * @return A buffer size <code>Integer</code>.
+     */
+    protected final Integer getDefaultBufferSize(final String context) {
+        if ("stream-session".equals(context)) {
+            return 1024;
+        } else {
+            return getDefaultBufferSize();
+        }
+    }
 
     /**
      * Obtain the local environment.

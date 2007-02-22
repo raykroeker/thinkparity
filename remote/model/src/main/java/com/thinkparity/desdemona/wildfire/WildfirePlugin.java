@@ -189,6 +189,22 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
         logging.setProperty("log4j.appender.DESDEMONA_XMPP_DEBUGGER.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity Server XMPP.log"));
+        // ophelia metrix appender
+        logging.setProperty("log4j.appender.METRIX_DEBUGGER", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.METRIX_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
+        logging.setProperty("log4j.appender.METRIX_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.METRIX_DEBUGGER.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
+        logging.setProperty("log4j.appender.METRIX_DEBUGGER.File",
+                MessageFormat.format("{0}{1}{2}", loggingRoot,
+                        File.separatorChar, "thinkParity Metrics.log"));
+        // ophelia xa appender
+        logging.setProperty("log4j.appender.XA_DEBUGGER", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.XA_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
+        logging.setProperty("log4j.appender.XA_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.XA_DEBUGGER.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
+        logging.setProperty("log4j.appender.XA_DEBUGGER.File",
+                MessageFormat.format("{0}{1}{2}", loggingRoot,
+                        File.separatorChar, "thinkParity XA.log"));
         // ophelia xmpp appender
         logging.setProperty("log4j.appender.XMPP_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
@@ -217,9 +233,15 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
             // ophelia
             logging.setProperty("log4j.logger.com.thinkparity.ophelia", "WARN, DEFAULT");
             logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
+            // ophelia metrix
+            logging.setProperty("log4j.logger.METRIX_DEBUGGER", "NONE");
+            logging.setProperty("log4j.additivity.METRIX_DEBUGGER", "false");
             // ophelia sql
             logging.setProperty("log4j.logger.SQL_DEBUGGER", "NONE");
             logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
+            // ophelia xa
+            logging.setProperty("log4j.logger.XA_DEBUGGER", "NONE");
+            logging.setProperty("log4j.additivity.XA_DEBUGGER", "false");
             // ophelia xmpp
             logging.setProperty("log4j.logger.XMPP_DEBUGGER", "NONE");
             logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
@@ -241,9 +263,15 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
             // ophelia
             logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, CONSOLE, DEFAULT");
             logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
+            // ophelia metrix
+            logging.setProperty("log4j.logger.METRIX_DEBUGGER", "DEBUG, METRIX_DEBUGGER");
+            logging.setProperty("log4j.additivity.METRIX_DEBUGGER", "false");
             // ophelia sql
             logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
             logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
+            // ophelia xa
+            logging.setProperty("log4j.logger.XA_DEBUGGER", "DEBUG, XA_DEBUGGER");
+            logging.setProperty("log4j.additivity.XA_DEBUGGER", "false");
             // ophelia xmpp
             logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
             logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
@@ -265,9 +293,15 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
             // ophelia
             logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, DEFAULT");
             logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
+            // ophelia metrix
+            logging.setProperty("log4j.logger.METRIX_DEBUGGER", "DEBUG, METRIX_DEBUGGER");
+            logging.setProperty("log4j.additivity.METRIX_DEBUGGER", "false");
             // ophelia sql
             logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
             logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
+            // ophelia xa
+            logging.setProperty("log4j.logger.XA_DEBUGGER", "DEBUG, XA_DEBUGGER");
+            logging.setProperty("log4j.additivity.XA_DEBUGGER", "false");
             // ophelia xmpp
             logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
             logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");

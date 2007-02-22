@@ -29,7 +29,7 @@ public class MD5Util {
 		return DigestUtils.md5(data);
 	}
 
-	/**
+    /**
      * Create an MD5 hex encoded checksum of an input stream.
      * 
      * @param inputStream
@@ -37,9 +37,10 @@ public class MD5Util {
      * @return An MD5 hex encoded checksum.
      * @throws IOException
      */
-    public static String md5Hex(final InputStream inputStream) throws IOException {
+    public static String md5Hex(final InputStream inputStream,
+            final Integer bufferSize) throws IOException {
         final MessageDigest messageDigest = getDigest();
-        final byte[] bytes = new byte[512];
+        final byte[] bytes = new byte[bufferSize];
         int bytesRead;
         while (-1 != (bytesRead = inputStream.read(bytes))) {
             messageDigest.update(bytes, 0, bytesRead);

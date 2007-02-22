@@ -13,8 +13,6 @@ import java.util.Vector;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
-import com.thinkparity.ophelia.model.Constants.IO;
-
 import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
@@ -60,7 +58,7 @@ public class CreateTest extends DocumentTestCase {
 
         InputStream content;
 		for(final File inputFile : getInputFiles()) {
-            content = new BufferedInputStream(new FileInputStream(inputFile), IO.BUFFER_SIZE);
+            content = new BufferedInputStream(new FileInputStream(inputFile), getDefaultBufferSize());
             data.add(new Fixture(content, documentModel, inputFile.getName()));
 		}
 	}

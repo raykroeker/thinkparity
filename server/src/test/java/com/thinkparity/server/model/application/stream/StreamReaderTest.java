@@ -68,7 +68,7 @@ public final class StreamReaderTest extends StreamTestCase {
             final InputStream downloadInputStream = new FileInputStream(datum.outputFile);
             String downloadChecksum;
             try {
-                downloadChecksum = MD5Util.md5Hex(downloadInputStream, 1024);
+                downloadChecksum = MD5Util.md5Hex(downloadInputStream, getDefaultBufferSize());
             } catch (final Throwable t) {
                 downloadChecksum = null;
             } finally {
@@ -78,7 +78,7 @@ public final class StreamReaderTest extends StreamTestCase {
             final InputStream uploadInputStream = new FileInputStream(datum.inputFile);
             String uploadChecksum;
             try {
-                uploadChecksum = MD5Util.md5Hex(uploadInputStream, 1024);
+                uploadChecksum = MD5Util.md5Hex(uploadInputStream, getDefaultBufferSize());
             } catch (final Throwable t) {
                 uploadChecksum = null;
             } finally {

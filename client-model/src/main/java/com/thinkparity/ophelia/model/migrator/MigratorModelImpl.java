@@ -302,7 +302,8 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     private String upload(final File file) throws FileNotFoundException,
             IOException {
         final StreamSession session = getSessionModel().createStreamSession();
-        final InputStream stream = new BufferedInputStream(new FileInputStream(file), 1024);
+        final InputStream stream = new BufferedInputStream(
+                new FileInputStream(file), getDefaultBufferSize());
         final Long streamSize = file.length();
         try {
             return uploadStream(new UploadMonitor() {

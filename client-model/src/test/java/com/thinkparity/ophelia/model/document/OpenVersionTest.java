@@ -64,7 +64,7 @@ public class OpenVersionTest extends DocumentTestCase {
                 }
                 is = new FileInputStream(file);
                 try {
-                    final String checksum = MD5Util.md5Hex(is);
+                    final String checksum = MD5Util.md5Hex(is, getDefaultBufferSize());
                     assertEquals("Open version checksum does not match expectation.", getInputFileMD5Checksum("JUnitTestFramework.doc"), checksum);
                 } finally {
                     is.close();
@@ -75,7 +75,7 @@ public class OpenVersionTest extends DocumentTestCase {
                         try {
                             final InputStream is = new FileInputStream(file);
                             try {
-                                final String checksum = MD5Util.md5Hex(is);
+                                final String checksum = MD5Util.md5Hex(is, getDefaultBufferSize());
                                 assertEquals("Open version checksum does not match expectation.", getInputFileMD5Checksum("JUnitTestFramework.doc"), checksum);
                             } finally {
                                 is.close();

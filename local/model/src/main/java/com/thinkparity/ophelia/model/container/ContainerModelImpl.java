@@ -94,39 +94,14 @@ public final class ContainerModelImpl extends
         Model<ContainerListener> implements ContainerModel,
         InternalContainerModel {
 
-    /** The create draft buffer size. */
-    private static final Integer CREATE_DRAFT_BUFFER;
-
-    /** The create draft document api's buffer size. */
-    private static final Integer CREATE_DRAFT_DOCUMENT_BUFFER;
-
-    /** The upload stream buffer size. */
-    private static final Integer PUBLISH_UPLOAD_STREAM_BUFFER;
-
-    /** The publish create version buffer size. */
-    private static final Integer PUBLISH_CREATE_VERSION_BUFFER;
-
-    /** The restore api create version buffer size. */
-    private static final Integer RESTORE_CREATE_VERSION_BUFFER;
-
-    /** The save draft api update draft document buffer size. */
-    private static final Integer SAVE_DRAFT_UPDATE_DRAFT_DOCUMENT_BUFFER;
-
-    /** The save draft api write file buffer size. */
-    private static final Integer SAVE_DRAFT_WRITE_FILE_BUFFER;
-
-    /** The upload stream step increment. */
-    private static final int STEP_SIZE = 1024;
+    /**
+     * Used by the progress monitor to determine the number of steps based on
+     * file size.
+     */
+    private static final Integer STEP_SIZE;
 
     static {
-        final Integer buffer = 1024;
-        CREATE_DRAFT_BUFFER = buffer;
-        CREATE_DRAFT_DOCUMENT_BUFFER = buffer;
-        PUBLISH_UPLOAD_STREAM_BUFFER = buffer;
-        RESTORE_CREATE_VERSION_BUFFER = buffer;
-        SAVE_DRAFT_UPDATE_DRAFT_DOCUMENT_BUFFER = buffer;
-        SAVE_DRAFT_WRITE_FILE_BUFFER = buffer;
-        PUBLISH_CREATE_VERSION_BUFFER = buffer;
+        STEP_SIZE = 1024;
     }
 
     /** The artifact io layer. */
@@ -399,7 +374,7 @@ public final class ContainerModelImpl extends
                         draftDocument.setSize(documentDraft.getSize());
                         stream = documentModel.openVersion(document.getId(), versionId);
                         try {
-                            containerIO.createDraftDocument(draftDocument, stream, CREATE_DRAFT_BUFFER);
+                            containerIO.createDraftDocument(draftDocument, stream, getDefaultBufferSize());
                         } finally {
                             stream.close();
                         }
@@ -943,8 +918,7 @@ public final class ContainerModelImpl extends
                                     documentModel.createVersion(
                                             locks.get(document),
                                             document.getId(), stream,
-                                            PUBLISH_CREATE_VERSION_BUFFER,
-                                            publishedOn);
+                                            getDefaultBufferSize(), publishedOn);
                             } finally {
                                 stream.close();
                             }
@@ -1936,11 +1910,11 @@ public final class ContainerModelImpl extends
                         documentFileChannel.position(0);
                         file = workspace.createTempFile();
                         try {
-                            FileUtil.write(documentFileChannel, file, SAVE_DRAFT_WRITE_FILE_BUFFER);
+                            FileUtil.write(documentFileChannel, file, getDefaultBufferSize());
                             stream = new FileInputStream(file);
                             try {
-                                containerIO.updateDraftDocument(draftDocument, stream,
-                                        SAVE_DRAFT_UPDATE_DRAFT_DOCUMENT_BUFFER);
+                                containerIO.updateDraftDocument(draftDocument,
+                                        stream, getDefaultBufferSize());
                             } finally {
                                 stream.close();
                             }
@@ -2324,7 +2298,8 @@ public final class ContainerModelImpl extends
         draftDocument.setSize(documentDraft.getSize());
         final InputStream stream = getDocumentModel().openDraft(documentId);
         try {
-            containerIO.createDraftDocument(draftDocument, stream, CREATE_DRAFT_DOCUMENT_BUFFER);
+            containerIO.createDraftDocument(draftDocument, stream,
+                    getDefaultBufferSize());
         } finally {
             stream.close();
         }
@@ -2524,10 +2499,10 @@ public final class ContainerModelImpl extends
                     versionsPublishedBy, documents, documentsSize, publishedTo);
 
             final File zipFile = new File(exportFileSystem.getRoot(), exportFileName);
-            ZipUtil.createZipFile(zipFile, exportFileSystem.getRoot());
+            ZipUtil.createZipFile(zipFile, exportFileSystem.getRoot(), getDefaultBufferSize());
             final File exportFile = new File(exportDirectory, zipFile.getName());
-            FileUtil.copy(zipFile, exportFile, Boolean.TRUE,
-                    getString("container.export.niceFilePattern"));
+            FileUtil.copy(zipFile, exportFile, getDefaultBufferSize(),
+                    Boolean.TRUE, getString("container.export.niceFilePattern"));
             return exportFile;
         } finally {
             exportFileSystem.deleteTree();
@@ -3123,8 +3098,7 @@ public final class ContainerModelImpl extends
             fireStageBegin(monitor, PublishStage.UploadStream, documentVersion.getName());
                 stream = new BufferedInputStream(documentModel.openVersion(
                         documentVersion.getArtifactId(),
-                        documentVersion.getVersionId()),
-                        PUBLISH_UPLOAD_STREAM_BUFFER);
+                        documentVersion.getVersionId()), getDefaultBufferSize());
                 try {
                     documentVersionStreamIds.put(documentVersion,
                             uploadStream(new UploadMonitor() {
@@ -3417,7 +3391,8 @@ public final class ContainerModelImpl extends
                                         document.getUniqueId(), documentVersion.getVersionId());
                             try {
                                 documentIO.createVersion(documentVersion,
-                                        documentVersionStream, RESTORE_CREATE_VERSION_BUFFER);
+                                        documentVersionStream,
+                                        getDefaultBufferSize());
                             } finally {
                                 documentVersionStream.close();
                             }

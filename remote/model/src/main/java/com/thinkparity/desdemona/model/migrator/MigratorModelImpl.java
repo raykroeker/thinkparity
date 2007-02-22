@@ -47,21 +47,6 @@ import com.thinkparity.desdemona.model.session.Session;
  */
 class MigratorModelImpl extends AbstractModelImpl {
 
-    /** The buffer size of a file copy operation. */
-    private static final Integer CREATE_STREAM_COPY_BUFFER;
-
-    /** The buffer size of an upload operation. */
-    private static final Integer CREATE_STREAM_UPLOAD_BUFFER;
-
-    /** The buffer size used to validate a release file's checksum. */
-    private static final int VALIDATE_RELEASE_CHECKSUM_BUFFER;
-
-    static {
-        CREATE_STREAM_COPY_BUFFER = 1024;
-        CREATE_STREAM_UPLOAD_BUFFER = 1024;
-        VALIDATE_RELEASE_CHECKSUM_BUFFER = 1024;
-    }
-
     /** An <code>ArtifactSql</code> persistence. */
     private final ArtifactSql artifactSql;
 
@@ -110,14 +95,14 @@ class MigratorModelImpl extends AbstractModelImpl {
                                 new FileOutputStream(
                                         streamFileSystem.createFile(
                                                 resource.getPath())),
-                                                CREATE_STREAM_COPY_BUFFER);
+                                                getDefaultBufferSize());
                         try {
                             resourceStream = migratorSql.openResource(
                                     resource.getName(), resource.getVersion(),
                                     resource.getChecksum());
                             try {
                                 StreamUtil.copy(resourceStream, fileStream,
-                                        CREATE_STREAM_COPY_BUFFER);
+                                        getDefaultBufferSize());
                             } finally {
                                 resourceStream.close();
                             }
@@ -126,12 +111,13 @@ class MigratorModelImpl extends AbstractModelImpl {
                         }
                     }
                     // archive the resources
-                    ZipUtil.createZipFile(streamFile, streamFileSystem.getRoot());
+                    ZipUtil.createZipFile(streamFile, streamFileSystem.getRoot(),
+                            getDefaultBufferSize());
                     // upload the stream
                     final Long streamSize = streamFile.length();
                     final InputStream stream = new BufferedInputStream(
                             new FileInputStream(streamFile),
-                            CREATE_STREAM_UPLOAD_BUFFER);
+                            getDefaultBufferSize());
                     final StreamSession session = getStreamModel().createSession(userId);
                     uploadStream(new UploadMonitor() {
                         public void chunkUploaded(int chunkSize) {
@@ -199,7 +185,8 @@ class MigratorModelImpl extends AbstractModelImpl {
                 final FileSystem tempFileSystem = new FileSystem(session.createTempDirectory());
                 try {
                     // extract the release
-                    ZipUtil.extractZipFile(releaseFile, tempFileSystem.getRoot());
+                    ZipUtil.extractZipFile(releaseFile, tempFileSystem.getRoot(),
+                            getDefaultBufferSize());
                     // validate
                     validateRelease(release, resources, releaseFile, tempFileSystem);
                     // create
@@ -461,10 +448,10 @@ class MigratorModelImpl extends AbstractModelImpl {
             final List<Resource> resources, final File releaseFile,
             final FileSystem releaseFileSystem) throws IOException {
         final InputStream streamFileInput = new BufferedInputStream(
-                new FileInputStream(releaseFile), VALIDATE_RELEASE_CHECKSUM_BUFFER);
+                new FileInputStream(releaseFile), getDefaultBufferSize());
         final String streamFileChecksum;
         try {
-            streamFileChecksum = MD5Util.md5Hex(streamFileInput, VALIDATE_RELEASE_CHECKSUM_BUFFER);
+            streamFileChecksum = MD5Util.md5Hex(streamFileInput, getDefaultBufferSize());
         } finally {
             streamFileInput.close();
         }

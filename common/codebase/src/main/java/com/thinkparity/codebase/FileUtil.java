@@ -3,8 +3,6 @@
  */
 package com.thinkparity.codebase;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -66,19 +64,20 @@ public abstract class FileUtil {
 	 * @param target
 	 *            The target to copy the file to.
 	 */
-	public static void copy(final File file, final File target)
-			throws FileNotFoundException, IOException {
-		final BufferedInputStream bis = new BufferedInputStream(
-				new FileInputStream(file), 512);
+	public static void copy(final File file, final File target,
+            final Integer bufferSize) throws FileNotFoundException, IOException {
+		final InputStream input = new FileInputStream(file);
 		Assert.assertTrue("copy(File,File)", target.createNewFile());
-		final BufferedOutputStream bos = new BufferedOutputStream(
-				new FileOutputStream(target), 512);
-		try { StreamUtil.copy(bis, bos); }
+		final OutputStream output = new FileOutputStream(target);
+		try {
+            StreamUtil.copy(input, output, bufferSize);
+		}
 		finally {
-			bis.close();
-
-			bos.flush();
-			bos.close();
+			try {
+                input.close();
+            } finally {
+                output.close();
+            }
 		}
 	}
 
@@ -101,8 +100,8 @@ public abstract class FileUtil {
      *            </ol>
      */
     public static void copy(final File source, final File target,
-            final Boolean nice, final String niceMessage)
-            throws FileNotFoundException, IOException {
+            final Integer bufferSize, final Boolean nice,
+            final String niceMessage) throws FileNotFoundException, IOException {
         final File realTarget;
         if (Boolean.TRUE == nice) {
             File niceTarget = target;
@@ -118,7 +117,7 @@ public abstract class FileUtil {
         } else {
             realTarget = target;
         }
-        copy(source, realTarget);
+        copy(source, realTarget, bufferSize);
     }
 	/**
 	 * Delete a filesystem tree.
@@ -318,7 +317,7 @@ public abstract class FileUtil {
 	 * @throws IOException
 	 */
 	public static byte[] readBytes(final File file)
-			throws FileNotFoundException, IOException {
+            throws FileNotFoundException, IOException {
 		FileInputStream fis = null;
 		final ByteBuffer byteBuffer;
 		try {

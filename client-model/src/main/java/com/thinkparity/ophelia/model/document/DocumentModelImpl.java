@@ -62,27 +62,6 @@ public final class DocumentModelImpl extends
         Model<DocumentListener> implements DocumentModel,
         InternalDocumentModel {
 
-    private static final Integer CHECKSUM_FILE_BUFFER;
-
-    private static final Integer COPY_FILE_BUFFER;
-
-    /** The handle published api buffer size. */
-    private static final Integer HANDLE_PUBLISHED_CREATE_VERSION_BUFFER;
-
-    /** The is draft modified api's checksum calculation buffer. */
-    private static final Integer IS_DRAFT_MODIFIED_CHECKSUM_BUFFER;
-
-    private static final Integer WRITE_FILE_BUFFER;
-
-    static {
-        final Integer buffer = 1024;
-        CHECKSUM_FILE_BUFFER = buffer;
-        COPY_FILE_BUFFER = buffer;
-        HANDLE_PUBLISHED_CREATE_VERSION_BUFFER = buffer;
-        IS_DRAFT_MODIFIED_CHECKSUM_BUFFER = buffer;
-        WRITE_FILE_BUFFER = buffer;
-    }
-
 	/** The default document version comparator. */
 	private final Comparator<ArtifactVersion> defaultVersionComparator;
 
@@ -321,7 +300,7 @@ public final class DocumentModelImpl extends
                     try {
                         localVersion = createVersion(document.getId(),
                                 version.getVersionId(), stream,
-                                HANDLE_PUBLISHED_CREATE_VERSION_BUFFER,
+                                getDefaultBufferSize(),
                                 publishedBy, publishedOn);
                     } finally {
                         stream.close();
@@ -338,7 +317,7 @@ public final class DocumentModelImpl extends
                 try {
                     localVersion = createVersion(document.getId(),
                             version.getVersionId(), stream,
-                            HANDLE_PUBLISHED_CREATE_VERSION_BUFFER,
+                            getDefaultBufferSize(),
                             publishedBy, publishedOn);
                 } finally {
                     stream.close();
@@ -408,7 +387,7 @@ public final class DocumentModelImpl extends
                         return Boolean.FALSE;
                     } else {
                         return !latestVersion.getChecksum().equals(
-                                checksum(draftFile, IS_DRAFT_MODIFIED_CHECKSUM_BUFFER));
+                                checksum(draftFile, getDefaultBufferSize()));
                     }
                 }
             } else {
@@ -696,7 +675,7 @@ public final class DocumentModelImpl extends
             if (doesExistDraft(documentId)) {
                 final File draftFile = getDraftFile(read(documentId));
                 final DocumentDraft draft = new DocumentDraft();
-                draft.setChecksum(checksum(draftFile, CHECKSUM_FILE_BUFFER));
+                draft.setChecksum(checksum(draftFile, getDefaultBufferSize()));
                 draft.setChecksumAlgorithm(getChecksumAlgorithm());
                 draft.setDocumentId(documentId);
                 draft.setSize(draftFile.length());
@@ -990,7 +969,7 @@ public final class DocumentModelImpl extends
     private String checksum(final DocumentFileLock lock) throws IOException {
         final FileChannel fileChannel = lock.getFileChannel();
         fileChannel.position(0);
-        return checksum(fileChannel, CHECKSUM_FILE_BUFFER);
+        return checksum(fileChannel, getDefaultBufferSize());
     }
 
     /**
@@ -1008,7 +987,7 @@ public final class DocumentModelImpl extends
         try {
             final InputStream inputStream = new FileInputStream(file);
             try {
-                StreamUtil.copy(inputStream, outputStream, COPY_FILE_BUFFER);
+                StreamUtil.copy(inputStream, outputStream, getDefaultBufferSize());
             } finally {
                 inputStream.close();
             }
@@ -1402,7 +1381,7 @@ public final class DocumentModelImpl extends
         final FileChannel fileChannel = lock.getFileChannel();
         fileChannel.position(0);
 
-        final byte[] bytes = new byte[WRITE_FILE_BUFFER];
+        final byte[] bytes = new byte[getDefaultBufferSize()];
         final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         int bytesRead;
         while ((bytesRead = stream.read(bytes)) > 0) {

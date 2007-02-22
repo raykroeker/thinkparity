@@ -29,7 +29,7 @@ abstract class StreamTestCase extends ModelTestCase {
     protected StreamSession createSession(final DesdemonaTestUser testUser,
             final StreamServer server) throws UnknownHostException {
         final ServerSession session = new ServerSession();
-        session.setBufferSize(1024);
+        session.setBufferSize(getDefaultBufferSize());
         session.setCharset(Charset.forName("ISO-8859-1"));
         session.setEnvironment(testUser.getEnvironment());
         session.setId(createSessionId(testUser.getId()));
@@ -75,7 +75,7 @@ abstract class StreamTestCase extends ModelTestCase {
         final OutputStream output = server.openOutputStream(session, streamId,
                 streamOffset);
         try {
-            StreamUtil.copy(new FileInputStream(file), output);
+            StreamUtil.copy(new FileInputStream(file), output, getDefaultBufferSize());
         } finally {
             output.close();
         }

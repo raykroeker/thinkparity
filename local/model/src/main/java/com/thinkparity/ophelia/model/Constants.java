@@ -53,10 +53,6 @@ public final class Constants {
         public static final String PROPERTIES_FILENAME = "thinkParityImage.properties";
     }
 
-    public static final class IO {
-        public static final Integer BUFFER_SIZE = 512;
-    }
-
     public static final class LibraryFileExtensions {
         public static final String JAVA = ".jar";
         public static final String NATIVE = ".dll";

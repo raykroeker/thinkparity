@@ -128,10 +128,10 @@ public abstract class Model<T extends EventListener> extends
     /** The decryption cipher. */
     private transient Cipher decryptionCipher;
 
-	/** The encryption cipher. */
+    /** The encryption cipher. */
     private transient Cipher encryptionCipher;
 
-    /** A quick-lookup for the local user id. */
+	/** A quick-lookup for the local user id. */
     private JabberId localUserId;
 
     /** A list of all pending <code>EventNotifier</code>s of <code>T</code>. */
@@ -180,7 +180,7 @@ public abstract class Model<T extends EventListener> extends
                 assertArguments);
     }
 
-	/**
+    /**
      * Assert a draft doesn't exist for the container.
      * 
      * @param containerId
@@ -191,7 +191,7 @@ public abstract class Model<T extends EventListener> extends
                 "Draft for container {0} already exists.", containerId);
     }
 
-    /**
+	/**
      * Assert a draft exists for the container.
      * 
      * @param assertion
@@ -217,7 +217,7 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertTrue(assertion, doesExistLatestVersion(artifactId));
     }
 
-	/**
+    /**
      * Assert that a version exists.
      * 
      * @param assertion
@@ -233,7 +233,7 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertTrue(assertion, doesExistVersion(artifactId, versionId));
     }
 
-    /**
+	/**
      * Assert that the list of team members does not contain the user.
      * 
      * 
@@ -262,7 +262,7 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertTrue(assertion, isClosed(artifact));
     }
 
-	/**
+    /**
      * Assert the user is the key holder. An assertion that the user is online
      * is also made.
      * 
@@ -277,7 +277,7 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertTrue(assertion, isKeyHolder(artifactId));
     }
 
-    /**
+	/**
      * Assert that the logged in user is not the key holder.
      * 
      * @param assertion
@@ -323,7 +323,7 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertNotTrue("USER IS ONLINE", isOnline());
     }
 
-	/**
+    /**
      * Assert that the reference is not null.
      * 
      * @param assertion
@@ -352,7 +352,7 @@ public abstract class Model<T extends EventListener> extends
             Assert.assertNotTrue(assertion, contains(team, user));
     }
 
-    /**
+	/**
      * Assert the user is online.
      *
      */
@@ -370,11 +370,11 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertTrue(assertion, isOnline());
     }
 
-	protected void assertOnline(final StringBuffer api) {
+    protected void assertOnline(final StringBuffer api) {
         assertOnline(api.toString());
     }
 
-    /**
+	/**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.
 	 * 
@@ -688,7 +688,7 @@ public abstract class Model<T extends EventListener> extends
         return ChecksumAlgorithm.MD5.name();
     }
 
-	/**
+    /**
      * Obtain an internal contact model.
      * 
      * @return An instance of <code>InternalContactModel</code>.
@@ -697,13 +697,33 @@ public abstract class Model<T extends EventListener> extends
         return modelFactory.getContactModel();
     }
 
-    /**
+	/**
      * Obtain an internal container model.
      * 
      * @return An instance of <code>InternalContainerModel</code>.
      */
     protected final InternalContainerModel getContainerModel() {
         return modelFactory.getContainerModel();
+    }
+
+    /**
+     * Obtain the default buffer size.
+     * 
+     * @return An <code>Integer</code> default buffer size.
+     */
+    protected Integer getDefaultBufferSize() {
+        return preferences.getDefaultBufferSize();
+    }
+
+    /**
+     * Obtain a buffer size.
+     * 
+     * @param context
+     *            A context <code>String</code>.
+     * @return A buffer size <code>Integer</code>.
+     */
+    protected final Integer getBufferSize(final String context) {
+        return preferences.getBufferSize(context);
     }
 
     /**

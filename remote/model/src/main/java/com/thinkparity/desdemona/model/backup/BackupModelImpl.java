@@ -39,13 +39,6 @@ import com.thinkparity.desdemona.model.stream.InternalStreamModel;
  */
 final class BackupModelImpl extends AbstractModelImpl {
 
-    /** Create stream upload buffer. */
-    private static final Integer CREATE_STREAM_UPLOAD_BUFFER;
-
-    static {
-        CREATE_STREAM_UPLOAD_BUFFER = 4096;
-    }
-
     /**
      * Create BackupModelImpl.
      *
@@ -121,7 +114,7 @@ final class BackupModelImpl extends AbstractModelImpl {
                 final Long documentId = artifactModel.readId(uniqueId);
                 final InputStream stream = new BufferedInputStream(
                         documentModel.openVersion(documentId, versionId),
-                        CREATE_STREAM_UPLOAD_BUFFER);
+                        getDefaultBufferSize());
                 final Long streamSize = documentModel.readVersionSize(documentId, versionId);
                 logger.logVariable("documentId", documentId);
                 logger.logVariable("streamSize", streamSize);

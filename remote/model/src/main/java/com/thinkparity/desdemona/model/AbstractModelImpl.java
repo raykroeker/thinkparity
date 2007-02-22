@@ -794,6 +794,7 @@ public abstract class AbstractModelImpl
                 }
             }
         };
+        stream.mark(stream.available());
         return uploadStream(uploadMonitor, streamMonitor, streamId, session,
                 stream, streamSize, 0L);
     }

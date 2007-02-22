@@ -58,13 +58,6 @@ class ArchiveModelImpl extends AbstractModelImpl {
      */
     private static final Map<JabberId, ArchiveContext> ARCHIVE_CONTEXT_LOOKUP;
 
-    /** Create stream upload buffer. */
-    private static final Integer CREATE_STREAM_UPLOAD_BUFFER;
-
-    static {
-        CREATE_STREAM_UPLOAD_BUFFER = 4096;
-    }
-
     static {
         ARCHIVE_CONTEXT_LOOKUP = new HashMap<JabberId, ArchiveContext>();
     }
@@ -124,7 +117,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
                 final Long documentId = artifactModel.readId(uniqueId);
                 final InputStream stream = new BufferedInputStream(
                         documentModel.openVersion(documentId, versionId),
-                        CREATE_STREAM_UPLOAD_BUFFER);
+                        getDefaultBufferSize());
                 final Long streamSize = documentModel.readVersionSize(documentId, versionId);
                 logger.logVariable("documentId", documentId);
                 logger.logVariable("streamSize", streamSize);

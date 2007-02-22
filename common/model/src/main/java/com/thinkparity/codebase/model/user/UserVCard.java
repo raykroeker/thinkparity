@@ -39,7 +39,7 @@ public abstract class UserVCard {
 
     private String organizationProvince;
 
-    private String organziationAddress;
+    private String organizationAddress;
 
     private String phone;
 
@@ -168,12 +168,12 @@ public abstract class UserVCard {
     }
 
     /**
-     * Obtain organziationAddress.
+     * Obtain organizationAddress.
      *
      * @return A String.
      */
-    public String getOrganziationAddress() {
-        return organziationAddress;
+    public String getOrganizationAddress() {
+        return organizationAddress;
     }
 
     /**
@@ -409,13 +409,13 @@ public abstract class UserVCard {
     }
 
     /**
-     * Set organziationAddress.
+     * Set organizationAddress.
      *
-     * @param organziationAddress
+     * @param organizationAddress
      *		A String.
      */
-    public void setOrganziationAddress(final String organziationAddress) {
-        this.organziationAddress = organziationAddress;
+    public void setOrganizationAddress(final String organizationAddress) {
+        this.organizationAddress = organizationAddress;
     }
 
     /**

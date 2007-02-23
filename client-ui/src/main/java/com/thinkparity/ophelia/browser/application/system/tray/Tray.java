@@ -70,18 +70,22 @@ public final class Tray {
 		systemTrayIcon = new TrayIcon(Icons.Tray.TRAY_ICON_OFFLINE);
         systemTrayIcon.addBalloonActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-                if(systemApplication.isBrowserRunning())
+                if(systemApplication.isBrowserRunning()) {
+                    systemApplication.runIconify(Boolean.FALSE);
                     systemApplication.runMoveBrowserToFront();
-                else
+                } else {
                     systemApplication.runRestoreBrowser();
+                }
 			}
 		});
 		systemTrayIcon.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-                if(systemApplication.isBrowserRunning())
+                if(systemApplication.isBrowserRunning()) {
+                    systemApplication.runIconify(Boolean.FALSE);
                     systemApplication.runMoveBrowserToFront();
-                else
+                } else {
                     systemApplication.runRestoreBrowser();
+                }
 			}
 		});
         systemTrayIcon.setPopupMenu(menuBuilder.createPopup());

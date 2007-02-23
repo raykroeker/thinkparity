@@ -1047,6 +1047,24 @@ public class Browser extends AbstractApplication {
 	}
 
     /**
+     * Iconify (or uniconify) the browser application.
+     * 
+     * @param iconify
+     *            A <code>Boolean</code> indicating to iconify or uniconify.
+     */
+    public void iconify(final Boolean iconify) {
+        if (iconify != isBrowserWindowIconified()) {
+            int state = mainWindow.getExtendedState();
+            if (iconify) {
+                state |= JFrame.ICONIFIED;
+            } else {
+                state &= ~JFrame.ICONIFIED;
+            }
+            mainWindow.setExtendedState(state);
+        }
+    }
+
+    /**
      * Initialize the status message.
      */
     public void initializeStatus() {
@@ -1064,18 +1082,14 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Maximize (or un-maximize) the browser application.
+     * Maximize (or unmaximize) the browser application.
+     * 
+     * @param maximize
+     *            A <code>Boolean</code> indicating to maximize or unmaximize.
      */
-    public void maximize() {
-        mainWindow.maximizeMainWindow(!isBrowserWindowMaximized());
+    public void maximize(final Boolean maximize) {
+        mainWindow.maximizeMainWindow(maximize);
     }
-    
-    /**
-	 * Minimize the browser application.
-	 */
-	public void minimize() {
-		if(!isBrowserWindowMinimized()) { mainWindow.setExtendedState(JFrame.ICONIFIED); }
-	}
 
 	/**
      * Move and resize the browser window.
@@ -2140,7 +2154,7 @@ public class Browser extends AbstractApplication {
 		}
 	}
 
-    private Boolean isBrowserWindowMinimized() {
+    private Boolean isBrowserWindowIconified() {
 		return JFrame.ICONIFIED == mainWindow.getExtendedState();
 	}
     

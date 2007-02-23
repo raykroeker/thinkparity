@@ -36,7 +36,14 @@ public class Show extends AbstractAction {
     @Override
     public void invoke(final Data data) {
         final Long invitationId = (Long) data.get(DataKey.INVITATION_ID);
+        // Restore the Browser if it is hibernating
         browser.runPlatformBrowserRestore();
+
+        // Uniconify and move to front
+        browser.iconify(Boolean.FALSE);
+        browser.moveToFront();
+
+        // Select the contact tab and show the invitation
         browser.selectTab(MainTitleAvatar.TabId.CONTACT);
         browser.showContactInvitation(invitationId);
     }

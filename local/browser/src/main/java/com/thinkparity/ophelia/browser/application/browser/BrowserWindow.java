@@ -304,11 +304,15 @@ public class BrowserWindow extends AbstractJFrame {
             mainWindowLocation.setLocation(pFinal);
         }
     }
-    
+
     /**
-     * Maximize (or un-maximize) the browser application.
+     * Maximize (or unmaximize) the browser application.
+     * 
+     * @param maximize
+     *            A <code>Boolean</code> indicating to maximize or unmaximize.
      */
     public void maximizeMainWindow(final Boolean maximize) {
+        int state = getExtendedState();
         if (maximize) {
             // Take care to save the un-maximized size and location in mainWindowSize
             // and mainWindowLocation, since these are the values we want to persist.
@@ -316,14 +320,14 @@ public class BrowserWindow extends AbstractJFrame {
             mainWindowLocation.setLocation(getLocation());
             GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
             setMaximizedBounds(env.getMaximumWindowBounds());
-            setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
+            state |= JFrame.MAXIMIZED_BOTH;
         } else {
-            setExtendedState(JFrame.NORMAL);
+            state &= ~JFrame.MAXIMIZED_BOTH;
         }
-        
+        setExtendedState(state);
         roundCorners();
     }
-   
+
     /**
      * Enable or disable the semi-transparent layer.
      * 

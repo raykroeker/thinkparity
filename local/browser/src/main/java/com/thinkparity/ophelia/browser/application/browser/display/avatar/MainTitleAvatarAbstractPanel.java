@@ -39,7 +39,7 @@ abstract class MainTitleAvatarAbstractPanel extends AbstractJPanel {
             public void mousePressed(final java.awt.event.MouseEvent e) {
                 if (e.getButton()==MouseEvent.BUTTON1) {
                     if (e.getClickCount() % 2 == 0) {
-                        getBrowser().maximize();
+                        getBrowser().maximize(!getBrowser().isBrowserWindowMaximized());
                     }
                 }
             }

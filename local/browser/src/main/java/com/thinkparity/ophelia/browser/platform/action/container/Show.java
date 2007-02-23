@@ -36,7 +36,14 @@ public class Show extends AbstractAction {
     @Override
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
+        // Restore the Browser if it is hibernating
         browser.runPlatformBrowserRestore();
+
+        // Uniconify and move to front
+        browser.iconify(Boolean.FALSE);
+        browser.moveToFront();
+
+        // Select the container tab and show the container
         browser.selectTab(MainTitleAvatar.TabId.CONTAINER);
         browser.expandContainer(containerId, Boolean.FALSE);
     }

@@ -118,7 +118,7 @@ public class BrowserMenuBar extends JMenuBar {
             public void mousePressed(final java.awt.event.MouseEvent e) {
                 if (e.getButton()==MouseEvent.BUTTON1) {
                     if (e.getClickCount() % 2 == 0) {
-                        browser.maximize();
+                        browser.maximize(!browser.isBrowserWindowMaximized());
                     }
                 }
             }
@@ -223,7 +223,7 @@ public class BrowserMenuBar extends JMenuBar {
     }
 
     private void minimizeJButtonActionPerformed(final java.awt.event.ActionEvent e) {
-        browser.minimize();
+        browser.iconify(Boolean.TRUE);
     }
 
     private void minimizeJButtonMouseEntered(final java.awt.event.MouseEvent e) {
@@ -235,7 +235,8 @@ public class BrowserMenuBar extends JMenuBar {
     }
 
     private void maximizeJButtonActionPerformed(final java.awt.event.ActionEvent e) {
-        browser.maximize();
+        browser.maximize(!browser.isBrowserWindowMaximized());
+        
     }
 
     private void maximizeJButtonMouseEntered(final java.awt.event.MouseEvent e) {

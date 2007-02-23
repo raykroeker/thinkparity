@@ -22,6 +22,7 @@ import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.platform.browser.Iconify;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
@@ -160,6 +161,13 @@ public class SystemApplication extends AbstractApplication {
 	 * 
 	 */
 	public void restoreState(final State state) {}
+
+    /** Run the iconify action. */
+    public void runIconify(final Boolean iconify) {
+        final Data data = new Data(1);
+        data.set(Iconify.DataKey.ICONIFY, iconify);
+        runLater(ActionId.PLATFORM_BROWSER_ICONIFY, data);
+    }
 
     /** Run the exit platform action. */
     public void runExitPlatform() {

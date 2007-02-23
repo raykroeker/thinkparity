@@ -16,14 +16,15 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="1" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="logoJLabel" min="-2" pref="34" max="-2" attributes="1"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="notificationJLabel" alignment="0" pref="235" max="32767" attributes="1"/>
-                  <Component id="notificationTitleJPanel" alignment="0" pref="235" max="32767" attributes="0"/>
                   <Component id="closeJButton" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="logoJLabel" alignment="0" pref="235" max="32767" attributes="1"/>
-                  <Component id="controlJPanel" alignment="0" pref="235" max="32767" attributes="1"/>
+                  <Component id="notificationTitleJPanel" alignment="0" pref="195" max="32767" attributes="1"/>
+                  <Component id="notificationJLabel" alignment="0" pref="195" max="32767" attributes="1"/>
+                  <Component id="controlJPanel" alignment="1" pref="195" max="32767" attributes="1"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -31,17 +32,20 @@
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="closeJButton" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="logoJLabel" min="-2" pref="47" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="notificationTitleJPanel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="notificationJLabel" pref="39" max="32767" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="controlJPanel" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                  <Component id="logoJLabel" alignment="0" max="32767" attributes="1"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="closeJButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                      <Component id="notificationTitleJPanel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="notificationJLabel" min="-2" pref="37" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="controlJPanel" min="-2" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -75,9 +79,9 @@
     </Component>
     <Component class="javax.swing.JLabel" name="logoJLabel">
       <Properties>
-        <Property name="horizontalAlignment" type="int" value="0"/>
+        <Property name="horizontalAlignment" type="int" value="2"/>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/images/thinkParityLogo.png"/>
+          <Image iconType="3" name="/images/ThinkParity32x32.png"/>
         </Property>
         <Property name="verticalAlignment" type="int" value="1"/>
       </Properties>
@@ -114,6 +118,15 @@
         </Component>
       </SubComponents>
     </Container>
+    <Component class="javax.swing.JLabel" name="notificationJLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="!Notification text!"/>
+        <Property name="verticalAlignment" type="int" value="1"/>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
+      </AuxValues>
+    </Component>
     <Container class="javax.swing.JPanel" name="controlJPanel">
       <Properties>
         <Property name="opaque" type="boolean" value="false"/>
@@ -185,14 +198,5 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JLabel" name="notificationJLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="!Notification text!"/>
-        <Property name="verticalAlignment" type="int" value="1"/>
-      </Properties>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
-      </AuxValues>
-    </Component>
   </SubComponents>
 </Form>

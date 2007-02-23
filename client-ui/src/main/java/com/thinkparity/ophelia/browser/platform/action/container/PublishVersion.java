@@ -128,7 +128,9 @@ public class PublishVersion extends AbstractAction {
                 public void processBegin() {
                     monitor.monitor();
                 }
-                public void processEnd() {}
+                public void processEnd() {
+                    monitor.complete();
+                }
                 public void stageBegin(final PublishStage stage,
                         final Object data) {
                     if (null != stages && stages.intValue() > 0) {

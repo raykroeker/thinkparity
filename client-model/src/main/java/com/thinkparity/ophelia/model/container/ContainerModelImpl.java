@@ -2384,6 +2384,7 @@ public final class ContainerModelImpl extends
             for(final Document document : draft.getDocuments()) {
                 containerIO.deleteDraftArtifactRel(containerId, document.getId());
             }
+            containerIO.deleteDraftDocuments(containerId);
             containerIO.deleteDraft(containerId);
         }
         // delete the team

@@ -548,25 +548,44 @@ Local Configuration:
 
     <!-- unit test -->
     <target name="test" depends="test-compile">
+        <!-- if junitx.log4j.* is not set; use defaults; otherwise use the
+            values themselves -->
+        <condition property="inner.junitx.log4j.level"
+                value="${junitx.log4j.level}" else="INFO">
+            <isset property="junitx.log4j.level"/>
+        </condition>
+        <condition property="inner.junitx.log4j.console"
+                value="${junitx.log4j.console}" else="false">
+            <isset property="junitx.log4j.console"/>
+        </condition>
+        <condition property="inner.test"
+                value="**/${test}Test.class" else="**/*Test.class">
+            <isset property="test"/>
+        </condition>
+
         <junit fork="on" forkmode="once" reloading="false"
                 errorproperty="junit.didError" failureproperty="junit.didFail">
+            <jvmarg value="-Dthinkparity.mode=${thinkparity.mode}"/>
+            <jvmarg value="-Djunitx.log4j.level=${inner.junitx.log4j.level}"/>
+            <jvmarg value="-Djunitx.log4j.console=${inner.junitx.log4j.console}"/>
+
             <classpath refid="project.test-classpath"/>
             <formatter type="brief" usefile="false"/>
 
-            <!-- execute single test -->
-            <test if="test" name="${test}" todir="${target.test-sessions.dir}">
-                <formatter type="xml"/>
-            </test>
-
             <!-- execute batch tests -->
-            <batchtest unless="test" todir="${target.test-sessions.dir}">
+            <batchtest todir="${target.test-sessions.dir}">
                 <formatter type="xml"/>
-                <fileset dir="${target.test-classes.dir}/common/codebase" includes="**/*Test.class"/>
-                <fileset dir="${target.test-classes.dir}/local/model" includes="**/*Test.class"/>
-                <fileset dir="${target.test-classes.dir}/remote/model" includes="**/*Test.class"/>
+                <fileset dir="${target.test-classes.dir}/remote/model" includes="${inner.test}"/>
             </batchtest>
         </junit>
-        <antcall target="test-report" inheritRefs="true" inheritAll="true"/>
+        <delete dir="${target.test-report.dir}"/>
+        <mkdir dir="${target.test-report.dir}"/>
+        <junitreport todir="${target.test-report.dir}">
+            <fileset dir="${target.test-sessions.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report styledir="${basedir}" format="noframes" todir="${target.test-report.dir}"/>
+        </junitreport>
 
         <fail message="JUnit failure." if="junit.didFail"/>
         <fail message="JUnit error." if="junit.didError"/>

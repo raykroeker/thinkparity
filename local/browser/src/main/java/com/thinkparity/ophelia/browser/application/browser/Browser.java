@@ -2155,9 +2155,9 @@ public class Browser extends AbstractApplication {
 	}
 
     private Boolean isBrowserWindowIconified() {
-		return JFrame.ICONIFIED == mainWindow.getExtendedState();
+        return ((mainWindow.getExtendedState() & JFrame.ICONIFIED) > 0);
 	}
-    
+
     private Boolean isBrowserWindowOpen() {
 		return null != mainWindow && mainWindow.isVisible();
 	}

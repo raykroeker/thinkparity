@@ -69,6 +69,15 @@ public class Contact extends User {
     public void clearEmails() { emails.clear(); }
 
     /**
+     * Obtain the contact's address.
+     * 
+     * @return An address <code>String</code>.
+     */
+    public String getAddress() {
+        return vcard.getAddress();
+    }
+
+    /**
      * Obtain the contact's city.
      * 
      * @return A city <code>String</code>.
@@ -120,6 +129,24 @@ public class Contact extends User {
      */
     public String getPhone() {
         return vcard.getPhone();
+    }
+
+    /**
+     * Obtain the contact's postal code.
+     * 
+     * @return A postal code <code>String</code>.
+     */
+    public String getPostalCode() {
+        return vcard.getPostalCode();
+    }
+
+    /**
+     * Obtain the contact's province.
+     * 
+     * @return A province <code>String</code>.
+     */
+    public String getProvince() {
+        return vcard.getProvince();
     }
 
     /**

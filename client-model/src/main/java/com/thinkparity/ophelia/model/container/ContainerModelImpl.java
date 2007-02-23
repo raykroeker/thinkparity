@@ -1865,14 +1865,14 @@ public final class ContainerModelImpl extends
                 containerIO.createDraftArtifactRel(containerId, document.getId(),
                         ContainerDraft.ArtifactState.NONE);
                 getDocumentModel().revertDraft(lock, documentId);
-        
-                final Container postRevertContainer = read(containerId);        
-                final ContainerDraft postRevertDraft = readDraft(containerId);
-                notifyDocumentReverted(postRevertContainer, postRevertDraft, document,
-                        localEventGenerator);
             } finally {
                 releaseLock(lock);
             }
+            // fire event
+            final Container postRevertContainer = read(containerId);        
+            final ContainerDraft postRevertDraft = readDraft(containerId);
+            notifyDocumentReverted(postRevertContainer, postRevertDraft,
+                    document,localEventGenerator);
         } catch (final CannotLockException clx) {
             throw clx;
         } catch (final Throwable t) {

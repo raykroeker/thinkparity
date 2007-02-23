@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -42,6 +43,9 @@ import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 public final class ContactTabModel extends TabPanelModel<ContactPanelId> implements
         TabAvatarSortByDelegate {
 
+    /** An array of available <code>Locale</code>s. */
+    private final Locale[] availableLocales;    
+
     /** The <code>ContactTabActionDelegate</code>. */
     private final ContactTabActionDelegate actionDelegate;
 
@@ -50,6 +54,9 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
 
     /** A list of the current sort orderings. */
     private final List<SortBy> sortedBy;
+
+    /** The <code>Locale</code>. */
+    private final Locale locale;
 
     /**
      * Create ContactTabModel.
@@ -60,6 +67,8 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         this.actionDelegate = new ContactTabActionDelegate(this);
         this.popupDelegate= new ContactTabPopupDelegate(this);
         this.sortedBy = new ArrayList<SortBy>();
+        this.availableLocales = browser.getAvailableLocales();
+        this.locale = browser.getLocale();
     }
 
     /**
@@ -627,7 +636,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     private TabPanel toDisplay(final Contact contact) {
         final ContactTabPanel panel = new ContactTabPanel(session);
         panel.setActionDelegate(actionDelegate);
-        panel.setPanelData(contact);
+        panel.setPanelData(contact, locale, availableLocales);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
         panel.setTabDelegate(this);
@@ -678,7 +687,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     private TabPanel toDisplay(final Profile profile) {
         final ContactTabPanel panel = new ContactTabPanel(session);
         panel.setActionDelegate(actionDelegate);
-        panel.setPanelData(profile, readEmails());
+        panel.setPanelData(profile, readEmails(), locale, availableLocales);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
         panel.setTabDelegate(this);

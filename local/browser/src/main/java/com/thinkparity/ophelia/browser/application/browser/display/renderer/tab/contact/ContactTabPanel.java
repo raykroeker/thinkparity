@@ -9,19 +9,17 @@ import java.awt.GridBagConstraints;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -30,6 +28,8 @@ import com.thinkparity.ophelia.browser.application.browser.component.LabelFactor
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
+import com.thinkparity.ophelia.model.contact.IncomingInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 /**
  * <b>Title:</b><br>
@@ -87,7 +87,7 @@ public class ContactTabPanel extends DefaultTabPanel {
 
     /** The invited by <code>User</code> for incoming invitations. */
     private User invitedBy;
-    
+
     /** The panel localization. */
     private final MainCellL18n localization;
 
@@ -296,8 +296,13 @@ public class ContactTabPanel extends DefaultTabPanel {
      * 
      * @param contact
      *            A <code>Contact</code>.
+     * @param locale
+     *            The <code>Locale</code>.
+     * @param availableLocales
+     *            An array of available <code>Locale</code>s.
      */
-    public void setPanelData(final Contact contact) {
+    public void setPanelData(final Contact contact, final Locale locale,
+            final Locale[] availableLocales) {
         this.contact = contact;
         initCollapsedPanel();
         
@@ -308,8 +313,11 @@ public class ContactTabPanel extends DefaultTabPanel {
         reload(contactTextJLabel, contact.getName());
         reload(contactAdditionalTextJLabel, getAdditionalText(contact));
 
-        reload(contactAddressValueJLabel, contact.getCity());
-        reload(contactLocationValueJLabel, contact.getCountry());
+        reload(contactAddressValueJLabel, contact.getAddress());
+        reload(contactLocationValueJLabel,
+                getLocationText(contact.getCity(), contact.getProvince(),
+                        contact.getCountry(), contact.getPostalCode(),
+                        locale, availableLocales));
         if (0 < contact.getEmailsSize())
             reload(contactEMailValueJLabel, contact.getEmails().get(0).toString());
         else
@@ -317,7 +325,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         reload(contactMobilePhoneValueJLabel, contact.getMobilePhone());
         reload(contactPhoneValueJLabel, contact.getPhone());
     }
-    
+
     /**
      * Set the panel data.
      * 
@@ -360,9 +368,16 @@ public class ContactTabPanel extends DefaultTabPanel {
      * 
      * @param profile
      *            A <code>Profile</code>.
+     * @param emails
+     *            A list of <code>ProfileEMail</code>s.
+     * @param locale
+     *            The <code>Locale</code>.
+     * @param availableLocales
+     *            An array of available <code>Locale</code>s.
      */
     public void setPanelData(final Profile profile,
-            final List<ProfileEMail> emails) {
+            final List<ProfileEMail> emails,
+            final Locale locale, final Locale[] availableLocales) {
         this.profile = profile;
         initCollapsedPanel();
 
@@ -373,8 +388,11 @@ public class ContactTabPanel extends DefaultTabPanel {
         reload(contactTextJLabel, profile.getName());
         reload(contactAdditionalTextJLabel, getAdditionalText(profile));
 
-        reload(contactAddressValueJLabel, profile.getCity());
-        reload(contactLocationValueJLabel, profile.getCountry());
+        reload(contactAddressValueJLabel, profile.getAddress());
+        reload(contactLocationValueJLabel,
+                getLocationText(profile.getCity(), profile.getProvince(),
+                        profile.getCountry(), profile.getPostalCode(),
+                        locale, availableLocales));
         if (0 < emails.size())
             reload(contactEMailValueJLabel, emails.get(0).getEmail().toString());
         else
@@ -539,6 +557,78 @@ public class ContactTabPanel extends DefaultTabPanel {
         final String pattern = "({0}, {1})";
         final Object[] values = new Object[] { user.getTitle(), user.getOrganization() };
         return new MessageFormat(pattern).format(values);
+    }
+
+    /**
+     * Get display text for a country, given an ISO3 country string
+     * and Locale information.
+     * 
+     * @param country
+     *            A country ISO3 <code>String</code>.
+     * @param inLocale
+     *            The <code>Locale</code>.
+     * @param availableLocales
+     *            An array of available <code>Locale</code>s.   
+     * @return A country display <code>String</code>.
+     */
+    private String getCountryText(final String country, final Locale inLocale,
+            final Locale[] availableLocales) {
+        String countryText = null;
+        for (final Locale locale : availableLocales) {
+            if (locale.getISO3Country().equals(country)) {
+                countryText = locale.getDisplayCountry(inLocale);
+                break;
+            }
+        }
+
+        return countryText;
+    }
+
+    /**
+     * Prepare location text.
+     * 
+     * @param city
+     *            A <code>String</code>.
+     * @param province
+     *            A <code>String</code>.
+     * @param country
+     *            A <code>String</code>.
+     * @param postalCode
+     *            A <code>String</code>.
+     * @param locale
+     *            The <code>Locale</code>.
+     * @param availableLocales
+     *            An array of available <code>Locale</code>s.   
+     * @return The location <code>String</code>.
+     */
+    private String getLocationText(final String city, final String province,
+            final String country, final String postalCode,
+            final Locale locale, final Locale[] availableLocales) {
+        final List<String> locations = new ArrayList<String>();
+        if (null != city) {
+            locations.add(city);
+        }
+        if (null != province) {
+            locations.add(province);
+        }
+        if (null != country) {
+            locations.add(getCountryText(country, locale, availableLocales));
+        }
+        if (null != postalCode) {
+            locations.add(postalCode);
+        }
+        if (locations.size()>0) {
+            final StringBuffer buffer = new StringBuffer();
+            for (final String location : locations) {
+                if (buffer.length()>0) {
+                    buffer.append(", ");
+                }
+                buffer.append(location);
+            }
+            return buffer.toString();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -751,7 +841,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(15, 51, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(14, 51, 0, 0);
         expandedDataLabelsJPanel.add(contactEMailJLabel, gridBagConstraints);
 
         contactAddressJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.addressJLabel"));
@@ -803,7 +893,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(15, 10, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(14, 10, 0, 0);
         expandedDataValuesJPanel.add(contactEMailValueJLabel, gridBagConstraints);
 
         contactAddressValueJLabel.setText("Address Value");

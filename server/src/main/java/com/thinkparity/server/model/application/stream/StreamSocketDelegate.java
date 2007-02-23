@@ -48,14 +48,12 @@ final class StreamSocketDelegate implements Runnable {
     }
 
     /**
-     * Obtain the delegate name.
+     * Obtain the remote address of the delegate.
      * 
-     * @return The delegate name.
+     * @return The socket's remote socket address <code>String</code>.
      */
-    String getName() {
-        return new StringBuffer("StreamSocketDelegate - ")
-            .append(socket.getRemoteSocketAddress())
-            .toString();
+    String getRemoteAddress() {
+        return socket.getRemoteSocketAddress().toString();
     }
 
     /**
@@ -80,12 +78,13 @@ final class StreamSocketDelegate implements Runnable {
                             streamId.getValue(),
                             Long.valueOf(streamOffset.getValue()),
                             Long.valueOf(streamSize.getValue()),
-                            socket.getInputStream()).run();
+                            socket.getInputStream(),
+                            socket.getOutputStream()).run();
                 } else if ("DOWNSTREAM".equals(sessionType.getValue())) {
                     new DownstreamHandler(streamServer, streamSession,
                             streamId.getValue(),
                             Long.valueOf(streamOffset.getValue()),
-                            streamServer.getSize(streamSession, streamId.getValue()),
+                            streamServer.getDownstreamSize(streamSession, streamId.getValue()),
                             socket.getOutputStream()).run();
                 } else {
                     Assert.assertUnreachable("Unkown stream transfer.");

@@ -8,17 +8,34 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.l10n.L18n;
+
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.audit.AuditEventType;
-import com.thinkparity.ophelia.model.audit.event.*;
+import com.thinkparity.ophelia.model.audit.event.AddTeamMemberConfirmEvent;
+import com.thinkparity.ophelia.model.audit.event.AddTeamMemberEvent;
+import com.thinkparity.ophelia.model.audit.event.ArchiveEvent;
+import com.thinkparity.ophelia.model.audit.event.AuditEvent;
+import com.thinkparity.ophelia.model.audit.event.AuditVersionEvent;
+import com.thinkparity.ophelia.model.audit.event.CloseEvent;
+import com.thinkparity.ophelia.model.audit.event.CreateEvent;
+import com.thinkparity.ophelia.model.audit.event.CreateRemoteEvent;
+import com.thinkparity.ophelia.model.audit.event.KeyRequestDeniedEvent;
+import com.thinkparity.ophelia.model.audit.event.KeyResponseDeniedEvent;
+import com.thinkparity.ophelia.model.audit.event.PublishEvent;
+import com.thinkparity.ophelia.model.audit.event.ReactivateEvent;
+import com.thinkparity.ophelia.model.audit.event.ReceiveKeyEvent;
+import com.thinkparity.ophelia.model.audit.event.RenameEvent;
+import com.thinkparity.ophelia.model.audit.event.RequestKeyEvent;
+import com.thinkparity.ophelia.model.audit.event.SendConfirmEvent;
+import com.thinkparity.ophelia.model.audit.event.SendEvent;
+import com.thinkparity.ophelia.model.audit.event.SendKeyEvent;
+
+import org.apache.log4j.Logger;
 
 /**
  * The history item builder is used to create history items based upon the audit
@@ -56,7 +73,7 @@ public class HistoryItemBuilder {
      * @throws ParityException
      */
 	public List<HistoryItem> build(final List<AuditEvent> auditEvents,
-            final JabberId loggedInUser) throws ParityException {
+            final JabberId loggedInUser) {
 		final List<HistoryItem> history = new LinkedList<HistoryItem>();
 
 		final ListIterator<AuditEvent> li = auditEvents.listIterator();

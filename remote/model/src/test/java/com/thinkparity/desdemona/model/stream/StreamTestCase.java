@@ -6,6 +6,7 @@ package com.thinkparity.desdemona.model.stream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -72,10 +73,16 @@ abstract class StreamTestCase extends ModelTestCase {
     protected void seedServer(final StreamServer server,
             final StreamSession session, final String streamId,
             final Long streamOffset, final File file) throws IOException {
-        final OutputStream output = server.openOutputStream(session, streamId,
+        final OutputStream output = server.openForUpstream(session, streamId,
                 streamOffset);
         try {
-            StreamUtil.copy(new FileInputStream(file), output, getDefaultBufferSize());
+            final InputStream input = new FileInputStream(file);
+            try {
+                StreamUtil.copy(input, output, getDefaultBufferSize());
+            } finally {
+                input.close();
+            }
+            server.finalizeStream(session, streamId);
         } finally {
             output.close();
         }

@@ -4,6 +4,7 @@
 package com.thinkparity.desdemona.model.stream;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.text.MessageFormat;
 
@@ -18,6 +19,12 @@ import com.thinkparity.codebase.model.stream.StreamSession;
  * @version 1.1.2.1
  */
 final class StreamFileServer {
+
+    private static final String UPSTREAM_PATH_EXTENSION;
+
+    static {
+        UPSTREAM_PATH_EXTENSION = "part";
+    }
 
     /** The file server's <code>FileSystem</code>. */
     private final FileSystem fileSystem;
@@ -57,8 +64,41 @@ final class StreamFileServer {
      *            A stream id <code>String</code>.
      */
     void destroy(final StreamSession session, final String streamId) {
-        final File file = find(session, streamId);
-        Assert.assertTrue(file.delete(), "Could not destroy stream {0}.", streamId);
+        final File downstreamFile = find(resolveDownstreamPath(session, streamId));
+        final File upstreamFile = find(resolveUpstreamPath(session, streamId));
+        boolean didDestroyDownstream = true;
+        if (null != downstreamFile)
+            didDestroyDownstream = downstreamFile.delete();
+        boolean didDestroyUpstream = true;
+        if (null != upstreamFile)
+            didDestroyUpstream = upstreamFile.delete();
+
+        if (!didDestroyDownstream && !didDestroyUpstream) {
+            Assert.assertTrue(didDestroyUpstream, "Could not destroy files {0},{1}.",
+                    downstreamFile, upstreamFile);
+        } else {
+            if (!didDestroyDownstream)
+                Assert.assertTrue(didDestroyDownstream, "Could not destroy file {0}.", downstreamFile);
+            if (!didDestroyUpstream)
+                Assert.assertTrue(didDestroyUpstream, "Could not destroy file {0}.", upstreamFile);
+        }
+    }
+
+    /**
+     * Finalize a stream. Resolve the upstream file and rename it such that it
+     * is suitable for download.
+     * 
+     * @param streamSession
+     *            A <code>StreamSession</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
+     */
+    void finalizeStream(final StreamSession session, final String streamId) {
+        final String upstreamPath = resolveUpstreamPath(session, streamId);
+        final String downstreamPath = resolveDownstreamPath(session, streamId);
+        final File file = fileSystem.rename(upstreamPath, downstreamPath);
+        Assert.assertTrue(file.setReadOnly(),
+                "Cannot mark file as read-only {0}.", file);
     }
 
     /**
@@ -70,12 +110,37 @@ final class StreamFileServer {
      *            A stream id <code>String</code>.
      * @return A workspace <code>FileSystem</code>.
      */
-    File find(final StreamSession session, final String streamId) {
-        final File streamFile = fileSystem.find(resolvePath(session, streamId));
+    File findForDownstream(final StreamSession session, final String streamId) {
+        final File streamFile = find(resolveDownstreamPath(session, streamId));
         if (null == streamFile) {
-            logger.logWarning("Could not locate stream {0}.", streamId);
+            logger.logError("Could not locate downstream file {0}.", streamId);
         }
         return streamFile;
+    }
+
+    /**
+     * Find the file for a stream for an upstream transaction. The upstream file
+     * has a slightly different name than the downstream file so that we can
+     * ensure a complete upload before download.  If the file does not exist it
+     * will be created.
+     * 
+     * @param session
+     *            A stream server <code>Session</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @return A <code>File</code>.
+     */
+    File findForUpstream(final StreamSession session, final String streamId) {
+        File upstreamFile = fileSystem.find(resolveUpstreamPath(session, streamId));
+        if (null == upstreamFile) {
+            try {
+                upstreamFile = fileSystem.createFile(
+                        resolveUpstreamPath(session, streamId));
+            } catch (final IOException iox) {
+                throw new StreamException(iox);
+            }
+        }
+        return upstreamFile;
     }
 
     /**
@@ -96,18 +161,6 @@ final class StreamFileServer {
      *            A stream id <code>String</code>.
      */
     void initialize(final StreamSession session, final String streamId) {
-        final File streamFile = find(session, streamId);
-        if (null == streamFile) {
-            try {
-                logger.logTrace("Initializing stream {0}.", streamId);
-                fileSystem.createFile(resolvePath(session, streamId));
-                logger.logTrace("Stream {0} initialized.  Resume not supported.", streamId);
-            } catch (final IOException iox) {
-                throw new StreamException(iox);
-            }
-        } else {
-            logger.logTrace("Stream {0} initialized.  Resume supported.", streamId);
-        }
     }
 
     /**
@@ -116,7 +169,16 @@ final class StreamFileServer {
      */
     void logStatistics() {
         logger.logInfo("Streaming file server root:{0}", fileSystem.getRoot());
-        logger.logInfo("Streaming file server file count:{0}", fileSystem.listFiles("/").length);
+        logger.logInfo("Streaming file server incomplete upstream file count:{0}", fileSystem.list("/", new FileFilter() {
+            public boolean accept(final File pathname) {
+                return pathname.getName().endsWith(UPSTREAM_PATH_EXTENSION);
+            }
+        }, Boolean.TRUE).length);
+        logger.logInfo("Streaming file server complete file count:{0}", fileSystem.list("/", new FileFilter() {
+            public boolean accept(final File pathname) {
+                return !pathname.getName().endsWith(UPSTREAM_PATH_EXTENSION);
+            }
+        }, Boolean.TRUE).length);
     }
 
     /**
@@ -132,14 +194,37 @@ final class StreamFileServer {
     void stop() {}
 
     /**
+     * Find a file for a given path.
+     * 
+     * @param path
+     *            A path <code>String</code>.
+     * @return A <code>File</code> or null if the file does not exist.
+     */
+    private File find(final String path) {
+        return fileSystem.find(path);
+    }
+
+    /**
      * Resolve a file system path for a stream.
      * 
      * @param session
      *            A <code>StreamSession</code>.
      * @return A <code>FileSystem</code> path <code>String</code>.
      */
-    private String resolvePath(final StreamSession session,
+    private String resolveDownstreamPath(final StreamSession session,
             final String streamId) {
         return MessageFormat.format("/{0}", streamId);
+    }
+
+    /**
+     * Resolve a file system path for an upstream file.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     * @return A <code>FileSystem</code> path <code>String</code>.
+     */
+    private String resolveUpstreamPath(final StreamSession session,
+            final String streamId) {
+        return MessageFormat.format("/{0}.{1}", streamId, UPSTREAM_PATH_EXTENSION);
     }
 }

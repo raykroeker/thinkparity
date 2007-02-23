@@ -35,7 +35,6 @@ import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.Model;
-import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.events.SessionListener;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
@@ -176,22 +175,6 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw translateError(t);
         }
 	}
-
-    public void createArchiveStream(final JabberId userId, final String streamId,
-            final UUID uniqueId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                xmppSession.createArchiveStream(userId, streamId, uniqueId, versionId);
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
 
     /**
      * Send an artifact creation packet to the parity server.
@@ -1366,7 +1349,7 @@ public final class SessionModelImpl extends Model<SessionListener>
 	 * 
 	 * @throws ParityException
 	 */
-    public void sendLogFileArchive() throws ParityException {
+    public void sendLogFileArchive() {
 	    throw Assert
                 .createNotYetImplemented("SessionModelImpl#sendLogFileArchive");
 	}

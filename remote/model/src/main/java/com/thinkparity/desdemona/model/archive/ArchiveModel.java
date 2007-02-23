@@ -68,24 +68,6 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
 		super(new ArchiveModelImpl(session));
 	}
 
-    /**
-     * Open a document version's input stream.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A document unique id <code>UUID</code>.
-     * @param versionId
-     *            A document version id <code>Long</code>.
-     * @return An <code>InputStream</code>.
-     */
-    public void createStream(final JabberId userId,
-            final String streamId, final UUID uniqueId, final Long versionId) {
-        synchronized (getImplLock()) {
-            getImpl().createStream(userId, streamId, uniqueId, versionId);
-        }
-    }
-
     public List<TeamMember> readTeam(final JabberId userId, final UUID uniqueId) {
         synchronized (getImplLock()) {
             return getImpl().readTeam(userId, uniqueId);

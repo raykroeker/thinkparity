@@ -32,21 +32,6 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         super(core);
     }
 
-    void createStream(final JabberId userId, final String streamId,
-            final UUID uniqueId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("streamId", streamId);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        final XMPPMethod createStream = new XMPPMethod("archive:createstream");
-        createStream.setParameter("userId", userId);
-        createStream.setParameter("streamId", streamId);
-        createStream.setParameter("uniqueId", uniqueId);
-        createStream.setParameter("versionId", versionId);
-        execute(createStream);
-    }
-
     Container readContainer(final JabberId userId, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);

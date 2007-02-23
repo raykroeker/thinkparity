@@ -6,7 +6,10 @@ package com.thinkparity.codebase.model;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
+import com.thinkparity.codebase.ErrorHelper;
+import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.stream.StreamMonitor;
@@ -24,15 +27,15 @@ public abstract class AbstractModelImpl {
 
     private Context context;
 
-    /**
-     * Create AbstractModelImpl.
-     * 
-     * 
-     */
-    protected AbstractModelImpl() {
-        super();
-        this.logger = new Log4JWrapper(getClass());
-    }
+        /**
+         * Create AbstractModelImpl.
+         * 
+         * 
+         */
+        protected AbstractModelImpl() {
+            super();
+            this.logger = new Log4JWrapper(getClass());
+        }
 
     /**
      * Set context.
@@ -107,4 +110,51 @@ public abstract class AbstractModelImpl {
     protected final Context getContext() {
         return context;
     }
+
+    /**
+     * Panic. Nothing can be done about the error that has been generated. An
+     * appropriate error is constructed suitable for throwing beyond the model
+     * interface.
+     * 
+     * @param t
+     *            A <code>Throwable</code>.
+     * @return A <code>RuntimeException</code>.
+     */
+    protected RuntimeException panic(final Throwable t) {
+        if (ThinkParityException.class.isAssignableFrom(t.getClass())) {
+            return (ThinkParityException) t;
+        } else if (Assertion.class.isAssignableFrom(t.getClass())) {
+            final String errorId = new ErrorHelper().getErrorId(t);
+            logger.logError(t, "{0}", errorId);
+            return (Assertion) t;
+        }
+        else {
+            final String errorId = new ErrorHelper().getErrorId(t);
+            logger.logError(t, "{0}", errorId);
+            return new ThinkParityException(errorId.toString(), t);
+        }
+    }
+
+    /**
+    * Upload a stream to the stream server. This invocation will take care of
+    * common network errors.
+    * 
+    * @param uploadMonitor
+    *            An <code>UploadMoniotor</code>.
+    * @param streamId
+    *            A stream id <code>String</code>.
+    * @param session
+    *            A <code>StreamSession</code>.
+    * @param stream
+    *            An <code>InputStream</code>.
+    * @param streamSize
+    *            The stream size <code>Long</code>.
+    * @throws IOException
+    */
+   protected final void upload(final UploadMonitor uploadMonitor,
+        final String streamId, final StreamSession session,
+        final InputStream stream, final Long streamSize) throws IOException {
+    new UploadHelper(this, logger).upload(uploadMonitor, streamId, session,
+            stream, streamSize);
+   }
 }

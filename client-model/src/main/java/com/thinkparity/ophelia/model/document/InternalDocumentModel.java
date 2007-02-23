@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 /**
@@ -40,15 +41,19 @@ public interface InternalDocumentModel extends DocumentModel {
             final Long documentId);
 
     /**
-     * Determine whether or not the draft of the document has been modified by
-     * the user.
+     * Create a new document version based upon an existing document. This will
+     * check the cache for updates to the document, write the updates to the
+     * document, then create a new version based upon that document.
      * 
      * @param documentId
-     *            The document id.
-     * @return True if the draft of the document has been modified.
+     *            A document id <code>Long</code>.
+     * @param createdOn
+     *            A created on <code>Calendar</code>.
+     * @return The newly created version.
      */
-    public Boolean isDraftModified(final DocumentFileLock lock,
-            final Long documentId);
+    public DocumentVersion createVersion(final DocumentFileLock lock,
+            final Long documentId, final InputStream stream,
+            final Integer buffer, final Calendar createdOn);
 
     /**
      * Create a new document version based upon an existing document. This will
@@ -64,21 +69,6 @@ public interface InternalDocumentModel extends DocumentModel {
     public DocumentVersion createVersion(final Long documentId,
             final InputStream stream, final Integer buffer,
             final Calendar createdOn);
-
-    /**
-     * Create a new document version based upon an existing document. This will
-     * check the cache for updates to the document, write the updates to the
-     * document, then create a new version based upon that document.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @param createdOn
-     *            A created on <code>Calendar</code>.
-     * @return The newly created version.
-     */
-    public DocumentVersion createVersion(final DocumentFileLock lock,
-            final Long documentId, final InputStream stream,
-            final Integer buffer, final Calendar createdOn);
 
     /**
      * Delete a document.
@@ -121,6 +111,17 @@ public interface InternalDocumentModel extends DocumentModel {
     public DocumentVersion handleDocumentPublished(
             final DocumentVersion version, final String streamId,
             final JabberId publishedBy, final Calendar publishedOn);
+
+    /**
+     * Determine whether or not the draft of the document has been modified by
+     * the user.
+     * 
+     * @param documentId
+     *            The document id.
+     * @return True if the draft of the document has been modified.
+     */
+    public Boolean isDraftModified(final DocumentFileLock lock,
+            final Long documentId);
 
     /**
      * Obtain an exclusive lock on a document.
@@ -167,7 +168,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
 	public InputStream openVersion(final Long documentId, final Long versionId);
 
-	/**
+    /**
      * Read a document.
      * 
      * @param documentId
@@ -175,6 +176,16 @@ public interface InternalDocumentModel extends DocumentModel {
      * @return A document.
      */
     public Document read(final Long documentId);
+
+	/**
+     * Obtain the document draft.
+     * 
+     * @param lock
+     *            A <code>DocumentFileLock</code>.
+     * @return A <code>DocumentDraft</code>.
+     */
+    public DocumentDraft readDraft(final DocumentFileLock lock,
+            final Long documentId);
 
     /**
      * Obtain the document draft.
@@ -186,16 +197,6 @@ public interface InternalDocumentModel extends DocumentModel {
     public DocumentDraft readDraft(final Long documentId);
 
     /**
-     * Obtain the document draft.
-     * 
-     * @param lock
-     *            A <code>DocumentFileLock</code>.
-     * @return A <code>DocumentDraft</code>.
-     */
-    public DocumentDraft readDraft(final DocumentFileLock lock,
-            final Long documentId);
-
-	/**
      * Read a list of document versions.
      * 
      * @param documentId
@@ -204,7 +205,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public List<DocumentVersion> readVersions(final Long documentId);
 
-    /**
+	/**
      * Read a list of document versions.
      * 
      * @param documentId
@@ -242,4 +243,17 @@ public interface InternalDocumentModel extends DocumentModel {
      *            A document id <code>Long</code>.
      */
     public void revertDraft(final DocumentFileLock lock, final Long documentId);
+
+    /**
+     * Save a version to an output stream.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param uploader
+     *            An <code>StreamUploader</code> to upload to.
+     */
+    public void uploadVersion(final Long documentId, final Long versionId,
+            final StreamUploader uploader);
 }

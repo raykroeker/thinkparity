@@ -35,9 +35,9 @@ public final class StreamWriter extends StreamClient {
     /**
      * Close the stream writer.
      * 
-     * @throws IOException
      */
     public void close() throws IOException {
+        waitForWriteCompletion();
         disconnect();
     }
 
@@ -52,38 +52,34 @@ public final class StreamWriter extends StreamClient {
     /**
      * Write a stream.
      * 
-     * @param monitor
-     *            A progress monitor.
      * @param streamId
      *            A stream id <code>String</code>.
      * @param stream
      *            An <code>InputStream</code>.
      * @param streamSize
-     *            The size of the stream in bytes.
+     *            The stream size <code>Long</code>.
      */
     public void write(final String streamId, final InputStream stream,
             final Long streamSize) {
         write(streamId, stream, streamSize, 0L);
     }
 
-
     /**
      * Write a stream.
      * 
-     * @param monitor
-     *            A progress monitor.
      * @param streamId
      *            A stream id <code>String</code>.
      * @param stream
      *            An <code>InputStream</code>.
      * @param streamSize
-     *            The size of the stream in bytes.
+     *            The stream size <code>Long</code>.
+     * @param streamOffset
+     *            The relative offset <code>Long</code> within the stream to
+     *            begin writing.
      */
     public void write(final String streamId, final InputStream stream,
             final Long streamSize, final Long streamOffset) {
-        write(new StreamHeader(StreamHeader.Type.STREAM_ID, streamId));
-        write(new StreamHeader(StreamHeader.Type.STREAM_OFFSET, String.valueOf(streamOffset)));
-        write(new StreamHeader(StreamHeader.Type.STREAM_SIZE, String.valueOf(streamSize)));
+        initializeWrite(streamId, streamSize, streamOffset);
         write(stream, streamSize);
     }
 }

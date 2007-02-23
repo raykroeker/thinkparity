@@ -5,7 +5,6 @@ package com.thinkparity.desdemona.model;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -34,7 +33,6 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.stream.StreamWriter;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
@@ -714,92 +712,7 @@ public abstract class AbstractModelImpl
         }
     }
 
-    /**
-     * Upload a stream to the stream server using an existing session.
-     * 
-     * @param session
-     *            A <code>StreamSession</code>.
-     * @param iStream
-     *            A <code>Iterable</code> series of <code>InputStream</code>.
-     * @throws IOException
-     */
-    protected final String uploadStream(final UploadMonitor uploadMonitor,
-            final StreamMonitor streamMonitor, final String streamId,
-            final StreamSession session, final InputStream stream,
-            final Long streamSize, final Long streamOffset) throws IOException {
-        stream.reset();
-        long skipped = stream.skip(streamOffset);
-        while (skipped < streamOffset && 0 < skipped) {
-            skipped += stream.skip(streamOffset.longValue() - skipped);
-        }
-        final Long actualStreamOffset;
-        if (skipped == streamOffset.longValue()) {
-            logger.logInfo("Resuming upload for {0} at {1}.",
-                    streamId, streamOffset);
-            actualStreamOffset = streamOffset;
-        } else {
-            logger.logWarning("Could not resume upload for {0} at {1}.  Starting over.",
-                    streamId, streamOffset);
-            actualStreamOffset = 0L;
-        }
-        final StreamWriter writer = new StreamWriter(streamMonitor, session);
-        writer.open();
-        try {
-            writer.write(streamId, stream, streamSize, actualStreamOffset);
-            return streamId;
-        } finally {
-            writer.close();
-        }
-    }
-
-    /**
-     * Upload a stream to the stream server using an existing session.
-     * 
-     * @param session
-     *            A <code>StreamSession</code>.
-     * @param iStream
-     *            A <code>Iterable</code> series of <code>InputStream</code>.
-     * @throws IOException
-     */
-    protected final String uploadStream(final UploadMonitor uploadMonitor,
-            final String streamId, final StreamSession session,
-            final InputStream stream, final Long streamSize) throws IOException {
-        final StreamMonitor streamMonitor = new StreamMonitor() {
-            long recoverChunkOffset = 0;
-            long totalChunks = 0;
-            public void chunkReceived(final int chunkSize) {}
-            public void chunkSent(final int chunkSize) {
-                totalChunks += chunkSize;
-                uploadMonitor.chunkUploaded(chunkSize);
-            }
-            public void headerReceived(final String header) {}
-            public void headerSent(final String header) {}
-            public void streamError(final StreamException error) {
-                if (error.isRecoverable()) {
-                    if (recoverChunkOffset <= totalChunks) {
-                        // attempt to resume the upload
-                        recoverChunkOffset = totalChunks;
-                        try {
-                            uploadStream(uploadMonitor, this, streamId,
-                                    session, stream, streamSize, Long
-                                            .valueOf(recoverChunkOffset));
-                        } catch (final IOException iox) {
-                            throw translateError(iox);
-                        }
-                    } else {
-                        throw error;
-                    }
-                } else {
-                    throw error;
-                }
-            }
-        };
-        stream.mark(stream.available());
-        return uploadStream(uploadMonitor, streamMonitor, streamId, session,
-                stream, streamSize, 0L);
-    }
-
-	private void backupEvent(final JabberId userId, final JabberId eventUserId,
+    private void backupEvent(final JabberId userId, final JabberId eventUserId,
             final XMPPEvent event) {
         final JabberId archiveId = getUserModel().readArchiveId(eventUserId);
         if (null == archiveId) {
@@ -829,7 +742,7 @@ public abstract class AbstractModelImpl
         return session.createTempFile(streamId);
     }
 
-    /**
+	/**
      * Create a client session filter for a user.
      * 
      * @param userId
@@ -884,7 +797,6 @@ public abstract class AbstractModelImpl
         return JIDBuilder.buildQualified(jabberId.getQualifiedJabberId());
     }
 
-
     /**
      * Obtain an instance of the jive properties.
      * 
@@ -896,6 +808,7 @@ public abstract class AbstractModelImpl
         }
         return jiveProperties;
     }
+
 
     /**
      * Obtain a jive property.

@@ -7,7 +7,6 @@ import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
-import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.events.SessionListener;
 
 /**

@@ -7,10 +7,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * <b>Title:</b><br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity Stream Reader<br>
+ * <b>Description:</b>A stream client used to download streams from the server.<br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.8
  */
 public final class StreamReader extends StreamClient {
 
@@ -76,8 +77,7 @@ public final class StreamReader extends StreamClient {
      */
     public void read(final String streamId, final OutputStream stream,
             final Long streamOffset) {
-        write(new StreamHeader(StreamHeader.Type.STREAM_ID, streamId));
-        write(new StreamHeader(StreamHeader.Type.STREAM_OFFSET, String.valueOf(streamOffset)));
+        initializeRead(streamId, streamOffset);
         read(stream);
     }
 }

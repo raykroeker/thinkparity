@@ -11,7 +11,6 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.Model;
-import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.audit.event.AddTeamMemberConfirmEvent;
 import com.thinkparity.ophelia.model.audit.event.AddTeamMemberEvent;
 import com.thinkparity.ophelia.model.audit.event.ArchiveEvent;
@@ -56,7 +55,7 @@ public final class AuditModelImpl extends Model implements
 	}
 
     public void audit(final AddTeamMemberConfirmEvent event, final JabberId createdBy,
-            final JabberId teamMember) throws ParityException {
+            final JabberId teamMember) {
         logger.logApiId();
         logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
@@ -66,7 +65,7 @@ public final class AuditModelImpl extends Model implements
     }
 
     public void audit(final AddTeamMemberEvent event, final JabberId createdBy,
-            final JabberId teamMember) throws ParityException {
+            final JabberId teamMember) {
         logger.logApiId();
         logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
@@ -76,7 +75,7 @@ public final class AuditModelImpl extends Model implements
     }
 
     public void audit(final ArchiveEvent event, final JabberId createdBy)
-            throws ParityException {
+            {
 		logger.logApiId();
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
@@ -84,7 +83,7 @@ public final class AuditModelImpl extends Model implements
 	}
 
     public void audit(final CloseEvent event, final JabberId createdBy,
-            final JabberId closedBy) throws ParityException {
+            final JabberId closedBy) {
 		logger.logApiId();
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
@@ -100,7 +99,7 @@ public final class AuditModelImpl extends Model implements
 	}
 
     public void audit(final CreateRemoteEvent event, final JabberId createdBy,
-            final JabberId receivedFrom) throws ParityException {
+            final JabberId receivedFrom) {
 		logger.logApiId();
         logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
@@ -110,7 +109,7 @@ public final class AuditModelImpl extends Model implements
 	}
 
     public void audit(final KeyRequestDeniedEvent event, final JabberId createdBy,
-            final JabberId deniedBy) throws ParityException {
+            final JabberId deniedBy) {
 		logger.logApiId();
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
@@ -120,7 +119,7 @@ public final class AuditModelImpl extends Model implements
 	}
 
     public void audit(final KeyResponseDeniedEvent event, final JabberId createdBy,
-            final JabberId requestedBy) throws ParityException {
+            final JabberId requestedBy) {
 		logger.logApiId();
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
@@ -142,7 +141,7 @@ public final class AuditModelImpl extends Model implements
     }
 
     public void audit(final ReactivateEvent event, final JabberId createdBy,
-            final JabberId reactivatedBy) throws ParityException {
+            final JabberId reactivatedBy) {
         logger.logApiId();
         logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
@@ -158,7 +157,7 @@ public final class AuditModelImpl extends Model implements
 	}
 
     public void audit(final ReceiveKeyEvent event, final JabberId createdBy,
-            final JabberId receivedFrom) throws ParityException {
+            final JabberId receivedFrom) {
 		logger.logApiId();
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
@@ -167,7 +166,7 @@ public final class AuditModelImpl extends Model implements
 	}
 
     public void audit(final RenameEvent event, final JabberId createdBy)
-            throws ParityException {
+            {
         logger.logApiId();
         logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
@@ -176,7 +175,7 @@ public final class AuditModelImpl extends Model implements
 
     public void audit(final RequestKeyEvent event, final JabberId createdBy,
             final JabberId requestedBy, final JabberId requestedFrom)
-            throws ParityException {
+            {
 		logger.logApiId();
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
@@ -194,7 +193,7 @@ public final class AuditModelImpl extends Model implements
     }
 
     public void audit(final SendEvent event, final JabberId createdBy,
-            final JabberId sentTo) throws ParityException {
+            final JabberId sentTo) {
 		logger.logApiId();
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
@@ -204,7 +203,7 @@ public final class AuditModelImpl extends Model implements
 	}
 
     public void audit(final SendKeyEvent event, final JabberId createdBy,
-            final JabberId sentTo) throws ParityException {
+            final JabberId sentTo) {
 		logger.logApiId();
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
@@ -243,7 +242,7 @@ public final class AuditModelImpl extends Model implements
      *      The user id.
      * @return The user.
      */
-    private User lookupUser(final JabberId jabberId) throws ParityException {
+    private User lookupUser(final JabberId jabberId) {
         final InternalUserModel iUModel = getUserModel();
         // read the local user
         User user = iUModel.read(jabberId);

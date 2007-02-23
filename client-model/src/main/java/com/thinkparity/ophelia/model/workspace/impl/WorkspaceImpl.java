@@ -38,7 +38,6 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
 
 import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 /**
@@ -51,7 +50,7 @@ public class WorkspaceImpl implements Workspace {
     private ListenersImpl listenersImpl;
 
     /** An apache logger. */
-    private final Logger logger;
+    private final Log4JWrapper logger;
 
     /** The operating <code>Mode</code>. */
     private final Mode mode;
@@ -74,7 +73,7 @@ public class WorkspaceImpl implements Workspace {
     /** Create WorkspaceImpl. */
 	public WorkspaceImpl(final File workspace) {
         super();
-        this.logger = Logger.getLogger(getClass());
+        this.logger = new Log4JWrapper(getClass());
         this.mode = Mode.valueOf(System.getProperty("thinkparity.mode"));
         this.workspace = initRoot(workspace);
         bootstrapLog4J();
@@ -367,7 +366,7 @@ public class WorkspaceImpl implements Workspace {
             return (Assertion) t;
         } else {
             final Object errorId = getErrorId(t);
-            logger.error(errorId, t);
+            logger.logError(t, "{0}", errorId);
             return new WorkspaceException(errorId.toString(), t);
         }
     }

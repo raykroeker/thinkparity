@@ -3,9 +3,7 @@
  */
 package com.thinkparity.desdemona.model.archive;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,21 +22,17 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
-import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
-import com.thinkparity.desdemona.model.UploadMonitor;
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
 import com.thinkparity.desdemona.model.session.Session;
-import com.thinkparity.desdemona.model.stream.InternalStreamModel;
 
 import org.jivesoftware.util.JiveProperties;
 
@@ -83,58 +77,6 @@ class ArchiveModelImpl extends AbstractModelImpl {
         super(session);
         this.jiveProperties = JiveProperties.getInstance();
         this.fileSystem = readFileSystem();
-    }
-
-
-    /**
-     * Open a document version's input stream.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A document unique id <code>UUID</code>.
-     * @param versionId
-     *            A document version id <code>Long</code>.
-     * @return An <code>InputStream</code>.
-     */
-    void createStream(final JabberId userId, final String streamId,
-            final UUID uniqueId, final Long versionId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("streamId", streamId);
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        try {
-            assertIsAuthenticatedUser(userId);
-            final JabberId archiveId = readArchiveId(userId);
-            if (null == archiveId) {
-                logger.logWarning("User {0} has no archive.", userId);
-            } else {
-                final ClientModelFactory modelFactory = getModelFactory(archiveId);
-                final InternalArtifactModel artifactModel = modelFactory.getArtifactModel(getClass());
-                final InternalDocumentModel documentModel = modelFactory.getDocumentModel(getClass());
-
-                final Long documentId = artifactModel.readId(uniqueId);
-                final InputStream stream = new BufferedInputStream(
-                        documentModel.openVersion(documentId, versionId),
-                        getDefaultBufferSize());
-                final Long streamSize = documentModel.readVersionSize(documentId, versionId);
-                logger.logVariable("documentId", documentId);
-                logger.logVariable("streamSize", streamSize);
-
-                final InternalStreamModel streamModel = getStreamModel();
-                final StreamSession streamSession =
-                    streamModel.createArchiveSession(archiveId);
-                uploadStream(new UploadMonitor() {
-                    public void chunkUploaded(final int chunkSize) {
-                        logger.logApiId();
-                        logger.logVariable("chunkSize", chunkSize);
-                    }
-                }, streamId, streamSession, stream, streamSize);
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
     }
 
     /**
@@ -267,7 +209,16 @@ class ArchiveModelImpl extends AbstractModelImpl {
      *
      */
     void start() {
-        logApiId();
+        logger.logApiId();
+        final File loggingRoot = new File(System.getProperty("thinkparity.logging.root"));
+        System.setProperty("derby.infolog.append", "true");
+        System.setProperty("derby.language.logStatementText", "true");
+        System.setProperty("derby.stream.error.file",
+                new File(loggingRoot, "thinkParity Derby.log").getAbsolutePath());
+
+        logger.logInfo("derby.infolog.append:{0}", System.getProperty("derby.infolog.append"));
+        logger.logInfo("derby.language.logStatementText:{0}", System.getProperty("derby.language.logStatementText"));
+        logger.logInfo("derby.stream.error.file:{0}", System.getProperty("derby.stream.error.file"));
         try {
             final List<User> users = getUserModel().read();
             JabberId archiveId;
@@ -406,6 +357,17 @@ class ArchiveModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Obtain a configuration property.
+     * 
+     * @param name
+     *            A property name <code>String</code>.
+     * @return A property value <code>String</code>.
+     */
+    private String getJiveProperty(final String name) {
+        return (String) jiveProperties.get(name);
+    }
+
+    /**
      * Lookup the archive context for an archive.
      * 
      * @param archiveId
@@ -447,7 +409,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
      */
     private FileSystem readFileSystem() {
         final String thinkParityArchiveRoot =
-            (String) jiveProperties.get(JivePropertyNames.THINKPARITY_ARCHIVE_ROOT);
+            getJiveProperty(JivePropertyNames.THINKPARITY_ARCHIVE_ROOT);
         return new FileSystem(new File(thinkParityArchiveRoot));
     }
 

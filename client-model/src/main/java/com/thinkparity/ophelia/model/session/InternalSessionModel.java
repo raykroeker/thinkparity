@@ -31,8 +31,6 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
-import com.thinkparity.ophelia.model.ParityException;
-
 /**
  * <b>Title:</b>thinkParity Internal Session Model<br>
  * <b>Description:</b><br>
@@ -94,9 +92,6 @@ public interface InternalSessionModel extends SessionModel {
             final JabberId publishedBy, final Calendar publishedOn,
             final List<JabberId> publishedTo, final JabberId receivedBy,
             final Calendar receivedOn);
-
-    public void createArchiveStream(final JabberId userId,
-            final String streamId, final UUID uniqueId, final Long versionId);
 
     /**
      * Send a creation packet to the parity server.

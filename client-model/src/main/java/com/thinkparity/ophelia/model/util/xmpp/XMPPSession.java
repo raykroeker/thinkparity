@@ -129,20 +129,6 @@ public interface XMPPSession {
             final Calendar receivedOn);
 
     /**
-     * Open a document version's content.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A document unique id <code>UUID</code>.
-     * @param versionId
-     *            A document version id <code>Long</code>.
-     * @return The document version's content.
-     */
-    public void createArchiveStream(final JabberId userId,
-            final String streamId, final UUID uniqueId, final Long versionId);
-
-    /**
      * Create an artifact
      * 
      * @param userId

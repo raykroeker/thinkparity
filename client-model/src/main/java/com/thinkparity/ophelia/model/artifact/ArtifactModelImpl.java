@@ -30,7 +30,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEve
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
 
 import com.thinkparity.ophelia.model.Model;
-import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 import com.thinkparity.ophelia.model.io.IOFactory;
@@ -779,7 +778,7 @@ public final class ArtifactModelImpl extends Model implements
 	 */
 	void auditKeyRequestDenied(final Long artifactId,
 			final JabberId createdBy, final Calendar createdOn,
-			final JabberId deniedBy) throws ParityException {
+			final JabberId deniedBy) {
 		auditor.keyRequestDenied(artifactId, createdBy, createdOn, deniedBy);
 	}
 

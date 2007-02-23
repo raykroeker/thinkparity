@@ -8,9 +8,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import com.thinkparity.ophelia.model.Constants.DirectoryNames;
-import com.thinkparity.ophelia.model.workspace.Workspace;
-
 import org.enhydra.jdbc.standard.StandardXADataSource;
 
 /**
@@ -46,13 +43,11 @@ public class OpheliaXADataSource extends StandardXADataSource {
      * @param workspace
      *            A <code>Workspace</code>.
      */
-    public OpheliaXADataSource(final Workspace workspace) throws SQLException {
+    public OpheliaXADataSource(final File persistenceDirectory) throws SQLException {
         super();
         setDriverName(DS_DRIVER_NAME);
         setPassword(DS_PASSWORD);
         setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
-        final File persistenceDirectory = new File(workspace.getDataDirectory(),
-                DirectoryNames.Workspace.Data.DB);
         final StringBuffer url = new StringBuffer("jdbc:derby:")
             .append(persistenceDirectory.getAbsolutePath());
         this.baseUrl = url.toString();

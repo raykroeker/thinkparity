@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.workspace.impl;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -15,13 +16,16 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.util.jta.Transaction;
 import com.thinkparity.codebase.model.util.jta.TransactionManager;
 
+import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
-import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
 import com.thinkparity.ophelia.model.workspace.impl.xapool.OpheliaXADataSource;
 
 /**
+ * <b>Title:</b>thinkParity OpheliaModel Persistence Manager Implementation<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
@@ -39,8 +43,11 @@ class PersistenceManagerImpl {
     /** A <code>TransactionManager</code>. */
     private TransactionManager transactionManager;
 
-    /** The <code>Workspace</code>. */
-    private final Workspace workspace;
+    /** The persistence root directory <code>File</code>. */
+    private final File persistenceRoot;
+
+    /** The persistence log <code>File</code>. */
+    private final File persistenceLogFile;
 
     /**
      * Create SessionManagerImpl.
@@ -51,7 +58,10 @@ class PersistenceManagerImpl {
     PersistenceManagerImpl(final WorkspaceImpl workspace) {
         super();
         this.logger = new Log4JWrapper();
-        this.workspace = workspace;
+        this.persistenceLogFile = new File(
+                workspace.getLogDirectory(), "thinkParity Derby.log");
+        this.persistenceRoot = new File(
+                workspace.getDataDirectory(), DirectoryNames.Workspace.Data.DB);
     }
 
     /**
@@ -77,12 +87,21 @@ class PersistenceManagerImpl {
      *
      */
     void start() {
+        /* HACK if the logging root is set; we know we are being run within the
+         * thinkParity server and need not configure log4j */
+        final String loggingRootProperty = System.getProperty("thinkparity.logging.root");
+        final boolean desktop = null == loggingRootProperty;
+        if (desktop) {
+            System.setProperty("derby.stream.error.file",
+                    persistenceLogFile.getAbsolutePath());
+            System.setProperty("derby.infolog.append", "true");
+        }
         try {
             // create transaction manager
             transactionManager = TransactionManager.getInstance();
             transactionManager.start();
             // create datasource
-            dataSource = new OpheliaXADataSource(workspace); 
+            dataSource = new OpheliaXADataSource(persistenceRoot); 
             // bind the transaction manager to the data source
             transactionManager.bind(dataSource);
             sessionManager = new SessionManager(dataSource);

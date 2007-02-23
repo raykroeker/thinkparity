@@ -23,6 +23,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.DownloadMonitor;
+import com.thinkparity.codebase.model.UploadMonitor;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
@@ -33,7 +34,6 @@ import com.thinkparity.codebase.model.util.codec.MD5Util;
 import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEvent;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
-import com.thinkparity.desdemona.model.UploadMonitor;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.io.sql.MigratorSql;
 import com.thinkparity.desdemona.model.session.Session;
@@ -119,7 +119,7 @@ class MigratorModelImpl extends AbstractModelImpl {
                             new FileInputStream(streamFile),
                             getDefaultBufferSize());
                     final StreamSession session = getStreamModel().createSession(userId);
-                    uploadStream(new UploadMonitor() {
+                    upload(new UploadMonitor() {
                         public void chunkUploaded(int chunkSize) {
                             logger.logTrace("Uploading {0}/{1}", chunkSize, streamSize);
                         }

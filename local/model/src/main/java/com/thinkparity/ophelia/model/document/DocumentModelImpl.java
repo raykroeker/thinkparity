@@ -35,10 +35,10 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.ophelia.model.Model;
-import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.InternalAuditModel;
@@ -65,16 +65,16 @@ public final class DocumentModelImpl extends
 	/** The default document version comparator. */
 	private final Comparator<ArtifactVersion> defaultVersionComparator;
 
-	/** A document reader/writer. */
+    /** A document reader/writer. */
 	private DocumentIOHandler documentIO;
 
-    /** A document event generator for local events. */
+	/** A document event generator for local events. */
     private final DocumentModelEventGenerator localEventGen;
 
-	/** The directory beneath which all files are stored. */
+    /** The directory beneath which all files are stored. */
     private File localFilesDirectory;
 
-    private final DocumentNameGenerator nameGenerator;
+	private final DocumentNameGenerator nameGenerator;
 
     /**
 	 * Create a DocumentModelImpl
@@ -90,7 +90,7 @@ public final class DocumentModelImpl extends
         this.nameGenerator = new DocumentNameGenerator();
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.Model#addListener(com.thinkparity.codebase.event.EventListener)
      *
 	 */
@@ -99,7 +99,7 @@ public final class DocumentModelImpl extends
         super.addListener(listener);
     }
 
-    /**
+	/**
      * Create a document.
      * 
      * @param name
@@ -145,15 +145,14 @@ public final class DocumentModelImpl extends
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#createVersion(java.lang.Long,
-     *      java.io.InputStream, java.lang.Integer, java.util.Calendar)
-     * 
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#createVersion(com.thinkparity.ophelia.model.document.DocumentFileLock, java.lang.Long, java.io.InputStream, java.lang.Integer, java.util.Calendar)
+     *
      */
-    public DocumentVersion createVersion(final Long documentId,
-            final InputStream stream, final Integer buffer,
-            final Calendar createdOn) {
+    public DocumentVersion createVersion(final DocumentFileLock lock,
+            final Long documentId, final InputStream stream,
+            final Integer buffer, final Calendar createdOn) {
         try {
-            assertDraftIsModified(documentId, "Draft has not been modified.");
+            assertDraftIsModified(lock, documentId, "Draft has not been modified.");
 
             return createVersion(documentId, readNextVersionId(documentId),
                         stream, buffer, localUserId(), createdOn);
@@ -163,14 +162,15 @@ public final class DocumentModelImpl extends
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#createVersion(com.thinkparity.ophelia.model.document.DocumentFileLock, java.lang.Long, java.io.InputStream, java.lang.Integer, java.util.Calendar)
-     *
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#createVersion(java.lang.Long,
+     *      java.io.InputStream, java.lang.Integer, java.util.Calendar)
+     * 
      */
-    public DocumentVersion createVersion(final DocumentFileLock lock,
-            final Long documentId, final InputStream stream,
-            final Integer buffer, final Calendar createdOn) {
+    public DocumentVersion createVersion(final Long documentId,
+            final InputStream stream, final Integer buffer,
+            final Calendar createdOn) {
         try {
-            assertDraftIsModified(lock, documentId, "Draft has not been modified.");
+            assertDraftIsModified(documentId, "Draft has not been modified.");
 
             return createVersion(documentId, readNextVersionId(documentId),
                         stream, buffer, localUserId(), createdOn);
@@ -238,7 +238,6 @@ public final class DocumentModelImpl extends
         return read(documentId);
     }
 
-
     /**
      * Obtain a document name generator.
      * 
@@ -252,6 +251,7 @@ public final class DocumentModelImpl extends
             throw translateError(t);
         }
     }
+
 
     /**
      * Handle the publish of a document from the thinkParity network. The
@@ -330,8 +330,8 @@ public final class DocumentModelImpl extends
         } catch (final Throwable t) {
             throw translateError(t);
         }
-    }        
-        
+    }
+
     /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#isDraftModified(com.thinkparity.ophelia.model.document.DocumentFileLock, java.lang.Long)
      *
@@ -362,8 +362,8 @@ public final class DocumentModelImpl extends
         } catch (final Throwable t) {
             throw translateError(t);
         }
-    }
-
+    }        
+        
     /**
      * Determine whether or not the draft of the document is different from the
      * latest version.
@@ -495,8 +495,6 @@ public final class DocumentModelImpl extends
         }
     }
 
-    
-
     /**
      * Open an input stream to read the document version. Note: It is a good
      * idea to buffer the input stream.
@@ -514,6 +512,8 @@ public final class DocumentModelImpl extends
             throw panic(t);
         }
     }
+
+    
 
     /**
      * @see com.thinkparity.ophelia.model.document.DocumentModel#openVersion(java.lang.Long,
@@ -626,7 +626,7 @@ public final class DocumentModelImpl extends
         return documentIO.get(documentId);
     }
 
-	/**
+    /**
 	 * Obtain a document with the specified unique id.
 	 * 
 	 * @param documentUniqueId
@@ -643,7 +643,7 @@ public final class DocumentModelImpl extends
 		}
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#readDraft(com.thinkparity.ophelia.model.document.DocumentFileLock)
      * 
      */
@@ -731,7 +731,7 @@ public final class DocumentModelImpl extends
 		}
 	}
 
-	/**
+    /**
      * Read a document version.
      * 
      * @param documentId
@@ -751,7 +751,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#readVersions(java.lang.Long)
      *
      */
@@ -779,7 +779,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * Read the version size.
      * 
      * @param documentId
@@ -799,7 +799,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#release(com.thinkparity.codebase.model.document.Document)
      *
      */
@@ -811,7 +811,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#remove(com.thinkparity.codebase.model.document.DocumentLock,
      *      java.lang.Long)
      * 
@@ -834,7 +834,7 @@ public final class DocumentModelImpl extends
         super.removeListener(listener);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.document.DocumentModel#rename(java.lang.Long,
      *      java.lang.String)
      * 
@@ -861,7 +861,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#revertDraft(com.thinkparity.codebase.model.document.DocumentLock,
      *      java.lang.Long)
      * 
@@ -893,6 +893,25 @@ public final class DocumentModelImpl extends
             throw clx;
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * Save a version to an output stream.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param uploader
+     *            An <code>StreamUploader</code> to upload to.
+     */
+    public void uploadVersion(final Long documentId, final Long versionId,
+            final StreamUploader uploader) {
+        try {
+            documentIO.uploadVersion(documentId, versionId, uploader);
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 
@@ -936,9 +955,10 @@ public final class DocumentModelImpl extends
      * @param assertArguments
      *            An assertion message's arguments <code>Object...</code>.
      */
-    private void assertDraftIsModified(final Long documentId,
-            final String assertMessage, final Object... assertArguments) {
-        Assert.assertTrue(isDraftModified(documentId), assertMessage,
+    private void assertDraftIsModified(final DocumentFileLock lock,
+            final Long documentId, final String assertMessage,
+            final Object... assertArguments) {
+        Assert.assertTrue(isDraftModified(lock, documentId), assertMessage,
                 assertArguments);
     }
 
@@ -952,10 +972,9 @@ public final class DocumentModelImpl extends
      * @param assertArguments
      *            An assertion message's arguments <code>Object...</code>.
      */
-    private void assertDraftIsModified(final DocumentFileLock lock,
-            final Long documentId, final String assertMessage,
-            final Object... assertArguments) {
-        Assert.assertTrue(isDraftModified(lock, documentId), assertMessage,
+    private void assertDraftIsModified(final Long documentId,
+            final String assertMessage, final Object... assertArguments) {
+        Assert.assertTrue(isDraftModified(documentId), assertMessage,
                 assertArguments);
     }
 
@@ -1384,7 +1403,7 @@ public final class DocumentModelImpl extends
         final byte[] bytes = new byte[getDefaultBufferSize()];
         final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         int bytesRead;
-        while ((bytesRead = stream.read(bytes)) > 0) {
+        while (-1 != (bytesRead = stream.read(bytes))) {
             byteBuffer.position(0);
             byteBuffer.limit(bytesRead);
             fileChannel.write(byteBuffer);

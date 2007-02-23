@@ -279,16 +279,6 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#openArchiveDocumentVersionContent(com.thinkparity.codebase.jabber.JabberId,
-     *      java.util.UUID, java.lang.Long)
-     *
-     */
-    public void createArchiveStream(final JabberId userId,
-            final String streamId, final UUID uniqueId, final Long versionId) {
-        xmppArchive.createStream(userId, streamId, uniqueId, versionId);
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createArtifact(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.UUID)
      */

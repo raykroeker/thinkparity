@@ -7,10 +7,10 @@ import java.util.Calendar;
 import java.util.Collection;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
-import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.audit.AbstractAuditor;
 import com.thinkparity.ophelia.model.audit.event.KeyResponseDeniedEvent;
 import com.thinkparity.ophelia.model.audit.event.RequestKeyEvent;
@@ -45,8 +45,7 @@ public class SessionModelAuditor extends AbstractAuditor {
 	 *            The key requestor.
 	 */
 	void keyResponseDenied(final Long artifactId, final JabberId createdBy,
-            final Calendar createdOn, final JabberId requestedBy)
-            throws ParityException {
+            final Calendar createdOn, final JabberId requestedBy) {
 		final KeyResponseDeniedEvent event = new KeyResponseDeniedEvent();
 		event.setArtifactId(artifactId);
 		event.setCreatedOn(createdOn);
@@ -56,7 +55,7 @@ public class SessionModelAuditor extends AbstractAuditor {
 
 	void requestKey(final Long artifactId, final JabberId createdBy,
 			final Calendar createdOn, final JabberId requestedBy,
-			final JabberId requestedFrom) throws ParityException {
+			final JabberId requestedFrom) {
 		final RequestKeyEvent event = new RequestKeyEvent();
 		event.setArtifactId(artifactId);
 				event.setCreatedOn(createdOn);
@@ -81,7 +80,7 @@ public class SessionModelAuditor extends AbstractAuditor {
 	void send(final Long artifactId, final Calendar createdOn,
             final JabberId createdBy, final Long artifactVersionId,
             final JabberId sentBy, final Calendar sentOn,
-            final Collection<User> sentTo) throws ParityException {
+            final Collection<User> sentTo) {
 		final SendEvent sendEvent = new SendEvent();
 		sendEvent.setArtifactId(artifactId);
 		sendEvent.setArtifactVersionId(artifactVersionId);

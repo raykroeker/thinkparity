@@ -151,8 +151,8 @@ final class StreamServer {
      *            A stream id <code>String</code>.
      * @return The size of the stream in bytes.
      */
-    Long getSize(final StreamSession session, final String streamId) {
-        return fileServer.find(authenticate(session), streamId).length();
+    Long getDownstreamSize(final StreamSession session, final String streamId) {
+        return fileServer.findForDownstream(authenticate(session), streamId).length();
     }
 
     /**
@@ -200,13 +200,13 @@ final class StreamServer {
      * @return An <code>InputStream</code>.
      * @throws IOException
      */
-    InputStream openInputStream(final StreamSession session,
+    InputStream openForDownstream(final StreamSession session,
             final String streamId, final Long streamOffset) throws IOException {
-        final File inputFile = fileServer.find(authenticate(session), streamId);
-        Assert.assertTrue(streamOffset.longValue() < inputFile.length(),
+        final File downstreamFile = fileServer.findForDownstream(authenticate(session), streamId);
+        Assert.assertTrue(streamOffset.longValue() < downstreamFile.length(),
             "Downstream offset {0} cannot be set for {1} of size {2}.",
-            streamOffset, streamId, inputFile.length());
-        final InputStream inputStream = new FileInputStream(inputFile);
+            streamOffset, streamId, downstreamFile.length());
+        final InputStream inputStream = new FileInputStream(downstreamFile);
         inputStream.skip(streamOffset);
         return inputStream;
     }
@@ -214,8 +214,8 @@ final class StreamServer {
     /**
      * Open a stream for persistence to be written to.
      * 
-     * @param sessionId
-     *            A session id <code>String</code>.
+     * @param streamSession
+     *            A <code>StreamSession</code>.
      * @param streamId
      *            A stream id <code>String</code>.
      * @param streamOffset
@@ -223,12 +223,24 @@ final class StreamServer {
      * @return An output stream.
      * @throws IOException
      */
-    OutputStream openOutputStream(final StreamSession session,
+    OutputStream openForUpstream(final StreamSession session,
             final String streamId, final Long streamOffset) throws IOException {
-        final File outputFile = fileServer.find(authenticate(session), streamId);
-        Assert.assertTrue(streamOffset.longValue() == outputFile.length(),
+        final File upstreamFile = fileServer.findForUpstream(authenticate(session), streamId);
+        Assert.assertTrue(streamOffset.longValue() == upstreamFile.length(),
                 "Upstream offset cannot be set for {0}.", streamId);
-        return new FileOutputStream(outputFile, true);
+        return new FileOutputStream(upstreamFile, true);
+    }
+
+    /**
+     * Finalize the persistence of the stream.
+     * 
+     * @param streamSession
+     *            A <code>StreamSession</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
+     */
+    void finalizeStream(final StreamSession session, final String streamId) {
+        fileServer.finalizeStream(session, streamId);
     }
 
     /**

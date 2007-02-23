@@ -15,12 +15,11 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
-import com.thinkparity.ophelia.model.ParityErrorTranslator;
-import com.thinkparity.ophelia.model.ParityUncheckedException;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookNames;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookPriorities;
 import com.thinkparity.ophelia.model.Constants.ThreadNames;
@@ -213,7 +212,7 @@ public class WorkspaceModel {
                     FileUtil.deleteTree(workspaceDirectory);
                 }
             });
-            throw translateError(workspace, t);
+            throw panic(t);
         }
     }
 
@@ -245,21 +244,23 @@ public class WorkspaceModel {
     }
 
     /**
-     * Translate an error into a parity unchecked error.
+     * Panic. Nothing can be done about the error that has been generated. An
+     * appropriate error is constructed suitable for throwing beyond the model
+     * interface.
      * 
      * @param t
-     *            An error.
+     *            A <code>Throwable</code>.
+     * @return A <code>RuntimeException</code>.
      */
-    private RuntimeException translateError(final Workspace workspace,
-            final Throwable t) {
-        if (ParityUncheckedException.class.isAssignableFrom(t.getClass())) {
-            return (ParityUncheckedException) t;
+    protected RuntimeException panic(final Throwable t) {
+        if (ThinkParityException.class.isAssignableFrom(t.getClass())) {
+            return (ThinkParityException) t;
         } else if (Assertion.class.isAssignableFrom(t.getClass())) {
             return (Assertion) t;
         }
         else {
             final String errorId = new ErrorHelper().getErrorId(t);
-            return ParityErrorTranslator.translateUnchecked(workspace, errorId, t);
+            return new ThinkParityException(errorId.toString(), t);
         }
     }
 }

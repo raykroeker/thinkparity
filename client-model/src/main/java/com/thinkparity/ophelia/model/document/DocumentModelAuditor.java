@@ -7,12 +7,19 @@ package com.thinkparity.ophelia.model.document;
 import java.util.Calendar;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
-import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.audit.AbstractAuditor;
-import com.thinkparity.ophelia.model.audit.event.*;
+import com.thinkparity.ophelia.model.audit.event.AddTeamMemberConfirmEvent;
+import com.thinkparity.ophelia.model.audit.event.AddTeamMemberEvent;
+import com.thinkparity.ophelia.model.audit.event.ArchiveEvent;
+import com.thinkparity.ophelia.model.audit.event.CloseEvent;
+import com.thinkparity.ophelia.model.audit.event.CreateEvent;
+import com.thinkparity.ophelia.model.audit.event.CreateRemoteEvent;
+import com.thinkparity.ophelia.model.audit.event.ReceiveKeyEvent;
+import com.thinkparity.ophelia.model.audit.event.RenameEvent;
 
 /**
  * @author raykroeker@gmail.com
@@ -31,8 +38,7 @@ class DocumentModelAuditor extends AbstractAuditor {
     }
 
 	void addTeamMember(final Long artifactId, final JabberId createdBy,
-            final Calendar createdOn, final JabberId teamMember)
-            throws ParityException {
+            final Calendar createdOn, final JabberId teamMember) {
         final AddTeamMemberEvent event = new AddTeamMemberEvent();
         event.setArtifactId(artifactId);
         event.setCreatedOn(createdOn);
@@ -41,7 +47,7 @@ class DocumentModelAuditor extends AbstractAuditor {
     }
 
 	void archive(final Long artifactId, final JabberId createdBy,
-            final Calendar createdOn) throws ParityException {
+            final Calendar createdOn) {
 		final ArchiveEvent event = new ArchiveEvent();
 		event.setArtifactId(artifactId);
         event.setCreatedOn(createdOn);
@@ -50,8 +56,7 @@ class DocumentModelAuditor extends AbstractAuditor {
 	}
 
 	void close(final Long documentId, final JabberId closedBy,
-            final Calendar closedOn, final JabberId createdBy)
-            throws ParityException {
+            final Calendar closedOn, final JabberId createdBy) {
 		final CloseEvent closeEvent = new CloseEvent();
 		closeEvent.setArtifactId(documentId);
 		closeEvent.setCreatedOn(closedOn);
@@ -60,8 +65,7 @@ class DocumentModelAuditor extends AbstractAuditor {
 	}
 
     void confirmAddTeamMember(final Long artifactId, final JabberId createdBy,
-            final Calendar createdOn, final JabberId teamMember)
-            throws ParityException {
+            final Calendar createdOn, final JabberId teamMember) {
         final AddTeamMemberConfirmEvent event = new AddTeamMemberConfirmEvent();
         event.setArtifactId(artifactId);
         event.setCreatedOn(createdOn);
@@ -79,8 +83,7 @@ class DocumentModelAuditor extends AbstractAuditor {
 	}
 
     void createRemote(final Long documentId, final JabberId createdBy,
-            final Calendar createdOn, final JabberId receivedFrom)
-            throws ParityException {
+            final Calendar createdOn, final JabberId receivedFrom) {
         final CreateRemoteEvent event = new CreateRemoteEvent();
         event.setArtifactId(documentId);
         event.setCreatedOn(createdOn);
@@ -89,8 +92,7 @@ class DocumentModelAuditor extends AbstractAuditor {
     }
 
     void receiveKey(final Long artifactId, final JabberId createdBy,
-            final Calendar createdOn, final JabberId receivedFrom)
-            throws ParityException {
+            final Calendar createdOn, final JabberId receivedFrom) {
 		final ReceiveKeyEvent event = new ReceiveKeyEvent();
 		event.setArtifactId(artifactId);
         event.setCreatedOn(createdOn);
@@ -99,8 +101,7 @@ class DocumentModelAuditor extends AbstractAuditor {
 	}
 
     void rename(final Long artifactId, final Calendar createdOn,
-            final JabberId createdBy, final String from, final String to)
-            throws ParityException {
+            final JabberId createdBy, final String from, final String to) {
         final RenameEvent event = new RenameEvent();
         event.setArtifactId(artifactId);
         event.setCreatedOn(createdOn);

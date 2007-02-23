@@ -8,7 +8,6 @@ import java.util.Calendar;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
-import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.audit.AbstractAuditor;
 import com.thinkparity.ophelia.model.audit.event.KeyRequestDeniedEvent;
 import com.thinkparity.ophelia.model.audit.event.ReceiveEvent;
@@ -65,7 +64,7 @@ class ArtifactModelAuditor extends AbstractAuditor {
 	 */
 	void keyRequestDenied(final Long artifactId,
 			final JabberId createdBy, final Calendar createdOn,
-			final JabberId deniedBy) throws ParityException {
+			final JabberId deniedBy) {
 		final KeyRequestDeniedEvent event = new KeyRequestDeniedEvent();
 		event.setArtifactId(artifactId);
 		event.setCreatedOn(createdOn);
@@ -89,8 +88,7 @@ class ArtifactModelAuditor extends AbstractAuditor {
      */
     void sendKey(final Long artifactId, final Calendar createdOn,
             final JabberId createdBy, final Long artifactVersionId,
-            final JabberId sentBy, final Calendar sentOn, final JabberId sentTo)
-            throws ParityException {
+            final JabberId sentBy, final Calendar sentOn, final JabberId sentTo) {
         final SendKeyEvent sendKeyEvent = new SendKeyEvent();
         sendKeyEvent.setArtifactId(artifactId);
         sendKeyEvent.setArtifactVersionId(artifactVersionId);

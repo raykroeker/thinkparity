@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model;
 
 import java.lang.reflect.Proxy;
 
+import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
@@ -80,7 +81,7 @@ public final class ModelFactory {
                     new Class<?>[] { modelInterface },
                     new ModelInvocationHandler(workspace, modelInstance));
         } catch (final Exception x) {
-            throw new ParityUncheckedException("Cannot instantiate model.", x);
+            throw new ThinkParityException("Cannot instantiate model.", x);
         }
     }
 

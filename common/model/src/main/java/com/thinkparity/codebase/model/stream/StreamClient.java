@@ -24,10 +24,13 @@ import com.thinkparity.codebase.model.session.Environment;
  * <b>Title:</b>thinkParity Stream Client<br>
  * <b>Description:</b>The stream client has the ability to create the remote
  * socket connection; negotiate the stream headers then read from and write to
- * the remote socket.<br>
+ * the remote socket. When writing to the stream server the wait for completion
+ * method will block until the appropriate stream id is written to the socket's
+ * input stream. This allows the stream writer client to block when closing
+ * until the stream upload is complete.<br>
  * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.12
  * @see StreamReader
  * @see StreamWriter
  */
@@ -100,6 +103,9 @@ abstract class StreamClient {
     /** The stream client <code>Type</code>. */
     private final Type type;
 
+    /** An indicator of whether or not the write process is still happening. */
+    private boolean writeInProgress;
+
     /**
      * Create StreamClient.
      * 
@@ -117,8 +123,9 @@ abstract class StreamClient {
         this.socketAddress = new InetSocketAddress(
                 environment.getStreamHost(), environment.getStreamPort());
         if (environment.isStreamTLSEnabled()) {
-            new Log4JWrapper().logInfo("Stream Client - {0}:{1} - Secure",
-                    environment.getStreamHost(), environment.getStreamPort());
+            new Log4JWrapper().logInfo("Stream Client - {0} - {1}:{2} - Secure",
+                    type, environment.getStreamHost(),
+                    environment.getStreamPort());
             final String keyStorePath = "security/stream_client_keystore";
             final char[] keyStorePassword = "password".toCharArray();
             try {
@@ -128,8 +135,9 @@ abstract class StreamClient {
                 throw panic(x);
             }
         } else {
-            new Log4JWrapper().logInfo("Stream Client - {0}:{1}",
-                    environment.getStreamHost(), environment.getStreamPort());
+            new Log4JWrapper().logInfo("Stream Client - {0} - {1}:{2}",
+                    type, environment.getStreamHost(),
+                    environment.getStreamPort());
             socketFactory =
                 com.thinkparity.codebase.net.SocketFactory.getInstance();
         }
@@ -164,7 +172,86 @@ abstract class StreamClient {
      * @throws IOException
      */
     protected final void disconnect() throws IOException {
-        doDisconnect();
+        try {
+            output.flush();
+        } finally {
+            try {
+                output.close();
+            } finally {
+                output = null;
+                try {
+                    input.close();
+                } finally {
+                    input = null;
+                    try {
+                        socket.close();
+                    } finally {
+                        socket = null;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Initialize the read operation. This will write the stream headers.
+     * 
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @param streamOffset
+     *            The relative offset <code>Long</code> within the stream to
+     *            begin writing.
+     */
+    protected void initializeRead(final String streamId, final Long streamOffset) {
+        write(new StreamHeader(StreamHeader.Type.STREAM_ID, streamId));
+        write(new StreamHeader(StreamHeader.Type.STREAM_OFFSET, String.valueOf(streamOffset)));
+    }
+
+    /**
+     * Initialize the write operation. This will write the stream headers then
+     * monitor the socket input stream for the stream id. The server will write
+     * back the stream id when the write is complete.
+     * 
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @param streamSize
+     *            The stream size <code>Long</code>.
+     * @param streamOffset
+     *            The relative offset <code>Long</code> within the stream to
+     *            begin writing.
+     */
+    protected final void initializeWrite(final String streamId,
+            final Long streamSize, final Long streamOffset) {
+        writeInProgress = true;
+        // NOTE order here is important; see StreamSocketDelegate#run()
+        write(new StreamHeader(StreamHeader.Type.STREAM_ID, streamId));
+        write(new StreamHeader(StreamHeader.Type.STREAM_OFFSET, String.valueOf(streamOffset)));
+        write(new StreamHeader(StreamHeader.Type.STREAM_SIZE, String.valueOf(streamSize)));
+        // THREAD stream client write listener
+        new Thread("[TPS-Common-SCWriteListener]") {
+            public void run() {
+                try {
+                    int nextByte;
+                    final StringBuffer buffer = new StringBuffer(streamId.length());
+                    while (-1 != (nextByte = input.read())) {
+                        final char c = new String(new byte[] { (byte) nextByte },
+                                session.getCharset().name()).charAt(0);
+                        buffer.append(c);
+                        if (streamId.equals(buffer.toString())) {
+                            /* here we have just been notified that the write operation
+                             * has been completed */
+                            synchronized (StreamClient.this) {
+                                writeInProgress = false;
+                                StreamClient.this.notifyAll();
+                                break;
+                            }
+                        }
+                    }
+                } catch (final IOException iox) {
+                    throw panic(iox);
+                }                
+            }
+        }.start();
     }
 
     /**
@@ -174,18 +261,21 @@ abstract class StreamClient {
      *            The <code>OutputStream</code> to write to.
      */
     protected final void read(final OutputStream stream) {
+        LOGGER.logDebug("Begin downstream session.");
         try {
-            int len;
+            int len = 0, total = 0;
             final byte[] b = new byte[session.getBufferSize()];
             try {
-                while((len = input.read(b)) > 0) {
+                while ((len = input.read(b)) > 0) {
                     stream.write(b, 0, len);
                     stream.flush();
+                    LOGGER.logDebug("Downstream bytes received:  {0}/?", total += len);
                     fireChunkReceived(len);
                 }
             } finally {
                 stream.flush();
             }
+            LOGGER.logDebug("Downstream session complete.");
         } catch (final IOException iox) {
             if (SocketException.class.isAssignableFrom(iox.getClass()) ||
                     SSLException.class.isAssignableFrom(iox.getClass())) {
@@ -205,7 +295,24 @@ abstract class StreamClient {
     }
 
     /**
-     * Write a stream.
+     * Wait for the write operation to be confirmed by the server.  Within the
+     * write initialization we are monitoring for the stream id to be written to
+     * the input stream then notify.
+     *
+     */
+    protected final void waitForWriteCompletion() throws IOException {
+        if (writeInProgress) {
+            synchronized (StreamClient.this) {
+                try {
+                    StreamClient.this.wait();
+                } catch (final InterruptedException ix) {}
+            }
+        }
+    }
+
+    /**
+     * Write a stream.  Start a reader on the socket's input stream that will look
+     * for the current session id.
      * 
      * @param stream
      *            An <code>InputStream</code>.
@@ -213,14 +320,17 @@ abstract class StreamClient {
      *            The stream size <code>Long</code>.
      */
     protected final void write(final InputStream stream, final Long streamSize) {
+        LOGGER.logDebug("Begin upstream session.");
         try {
-            int len;
+            int len = 0, total = 0;
             final byte[] b = new byte[session.getBufferSize()];
-            while((len = stream.read(b)) > 0) {
+            while ((len = stream.read(b)) > 0) {
                 output.write(b, 0, len);
                 output.flush();
+                LOGGER.logDebug("Upstream bytes sent:  {0}/{1}", total += len, streamSize);
                 fireChunkSent(len);
             }
+            LOGGER.logDebug("Upstream session complete.");
         } catch (final IOException iox) {
             if(SocketException.class.isAssignableFrom(iox.getClass())) {
                 if (RECOVERABLE_MESSAGES.contains(iox.getMessage())) {
@@ -239,21 +349,6 @@ abstract class StreamClient {
     }
 
     /**
-     * Write a stream header.
-     * 
-     * @param streamHeader
-     *            A <code>StreamHeader</code>.
-     */
-    protected final void write(final StreamHeader header) {
-        try {
-            write(header.toHeader());
-            fireHeaderSent(header);
-        } catch (final IOException iox) {
-            throw panic(iox);
-        }
-    }
-
-    /**
      * Connect the stream client.
      * 
      * @throws IOException
@@ -263,21 +358,6 @@ abstract class StreamClient {
                 socketAddress.getAddress(), socketAddress.getPort());
         input = socket.getInputStream();
         output = socket.getOutputStream();
-    }
-
-    /**
-     * Disconnect the stream client.
-     * 
-     * @throws IOException
-     */
-    private void doDisconnect() throws IOException {
-        output.flush();
-        output.close();
-        output = null;
-        input.close();
-        input = null;
-        socket.close();
-        socket = null;
     }
 
     /**
@@ -420,6 +500,21 @@ abstract class StreamClient {
      */
     private StreamException panic(final Throwable t) {
         return new StreamException(Boolean.FALSE, t);
+    }
+
+    /**
+     * Write a stream header.
+     * 
+     * @param streamHeader
+     *            A <code>StreamHeader</code>.
+     */
+    private void write(final StreamHeader header) {
+        try {
+            write(header.toHeader());
+            fireHeaderSent(header);
+        } catch (final IOException iox) {
+            throw panic(iox);
+        }
     }
 
     /**

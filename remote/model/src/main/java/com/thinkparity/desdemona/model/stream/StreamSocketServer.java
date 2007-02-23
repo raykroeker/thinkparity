@@ -133,7 +133,8 @@ class StreamSocketServer implements Runnable {
                 // use the socket delegate to handle the streaming
                 try {
                     final StreamSocketDelegate delegate = new StreamSocketDelegate(streamServer, clientSockets.peek());
-                    new Thread(delegate, delegate.getName()).start();
+                    // THREAD stream socket delegate 
+                    new Thread(delegate, "[TPS-SSDelegate-" + delegate.getRemoteAddress() + "]").start();
                 } catch (final Throwable t) {
                     logger.logError(t, "Failed to negotiate stream {0}.",
                             clientSockets.peek().getRemoteSocketAddress());

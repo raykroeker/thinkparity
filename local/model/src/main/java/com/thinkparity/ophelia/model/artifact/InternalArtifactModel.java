@@ -23,8 +23,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
 
-import com.thinkparity.ophelia.model.ParityException;
-
 /**
  * <b>Title:</b>thinkParity Internal Artifact Model<br>
  * <b>Description:</b><br>

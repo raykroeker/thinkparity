@@ -31,6 +31,7 @@ import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.UploadMonitor;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -48,6 +49,7 @@ import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
@@ -55,7 +57,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.ophelia.model.Model;
-import com.thinkparity.ophelia.model.UploadMonitor;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
@@ -93,16 +94,6 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 public final class ContainerModelImpl extends
         Model<ContainerListener> implements ContainerModel,
         InternalContainerModel {
-
-    /**
-     * Used by the progress monitor to determine the number of steps based on
-     * file size.
-     */
-    private static final Integer STEP_SIZE;
-
-    static {
-        STEP_SIZE = 1024;
-    }
 
     /** The artifact io layer. */
     private ArtifactIOHandler artifactIO;
@@ -154,6 +145,12 @@ public final class ContainerModelImpl extends
 
     /** A remote event generator. */
     private final ContainerEventGenerator remoteEventGenerator;
+
+    /**
+     * Used by the progress monitor to determine the number of steps based on
+     * file size.
+     */
+    private Integer stepSize;
 
     /**
      * Create ContainerModelImpl.
@@ -1965,6 +1962,7 @@ public final class ContainerModelImpl extends
         this.auditor = new ContainerAuditor(modelFactory);
         this.containerIO = IOFactory.getDefault(workspace).createContainerHandler();
         this.documentIO = IOFactory.getDefault(workspace).createDocumentHandler();
+        this.stepSize = getDefaultBufferSize();
     }
 
     /**
@@ -2522,7 +2520,7 @@ public final class ContainerModelImpl extends
         int steps = 1;
         for (final DocumentVersion documentVersion : documentVersions) {
             // each 1K is a step
-            steps += (documentVersion.getSize() / STEP_SIZE);
+            steps += (documentVersion.getSize() / stepSize);
         }
         monitor.determine(steps);
     }
@@ -3092,29 +3090,36 @@ public final class ContainerModelImpl extends
         fireDetermine(monitor, documentVersions);
         // upload versions
         final InternalDocumentModel documentModel = getDocumentModel();
-        final StreamSession streamSession = getSessionModel().createStreamSession();
-        InputStream stream;
+        final InternalSessionModel sessionModel = getSessionModel();
+        final StreamSession streamSession = sessionModel.createStreamSession();
         for (final DocumentVersion documentVersion : documentVersions) {
             fireStageBegin(monitor, PublishStage.UploadStream, documentVersion.getName());
-                stream = new BufferedInputStream(documentModel.openVersion(
-                        documentVersion.getArtifactId(),
-                        documentVersion.getVersionId()), getDefaultBufferSize());
-                try {
-                    documentVersionStreamIds.put(documentVersion,
-                            uploadStream(new UploadMonitor() {
+            final String streamId = sessionModel.createStream(streamSession);
+            documentModel.uploadVersion(documentVersion.getArtifactId(),
+                    documentVersion.getVersionId(), new StreamUploader() {
+                        public void upload(final InputStream stream)
+                                throws IOException {
+                            final InputStream bufferedStream = new BufferedInputStream(
+                                    stream, getDefaultBufferSize());
+                            /* NOTE the underlying stream is closed by the document
+                             * io handler through the document model and is thus not
+                             * closed here */
+                            ContainerModelImpl.this.upload(new UploadMonitor() {
                                 private long totalChunks = 0;
                                 public void chunkUploaded(final int chunkSize) {
                                     totalChunks += chunkSize;
-                                    if (totalChunks >= STEP_SIZE) {
-                                        totalChunks -= STEP_SIZE;
-                                        fireStageEnd(monitor, PublishStage.UploadStream);
+                                    if (totalChunks >= stepSize) {
+                                        totalChunks -= stepSize;
+                                        fireStageEnd(monitor,
+                                                PublishStage.UploadStream);
                                     }
                                 }
-                            }, streamSession, stream, documentVersion.getSize()));
-                    fireStageEnd(monitor, PublishStage.UploadStream);
-                } finally {
-                    stream.close();
-                    }
+                            }, streamId, streamSession, bufferedStream,
+                            documentVersion.getSize());
+                        }
+                    });
+                documentVersionStreamIds.put(documentVersion, streamId);
+                fireStageEnd(monitor, PublishStage.UploadStream);
         }
         getSessionModel().deleteStreamSession(streamSession);
         // publish
@@ -3388,7 +3393,8 @@ public final class ContainerModelImpl extends
                             documentVersion.setArtifactId(document.getId());
                             documentVersionStream =
                                 restoreModel.openDocumentVersion(
-                                        document.getUniqueId(), documentVersion.getVersionId());
+                                        document.getUniqueId(),
+                                        documentVersion.getVersionId());
                             try {
                                 documentIO.createVersion(documentVersion,
                                         documentVersionStream,

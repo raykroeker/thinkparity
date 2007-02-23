@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.Map;
 
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 /**
@@ -38,8 +39,7 @@ class ModelInvocationMetrics {
     static void begin(final Method context) {
         if (MEASURES.containsKey(context))
             MEASURES.remove(context);
-        final long begin = System.currentTimeMillis();
-        MEASURES.put(context, new Measure(begin));
+        MEASURES.put(context, captureMeasure());
     }
 
     /**
@@ -49,11 +49,21 @@ class ModelInvocationMetrics {
      *            A <code>Method</code> context.
      */
     static void end(final Method context) {
-        final long end = System.currentTimeMillis();
-        final Measure measure = MEASURES.get(context);
-        LOGGER.logDebug("{0}#{1} {2} ms",
+        final Measure begin = MEASURES.get(context);
+        final Measure end = captureMeasure();
+        LOGGER.logDebug("{0}#{1}{3}  {2} ms{3}  {4} free{3}  {5} max{3}  {6} total",
                 context.getDeclaringClass().getSimpleName(), context.getName(),
-                end - measure.begin);
+                end.currentTimeMillis - begin.currentTimeMillis,
+                Separator.SystemNewLine,
+                Math.abs(end.freeMemory - begin.freeMemory),
+                Math.abs(end.maxMemory - begin.maxMemory),
+                Math.abs(end.totalMemory - begin.totalMemory));
+    }
+
+    private static Measure captureMeasure() {
+        final Runtime runtime = Runtime.getRuntime();
+        return new Measure(System.currentTimeMillis(), runtime.freeMemory(),
+                runtime.maxMemory(), runtime.totalMemory());
     }
 
     /**
@@ -69,10 +79,17 @@ class ModelInvocationMetrics {
      * <b>Description:</b>A measure used to store metric data.<br>
      */
     private static class Measure {
-        final long begin;
-        private Measure(final long begin) {
+        private final long currentTimeMillis;
+        private final long freeMemory;
+        private final long maxMemory;
+        private final long totalMemory;
+        private Measure(final long currentTimeMillis, final long freeMemory,
+                final long maxMemory, final long totalMemory) {
             super();
-            this.begin = begin;
+            this.currentTimeMillis = currentTimeMillis;
+            this.freeMemory = freeMemory;
+            this.maxMemory = maxMemory;
+            this.totalMemory = totalMemory;
         }
     }
 }

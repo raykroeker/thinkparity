@@ -4,6 +4,7 @@
 package com.thinkparity.desdemona.model.backup;
 
 import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,11 +14,13 @@ import java.util.UUID;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.UploadMonitor;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -25,7 +28,6 @@ import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
-import com.thinkparity.desdemona.model.UploadMonitor;
 import com.thinkparity.desdemona.model.archive.ClientModelFactory;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.stream.InternalStreamModel;
@@ -84,15 +86,17 @@ final class BackupModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Open a document version's input stream.
+     * Upload a document version to the stream server using the provided stream
+     * id. The stream can then be downloaded by a client.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
      * @param uniqueId
      *            A document unique id <code>UUID</code>.
      * @param versionId
      *            A document version id <code>Long</code>.
-     * @return An <code>InputStream</code>.
      */
     void createStream(final JabberId userId, final String streamId,
             final UUID uniqueId, final Long versionId) {
@@ -112,9 +116,6 @@ final class BackupModelImpl extends AbstractModelImpl {
                 final InternalDocumentModel documentModel = modelFactory.getDocumentModel(getClass());
 
                 final Long documentId = artifactModel.readId(uniqueId);
-                final InputStream stream = new BufferedInputStream(
-                        documentModel.openVersion(documentId, versionId),
-                        getDefaultBufferSize());
                 final Long streamSize = documentModel.readVersionSize(documentId, versionId);
                 logger.logVariable("documentId", documentId);
                 logger.logVariable("streamSize", streamSize);
@@ -122,13 +123,21 @@ final class BackupModelImpl extends AbstractModelImpl {
                 final InternalStreamModel streamModel = getStreamModel();
                 final StreamSession streamSession =
                     streamModel.createArchiveSession(archiveId);
-                uploadStream(new UploadMonitor() {
-                    public void chunkUploaded(final int chunkSize) {
-                        logger.logApiId();
-                        logger.logVariable("chunkSize", chunkSize);
+                documentModel.uploadVersion(documentId, versionId, new StreamUploader() {
+                    public void upload(final InputStream stream) throws IOException {
+                        final InputStream bufferedStream =
+                            new BufferedInputStream(stream, getDefaultBufferSize());
+                        /* NOTE the underlying stream is closed by the document
+                         * io handler through the document model and is thus not
+                         * closed here */
+                        BackupModelImpl.this.upload(new UploadMonitor() {
+                            public void chunkUploaded(final int chunkSize) {
+                                logger.logApiId();
+                                logger.logVariable("chunkSize", chunkSize);
+                            }
+                        }, streamId, streamSession, bufferedStream, streamSize);
                     }
-                }, streamId, streamSession, stream, streamSize);
-
+                });
             }
         } catch (final Throwable t) {
             throw translateError(t);

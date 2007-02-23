@@ -16,6 +16,7 @@ import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.event.EventNotifier;
 
 import com.thinkparity.codebase.model.DownloadMonitor;
+import com.thinkparity.codebase.model.UploadMonitor;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -24,7 +25,6 @@ import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEvent;
 
 import com.thinkparity.ophelia.model.Model;
-import com.thinkparity.ophelia.model.UploadMonitor;
 import com.thinkparity.ophelia.model.events.MigratorEvent;
 import com.thinkparity.ophelia.model.events.MigratorListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
@@ -301,18 +301,20 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      */
     private String upload(final File file) throws FileNotFoundException,
             IOException {
-        final StreamSession session = getSessionModel().createStreamSession();
+        final InternalSessionModel sessionModel = getSessionModel();
+        final StreamSession session = sessionModel.createStreamSession();
         final InputStream stream = new BufferedInputStream(
                 new FileInputStream(file), getDefaultBufferSize());
         final Long streamSize = file.length();
         try {
-            return uploadStream(new UploadMonitor() {
+            final String streamId = sessionModel.createStream(session);
+            upload(new UploadMonitor() {
                 public void chunkUploaded(final int chunkSize) {
                     logger.logTraceId();
                     logger.logVariable("chunkSize:{0}", chunkSize);
                 }
-            }, session, stream, streamSize);
-
+            }, streamId, session, stream, streamSize);
+            return streamId;
         } finally {
             stream.close();
         }

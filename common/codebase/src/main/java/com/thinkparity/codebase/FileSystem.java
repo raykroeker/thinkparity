@@ -56,7 +56,6 @@ public class FileSystem {
         if(null == path) throw new NullPointerException();
         return new FileSystem(resolve(path));
     }
-
     /**
      * Create a directory at the given path.
      * 
@@ -376,6 +375,27 @@ public class FileSystem {
                 print(printWriter, tree.get(i));
             }
         }
+    }
+
+    /**
+     * Rename a file.
+     * 
+     * @param path
+     *            A source path <code>String</code>.
+     * @param renameToPath
+     *            A target path <code>String<code>.
+     * @return The renamed <code>File</code>.
+     */
+    public File rename(final String path, final String renameToPath) {
+        final File renameTo = new File(resolvePath(renameToPath));
+        Assert.assertNotTrue(renameTo.exists(),
+                "Rename to path {0} exists.", renameToPath);
+        final File file = resolve(path);
+        Assert.assertNotNull(file,
+                "File path {0} does not exist.", path);
+        Assert.assertTrue(file.renameTo(renameTo),
+                "Cannot rename file {0} to {1}.", file, renameTo);
+        return renameTo;
     }
 
     /** @see java.lang.Object#toString() */

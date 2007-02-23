@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.backup;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -116,9 +117,14 @@ public final class BackupModelImpl extends Model implements
             sessionModel.createBackupStream(localUserId(), streamId, uniqueId,
                     versionId);
             try {
-                return new FileInputStream(downloadStream(new DownloadMonitor() {
-                    public void chunkDownloaded(final int chunkSize) {}
-                }, streamId));
+                final File file = downloadStream(new DownloadMonitor() {
+                    public void chunkDownloaded(final int chunkSize) {
+                        logger.logApiId();
+                        logger.logVariable("chunkSize", chunkSize);
+                    }}, streamId);
+                logger.logVariable("file.getName()", file.getName());
+                logger.logVariable("file.length()", file.length());
+                return new FileInputStream(file);
             } finally {
                 sessionModel.deleteStreamSession(session);
             }

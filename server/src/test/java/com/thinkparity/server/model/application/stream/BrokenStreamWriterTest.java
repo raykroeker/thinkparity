@@ -71,6 +71,7 @@ public final class BrokenStreamWriterTest extends StreamTestCase {
         final int streamCount = 1;
         final List<Thread> streamWriters = new ArrayList<Thread>();
         for (int i = 0; i < streamCount; i++) {
+            // THREAD broken stream write test thread
             streamWriters.add(new Thread(new Runnable() {
                     public void run() {
                         try {
@@ -95,7 +96,7 @@ public final class BrokenStreamWriterTest extends StreamTestCase {
                             fail(createFailMessage(x));
                         }
                     }
-                }, "Stream Writer Thread:  " + String.valueOf(i)));
+                }, "[TPS-DesdemonaModel-BSWT-" + String.valueOf(i) + "]"));
         }
         
         datum = new Fixture(server, streamWriters);

@@ -10,7 +10,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
-import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.audit.event.AddTeamMemberConfirmEvent;
 import com.thinkparity.ophelia.model.audit.event.AddTeamMemberEvent;
 import com.thinkparity.ophelia.model.audit.event.ArchiveEvent;
@@ -41,56 +40,49 @@ import com.thinkparity.ophelia.model.audit.event.SendKeyEvent;
 public interface InternalAuditModel extends AuditModel {
 
     public void audit(final AddTeamMemberConfirmEvent event,
-            final JabberId createdBy, final JabberId teamMember)
-            throws ParityException;
+            final JabberId createdBy, final JabberId teamMember);
 
     public void audit(final AddTeamMemberEvent event,
-            final JabberId createdBy, final JabberId teamMember)
-            throws ParityException;
+            final JabberId createdBy, final JabberId teamMember);
 
-	public void audit(final ArchiveEvent event, final JabberId createdBy)
-            throws ParityException;
+	public void audit(final ArchiveEvent event, final JabberId createdBy);
 
 	public void audit(final CloseEvent event, final JabberId createdBy,
-            final JabberId closedBy) throws ParityException;
+            final JabberId closedBy);
 
 	public void audit(final CreateEvent event);
 
 	public void audit(final CreateRemoteEvent event, final JabberId createdBy,
-            final JabberId receivedFrom) throws ParityException;
+            final JabberId receivedFrom);
 
     public void audit(final KeyRequestDeniedEvent event,
-            final JabberId createdBy, final JabberId deniedBy)
-            throws ParityException;
+            final JabberId createdBy, final JabberId deniedBy);
 
     public void audit(final KeyResponseDeniedEvent event,
-            final JabberId createdBy, final JabberId requestedBy)
-            throws ParityException;
+            final JabberId createdBy, final JabberId requestedBy);
 
 	public void audit(final PublishEvent event);
 
 	public void audit(final ReactivateEvent event, final JabberId createdBy,
-            final JabberId reactivatedBy) throws ParityException;
+            final JabberId reactivatedBy);
 
     public void audit(final ReceiveEvent event);
 
     public void audit(final ReceiveKeyEvent event, final JabberId createdBy,
-            final JabberId receivedFrom) throws ParityException;
+            final JabberId receivedFrom);
 
-	public void audit(final RenameEvent event, final JabberId createdBy)
-        throws ParityException;
+	public void audit(final RenameEvent event, final JabberId createdBy);
 
 	public void audit(final RequestKeyEvent event, final JabberId createdBy,
-            final JabberId requestedBy, final JabberId requestedFrom)
-            throws ParityException;
+            final JabberId requestedBy, final JabberId requestedFrom);
 
 	public void audit(final SendConfirmEvent event);
 
 	public void audit(final SendEvent event, final JabberId createdBy,
-            final JabberId sentTo) throws ParityException;
+            final JabberId sentTo);
 
 	public void audit(final SendKeyEvent event, final JabberId createdBy,
-            final JabberId sentTo) throws ParityException;
+            final JabberId sentTo);
 
 	public void delete(final Long artifactId);
 

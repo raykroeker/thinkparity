@@ -5,6 +5,7 @@ package com.thinkparity.desdemona.model.stream;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -58,8 +59,9 @@ public final class UpstreamHandlerTest extends StreamTestCase {
         final StreamSession session = createSession(DesdemonaTestUser.JUNIT, server);
         final String streamId = createStream(server, session, streamFile.getName());
 
+        final File streamIdFile = new File(workingDirectory, streamId + "-complete");
         datum = new Fixture(server, new UpstreamHandler(server, session, streamId, 0L,
-                streamFile.length(), new FileInputStream(streamFile)));
+                streamFile.length(), new FileInputStream(streamFile), new FileOutputStream(streamIdFile)));
     }
 
     /**

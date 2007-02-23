@@ -39,7 +39,7 @@ abstract class AbstractStreamHandler {
     protected final StreamServer streamServer;
 
     /** The <code>StreamSession</code>. */
-    protected final StreamSession streamSession;
+    protected final StreamSession session;
 
     /**
      * 
@@ -56,7 +56,7 @@ abstract class AbstractStreamHandler {
             final Long streamOffset, final Long streamSize) {
         super();
         this.streamServer = streamServer;
-        this.streamSession = streamSession;
+        this.session = streamSession;
         this.streamId = streamId;
         this.streamOffset = streamOffset;
         this.streamSize = streamSize;

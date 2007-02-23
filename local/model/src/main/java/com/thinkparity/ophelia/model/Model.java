@@ -23,10 +23,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.thinkparity.codebase.DateUtil;
-import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.event.EventNotifier;
@@ -45,7 +43,6 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.stream.StreamWriter;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
@@ -273,7 +270,7 @@ public abstract class Model<T extends EventListener> extends
      * @see #isKeyHolder(Long)
      */
     protected void assertIsKeyHolder(final Object assertion,
-            final Long artifactId) throws ParityException {
+            final Long artifactId) {
         Assert.assertTrue(assertion, isKeyHolder(artifactId));
     }
 
@@ -287,7 +284,7 @@ public abstract class Model<T extends EventListener> extends
      * @see #isKeyHolder(Long)
      */
 	protected void assertIsNotKeyHolder(final String assertion,
-            final Long artifactId) throws ParityException {
+            final Long artifactId) {
 		Assert.assertNotTrue(assertion, isKeyHolder(artifactId));
 	}
 
@@ -352,7 +349,7 @@ public abstract class Model<T extends EventListener> extends
             Assert.assertNotTrue(assertion, contains(team, user));
     }
 
-	/**
+    /**
      * Assert the user is online.
      *
      */
@@ -374,7 +371,7 @@ public abstract class Model<T extends EventListener> extends
         assertOnline(api.toString());
     }
 
-	/**
+    /**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.
 	 * 
@@ -419,7 +416,7 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertNotTrue(assertion, contains(team, getUserModel().read(userId)));
     }
 
-    /**
+	/**
      * Assert that the xmpp service is online.
      * 
      * @param environment
@@ -522,7 +519,7 @@ public abstract class Model<T extends EventListener> extends
             configurationIO.create(ConfigurationKeys.Credentials.USERNAME, encrypt(cipherKey, credentials.getUsername()));
             return readCredentials();
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -538,7 +535,7 @@ public abstract class Model<T extends EventListener> extends
             configurationIO.create(ConfigurationKeys.TOKEN, encrypt(getCipherKey(), token.getValue()));
             return readToken();
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -553,7 +550,7 @@ public abstract class Model<T extends EventListener> extends
             configurationIO.delete(ConfigurationKeys.Credentials.RESOURCE);
             configurationIO.delete(ConfigurationKeys.Credentials.USERNAME);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -606,6 +603,9 @@ public abstract class Model<T extends EventListener> extends
             final String streamId) throws IOException {
         final File streamFile = buildStreamFile(streamId);
         final StreamSession streamSession = getSessionModel().createStreamSession();
+        logger.logVariable("streamSession.getBufferSize()", streamSession.getBufferSize());
+        logger.logVariable("streamSession.getCharset()", streamSession.getCharset());
+        logger.logVariable("streamSession.getId()", streamSession.getId());
         final StreamMonitor streamMonitor = new StreamMonitor() {
             long recoverChunkOffset = 0;
             long totalChunks = 0;
@@ -629,13 +629,13 @@ public abstract class Model<T extends EventListener> extends
                                     streamSession, streamId, streamFile,
                                     Long.valueOf(recoverChunkOffset));
                         } catch (final IOException iox) {
-                            throw translateError(iox);
+                            throw panic(iox);
                         }
                     } else {
-                        throw translateError(error);
+                        throw panic(error);
                     }
                 } else {
-                    throw translateError(error);
+                    throw panic(error);
                 }
             }
         };
@@ -684,6 +684,17 @@ public abstract class Model<T extends EventListener> extends
         return modelFactory.getBackupModel();
     }
 
+    /**
+     * Obtain a buffer size.
+     * 
+     * @param context
+     *            A context <code>String</code>.
+     * @return A buffer size <code>Integer</code>.
+     */
+    protected final Integer getBufferSize(final String context) {
+        return preferences.getBufferSize(context);
+    }
+
     protected final String getChecksumAlgorithm() {
         return ChecksumAlgorithm.MD5.name();
     }
@@ -697,7 +708,7 @@ public abstract class Model<T extends EventListener> extends
         return modelFactory.getContactModel();
     }
 
-	/**
+    /**
      * Obtain an internal container model.
      * 
      * @return An instance of <code>InternalContainerModel</code>.
@@ -706,24 +717,13 @@ public abstract class Model<T extends EventListener> extends
         return modelFactory.getContainerModel();
     }
 
-    /**
+	/**
      * Obtain the default buffer size.
      * 
      * @return An <code>Integer</code> default buffer size.
      */
     protected Integer getDefaultBufferSize() {
         return preferences.getDefaultBufferSize();
-    }
-
-    /**
-     * Obtain a buffer size.
-     * 
-     * @param context
-     *            A context <code>String</code>.
-     * @return A buffer size <code>Integer</code>.
-     */
-    protected final Integer getBufferSize(final String context) {
-        return preferences.getBufferSize(context);
     }
 
     /**
@@ -856,7 +856,7 @@ public abstract class Model<T extends EventListener> extends
      *            The artifact id.
      * @return True if the user is the keyholder; false otherwise.
      */
-    protected Boolean isKeyHolder(final Long artifactId) throws ParityException {
+    protected Boolean isKeyHolder(final Long artifactId) {
         assertOnline("USER NOT ONLINE");
         final InternalArtifactModel artifactModel = getArtifactModel();
         return artifactModel.isFlagApplied(artifactId, ArtifactFlag.KEY) &&
@@ -972,16 +972,12 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
-     * Panic. Nothing can be done about the error that has been generated. An
-     * appropriate error is constructed suitable for throwing beyond the model
-     * interface.
+     * @see com.thinkparity.codebase.model.AbstractModelImpl#panic(java.lang.Throwable)
      * 
-     * @param t
-     *            A <code>Throwable</code>.
-     * @return A <code>RuntimeException</code>.
      */
+	@Override
     protected RuntimeException panic(final Throwable t) {
-        return translateError(t);
+        return super.panic(t);
     }
 
     /**
@@ -1016,7 +1012,7 @@ public abstract class Model<T extends EventListener> extends
                 credentials.setUsername(decrypt(cipherKey, username));
                 return credentials;
             } catch (final Throwable t) {
-                throw translateError(t);
+                throw panic(t);
             }
         }
     }
@@ -1048,7 +1044,7 @@ public abstract class Model<T extends EventListener> extends
                 token.setValue(decrypt(getCipherKey(), tokenValue));
                 return token;
             } catch (final Throwable t) {
-                throw translateError(t);
+                throw panic(t);
             }
         }
     }
@@ -1082,24 +1078,11 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
-     * Translate an error into a parity unchecked error.
+     * @see com.thinkparity.ophelia.model.Model#panic(Throwable)
      * 
-     * @param t
-     *            An error.
      */
     protected RuntimeException translateError(final Throwable t) {
-        if (ParityUncheckedException.class.isAssignableFrom(t.getClass())) {
-            return (ParityUncheckedException) t;
-        } else if (Assertion.class.isAssignableFrom(t.getClass())) {
-            final String errorId = new ErrorHelper().getErrorId(t);
-            logger.logError(t, "{0}", errorId);
-            return (Assertion) t;
-        }
-        else {
-            final String errorId = new ErrorHelper().getErrorId(t);
-            logger.logError(t, "{0}", errorId);
-            return ParityErrorTranslator.translateUnchecked(getContext(), errorId, t);
-        }
+        return panic(t);
     }
 
     /**
@@ -1115,94 +1098,8 @@ public abstract class Model<T extends EventListener> extends
             configurationIO.update(ConfigurationKeys.Credentials.RESOURCE, encrypt(cipherKey, credentials.getResource()));
             configurationIO.update(ConfigurationKeys.Credentials.USERNAME, encrypt(cipherKey, credentials.getUsername()));
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
-    }
-
-    /**
-     * Upload a stream to the stream server using an existing session.
-     * 
-     * @param session
-     *            A <code>StreamSession</code>.
-     * @param iStream
-     *            A <code>Iterable</code> series of <code>InputStream</code>.
-     * @throws IOException
-     */
-    protected final String uploadStream(final UploadMonitor uploadMonitor,
-            final StreamMonitor streamMonitor, final StreamSession session,
-            final InputStream stream, final Long streamSize,
-            final Long streamOffset) throws IOException {
-        stream.reset();
-        long skipped = stream.skip(streamOffset);
-        while (skipped < streamOffset && 0 < skipped) {
-            skipped += stream.skip(streamOffset.longValue() - skipped);
-        }
-        final Long actualStreamOffset;
-        if (skipped == streamOffset.longValue()) {
-            logger.logInfo("Resuming download for {0} at {1}.",
-                    session, streamOffset);
-            actualStreamOffset = streamOffset;
-        } else {
-            logger.logWarning("Could not resume download for {0} at {1}.  Starting over.",
-                    session, streamOffset);
-            actualStreamOffset = 0L;
-        }
-        final InternalSessionModel sessionModel = getSessionModel();
-        final StreamWriter writer = new StreamWriter(streamMonitor, session);
-        writer.open();
-        try {
-            final String streamId = sessionModel.createStream(session);
-            writer.write(streamId, stream, streamSize, actualStreamOffset);
-            return streamId;
-        } finally {
-            writer.close();
-        }
-    }
-
-    /**
-     * Upload a stream to the stream server using an existing session.
-     * 
-     * @param session
-     *            A <code>StreamSession</code>.
-     * @param iStream
-     *            A <code>Iterable</code> series of <code>InputStream</code>.
-     * @throws IOException
-     */
-    protected final String uploadStream(final UploadMonitor uploadMonitor,
-            final StreamSession session, final InputStream stream,
-            final Long streamSize) throws IOException {
-        final StreamMonitor streamMonitor = new StreamMonitor() {
-            long recoverChunkOffset = 0;
-            long totalChunks = 0;
-            public void chunkReceived(final int chunkSize) {}
-            public void chunkSent(final int chunkSize) {
-                totalChunks += chunkSize;
-                uploadMonitor.chunkUploaded(chunkSize);
-            }
-            public void headerReceived(final String header) {}
-            public void headerSent(final String header) {}
-            public void streamError(final StreamException error) {
-                if (error.isRecoverable()) {
-                    if (recoverChunkOffset <= totalChunks) {
-                        // attempt to resume the upload
-                        recoverChunkOffset = totalChunks;
-                        try {
-                            uploadStream(uploadMonitor, this, session, stream,
-                                    streamSize, Long.valueOf(recoverChunkOffset));
-                        } catch (final IOException iox) {
-                            throw translateError(iox);
-                        }
-                    } else {
-                        throw error;
-                    }
-                } else {
-                    throw error;
-                }
-            }
-        };
-        stream.mark(stream.available());
-        return uploadStream(uploadMonitor, streamMonitor, session, stream,
-                streamSize, 0L);
     }
 
     /**
@@ -1241,6 +1138,7 @@ public abstract class Model<T extends EventListener> extends
         final Cipher cipher = getDecryptionCipher();
         return new String(cipher.doFinal(Base64.decodeBytes(cipherText)));
     }
+
     /**
      * Encrypt clear text into a base 64 encoded cipher text.
      * 
@@ -1262,7 +1160,6 @@ public abstract class Model<T extends EventListener> extends
         final Cipher cipher = getEncryptionCipher();
         return Base64.encodeBytes(cipher.doFinal(clearText.getBytes()));
     }
-
     private String formatAssertion(final ArtifactState currentState,
 			final ArtifactState intendedState,
 			final ArtifactState[] allowedStates) {

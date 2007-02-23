@@ -1,7 +1,7 @@
 /*
  * Created On:  21-Dec-06 2:37:29 PM
  */
-package com.thinkparity.ophelia.model;
+package com.thinkparity.codebase.model;
 
 
 /**

@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.User;
 
@@ -18,8 +19,6 @@ import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
  * @version
  */
 public interface ContactIOHandler {
-
-    public List<EMail> readEmails(final Long contactId);
 
     /**
      * Create a contact.
@@ -75,6 +74,14 @@ public interface ContactIOHandler {
     public void deleteEmail(final Long contactId, final EMail email);
 
     /**
+     * Delete an email.
+     * 
+     * @param email
+     *            An <code>EMail</code>.
+     */
+    public void deleteEMail(final EMail email);
+
+    /**
      * Delete an incoming invitation.
      * 
      * @param invitationId
@@ -106,14 +113,25 @@ public interface ContactIOHandler {
      */
     public Contact read(final JabberId contactId);
 
+    public List<EMail> readEmails(final Long contactId);
+
     /**
-     * Read an outgoing invitation.
+     * Read an incoming invitation.
      * 
      * @param invitationId
      *            An invitation id.
      * @return An incoming invitation.
      */
     public IncomingInvitation readIncomingInvitation(final Long invitationId);
+
+    /**
+     * Read an incoming invitation.
+     * 
+     * @param invitationId
+     *            An invitation id.
+     * @return An incoming invitation.
+     */
+    public IncomingInvitation readIncomingInvitation(final JabberId invitedBy);
 
     /**
      * Read incoming invitations.

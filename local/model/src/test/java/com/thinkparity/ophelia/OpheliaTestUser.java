@@ -6,6 +6,7 @@ package com.thinkparity.ophelia;
 import java.io.File;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -64,7 +65,10 @@ public class OpheliaTestUser extends User {
 	/** The test user's credentials. */
 	private final Credentials credentials;
 
-	/** The test user's environment. */
+	/** The test user's e-mail address. */
+    private EMail email;
+
+    /** The test user's environment. */
     private final Environment environment;
 
     /** The test user's workspace. */
@@ -117,6 +121,15 @@ public class OpheliaTestUser extends User {
     }
 
     /**
+     * Obtain the test user's <code>EMail</code>.
+     * 
+     * @return An <code>EMail</code> address.
+     */
+    public EMail getEmail() {
+        return email;
+    }
+
+    /**
      * Obtain the environment
      *
      * @return The Environment.
@@ -135,7 +148,7 @@ public class OpheliaTestUser extends User {
                 workspace);
     }
 
-    /**
+	/**
      * Obtain the user's <code>Workspace</code>.
      * 
      * @return A <code>Workspace</code>.
@@ -144,7 +157,7 @@ public class OpheliaTestUser extends User {
         return workspace;
     }
 
-	/**
+    /**
      * Assert that the environment is online.
      * 
      * @param assertion
@@ -176,6 +189,7 @@ public class OpheliaTestUser extends User {
         }
         setId(JabberIdBuilder.build(
                 credentials.getUsername(), environment.getXMPPService()));
+        email = getModelFactory().getProfileModel().readEmails().get(0).getEmail();
         getModelFactory().getSessionModel().logout();
     }
 

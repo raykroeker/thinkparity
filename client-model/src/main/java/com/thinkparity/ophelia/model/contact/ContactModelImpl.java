@@ -11,6 +11,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
@@ -26,7 +27,6 @@ import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContactListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ContactIOHandler;
-import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.util.filter.Filter;
 import com.thinkparity.ophelia.model.util.filter.contact.DefaultInvitationFilter;
@@ -89,22 +89,36 @@ public final class ContactModelImpl extends Model<ContactListener>
      *            An invitation id.
      */
     public void acceptIncomingInvitation(final Long invitationId) {
-        logger.logApiId();
-        logger.logVariable("invitationId", invitationId);
-        assertOnline();
         try {
+            assertOnline();
             final IncomingInvitation invitation = readIncomingInvitation(invitationId);
             // delete the invitation
             contactIO.deleteIncomingInvitation(invitation.getId());
-            // remote accept
-            final InternalSessionModel sessionModel = getSessionModel();
-            sessionModel.acceptContactInvitation(localUserId(), invitation
-                    .getInvitedBy(), currentDateTime());
-            // create contact data
+            // delete an invitation that might have been sent to the user
             final Contact remoteContact = readRemote(invitation.getInvitedBy());
-            final Contact localContact = createLocal(remoteContact);
-            // fire event
-            notifyIncomingInvitationAccepted(localContact, invitation, localEventGenerator);
+            final List<OutgoingInvitation> deletedInvitations =
+                new ArrayList<OutgoingInvitation>();
+            OutgoingInvitation outgoingInvitation;
+            for (final EMail contactEMail : remoteContact.getEmails()) {
+                outgoingInvitation = contactIO.readOutgoingInvitation(contactEMail);
+                if (null != outgoingInvitation) {
+                    deletedInvitations.add(outgoingInvitation);
+                    contactIO.deleteOutgoingInvitation(outgoingInvitation.getId());
+                    contactIO.deleteEMail(contactEMail);
+                }
+            }
+            // create contact data
+            final Contact localContact = createLocal(readRemote(
+                    invitation.getInvitedBy()));
+            // accept
+            getSessionModel().acceptContactInvitation(localUserId(),
+                    invitation.getInvitedBy(), currentDateTime());
+            // fire accepted event
+            notifyIncomingInvitationAccepted(localContact, invitation,
+                    localEventGenerator);
+            // fire deleted event
+            for (final OutgoingInvitation deletedInvitation : deletedInvitations)
+                notifyOutgoingInvitationDeleted(deletedInvitation, localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -207,6 +221,7 @@ public final class ContactModelImpl extends Model<ContactListener>
         try {
             final OutgoingInvitation invitation = readOutgoingInvitation(invitationId);
             contactIO.deleteOutgoingInvitation(invitationId);
+            contactIO.deleteEMail(invitation.getEmail());
             // delete remote
             getSessionModel().deleteContactInvitation(localUserId(),
                     invitation.getEmail(), currentDateTime());
@@ -315,19 +330,28 @@ public final class ContactModelImpl extends Model<ContactListener>
        logger.logVariable("event", event);
        try {
            final Contact remoteContact = readRemote(event.getAcceptedBy());
-           // delete invitation(s)
+           // delete incoming
+           final IncomingInvitation incoming = contactIO.readIncomingInvitation(remoteContact.getId());
+           if (null != incoming) {
+               contactIO.deleteIncomingInvitation(incoming.getId());
+           }
+           // delete outgoing
            final List<OutgoingInvitation> outgoingInvitations = new ArrayList<OutgoingInvitation>();
            for (final EMail email : remoteContact.getEmails()) {
                outgoingInvitations.add(contactIO.readOutgoingInvitation(email));
                contactIO.deleteOutgoingInvitation(
                        outgoingInvitations.get(
                                outgoingInvitations.size() - 1).getId());
+               contactIO.deleteEMail(email);
            }
            final Contact localContact = createLocal(remoteContact);
-           // fire event(s)
-           for (final OutgoingInvitation outgoingInvitation : outgoingInvitations) {
-               notifyOutgoingInvitationAccepted(localContact, outgoingInvitation, remoteEventGenerator);
-           }
+           // fire event
+           if (null != incoming)
+               notifyIncomingInvitationDeleted(incoming, remoteEventGenerator);
+           // fire events
+           for (final OutgoingInvitation outgoingInvitation : outgoingInvitations)
+               notifyOutgoingInvitationAccepted(localContact,
+                        outgoingInvitation, remoteEventGenerator);
        } catch (final Throwable t) {
            throw translateError(t);
        }
@@ -349,6 +373,7 @@ public final class ContactModelImpl extends Model<ContactListener>
            final OutgoingInvitation invitation =
                    contactIO.readOutgoingInvitation(event.getInvitedAs());
            contactIO.deleteOutgoingInvitation(invitation.getId());
+           contactIO.deleteEMail(invitation.getEmail());
            // fire event(s)
            notifyOutgoingInvitationDeclined(invitation, remoteEventGenerator);
        } catch (final Throwable t) {

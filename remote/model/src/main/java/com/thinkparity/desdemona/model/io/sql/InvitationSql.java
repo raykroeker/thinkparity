@@ -5,7 +5,6 @@ package com.thinkparity.desdemona.model.io.sql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.thinkparity.codebase.email.EMail;
@@ -13,6 +12,8 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.desdemona.model.contact.Invitation;
+import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
+import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 
 
 /**
@@ -102,22 +103,18 @@ public class InvitationSql extends AbstractSql {
 
 	public void delete(final JabberId from, final JabberId to)
 			throws SQLException {
-        logApiId();
-		logVariable("variable", from);
-		logVariable("variable", to);
-		Connection cx = null;
-		PreparedStatement ps = null;
+        final HypersonicSession session = openSession();
 		try {
-			cx = getCx();
-            logStatement(SQL_DELETE);
-			ps = cx.prepareStatement(SQL_DELETE);
-			ps.setString(1, from.getUsername());
-			ps.setString(2, to.getUsername());
-			if (1 != ps.executeUpdate())
-				throw new SQLException();
-            cx.commit();
+			session.prepareStatement(SQL_DELETE);
+			session.setString(1, from.getUsername());
+			session.setString(2, to.getUsername());
+			if (1 != session.executeUpdate())
+				throw new HypersonicException("Could not delete invitation.");
+            session.commit();
+        } catch (final Throwable t) {
+            translateError(session, t);
 		} finally {
-            close(cx, ps);
+            session.close();
 		}
 	}
 
@@ -140,32 +137,27 @@ public class InvitationSql extends AbstractSql {
     }
 
 	public Invitation read(final JabberId from, final JabberId to) throws SQLException {
-        logApiId();
-		logVariable("variable", from);
-		logVariable("variable", to);
-		Connection cx = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+		final HypersonicSession session = openSession();
 		try {
-			cx = getCx();
-            logStatement(SQL_READ);
-			ps = cx.prepareStatement(SQL_READ);
-			ps.setString(1, from.getQualifiedUsername());
-			ps.setString(2, to.getQualifiedUsername());
-			rs = ps.executeQuery();
-
-			if(rs.next()) { return extractInvitation(rs); }
-			else { return null; }
-		}
-		finally { close(cx, ps, rs); }
+			session.prepareStatement(SQL_READ);
+			session.setString(1, from.getUsername());
+			session.setString(2, to.getUsername());
+			session.executeQuery();
+			if (session.nextResult()) {
+                return extractInvitation(session);
+			} else {
+                return null;
+			}
+		}finally {
+            session.close();
+        }
 	}
 
-	private Invitation extractInvitation(final ResultSet rs)
-			throws SQLException {
-		final Invitation i = new Invitation();
+    private Invitation extractInvitation(final HypersonicSession session) {
+        final Invitation i = new Invitation();
         // from and to are simple usernames
-		i.setFrom(JabberIdBuilder.parseUsername(rs.getString("invitationFrom")));
-		i.setTo(JabberIdBuilder.parseUsername(rs.getString("invitationTo")));
-		return i;
-	}
+        i.setFrom(JabberIdBuilder.parseUsername(session.getString("invitationFrom")));
+        i.setTo(JabberIdBuilder.parseUsername(session.getString("invitationTo")));
+        return i;
+    }
 }

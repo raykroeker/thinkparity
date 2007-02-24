@@ -88,6 +88,10 @@ class ContactModelImpl extends AbstractModelImpl {
             assertIsAuthenticatedUser(userId);
             // delete the invitation
 		    invitationSql.delete(invitedBy, userId);
+            // check if the inverse invitation exists and delete it as well
+            final Invitation invitation = invitationSql.read(userId, invitedBy);
+            if (null != invitation)
+                invitationSql.delete(userId, invitedBy);
 		    // create the contact relationships
             contactSql.create(userId, invitedBy, userId);
 			contactSql.create(invitedBy, userId, userId);

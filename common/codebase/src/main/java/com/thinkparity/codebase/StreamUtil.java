@@ -6,6 +6,8 @@ package com.thinkparity.codebase;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
 
 /**
  * Stream utility functions.
@@ -15,6 +17,29 @@ import java.io.OutputStream;
  */
 public abstract class StreamUtil {
 	
+    /**
+     * Copy an input stream to a byte channel.
+     * 
+     * @param is
+     *            An <code>InputStream</code>.
+     * @param bc
+     *            A <code>ByteChannel</code>.
+     * @param bufferSize
+     *            A buffer size <code>Integer</code>.
+     * @throws IOException
+     */
+    public static void copy(final InputStream is, final ByteChannel bc,
+            final Integer bufferSize) throws IOException {
+        final byte[] bytes = new byte[bufferSize];
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        int bytesRead;
+        while (-1 != (bytesRead = is.read(bytes))) {
+            byteBuffer.position(0);
+            byteBuffer.limit(bytesRead);
+            bc.write(byteBuffer);
+        }
+    }
+
 	/**
 	 * Copy the input stream to the output stream using a default buffer size of
 	 * 512 bytes. Note that the streams are note closed upon completion.

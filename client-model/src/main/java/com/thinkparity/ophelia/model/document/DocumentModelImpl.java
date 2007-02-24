@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.Calendar;
@@ -1399,15 +1398,7 @@ public final class DocumentModelImpl extends
             final InputStream stream) throws IOException {
         final FileChannel fileChannel = lock.getFileChannel();
         fileChannel.position(0);
-
-        final byte[] bytes = new byte[getDefaultBufferSize()];
-        final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-        int bytesRead;
-        while (-1 != (bytesRead = stream.read(bytes))) {
-            byteBuffer.position(0);
-            byteBuffer.limit(bytesRead);
-            fileChannel.write(byteBuffer);
-            fileChannel.force(true);
-        }
+        StreamUtil.copy(stream, fileChannel, getDefaultBufferSize());
+        fileChannel.force(true);
     }
 }

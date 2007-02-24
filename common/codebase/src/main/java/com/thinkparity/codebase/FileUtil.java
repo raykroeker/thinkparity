@@ -292,34 +292,6 @@ public abstract class FileUtil {
     }
 
 	/**
-	 * Read a file's contents into a byte array.
-	 * 
-	 * @param file
-	 *            The file to read.
-	 * @return The file's contents.
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	public static byte[] readBytes(final File file)
-            throws FileNotFoundException, IOException {
-		FileInputStream fis = null;
-		final ByteBuffer byteBuffer;
-		try {
-			fis = new FileInputStream(file);
-			byteBuffer = ByteBuffer.allocate(fis.available());
-			final byte[] fileContentBuffer = new byte[BUFFER];
-			int numBytesRead = fis.read(fileContentBuffer);
-			while(-1 != numBytesRead) {
-				byteBuffer.put(fileContentBuffer, 0, numBytesRead);
-				// re-read from the stream
-				numBytesRead = fis.read(fileContentBuffer);
-			}
-		}
-		finally { fis.close(); }
-		return byteBuffer.array();
-	}
-
-	/**
 	 * Read a file into a string.
 	 * 
 	 * @param file

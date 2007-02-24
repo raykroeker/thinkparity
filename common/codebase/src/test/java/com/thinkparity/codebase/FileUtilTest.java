@@ -24,17 +24,7 @@ public class FileUtilTest extends CodebaseTestCase {
 		}
 	}
 
-	private class ReadData {
-		private final File file;
-		private final Long size;
-		private ReadData(final File file, final Long size) {
-			this.file = file;
-			this.size = size;
-		}
-	}
-
 	private Vector<CopyData> copyData;
-	private Vector<ReadData> readData;
 
 	/**
 	 * Create a FileUtilTest.
@@ -63,30 +53,12 @@ public class FileUtilTest extends CodebaseTestCase {
 		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
-	public void testRead() {
-		try {
-			byte[] fileBytes;
-			String fileString;
-			for(ReadData data : readData) {
-				fileBytes = FileUtil.readBytes(data.file);
-
-				assertNotNull(fileBytes);
-				assertEquals(data.size.intValue(), fileBytes.length);
-
-				fileString = FileUtil.readString(data.file);
-				assertNotNull(fileString);
-			}
-		}
-		catch(Throwable t) { fail(createFailMessage(t)); }
-	}
-
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 * 
 	 */
 	protected void setUp() throws Exception {
 		setUpCopy();
-		setUpRead();
 	}
 
 	/**
@@ -104,13 +76,6 @@ public class FileUtilTest extends CodebaseTestCase {
 		}
 	}
 
-	protected void setUpRead() throws Exception {
-		readData = new Vector<ReadData>(getInputFilesLength());
-		for(final File inputFile : getInputFiles()) {
-			readData.add(new ReadData(inputFile, inputFile.length()));
-		}
-	}
-
 	/**
 	 * @see junit.framework.TestCase#tearDown()
 	 */
@@ -118,14 +83,8 @@ public class FileUtilTest extends CodebaseTestCase {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		tearDownCopy();
-		tearDownRead();
 	}
 
 	protected void tearDownCopy() throws Exception {}
-
-	protected void tearDownRead() throws Exception {
-		readData.clear();
-		readData = null;
-	}
 }
 

@@ -733,13 +733,9 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             
             // Sort outgoing invitations alphabetically by email
             if (0 == result && p1.isSetOutgoing()) {
-                return ascending
-                    ? STRING_COMPARATOR_ASC.compare(
-                            p1.getOutgoing().getEmail().toString(),
-                            p2.getOutgoing().getEmail().toString())
-                    : STRING_COMPARATOR_DESC.compare(
-                            p1.getOutgoing().getEmail().toString(),
-                            p2.getOutgoing().getEmail().toString());
+                return STRING_COMPARATOR_ASC.compare(
+                        p1.getOutgoing().getEmail().toString(),
+                        p2.getOutgoing().getEmail().toString());
             }
             
             // Sort incoming invitations, contacts, and profile

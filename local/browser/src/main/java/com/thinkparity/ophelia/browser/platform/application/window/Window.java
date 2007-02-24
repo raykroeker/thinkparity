@@ -30,7 +30,7 @@ public abstract class Window extends AbstractJDialog {
 
 	/** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
-    
+
     /** Whether or not to display title text. */
     private final Boolean titleText;
 
@@ -143,6 +143,7 @@ public abstract class Window extends AbstractJDialog {
      */
 	protected void initComponents(final Avatar avatar) {
 		avatar.reload();
+        avatar.bindF1Key();
 
         windowPanel = new WindowPanel();
         windowPanel.addPanel(avatar, titleText);

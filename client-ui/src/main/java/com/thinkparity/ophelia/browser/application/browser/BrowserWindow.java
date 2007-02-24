@@ -4,14 +4,12 @@
 package com.thinkparity.ophelia.browser.application.browser;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
 
-import javax.swing.JFrame;
-import javax.swing.JLayeredPane;
-import javax.swing.JMenuBar;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import org.apache.log4j.Logger;
 
@@ -33,7 +31,7 @@ import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
  * @version 1.1
  */
 public class BrowserWindow extends AbstractJFrame {
-    
+
     /**
 	 * The size of the main window.
      * The variable is here so it persists.
@@ -41,7 +39,7 @@ public class BrowserWindow extends AbstractJFrame {
 	 * @see #getMainWindowSize()
 	 */
 	private static Dimension mainWindowSize;
-    
+
     /**
      * The location of the main window.
      * The variable is here so it persists.
@@ -66,7 +64,7 @@ public class BrowserWindow extends AbstractJFrame {
 		}
 		return mainWindowSize;
 	}
-    
+
     /**
      * Obtain the location of the main window.
      * (This is the location before maximizing.)
@@ -78,10 +76,10 @@ public class BrowserWindow extends AbstractJFrame {
         }
         return mainWindowLocation;
     }
-    
+
     /** The browser application. */
 	private final Browser browser;
-    
+
     /** An apache logger. */
 	protected final Logger logger;
 
@@ -90,10 +88,10 @@ public class BrowserWindow extends AbstractJFrame {
 
     /** A parity persistence. */
     protected final Persistence persistence;
-        
+ 
     /** The semi-transparent JPanel */
     private final SemiTransparentJPanel semiTransparentJPanel;
-    
+
 	/**
 	 * Create a BrowserWindow.
 	 * 
@@ -111,6 +109,7 @@ public class BrowserWindow extends AbstractJFrame {
                 persist();
                 browser.hibernate();
             }});
+        
         initMenu(maximized);       
 		setIconImage(com.thinkparity.ophelia.browser.Constants.Images.WINDOW_ICON_IMAGE);
 		setTitle(java.util.ResourceBundle.getBundle("localization/JFrame_Messages").getString("BrowserWindow.Title"));
@@ -131,10 +130,11 @@ public class BrowserWindow extends AbstractJFrame {
         setMinimumSize(Dimensions.BrowserWindow.MIN_SIZE);
         setSize(getMainWindowSize());
 		initComponents();
+        bindF1Key();
         if (!maximized) {
             roundCorners();
         }
-        
+
         // Set up the semi-transparent JPanel
         semiTransparentJPanel = new SemiTransparentJPanel(Boolean.FALSE);
         getLayeredPane().add(semiTransparentJPanel, JLayeredPane.PALETTE_LAYER);
@@ -160,6 +160,17 @@ public class BrowserWindow extends AbstractJFrame {
 	public Display[] getDisplays() { return mainPanel.getDisplays(); }
 
     /**
+     * Bind the F1 key to the appropriate action.
+     */
+    private void bindF1Key() {
+        mainPanel.bindF1Key(new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                browser.runF1Action();
+            }
+        });
+    }
+
+    /**
 	 * Add the main panel to the window.
 	 * 
 	 */
@@ -167,7 +178,7 @@ public class BrowserWindow extends AbstractJFrame {
 		mainPanel = new MainPanel();
 		add(mainPanel);
 	}
-    
+
     /**
      * Make the corners round.
      */
@@ -184,7 +195,7 @@ public class BrowserWindow extends AbstractJFrame {
         new BrowserPopupHelper().addPopupListener(menuBar);
         setJMenuBar(menuBar);
     }
-    
+
     /**
      * Open the main window.
      * 
@@ -199,7 +210,7 @@ public class BrowserWindow extends AbstractJFrame {
         catch(final InterruptedException ix) { throw new RuntimeException(ix); }
         catch(final InvocationTargetException itx) { throw new RuntimeException(itx); }
     }
-    
+
     /** Persist any window state. */
     private void persist() {
         // The value of getMainWindowLocation() is guaranteed up-to-date only
@@ -214,7 +225,7 @@ public class BrowserWindow extends AbstractJFrame {
             persistence.set("maximized", Boolean.FALSE);
         }
     }
-    
+
     /**
      * Re open the main window.
      * 
@@ -340,7 +351,7 @@ public class BrowserWindow extends AbstractJFrame {
             semiTransparentJPanel.paintImmediately(new Rectangle(0, 0, semiTransparentJPanel.getWidth(), semiTransparentJPanel.getHeight()));
         }
     }
-    
+
     /**
      * A semi-transparent JPanel that covers the entire Browser window.
      */

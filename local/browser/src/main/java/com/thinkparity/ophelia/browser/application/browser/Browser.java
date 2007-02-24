@@ -1418,6 +1418,13 @@ public class Browser extends AbstractApplication {
     }
     
     /**
+     * Run the action associated with the F1 key.
+     */
+    public void runF1Action() {
+        runPlatformBrowserOpenHelp();
+    }
+    
+    /**
 	 * Run the open document action.
 	 *
      * @param containerId
@@ -1448,6 +1455,14 @@ public class Browser extends AbstractApplication {
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
 	}
+
+    /**
+     * Run the platform browser open help action.
+     *
+     */
+    public void runPlatformBrowserOpenHelp() {
+        invoke(ActionId.PLATFORM_BROWSER_OPEN_HELP, Data.emptyData());
+    }
 
     /**
      * Run the platform browser restore action.

@@ -9,13 +9,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -53,6 +47,15 @@ public class AbstractJPanel extends JPanel {
      */
     private static KeyStroke getEscapeKeyStroke() {
         return KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+    }
+
+    /**
+     * Obtain the F1 key stroke.
+     *
+     * @return A key stroke.
+     */
+    private static KeyStroke getF1KeyStroke() {
+        return KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0);
     }
 
 	/** An apache logger. */
@@ -167,6 +170,16 @@ public class AbstractJPanel extends JPanel {
      */
     protected void bindEscapeKey(final String command, final Action action) {
         bindKey(getEscapeKeyStroke(), command, action);
+    }
+
+    /**
+     * Bind the F1 key to an action.
+     *
+     * @param action
+     *      The action to perform when F1 is pressed.
+     */
+    protected void bindF1Key(final String command, final Action action) {
+        bindKey(getF1KeyStroke(), command, action);
     }
 
     /**

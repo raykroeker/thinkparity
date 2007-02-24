@@ -11,9 +11,10 @@ import java.awt.GridBagLayout;
 import java.util.Hashtable;
 import java.util.Map;
 
+import javax.swing.Action;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJPanel;
-
 
 import com.thinkparity.ophelia.browser.Constants.Dimensions.BrowserWindow;
 import com.thinkparity.ophelia.browser.application.browser.display.DisplayFactory;
@@ -49,6 +50,16 @@ public class MainPanel extends AbstractJPanel {
 
 		initComponents();
 	}
+
+    /**
+     * Bind the F1 key to an action.
+     * 
+     * @param action
+     *            An <code>Action</code>.
+     */
+    public void bindF1Key(final Action action) {
+        bindF1Key("F1-action", action);
+    }
 
 	/**
 	 * @see com.thinkparity.codebase.swing.AbstractJPanel#debugGeometry()

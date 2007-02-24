@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.Map;
 
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 /**
@@ -51,13 +50,16 @@ class ModelInvocationMetrics {
     static void end(final Method context) {
         final Measure begin = MEASURES.get(context);
         final Measure end = captureMeasure();
-        LOGGER.logDebug("{0}#{1}{3}  {2} ms{3}  {4} free{3}  {5} max{3}  {6} total",
-                context.getDeclaringClass().getSimpleName(), context.getName(),
-                end.currentTimeMillis - begin.currentTimeMillis,
-                Separator.SystemNewLine,
-                Math.abs(end.freeMemory - begin.freeMemory),
-                Math.abs(end.maxMemory - begin.maxMemory),
-                Math.abs(end.totalMemory - begin.totalMemory));
+        final StringBuffer id = new StringBuffer(context.getDeclaringClass().getSimpleName())
+            .append("#")
+            .append(context.getName());
+        for (int i = id.length(); i < 45; i++)
+            id.append(" ");
+        LOGGER.logDebug("{0} {1} ms{2}{3} free{2}{4} max{2}{5} total",
+                id, end.currentTimeMillis - begin.currentTimeMillis,
+                ",", end.freeMemory - begin.freeMemory,
+                end.maxMemory - begin.maxMemory,
+                end.totalMemory - begin.totalMemory);
     }
 
     private static Measure captureMeasure() {

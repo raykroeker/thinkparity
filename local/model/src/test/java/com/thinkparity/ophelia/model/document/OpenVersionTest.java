@@ -13,8 +13,8 @@ import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.util.codec.MD5Util;
 
-import com.thinkparity.ophelia.model.util.MD5Util;
 import com.thinkparity.ophelia.model.util.Opener;
 
 import com.thinkparity.ophelia.OpheliaTestUser;

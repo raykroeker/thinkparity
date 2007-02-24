@@ -400,7 +400,7 @@ public class WorkspaceImpl implements Workspace {
             logging.setProperty("log4j.appender.METRIX_DEBUGGER", "org.apache.log4j.RollingFileAppender");
             logging.setProperty("log4j.appender.METRIX_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
             logging.setProperty("log4j.appender.METRIX_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
-            logging.setProperty("log4j.appender.METRIX_DEBUGGER.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
+            logging.setProperty("log4j.appender.METRIX_DEBUGGER.layout.ConversionPattern", Constants.Log4J.METRICS_LAYOUT_CONVERSION_PATTERN);
             logging.setProperty("log4j.appender.METRIX_DEBUGGER.File",
                     MessageFormat.format("{0}{1}{2}", loggingRoot,
                             File.separatorChar, "thinkParity Metrics.log"));

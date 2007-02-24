@@ -43,6 +43,7 @@ public class Constants {
     public static final class Log4J {
         public static final String LAYOUT_CONVERSION_PATTERN = "%d{ISO8601} %x %t %p %m%n";
         public static final String MAX_FILE_SIZE = "3MB";
+        public static final String METRICS_LAYOUT_CONVERSION_PATTERN = "%d{ISO8601} %m%n";
     }
 
     /**

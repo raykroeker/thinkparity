@@ -278,14 +278,16 @@ public final class Session {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
-			final Calendar localCalendar = DateUtil.getInstance();
-            localCalendar.setTimeZone(TIME_ZONE);
-			final Timestamp timestamp = resultSet.getTimestamp(columnName, localCalendar);
+			final Calendar universalCalendar = DateUtil.getInstance();
+            universalCalendar.setTimeZone(UNIVERSAL_TIME_ZONE);
+			final Timestamp timestamp = resultSet.getTimestamp(columnName, universalCalendar);
 			if (resultSet.wasNull()) {
                 logColumnExtraction(columnName, null);
                 return null;
 			}
 			else {
+                final Calendar localCalendar = DateUtil.getInstance();
+                localCalendar.setTimeZone(TIME_ZONE);
                 localCalendar.setTimeInMillis(timestamp.getTime());
                 logColumnExtraction(columnName, localCalendar);
 				return localCalendar;

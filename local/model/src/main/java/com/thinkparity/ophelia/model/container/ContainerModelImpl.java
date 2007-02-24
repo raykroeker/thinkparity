@@ -1962,7 +1962,7 @@ public final class ContainerModelImpl extends
         this.auditor = new ContainerAuditor(modelFactory);
         this.containerIO = IOFactory.getDefault(workspace).createContainerHandler();
         this.documentIO = IOFactory.getDefault(workspace).createDocumentHandler();
-        this.stepSize = getDefaultBufferSize();
+        this.stepSize = 1024;
     }
 
     /**
@@ -2518,12 +2518,13 @@ public final class ContainerModelImpl extends
      */
     private void fireDetermine(final PublishMonitor monitor,
             final List<DocumentVersion> documentVersions) {
-        int steps = 1;
+        long totalSize = 0;
         for (final DocumentVersion documentVersion : documentVersions) {
-            // each 1K is a step
-            steps += (documentVersion.getSize() / stepSize);
+            totalSize += documentVersion.getSize();
         }
-        monitor.determine(steps);
+        // 1 for the final publish stage; plus a step per k of size
+        final long steps = 1 + (totalSize / stepSize);
+        monitor.determine((int) steps);
     }
 
     /**
@@ -3084,7 +3085,8 @@ public final class ContainerModelImpl extends
             throws IOException {
         // grab the document versions
         final List<DocumentVersion> documentVersions = readDocumentVersions(
-                version.getArtifactId(), version.getVersionId());
+                version.getArtifactId(), version.getVersionId(),
+                new ComparatorBuilder().createVersionById(Boolean.TRUE));
         final Map<DocumentVersion, String> documentVersionStreamIds =
             new HashMap<DocumentVersion, String>(documentVersions.size(), 1.0F);
         // set fixed progress determination
@@ -3109,10 +3111,9 @@ public final class ContainerModelImpl extends
                                 private long totalChunks = 0;
                                 public void chunkUploaded(final int chunkSize) {
                                     totalChunks += chunkSize;
-                                    if (totalChunks >= stepSize) {
+                                    while (totalChunks >= stepSize) {
                                         totalChunks -= stepSize;
-                                        fireStageEnd(monitor,
-                                                PublishStage.UploadStream);
+                                        fireStageEnd(monitor, PublishStage.UploadStream);
                                     }
                                 }
                             }, streamId, streamSession, bufferedStream,

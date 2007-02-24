@@ -78,7 +78,8 @@ public class ContainerTabImportHelper {
         Assert.assertTrue(canImportData(transferable.getTransferDataFlavors()),
                 "Cannot import data {0}.", transferable);
         final List<File> transferableFiles = extractFiles(transferable);
-        
+        browser.moveToFront();
+
         // Check if the user is trying to import a folder.
         // If so, report an error and stop.
         if (containsDirectory(transferableFiles)) {
@@ -103,6 +104,7 @@ public class ContainerTabImportHelper {
     protected void importData(final Container container,
             final Transferable transferable) {
         final List<File> transferableFiles = extractFiles(transferable);
+        browser.moveToFront();
 
         // Check if the user is trying to import a folder.
         // If so, report an error and stop.

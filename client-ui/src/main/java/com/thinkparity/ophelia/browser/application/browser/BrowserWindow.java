@@ -9,7 +9,11 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
+import javax.swing.JMenuBar;
+import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
@@ -109,7 +113,6 @@ public class BrowserWindow extends AbstractJFrame {
                 persist();
                 browser.hibernate();
             }});
-        
         initMenu(maximized);       
 		setIconImage(com.thinkparity.ophelia.browser.Constants.Images.WINDOW_ICON_IMAGE);
 		setTitle(java.util.ResourceBundle.getBundle("localization/JFrame_Messages").getString("BrowserWindow.Title"));
@@ -190,7 +193,7 @@ public class BrowserWindow extends AbstractJFrame {
      * Add the menu to the window.
      */
     private void initMenu(final Boolean maximized) {
-        final JMenuBar menuBar = new BrowserMenuBar(browser, maximized);
+        final JMenuBar menuBar = new BrowserMenuBar(browser, this, maximized);
         addMoveListener(menuBar);
         new BrowserPopupHelper().addPopupListener(menuBar);
         setJMenuBar(menuBar);

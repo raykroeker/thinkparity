@@ -7,6 +7,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 
 import javax.swing.Box;
 import javax.swing.Icon;
@@ -108,12 +110,35 @@ public class BrowserMenuBar extends JMenuBar {
      * @param browser
      *          The Browser.
      */
-    public BrowserMenuBar(final Browser browser, final Boolean maximized) {
+    public BrowserMenuBar(final Browser browser,
+            final BrowserWindow browserWindow, final Boolean maximized) {
         super();
         this.browser = browser;
         new Resizer(browser, this, Boolean.FALSE, Resizer.ResizeEdges.TOP);
-        
-        // Double click to maximize the browser window
+        installMouseListener();
+
+        // Create the Sign-Up button
+        // TODO Add this button back when the user is a guest
+        this.add(Box.createHorizontalGlue());
+/*        this.add(getSignUpButton());
+        this.add(Box.createRigidArea(new Dimension(2,0)));*/
+
+        // Add minimize, maximize and close buttons
+        this.add(getMinimizeButton());
+        this.add(Box.createRigidArea(new Dimension(2,19)));
+        final javax.swing.JButton maximizeButton = getMaximizeButton(maximized);
+        this.add(maximizeButton);
+        this.add(Box.createRigidArea(new Dimension(2,19)));
+        this.add(getCloseButton());
+        this.add(Box.createRigidArea(new Dimension(4,19)));
+
+        installWindowStateListener(browserWindow, maximizeButton);
+    }
+
+    /**
+     * Install a mouse listener. Double click will maximize or un-maximize.
+     */
+    private void installMouseListener() {
         this.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(final java.awt.event.MouseEvent e) {
                 if (e.getButton()==MouseEvent.BUTTON1) {
@@ -123,20 +148,20 @@ public class BrowserMenuBar extends JMenuBar {
                 }
             }
         });
+    }
 
-        // Create the Sign-Up button
-        // TODO Add this button back when the user is a guest
-        this.add(Box.createHorizontalGlue());
-/*        this.add(getSignUpButton());
-        this.add(Box.createRigidArea(new Dimension(2,0)));*/
-        
-        // Add minimize, maximize and close buttons
-        this.add(getMinimizeButton());
-        this.add(Box.createRigidArea(new Dimension(2,19)));
-        this.add(getMaximizeButton(maximized));
-        this.add(Box.createRigidArea(new Dimension(2,19)));
-        this.add(getCloseButton());
-        this.add(Box.createRigidArea(new Dimension(4,19)));
+    /**
+     * Install a window state listener.
+     */
+    private void installWindowStateListener(final BrowserWindow browserWindow,
+            final javax.swing.JButton maximizeButton) {
+        browserWindow.addWindowStateListener(new WindowStateListener() {
+            public void windowStateChanged(final WindowEvent e) {
+                if (e.getID() == WindowEvent.WINDOW_STATE_CHANGED) {
+                    setMaximizeJButtonIcon(maximizeButton, browser.isBrowserWindowMaximized());
+                }
+            }
+        });
     }
 
     private javax.swing.JButton getMinimizeButton() {
@@ -174,11 +199,7 @@ public class BrowserMenuBar extends JMenuBar {
         maximizeJButton.setMaximumSize(new java.awt.Dimension(14, 14));
         maximizeJButton.setMinimumSize(new java.awt.Dimension(14, 14));
         maximizeJButton.setPreferredSize(new java.awt.Dimension(14, 14));
-        if (maximized) {
-            maximizeJButton.setIcon(UNMAXIMIZE_ICON);
-        } else {
-            maximizeJButton.setIcon(MAXIMIZE_ICON);
-        }
+        setMaximizeJButtonIcon(maximizeJButton, maximized);
         maximizeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(final java.awt.event.MouseEvent e) {
                 maximizeJButtonMouseEntered(e);
@@ -248,11 +269,7 @@ public class BrowserMenuBar extends JMenuBar {
     }
 
     private void maximizeJButtonMouseExited(final java.awt.event.MouseEvent e) {
-        if (browser.isBrowserWindowMaximized()) {
-            ((javax.swing.JButton) e.getSource()).setIcon(UNMAXIMIZE_ICON);
-        } else {
-            ((javax.swing.JButton) e.getSource()).setIcon(MAXIMIZE_ICON);
-        }
+        setMaximizeJButtonIcon((javax.swing.JButton) e.getSource(), browser.isBrowserWindowMaximized());
     }
 
     private void closeJButtonActionPerformed(final java.awt.event.ActionEvent e) {        
@@ -265,5 +282,13 @@ public class BrowserMenuBar extends JMenuBar {
 
     private void closeJButtonMouseExited(final java.awt.event.MouseEvent e) {
         ((javax.swing.JButton) e.getSource()).setIcon(CLOSE_ICON);
+    }
+
+    private void setMaximizeJButtonIcon(final javax.swing.JButton maximizeButton, final Boolean maximized) {
+        if (maximized) {
+            maximizeButton.setIcon(UNMAXIMIZE_ICON);
+        } else {
+            maximizeButton.setIcon(MAXIMIZE_ICON);
+        }
     }
 }

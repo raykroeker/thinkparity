@@ -105,19 +105,25 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
     public void showForProfile(final Profile profile, final boolean expanded) {
         if (!expanded) {
             addExpand(profile.getId());
-            addSeparator();
+            if (isOnline()) {
+                addSeparator();
+            }
+        }        
+
+        if (isOnline()) {
+            final Data profileData = new Data(1);
+            profileData.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            add(ActionId.PROFILE_UPDATE, profileData);
+
+            final Data updateProfileData = new Data(1);
+            updateProfileData.set(UpdatePassword.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            add(ActionId.PROFILE_UPDATE_PASSWORD, updateProfileData);
         }
 
-        final Data profileData = new Data(1);
-        profileData.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-        add(ActionId.PROFILE_UPDATE, profileData);
-
-        final Data updateProfileData = new Data(1);
-        updateProfileData.set(UpdatePassword.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-        add(ActionId.PROFILE_UPDATE_PASSWORD, updateProfileData);
-
         if (expanded) {
-            addSeparator();
+            if (isOnline()) {
+                addSeparator();
+            }
             addCollapse(profile.getId());
         }
 

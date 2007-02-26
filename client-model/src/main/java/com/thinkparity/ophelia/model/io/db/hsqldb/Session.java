@@ -71,7 +71,7 @@ public final class Session {
     }
 
 	/** The sql connection. */
-	private final Connection connection;
+	private Connection connection;
 
     /** The session id. */
 	private final JVMUniqueId id;
@@ -117,6 +117,7 @@ public final class Session {
             } catch (final SQLException sqlx) {
                 throw panic(sqlx);
             } finally {
+                connection = null;
                 sessionManager.close(this);
             }
         }
@@ -1005,12 +1006,15 @@ public final class Session {
      * @param resultSet
      *            A <code>ResultSet</code>
      */
-    private void close(final ResultSet resultSet) {
-        try {
-            if (null != resultSet)
+    private void close(ResultSet resultSet) {
+        if (null != resultSet) {
+            try {
                 resultSet.close();
-        } catch (final SQLException sqlx) {
-            throw panic(sqlx);
+            } catch (final SQLException sqlx) {
+                throw panic(sqlx);
+            } finally {
+                resultSet = null;
+            }
         }
     }
 
@@ -1020,12 +1024,15 @@ public final class Session {
      * @param statement
      *            A <code>Statement</code>.
      */
-    private void close(final Statement statement) {
-        try {
-            if(null != statement)
+    private void close(Statement statement) {
+        if(null != statement) {
+            try {
                 statement.close();
-        } catch (final SQLException sqlx) {
-            throw panic(sqlx);
+            } catch (final SQLException sqlx) {
+                throw panic(sqlx);
+            } finally {
+                statement = null;
+            }
         }
     }
 

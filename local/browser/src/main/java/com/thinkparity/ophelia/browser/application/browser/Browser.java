@@ -1072,10 +1072,15 @@ public class Browser extends AbstractApplication {
         runDisplayContactInvitationInfo();
     }
 
+    /**
+     * Determine if the browser window is maximized.
+     * 
+     * @return true if the browser window is maximized; false otherwise.
+     */
     public Boolean isBrowserWindowMaximized() {
-        return JFrame.MAXIMIZED_BOTH == mainWindow.getExtendedState();
+        return ((mainWindow.getExtendedState() & JFrame.MAXIMIZED_BOTH) > 0);
     }
-    
+
     /** @see com.thinkparity.ophelia.browser.platform.application.Application#isDevelopmentMode() */
     public Boolean isDevelopmentMode() { 
         return getPlatform().isDevelopmentMode();

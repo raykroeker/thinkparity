@@ -283,6 +283,16 @@ public interface ContainerIOHandler {
             final Long documentId);
 
     /**
+     * Read a list of containers for a team member.
+     * 
+     * @param localUser
+     *            The local <code>User</code>.
+     * @return A <code>List</code> of <code>Container</code>s.
+     */
+    public List<Container> readForTeamMember(final Long teamMemberId,
+            final User localUser);
+
+    /**
      * Read the latest container version.
      * 
      * @param containerId

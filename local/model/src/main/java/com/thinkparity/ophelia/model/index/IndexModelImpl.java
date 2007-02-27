@@ -58,16 +58,35 @@ public final class IndexModelImpl extends Model implements
 	}
 
     /**
-     * Delete a contact from the index.
+     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#deleteContact(com.thinkparity.codebase.jabber.JabberId)
      * 
-     * @param contactId
-     *            A contact id <code>JabberId</code>.
      */
-    public void deleteContact(final JabberId contactId) {
+	public void deleteContact(final JabberId contactId) {
         try {
             contactIndex.delete(contactId);
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#updateContact(com.thinkparity.codebase.jabber.JabberId)
+     *
+     */
+    public void updateContact(final JabberId contactId) {
+        try {
+            // update the contact info
+            final Contact contact = getContactModel().read(contactId);
+            contactIndex.delete(contactId);
+            contactIndex.index(contact);
+            // update the team info
+            final List<Container> containers = getContainerModel().readForTeamMember(contact.getLocalId());
+            for (final Container container : containers) {
+                containerIndex.delete(container.getId());
+                containerIndex.index(container);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 

@@ -311,6 +311,7 @@ public final class ContactModelImpl extends Model<ContactListener>
                     contactIO.createEmail(remoteContact.getLocalId(), email);
                 }
             }
+            getIndexModel().updateContact(event.getContactId());
             // fire event
             notifyContactUpdated(remoteContact, remoteEventGenerator);
         } catch (final Throwable t) {

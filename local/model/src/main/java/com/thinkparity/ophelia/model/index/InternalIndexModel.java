@@ -29,6 +29,14 @@ public interface InternalIndexModel extends IndexModel {
     public void deleteContact(final JabberId contactId);
 
     /**
+     * Update a contact in the index.
+     * 
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
+     */
+    public void updateContact(final JabberId contactId);
+
+    /**
      * Delete a container from the index.
      * 
      * @param containerId

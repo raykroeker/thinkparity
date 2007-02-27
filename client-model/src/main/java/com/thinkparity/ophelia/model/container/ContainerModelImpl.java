@@ -1329,6 +1329,18 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#readForTeamMember(java.lang.Long)
+     *
+     */
+    public List<Container> readForTeamMember(final Long teamMemberId) {
+        try {
+            return containerIO.readForTeamMember(teamMemberId, localUser());
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Read the container history.
      * 
      * @param containerId

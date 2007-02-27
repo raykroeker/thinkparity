@@ -255,6 +255,16 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("where C.CONTAINER_ID=?")
             .toString();
 
+    /** Sql to read a container. */
+    private static final String SQL_READ_BY_TEAM_MEMBER_ID =
+            new StringBuffer(SQL_READ).append(" ")
+            .append("inner join ARTIFACT_TEAM_REL ATR ")
+            .append("on ATR.ARTIFACT_ID=A.ARTIFACT_ID ")
+            .append("inner join PARITY_USER TU on ATR.USER_ID=TU.USER_ID ")
+            .append("where TU.USER_ID=? ")
+            .append("order by C.CONTAINER_ID asc")
+            .toString();
+
     /** Sql to read a version delta. */
     private static final String SQL_READ_DELTA =
         new StringBuffer("select CONTAINER_VERSION_DELTA_ID,CONTAINER_ID,")
@@ -1050,6 +1060,27 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             } else {
                 return null;
             }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readForTeamMember(com.thinkparity.codebase.model.user.User)
+     * 
+     */
+    public List<Container> readForTeamMember(final Long teamMemberId, final User localUser) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_BY_TEAM_MEMBER_ID);
+            session.setLong(1, teamMemberId);
+            session.executeQuery();
+
+            final List<Container> containers = new ArrayList<Container>();
+            while (session.nextResult()) {
+                containers.add(extractContainer(session, localUser));
+            }
+            return containers;
         } finally {
             session.close();
         }

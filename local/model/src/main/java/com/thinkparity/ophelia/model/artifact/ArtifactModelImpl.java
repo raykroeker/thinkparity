@@ -758,6 +758,8 @@ public final class ArtifactModelImpl extends Model implements
         logger.logVariable("userId", userId);
         try {
             artifactIO.createTeamRel(artifactId, userId);
+            // reindex NOTE no practical assurance that this is a container id
+            getIndexModel().indexContainer(artifactId);
             return artifactIO.readTeamRel(artifactId, userId);
         } catch (final Throwable t) {
             throw panic(t);

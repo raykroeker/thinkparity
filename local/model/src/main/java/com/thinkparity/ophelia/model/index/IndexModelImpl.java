@@ -54,8 +54,6 @@ public final class IndexModelImpl extends Model implements
      *            A contact id <code>JabberId</code>.
      */
     public void deleteContact(final JabberId contactId) {
-        logger.logApiId();
-        logger.logVariable("contactId", contactId);
         try {
             final Contact c = getContactModel().read(contactId);
             contactIndex.delete(c);
@@ -71,8 +69,6 @@ public final class IndexModelImpl extends Model implements
      *            A container id <code>Long</code>.
      */
     public void deleteContainer(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
         try {
             final Container c = getContainerModel().read(containerId);
             containerIndex.delete(c);
@@ -88,8 +84,6 @@ public final class IndexModelImpl extends Model implements
      *            A document id <code>Long</code>.
      */
     public void deleteDocument(final Long documentId) {
-        logger.logApiId();
-        logger.logVariable("documentId", documentId);
         try {
             final Document d = getDocumentModel().get(documentId);
             documentIndex.delete(new DocumentIndexEntry(d));
@@ -105,10 +99,9 @@ public final class IndexModelImpl extends Model implements
      *            A contact id <code>JabberId</code>.
      */
     public void indexContact(final JabberId contactId) {
-        logger.logApiId();
-        logger.logVariable("contactId", contactId);
         try {
             final Contact contact = getContactModel().read(contactId);
+            contactIndex.delete(contact);
             contactIndex.index(contact);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -122,10 +115,9 @@ public final class IndexModelImpl extends Model implements
      *            A container id <code>Long</code>.
      */
     public void indexContainer(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
         try {
             final Container container = getContainerModel().read(containerId);
+            containerIndex.delete(container);
             containerIndex.index(container);
         } catch (final Throwable t) {
             throw panic(t);
@@ -140,12 +132,11 @@ public final class IndexModelImpl extends Model implements
      *            A document id <code>Long</code>.
      */
 	public void indexDocument(final Long containerId, final Long documentId) {
-		logger.logApiId();
-        logger.logVariable("documentId", documentId);
-        logger.logVariable("containerId", containerId);
         try {
             final Document document = getDocumentModel().get(documentId);
-            documentIndex.index(new DocumentIndexEntry(containerId, document));
+            final DocumentIndexEntry entry = new DocumentIndexEntry(containerId, document);
+            documentIndex.delete(entry);
+            documentIndex.index(entry);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -159,8 +150,6 @@ public final class IndexModelImpl extends Model implements
      * @return A <code>List&lt;JabberId&gt;</code>.
      */
     public List<JabberId> searchContacts(final String expression) {
-        logger.logApiId();
-        logger.logVariable("expression", expression);
         try {
             return contactIndex.search(expression);
         } catch (final Throwable t) {
@@ -176,8 +165,6 @@ public final class IndexModelImpl extends Model implements
      * @return A <code>List&lt;Long&gt;</code>.
      */
     public List<Long> searchContainers(final String expression) {
-        logger.logApiId();
-        logger.logVariable("expression", expression);
         try {
             return containerIndex.search(expression);
         } catch (final Throwable t) {
@@ -193,8 +180,6 @@ public final class IndexModelImpl extends Model implements
      * @return A A <code>List&lt;Document&gt;</code>.
      */
 	public List<Long> searchDocuments(final String expression) {
-        logger.logApiId();
-        logger.logVariable("expression", expression);
         try {
             return documentIndex.search(expression);
         } catch (final Throwable t) {

@@ -1465,6 +1465,29 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 versionId);
     }
 
+    /**
+     * Read all containers for a user.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @return A <code>Container</code>.
+     */
+    protected List<Container> readContainers(final OpheliaTestUser readAs) {
+        return getContainerModel(readAs).read();
+    }
+
+    /**
+     * Search for containers.
+     * 
+     * @param searchAs
+     *            An <code>OpheliaTestUser</code> to search as.
+     * @return A <code>List</code> of container id <code>Long</code>.
+     */
+    protected List<Long> searchContainers(final OpheliaTestUser searchAs,
+            final String expression) {
+        return getContainerModel(searchAs).search(expression);
+    }
+
     protected Map<DocumentVersion, Delta> readContainerVersionDeltas(
             final OpheliaTestUser readAs, final Long localContainerId,
             final Long compareVersionId) {

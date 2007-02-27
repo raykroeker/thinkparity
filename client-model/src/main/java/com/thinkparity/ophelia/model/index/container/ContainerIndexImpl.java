@@ -5,10 +5,8 @@ package com.thinkparity.ophelia.model.index.container;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-
-import org.apache.lucene.document.Field;
-import org.apache.lucene.index.Term;
 
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -19,11 +17,17 @@ import com.thinkparity.ophelia.model.index.lucene.DocumentBuilder;
 import com.thinkparity.ophelia.model.index.lucene.FieldBuilder;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
+import org.apache.lucene.document.Field;
+import org.apache.lucene.index.Term;
+
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 public class ContainerIndexImpl extends AbstractIndexImpl<Container, Long> {
+
+    /** Container id <code>Comparator</code>. */
+    private static final Comparator<Long> CONTAINER_ID_COMPARATOR;
 
     /** Artifact id index field. */
     private static final FieldBuilder IDX_CONTAINER_ID;
@@ -35,6 +39,12 @@ public class ContainerIndexImpl extends AbstractIndexImpl<Container, Long> {
     private static final FieldBuilder IDX_CONTAINER_TEAM_MEMBERS;
 
     static {
+        CONTAINER_ID_COMPARATOR = new Comparator<Long>() {
+            public int compare(final Long o1, final Long o2) {
+                return o1.compareTo(o2);
+            }
+        };
+
         IDX_CONTAINER_ID = new FieldBuilder()
                 .setIndex(Field.Index.UN_TOKENIZED)
                 .setName("CONTAINER.CONTAINER_ID")
@@ -96,6 +106,16 @@ public class ContainerIndexImpl extends AbstractIndexImpl<Container, Long> {
         fields.add(IDX_CONTAINER_NAME.toSearchField());
         fields.add(IDX_CONTAINER_TEAM_MEMBERS.toSearchField());
         return search(IDX_CONTAINER_ID.toSearchField(), fields, expression);
+    }
+
+    
+    /**
+     * @see com.thinkparity.ophelia.model.index.AbstractIndexImpl#getComparator()
+     *
+     */
+    @Override
+    protected Comparator<? super Long> getComparator() {
+        return CONTAINER_ID_COMPARATOR;
     }
 
     /**

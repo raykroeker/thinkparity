@@ -964,6 +964,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         teamMember.setLocalId(session.getLong("USER_ID"));
         teamMember.setName(session.getString("NAME"));
         teamMember.setOrganization(session.getString("ORGANIZATION"));
+        teamMember.setTitle(session.getString("TITLE"));
         return teamMember;
     }
 

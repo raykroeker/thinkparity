@@ -5,10 +5,12 @@ package com.thinkparity.ophelia.model.index.contact;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.codebase.model.contact.Contact;
 
@@ -27,6 +29,9 @@ import org.apache.lucene.index.Term;
  */
 public class ContactIndexImpl extends AbstractIndexImpl<Contact, JabberId> {
 
+    /** Contact id comparator. */
+    private static final Comparator<JabberId> CONTACT_ID_COMPARATOR;
+
     /** Contact id index field. */
     private static final FieldBuilder IDX_CONTACT_ID;
 
@@ -40,6 +45,14 @@ public class ContactIndexImpl extends AbstractIndexImpl<Contact, JabberId> {
     private static final FieldBuilder IDX_CONTACT_TITLE;
 
     static {
+        CONTACT_ID_COMPARATOR = new Comparator<JabberId>() {
+            final StringComparator stringComparator = new StringComparator(Boolean.TRUE);
+            public int compare(final JabberId o1, final JabberId o2) {
+                return stringComparator.compare(o1.getQualifiedJabberId(),
+                        o2.getQualifiedJabberId());
+            }
+        };
+
         IDX_CONTACT_ID = new FieldBuilder()
                 .setIndex(Field.Index.UN_TOKENIZED)
                 .setName("CONTACT.CONTACT_ID")
@@ -108,6 +121,15 @@ public class ContactIndexImpl extends AbstractIndexImpl<Contact, JabberId> {
         fields.add(IDX_CONTACT_ORGANIZATION.toSearchField());
         fields.add(IDX_CONTACT_TITLE.toSearchField());
         return search(IDX_CONTACT_ID.toSearchField(), fields, expression);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.index.AbstractIndexImpl#getComparator()
+     *
+     */
+    @Override
+    protected Comparator<? super JabberId> getComparator() {
+        return CONTACT_ID_COMPARATOR;
     }
 
     /**

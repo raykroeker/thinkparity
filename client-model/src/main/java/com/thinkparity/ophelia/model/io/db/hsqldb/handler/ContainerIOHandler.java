@@ -240,7 +240,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the artifact delta count. */
     private static final String SQL_READ_ARTIFACT_DELTA_COUNT_2 =
-        new StringBuffer("select COUNT(CONTAINER_VERSION_DELTA_ID) as \"COUNT\" ")
+        new StringBuffer("select COUNT(CVD.CONTAINER_VERSION_DELTA_ID) as \"COUNT\" ")
         .append("from CONTAINER_VERSION_DELTA CVD ")
         .append("inner join CONTAINER_VERSION_ARTIFACT_VERSION_DELTA CVAVD ")
         .append("on CVD.CONTAINER_VERSION_DELTA_ID=CVAVD.CONTAINER_VERSION_DELTA_ID ")
@@ -326,7 +326,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /** Sql to read a draft. */
     private static final String SQL_READ_DRAFT =
             new StringBuffer("select ATR.ARTIFACT_ID,ATR.USER_ID,")
-            .append("U.JABBER_ID,U.NAME,U.ORGANIZATION,CD.CONTAINER_DRAFT_ID ")
+            .append("U.JABBER_ID,U.NAME,U.ORGANIZATION,U.TITLE,")
+            .append("CD.CONTAINER_DRAFT_ID ")
             .append("from ARTIFACT_TEAM_REL ATR inner join PARITY_USER U on ATR.USER_ID=U.USER_ID ")
             .append("inner join CONTAINER_DRAFT CD on ATR.ARTIFACT_ID=CD.CONTAINER_DRAFT_ID ")
             .append("and CD.CONTAINER_DRAFT_USER_ID=ATR.USER_ID ")

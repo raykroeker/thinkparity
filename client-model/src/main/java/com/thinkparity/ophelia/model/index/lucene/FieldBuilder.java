@@ -24,6 +24,13 @@ import org.apache.lucene.document.Field;
  */
 public class FieldBuilder {
 
+    /** A <code>LuceneUtil</code>. */
+	private static final LuceneUtil LUCENE_UTIL;
+
+	static {
+        LUCENE_UTIL = LuceneUtil.getInstance();
+    }
+
 	/**
 	 * The field index.
 	 * 
@@ -84,7 +91,7 @@ public class FieldBuilder {
 		return this;
 	}
 
-	/**
+    /**
 	 * Set the store.
 	 * 
 	 * @param store
@@ -96,7 +103,7 @@ public class FieldBuilder {
 		return this;
 	}
 
-	/**
+    /**
 	 * Set the term vector.
 	 * 
 	 * @param termVector
@@ -108,7 +115,7 @@ public class FieldBuilder {
 		return this;
 	}
 
-    /**
+	/**
      * Set the field value.
      * 
      * @param value
@@ -120,7 +127,7 @@ public class FieldBuilder {
         return this;
     }
 
-    /**
+	/**
 	 * Set the field value.
 	 * 
 	 * @param c
@@ -199,7 +206,7 @@ public class FieldBuilder {
 		return this;
 	}
 
-	/**
+    /**
 	 * Set the field value.
 	 * 
 	 * @param u
@@ -211,13 +218,14 @@ public class FieldBuilder {
 		return this;
 	}
 
-	/**
+    /**
 	 * Obtain the lucene field representation.
 	 * 
 	 * @return The lucene field.
 	 */
 	public Field toField() {
-		return new Field(name, value, store, index, termVector);
+        final String fieldValue = LUCENE_UTIL.escapeSpecialCharacters(value);
+		return new Field(name, fieldValue, store, index, termVector);
 	}
 
 	/**
@@ -251,8 +259,10 @@ public class FieldBuilder {
     private String tokenize(final User user) {
         final StringBuffer buffer = new StringBuffer();
         final StringTokenizer nameTokenizer = new StringTokenizer(user.getName(), " ");
-        while(nameTokenizer.hasMoreTokens()) {
-            if(0 < buffer.length()) { buffer.append(Separator.Comma); }
+        while (nameTokenizer.hasMoreTokens()) {
+            if (0 < buffer.length()) {
+                buffer.append(Separator.Comma);
+            }
             buffer.append(nameTokenizer.nextToken());
         }
         return buffer.append(Separator.Comma).append(user.getOrganization())

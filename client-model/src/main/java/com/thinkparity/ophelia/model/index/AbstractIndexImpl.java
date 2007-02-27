@@ -5,6 +5,8 @@ package com.thinkparity.ophelia.model.index;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
@@ -23,10 +25,17 @@ import org.apache.lucene.search.Hit;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
-
 /**
+ * <b>Title:</b>thinkParity OpheliaModel Abstract Index Implementation<br>
+ * <b>Description:</b>An index implementation which implements the core index
+ * read/write/search operations.<br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.4
+ * @param <T>
+ *            The type of thinkParity object to index.
+ * @param <U>
+ *            The thinkParity object's id type.
  */
 public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
 
@@ -80,6 +89,13 @@ public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
     }
 
     /**
+     * Obtain a comparator for the object id.
+     * 
+     * @return A <code>Comparator</code>.
+     */
+    protected abstract Comparator<? super U> getComparator();
+
+    /**
      * Index a lucene document.
      * 
      * @param document
@@ -126,12 +142,20 @@ public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
         try {
             final Searcher searcher =
                 new Searcher(indexAnalyzer, indexReader, idField, fields);
-            final List<Hit> hits = searcher.search(createFinalExpression(expression));
+            final List<Hit> hits = searcher.search(expression);
     
             final List<U> indexHits = new ArrayList<U>();
+
+            /* NOTE the list of hits coming back from lucene can contain
+             * duplicates; therefore we filter them here such that the model
+             * index interface will not */ 
+            U resolvedHit;
             for (final Hit hit : hits) {
-                indexHits.add(resolveHit(hit.get(idField.name())));
+                resolvedHit = resolveHit(hit.get(idField.name()));
+                if (!indexHits.contains(resolvedHit))
+                    indexHits.add(resolvedHit);
             }
+            Collections.sort(indexHits, getComparator());
             return indexHits;
         } finally {
             closeIndexReader(indexReader);
@@ -165,22 +189,15 @@ public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
     }
 
     /**
-     * Create a final search expression. This will prepend a wild-card character
-     * to the expression as well as append one.
+     * Determine whether or not the index already exists.
      * 
-     * @param expression
-     *            A search expression.
-     * @return The final search expression.
+     * @return True if the index exists.
      */
-    private String createFinalExpression(final String expression) {
-        if (null == expression) {
-            return null;
+    private boolean doesIndexExist() {
+        if (0 == workspace.getIndexDirectory().list().length) {
+            return false;
         } else {
-            final StringBuffer expressionBuffer = new StringBuffer(expression.trim());
-            if (expression.charAt(expression.length() - 1) != '*') {
-                expressionBuffer.append('*');
-            }
-            return expressionBuffer.toString();
+            return true;
         }
     }
 
@@ -202,6 +219,10 @@ public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
      *             If the index reader cannot be opened.
      */
     private IndexReader openIndexReader() throws IOException {
+        if (!doesIndexExist()) {
+            final IndexWriter indexWriter = openIndexWriter();
+            closeIndexWriter(indexWriter);
+        }
         return IndexReader.open(getIndexDirectory());
     }
 
@@ -215,11 +236,6 @@ public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
      */
     private IndexWriter openIndexWriter() throws IOException {
         final Directory directory = getIndexDirectory();
-
-        final Boolean doCreate;
-        if(0 == directory.list().length) { doCreate = Boolean.TRUE; }
-        else { doCreate = Boolean.FALSE; }      
-
-        return new IndexWriter(directory, indexAnalyzer, doCreate);
+        return new IndexWriter(directory, indexAnalyzer, !doesIndexExist());
     }
 }

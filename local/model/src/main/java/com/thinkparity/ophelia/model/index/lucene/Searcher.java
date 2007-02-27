@@ -24,13 +24,20 @@ import org.apache.lucene.search.Query;
  */
 public class Searcher {
 
+    /** A <code>LuceneUtil</code>. */
+    private static final LuceneUtil LUCENE_UTIL;
+
+    static {
+        LUCENE_UTIL = LuceneUtil.getInstance();
+    }
+
 	/** A lucene index analyzer. */
 	private final Analyzer analyzer;
 
 	/** A list of lucene index fields to query. */
 	private final List<Field> fields;
 
-	/** A lucene index searcher. */
+    /** A lucene index searcher. */
 	private final IndexSearcher indexSearcher;
 
     /**
@@ -53,7 +60,7 @@ public class Searcher {
         this.indexSearcher = new IndexSearcher(indexReader);
     }
 
-	/**
+    /**
 	 * Search the list of fields for the given expression.
 	 * 
 	 * @param fields
@@ -68,8 +75,9 @@ public class Searcher {
 		final List<Hit> hits = new ArrayList<Hit>();
 		Iterator iHits;
 		for (final Query query : queries) {
-			try { iHits = indexSearcher.search(query).iterator(); }
-			catch (final IOException iox) {
+			try {
+                iHits = indexSearcher.search(query).iterator();
+			} catch (final IOException iox) {
 				throw new IndexException("Could not search index.", iox);
 			}
 			while (iHits.hasNext()) {
@@ -79,20 +87,30 @@ public class Searcher {
 		return hits;
 	}
 
-	/**
+    /**
 	 * Create a list of lucene queries for the given search expression.
 	 * 
 	 * @param expression
 	 *            The search expression.
 	 * @return A list of lucene queries.
 	 */
-	private List<Query> createQueries(final String expression) {
+	private List<Query> createQueries(String expression) {
 		final List<Query> queries = new LinkedList<Query>();
 		QueryParser queryParser;
-		for(final Field field : fields) {
+        final List<String> tokenizedExpressions = new ArrayList<String>();
+		for (final Field field : fields) {
 			queryParser = new QueryParser(field.name(), analyzer);
-			try { queries.add(queryParser.parse(expression)); }
-			catch(final ParseException px) {
+			try {
+                LUCENE_UTIL.logVariable("expression", expression);
+                tokenizedExpressions.clear();
+                tokenizedExpressions.addAll(LUCENE_UTIL.tokenizeExpression(expression));
+                for (String tokenizedExpression : tokenizedExpressions) {
+                    tokenizedExpression = LUCENE_UTIL.stripSpecialCharacters(tokenizedExpression);
+                    tokenizedExpression = LUCENE_UTIL.appendWildcard(tokenizedExpression);
+                    LUCENE_UTIL.logVariable("tokenizedExpression", tokenizedExpression);
+                    queries.add(queryParser.parse(tokenizedExpression));
+                }
+			} catch (final ParseException px) {
 				throw new IndexException("Could not create query.", px);
 			}
 		}

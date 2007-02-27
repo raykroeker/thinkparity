@@ -11,12 +11,14 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
+import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.session.LoginMonitor;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl;
@@ -189,7 +191,12 @@ public class OpheliaTestUser extends User {
         }
         setId(JabberIdBuilder.build(
                 credentials.getUsername(), environment.getXMPPService()));
-        email = getModelFactory().getProfileModel().readEmails().get(0).getEmail();
+        final InternalProfileModel profileModel = getModelFactory().getProfileModel();
+        email = profileModel.readEmails().get(0).getEmail();
+        final Profile profile = profileModel.read();
+        setName(profile.getName());
+        setOrganization(profile.getOrganization());
+        setTitle(profile.getTitle());
         getModelFactory().getSessionModel().logout();
     }
 

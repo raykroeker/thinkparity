@@ -5,10 +5,8 @@ package com.thinkparity.ophelia.model.index.document;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-
-import org.apache.lucene.document.Field;
-import org.apache.lucene.index.Term;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.index.AbstractIndexImpl;
@@ -16,11 +14,17 @@ import com.thinkparity.ophelia.model.index.lucene.DocumentBuilder;
 import com.thinkparity.ophelia.model.index.lucene.FieldBuilder;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
+import org.apache.lucene.document.Field;
+import org.apache.lucene.index.Term;
+
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 public class DocumentIndexImpl extends AbstractIndexImpl<DocumentIndexEntry, Long> {
+
+    /** Document id <code>Comparator</code>. */
+    private static final Comparator<Long> DOCUMENT_ID_COMPARATOR;
 
     /** Container id index field. */
     private static final FieldBuilder IDX_CONTAINER_ID;
@@ -32,6 +36,12 @@ public class DocumentIndexImpl extends AbstractIndexImpl<DocumentIndexEntry, Lon
     private static final FieldBuilder IDX_DOCUMENT_NAME;
 
     static {
+        DOCUMENT_ID_COMPARATOR = new Comparator<Long>() {
+            public int compare(final Long o1, final Long o2) {
+                return o1.compareTo(o2);
+            }
+        };
+
         IDX_CONTAINER_ID = new FieldBuilder()
                 .setIndex(Field.Index.UN_TOKENIZED)
                 .setName("DOCUMENT.CONTAINER_ID")
@@ -93,6 +103,15 @@ public class DocumentIndexImpl extends AbstractIndexImpl<DocumentIndexEntry, Lon
         final List<Field> fields = new ArrayList<Field>();
         fields.add(IDX_DOCUMENT_NAME.toSearchField());
         return search(IDX_CONTAINER_ID.toSearchField(), fields, expression);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.index.AbstractIndexImpl#getComparator()
+     *
+     */
+    @Override
+    protected Comparator<? super Long> getComparator() {
+        return DOCUMENT_ID_COMPARATOR;
     }
 
     /**

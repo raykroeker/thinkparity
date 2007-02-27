@@ -12,6 +12,7 @@ import java.util.List;
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.index.lucene.Searcher;
+import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -94,6 +95,10 @@ public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
      * @return A <code>Comparator</code>.
      */
     protected abstract Comparator<? super U> getComparator();
+
+    protected InternalUserModel getUserModel() {
+        return internalModelFactory.getUserModel();
+    }
 
     /**
      * Index a lucene document.

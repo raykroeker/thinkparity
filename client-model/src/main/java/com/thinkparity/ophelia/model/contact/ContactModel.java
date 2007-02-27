@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
@@ -223,4 +224,22 @@ public interface ContactModel {
      * @return A <code>List&lt;JabberId&gt;</code>.
      */
     public List<JabberId> search(final String expression);
+
+    /**
+     * Search for incoming invitations.
+     * 
+     * @param expression
+     *            A search expression.
+     * @return A <code>List&lt;Long&gt;</code>.
+     */
+    public List<Long> searchIncomingInvitations(final String expression);
+
+    /**
+     * Search for outgoing invitations.
+     * 
+     * @param expression
+     *            A search expression.
+     * @return A <code>List&lt;Long&gt;</code>.
+     */
+    public List<Long> searchOutgoingInvitations(final String expression);
 }

@@ -150,6 +150,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             outgoing.setCreatedOn(currentDateTime());
             outgoing.setEmail(email);
             contactIO.createOutgoingInvitation(outgoing);
+            getIndexModel().indexOutgoingInvitation(outgoing.getId());
             getSessionModel().extendInvitation(email);
             // fire event
             final OutgoingInvitation postCreation = contactIO.readOutgoingInvitation(email);
@@ -435,6 +436,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             incoming.setInvitedAs(event.getInvitedAs());
             incoming.setInvitedBy(extendedByUser.getId());
             contactIO.createIncomingInvitation(incoming, extendedByUser);
+            getIndexModel().indexIncomingInvitation(incoming.getId());
             // fire event
             final IncomingInvitation postCreation = contactIO.readIncomingInvitation(incoming.getId());
             notifyIncomingInvitationCreated(postCreation, remoteEventGenerator);
@@ -657,6 +659,30 @@ public final class ContactModelImpl extends Model<ContactListener>
             return getIndexModel().searchContacts(expression);
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.contact.ContactModel#searchIncomingInvitations(java.lang.String)
+     *
+     */
+    public List<Long> searchIncomingInvitations(final String expression) {
+        try {
+            return getIndexModel().searchIncomingInvitations(expression);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.contact.ContactModel#searchOutgoingInvitations(java.lang.String)
+     *
+     */
+    public List<Long> searchOutgoingInvitations(final String expression) {
+        try {
+            return getIndexModel().searchIncomingInvitations(expression);
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 

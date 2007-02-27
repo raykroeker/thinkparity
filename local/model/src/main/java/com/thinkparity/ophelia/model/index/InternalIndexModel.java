@@ -51,7 +51,7 @@ public interface InternalIndexModel extends IndexModel {
      *            A contact id <code>JabberId</code>.
      */
     public void indexContact(final JabberId contactId);
-    
+
     /**
      * Index a container.
      * 
@@ -69,6 +69,22 @@ public interface InternalIndexModel extends IndexModel {
      *            A document id <code>Long</code>.
      */
 	public void indexDocument(final Long containerId, final Long documentId);
+    
+    /**
+     * Index an incoming invitation.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     */
+    public void indexIncomingInvitation(final Long invitationId);
+
+    /**
+     * Index an outgoing invitation.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     */
+    public void indexOutgoingInvitation(final Long invitationId);
 
     /**
      * Search the index for contacts.
@@ -96,4 +112,22 @@ public interface InternalIndexModel extends IndexModel {
      * @return A list of documents.
      */
     public List<Long> searchDocuments(final String expression);
+
+    /**
+     * Search the index for incoming invitations.
+     * 
+     * @param expression
+     *            A search expression <code>String</code>..
+     * @return A <code>List</code> of invitation id <code>Long</code>s.
+     */
+    public List<Long> searchIncomingInvitations(final String expression);
+
+    /**
+     * Search the index for outgoing invitations.
+     * 
+     * @param expression
+     *            A search expression <code>String</code>..
+     * @return A <code>List</code> of invitation id <code>Long</code>s.
+     */
+    public List<Long> searchOutgoingInvitations(final String expression);
 }

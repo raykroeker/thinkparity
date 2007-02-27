@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -127,7 +128,7 @@ public class FieldBuilder {
         return this;
     }
 
-	/**
+    /**
 	 * Set the field value.
 	 * 
 	 * @param c
@@ -140,6 +141,17 @@ public class FieldBuilder {
 		this.value = DateTools.dateToString(c.getTime(), r);
 		return this;
 	}
+
+	/**
+     * Set the field value.
+     * 
+     * @param value
+     * @return
+     */
+    public FieldBuilder setValue(final EMail value) {
+        this.value = value.toString();
+        return this;
+    }
 
 	/**
      * Set the field value.

@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
 
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -123,6 +124,16 @@ public class SwingUtil {
     }
 
     /**
+     * Determine if the component is in a maximized JFrame window.
+     * 
+     * @param component
+     *            A <code>Component</code>.
+     */
+    public static Boolean isInMaximizedWindow(final Component component) {
+        return SINGLETON.isInMaximizedWindowImpl(component);
+    }
+
+    /**
      * Determine whether or not the region contains the point.
      * 
      * @param region
@@ -235,4 +246,36 @@ public class SwingUtil {
 		    return string;
         }
 	}
+
+    /**
+     * Get the Window ancestor of the Component.
+     * 
+     * @param component
+     *            A <code>Component</code>.
+     * @return A <code>Window</code>.
+     */
+    private Window getWindowAncestor(final Component component) {
+        final Window window;
+        if (component instanceof Window) {
+            window = (Window)component;
+        } else {
+            window = javax.swing.SwingUtilities.getWindowAncestor(component);
+        }
+        return window;
+    }
+
+    /**
+     * Determine if the component is in a maximized JFrame window.
+     * 
+     * @param component
+     *            A <code>Component</code>.
+     */
+    private Boolean isInMaximizedWindowImpl(final Component component) {
+        final Window window = getWindowAncestor(component);
+        if (null != window && window instanceof JFrame) {
+            return (((JFrame)window).getExtendedState() & JFrame.MAXIMIZED_BOTH) > 0;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
 }

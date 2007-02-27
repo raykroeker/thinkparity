@@ -145,7 +145,7 @@ final class JComponentMoveHelper {
             mouseInputListener = null;
         }        
     }
-    
+
     /**
      * Determine if the mouse press is on the edge.
      * 
@@ -178,7 +178,13 @@ final class JComponentMoveHelper {
             final Point jComponentLocation = SwingUtilities.getWindowAncestor((JComponent) e.getSource()).getLocation();
             offsetX = mouseLocation.x - mouseOrigin.x - jComponentLocation.x + jComponentOrigin.x;
             offsetY = mouseLocation.y - mouseOrigin.y - jComponentLocation.y + jComponentOrigin.y;
-            moveWindow(e);
+            // Note that a single mouse press initiated the move, and it is possible that a mouse double click
+            // maximizes the window (in logic somewhere else). If the window was maximized then the move must be aborted.
+            if (SwingUtil.isInMaximizedWindow(e.getComponent())) {
+                moving = Boolean.FALSE;
+            } else {
+                moveWindow(e);
+            }
         }
     }
 
@@ -189,7 +195,7 @@ final class JComponentMoveHelper {
      *            A <code>MouseEvent</code>.
      */
     private void jComponentMousePressed(final MouseEvent e) {
-        if (isOnEdge(e)) {
+        if (isOnEdge(e) || SwingUtil.isInMaximizedWindow(e.getComponent())) {
             moving = Boolean.FALSE;
         } else {
             moving = Boolean.TRUE;

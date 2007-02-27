@@ -282,6 +282,24 @@ public abstract class StringUtil {
 			null == replacement ? null : replacement.toString());
 	}
 
+	/**
+     * Reverse the order of the characters in a string.
+     * 
+     * @param string
+     *            A <code>String</code>.
+     * @return A reversed <code>String</code>
+     */
+    public static String reverse(final String string) {
+        if (null == string)
+            return null;
+        final char[] chars = string.toCharArray();
+        final StringBuffer buffer = new StringBuffer(chars.length);
+        for (int i = chars.length - 1; i > -1; i--) {
+            buffer.append(chars[i]);
+        }
+        return buffer.toString();
+    }
+
     /**
      * Does a search and replace on a string based on the find and replace
      * criteria. This method will replace all occurances of find in search with

@@ -21,6 +21,15 @@ public class StringUtilTest extends CodebaseTestCase {
 		super(name);
 	}
 
+    public void testReverse() {
+        final String string = "abcdefghijklmnop";
+        final String reverse = StringUtil.reverse(string);
+        assertEquals("Reverse does not match expectation.", "ponmlkjihgfedcba", reverse);
+        final String string2 = null;
+        final String reverse2 = StringUtil.reverse(string2);
+        assertNull("Reverse is not null.", reverse2);
+    }
+
     public void testToString() {
         Pair<String, String> pair = new Pair<String, String>("one", "two");
         String toString = StringUtil.toString(Pair.class, "pair.getOne()", pair.getOne(),

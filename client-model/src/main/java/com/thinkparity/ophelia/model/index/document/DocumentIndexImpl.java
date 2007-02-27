@@ -18,10 +18,15 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.Term;
 
 /**
+ * <b>Title:</b>thinkParity OpheliaModel Document Index Implementation<br>
+ * <b>Description:</b>Indexes documents and allows the client to obtain a
+ * container from a search expression.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class DocumentIndexImpl extends AbstractIndexImpl<DocumentIndexEntry, Long> {
+public final class DocumentIndexImpl extends
+        AbstractIndexImpl<DocumentIndexEntry, Long> {
 
     /** Document id <code>Comparator</code>. */
     private static final Comparator<Long> DOCUMENT_ID_COMPARATOR;

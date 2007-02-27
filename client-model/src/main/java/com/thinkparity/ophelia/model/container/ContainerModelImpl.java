@@ -24,6 +24,7 @@ import javax.xml.transform.TransformerException;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.Pair;
 import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
@@ -1956,6 +1957,10 @@ public final class ContainerModelImpl extends
         try {
             final InternalIndexModel indexModel = getIndexModel();
             final List<Long> containerIds = indexModel.searchContainers(expression);
+            final List<Pair<Long, Long>> compositeIds = indexModel.searchContainerVersions(expression);
+            for (final Pair<Long, Long> compositeId : compositeIds) {
+                containerIds.add(compositeId.getOne());
+            }
             containerIds.addAll(indexModel.searchDocuments(expression));
             return containerIds;
         } catch (final Throwable t) {
@@ -2374,7 +2379,8 @@ public final class ContainerModelImpl extends
         version.setUpdatedOn(version.getCreatedOn());
         version.setVersionId(versionId);
         containerIO.createVersion(version);
-
+        getIndexModel().indexContainerVersion(new Pair<Long, Long>(
+                containerId, versionId));
         return containerIO.readVersion(
                 version.getArtifactId(), version.getVersionId());
     }
@@ -3435,7 +3441,10 @@ public final class ContainerModelImpl extends
                             version, previous));
                 }
             }
+            getIndexModel().indexContainerVersion(new Pair<Long, Long>(
+                    version.getArtifactId(), version.getVersionId()));
             logger.logTrace("Container version has been restored.");
+
         }
         getIndexModel().indexContainer(container.getId());
     }

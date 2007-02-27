@@ -63,25 +63,25 @@ public final class ContainerIndexImpl extends
 
         IDX_CONTAINER_NAME = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTAINER.CONTAINER_NAME")
+                .setName("CONTAINER.NAME")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 
         IDX_CONTAINER_NAME_REV = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTAINER.CONTAINER_NAME_REV")
+                .setName("CONTAINER.NAME_REV")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 
         IDX_CONTAINER_TEAM_MEMBERS = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTAINER.CONTAINER_TEAM_MEMBERS")
+                .setName("CONTAINER.TEAM_MEMBERS")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 
         IDX_CONTAINER_TEAM_MEMBERS_REV = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTAINER.CONTAINER_TEAM_MEMBERS_REV")
+                .setName("CONTAINER.TEAM_MEMBERS_REV")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
     }

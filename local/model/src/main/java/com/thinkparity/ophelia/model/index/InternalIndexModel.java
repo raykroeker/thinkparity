@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.index;
 
 import java.util.List;
 
+import com.thinkparity.codebase.Pair;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
@@ -27,14 +28,6 @@ public interface InternalIndexModel extends IndexModel {
      *            A contact id <code>JabberId</code>.
      */
     public void deleteContact(final JabberId contactId);
-
-    /**
-     * Update a contact in the index.
-     * 
-     * @param contactId
-     *            A contact id <code>JabberId</code>.
-     */
-    public void updateContact(final JabberId contactId);
 
     /**
      * Delete a container from the index.
@@ -69,6 +62,15 @@ public interface InternalIndexModel extends IndexModel {
     public void indexContainer(final Long containerId);
 
     /**
+     * Index a container version.
+     * 
+     * @param containerVersionId
+     *            A <code>Pair</code>ed container and container version id
+     *            <code>Long</code>.
+     */
+    public void indexContainerVersion(final Pair<Long, Long> containerVersionId);
+
+    /**
      * Index a document.
      * 
      * @param containerId
@@ -77,7 +79,7 @@ public interface InternalIndexModel extends IndexModel {
      *            A document id <code>Long</code>.
      */
 	public void indexDocument(final Long containerId, final Long documentId);
-    
+
     /**
      * Index an incoming invitation.
      * 
@@ -85,7 +87,7 @@ public interface InternalIndexModel extends IndexModel {
      *            An invitation id <code>Long</code>.
      */
     public void indexIncomingInvitation(final Long invitationId);
-
+    
     /**
      * Index an outgoing invitation.
      * 
@@ -113,6 +115,16 @@ public interface InternalIndexModel extends IndexModel {
     public List<Long> searchContainers(final String expression);
 
     /**
+     * Search the index for container versions.
+     * 
+     * @param expression
+     *            A search expression.
+     * @return A <code>List</code> of <code>Pair</code>ed container and
+     *         container version id <code>Long</code>s.
+     */
+    public List<Pair<Long, Long>> searchContainerVersions(final String expression);
+
+    /**
      * Search the index for documents.
      * 
      * @param expression
@@ -138,4 +150,12 @@ public interface InternalIndexModel extends IndexModel {
      * @return A <code>List</code> of invitation id <code>Long</code>s.
      */
     public List<Long> searchOutgoingInvitations(final String expression);
+
+    /**
+     * Update a contact in the index.
+     * 
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
+     */
+    public void updateContact(final JabberId contactId);
 }

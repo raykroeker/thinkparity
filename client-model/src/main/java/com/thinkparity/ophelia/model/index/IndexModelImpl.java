@@ -5,10 +5,12 @@ package com.thinkparity.ophelia.model.index;
 
 import java.util.List;
 
+import com.thinkparity.codebase.Pair;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.session.Environment;
 
@@ -19,6 +21,7 @@ import com.thinkparity.ophelia.model.index.contact.ContactIndexImpl;
 import com.thinkparity.ophelia.model.index.contact.IncomingInvitationIndexImpl;
 import com.thinkparity.ophelia.model.index.contact.OutgoingInvitationIndexImpl;
 import com.thinkparity.ophelia.model.index.container.ContainerIndexImpl;
+import com.thinkparity.ophelia.model.index.container.ContainerVersionIndexImpl;
 import com.thinkparity.ophelia.model.index.document.DocumentIndexEntry;
 import com.thinkparity.ophelia.model.index.document.DocumentIndexImpl;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -39,6 +42,9 @@ public final class IndexModelImpl extends Model implements
 
     /** A container index implementation. */
     private IndexImpl<Container, Long> containerIndex;
+
+    /** A container version index implementation. */
+    private IndexImpl<ContainerVersion, Pair<Long, Long>> containerVersionIndex;
 
     /** A document index implementation. */
     private IndexImpl<DocumentIndexEntry, Long> documentIndex;
@@ -70,23 +76,16 @@ public final class IndexModelImpl extends Model implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#updateContact(com.thinkparity.codebase.jabber.JabberId)
-     *
+     * Delete a container from the index.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
      */
-    public void updateContact(final JabberId contactId) {
+    public void deleteContainer(final Long containerId) {
         try {
-            // update the contact info
-            final Contact contact = getContactModel().read(contactId);
-            contactIndex.delete(contactId);
-            contactIndex.index(contact);
-            // update the team info
-            final List<Container> containers = getContainerModel().readForTeamMember(contact.getLocalId());
-            for (final Container container : containers) {
-                containerIndex.delete(container.getId());
-                containerIndex.index(container);
-            }
+            containerIndex.delete(containerId);
         } catch (final Throwable t) {
-            throw panic(t);
+            throw translateError(t);
         }
     }
 
@@ -96,9 +95,11 @@ public final class IndexModelImpl extends Model implements
      * @param containerId
      *            A container id <code>Long</code>.
      */
-    public void deleteContainer(final Long containerId) {
+    public void deleteContainerVersion(final Long containerId,
+            final Long versionId) {
         try {
-            containerIndex.delete(containerId);
+            final Pair<Long, Long> containerVersionId = new Pair<Long, Long>(containerId, versionId);
+            containerVersionIndex.delete(containerVersionId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -134,7 +135,7 @@ public final class IndexModelImpl extends Model implements
         }
     }
 
-	/**
+    /**
      * Create an index entry for the container.
      * 
      * @param containerId
@@ -151,6 +152,23 @@ public final class IndexModelImpl extends Model implements
     }
 
     /**
+     * Create an index entry for the container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void indexContainerVersion(final Pair<Long, Long> containerVersionId) {
+        try {
+            containerVersionIndex.delete(containerVersionId);
+            final ContainerVersion version = getContainerModel().readVersion(
+                    containerVersionId.getOne(), containerVersionId.getTwo());
+            containerVersionIndex.index(version);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+	/**
      * Create an index entry for a document.
      * 
      * @param containerId A container id ,code>Long</code>.
@@ -183,7 +201,7 @@ public final class IndexModelImpl extends Model implements
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.index.InternalIndexModel#indexOutgoingInvitation(java.lang.Long)
      *
      */
@@ -198,7 +216,7 @@ public final class IndexModelImpl extends Model implements
         }
     }
 
-    /**
+	/**
      * Search the contact index.
      * 
      * @param expression
@@ -225,6 +243,18 @@ public final class IndexModelImpl extends Model implements
             return containerIndex.search(expression);
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#searchContainerVersions(java.lang.String)
+     *
+     */
+    public List<Pair<Long, Long>> searchContainerVersions(final String expression) {
+        try {
+            return containerVersionIndex.search(expression);
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 
@@ -268,15 +298,37 @@ public final class IndexModelImpl extends Model implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#updateContact(com.thinkparity.codebase.jabber.JabberId)
+     *
+     */
+    public void updateContact(final JabberId contactId) {
+        try {
+            // update the contact info
+            final Contact contact = getContactModel().read(contactId);
+            contactIndex.delete(contactId);
+            contactIndex.index(contact);
+            // update the team info
+            final List<Container> containers = getContainerModel().readForTeamMember(contact.getLocalId());
+            for (final Container container : containers) {
+                containerIndex.delete(container.getId());
+                containerIndex.index(container);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
     @Override
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
-        this.containerIndex = new ContainerIndexImpl(workspace, modelFactory);
-        this.documentIndex = new DocumentIndexImpl(workspace, modelFactory);
         this.contactIndex = new ContactIndexImpl(workspace, modelFactory);
+        this.containerIndex = new ContainerIndexImpl(workspace, modelFactory);
+        this.containerVersionIndex = new ContainerVersionIndexImpl(workspace, modelFactory);
+        this.documentIndex = new DocumentIndexImpl(workspace, modelFactory);
         this.incomingInvitationIndex = new IncomingInvitationIndexImpl(workspace, modelFactory);
         this.outgoingInvitationIndex = new OutgoingInvitationIndexImpl(workspace, modelFactory);
     }

@@ -108,7 +108,7 @@ public interface InternalDocumentModel extends DocumentModel {
     public DocumentNameGenerator getNameGenerator();
 
     // TODO-javadoc InternalDocumentModel#handleDocumentPublished
-    public DocumentVersion handleDocumentPublished(
+    public DocumentVersion handleDocumentPublished(final Long documentId,
             final DocumentVersion version, final String streamId,
             final JabberId publishedBy, final Calendar publishedOn);
 

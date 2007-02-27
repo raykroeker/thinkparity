@@ -668,9 +668,9 @@ public final class ContainerModelImpl extends
             for (final Entry<DocumentVersion, String> entry :
                     event.getDocumentVersions().entrySet()) {
                 final ArtifactVersion artifactVersion =
-                    getDocumentModel().handleDocumentPublished(entry.getKey(),
-                            entry.getValue(), event.getPublishedBy(),
-                            event.getPublishedOn());
+                    getDocumentModel().handleDocumentPublished(container.getId(),
+                            entry.getKey(), entry.getValue(),
+                            event.getPublishedBy(), event.getPublishedOn());
                 final Long artifactId = getArtifactModel().readId(
                         entry.getKey().getArtifactUniqueId());
                 logger.logVariable("artifactId", artifactId);

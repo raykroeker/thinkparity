@@ -88,6 +88,34 @@ final class LuceneUtil {
     }
 
     /**
+     * Log the value of a variable.
+     * 
+     * @param <V>
+     *            A variable type.
+     * @param name
+     *            A variable name <code>String</code>.
+     * @param value
+     *            A variable value <code>V</code>.
+     * @return The variable value.
+     */
+    final <V> V logVariable(final String name, final V value) {
+        return LOGGER.logVariable(name, value);
+    }
+
+    /**
+     * If the expression does not start with a wildcard character add one.
+     * 
+     * @param expression
+     *            The search expression <code>String</code>.
+     */
+    String prependWildcard(final String expression) {
+        if ('*' == expression.charAt(0))
+            return expression;
+        else
+            return '*' + expression;
+    }
+
+    /**
      * Parse the expression and replace any special characters.
      * 
      * @param expression
@@ -101,21 +129,6 @@ final class LuceneUtil {
             escapedExpression = escapedExpression.replace(SPECIAL_STRINGS[i], "");
         }
         return escapedExpression;
-    }
-
-    /**
-     * Log the value of a variable.
-     * 
-     * @param <V>
-     *            A variable type.
-     * @param name
-     *            A variable name <code>String</code>.
-     * @param value
-     *            A variable value <code>V</code>.
-     * @return The variable value.
-     */
-    final <V> V logVariable(final String name, final V value) {
-        return LOGGER.logVariable(name, value);
     }
 
     /**

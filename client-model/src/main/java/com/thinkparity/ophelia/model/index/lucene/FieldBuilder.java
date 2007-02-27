@@ -69,6 +69,15 @@ public class FieldBuilder {
 	public FieldBuilder() { super(); }
 
 	/**
+     * Obtain value.
+     * 
+     * @return The <code>String</code> value.
+     */
+    public String getValue() {
+        return value;
+    }
+
+	/**
 	 * Set the index.
 	 * 
 	 * @param index
@@ -80,7 +89,7 @@ public class FieldBuilder {
 		return this;
 	}
 
-	/**
+    /**
 	 * Set the field name.
 	 * 
 	 * @param name
@@ -104,7 +113,7 @@ public class FieldBuilder {
 		return this;
 	}
 
-    /**
+	/**
 	 * Set the term vector.
 	 * 
 	 * @param termVector
@@ -116,7 +125,7 @@ public class FieldBuilder {
 		return this;
 	}
 
-	/**
+    /**
      * Set the field value.
      * 
      * @param value
@@ -128,7 +137,7 @@ public class FieldBuilder {
         return this;
     }
 
-    /**
+	/**
 	 * Set the field value.
 	 * 
 	 * @param c
@@ -206,7 +215,7 @@ public class FieldBuilder {
 		return this;
 	}
 
-	/**
+    /**
      * Set the field value.
      * 
      * @param b
@@ -230,7 +239,7 @@ public class FieldBuilder {
 		return this;
 	}
 
-    /**
+	/**
 	 * Obtain the lucene field representation.
 	 * 
 	 * @return The lucene field.
@@ -240,7 +249,7 @@ public class FieldBuilder {
 		return new Field(name, fieldValue, store, index, termVector);
 	}
 
-	/**
+    /**
      * Obtain a lucene field representation for search only. Note the value will
      * be an empty string.
      * 

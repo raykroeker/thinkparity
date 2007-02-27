@@ -19,16 +19,23 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.Term;
 
 /**
+ * <b>Title:</b>thinkParity OpheliaModel Outgoing Incoming Index Implementation<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class OutgoingInvitationIndexImpl extends AbstractIndexImpl<OutgoingInvitation, Long> {
-
-    /** Contact id index field. */
-    private static final FieldBuilder IDX_INVITATION_ID;
+public final class OutgoingInvitationIndexImpl extends
+        AbstractIndexImpl<OutgoingInvitation, Long> {
 
     /** Contact name index field. */
     private static final FieldBuilder IDX_INVITATION_EMAIL;
+
+    /** Contact name index field. */
+    private static final FieldBuilder IDX_INVITATION_EMAIL_REV;
+
+    /** Contact id index field. */
+    private static final FieldBuilder IDX_INVITATION_ID;
 
     /** Invitation id comparator. */
     private static final Comparator<Long> INVITATION_ID_COMPARATOR;
@@ -42,13 +49,19 @@ public class OutgoingInvitationIndexImpl extends AbstractIndexImpl<OutgoingInvit
 
         IDX_INVITATION_ID = new FieldBuilder()
                 .setIndex(Field.Index.UN_TOKENIZED)
-                .setName("CONTACT_INVITATION.CONTACT_INVITATION_ID")
+                .setName("CONTACT_INVITATION_OUTGOING.CONTACT_INVITATION_ID")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 
         IDX_INVITATION_EMAIL = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION.EMAIL")
+                .setName("CONTACT_INVITATION_OUTGOING.EMAIL")
+                .setStore(Field.Store.YES)
+                .setTermVector(Field.TermVector.NO);
+
+        IDX_INVITATION_EMAIL_REV = new FieldBuilder()
+                .setIndex(Field.Index.TOKENIZED)
+                .setName("CONTACT_INVITATION_OUTGOING.EMAIL_REV")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
     }
@@ -69,9 +82,9 @@ public class OutgoingInvitationIndexImpl extends AbstractIndexImpl<OutgoingInvit
     /**
      * @see com.thinkparity.ophelia.model.index.IndexImpl#delete(java.lang.Object)
      */
-    public void delete(final OutgoingInvitation o) throws IOException {
-        final Field id = IDX_INVITATION_ID.toSearchField();
-        final Term term = new Term(id.name(), o.getId().toString());
+    public void delete(final Long id) throws IOException {
+        final Field idField = IDX_INVITATION_ID.toSearchField();
+        final Term term = new Term(idField.name(), id.toString());
         delete(term);
     }
 
@@ -81,7 +94,8 @@ public class OutgoingInvitationIndexImpl extends AbstractIndexImpl<OutgoingInvit
     public void index(final OutgoingInvitation o) throws IOException {
         final DocumentBuilder builder = new DocumentBuilder(4)
             .append(IDX_INVITATION_ID.setValue(o.getId()).toField())
-            .append(IDX_INVITATION_EMAIL.setValue(o.getEmail()).toField());
+            .append(IDX_INVITATION_EMAIL.setValue(o.getEmail()).toField())
+            .append(IDX_INVITATION_EMAIL_REV.setValue(reverse(IDX_INVITATION_EMAIL)).toField());
         index(builder.toDocument());
     }
 
@@ -89,9 +103,11 @@ public class OutgoingInvitationIndexImpl extends AbstractIndexImpl<OutgoingInvit
      * @see com.thinkparity.ophelia.model.index.IndexImpl#search(java.lang.String)
      */
     public List<Long> search(final String expression) throws IOException {
-        final List<Field> fields = new ArrayList<Field>(3);
+        final List<Field> fields = new ArrayList<Field>(1);
         fields.add(IDX_INVITATION_EMAIL.toSearchField());
-        return search(IDX_INVITATION_ID.toSearchField(), fields, expression);
+        final List<Field> reverseFields = new ArrayList<Field>(1);
+        reverseFields.add(IDX_INVITATION_EMAIL_REV.toSearchField());
+        return search(IDX_INVITATION_ID.toSearchField(), fields, reverseFields, expression);
     }
 
     /**

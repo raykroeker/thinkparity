@@ -24,10 +24,10 @@ public interface IndexImpl<T, U> {
      * Delete a thinkParity object from the index.
      * 
      * @param o
-     *            An instance of <code>T</code>.
+     *            An instance of <code>U</code>.
      * @throws IOException
      */
-    public void delete(final T o) throws IOException;
+    public void delete(final U id) throws IOException;
 
     /**
      * Index a thinkParity object.
@@ -36,7 +36,7 @@ public interface IndexImpl<T, U> {
      *            An instance of <code>T</code>.
      * @throws IOException
      */
-    public void index(final T o) throws IOException;
+    public void index(final T instance) throws IOException;
 
     /**
      * Search the index using the expression and return instances of the

@@ -65,8 +65,7 @@ public final class IndexModelImpl extends Model implements
      */
     public void deleteContact(final JabberId contactId) {
         try {
-            final Contact c = getContactModel().read(contactId);
-            contactIndex.delete(c);
+            contactIndex.delete(contactId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -80,8 +79,7 @@ public final class IndexModelImpl extends Model implements
      */
     public void deleteContainer(final Long containerId) {
         try {
-            final Container c = getContainerModel().read(containerId);
-            containerIndex.delete(c);
+            containerIndex.delete(containerId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -95,8 +93,7 @@ public final class IndexModelImpl extends Model implements
      */
     public void deleteDocument(final Long documentId) {
         try {
-            final Document d = getDocumentModel().get(documentId);
-            documentIndex.delete(new DocumentIndexEntry(d));
+            documentIndex.delete(documentId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -110,8 +107,8 @@ public final class IndexModelImpl extends Model implements
      */
     public void indexContact(final JabberId contactId) {
         try {
+            contactIndex.delete(contactId);
             final Contact contact = getContactModel().read(contactId);
-            contactIndex.delete(contact);
             contactIndex.index(contact);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -126,8 +123,8 @@ public final class IndexModelImpl extends Model implements
      */
     public void indexContainer(final Long containerId) {
         try {
+            containerIndex.delete(containerId);
             final Container container = getContainerModel().read(containerId);
-            containerIndex.delete(container);
             containerIndex.index(container);
         } catch (final Throwable t) {
             throw panic(t);
@@ -143,9 +140,9 @@ public final class IndexModelImpl extends Model implements
      */
 	public void indexDocument(final Long containerId, final Long documentId) {
         try {
+            documentIndex.delete(documentId);
             final Document document = getDocumentModel().get(documentId);
             final DocumentIndexEntry entry = new DocumentIndexEntry(containerId, document);
-            documentIndex.delete(entry);
             documentIndex.index(entry);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -158,9 +155,9 @@ public final class IndexModelImpl extends Model implements
      */
     public void indexIncomingInvitation(final Long invitationId) {
         try {
+            incomingInvitationIndex.delete(invitationId);
             final IncomingInvitation invitation =
                 getContactModel().readIncomingInvitation(invitationId);
-            incomingInvitationIndex.delete(invitation);
             incomingInvitationIndex.index(invitation);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -173,9 +170,9 @@ public final class IndexModelImpl extends Model implements
      */
     public void indexOutgoingInvitation(final Long invitationId) {
         try {
+            outgoingInvitationIndex.delete(invitationId);
             final OutgoingInvitation invitation =
                 getContactModel().readOutgoingInvitation(invitationId);
-            outgoingInvitationIndex.delete(invitation);
             outgoingInvitationIndex.index(invitation);
         } catch (final Throwable t) {
             throw translateError(t);

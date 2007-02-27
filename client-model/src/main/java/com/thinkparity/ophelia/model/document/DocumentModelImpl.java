@@ -251,25 +251,14 @@ public final class DocumentModelImpl extends
         }
     }
 
-
     /**
-     * Handle the publish of a document from the thinkParity network. The
-     * implementation is identical to sending a document.
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#handleDocumentPublished(java.lang.Long,
+     *      com.thinkparity.codebase.model.document.DocumentVersion,
+     *      java.lang.String, com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.Calendar)
      * 
-     * @param publishedBy
-     *            By whom the document was published.
-     * @param publishedOn
-     *            When the document was published.
-     * @param uniqueId
-     *            The document unique id.
-     * @param versionId
-     *            The document version id.
-     * @param name
-     *            The document name.
-     * @param content
-     *            The document content.
      */
-    public DocumentVersion handleDocumentPublished(
+    public DocumentVersion handleDocumentPublished(final Long containerId,
             final DocumentVersion version, final String streamId,
             final JabberId publishedBy, final Calendar publishedOn) {
         logger.logApiId();
@@ -321,8 +310,6 @@ public final class DocumentModelImpl extends
                 } finally {
                     stream.close();
                 }
-                // index
-                final Long containerId = artifactModel.readId(version.getArtifactUniqueId());
                 getIndexModel().indexDocument(containerId, document.getId());
             }
             return localVersion;

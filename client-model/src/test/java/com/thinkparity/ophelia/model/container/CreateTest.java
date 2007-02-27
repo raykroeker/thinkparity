@@ -10,8 +10,9 @@ import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.user.TeamMember;
 
-import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
+
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * <b>Title:</b>thinkParity Container Create Test<br>
@@ -23,13 +24,18 @@ import com.thinkparity.ophelia.model.events.ContainerEvent;
 public class CreateTest extends ContainerTestCase {
 
     /** Test test name. */
-    private static final String NAME = "[LMODEL] [CONTAINER] [CREATE TEST]";
+    private static final String NAME = "Create test";
 
     /** Test datum. */
     private Fixture datum;
 
-    /** Create CreateTest. */
-    public CreateTest() { super(NAME); }
+    /**
+     * Create CreateTest.
+     *
+     */
+    public CreateTest() {
+        super(NAME);
+    }
 
     /**
      * Test the container model create api.

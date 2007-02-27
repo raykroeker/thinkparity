@@ -9,8 +9,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
+import com.thinkparity.ophelia.model.index.lucene.FieldBuilder;
 import com.thinkparity.ophelia.model.index.lucene.Searcher;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -39,6 +43,41 @@ import org.apache.lucene.store.FSDirectory;
  *            The thinkParity object's id type.
  */
 public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
+
+    /** A hit comparator that sorts according to the hit score. */
+    private static final Comparator<? super Hit> HIT_COMPARATOR;
+
+    static {
+        final Log4JWrapper logger = new Log4JWrapper(
+                AbstractIndexImpl.class.getPackage().getName());
+        HIT_COMPARATOR = new Comparator<Hit>() {
+            public int compare(final Hit o1, final Hit o2) {
+                try {
+                    if (o1.getScore() == o2.getScore()) {
+                        return 0;
+                    } else if (o1.getScore() < o2.getScore()) {
+                        return -1;
+                    } else {
+                        return 1;
+                    }
+                } catch (final IOException iox) {
+                    logger.logError(iox, "Could not compare index hits.");
+                    return 0;
+                }
+            }
+        };
+    }
+
+    /**
+     * Reverse the field builder's value.
+     * 
+     * @param fileBuilder
+     *            A <code>FieldBuilder</code>.
+     * @return The reversed value of the field builder.
+     */
+    protected static final String reverse(final FieldBuilder fieldBuilder) {
+        return StringUtil.reverse(fieldBuilder.getValue());
+    }
 
     /** The index analyzer to use when creating/updating index entries. */
     private final Analyzer indexAnalyzer;
@@ -142,25 +181,30 @@ public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
      * @throws IOException
      */
     protected List<U> search(final Field idField, final List<Field> fields,
-            final String expression) throws IOException {
+            final List<Field> reversedFields, final String expression)
+            throws IOException {
         final IndexReader indexReader = openIndexReader();
         try {
+            // search the fields
             final Searcher searcher =
                 new Searcher(indexAnalyzer, indexReader, idField, fields);
             final List<Hit> hits = searcher.search(expression);
-    
-            final List<U> indexHits = new ArrayList<U>();
+            // search the reversed fields
+            final Searcher reverseSearcher =
+                new Searcher(indexAnalyzer, indexReader, idField, reversedFields);
+            hits.addAll(reverseSearcher.search(StringUtil.reverse(expression)));
+            Collections.sort(hits, HIT_COMPARATOR);
 
             /* NOTE the list of hits coming back from lucene can contain
              * duplicates; therefore we filter them here such that the model
              * index interface will not */ 
+            final List<U> indexHits = new ArrayList<U>();
             U resolvedHit;
             for (final Hit hit : hits) {
                 resolvedHit = resolveHit(hit.get(idField.name()));
                 if (!indexHits.contains(resolvedHit))
                     indexHits.add(resolvedHit);
             }
-            Collections.sort(indexHits, getComparator());
             return indexHits;
         } finally {
             closeIndexReader(indexReader);

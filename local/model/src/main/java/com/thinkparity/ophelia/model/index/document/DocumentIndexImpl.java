@@ -35,6 +35,9 @@ public class DocumentIndexImpl extends AbstractIndexImpl<DocumentIndexEntry, Lon
     /** Document name index field. */
     private static final FieldBuilder IDX_DOCUMENT_NAME;
 
+    /** Document name reverse index field. */
+    private static final FieldBuilder IDX_DOCUMENT_NAME_REV;
+
     static {
         DOCUMENT_ID_COMPARATOR = new Comparator<Long>() {
             public int compare(final Long o1, final Long o2) {
@@ -59,8 +62,13 @@ public class DocumentIndexImpl extends AbstractIndexImpl<DocumentIndexEntry, Lon
                 .setName("DOCUMENT.DOCUMENT_NAME")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
-    }
 
+        IDX_DOCUMENT_NAME_REV = new FieldBuilder()
+                .setIndex(Field.Index.TOKENIZED)
+                .setName("DOCUMENT.DOCUMENT_NAME_REV")
+                .setStore(Field.Store.YES)
+                .setTermVector(Field.TermVector.NO);
+    }
 
     /**
      * Create DocumentIndexImpl.
@@ -78,9 +86,9 @@ public class DocumentIndexImpl extends AbstractIndexImpl<DocumentIndexEntry, Lon
     /**
      * @see com.thinkparity.ophelia.model.index.IndexImpl#delete(java.lang.Object)
      */
-    public void delete(final DocumentIndexEntry o) throws IOException {
-        final Field field = IDX_DOCUMENT_ID.toSearchField();
-        final Term term = new Term(field.name(), o.getDocument().getId().toString());
+    public void delete(final Long documentId) throws IOException {
+        final Field idField = IDX_DOCUMENT_ID.toSearchField();
+        final Term term = new Term(idField.name(), documentId.toString());
         delete(term);
     }
 
@@ -92,7 +100,8 @@ public class DocumentIndexImpl extends AbstractIndexImpl<DocumentIndexEntry, Lon
         final DocumentBuilder indexBuilder = new DocumentBuilder(3)
             .append(IDX_CONTAINER_ID.setValue(o.getContainerId()).toField())
             .append(IDX_DOCUMENT_ID.setValue(o.getDocument().getId()).toField())
-            .append(IDX_DOCUMENT_NAME.setValue(o.getDocument().getName()).toField());
+            .append(IDX_DOCUMENT_NAME.setValue(o.getDocument().getName()).toField())
+            .append(IDX_DOCUMENT_NAME_REV.setValue(reverse(IDX_DOCUMENT_NAME)).toField());
         index(indexBuilder.toDocument());
     }
 
@@ -100,9 +109,11 @@ public class DocumentIndexImpl extends AbstractIndexImpl<DocumentIndexEntry, Lon
      * @see com.thinkparity.ophelia.model.index.IndexImpl#search(java.lang.String)
      */
     public List<Long> search(final String expression) throws IOException {
-        final List<Field> fields = new ArrayList<Field>();
+        final List<Field> fields = new ArrayList<Field>(1);
         fields.add(IDX_DOCUMENT_NAME.toSearchField());
-        return search(IDX_CONTAINER_ID.toSearchField(), fields, expression);
+        final List<Field> reverseFields = new ArrayList<Field>(1);
+        reverseFields.add(IDX_DOCUMENT_NAME_REV.toSearchField());
+        return search(IDX_CONTAINER_ID.toSearchField(), fields, reverseFields, expression);
     }
 
     /**

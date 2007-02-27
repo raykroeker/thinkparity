@@ -21,10 +21,14 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.Term;
 
 /**
+ * <b>Title:</b>thinkParity OpheliaModel Container Index Implementation<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ContainerIndexImpl extends AbstractIndexImpl<Container, Long> {
+public final class ContainerIndexImpl extends
+        AbstractIndexImpl<Container, Long> {
 
     /** Container id <code>Comparator</code>. */
     private static final Comparator<Long> CONTAINER_ID_COMPARATOR;
@@ -32,11 +36,17 @@ public class ContainerIndexImpl extends AbstractIndexImpl<Container, Long> {
     /** Artifact id index field. */
     private static final FieldBuilder IDX_CONTAINER_ID;
 
-    /** Artifact name index field. */
+    /** Container name index field. */
     private static final FieldBuilder IDX_CONTAINER_NAME;
 
-    /** Artifact team members index field. */
+    /** Container name reverse index field. */
+    private static final FieldBuilder IDX_CONTAINER_NAME_REV;
+
+    /** Container team members index field. */
     private static final FieldBuilder IDX_CONTAINER_TEAM_MEMBERS;
+
+    /** Container team members reverse index field. */
+    private static final FieldBuilder IDX_CONTAINER_TEAM_MEMBERS_REV;
 
     static {
         CONTAINER_ID_COMPARATOR = new Comparator<Long>() {
@@ -57,9 +67,21 @@ public class ContainerIndexImpl extends AbstractIndexImpl<Container, Long> {
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 
+        IDX_CONTAINER_NAME_REV = new FieldBuilder()
+                .setIndex(Field.Index.TOKENIZED)
+                .setName("CONTAINER.CONTAINER_NAME_REV")
+                .setStore(Field.Store.YES)
+                .setTermVector(Field.TermVector.NO);
+
         IDX_CONTAINER_TEAM_MEMBERS = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
                 .setName("CONTAINER.CONTAINER_TEAM_MEMBERS")
+                .setStore(Field.Store.YES)
+                .setTermVector(Field.TermVector.NO);
+
+        IDX_CONTAINER_TEAM_MEMBERS_REV = new FieldBuilder()
+                .setIndex(Field.Index.TOKENIZED)
+                .setName("CONTAINER.CONTAINER_TEAM_MEMBERS_REV")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
     }
@@ -78,9 +100,9 @@ public class ContainerIndexImpl extends AbstractIndexImpl<Container, Long> {
     /**
      * @see com.thinkparity.ophelia.model.index.IndexImpl#delete(java.lang.Object)
      */
-    public void delete(final Container o) throws IOException {
-        final Field field = IDX_CONTAINER_ID.toSearchField();
-        final Term term = new Term(field.name(), o.getId().toString());
+    public void delete(final Long containerId) throws IOException {
+        final Field idField = IDX_CONTAINER_ID.toSearchField();
+        final Term term = new Term(idField.name(), containerId.toString());
         delete(term);
     }
 
@@ -93,7 +115,9 @@ public class ContainerIndexImpl extends AbstractIndexImpl<Container, Long> {
         final DocumentBuilder indexBuilder = new DocumentBuilder(3)
             .append(IDX_CONTAINER_ID.setValue(o.getId()).toField())
             .append(IDX_CONTAINER_NAME.setValue(o.getName()).toField())
-            .append(IDX_CONTAINER_TEAM_MEMBERS.setValue(team).toField());
+            .append(IDX_CONTAINER_NAME_REV.setValue(reverse(IDX_CONTAINER_NAME)).toField())
+            .append(IDX_CONTAINER_TEAM_MEMBERS.setValue(team).toField())
+            .append(IDX_CONTAINER_TEAM_MEMBERS_REV.setValue(reverse(IDX_CONTAINER_TEAM_MEMBERS)).toField());
         index(indexBuilder.toDocument());
     }
 
@@ -105,7 +129,10 @@ public class ContainerIndexImpl extends AbstractIndexImpl<Container, Long> {
         final List<Field> fields = new ArrayList<Field>();
         fields.add(IDX_CONTAINER_NAME.toSearchField());
         fields.add(IDX_CONTAINER_TEAM_MEMBERS.toSearchField());
-        return search(IDX_CONTAINER_ID.toSearchField(), fields, expression);
+        final List<Field> reversedFields = new ArrayList<Field>();
+        reversedFields.add(IDX_CONTAINER_NAME_REV.toSearchField());
+        reversedFields.add(IDX_CONTAINER_TEAM_MEMBERS_REV.toSearchField());
+        return search(IDX_CONTAINER_ID.toSearchField(), fields, reversedFields, expression);
     }
 
     

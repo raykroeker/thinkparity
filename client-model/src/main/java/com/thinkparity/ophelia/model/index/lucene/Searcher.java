@@ -31,10 +31,10 @@ public class Searcher {
         LUCENE_UTIL = LuceneUtil.getInstance();
     }
 
-	/** A lucene index analyzer. */
-	private final Analyzer analyzer;
+	/** A lucene <code>Analyzer</code>. */
+    private final Analyzer analyzer;
 
-	/** A list of lucene index fields to query. */
+    /** A list of lucene index fields to query. */
 	private final List<Field> fields;
 
     /** A lucene index searcher. */
@@ -96,23 +96,23 @@ public class Searcher {
 	 */
 	private List<Query> createQueries(String expression) {
 		final List<Query> queries = new LinkedList<Query>();
-		QueryParser queryParser;
         final List<String> tokenizedExpressions = new ArrayList<String>();
+        QueryParser queryParser;
 		for (final Field field : fields) {
-			queryParser = new QueryParser(field.name(), analyzer);
-			try {
-                LUCENE_UTIL.logVariable("expression", expression);
-                tokenizedExpressions.clear();
-                tokenizedExpressions.addAll(LUCENE_UTIL.tokenizeExpression(expression));
-                for (String tokenizedExpression : tokenizedExpressions) {
-                    tokenizedExpression = LUCENE_UTIL.stripSpecialCharacters(tokenizedExpression);
-                    tokenizedExpression = LUCENE_UTIL.appendWildcard(tokenizedExpression);
-                    LUCENE_UTIL.logVariable("tokenizedExpression", tokenizedExpression);
+            LUCENE_UTIL.logVariable("expression", expression);
+            tokenizedExpressions.clear();
+            tokenizedExpressions.addAll(LUCENE_UTIL.tokenizeExpression(expression));
+            queryParser = new QueryParser(field.name(), analyzer);
+            for (String tokenizedExpression : tokenizedExpressions) {
+                tokenizedExpression = LUCENE_UTIL.stripSpecialCharacters(tokenizedExpression);
+                tokenizedExpression = LUCENE_UTIL.appendWildcard(tokenizedExpression);
+                LUCENE_UTIL.logVariable("tokenizedExpression", tokenizedExpression);
+                try {
                     queries.add(queryParser.parse(tokenizedExpression));
+                } catch (final ParseException px) {
+                    throw new IndexException("Could not create query.", px);
                 }
-			} catch (final ParseException px) {
-				throw new IndexException("Could not create query.", px);
-			}
+            }
 		}
 		return queries;
 	}

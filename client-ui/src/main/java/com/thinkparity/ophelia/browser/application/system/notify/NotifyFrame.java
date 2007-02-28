@@ -8,11 +8,11 @@ package com.thinkparity.ophelia.browser.application.system.notify;
 
 import java.awt.AWTException;
 import java.awt.Dimension;
-import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Rectangle;
 
 import com.thinkparity.codebase.swing.AbstractJDialog;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.Dimensions;
@@ -25,8 +25,18 @@ import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
  */
 public class NotifyFrame extends AbstractJDialog {
 
+    /** The number of pixels to adjust the y location of the panel by when animating. */
+    private static final int ANIMATION_Y_LOCATION_ADJUSTMENT;
+
     /** The <code>NotifyFrame</code> singleton instance. */
     private static NotifyFrame frame;
+
+    /** The notify frame's <code>NotifyAnimator</code>. */
+    private final NotifyAnimator notifyAnimator;
+
+    static {
+        ANIMATION_Y_LOCATION_ADJUSTMENT = -3;
+    }
 
     /**
      * Test the notification display.
@@ -38,6 +48,7 @@ public class NotifyFrame extends AbstractJDialog {
         if (null == frame) {
             try {
                 frame = new NotifyFrame();
+                frame.setLocation(frame.getFinalLocation());
             } catch (final AWTException awtx) {
                 throw new BrowserException("Could not instantiate notification dialogue.", awtx);
             }
@@ -65,7 +76,7 @@ public class NotifyFrame extends AbstractJDialog {
         if (null == frame) {
             try {
                 frame = new NotifyFrame();
-                frame.setLocation(frame.getDefaultLocation());
+                frame.setLocation(frame.getStartLocation());
             } catch (final AWTException awtx) {
                 throw new BrowserException("Could not instantiate notification dialogue.", awtx);
             }
@@ -75,10 +86,20 @@ public class NotifyFrame extends AbstractJDialog {
         }
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                if (frame.isVisible())
+                if (frame.isVisible()) {
                     frame.toFront();
-                else
+                } else {
+                    frame.setLocation(frame.getStartLocation());
+                    frame.setAlwaysOnTop(false);
                     frame.setVisible(true);
+                    frame.toFront();
+                    frame.notifyAnimator.slideIn(ANIMATION_Y_LOCATION_ADJUSTMENT,
+                            frame.getFinalLocation().y, new Runnable() {
+                                public void run() {
+                                    frame.setAlwaysOnTop(true);
+                                }
+                    });
+                }
             }
         });
     }
@@ -109,6 +130,7 @@ public class NotifyFrame extends AbstractJDialog {
      */
     private NotifyFrame() throws AWTException {
         super(null, Boolean.FALSE, "");
+        this.notifyAnimator = new NotifyAnimator(this);
         initComponents();
         new NativeSkin().roundCorners(this, Dimensions.BrowserWindow.CORNER_SIZE);
         getRootPane().setBorder(new WindowBorder2());
@@ -123,18 +145,29 @@ public class NotifyFrame extends AbstractJDialog {
     }
 
     /**
-     * Get the default location for the notify frame.
+     * Get the final location for the notify frame.
      * This will be bottom right, accounting for the location of the taskbar.
      * 
-     * @return The location for the frame.
+     * @return The final location for the frame.
      */
-    private Point getDefaultLocation() {
-        final GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        final Rectangle maxBounds = env.getMaximumWindowBounds();
+    private Point getFinalLocation() {
+        final Point location = getStartLocation();
+        location.y -= getSize().height;
+        return location;
+    }
+
+    /**
+     * Get the start location for the notify frame.
+     * This will be bottom right, accounting for the location of the taskbar.
+     * 
+     * @return The start location for the frame.
+     */
+    private Point getStartLocation() {
+        final Rectangle maxBounds = SwingUtil.getPrimaryDesktopBounds();   
         final Dimension windowSize = getSize();
         final Point location = new Point(
                 maxBounds.x + maxBounds.width - windowSize.width - 1,
-                maxBounds.y + maxBounds.height - windowSize.height - 1);
+                maxBounds.y + maxBounds.height - 1);
         return location;
     }
 

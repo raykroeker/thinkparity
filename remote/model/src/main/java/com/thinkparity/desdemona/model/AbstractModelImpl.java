@@ -41,6 +41,7 @@ import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
 import com.thinkparity.desdemona.model.archive.ArchiveModel;
 import com.thinkparity.desdemona.model.archive.InternalArchiveModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
+import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
 import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
@@ -410,9 +411,8 @@ public abstract class AbstractModelImpl
      * 
      * @return The parity artifact interface.
      */
-	protected ArtifactModel getArtifactModel() {
-		final ArtifactModel artifactModel = ArtifactModel.getModel(session);
-		return artifactModel;
+	protected InternalArtifactModel getArtifactModel() {
+		return ArtifactModel.getInternalModel(getContext(), session);
 	}
 
     /**
@@ -868,5 +868,75 @@ public abstract class AbstractModelImpl
         for (final ClientSession session : getClientSessions(userId)) {
             process(session, query);
         }        
+    }
+
+    /**
+     * Determine if a list contains a user.
+     * 
+     * @param <U>
+     *            A type of <code>User</code>.
+     * @param list
+     *            A <code>User</code> <code>List</code>.
+     * @param o
+     *            A <code>User</code>
+     * @return True if the list contains the user.
+     */
+    protected final <T extends User> boolean contains(final List<T> list,
+            final JabberId id) {
+        return -1 < indexOf(list, id);
+    }
+
+    /**
+     * Determine if a list contains a user.
+     * 
+     * @param <U>
+     *            A type of <code>User</code>.
+     * @param list
+     *            A <code>User</code> <code>List</code>.
+     * @param o
+     *            A <code>User</code>
+     * @return True if the list contains the user.
+     */
+    protected final <T extends User, U extends User> boolean contains(
+            final List<T> list, final U o) {
+        return -1 < indexOf(list, o);
+    }
+
+    /**
+     * Obtain the index of a user in the list.
+     * 
+     * @param <U>
+     *            A type of <code>User</code>.
+     * @param list
+     *            A user <code>List</code>.
+     * @param o
+     *            A <code>User</code>
+     * @return The index of the first user in the list with a matching id; or -1
+     *         if no such user exists.
+     */
+    protected final <T extends User, U extends User> int indexOf(
+            final List<T> users, final U user) {
+        return indexOf(users, user.getId());
+    }
+
+    /**
+     * Obtain the index of a user in the list with the given id.
+     * 
+     * @param <U>
+     *            A type of <code>User</code>.
+     * @param list
+     *            A user <code>List</code>.
+     * @param id
+     *            A user id <code>JabberId</code>.
+     * @return The index of the first user in the list with a matching id; or -1
+     *         if no such user exists.
+     */
+    protected final <U extends User> int indexOf(final List<U> list,
+            final JabberId o) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getId().equals(o))
+                return i;
+        }
+        return -1;
     }
 }

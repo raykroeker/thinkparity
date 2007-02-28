@@ -45,11 +45,10 @@ public class UserSql extends AbstractSql {
 
     /** Sql to read all users. */
     private static final String SQL_READ =
-            new StringBuffer("select * ")
-            .append("from jiveUser JU ")
-            .append("inner join PARITY_USER_PROFILE PUP on JU.USERNAME=PUP.USERNAME ")
-            .append("order by JU.USERNAME")
-            .toString();
+        new StringBuffer("select PU.USERNAME,PU.USER_ID ")
+        .append("from PARITY_USER PU ")
+        .append("order by PU.USERNAME asc")
+        .toString();
 
     /** Sql to read an archive user's credentials. */
     private static final String SQL_READ_ARCHIVE_CREDENTIALS =
@@ -70,10 +69,9 @@ public class UserSql extends AbstractSql {
         
     /** Sql to read a user. */
     private static final String SQL_READ_BY_USER_ID =
-            new StringBuffer("select JU.USERNAME ")
-            .append("from jiveUser JU ")
-            .append("where JU.USERNAME=? ")
-            .append("order by JU.USERNAME")
+            new StringBuffer("select PU.USERNAME,PU.USER_ID ")
+            .append("from PARITY_USER PU ")
+            .append("where PU.USERNAME=?")
             .toString();
 
     /** Sql to read email addresses. */
@@ -536,6 +534,7 @@ public class UserSql extends AbstractSql {
      */
     User extract(final HypersonicSession session) {
         final User user = new User();
+        user.setLocalId(session.getLong("USER_ID"));
         user.setId(JabberIdBuilder.parseUsername(session.getString("USERNAME")));
         return user;
     }

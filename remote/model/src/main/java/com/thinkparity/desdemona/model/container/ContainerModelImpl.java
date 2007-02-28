@@ -25,6 +25,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
+import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.session.Session;
 
@@ -50,75 +51,6 @@ class ContainerModelImpl extends AbstractModelImpl {
     ContainerModelImpl(final Session session) {
         super(session);
         this.artifactSql = new ArtifactSql();
-    }
-
-    /**
-     * Determine if a list contains a user.
-     * 
-     * @param <U>
-     *            A type of <code>User</code>.
-     * @param list
-     *            A <code>User</code> <code>List</code>.
-     * @param o
-     *            A <code>User</code>
-     * @return True if the list contains the user.
-     */
-    public <T extends User> boolean contains(
-            final List<T> list, final JabberId id) {
-        return -1 < indexOf(list, id);
-    }
-
-    /**
-     * Determine if a list contains a user.
-     * 
-     * @param <U>
-     *            A type of <code>User</code>.
-     * @param list
-     *            A <code>User</code> <code>List</code>.
-     * @param o
-     *            A <code>User</code>
-     * @return True if the list contains the user.
-     */
-    public <T extends User, U extends User> boolean contains(
-            final List<T> list, final U o) {
-        return -1 < indexOf(list, o);
-    }
-
-    /**
-     * Obtain the index of a user in the list.
-     * 
-     * @param <U>
-     *            A type of <code>User</code>.
-     * @param list
-     *            A user <code>List</code>.
-     * @param o
-     *            A <code>User</code>
-     * @return The index of the first user in the list with a matching id; or -1
-     *         if no such user exists.
-     */
-    public <T extends User, U extends User> int indexOf(final List<T> users,
-            final U user) {
-        return indexOf(users, user.getId());
-    }
-
-    /**
-     * Obtain the index of a user in the list with the given id.
-     * 
-     * @param <U>
-     *            A type of <code>User</code>.
-     * @param list
-     *            A user <code>List</code>.
-     * @param id
-     *            A user id <code>JabberId</code>.
-     * @return The index of the first user in the list with a matching id; or -1
-     *         if no such user exists.
-     */
-    public <U extends User> int indexOf(final List<U> list, final JabberId o) {
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getId().equals(o))
-                return i;
-        }
-        return -1;
     }
 
     protected final <T extends User, U extends User> void assertNotContains(
@@ -171,8 +103,13 @@ class ContainerModelImpl extends AbstractModelImpl {
             }
             artifactPublishedEvent.setTeamUserIds(enqueueTo);
             enqueueEvent(session.getJabberId(), enqueueTo, artifactPublishedEvent);
-
+            // add only publisher to the team
+            final InternalArtifactModel artifactModel = getArtifactModel();
             final Artifact artifact = getArtifactModel().read(version.getArtifactUniqueId());
+            final List<TeamMember> localTeam = artifactModel.readTeam(userId, artifact.getId());
+            final User publishedByUser = getUserModel().read(publishedBy);
+            if (!contains(localTeam, publishedByUser))
+                artifactModel.addTeamMember(userId, artifact.getId(), publishedByUser.getLocalId());
             artifactSql.updateKeyHolder(artifact.getId(),
                     User.THINK_PARITY.getId().getUsername(), publishedBy);
         } catch (final Throwable t) {

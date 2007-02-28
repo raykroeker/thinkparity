@@ -5,7 +5,6 @@ package com.thinkparity.desdemona.model.artifact;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,7 +12,7 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
-import com.thinkparity.codebase.model.artifact.ArtifactState;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
@@ -24,7 +23,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedE
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
-import com.thinkparity.desdemona.model.io.sql.ArtifactSubscriptionSql;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.user.UserModel;
 
@@ -39,16 +37,12 @@ class ArtifactModelImpl extends AbstractModelImpl {
     /** Artifact sql io. */
 	private final ArtifactSql artifactSql;
 
-    /** Artifact subscription sql io. */
-	private final ArtifactSubscriptionSql artifactSubscriptionSql;
-
 	/**
 	 * Create a ArtifactModelImpl.
 	 */
 	ArtifactModelImpl(final Session session) {
 		super(session);
 		this.artifactSql = new ArtifactSql();
-		this.artifactSubscriptionSql = new ArtifactSubscriptionSql();
 	}
 
     /**
@@ -81,6 +75,33 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
+    // TODO-javadoc InternalArtifactModel#addTeamMember()
+    void addTeamMember(final JabberId userId, final Long artifactId,
+            final Long teamMemberId) {
+        try {
+            assertIsAuthenticatedUser(userId);
+
+            artifactSql.createTeamRel(artifactId, teamMemberId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    // TODO-javadoc InternalArtifactModel#addTeamMember()
+    void removeTeamMember(final JabberId userId, final Long artifactId,
+            final Long teamMemberId) {
+        try {
+            assertIsAuthenticatedUser(userId);
+
+            artifactSql.deleteTeamRel(artifactId, teamMemberId);
+            if (0 == artifactSql.readTeamRelCount(artifactId)) {
+                artifactSql.delete(artifactId);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
 	void confirmReceipt(final JabberId userId, final UUID uniqueId,
             final Long versionId, final JabberId publishedBy,
             final Calendar publishedOn, final List<JabberId> publishedTo,
@@ -96,6 +117,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.logVariable("receivedOn", receivedOn);
         try {
             assertIsAuthenticatedUser(userId);
+
             if (getUserModel().isArchive(userId)) {
                 logInfo("Ignoring archive user {0}.", userId);
             } else {
@@ -110,13 +132,20 @@ class ArtifactModelImpl extends AbstractModelImpl {
                 enqueueFor.add(publishedBy);
                 enqueueFor.addAll(publishedTo);
                 enqueueEvent(userId, enqueueFor, received);
+                // add user to the team
+                final InternalArtifactModel artifactModel = getArtifactModel();
+                final Artifact artifact = getArtifactModel().read(uniqueId);
+                final List<TeamMember> localTeam = artifactModel.readTeam(userId, artifact.getId());
+                final User receivedByUser = getUserModel().read(receivedBy);
+                if (!contains(localTeam, receivedByUser))
+                    artifactModel.addTeamMember(userId, artifact.getId(), receivedByUser.getLocalId());
             }
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
-	/**
+    /**
      * Create an artifact; and add the creator to the team immediately. Note
      * that we are deliberately not using the model api to add a team member
      * because we do not want to fire off notifications.
@@ -134,8 +163,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logVariable("uniqueId", uniqueId);
         logVariable("createdOn", createdOn);
 		try {
-			artifactSql.insert(uniqueId, userId, ArtifactState.ACTIVE, session
-                    .getJabberId(), createdOn);
+			artifactSql.create(uniqueId, userId, session.getJabberId(), createdOn);
 			return read(uniqueId);
 		} catch (final Throwable t) {
 		    throw translateError(t);
@@ -168,7 +196,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
      * Delete a draft from an artifact.
      * 
      * @param uniqueId
@@ -198,6 +226,35 @@ class ArtifactModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Delete all drafts for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     */
+    void deleteDrafts(final JabberId userId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            final List<UUID> uniqueIds = artifactSql.readDraftUniqueIds(userId);
+            final List<TeamMember> teamMembers = new ArrayList<TeamMember>();
+            final List<JabberId> teamIds = new ArrayList<JabberId>();
+            Long artifactId;
+            for (final UUID uniqueId : uniqueIds) {
+                artifactId = artifactSql.readArtifactId(uniqueId);
+                teamMembers.clear();
+                teamMembers.addAll(artifactSql.readTeamRel(artifactId));
+                for (final TeamMember teamMember : teamMembers) {
+                    teamIds.add(teamMember.getId());
+                }
+                deleteDraft(userId, teamIds, uniqueId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
 	 * Obtain a handle to an artifact for a given artifact unique id.
 	 * 
 	 * @param uniqueId
@@ -207,13 +264,13 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logApiId();
 		logVariable("uniqueId", uniqueId);
 		try {
-            return artifactSql.select(uniqueId);
+            return artifactSql.read(uniqueId);
 		} catch (final Throwable t) {
             throw translateError(t);
 		}
 	}
 
-    /**
+	/**
      * Read the key holder for an artifact.
      * 
      * @param userId
@@ -234,28 +291,18 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<JabberId> readTeamIds(final UUID uniqueId) {
-        logApiId();
-		logVariable("uniqueId", uniqueId);
-		try {
-			final Artifact artifact = read(uniqueId);
-            if (null == artifact) {
-                return Collections.emptyList();
-            } else {
-                final List<ArtifactSubscription> subscriptions =
-                    artifactSubscriptionSql.select(artifact.getId());
-                final List<JabberId> teamIds = new ArrayList<JabberId>(subscriptions.size());
-                for (final ArtifactSubscription subscription : subscriptions) {
-                    teamIds.add(subscription.getJabberId());
-                }
-                return teamIds;
-            }
-		} catch (final Throwable t) {
-			throw translateError(t);
-		}
-	}
+    // TODO-javadoc InternalArtifactModel#readTeam()
+    List<TeamMember> readTeam(final JabberId userId, final Long artifactId) {
+        try {
+            assertIsAuthenticatedUser(userId);
 
-	/**
+            return artifactSql.readTeamRel(artifactId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Remove a user from an artifact's team.
      * 
      * @param uniqueId
@@ -307,4 +354,5 @@ class ArtifactModelImpl extends AbstractModelImpl {
         draftCreated.setCreatedOn(createdOn);
         enqueueEvent(session.getJabberId(), team, draftCreated);
     }
+
 }

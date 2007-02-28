@@ -7,6 +7,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ophelia"/>
 	<classpathentry kind="lib" path="vendor/wildfire/3.0.1/mail.jar"/>
-	<classpathentry kind="lib" path="vendor/wildfire/3.0.1/wildfire.jar"/>
+	<classpathentry kind="lib" path="vendor/wildfire/3.0.1/wildfire.jar" sourcepath="vendor/wildfire/3.0.1/wildfire-sources.jar"/>
 	<classpathentry kind="output" path="target/classes/remote/model"/>
 </classpath>

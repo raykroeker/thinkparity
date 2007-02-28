@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.Artifact;
 
 import com.thinkparity.desdemona.model.AbstractModel;
@@ -32,10 +33,18 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
 		return artifactModel;
 	}
 
+    public static InternalArtifactModel getInternalModel(final Context context,
+            final Session session) {
+        return new InternalArtifactModel(context, session);
+    }
+
     /**
-	 * Create a ArtifactModel.
-	 */
-	private ArtifactModel(final Session session) {
+     * Create ArtifactModel.
+     * 
+     * @param session
+     *            A <code>Session</code>.
+     */
+	protected ArtifactModel(final Session session) {
 		super(new ArtifactModelImpl(session));
 	}
 
@@ -143,12 +152,6 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
             return getImpl().readKeyHolder(userId, uniqueId);
         }
     }
-
-	public List<JabberId> readTeamIds(final UUID uniqueId) {
-		synchronized (getImplLock()) {
-            return getImpl().readTeamIds(uniqueId);
-		}
-	}
 
 	/**
      * Remove a user from an artifact's team.

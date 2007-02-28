@@ -11,7 +11,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.ophelia.model.Constants.Xml;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
-import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.util.xmpp.event.ArtifactListener;
 
@@ -175,22 +174,6 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         method.setParameter("uniqueId", uniqueId);
         return execute(method, Boolean.TRUE).readResultJabberId("keyHolder");
     }
-
-    /**
-     * Read the artifact team member ids.
-     * 
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     * @return A <code>List&lt;JabberId&gt;</code>.
-     */
-	List<JabberId> readTeamIds(final UUID uniqueId) {
-		logger.logApiId();
-		logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod readTeam = new XMPPMethod("artifact:readteamids");
-        readTeam.setParameter("uniqueId", uniqueId);
-        final XMPPMethodResponse response = execute(readTeam, Boolean.TRUE);
-        return response.readResultJabberIds("teamIds");
-	}
 
 	/**
      * Remove a team member from the artifact team.

@@ -24,7 +24,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.UploadMonitor;
-import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -319,9 +318,8 @@ class MigratorModelImpl extends AbstractModelImpl {
      * @return A <code>Product</code>.
      */
     private void createProduct(final JabberId userId, final Product product) {
-        product.setId(new Long(artifactSql.insert(product.getUniqueId(), userId,
-                    ArtifactState.ACTIVE, product.getCreatedBy(),
-                    product.getCreatedOn())));
+        product.setId(new Long(artifactSql.create(product.getUniqueId(), userId,
+                    product.getCreatedBy(), product.getCreatedOn())));
         migratorSql.createProduct(product);
     }
 

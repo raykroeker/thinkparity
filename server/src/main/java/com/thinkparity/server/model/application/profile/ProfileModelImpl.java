@@ -112,8 +112,10 @@ class ProfileModelImpl extends AbstractModelImpl {
         try {
             assertIsAuthenticatedUser(userId);
             final Token existingToken = userSql.readProfileToken(userId);
-            if (null != existingToken)
+            if (null != existingToken) {
                 getQueueModel().deleteEvents(userId);
+                getArtifactModel().deleteDrafts(userId);
+            }
 
             final Token newToken = new Token();
             newToken.setValue(MD5Util.md5Hex(String.valueOf(currentTimeMillis())));

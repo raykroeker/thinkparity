@@ -110,13 +110,9 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Add a team member. This will create the team member relationship in the
-     * distributed network with a pending state.
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#addTeamMember(java.util.UUID,
+     *      java.util.List, com.thinkparity.codebase.jabber.JabberId)
      * 
-     * @param artifactId
-     *            An artifact id.
-     * @param jabberId
-     *            A jabber id.
      */
     public void addTeamMember(final UUID uniqueId, final List<JabberId> team,
             final JabberId teamMemberId) {
@@ -1280,12 +1276,9 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Remove a team member from the artifact team.
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#removeTeamMember(java.util.UUID,
+     *      java.util.List, com.thinkparity.codebase.jabber.JabberId)
      * 
-     * @param uniqueId
-     *            An artifact unique id.
-     * @param userId
-     *            A user id <code>JabberId</code>.
      */
     public void removeTeamMember(final UUID uniqueId, final List<JabberId> team,
             final JabberId teamMemberId) {

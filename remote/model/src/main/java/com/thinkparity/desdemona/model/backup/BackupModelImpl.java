@@ -15,6 +15,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.UploadMonitor;
+import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -22,6 +23,7 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
@@ -80,6 +82,12 @@ final class BackupModelImpl extends AbstractModelImpl {
                 final Long artifactId = artifactModel.readId(uniqueId);
                 artifactModel.applyFlagArchived(artifactId);
             }
+            // remove user from the team
+            final com.thinkparity.desdemona.model.artifact.InternalArtifactModel
+                    artifactModel = getArtifactModel();
+            final Artifact artifact = getArtifactModel().read(uniqueId);
+            final User user = getUserModel().read(userId);
+            artifactModel.removeTeamMember(userId, artifact.getId(), user.getLocalId());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -159,20 +167,30 @@ final class BackupModelImpl extends AbstractModelImpl {
         try {
             assertIsAuthenticatedUser(userId);
 
-            final JabberId archiveId = readArchiveId(userId);
-            if (null == archiveId) {
-                logger.logInfo("No archive exists for user \"{0}\".", userId.getUsername());
+            if (getUserModel().isArchive(userId)) {
+                logInfo("Ignoring archive user {0}.", userId);
             } else {
-                final InternalArtifactModel artifactModel =
-                    getModelFactory(archiveId).getArtifactModel(getClass());
-                Assert.assertTrue(artifactModel.doesExist(uniqueId),
-                        "Artifact {0} does not exist for user {1} in archive {2}.",
-                        uniqueId, userId.getUsername(),
-                        archiveId.getUsername());
-                final Long artifactId = artifactModel.readId(uniqueId);
-                final InternalContainerModel containerModel =
-                    getModelFactory(archiveId).getContainerModel(getClass());
-                containerModel.delete(artifactId);
+                final JabberId archiveId = readArchiveId(userId);
+                if (null == archiveId) {
+                    logger.logInfo("No archive exists for user \"{0}\".", userId.getUsername());
+                } else {
+                    final InternalArtifactModel artifactModel =
+                        getModelFactory(archiveId).getArtifactModel(getClass());
+                    Assert.assertTrue(artifactModel.doesExist(uniqueId),
+                            "Artifact {0} does not exist for user {1} in archive {2}.",
+                            uniqueId, userId.getUsername(),
+                            archiveId.getUsername());
+                    final Long artifactId = artifactModel.readId(uniqueId);
+                    final InternalContainerModel containerModel =
+                        getModelFactory(archiveId).getContainerModel(getClass());
+                    containerModel.delete(artifactId);
+                }
+                // remove user from the team
+                final com.thinkparity.desdemona.model.artifact.InternalArtifactModel
+                        artifactModel = getArtifactModel();
+                final Artifact artifact = getArtifactModel().read(uniqueId);
+                final User user = getUserModel().read(userId);
+                artifactModel.removeTeamMember(userId, artifact.getId(), user.getLocalId());
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -281,6 +299,12 @@ final class BackupModelImpl extends AbstractModelImpl {
                         archiveId.getUsername());
                 artifactModel.removeFlagArchived(artifactId);
             }
+            // add user to the team
+            final com.thinkparity.desdemona.model.artifact.InternalArtifactModel
+                    artifactModel = getArtifactModel();
+            final Artifact artifact = getArtifactModel().read(uniqueId);
+            final User user = getUserModel().read(userId);
+            artifactModel.addTeamMember(userId, artifact.getId(), user.getLocalId());
         } catch (final Throwable t) {
             throw translateError(t);
         }

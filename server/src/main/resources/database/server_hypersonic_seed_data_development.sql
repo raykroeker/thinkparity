@@ -22,110 +22,136 @@ insert into PARITY_FEATURE (FEATURE)
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('thinkparity','parity',0,0);
+insert into PARITY_USER(USERNAME)
+    values('thinkparity');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('thinkparity', 'thinkParity@thinkparity.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('thinkparity','What is my username?','thinkparity',false,'<com.thinkparity.codebase.model.user.UserVCard><name>thinkParity Solutions Inc.</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('thinkparity','What is my username?','thinkparity',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>thinkParity Solutions Inc.</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('asahebjam','parity',0,0);
+insert into PARITY_USER(USERNAME)
+    values('asahebjam');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('asahebjam', 'asahebjam@gmail.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('asahebjam','What is my username?','asahebjam',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Amir Sahebjam</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('asahebjam','What is my username?','asahebjam',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Amir Sahebjam</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
     values ('asahebjam', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('omid','parity',0,0);
+insert into PARITY_USER(USERNAME)
+    values('omid');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('omid', 'omid@thinkparity.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('omid','What is my username?','omid',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Omid Ejtemai</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('omid','What is my username?','omid',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Omid Ejtemai</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
     values ('omid', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('rkroeker','parity',0,0);
+insert into PARITY_USER(USERNAME)
+    values('rkroeker');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('rkroeker', 'raymond@thinkparity.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('rkroeker','What is my username?','rkroeker',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Raymond Kroeker</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('rkroeker','What is my username?','rkroeker',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Raymond Kroeker</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
     values ('rkroeker', 1000);
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('rkroeker-archive','parity',0,0);
+insert into PARITY_USER(USERNAME)
+    values('rkroeker-archive');
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('rkroeker-archive','What is my username?','archive.rkroeker',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Raymond Kroeker Archive</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('rkroeker-archive','What is my username?','archive.rkroeker',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Raymond Kroeker Archive</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_ARCHIVE_REL (USERNAME,ARCHIVENAME)
     values('rkroeker', 'rkroeker-archive');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('robert','parity',0,0);
+insert into PARITY_USER(USERNAME)
+    values('robert');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('robert', 'robert@thinkparity.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('robert','What is my username?','robert',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Robert MacMartin</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('robert','What is my username?','robert',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Robert MacMartin</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
 	values ('robert', 1000);
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('robert-archive','parity',0,0);
+insert into PARITY_USER(USERNAME)
+    values('robert-archive');
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('robert-archive','What is my username?','archive.robert',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Robert MacMartin Archive</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('robert-archive','What is my username?','archive.robert',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Robert MacMartin Archive</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_ARCHIVE_REL (USERNAME,ARCHIVENAME)
     values('robert', 'robert-archive');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('djohnson','parity',0,0);
+insert into PARITY_USER(USERNAME)
+    values('djohnson');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('djohnson', 'djohnson@thinkparity.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('djohnson','What is my username?','djohnson',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Don Johnson</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('djohnson','What is my username?','djohnson',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Don Johnson</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
     values ('djohnson', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('emorrison','parity',0,0);
+insert into PARITY_USER(USERNAME)
+    values('emorrison');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('emorrison', 'emorrison@thinkparity.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('emorrison','What is my username?','emorrison',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Emily Morrison</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('emorrison','What is my username?','emorrison',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Emily Morrison</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
     values ('emorrison', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('kmfarland','parity',0,0);
+insert into PARITY_USER(USERNAME)
+    values('kmfarland');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('kmfarland', 'kmfarland@thinkparity.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('kmfarland','What is my username?','kmfarland',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Kevin MacFarland</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('kmfarland','What is my username?','kmfarland',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Kevin MacFarland</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
     values ('kmfarland', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('strimnell','parity',0,0);
+insert into PARITY_USER(USERNAME)
+    values('strimnell');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('strimnell', 'strimnell@thinkparity.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('strimnell','What is my username?','strimnell',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Sarah Trimnell</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('strimnell','What is my username?','strimnell',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Sarah Trimnell</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
     values ('strimnell', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('kenjiro','parity',0,0);
+insert into PARITY_USER(USERNAME)
+    values('kenjiro');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('kenjiro', 'kenjiro@thinkparity.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('kenjiro','What is my username?','kenjiro',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Kenjiro MacMartin</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('kenjiro','What is my username?','kenjiro',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Kenjiro MacMartin</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
     values ('kenjiro', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('masako','parity',0,0);
+insert into PARITY_USER(USERNAME)
+    values('masako');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('masako', 'masako@thinkparity.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('masako','What is my username?','masako',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Masako Saito</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('masako','What is my username?','masako',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Masako Saito</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
     values ('masako', 1000);
 
@@ -141,7 +167,7 @@ insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('ahalaby', 'avi@epiphyte.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('ahalaby','What is my username?','ahalaby',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Avi Halaby</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('ahalaby','What is my username?','ahalaby',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Avi Halaby</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
     values ('ahalaby', 1000);
 
@@ -150,7 +176,7 @@ insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('rwaterhouse', 'randy@epiphyte.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('rwaterhouse','What is my username?','rwaterhouse',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Randy Waterhouse</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('rwaterhouse','What is my username?','rwaterhouse',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Randy Waterhouse</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
     values ('rwaterhouse', 1000);
 
@@ -159,13 +185,13 @@ insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('ashaftoe', 'amy@sempermarine.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('ashaftoe','What is my username?','ashaftoe',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Amy Shaftoe</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('ashaftoe','What is my username?','ashaftoe',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Amy Shaftoe</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
     values ('ashaftoe', 1000);
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('ashaftoe-archive','parity',0,0);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('ashaftoe-archive','What is my username?','archive.ashaftoe',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Amy Shaftoe Archive</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('ashaftoe-archive','What is my username?','archive.ashaftoe',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Amy Shaftoe Archive</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_ARCHIVE_REL (USERNAME,ARCHIVENAME)
     values('ashaftoe', 'ashaftoe-archive');
 
@@ -174,7 +200,7 @@ insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('brussell', 'bertrand@thinkparity.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('brussell','What is my username?','brussell',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Bertrand Russell</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('brussell','What is my username?','brussell',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Bertrand Russell</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
 	values ('brussell', 1000);
 
@@ -183,7 +209,7 @@ insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('gdengo', 'goto@gotoengineering.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
-    values('gdengo','What is my username?','gdengo',false,'<com.thinkparity.codebase.model.user.UserVCard><name>Goto Dengo</name></com.thinkparity.codebase.model.user.UserVCard>');
+    values('gdengo','What is my username?','gdengo',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Goto Dengo</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
     values ('gdengo', 1000);
 

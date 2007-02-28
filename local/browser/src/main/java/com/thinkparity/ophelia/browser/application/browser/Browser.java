@@ -1093,7 +1093,15 @@ public class Browser extends AbstractApplication {
      *            A <code>Boolean</code> indicating to maximize or unmaximize.
      */
     public void maximize(final Boolean maximize) {
-        mainWindow.maximizeMainWindow(maximize);
+        if (maximize != isBrowserWindowMaximized()) {
+            int state = mainWindow.getExtendedState();
+            if (maximize) {
+                state |= JFrame.MAXIMIZED_BOTH;
+            } else {
+                state &= ~JFrame.MAXIMIZED_BOTH;
+            }
+            mainWindow.setExtendedState(state);
+        }
     }
 
 	/**

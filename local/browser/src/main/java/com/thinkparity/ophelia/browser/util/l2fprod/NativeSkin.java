@@ -70,7 +70,7 @@ public final class NativeSkin {
 	public void roundCorners(final Window window) {
         roundCorners(window, 5);
 	}
-    
+
     /**
      * Apply rounded corners to the window.
      * 
@@ -83,6 +83,20 @@ public final class NativeSkin {
         if (isNativeSkin()) {
             final Region region = NATIVE_SKIN.createRoundRectangleRegion(0, 0,
                     window.getWidth() + 1, window.getHeight() + 1, size, size);
+            NATIVE_SKIN.setWindowRegion(window, region, true);
+        }
+    }
+
+    /**
+     * Apply square corners to the window (ie. disable rounded corners).
+     * 
+     * @param window
+     *            A <code>Window</code>.
+     */
+    public void squareCorners(final Window window) {
+        if (isNativeSkin()) {
+            final Region region = NATIVE_SKIN.createRectangleRegion(0, 0,
+                    window.getWidth() + 1, window.getHeight() + 1);
             NATIVE_SKIN.setWindowRegion(window, region, true);
         }
     }

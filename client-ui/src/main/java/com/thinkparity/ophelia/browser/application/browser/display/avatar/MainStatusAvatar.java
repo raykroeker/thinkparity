@@ -5,6 +5,14 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Window;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
+
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.profile.Profile;
@@ -36,16 +44,16 @@ public class MainStatusAvatar extends Avatar {
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
-    
+
     /** The links */
     private final MainStatusAvatarLinks links;
-    
+
     /** The resize offset size in the x direction. */
     private int resizeOffsetX;    
-    
+
     /** The resize offset size in the y direction. */
     private int resizeOffsetY;
-    
+
     /** A thinkParity user's profile. */
     private Profile profile;
 
@@ -54,6 +62,7 @@ public class MainStatusAvatar extends Avatar {
         super(AvatarId.MAIN_STATUS.toString());
         initComponents();
         installResizer();
+        installAncestorWindowStateListener();
         this.links = new MainStatusAvatarLinks(
                 new javax.swing.JLabel[] {linkIntroJLabel, link2IntroJLabel},
                 new javax.swing.JLabel[] {linkJLabel, link2JLabel} );
@@ -89,7 +98,7 @@ public class MainStatusAvatar extends Avatar {
             reloadCustom();
             reloadLinkActions();  
             reloadUser();
-            reloadConnection(); 
+            reloadConnection();
         }
     }
 
@@ -123,16 +132,18 @@ public class MainStatusAvatar extends Avatar {
                     Browser.MainStatus.BG_GRAD_FINISH);
             
             // These images help to make the rounded corner look good.
-            g2.drawImage(Images.BrowserTitle.BROWSER_BOTTOM_LEFT_INNER,
-                    0,
-                    getSize().height - Images.BrowserTitle.BROWSER_BOTTOM_LEFT_INNER.getHeight(),
-                    Images.BrowserTitle.BROWSER_BOTTOM_LEFT_INNER.getWidth(),
-                    Images.BrowserTitle.BROWSER_BOTTOM_LEFT_INNER.getHeight(), this);
-            g2.drawImage(Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER,
-                    getSize().width - Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER.getWidth(),
-                    getSize().height - Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER.getHeight(),
-                    Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER.getWidth(),
-                    Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER.getHeight(), this);
+            if (!getController().isBrowserWindowMaximized()) {
+                g2.drawImage(Images.BrowserTitle.BROWSER_BOTTOM_LEFT_INNER,
+                        0,
+                        getSize().height - Images.BrowserTitle.BROWSER_BOTTOM_LEFT_INNER.getHeight(),
+                        Images.BrowserTitle.BROWSER_BOTTOM_LEFT_INNER.getWidth(),
+                        Images.BrowserTitle.BROWSER_BOTTOM_LEFT_INNER.getHeight(), this);
+                g2.drawImage(Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER,
+                        getSize().width - Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER.getWidth(),
+                        getSize().height - Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER.getHeight(),
+                        Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER.getWidth(),
+                        Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER.getHeight(), this);
+            }
         }
         finally { g2.dispose(); }
     }
@@ -220,17 +231,8 @@ public class MainStatusAvatar extends Avatar {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         javax.swing.JLabel fillJLabel;
-        javax.swing.JLabel resizeJLabel;
 
-        customJLabel = new javax.swing.JLabel();
-        linkIntroJLabel = new javax.swing.JLabel();
-        linkJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-        link2IntroJLabel = new javax.swing.JLabel();
-        link2JLabel = LabelFactory.createLink("",Fonts.DefaultFont);
         fillJLabel = new javax.swing.JLabel();
-        userJLabel = new javax.swing.JLabel();
-        connectionJLabel = new javax.swing.JLabel();
-        resizeJLabel = new javax.swing.JLabel();
 
         setBorder(new TopBorder(Colors.Browser.MainStatus.TOP_BORDER));
         customJLabel.setFont(Fonts.DefaultFont);
@@ -325,6 +327,51 @@ public class MainStatusAvatar extends Avatar {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Install a window state listener on the ancestor of the component.
+     * If the ancestor window is maximized then the resize control will be disabled.
+     */
+    private void installAncestorWindowStateListener() {
+        addAncestorListener(new AncestorListener() {
+            public void ancestorAdded(final AncestorEvent event) {
+                final Window window = SwingUtilities.getWindowAncestor(MainStatusAvatar.this);
+                if (null != window) {
+                    installWindowStateListener(window);
+                    resizeJLabel.setVisible(!SwingUtil.isInMaximizedWindow(MainStatusAvatar.this));
+                }
+            }
+            public void ancestorMoved(final AncestorEvent event) {}
+            public void ancestorRemoved(final AncestorEvent event) {}
+        });
+    }
+
+    /**
+     * Install a window state listener.
+     * If the ancestor window is maximized then the resize control will be disabled.
+     * 
+     * @param window
+     *            The <code>Window</code>.
+     */
+    private void installWindowStateListener(final Window window) {
+        window.addWindowStateListener(new WindowStateListener() {
+            public void windowStateChanged(final WindowEvent e) {
+                if (e.getID() == WindowEvent.WINDOW_STATE_CHANGED) {
+                    resizeJLabel.setVisible(!isMaximized(e));
+                }
+            }
+        });
+    }
+
+    /**
+     * Determine if the window event indicates a maximized JFrame window.
+     * 
+     * @param e
+     *            A <code>WindowEvent</code>.
+     */
+    private Boolean isMaximized(final WindowEvent e) {
+        return (e.getNewState() & JFrame.MAXIMIZED_BOTH) > 0;
+    }
+
     private void link2JLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_link2JLabelMousePressed
         links.linkJLabelMousePressed(e, 1);
     }//GEN-LAST:event_link2JLabelMousePressed
@@ -354,7 +401,7 @@ public class MainStatusAvatar extends Avatar {
         }
         connectionJLabel.setText(connectionText);
     }
-    
+
     /**
      * Reload the custom status message.
      *
@@ -372,14 +419,14 @@ public class MainStatusAvatar extends Avatar {
             }
         }
     }
-    
+
     /**
      * Reload the link messages.
      */
     private void reloadLinkActions() {
         links.reload(getInputLinkAction());
     }
-    
+
     /**
      * Reload the user name.
      */
@@ -420,13 +467,14 @@ public class MainStatusAvatar extends Avatar {
     }//GEN-LAST:event_resizeJLabelMouseReleased
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel connectionJLabel;
-    private javax.swing.JLabel customJLabel;
-    private javax.swing.JLabel link2IntroJLabel;
-    private javax.swing.JLabel link2JLabel;
-    private javax.swing.JLabel linkIntroJLabel;
-    private javax.swing.JLabel linkJLabel;
-    private javax.swing.JLabel userJLabel;
+    private final javax.swing.JLabel connectionJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel customJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel link2IntroJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel link2JLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel linkIntroJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel linkJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel resizeJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel userJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 
     public enum DataKey { PROFILE, CONNECTION, CUSTOM_MESSAGE, CUSTOM_MESSAGE_ARGUMENTS, LINK_ACTION }

@@ -91,16 +91,18 @@ public class BrowserMenuBar extends JMenuBar {
                     com.thinkparity.ophelia.browser.Constants.Colors.Browser.MainTitleTop.BG_GRAD_FINISH);
             
             // These images help to make the rounded corner look good.
-            g2.drawImage(Images.BrowserTitle.BROWSER_TOP_LEFT_INNER,
-                    0,
-                    0,
-                    Images.BrowserTitle.BROWSER_TOP_LEFT_INNER.getWidth(),
-                    Images.BrowserTitle.BROWSER_TOP_LEFT_INNER.getHeight(), this);
-            g2.drawImage(Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER,
-                    getSize().width - Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
-                    0,
-                    Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
-                    Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getHeight(), this);
+            if (!browser.isBrowserWindowMaximized()) {
+                g2.drawImage(Images.BrowserTitle.BROWSER_TOP_LEFT_INNER,
+                        0,
+                        0,
+                        Images.BrowserTitle.BROWSER_TOP_LEFT_INNER.getWidth(),
+                        Images.BrowserTitle.BROWSER_TOP_LEFT_INNER.getHeight(), this);
+                g2.drawImage(Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER,
+                        getSize().width - Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
+                        0,
+                        Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
+                        Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getHeight(), this);
+            }
         }
         finally { g2.dispose(); }
     }

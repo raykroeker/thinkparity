@@ -13,6 +13,8 @@ import java.util.Stack;
 
 import javax.swing.border.AbstractBorder;
 
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Images;
 
@@ -106,26 +108,28 @@ public class WindowBorder2 extends AbstractBorder {
         g.drawLine(0, height - 1, width - 1, height - 1);   // bottom line
         
         // These images put borders on rounded corners.
-        g.drawImage(Images.BrowserTitle.BROWSER_TOP_LEFT_OUTER,
-                0,
-                0,
-                Images.BrowserTitle.BROWSER_TOP_LEFT_OUTER.getWidth(),
-                Images.BrowserTitle.BROWSER_TOP_LEFT_OUTER.getHeight(), c);
-        g.drawImage(Images.BrowserTitle.BROWSER_BOTTOM_LEFT_OUTER,
-                0,
-                height - Images.BrowserTitle.BROWSER_BOTTOM_LEFT_OUTER.getHeight(),
-                Images.BrowserTitle.BROWSER_BOTTOM_LEFT_OUTER.getWidth(),
-                Images.BrowserTitle.BROWSER_BOTTOM_LEFT_OUTER.getHeight(), c);
-        g.drawImage(Images.BrowserTitle.BROWSER_TOP_RIGHT_OUTER,
-                width - Images.BrowserTitle.BROWSER_TOP_RIGHT_OUTER.getWidth(),
-                0,
-                Images.BrowserTitle.BROWSER_TOP_RIGHT_OUTER.getWidth(),
-                Images.BrowserTitle.BROWSER_TOP_RIGHT_OUTER.getHeight(), c);
-        g.drawImage(Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_OUTER,
-                width - Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_OUTER.getWidth(),
-                height - Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_OUTER.getHeight(),
-                Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_OUTER.getWidth(),
-                Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_OUTER.getHeight(), c);
+        if (!SwingUtil.isInMaximizedWindow(c)) {
+            g.drawImage(Images.BrowserTitle.BROWSER_TOP_LEFT_OUTER,
+                    0,
+                    0,
+                    Images.BrowserTitle.BROWSER_TOP_LEFT_OUTER.getWidth(),
+                    Images.BrowserTitle.BROWSER_TOP_LEFT_OUTER.getHeight(), c);
+            g.drawImage(Images.BrowserTitle.BROWSER_BOTTOM_LEFT_OUTER,
+                    0,
+                    height - Images.BrowserTitle.BROWSER_BOTTOM_LEFT_OUTER.getHeight(),
+                    Images.BrowserTitle.BROWSER_BOTTOM_LEFT_OUTER.getWidth(),
+                    Images.BrowserTitle.BROWSER_BOTTOM_LEFT_OUTER.getHeight(), c);
+            g.drawImage(Images.BrowserTitle.BROWSER_TOP_RIGHT_OUTER,
+                    width - Images.BrowserTitle.BROWSER_TOP_RIGHT_OUTER.getWidth(),
+                    0,
+                    Images.BrowserTitle.BROWSER_TOP_RIGHT_OUTER.getWidth(),
+                    Images.BrowserTitle.BROWSER_TOP_RIGHT_OUTER.getHeight(), c);
+            g.drawImage(Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_OUTER,
+                    width - Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_OUTER.getWidth(),
+                    height - Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_OUTER.getHeight(),
+                    Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_OUTER.getWidth(),
+                    Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_OUTER.getHeight(), c);
+        }
 
         popColour(g);
     }

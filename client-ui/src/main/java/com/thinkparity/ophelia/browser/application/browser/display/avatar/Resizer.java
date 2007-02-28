@@ -12,13 +12,18 @@ import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 import com.thinkparity.codebase.swing.SwingUtil;
 
@@ -32,109 +37,127 @@ import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
  * @version $Revision$
  */
 public class Resizer {
-    
+
     /** Browser */
-    private Browser browser;
-    
+    private final Browser browser;
+
     /** Component */
-    private Component component;
-   
+    private final Component component;
+
     /** Flag to indicate if dragging the centre of the control will cause moving */
-    private Boolean supportMouseMove;
-    
+    private final Boolean supportMouseMove;
+
     /** Resize edges */
-    private ResizeEdges resizeEdges;
-    
+    private final ResizeEdges resizeEdges;
+
     /** Flag to indicate if currently resize dragging. */
     private static Boolean resizeDragging = Boolean.FALSE;
-    
+
     /** Flag to indicate if currently movement dragging. */
     private static Boolean moveDragging = Boolean.FALSE;
-    
+
     /** Flag to indicate if initialized. */
     private Boolean initialized = Boolean.FALSE;
-    
+
     /** Flag to indicate if the resizer is enabled or not. */
     private Boolean enabled = Boolean.TRUE;
-    
+
     /** The original mouse position when start a move. */
     private static Point moveMouseOrigin;
-    
+
     /** The original component position when start a move. */
     private static Point moveComponentOrigin;
 
     /** Resize mode. */
     private ResizeDirection resizeDirection = ResizeDirection.NONE;
-    
+
     /** The resize offset size in the x direction. */
     private static int resizeOffsetX;    
-    
+
     /** The resize offset size in the y direction. */
     private static int resizeOffsetY;
-    
-    /** A list of all components that have listeners. */
-    private final List<Component> components;
-        
+
     /** A map of components to mouse motion adapters. */
-    private Map<Component, MouseMotionAdapter> mouseMotionAdapters;
-    
+    private final Map<Component, MouseMotionAdapter> mouseMotionAdapters;
+
     /** A map of components to mouse adapters. */
-    private Map<Component, MouseAdapter> mouseAdapters; 
-     
+    private final Map<Component, MouseAdapter> mouseAdapters;
+
+    /** A map of JComponent to AncestorListener. */
+    private final Map<JComponent, AncestorListener> ancestorListeners;
+
+    /** A map of Window to WindowStateListener. */
+    private final Map<Window, WindowStateListener> windowStateListeners;
+
     /**
-     * Create a Resizer (to resize the Browser or Avatar).
+     * Create a Resizer to resize the ancestor Window of a JComponent.
      * 
      * @param browser
      *            The browser.
-     * @param component
-     *            The component.
+     * @param jComponent
+     *            The JComponent whose ancestor will be resizable.
      * @param supportMouseMove
      *            Flag to indicate if dragging the centre of the control will cause moving.           
      * @param resizeEdges
      *            The resize edges (eg. top, middle, bottom)
      */
-    public Resizer(final Browser browser, final Component component,
+    public Resizer(final Browser browser, final JComponent jComponent,
             final Boolean supportMouseMove, final ResizeEdges resizeEdges) {
         this.browser = browser;
-        this.component = component;
+        this.component = jComponent;
         this.supportMouseMove = supportMouseMove;
         this.resizeEdges = resizeEdges;
-        this.components = new LinkedList<Component>();
-        this.mouseMotionAdapters = new HashMap<Component, MouseMotionAdapter>(50, 0.75F);
-        this.mouseAdapters = new HashMap<Component, MouseAdapter>(50, 0.75F);
+        this.mouseMotionAdapters = new HashMap<Component, MouseMotionAdapter>();
+        this.mouseAdapters = new HashMap<Component, MouseAdapter>();
+        this.ancestorListeners = new HashMap<JComponent, AncestorListener>();
+        this.windowStateListeners = new HashMap<Window, WindowStateListener>();
         initComponents();
+        installAncestorWindowStateListener(jComponent);
+        setEnabled(!SwingUtil.isInMaximizedWindow(jComponent));
     }
-    
+
     /**
-     * @return Boolean.TRUE if the Resizer is enabled.
-     */
-    public Boolean isEnabled() {
-        return enabled;
-    }
-    
-    /**
-     * Enable or disable the resizer (affects both moving and resizing)
+     * Create a Resizer for a Window.
      * 
-     * @param enabled
-     *          Flag to enable or disable the resizer.
+     * @param browser
+     *            The browser.
+     * @param window
+     *            The Window.
+     * @param supportMouseMove
+     *            Flag to indicate if dragging the centre of the control will cause moving.           
+     * @param resizeEdges
+     *            The resize edges (eg. top, middle, bottom)
      */
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
+    public Resizer(final Browser browser, final Window window,
+            final Boolean supportMouseMove, final ResizeEdges resizeEdges) {
+        this.browser = browser;
+        this.component = window;
+        this.supportMouseMove = supportMouseMove;
+        this.resizeEdges = resizeEdges;
+        this.mouseMotionAdapters = new HashMap<Component, MouseMotionAdapter>();
+        this.mouseAdapters = new HashMap<Component, MouseAdapter>();
+        this.ancestorListeners = new HashMap<JComponent, AncestorListener>();
+        this.windowStateListeners = new HashMap<Window, WindowStateListener>();
+        initComponents();
+        installWindowStateListener(window);
+        setEnabled(!SwingUtil.isInMaximizedWindow(window));
     }
 
     /**
      * Remove all listeners for this resizer.
      */
     public void removeAllListeners() {
-        for(final Component component : components) {
-            final MouseMotionAdapter mouseMotionAdapter = mouseMotionAdapters.get(component);
-            if (null!=mouseMotionAdapter) {
-                component.removeMouseMotionListener(mouseMotionAdapter);
-            }
-            final MouseAdapter mouseAdapter = mouseAdapters.get(component);
-            if (null!=mouseAdapter) {
-                component.removeMouseListener(mouseAdapter);
-            }
+        for (final Entry<Component, MouseMotionAdapter> entry : mouseMotionAdapters.entrySet()) {
+            entry.getKey().removeMouseMotionListener(entry.getValue());
+        }
+        for (final Entry<Component, MouseAdapter> entry : mouseAdapters.entrySet()) {
+            entry.getKey().removeMouseListener(entry.getValue());
+        }
+        for (final Entry<JComponent, AncestorListener> entry : ancestorListeners.entrySet()) {
+            entry.getKey().removeAncestorListener(entry.getValue());
+        }
+        for (final Entry<Window, WindowStateListener> entry : windowStateListeners.entrySet()) {
+            entry.getKey().removeWindowStateListener(entry.getValue());
         }
     }
 
@@ -148,7 +171,7 @@ public class Resizer {
     public void setResizeDragging(final Boolean resizeDragging) {
         Resizer.resizeDragging = resizeDragging;
     }
-          
+
     private void initResize(final java.awt.event.MouseEvent e, final Component component) {
         final Point p = e.getPoint();
         final Dimension d = component.getSize();
@@ -185,7 +208,7 @@ public class Resizer {
         
         adjustCursor(resizeDirection, component);
     }
-    
+
     private ResizeDirection filterAllowedDirections(final ResizeDirection rd) {
         ResizeDirection newDirection = rd;
         
@@ -228,10 +251,10 @@ public class Resizer {
             newDirection = ResizeDirection.NONE;
             break;
         }
-            
+
         return newDirection;
     }
-    
+
     private void adjustCursor(final ResizeDirection resizeDirection, final Component component) {       
         switch (resizeDirection) {
         case NW:
@@ -263,33 +286,27 @@ public class Resizer {
             break;
         }
     }
-    
+
     private void formMouseDraggedMove(final java.awt.event.MouseEvent evt, final Component component) {
         final Component componentToMove = getComponentAncestor(component);
         final Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
         final Point componentLocation = componentToMove.getLocation();
-        
+
         final Point moveOffset = new Point(
                 (mouseLocation.x-moveMouseOrigin.x) - (componentLocation.x-moveComponentOrigin.x),
                 (mouseLocation.y-moveMouseOrigin.y) - (componentLocation.y-moveComponentOrigin.y));
-        
+
         // The following line would almost work, but it creates jittery behavior.
         // final Point moveOffset = new Point(evt.getPoint().x-resizeOffsetX, evt.getPoint().y-resizeOffsetY);
-        
+
         move(componentToMove, moveOffset);
     }
-    
+
     private void formMouseDraggedResize(final java.awt.event.MouseEvent evt, final Component component) {
         Dimension resizeOffset = null;
         Point moveOffset = null;
+        final Window componentAncestor = getComponentAncestor(component);
 
-        final Window componentAncestor;
-        if (component instanceof JDialog || component instanceof BrowserWindow) {
-        	componentAncestor = (Window) component;
-        } else {
-        	componentAncestor = SwingUtilities.getWindowAncestor(component);
-        }
-               
         switch (resizeDirection) {
         case NW:
             moveOffset = new Point(evt.getPoint().x - resizeOffsetX, evt.getPoint().y - resizeOffsetY);
@@ -323,11 +340,11 @@ public class Resizer {
         default:
             break;
         }
-        
+
         // Save the component width (ie. the component that the mouse is dragging in)
         final double oldComponentWidth = component.getSize().getWidth();
         final double oldComponentHeight = component.getSize().getHeight();
-        
+
         // Resize and maybe also move
         if (null != resizeOffset) {
             if (null != moveOffset) {
@@ -336,14 +353,14 @@ public class Resizer {
                 resize(componentAncestor, resizeOffset);
             }
         }
-        
+
         // The width of the control may change when the window is resized.
         if ((resizeDirection == ResizeDirection.NE) ||
             (resizeDirection == ResizeDirection.E) ||
             (resizeDirection == ResizeDirection.SE)) {
             resizeOffsetX += (component.getSize().getWidth() - oldComponentWidth);
         }
-        
+
         // The height of the control may change when the window is resized.
         if ((resizeDirection == ResizeDirection.SW) ||
             (resizeDirection == ResizeDirection.S) ||
@@ -351,7 +368,7 @@ public class Resizer {
             resizeOffsetY += (component.getSize().getHeight() - oldComponentHeight);
         }
     }
-    
+
     /**
      * Resize the component.
      * 
@@ -379,7 +396,7 @@ public class Resizer {
             }
         }
     }
-        
+
     /**
      * Resize and move the component.
      * 
@@ -413,14 +430,14 @@ public class Resizer {
             }
         }
     }
-    
+
     /**
      * Make the corners round.
      */
     private void roundCorners(final Window window) {
     	new NativeSkin().roundCorners(window);
     }
-    
+
     /**
      * Move the component.
      * 
@@ -437,7 +454,7 @@ public class Resizer {
             component.setLocation(location.x, location.y);
         }
     }
-    
+
     /**
      * Adjust size to account for minimum size.
      * 
@@ -460,7 +477,7 @@ public class Resizer {
         
         return adjustedSize;
     }
-    
+
     /**
      * Adjust size and move to account for minimum size.
      * 
@@ -488,7 +505,7 @@ public class Resizer {
         }
         return adjustedSizeAndLocation;
     }
-    
+
     private void formMouseDragged(final java.awt.event.MouseEvent evt, final Component component) {
         if (moveDragging) {
             formMouseDraggedMove(evt, component);
@@ -496,26 +513,26 @@ public class Resizer {
             formMouseDraggedResize(evt, component);
         }
     }
-    
+
     private void formMouseEntered(final java.awt.event.MouseEvent evt, final Component component) {
         if (enabled &&(!resizeDragging) && (!moveDragging) && (resizeEdges!=ResizeEdges.NO_EDGE)) {
             initResize(evt, component);
         }
     }
-    
+
     private void formMouseMoved(final java.awt.event.MouseEvent evt, final Component component) {
         if (enabled && (!resizeDragging) && (!moveDragging) && (resizeEdges!=ResizeEdges.NO_EDGE)) {
             initResize(evt, component);
         }
     }
-    
+
     private void formMouseExited(final java.awt.event.MouseEvent evt, final Component component) {
         if ((!resizeDragging) && (!moveDragging)) {
             resizeDirection = ResizeDirection.NONE;
             SwingUtil.setCursor(component, java.awt.Cursor.DEFAULT_CURSOR);
         }
     }    
-    
+
     private void formMousePressed(final java.awt.event.MouseEvent evt, final Component component) {
         if (enabled) {
             resizeOffsetX = evt.getPoint().x;
@@ -529,7 +546,7 @@ public class Resizer {
             }
         }
     }   
-       
+
     private void formMouseReleased(final java.awt.event.MouseEvent evt, final Component component) {
         resizeDragging = Boolean.FALSE;
         moveDragging = Boolean.FALSE;
@@ -542,7 +559,7 @@ public class Resizer {
         resizeDirection = ResizeDirection.NONE;
         SwingUtil.setCursor(component, java.awt.Cursor.DEFAULT_CURSOR);
     }
-    
+
     private void initComponents() {
         if (!initialized) {
             final MouseMotionAdapter mouseMotionAdapter = new MouseMotionAdapter() {
@@ -569,12 +586,11 @@ public class Resizer {
             };
             component.addMouseMotionListener(mouseMotionAdapter);
             component.addMouseListener(mouseAdapter);
-            
+
             // Save so they can be removed later.
-            components.add(component);
             mouseMotionAdapters.put(component, mouseMotionAdapter);
             mouseAdapters.put(component, mouseAdapter);
-            
+
             final Window window = SwingUtilities.getWindowAncestor(component);
             if (null!=window && window instanceof JDialog) {
                 final MouseMotionAdapter mouseMotionAdapterWindow = new MouseMotionAdapter() {
@@ -601,9 +617,8 @@ public class Resizer {
                 };
                 window.addMouseMotionListener(mouseMotionAdapterWindow);
                 window.addMouseListener(mouseAdapterWindow);
-                
+
                 // Save so they can be removed later.
-                components.add(window);
                 mouseMotionAdapters.put(window, mouseMotionAdapterWindow);
                 mouseAdapters.put(window, mouseAdapterWindow);
             }
@@ -611,17 +626,93 @@ public class Resizer {
             initialized = Boolean.TRUE;
         }
     }
-    
-    private Component getComponentAncestor(final Component component) {
-        final Component ancestor;
+
+    /**
+     * Get the component ancestor.
+     * 
+     * @param jComponent
+     *            The <code>JComponent</code>.
+     * @return The ancestor <code>Window</code>.
+     */
+    private Window getComponentAncestor(final Component component) {
+        final Window ancestor;
         if ((component instanceof JDialog) || (component instanceof BrowserWindow)) {
-            ancestor = component;
+            ancestor = (Window) component;
         } else {
             ancestor = SwingUtilities.getWindowAncestor(component);
         }
         return ancestor;
     }
-      
+
+    /**
+     * Install a window state listener on the ancestor of the component.
+     * If the ancestor window is maximized then the resizer will be disabled.
+     * 
+     * @param jComponent
+     *            The <code>JComponent</code>.
+     */
+    private void installAncestorWindowStateListener(final JComponent jComponent) {
+        final Window window = getComponentAncestor(jComponent);
+        // Handle the case that the JComponent is not yet added to a Window.
+        // In this case do the install when the component is added to a window.
+        if (null == window) {
+            final AncestorListener ancestorListener = new AncestorListener() {
+                public void ancestorAdded(final AncestorEvent event) {
+                    final Window window = getComponentAncestor(jComponent);
+                    if (null != window) {
+                        installWindowStateListener(window);
+                        setEnabled(!SwingUtil.isInMaximizedWindow(window));
+                    }
+                }
+                public void ancestorMoved(final AncestorEvent event) {}
+                public void ancestorRemoved(final AncestorEvent event) {}
+            };
+            jComponent.addAncestorListener(ancestorListener);
+            ancestorListeners.put(jComponent, ancestorListener);
+        } else {
+            installWindowStateListener(window);
+        }
+    }
+
+    /**
+     * Install a window state listener.
+     * If the ancestor window is maximized then the resizer will be disabled.
+     * 
+     * @param window
+     *            The <code>Window</code>.
+     */
+    private void installWindowStateListener(final Window window) {
+        final WindowStateListener windowStateListener = new WindowStateListener() {
+            public void windowStateChanged(final WindowEvent e) {
+                if (e.getID() == WindowEvent.WINDOW_STATE_CHANGED) {
+                    setEnabled(!isMaximized(e));
+                }
+            }
+        };
+        window.addWindowStateListener(windowStateListener);
+        windowStateListeners.put(window, windowStateListener);
+    }
+
+    /**
+     * Determine if the window event indicates a maximized JFrame window.
+     * 
+     * @param e
+     *            A <code>WindowEvent</code>.
+     */
+    private Boolean isMaximized(final WindowEvent e) {
+        return (e.getNewState() & JFrame.MAXIMIZED_BOTH) > 0;
+    }
+
+    /**
+     * Enable or disable the resizer (affects both moving and resizing)
+     * 
+     * @param enabled
+     *          Flag to enable or disable the resizer.
+     */
+    private void setEnabled(final Boolean enabled) {
+        this.enabled = enabled;
+    }
+
     private enum ResizeDirection { E, N, NE, NONE, NW, S, SE, SW, W }
     public enum ResizeEdges { NO_EDGE, ALL_EDGES, TOP, MIDDLE, BOTTOM, LEFT, RIGHT }
 }

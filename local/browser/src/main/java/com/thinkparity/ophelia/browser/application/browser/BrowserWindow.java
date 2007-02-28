@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.AbstractAction;
@@ -125,8 +126,8 @@ public class BrowserWindow extends AbstractJFrame {
         mainWindowLocation.setLocation(location); 
         final Dimension size = persistence.get("size", getMainWindowSize());
         mainWindowSize.setSize(size);
+        setMaximizedBounds(SwingUtil.getPrimaryDesktopBounds());        
         if (maximized) {
-            setMaximizedBounds(SwingUtil.getPrimaryDesktopBounds());
             setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
         }        
         setResizable(true);
@@ -137,6 +138,7 @@ public class BrowserWindow extends AbstractJFrame {
         if (!maximized) {
             roundCorners();
         }
+        installWindowStateListener();
 
         // Set up the semi-transparent JPanel
         semiTransparentJPanel = new SemiTransparentJPanel(Boolean.FALSE);
@@ -183,11 +185,12 @@ public class BrowserWindow extends AbstractJFrame {
 	}
 
     /**
-     * Make the corners round.
+     * Make the corners of the browser window round.
      */
     private void roundCorners() {
-    	new NativeSkin().roundCorners(this, Dimensions.BrowserWindow.CORNER_SIZE);
+        new NativeSkin().roundCorners(this, Dimensions.BrowserWindow.CORNER_SIZE);   
     }
+
 
 	/**
      * Add the menu to the window.
@@ -197,6 +200,37 @@ public class BrowserWindow extends AbstractJFrame {
         addMoveListener(menuBar);
         new BrowserPopupHelper().addPopupListener(menuBar);
         setJMenuBar(menuBar);
+    }
+
+    /**
+     * Install a window state listener.
+     * If the ancestor window is maximized then the resize control will be disabled.
+     * 
+     * @param window
+     *            The <code>Window</code>.
+     */
+    private void installWindowStateListener() {
+        addWindowStateListener(new WindowStateListener() {
+            public void windowStateChanged(final WindowEvent e) {
+                if (e.getID() == WindowEvent.WINDOW_STATE_CHANGED) {
+                    if (isMaximized(e)) {
+                        squareCorners();
+                    } else {
+                        roundCorners();
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Determine if the window event indicates a maximized JFrame window.
+     * 
+     * @param e
+     *            A <code>WindowEvent</code>.
+     */
+    private Boolean isMaximized(final WindowEvent e) {
+        return (e.getNewState() & JFrame.MAXIMIZED_BOTH) > 0;
     }
 
     /**
@@ -227,6 +261,13 @@ public class BrowserWindow extends AbstractJFrame {
             persistence.set("size", getSize());
             persistence.set("maximized", Boolean.FALSE);
         }
+    }
+
+    /**
+     * Make the corners of the browser window square.
+     */
+    private void squareCorners() {
+        new NativeSkin().squareCorners(this);  
     }
 
     /**
@@ -317,29 +358,6 @@ public class BrowserWindow extends AbstractJFrame {
             setLocation(pFinal);
             mainWindowLocation.setLocation(pFinal);
         }
-    }
-
-    /**
-     * Maximize (or unmaximize) the browser application.
-     * 
-     * @param maximize
-     *            A <code>Boolean</code> indicating to maximize or unmaximize.
-     */
-    public void maximizeMainWindow(final Boolean maximize) {
-        int state = getExtendedState();
-        if (maximize) {
-            // Take care to save the un-maximized size and location in mainWindowSize
-            // and mainWindowLocation, since these are the values we want to persist.
-            mainWindowSize.setSize(getSize());
-            mainWindowLocation.setLocation(getLocation());
-            GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            setMaximizedBounds(env.getMaximumWindowBounds());
-            state |= JFrame.MAXIMIZED_BOTH;
-        } else {
-            state &= ~JFrame.MAXIMIZED_BOTH;
-        }
-        setExtendedState(state);
-        roundCorners();
     }
 
     /**

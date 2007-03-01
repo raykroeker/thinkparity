@@ -12,11 +12,11 @@ insert into jiveProperty(NAME,PROPVALUE)
     values('xmpp.socket.ssl.keypass','password');
 insert into jiveProperty(NAME,PROPVALUE)
     values('xmpp.socket.ssl.port','5227');
-
 insert into jiveProperty(NAME,PROPVALUE)
     values('thinkparity.environment','DEVELOPMENT_LOCALHOST');
 insert into jiveProperty(NAME,PROPVALUE)
     values('thinkparity.mode','DEVELOPMENT');
+
 insert into FEATURE(FEATURE) values('BACKUP');
 
 insert into jiveUser(USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)

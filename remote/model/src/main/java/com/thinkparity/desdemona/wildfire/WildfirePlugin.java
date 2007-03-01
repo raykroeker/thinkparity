@@ -106,7 +106,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 		logger.logInfo("{0}:{1}", "xmpp.socket.ssl.active", jiveProperties.get("xmpp.socket.ssl.active"));
 		logger.logInfo("{0}:{1}", "xmpp.socket.ssl.keypass", jiveProperties.get("xmpp.socket.ssl.keypass"));
 		logger.logInfo("{0}:{1}", "xmpp.socket.ssl.port", jiveProperties.get("xmpp.socket.ssl.port"));
-		logger.logInfo("{0}:{1}", "thinkparity.archive.root", jiveProperties.get("thinkparity.archive.root"));
+		logger.logInfo("{0}:{1}", "thinkparity.backup.root", jiveProperties.get("thinkparity.backup.root"));
         logger.logInfo("{0}:{1}", "thinkparity.environment", jiveProperties.get("thinkparity.environment"));
         logger.logInfo("{0}:{1}", "thinkparity.mode", jiveProperties.get("thinkparity.mode"));
         logger.logInfo("{0}:{1}", "thinkparity.stream.root", jiveProperties.get("thinkparity.stream.root"));

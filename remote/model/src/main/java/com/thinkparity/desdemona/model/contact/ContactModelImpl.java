@@ -93,8 +93,8 @@ class ContactModelImpl extends AbstractModelImpl {
             if (null != invitation)
                 invitationSql.delete(userId, invitedBy);
 		    // create the contact relationships
-            contactSql.create(userId, invitedBy, userId);
-			contactSql.create(invitedBy, userId, userId);
+            contactSql.create(userId, invitedBy, userId, acceptedOn);
+			contactSql.create(invitedBy, userId, userId, acceptedOn);
 
             final ContactInvitationAcceptedEvent invitationAccepted = new ContactInvitationAcceptedEvent();
             invitationAccepted.setAcceptedBy(userId);
@@ -224,7 +224,7 @@ class ContactModelImpl extends AbstractModelImpl {
             final User extendToUser = userModel.read(extendTo);
             if (null == extendToUser) {
                 // create remote data
-                invitationSql.createEmail(userId, extendTo);
+                invitationSql.createEmail(userId, extendTo, extendedOn);
                 // extend the invitation via SMTP
                 final MimeMessage mimeMessage = MessageFactory.createMimeMessage();
                 createInvitation(mimeMessage, extendTo, userModel.read(userId));
@@ -232,7 +232,7 @@ class ContactModelImpl extends AbstractModelImpl {
                 TransportManager.deliver(mimeMessage);
             } else {
                 // create remote data
-                invitationSql.create(userId, extendToUser.getId());
+                invitationSql.create(userId, extendToUser.getId(), extendedOn);
                 // extend the invitation within thinkParity
                 final ContactInvitationExtendedEvent invitationExtended = new ContactInvitationExtendedEvent();
                 invitationExtended.setInvitedAs(extendTo);

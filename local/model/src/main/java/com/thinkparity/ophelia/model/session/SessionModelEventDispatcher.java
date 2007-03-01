@@ -90,12 +90,6 @@ class SessionModelEventDispatcher {
                 logger.logApiId();
                 getContactModel().handleContactDeleted(event);
             }});
-        xmppSession.addListener(ContactDeletedEvent.class,
-                new XMPPEventListener<ContactDeletedEvent>() {
-            public void handleEvent(final ContactDeletedEvent event) {
-                logger.logApiId();
-                getContactModel().handleContactDeleted(event);
-            }});
         xmppSession.addListener(ContactInvitationAcceptedEvent.class,
                 new XMPPEventListener<ContactInvitationAcceptedEvent>() {
             public void handleEvent(final ContactInvitationAcceptedEvent event) {

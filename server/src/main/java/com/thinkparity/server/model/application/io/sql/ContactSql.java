@@ -3,82 +3,98 @@
  */
 package com.thinkparity.desdemona.model.io.sql;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
+import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
+import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class ContactSql extends AbstractSql {
+public final class ContactSql extends AbstractSql {
 
 	private static final String SQL_CREATE =
-		new StringBuffer("insert into parityContact ")
-		.append("(username,contactUsername,createdBy,updatedBy,updatedOn) ")
-		.append("values (?,?,?,?,CURRENT_TIMESTAMP)")
+		new StringBuffer("insert into USER_CONTACT ")
+		.append("(USER_ID,CONTACT_ID,CREATED_BY,CREATED_ON,UPDATED_BY,")
+        .append("UPDATED_ON) ")
+		.append("values (?,?,?,?,?,?)")
 		.toString();
 
 	private static final String SQL_DELETE =
-		new StringBuffer("delete from parityContact ")
-		.append("where username=? and contactUsername=?")
+		new StringBuffer("delete from USER_CONTACT ")
+		.append("where USER_ID=? and CONTACT_ID=?")
 		.toString();
 
 	private static final String SQL_READ =
-		new StringBuffer("select username,contactUsername ")
-		.append("from parityContact ")
-		.append("where username=?")
+		new StringBuffer("select PUC.USERNAME \"CONTACT_USERNAME\" ")
+		.append("from USER_CONTACT UC ")
+        .append("inner join PARITY_USER PUC on PUC.USER_ID=UC.CONTACT_ID ")
+		.append("where UC.USER_ID=?")
 		.toString();
+
+	private final UserSql userSql;
 
 	/**
 	 * Create a InvitationSql.
 	 * 
 	 */
-	public ContactSql() { super(); }
-
-	public void create(final JabberId username, final JabberId contact,
-			final JabberId createdBy) throws SQLException {
-		Connection cx = null;
-		PreparedStatement ps = null;
-		try {
-			cx = getCx();
-            logStatement(SQL_CREATE);
-			ps = cx.prepareStatement(SQL_CREATE);
-			set(ps, 1, username.getUsername());
-			set(ps, 2, contact.getQualifiedUsername());
-			set(ps, 3, createdBy);
-			set(ps, 4, createdBy);
-			if(1 != ps.executeUpdate())
-				throw new SQLException("Could not create contact.");
-            cx.commit();
-		}
-		finally { close(cx, ps); }
+	public ContactSql() {
+        super();
+        this.userSql = new UserSql();
 	}
 
-	public void delete(final JabberId username, final JabberId contact)
-		throws SQLException {
-		Connection cx = null;
-		PreparedStatement ps = null;
+    public void create(final JabberId userId, final JabberId contactId,
+			final JabberId createdBy, final Calendar createdOn) {
+		final HypersonicSession session = openSession();
 		try {
-			cx = getCx();
-            logStatement(SQL_DELETE);
-			ps = cx.prepareStatement(SQL_DELETE);
-			ps.setString(1, username.getUsername());
-			ps.setString(2, contact.getQualifiedUsername());
-			if(1 != ps.executeUpdate())
-				throw new SQLException("Could not delete contact.");
-		}
-		finally { close(cx, ps); }
+            final Long createdByLocalUserId = readLocalUserId(createdBy);
+			session.prepareStatement(SQL_CREATE);
+            session.setLong(1, readLocalUserId(userId));
+            session.setLong(2, readLocalUserId(contactId));
+            session.setLong(3, createdByLocalUserId);
+            session.setCalendar(4, createdOn);
+            session.setLong(5, createdByLocalUserId);
+            session.setCalendar(6, createdOn);
+			if(1 != session.executeUpdate())
+				throw new HypersonicException(
+                        "Could not create contact {0} for user {1}.", contactId, userId);
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+		} finally {
+            session.close();
+        }
 	}
 
-    /**
+    public void delete(final JabberId userId, final JabberId contactId) {
+		final HypersonicSession session = openSession();
+		try {
+			session.prepareStatement(SQL_DELETE);
+			session.setLong(1, readLocalUserId(userId));
+			session.setLong(2, readLocalUserId(contactId));
+			if(1 != session.executeUpdate())
+				throw new HypersonicException(
+                        "Could not delete contact {0} for user {1}.", contactId, userId);
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+		} finally {
+            session.close();
+		}
+	}
+
+	/**
      * Read a list of contact ids for a user.
      * 
      * @param userId
@@ -87,24 +103,26 @@ public class ContactSql extends AbstractSql {
      * @throws SQLException
      */
 	public List<JabberId> readIds(final JabberId userId) throws SQLException {
-		Connection cx = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+		final HypersonicSession session = openSession();
 		try {
-			cx = getCx();
-            logStatement(SQL_READ);
-			ps = cx.prepareStatement(SQL_READ);
-			ps.setString(1, userId.getUsername());
-			rs = ps.executeQuery();
+			session.prepareStatement(SQL_READ);
+			session.setLong(1, readLocalUserId(userId));
+			session.executeQuery();
 			final List<JabberId> contacts = new LinkedList<JabberId>();
-			while(rs.next()) { contacts.add(extractJabberId(rs)); }
+			while (session.nextResult()) {
+                contacts.add(extractJabberId(session));
+			}
 			return contacts;
+		} finally {
+            session.close();
 		}
-		finally { close(cx, ps, rs); }
 	}
 
-	private JabberId extractJabberId(final ResultSet rs) throws SQLException {
-        // contact username is a qualified jabber id
-		return JabberIdBuilder.parse(rs.getString("contactUsername"));
+    private JabberId extractJabberId(final HypersonicSession session) {
+		return JabberIdBuilder.parseUsername(session.getString("CONTACT_USERNAME"));
 	}
+
+	private Long readLocalUserId(final JabberId userId) {
+        return userSql.readLocalUserId(userId);
+    }
 }

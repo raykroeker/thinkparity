@@ -212,19 +212,17 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Create a draft for an artifact.
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createDraft(java.util.List,
+     *      java.util.UUID, java.util.Calendar)
      * 
-     * @param uniqueId
-     *            An artifact unique id.
      */
-    public void createDraft(final List<JabberId> team, final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("team", team);
+    public void createDraft(final List<JabberId> team, final UUID uniqueId,
+            final Calendar createdOn) {
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                xmppSession.createDraft(localUserId(), team, uniqueId);
+                xmppSession.createDraft(localUserId(), team, uniqueId,
+                        createdOn);
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -365,22 +363,19 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
-     * Delete a draft for an artifact.
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteDraft(java.util.UUID,
+     *      java.util.Calendar)
      * 
-     * @param uniqueId
-     *            An artifact unique id.
      */
-    public void deleteDraft(final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
+    public void deleteDraft(final UUID uniqueId, final Calendar deletedOn) {
         try {
             final InternalArtifactModel artifactModel = getArtifactModel();
             final Long artifactId = artifactModel.readId(uniqueId);
             final List<JabberId> team = artifactModel.readTeamIds(artifactId);
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                xmppSession.deleteDraft(localUserId(), team, uniqueId);
+                xmppSession.deleteDraft(localUserId(), team, uniqueId, deletedOn);
             }
         } catch (final Throwable t) {
             throw translateError(t);

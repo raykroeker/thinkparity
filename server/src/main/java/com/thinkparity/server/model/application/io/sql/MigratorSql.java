@@ -11,7 +11,6 @@ import java.util.UUID;
 import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
-import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -67,7 +66,7 @@ public final class MigratorSql extends AbstractSql {
     private static final String SQL_DOES_EXIST_PRODUCT_BY_NAME =
         new StringBuffer("select COUNT(PRODUCT_ID) \"PRODUCT_COUNT\" ")
         .append("from PARITY_PRODUCT P ")
-        .append("inner join parityArtifact A on A.ARTIFACTID=P.PRODUCT_ID ")
+        .append("inner join ARTIFACT A on A.ARTIFACT_ID=P.PRODUCT_ID ")
         .append("where P.PRODUCT_NAME=? ")
         .toString();
 
@@ -75,7 +74,7 @@ public final class MigratorSql extends AbstractSql {
     private static final String SQL_DOES_EXIST_PRODUCT_BY_UNIQUE_ID =
         new StringBuffer("select COUNT(PRODUCT_ID) \"PRODUCT_COUNT\" ")
         .append("from PARITY_PRODUCT P ")
-        .append("inner join parityArtifact A on A.ARTIFACTID=P.PRODUCT_ID ")
+        .append("inner join ARTIFACT A on A.ARTIFACT_ID=P.PRODUCT_ID ")
         .append("where A.ARTIFACTUUID=? ")
         .toString();
 
@@ -115,17 +114,21 @@ public final class MigratorSql extends AbstractSql {
         new StringBuffer("select RELEASE_NAME ")
         .append("from PARITY_RELEASE R ")
         .append("inner join PARITY_PRODUCT P on R.PRODUCT_ID=P.PRODUCT_ID ")
-        .append("inner join PARITYARTIFACT A on P.PRODUCT_ID=A.ARTIFACTID ")
+        .append("inner join ARTIFACT A on P.PRODUCT_ID=A.ARTIFACT_ID ")
         .append("where A.ARTIFACTUUID=? and R.RELEASE_OS=? ")
         .append("order by R.RELEASE_DATE desc")
         .toString();
 
     /** Sql to read a product. */
     private static final String SQL_READ_PRODUCT =
-        new StringBuffer("select CREATEDBY,CREATEDON,PRODUCT_ID,PRODUCT_NAME,")
-        .append("ARTIFACTID,ARTIFACTUUID,ARTIFACTSTATEID,UPDATEDBY,UPDATEDON ")
+        new StringBuffer("select PUC.USERNAME \"CREATED_BY\",A.CREATED_ON,")
+        .append("P.PRODUCT_ID,P.PRODUCT_NAME,A.ARTIFACT_ID,")
+        .append("A.ARTIFACT_UNIQUE_ID,PUU.USERNAME \"UPDATED_BY\",")
+        .append("A.UPDATED_ON ")
         .append("from PARITY_PRODUCT P ")
-        .append("inner join parityArtifact A on A.ARTIFACTID=P.PRODUCT_ID ")
+        .append("inner join ARTIFACT A on A.ARTIFACT_ID=P.PRODUCT_ID ")
+        .append("inner join PARITY_USER PUC on PUC.USER_ID=A.CREATED_BY ")
+        .append("inner join PARITY_USER PUU on PUU.USER_ID=A.UPDATED_BY ")
         .append("where P.PRODUCT_NAME=? ")
         .toString();
 
@@ -135,7 +138,7 @@ public final class MigratorSql extends AbstractSql {
         .append("R.RELEASE_DATE,P.PRODUCT_NAME ")
         .append("from PARITY_RELEASE R ")
         .append("inner join PARITY_PRODUCT P on R.PRODUCT_ID=P.PRODUCT_ID ")
-        .append("inner join PARITYARTIFACT A on P.PRODUCT_ID=A.ARTIFACTID ")
+        .append("inner join ARTIFACT A on P.PRODUCT_ID=A.ARTIFACT_ID ")
         .append("where A.ARTIFACTUUID=? and R.RELEASE_NAME=? and R.RELEASE_OS=?")
         .toString();
 
@@ -162,9 +165,9 @@ public final class MigratorSql extends AbstractSql {
         .append("RELEASE.RELEASE_OS=RESOURCE_OS.RESOURCE_OS ")
         .append("inner join PARITY_PRODUCT PRODUCT on ")
         .append("RELEASE.PRODUCT_ID=PRODUCT.PRODUCT_ID ")
-        .append("inner join PARITYARTIFACT ARTIFACT on ")
-        .append("PRODUCT.PRODUCT_ID=ARTIFACT.ARTIFACTID ")
-        .append("where ARTIFACT.ARTIFACTUUID=? and RELEASE.RELEASE_NAME=? ")
+        .append("inner join ARTIFACT A on ")
+        .append("PRODUCT.PRODUCT_ID=A.ARTIFACT_ID ")
+        .append("where A.ARTIFACTUUID=? and RELEASE.RELEASE_NAME=? ")
         .append("and RELEASE.RELEASE_OS=?")
         .toString();
 
@@ -680,14 +683,13 @@ public final class MigratorSql extends AbstractSql {
      */
     private Product extractProduct(final HypersonicSession session) {
         final Product product = new Product();
-        product.setCreatedBy(JabberIdBuilder.parseUsername(session.getString("createdBy")));
-        product.setCreatedOn(session.getCalendar("createdOn"));
+        product.setCreatedBy(JabberIdBuilder.parseUsername(session.getString("CREATED_BY")));
+        product.setCreatedOn(session.getCalendar("CREATED_ON"));
         product.setId(session.getLong("PRODUCT_ID"));
         product.setName(session.getString("PRODUCT_NAME"));
-        product.setState(ArtifactState.fromId(session.getInteger("artifactStateId")));
-        product.setUniqueId(UUID.fromString(session.getString("artifactUUID")));
-        product.setUpdatedBy(JabberIdBuilder.parseUsername(session.getString("updatedBy")));
-        product.setUpdatedOn(session.getCalendar("updatedOn"));
+        product.setUniqueId(UUID.fromString(session.getString("ARTIFACT_UNIQUE_ID")));
+        product.setUpdatedBy(JabberIdBuilder.parseUsername(session.getString("UPDATED_BY")));
+        product.setUpdatedOn(session.getCalendar("UPDATED_ON"));
         return product;
     }
 

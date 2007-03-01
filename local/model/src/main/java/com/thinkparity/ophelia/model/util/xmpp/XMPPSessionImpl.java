@@ -303,8 +303,8 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * 
      */
     public void createDraft(final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId) {
-        xmppArtifact.createDraft(userId, team, uniqueId);
+            final UUID uniqueId, final Calendar createdOn) {
+        xmppArtifact.createDraft(userId, team, uniqueId, createdOn);
     }
 
 	/**
@@ -401,8 +401,8 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * 
      */
     public void deleteDraft(final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId) {
-        xmppArtifact.deleteDraft(userId, team, uniqueId);
+            final UUID uniqueId, final Calendar deletedOn) {
+        xmppArtifact.deleteDraft(userId, team, uniqueId, deletedOn);
     }
 
 	/**

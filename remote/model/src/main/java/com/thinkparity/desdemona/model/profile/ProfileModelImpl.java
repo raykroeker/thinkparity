@@ -6,6 +6,7 @@ package com.thinkparity.desdemona.model.profile;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -111,14 +112,16 @@ class ProfileModelImpl extends AbstractModelImpl {
         logVariable("userId", userId);
         try {
             assertIsAuthenticatedUser(userId);
+
+            final Calendar now = currentDateTime();
             final Token existingToken = userSql.readProfileToken(userId);
             if (null != existingToken) {
                 getQueueModel().deleteEvents(userId);
-                getArtifactModel().deleteDrafts(userId);
+                getArtifactModel().deleteDrafts(userId, now);
             }
 
             final Token newToken = new Token();
-            newToken.setValue(MD5Util.md5Hex(String.valueOf(currentTimeMillis())));
+            newToken.setValue(MD5Util.md5Hex(String.valueOf(now.getTimeInMillis())));
             userSql.updateProfileToken(userId, newToken);
             return userSql.readProfileToken(userId);
         } catch (final Throwable t) {

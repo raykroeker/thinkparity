@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.artifact;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,7 +43,8 @@ public final class CreateDraft extends AbstractHandler {
         logger.logApiId();
         createDraft(provider, reader.readJabberId("userId"),
                 reader.readJabberIds("team", "teamMember"),
-                reader.readUUID("uniqueId"));
+                reader.readUUID("uniqueId"),
+                reader.readCalendar("createdOn"));
     }
 
     /**
@@ -54,7 +56,7 @@ public final class CreateDraft extends AbstractHandler {
      */
     private void createDraft(final ServiceModelProvider context,
             final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId) {
-        context.getArtifactModel().createDraft(userId, team, uniqueId);
+            final UUID uniqueId, final Calendar createdOn) {
+        context.getArtifactModel().createDraft(userId, team, uniqueId, createdOn);
     }
 }

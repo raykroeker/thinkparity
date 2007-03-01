@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.model.artifact;
 
+import java.util.Calendar;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
@@ -39,23 +40,15 @@ public class InternalArtifactModel extends ArtifactModel {
         }
     }
 
-    // TODO-javadoc InternalArtifactModel#addTeamMember()
-    public void removeTeamMember(final JabberId userId, final Long artifactId,
-            final Long teamMemberId) {
-        synchronized (getImplLock()) {
-            getImpl().removeTeamMember(userId, artifactId, teamMemberId);
-        }
-    }
-
     /**
      * Delete all drafts for a user.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
      */
-    public void deleteDrafts(final JabberId userId) {
+    public void deleteDrafts(final JabberId userId, final Calendar deletedOn) {
         synchronized (getImplLock()) {
-            getImpl().deleteDrafts(userId);
+            getImpl().deleteDrafts(userId, deletedOn);
         }
     }
 
@@ -64,6 +57,14 @@ public class InternalArtifactModel extends ArtifactModel {
             final Long artifactId) {
         synchronized (getImplLock()) {
             return getImpl().readTeam(userId, artifactId);
+        }
+    }
+
+    // TODO-javadoc InternalArtifactModel#addTeamMember()
+    public void removeTeamMember(final JabberId userId, final Long artifactId,
+            final Long teamMemberId) {
+        synchronized (getImplLock()) {
+            getImpl().removeTeamMember(userId, artifactId, teamMemberId);
         }
     }
 }

@@ -23,6 +23,11 @@ import com.thinkparity.desdemona.model.session.Session;
  */
 public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
 
+    public static InternalArtifactModel getInternalModel(final Context context,
+            final Session session) {
+        return new InternalArtifactModel(context, session);
+    }
+
     /**
 	 * Obtain a handle to the artifact model.
 	 * 
@@ -32,11 +37,6 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
 		final ArtifactModel artifactModel = new ArtifactModel(session);
 		return artifactModel;
 	}
-
-    public static InternalArtifactModel getInternalModel(final Context context,
-            final Session session) {
-        return new InternalArtifactModel(context, session);
-    }
 
     /**
      * Create ArtifactModel.
@@ -107,9 +107,9 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
      *            The artifact unique id.
      */
     public void createDraft(final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId) {
+            final UUID uniqueId, final Calendar createdOn) {
         synchronized (getImplLock()) {
-            getImpl().createDraft(userId, team, uniqueId);
+            getImpl().createDraft(userId, team, uniqueId, createdOn);
         }
     }
 
@@ -120,9 +120,9 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
      *            An artifact unique id.
      */
     public void deleteDraft(final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId) {
+            final UUID uniqueId, final Calendar deletedOn) {
         synchronized (getImplLock()) {
-            getImpl().deleteDraft(userId, team, uniqueId);
+            getImpl().deleteDraft(userId, team, uniqueId, deletedOn);
         }
     }
 

@@ -3,9 +3,6 @@
  */
 package com.thinkparity.desdemona.model.io.sql;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,15 +29,15 @@ public class UserSql extends AbstractSql {
 
     /** Sql to create an email address. */
     private static final String SQL_CREATE_EMAIL =
-            new StringBuffer("insert into parityUserEmail ")
-            .append("(username,email,verified,verificationKey) ")
+            new StringBuffer("insert into EMAIL ")
+            .append("(USER_ID,EMAIL,VERIFIED,VERIFICATION_KEY) ")
             .append("values (?,?,?,?)")
             .toString();
 
     /** Sql to delete an email address. */
     private static final String SQL_DELETE_EMAIL =
-            new StringBuffer("delete from PARITYUSEREMAIL ")
-            .append("where USERNAME=? and EMAIL=?")
+            new StringBuffer("delete from EMAIL ")
+            .append("where USER_ID=? and EMAIL=?")
             .toString();
 
     /** Sql to read all users. */
@@ -51,22 +48,23 @@ public class UserSql extends AbstractSql {
         .toString();
 
     /** Sql to read an archive user's credentials. */
-    private static final String SQL_READ_ARCHIVE_CREDENTIALS =
-            new StringBuffer("select USERNAME,PASSWORD ")
+    private static final String SQL_READ_BACKUP_CREDENTIALS =
+            new StringBuffer("select JU.USERNAME,JU.PASSWORD ")
             .append("from jiveUser JU ")
-            .append("inner join PARITY_USER_ARCHIVE_REL PUAR ")
-            .append("on JU.USERNAME=PUAR.ARCHIVENAME ")
-            .append("where JU.USERNAME=?")
+            .append("inner join PARITY_USER PU on JU.USERNAME=PU.USERNAME ")
+            .append("inner join USER_BACKUP_REL UBR on PU.USER_ID=UBR.BACKUP_ID ")
+            .append("where PU.USERNAME=?")
             .toString();
 
     /** Sql to read a user's archive ids. */
     private static final String SQL_READ_ARCHIVE_IDS =
-            new StringBuffer("select PUAR.ARCHIVENAME ")
-            .append("from PARITY_USER_ARCHIVE_REL PUAR ")
-            .append("where PUAR.USERNAME=? ")
-            .append("order by PUAR.ARCHIVENAME asc")
+            new StringBuffer("select PU.USERNAME \"BACKUP_USERNAME\" ")
+            .append("from USER_BACKUP_REL UBR ")
+            .append("inner join PARITY_USER PU on UBR.BACKUP_ID=PU.USER_ID ")
+            .append("where UBR.USER_ID=? ")
+            .append("order by UBR.BACKUP_ID asc")
             .toString();
-        
+
     /** Sql to read a user. */
     private static final String SQL_READ_BY_USER_ID =
             new StringBuffer("select PU.USERNAME,PU.USER_ID ")
@@ -76,130 +74,135 @@ public class UserSql extends AbstractSql {
 
     /** Sql to read email addresses. */
     private static final String SQL_READ_EMAIL =
-            new StringBuffer("select PUE.USERNAME,PUE.EMAIL,PUE.VERIFIED ")
-            .append("from parityUserEmail PUE ")
-            .append("inner join jiveUser JU on PUE.USERNAME = JU.USERNAME ")
-            .append("where JU.USERNAME=? and PUE.EMAIL=? ")
-            .append("and PUE.VERIFICATIONKEY=?")
-            .toString();
-
+        new StringBuffer("select E.EMAIL ")
+        .append("from EMAIL E ")
+        .append("inner join PARITY_USER PU on PU.USER_ID=E.USER_ID ")
+        .append("where PU.USERNAME=? and E.EMAIL=? ")
+        .append("and E.VERIFICATIONKEY=?")
+        .toString();
+        
     /** Sql to count email addresses. */
     private static final String SQL_READ_EMAIL_COUNT =
-        new StringBuffer("select COUNT(EMAIL) \"EMAIL_COUNT\" ")
-        .append("from PARITYUSEREMAIL PUE ")
-        .append("where PUE.EMAIL=?")
+        new StringBuffer("select COUNT(UE.EMAIL) \"EMAIL_COUNT\" ")
+        .append("from USER_EMAIL UE ")
+        .append("where UE.EMAIL=?")
         .toString();
 
     /** Sql to read e-mail addresses. */
     private static final String SQL_READ_EMAILS =
-            new StringBuffer("select PUE.USERNAME,PUE.EMAIL,PUE.VERIFIED ")
-            .append("from parityUserEmail PUE ")
-            .append("inner join jiveUser JU on PUE.USERNAME = JU.USERNAME ")
-            .append("where JU.USERNAME=? and PUE.VERIFIED=?")
+            new StringBuffer("select UE.EMAIL ")
+            .append("from USER_EMAIL UE ")
+            .append("inner join PARITY_USER PU on UE.USER_ID=PU.USER_ID ")
+            .append("where PU.USERNAME=? and UE.VERIFIED=?")
             .toString();
 
     /** Read all custom features for the user. */
     private static final String SQL_READ_FEATURES =
             new StringBuffer("select PF.FEATURE_ID,PF.FEATURE_NAME ")
-            .append("from jiveUser JU ")
-            .append("inner join PARITY_USER_FEATURE_REL PUFR on JU.USERNAME=PUFR.USERNAME ")
-            .append("inner join PARITY_FEATURE PF on PUFR.FEATURE_ID=PF.FEATURE_ID ")
-            .append("where JU.USERNAME=?")
+            .append("from PARITY_USER PU ")
+            .append("inner join USER_FEATURE_REL UFR on PU.USER_ID=UFR.USER_ID ")
+            .append("inner join FEATURE F on UFR.FEATURE_ID=F.FEATURE_ID ")
+            .append("where PU.USERNAME=?")
             .toString();
 
+    /** Sql to read the user id. */
+    private static final String SQL_READ_LOCAL_USER_ID =
+        new StringBuffer("select PU.USER_ID ")
+        .append("from PARITY_USER PU ")
+        .append("where PU.USERNAME=?")
+        .toString();
+
     /** Sql to read the user profile's security answer. */
-    private static final String SQL_READ_PROFILE_SECURITY_ANSWER =
-            new StringBuffer("select PUP.SECURITY_ANSWER ")
-            .append("from PARITY_USER_PROFILE PUP ")
-            .append("where PUP.USERNAME=?")
+    private static final String SQL_READ_SECURITY_ANSWER =
+            new StringBuffer("select PU.SECURITY_ANSWER ")
+            .append("from PARITY_USER PU ")
+            .append("where PU.USERNAME=?")
             .toString();
 
     /** Sql to read the user profile's security question. */
-    private static final String SQL_READ_PROFILE_SECURITY_QUESTION =
-            new StringBuffer("select PUP.SECURITY_QUESTION ")
-            .append("from PARITY_USER_PROFILE PUP ")
-            .append("where PUP.USERNAME=?")
+    private static final String SQL_READ_SECURITY_QUESTION =
+            new StringBuffer("select PU.SECURITY_QUESTION ")
+            .append("from PARITY_USER PU ")
+            .append("where PU.USERNAME=?")
             .toString();
 
     /** Sql to read the user's token. */
-    private static final String SQL_READ_PROFILE_TOKEN =
-        new StringBuffer("select PUP.TOKEN ")
-        .append("from PARITY_USER_PROFILE PUP ")
-        .append("inner join jiveUser JU on PUP.USERNAME=JU.USERNAME ")
-        .append("where JU.USERNAME=? and PUP.TOKEN is not null")
+    private static final String SQL_READ_TOKEN =
+        new StringBuffer("select PU.TOKEN ")
+        .append("from PARITY_USER PU ")
+        .append("where PU.USERNAME=? and PU.TOKEN is not null")
         .toString();
 
     /** Sql to read the user's vcard. */
-    private static final String SQL_READ_PROFILE_VCARD =
-        new StringBuffer("select PUP.VCARD ")
-        .append("from PARITY_USER_PROFILE PUP ")
-        .append("inner join jiveUser JU on PUP.USERNAME=JU.USERNAME ")
-        .append("where JU.USERNAME=?")
+    private static final String SQL_READ_VCARD =
+        new StringBuffer("select PU.VCARD ")
+        .append("from PARITY_USER PU ")
+        .append("where PU.USERNAME=?")
         .toString();
 
     /** Sql to read a username from an e-mail address. */
     private static final String SQL_READ_USERNAME =
-            new StringBuffer("select JU.USERNAME ")
-            .append("from parityUserEmail PUE ")
-            .append("inner join jiveUser JU on PUE.USERNAME=JU.USERNAME ")
-            .append("where PUE.EMAIL=?")
+            new StringBuffer("select PU.USERNAME ")
+            .append("from USER_EMAIL UE ")
+            .append("inner join PARITY_USER PU on UE.USER_ID=PU.USER_ID ")
+            .append("where UE.EMAIL=?")
             .toString();
 
     /** Sql to create the user's token. */
-    private static final String SQL_UPDATE_PROFILE_TOKEN =
-        new StringBuffer("update PARITY_USER_PROFILE PUP ")
+    private static final String SQL_UPDATE_TOKEN =
+        new StringBuffer("update PARITY_USER ")
         .append("set TOKEN=? where USERNAME=?")
         .toString();
 
     /** Sql to update the user's vcard. */
-    private static final String SQL_UPDATE_PROFILE_VCARD =
-        new StringBuffer("update PARITY_USER_PROFILE PUP ")
+    private static final String SQL_UPDATE_VCARD =
+        new StringBuffer("update PARITY_USER PU ")
         .append("set VCARD=? where USERNAME=?")
         .toString();
 
     private static final String SQL_VERIFY_EMAIL =
-            new StringBuffer("update PARITYUSEREMAIL ")
-            .append("set VERIFIED=?, VERIFICATIONKEY=?")
-            .append("where USERNAME=? and EMAIL=? and VERIFICATIONKEY=?")
+            new StringBuffer("update USER_EMAIL ")
+            .append("set VERIFIED=?, VERIFICATION_KEY=?")
+            .append("where USER_ID=? and EMAIL=? and VERIFICATION_KEY=?")
             .toString();
 
     /** Create UserSql. */
     public UserSql() { super(); }
 
     public void createEmail(final JabberId userId, final EMail email,
-            final VerificationKey key) throws SQLException {
-        Connection cx = null;
-        PreparedStatement ps = null;
+            final VerificationKey key) {
+        final HypersonicSession session = openSession();
         try {
-            cx = getCx();
-            logStatement(SQL_CREATE_EMAIL);
-            ps = cx.prepareStatement(SQL_CREATE_EMAIL);
-            ps.setString(1, userId.getUsername());
-            ps.setString(2, email.toString());
-            ps.setBoolean(3, Boolean.FALSE);
-            ps.setString(4, key.getKey());
-            if (1 != ps.executeUpdate())
-                throw new SQLException("COULD NOT CREATE EMAIL");
-            cx.commit();
+            session.prepareStatement(SQL_CREATE_EMAIL);
+            session.setLong(1, readLocalUserId(userId));
+            session.setString(2, email.toString());
+            session.setBoolean(3, Boolean.FALSE);
+            session.setString(4, key.getKey());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not create e-mail for {0}:{1}.", userId, email);
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
         } finally {
-           close(cx, ps);
+           session.close();
         }
     }
 
-    public void deleteEmail(final JabberId userId, final EMail email)
-            throws SQLException {
-        Connection cx = null;
-        PreparedStatement ps = null;
+    public void deleteEmail(final JabberId userId, final EMail email) {
+        final HypersonicSession session = openSession();
         try {
-            cx = getCx();
-            ps = cx.prepareStatement(SQL_DELETE_EMAIL);
-            ps.setString(1, userId.getUsername());
-            ps.setString(2, email.toString());
-            if (1 != ps.executeUpdate())
-                throw new SQLException("COULD NOT DELETE EMAIL");
-            cx.commit();
+            session.prepareStatement(SQL_DELETE_EMAIL);
+            session.setLong(1, readLocalUserId(userId));
+            session.setString(2, email.toString());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException(
+                        "Could not delete e-mail for {0}:{1}.", userId, email);
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
         } finally {
-           close(cx, ps);
+           session.close();
         }
     }
 
@@ -263,7 +266,7 @@ public class UserSql extends AbstractSql {
     public Credentials readArchiveCredentials(final JabberId archiveId) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_READ_ARCHIVE_CREDENTIALS);
+            session.prepareStatement(SQL_READ_BACKUP_CREDENTIALS);
             session.setString(1, archiveId.getUsername());
             session.executeQuery();
             if (session.nextResult()) {
@@ -280,12 +283,12 @@ public class UserSql extends AbstractSql {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_ARCHIVE_IDS);
-            session.setString(1, userId.getUsername());
+            session.setLong(1, readLocalUserId(userId));
             session.executeQuery();
             final List<JabberId> archiveIds = new ArrayList<JabberId>();
             while (session.nextResult()) {
                 archiveIds.add(JabberIdBuilder.parseUsername(
-                        session.getString("ARCHIVENAME")));
+                        session.getString("BACKUP_USERNAME")));
             }
             return archiveIds;
         } finally {
@@ -295,45 +298,39 @@ public class UserSql extends AbstractSql {
 
     public EMail readEmail(final JabberId userId, final EMail email,
             final VerificationKey key) throws SQLException {
-        Connection cx = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+        final HypersonicSession session = openSession();
         try {
-            cx = getCx();
-            ps = cx.prepareStatement(SQL_READ_EMAIL);
-            ps.setString(1, userId.getUsername());
-            ps.setString(2, email.toString());
-            ps.setString(3, key.getKey());
-            rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return EMailBuilder.parse(rs.getString("EMAIL"));
+            session.prepareStatement(SQL_READ_EMAIL);
+            session.setString(1, userId.getUsername());
+            session.setString(2, email.toString());
+            session.setString(3, key.getKey());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return EMailBuilder.parse(session.getString("EMAIL"));
             } else {
                 return null;
             }
         } finally {
-            close(cx, ps, rs);
+            session.close();
         }
     }
 
     public List<EMail> readEmails(final JabberId jabberId,
             final Boolean verified) throws SQLException {
-        Connection cx = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+        final HypersonicSession session = openSession();
         try {
-            cx = getCx();
-            ps = cx.prepareStatement(SQL_READ_EMAILS);
-            ps.setString(1, jabberId.getUsername());
-            ps.setBoolean(2, verified);
-            rs = ps.executeQuery();
+            session.prepareStatement(SQL_READ_EMAILS);
+            session.setString(1, jabberId.getUsername());
+            session.setBoolean(2, verified);
+            session.executeQuery();
             final List<EMail> emails = new ArrayList<EMail>();
-            while (rs.next()) {
-                emails.add(extractEMail(rs));
+            while (session.nextResult()) {
+                emails.add(EMailBuilder.parse(session.getString("EMAIL")));
             }
             return emails;
+        } finally {
+            session.close();
         }
-        finally { close(cx, ps, rs); }
     }
 
     public List<Feature> readFeatures(final JabberId userId) {
@@ -358,25 +355,20 @@ public class UserSql extends AbstractSql {
      * @param userId
      *            A user id <code>JabberId</code>.
      * @return The security question answer <code>String</code>.
-     * @throws SQLException
      */
-    public String readProfileSecurityAnswer(final JabberId userId)
-            throws SQLException {
-        Connection cx = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+    public String readProfileSecurityAnswer(final JabberId userId) {
+        final HypersonicSession session = openSession();
         try {
-            cx = getCx();
-            ps = cx.prepareStatement(SQL_READ_PROFILE_SECURITY_ANSWER);
-            ps.setString(1, userId.getUsername());
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getString("SECURITY_ANSWER");
+            session.prepareStatement(SQL_READ_SECURITY_ANSWER);
+            session.setString(1, userId.getUsername());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getString("SECURITY_ANSWER");
             } else {
                 return null;
             }
         } finally {
-            close(cx, ps, rs);
+            session.close();
         }
     }
 
@@ -386,32 +378,27 @@ public class UserSql extends AbstractSql {
      * @param userId
      *            A user id <code>JabberId</code>.
      * @return The security question answer <code>String</code>.
-     * @throws SQLException
      */
-    public String readProfileSecurityQuestion(final JabberId userId)
-            throws SQLException {
-        Connection cx = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+    public String readProfileSecurityQuestion(final JabberId userId) {
+        final HypersonicSession session = openSession();
         try {
-            cx = getCx();
-            ps = cx.prepareStatement(SQL_READ_PROFILE_SECURITY_QUESTION);
-            ps.setString(1, userId.getUsername());
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getString("SECURITY_QUESTION");
+            session.prepareStatement(SQL_READ_SECURITY_QUESTION);
+            session.setString(1, userId.getUsername());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getString("SECURITY_QUESTION");
             } else {
                 return null;
             }
         } finally {
-            close(cx, ps, rs);
+            session.close();
         }
     }
 
     public Token readProfileToken(final JabberId userId) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_READ_PROFILE_TOKEN);
+            session.prepareStatement(SQL_READ_TOKEN);
             session.setString(1, userId.getUsername());
             session.executeQuery();
             if (session.nextResult()) {
@@ -427,7 +414,7 @@ public class UserSql extends AbstractSql {
     public String readProfileVCard(final JabberId userId) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_READ_PROFILE_VCARD);
+            session.prepareStatement(SQL_READ_VCARD);
             session.setString(1, userId.getUsername());
             session.executeQuery();
             if (session.nextResult()) {
@@ -449,29 +436,25 @@ public class UserSql extends AbstractSql {
      * @throws SQLException
      */
     public String readUsername(final EMail email) throws SQLException {
-        Connection cx = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+        final HypersonicSession session = openSession();
         try {
-            cx = getCx();
-            logStatement(SQL_READ_USERNAME);
-            ps = cx.prepareStatement(SQL_READ_USERNAME);
-            set(ps, 1, email.toString());
-            rs = ps.executeQuery();
-            if(rs.next()) {
-                return rs.getString("USERNAME");
+            session.prepareStatement(SQL_READ_USERNAME);
+            session.setString(1, email.toString());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getString("USERNAME");
             } else {
                 return null;
             }
         } finally {
-            close(cx, ps, rs);
+            session.close();
         }
     }
 
     public void updateProfileToken(final JabberId userId, final Token token) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_UPDATE_PROFILE_TOKEN);
+            session.prepareStatement(SQL_UPDATE_TOKEN);
             session.setString(1, token.getValue());
             session.setString(2, userId.getUsername());
             if (1 != session.executeUpdate())
@@ -488,7 +471,7 @@ public class UserSql extends AbstractSql {
     public void updateProfileVCard(final JabberId userId, final String vcardXML) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_UPDATE_PROFILE_VCARD);
+            session.prepareStatement(SQL_UPDATE_VCARD);
             session.setString(1, vcardXML);
             session.setString(2, userId.getUsername());
             if (1 != session.executeUpdate())
@@ -503,25 +486,24 @@ public class UserSql extends AbstractSql {
     }
 
     public void verifyEmail(final JabberId userId, final EMail email,
-            final VerificationKey key) throws SQLException {
-        Connection cx = null;
-        PreparedStatement ps = null;
+            final VerificationKey key) {
+        final HypersonicSession session = openSession();
         try {
-            cx = getCx();
-            ps = cx.prepareStatement(SQL_VERIFY_EMAIL);
-            ps.setBoolean(1, Boolean.TRUE);
-            ps.setString(2, null);
-            ps.setString(3, userId.getUsername());
-            ps.setString(4, email.toString());
-            ps.setString(5, key.getKey());
-            if (1 != ps.executeUpdate())
-                throw new SQLException("COULD NOT VERIFY EMAIL");
-            cx.commit();
-        } catch(final SQLException sqlx) {
-            cx.rollback();
-            throw sqlx;
+            session.prepareStatement(SQL_VERIFY_EMAIL);
+            session.setBoolean(1, Boolean.TRUE);
+            session.setString(2, null);
+            session.setLong(3, readLocalUserId(userId));
+            session.setString(4, email.toString());
+            session.setString(5, key.getKey());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException(
+                        "Could not verify e-mail for {0}:{1}:{2}.", userId,
+                        email, key);
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
         } finally {
-            close(cx, ps);
+            session.close();
         }
     }
 
@@ -546,12 +528,31 @@ public class UserSql extends AbstractSql {
         return credentials;
     }
 
-    EMail extractEMail(final ResultSet rs) throws SQLException {
-        return EMailBuilder.parse(rs.getString("EMAIL"));
-    }
-
     Feature extractFeature(final HypersonicSession session) {
         return Feature.valueOf(session.getString("FEATURE"));
+    }
+
+    /**
+     * Read the local user id.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A local user id <code>Long</code>.
+     */
+    Long readLocalUserId(final JabberId userId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_LOCAL_USER_ID);
+            session.setString(1, userId.getUsername());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getLong("USER_ID");
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
     }
 
     /**

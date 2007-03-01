@@ -381,7 +381,8 @@ public final class ContainerModelImpl extends
                     // remote create
                     final List<JabberId> team = artifactModel.readTeamIds(containerId);
                     team.remove(localUserId());
-                    getSessionModel().createDraft(team, container.getUniqueId());
+                    getSessionModel().createDraft(team, container.getUniqueId(),
+                            createdOn);
                 } finally {
                     releaseLocks(documentLocks.values());
                 }
@@ -409,20 +410,21 @@ public final class ContainerModelImpl extends
             final Map<Document, DocumentFileLock> allDocumentsLocks = lockDocuments(allDocuments);
             final Map<DocumentVersion, DocumentFileLock> allDocumentVersionsLocks = lockDocumentVersions(allDocuments);
             if (isDistributed(container.getId())) {
+                final InternalSessionModel sessionModel = getSessionModel();
+                final Calendar deletedOn = sessionModel.readDateTime();
                 // delete the draft
                 if (container.isLocalDraft()) {
-                    getSessionModel().deleteDraft(container.getUniqueId());
+                    sessionModel.deleteDraft(container.getUniqueId(), deletedOn);
                 }
                 /* the archive user is not part of the team */
                 if (isLocalTeamMember(container.getId())) {
                     final TeamMember localTeamMember = localTeamMember(container.getId());
                     final List<JabberId> team = getArtifactModel().readTeamIds(container.getId());
                     team.remove(localUserId());
-                    getSessionModel().removeTeamMember(
+                    sessionModel.removeTeamMember(
                             container.getUniqueId(), team, localTeamMember.getId());
                 }
-                getSessionModel().deleteArtifact(localUserId(),
-                        container.getUniqueId());
+                sessionModel.deleteArtifact(localUserId(), container.getUniqueId());
                 deleteLocal(container.getId(), allDocuments, allDocumentsLocks, allDocumentVersionsLocks);
             } else {
                 deleteLocal(container.getId(), allDocuments, allDocumentsLocks, allDocumentVersionsLocks);
@@ -456,7 +458,9 @@ public final class ContainerModelImpl extends
                     if (!isFirstDraft(container.getId())) {
                         assertOnline("User is not online.");
                         assertIsDistributed("Draft has not been distributed.", containerId);
-                        getSessionModel().deleteDraft(container.getUniqueId());
+                        final InternalSessionModel sessionModel = getSessionModel();
+                        sessionModel.deleteDraft(container.getUniqueId(),
+                                sessionModel.readDateTime());
                     }
                 }
                 // delete local data

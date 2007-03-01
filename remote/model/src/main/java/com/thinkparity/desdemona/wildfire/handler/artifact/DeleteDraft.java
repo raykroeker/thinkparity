@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.artifact;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,7 +43,8 @@ public final class DeleteDraft extends AbstractHandler {
         logger.logApiId();
         deleteDraft(provider, reader.readJabberId("userId"),
                 reader.readJabberIds("team", "teamMember"),
-                reader.readUUID("uniqueId"));
+                reader.readUUID("uniqueId"),
+                reader.readCalendar("deletedOn"));
     }
 
     /**
@@ -53,7 +55,7 @@ public final class DeleteDraft extends AbstractHandler {
      */
     private void deleteDraft(final ServiceModelProvider context,
             final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId) {
-        context.getArtifactModel().deleteDraft(userId, team, uniqueId);
+            final UUID uniqueId, final Calendar deletedOn) {
+        context.getArtifactModel().deleteDraft(userId, team, uniqueId, deletedOn);
     }
 }

@@ -13,7 +13,6 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.user.TeamMember;
-import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.artifact.RemoteArtifact;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
@@ -30,9 +29,9 @@ public class ArtifactSql extends AbstractSql {
 
     /** Sql to create an artifact. */
     private static final String SQL_CREATE =
-        new StringBuffer("insert into PARITYARTIFACT ")
-        .append("(ARTIFACTUUID,ARTIFACTKEYHOLDER,CREATEDBY,CREATEDON,")
-        .append("UPDATEDBY,UPDATEDON) ")
+        new StringBuffer("insert into ARTIFACT ")
+        .append("(ARTIFACT_UNIQUE_ID,ARTIFACT_DRAFT_OWNER,CREATED_BY,")
+        .append("CREATED_ON,UPDATED_BY,UPDATED_ON) ")
 		.append("values (?,?,?,?,?,?)")
 		.toString();
 
@@ -45,10 +44,9 @@ public class ArtifactSql extends AbstractSql {
 
     /** Sql to delete an artifact. */
 	private static final String SQL_DELETE =
-		new StringBuffer("delete from PARITYARTIFACT ")
-		.append("where ARTIFACTID=?")
+		new StringBuffer("delete from ARTIFACT ")
+		.append("where ARTIFACT_ID=?")
 		.toString();
-
 
     /** Sql to delete a team member relationship. */
     private static final String SQL_DELETE_TEAM_REL =
@@ -58,33 +56,34 @@ public class ArtifactSql extends AbstractSql {
 
     /** Sql to read an artifact. */
 	private static final String SQL_READ =
-	    new StringBuffer("select ARTIFACTID,ARTIFACTUUID,ARTIFACTKEYHOLDER,")
-        .append("CREATEDON,UPDATEDON ")
-        .append("from PARITYARTIFACT PA ")
-        .append("where PA.ARTIFACTUUID=?")
+	    new StringBuffer("select ARTIFACT_ID,ARTIFACT_UNIQUE_ID,CREATED_ON,")
+        .append("UPDATED_ON ")
+        .append("from ARTIFACT A ")
+        .append("where A.ARTIFACT_UNIQUE_ID=?")
         .toString();
 
 	/** Sql to read the artifact id. */
     private static final String SQL_READ_ARTIFACT_ID =
-        new StringBuffer("select ARTIFACTID ")
-        .append("from PARITYARTIFACT PA ")
-        .append("where PA.ARTIFACTUUID=?")
+        new StringBuffer("select ARTIFACT_ID ")
+        .append("from ARTIFACT A ")
+        .append("where A.ARTIFACT_UNIQUE_ID=?")
         .toString();
 
-	/** Sql to read all draft unique ids for a user. */
-    private static final String SQL_READ_DRAFT_ARTIFACT_IDS =
-        new StringBuffer("select PA.ARTIFACTUUID ")
-        .append("from parityArtifact PA ")
-        .append("where PA.ARTIFACTKEYHOLDER=? ")
-        .append("order by PA.ARTIFACTID asc")
-        .toString();
-
-    /** Sql to read the artifact key holder. */
-    private static final String SQL_READ_KEY_HOLDER =
-            new StringBuffer("select ARTIFACTKEYHOLDER ")
-            .append("from PARITYARTIFACT ")
-            .append("where ARTIFACTUUID=?")
+	/** Sql to read the artifact draft owner. */
+    private static final String SQL_READ_DRAFT_OWNER =
+            new StringBuffer("select PU.USERNAME \"ARTIFACT_DRAFT_OWNER\" ")
+            .append("from ARTIFACT A ")
+            .append("inner join PARITY_USER PU on A.ARTIFACT_DRAFT_OWNER=PU.USER_ID ")
+            .append("where A.ARTIFACT_UNIQUE_ID=?")
             .toString();
+
+    /** Sql to read all draft unique ids for a user. */
+    private static final String SQL_READ_DRAFT_UNIQUE_IDS =
+        new StringBuffer("select A.ARTIFACT_UNIQUE_ID ")
+        .append("from ARTIFACT A ")
+        .append("where A.ARTIFACT_DRAFT_OWNER=? ")
+        .append("order by A.ARTIFACT_ID asc")
+        .toString();
 
     /** Sql to read the team member relationship. */
     private static final String SQL_READ_TEAM_REL_BY_ARTIFACT_BY_USER =
@@ -113,13 +112,15 @@ public class ArtifactSql extends AbstractSql {
         .append("where ATR.ARTIFACT_ID=?")
         .toString();
 
-	/** Sql to update the keyholder. */
-	private static final String SQL_UPDATE_KEYHOLDER =
-		new StringBuffer("update PARITYARTIFACT ")
-		.append("set ARTIFACTKEYHOLDER=?,UPDATEDON=current_timestamp,")
-		.append("UPDATEDBY=? ")
-		.append("where ARTIFACTID=?")
+	/** Sql to update the draft owner. */
+	private static final String SQL_UPDATE_DRAFT_OWNER =
+		new StringBuffer("update ARTIFACT ")
+		.append("set ARTIFACT_DRAFT_OWNER=?,UPDATED_ON=?,UPDATED_BY=? ")
+		.append("where ARTIFACT_ID=?")
 		.toString();
+
+    /** A user sql interface. */
+    private final UserSql userSql;
 
     /**
      * Create ArtifactSql.
@@ -127,6 +128,7 @@ public class ArtifactSql extends AbstractSql {
 	 */
 	public ArtifactSql() {
         super();
+        this.userSql = new UserSql();
 	}
 
 	/**
@@ -134,24 +136,24 @@ public class ArtifactSql extends AbstractSql {
      * 
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
-     * @param keyHolder
-     *            An artifact key holder user id <code>JabberId</code>.
+     * @param draftOwner
+     *            A draft owner user id <code>JabberId</code>.
      * @param createdBy
      *            The creation user id <code>JabberId</code>.
      * @param createdOn
      *            The creation date <code>Calendar</code>.
      * @return The artifact id <code>Long</code>.
      */
-	public Long create(final UUID uniqueId, final JabberId keyHolder,
+	public Long create(final UUID uniqueId, final JabberId draftOwner,
             final JabberId createdBy, final Calendar createdOn) {
 		final HypersonicSession session = openSession();
 		try {
 			session.prepareStatement(SQL_CREATE);
 			session.setUniqueId(1, uniqueId);
-			session.setString(2, keyHolder.getUsername());
-            session.setString(3, createdBy.getUsername());
+			session.setLong(2, readLocalUserId(draftOwner));
+            session.setLong(3, readLocalUserId(createdBy));
             session.setCalendar(4, createdOn);
-            session.setString(5, createdBy.getUsername());
+            session.setLong(5, readLocalUserId(createdBy));
             session.setCalendar(6, createdOn);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not create artifact {0}.", uniqueId);
@@ -278,7 +280,7 @@ public class ArtifactSql extends AbstractSql {
             session.setUniqueId(1, uniqueId);
             session.executeQuery();
             if (session.nextResult()) {
-                return session.getLong("ARTIFACTID");
+                return session.getLong("ARTIFACT_ID");
             } else {
                 return null;
             }
@@ -288,47 +290,47 @@ public class ArtifactSql extends AbstractSql {
     }
 
     /**
-     * Read the artifact ids for a user that is the current key holder.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A <code>List</code> of artifact id <code>Long</code>s.
-     */
-    public List<UUID> readDraftUniqueIds(final JabberId userId) {
-        final HypersonicSession session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_DRAFT_ARTIFACT_IDS);
-            session.setString(1, userId.getUsername());
-            session.executeQuery();
-            final List<UUID> uniqueIds = new ArrayList<UUID>();
-            while (session.nextResult()) {
-                uniqueIds.add(session.getUniqueId("ARTIFACTUUID"));
-            }
-            return uniqueIds;
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
-     * Read the current key holder.
+     * Read the current draft owner.
      * 
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
      * @return A user id <code>JabberId</code>.
      */
-    public JabberId readKeyHolder(final UUID uniqueId) {
+    public JabberId readDraftOwner(final UUID uniqueId) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_READ_KEY_HOLDER);
+            session.prepareStatement(SQL_READ_DRAFT_OWNER);
             session.setString(1, uniqueId.toString());
             session.executeQuery();
             if (session.nextResult()) {
                 return JabberIdBuilder.parseUsername(
-                        session.getString("ARTIFACTKEYHOLDER"));
+                        session.getString("ARTIFACT_DRAFT_OWNER"));
             } else {
                 return null;
             }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read the artifact ids for a user that is the current draft owner.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List</code> of artifact id <code>Long</code>s.
+     */
+    public List<UUID> readDraftUniqueIds(final JabberId draftOwner) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_DRAFT_UNIQUE_IDS);
+            session.setLong(1, readLocalUserId(draftOwner));
+            session.executeQuery();
+            final List<UUID> uniqueIds = new ArrayList<UUID>();
+            while (session.nextResult()) {
+                uniqueIds.add(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
+            }
+            return uniqueIds;
         } finally {
             session.close();
         }
@@ -408,42 +410,30 @@ public class ArtifactSql extends AbstractSql {
         }
     }
 
-	/**
-     * Update an artifact key holder.
-     * 
-     * @param artifactId
-     *            An artifact id <code>Long</code>.
-     * @param keyHolder
-     *            A user id <code>JabberId</code>.
-     * @param updatedBy
-     *            An updated by user id <code>JabberId</code>.
-     */
-    public void updateKeyHolder(final Long artifactId, final JabberId keyHolder,
-            final JabberId updatedBy) {
-        updateKeyHolder(artifactId, keyHolder.getUsername(), updatedBy);
-    }
-
     /**
-     * Update an artifact key holder.
+     * Update an artifact draft owner.
      * 
      * @param artifactId
      *            An artifact id <code>Long</code>.
-     * @param keyHolder
-     *            A user id <code>String</code>.
+     * @param draftOwner
+     *            The new draft owner <code>JabberId</code>.
      * @param updatedBy
      *            An updated by user id <code>JabberId</code>.
      */
-    public void updateKeyHolder(final Long artifactId,
-            final String keyHolder, final JabberId updatedBy) {
+    public void updateDraftOwner(final Long artifactId,
+            final JabberId draftOwner, final JabberId updatedBy,
+            final Calendar updatedOn) {
 		final HypersonicSession session = openSession();
 		try {
-			session.prepareStatement(SQL_UPDATE_KEYHOLDER);
-            session.setString(1, keyHolder);
-			session.setString(2, updatedBy.getUsername());
-			session.setLong(3, artifactId);
+			session.prepareStatement(SQL_UPDATE_DRAFT_OWNER);
+            session.setLong(1, readLocalUserId(draftOwner));
+            session.setCalendar(2, updatedOn);
+			session.setLong(3, readLocalUserId(updatedBy));
+			session.setLong(4, artifactId);
             if (1 != session.executeUpdate())
-                throw new HypersonicException("Could not update artifact key holder for {0}:{1}",
-                        artifactId, keyHolder);
+                throw new HypersonicException(
+                        "Could not update artifact draft owner to {0} for {1}",
+                        draftOwner, artifactId);
 
             session.commit();
         } catch (final Throwable t) {
@@ -454,21 +444,6 @@ public class ArtifactSql extends AbstractSql {
 	}
 
     /**
-     * Update an artifact key holder.
-     * 
-     * @param artifactId
-     *            An artifact id <code>Long</code>.
-     * @param keyHolder
-     *            A <code>User</code>.
-     * @param updatedBy
-     *            An updated by user id <code>JabberId</code>.
-     */
-	public void updateKeyHolder(final Long artifactId, final User keyHolder,
-            final JabberId updatedBy) {
-        updateKeyHolder(artifactId, keyHolder.getId(), updatedBy);
-    }
-
-    /**
      * Extract an artifact from a database session.
      * 
      * @param session
@@ -477,10 +452,10 @@ public class ArtifactSql extends AbstractSql {
      */
 	Artifact extract(final HypersonicSession session) {
         final Artifact artifact = new RemoteArtifact();
-        artifact.setId(session.getLong("ARTIFACTID"));
-        artifact.setUniqueId(UUID.fromString(session.getString("ARTIFACTUUID")));
-        artifact.setCreatedOn(session.getCalendar("CREATEDON"));
-        artifact.setUpdatedOn(session.getCalendar("UPDATEDON"));
+        artifact.setId(session.getLong("ARTIFACT_ID"));
+        artifact.setUniqueId(UUID.fromString(session.getString("ARTIFACT_UNIQUE_ID")));
+        artifact.setCreatedOn(session.getCalendar("CREATED_ON"));
+        artifact.setUpdatedOn(session.getCalendar("UPDATED_ON"));
         return artifact;
 	}
 
@@ -497,5 +472,16 @@ public class ArtifactSql extends AbstractSql {
         teamMember.setId(JabberIdBuilder.parseUsername(session.getString("USERNAME")));
         teamMember.setLocalId(session.getLong("USER_ID"));
         return teamMember;
+    }
+
+    /**
+     * Read the local user id for the user id.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A local user id <code>Long</code>.
+     */
+    private Long readLocalUserId(final JabberId userId) {
+        return userSql.readLocalUserId(userId);
     }
 }

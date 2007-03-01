@@ -17,17 +17,14 @@ insert into jiveProperty (NAME,PROPVALUE)
     values('thinkparity.environment','TESTING_LOCALHOST');
 insert into jiveProperty (NAME,PROPVALUE)
     values('thinkparity.mode','TESTING');
-insert into PARITY_FEATURE (FEATURE)
-    values('ARCHIVE');
+insert into FEATURE(FEATURE) values('BACKUP');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('thinkparity','parity',0,0);
-insert into PARITY_USER(USERNAME)
-    values('thinkparity');
-insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
-    values('thinkparity', 'thinkParity@thinkparity.com', true);
-insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
+insert into PARITY_USER(USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('thinkparity','What is my username?','thinkparity',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>thinkParity Services Inc.</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
+insert into USER_EMAIL(USERNAME,EMAIL,VERIFIED)
+    values(7000,'thinkParity@thinkparity.com',true);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('junit','parity',0,0);

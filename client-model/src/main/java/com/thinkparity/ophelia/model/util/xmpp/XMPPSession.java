@@ -153,14 +153,9 @@ public interface XMPPSession {
     public void createBackupStream(final JabberId userId,
             final String streamId, final UUID uniqueId, final Long versionId);
 
-    /**
-     * Create a draft for an artifact.
-     * 
-     * @param artifact
-     *            An artifact.
-     */
+    // TODO-javadoc XMPPSession#createDraft()
     public void createDraft(final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId);
+            final UUID uniqueId, final Calendar createdOn);
 
     public void createMigratorProduct(final JabberId userId,
             final Product product);
@@ -259,7 +254,7 @@ public interface XMPPSession {
      *            An artifact unique id.
      */
     public void deleteDraft(final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId);
+            final UUID uniqueId, final Calendar deletedOn);
 
     /**
      * Delete a stream.

@@ -116,7 +116,7 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
      *            An artifact unique id.
      */
     void createDraft(final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId) {
+            final UUID uniqueId, final Calendar createdOn) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("team", team);
@@ -125,6 +125,7 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         createDraft.setParameter("userId", userId);
         createDraft.setParameter("team", "teamMember", team);
         createDraft.setParameter("uniqueId", uniqueId);
+        createDraft.setParameter("createdOn", createdOn);
         execute(createDraft);
     }
 
@@ -149,15 +150,17 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
      *            An artifact unique id <code>UUID</code>.
      */
     void deleteDraft(final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId) {
+            final UUID uniqueId, final Calendar deletedOn) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("team", team);
         logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("deletedOn", deletedOn);
         final XMPPMethod deleteDraft = new XMPPMethod("artifact:deletedraft");
         deleteDraft.setParameter("userId", userId);
         deleteDraft.setParameter("team", "teamMember", team);
         deleteDraft.setParameter("uniqueId", uniqueId);
+        deleteDraft.setParameter("deletedOn", deletedOn);
         execute(deleteDraft);
     }
 

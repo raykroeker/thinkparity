@@ -408,9 +408,9 @@ class ArchiveModelImpl extends AbstractModelImpl {
      * @return A <code>FileSystem</code>.
      */
     private FileSystem readFileSystem() {
-        final String thinkParityArchiveRoot =
-            getJiveProperty(JivePropertyNames.THINKPARITY_ARCHIVE_ROOT);
-        return new FileSystem(new File(thinkParityArchiveRoot));
+        final String thinkParityBackupRoot =
+            getJiveProperty(JivePropertyNames.THINKPARITY_BACKUP_ROOT);
+        return new FileSystem(new File(thinkParityBackupRoot));
     }
 
     /**

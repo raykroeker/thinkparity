@@ -17,8 +17,7 @@ insert into jiveProperty (NAME,PROPVALUE)
     values('thinkparity.environment','TESTING');
 insert into jiveProperty (NAME,PROPVALUE)
     values('thinkparity.mode','TESTING');
-insert into PARITY_FEATURE (FEATURE)
-    values('ARCHIVE');
+insert into FEATURE(FEATURE) values('BACKUP');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('thinkparity','parity',0,0);

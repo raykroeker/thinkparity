@@ -87,22 +87,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    // TODO-javadoc InternalArtifactModel#addTeamMember()
-    void removeTeamMember(final JabberId userId, final Long artifactId,
-            final Long teamMemberId) {
-        try {
-            assertIsAuthenticatedUser(userId);
-
-            artifactSql.deleteTeamRel(artifactId, teamMemberId);
-            if (0 == artifactSql.readTeamRelCount(artifactId)) {
-                artifactSql.delete(artifactId);
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-	void confirmReceipt(final JabberId userId, final UUID uniqueId,
+    void confirmReceipt(final JabberId userId, final UUID uniqueId,
             final Long versionId, final JabberId publishedBy,
             final Calendar publishedOn, final List<JabberId> publishedTo,
             final JabberId receivedBy, final Calendar receivedOn) {
@@ -145,7 +130,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
      * Create an artifact; and add the creator to the team immediately. Note
      * that we are deliberately not using the model api to add a team member
      * because we do not want to fire off notifications.
@@ -177,18 +162,18 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            The artifact unique id.
      */
     void createDraft(final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId) {
+            final UUID uniqueId, final Calendar createdOn) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("team", team);
         logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("createdOn", createdOn);
         try {
             assertIsAuthenticatedUser(userId);
             assertSystemIsKeyHolder(uniqueId);
             final Artifact artifact = read(uniqueId);
-            artifactSql.updateKeyHolder(
-                    artifact.getId(), session.getJabberId().getUsername(),
-                    session.getJabberId());
+            artifactSql.updateDraftOwner(artifact.getId(),
+                    session.getJabberId(), session.getJabberId(), createdOn);
             notifyDraftCreated(team, artifact, session.getJabberId(), DateUtil
                     .getInstance());
         } catch (final Throwable t) {
@@ -203,17 +188,19 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            An artifact unique id.
      */
     void deleteDraft(final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId) {
+            final UUID uniqueId, final Calendar deletedOn) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("team", team);
         logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("deletedOn", deletedOn);
         try {
             assertIsKeyHolder(uniqueId);
             assertIsAuthenticatedUser(userId);
             // update key data
             final Artifact artifact = read(uniqueId);
-            artifactSql.updateKeyHolder(artifact.getId(), User.THINK_PARITY, userId);
+            artifactSql.updateDraftOwner(artifact.getId(),
+                    User.THINK_PARITY.getId(), userId, deletedOn);
             // fire notification
             final ArtifactDraftDeletedEvent draftDeleted = new ArtifactDraftDeletedEvent();
             draftDeleted.setUniqueId(artifact.getUniqueId());
@@ -231,7 +218,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @param userId
      *            A user id <code>JabberId</code>.
      */
-    void deleteDrafts(final JabberId userId) {
+    void deleteDrafts(final JabberId userId, final Calendar deletedOn) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         try {
@@ -247,7 +234,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
                 for (final TeamMember teamMember : teamMembers) {
                     teamIds.add(teamMember.getId());
                 }
-                deleteDraft(userId, teamIds, uniqueId);
+                deleteDraft(userId, teamIds, uniqueId, deletedOn);
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -270,7 +257,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Read the key holder for an artifact.
      * 
      * @param userId
@@ -285,13 +272,13 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logVariable("uniqueId", uniqueId);
         assertIsAuthenticatedUser(userId);
         try {
-            return artifactSql.readKeyHolder(uniqueId);
+            return artifactSql.readDraftOwner(uniqueId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
-    // TODO-javadoc InternalArtifactModel#readTeam()
+	// TODO-javadoc InternalArtifactModel#readTeam()
     List<TeamMember> readTeam(final JabberId userId, final Long artifactId) {
         try {
             assertIsAuthenticatedUser(userId);
@@ -330,6 +317,21 @@ class ArtifactModelImpl extends AbstractModelImpl {
             }
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    // TODO-javadoc InternalArtifactModel#addTeamMember()
+    void removeTeamMember(final JabberId userId, final Long artifactId,
+            final Long teamMemberId) {
+        try {
+            assertIsAuthenticatedUser(userId);
+
+            artifactSql.deleteTeamRel(artifactId, teamMemberId);
+            if (0 == artifactSql.readTeamRelCount(artifactId)) {
+                artifactSql.delete(artifactId);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 

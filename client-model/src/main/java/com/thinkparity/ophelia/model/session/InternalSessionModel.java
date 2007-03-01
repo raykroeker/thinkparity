@@ -105,13 +105,9 @@ public interface InternalSessionModel extends SessionModel {
     public void createBackupStream(final JabberId userId,
             final String streamId, final UUID uniqueId, final Long versionId);
 
-    /**
-     * Create a draft for an artifact.
-     * 
-     * @param uniqueId
-     *            An artifact unique id.
-     */
-    public void createDraft(final List<JabberId> team, final UUID uniqueId);
+    // TODO-javadoc InternalSessionModel#createDraft()
+    public void createDraft(final List<JabberId> team, final UUID uniqueId,
+            final Calendar createdOn);
 
     /**
      * Create a migrator stream for a list of resources.
@@ -178,13 +174,8 @@ public interface InternalSessionModel extends SessionModel {
     public void deleteContactInvitation(final JabberId userId,
             final EMail invitedAs, final Calendar deletedOn);
 
-    /**
-     * Delete a draft for an artifact.
-     * 
-     * @param uniqueId
-     *            An artifact unique id.
-     */
-    public void deleteDraft(final UUID uniqueId);
+    // TODO-javadoc InternalSessionModel#deleteDraft()
+    public void deleteDraft(final UUID uniqueId, final Calendar deletedOn);
 
 	/**
      * Delete a stream session.

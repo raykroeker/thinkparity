@@ -6,14 +6,19 @@ package com.thinkparity.ophelia.model.io.handler;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.ophelia.model.io.IOHandler;
 
 /**
+ * <b>Title:</b>thinkParity OpheliaModel Profile IO<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version
+ * @version 1.1.2.2
  */
 public interface ProfileIOHandler extends IOHandler {
 
@@ -73,6 +78,15 @@ public interface ProfileIOHandler extends IOHandler {
      * @return A <code>List&lt;ProfileEMail&gt;</code>.
      */
     public List<ProfileEMail> readEmails(final Long profileId);
+
+    /**
+     * Read the features for the profile.
+     * 
+     * @param profileId
+     *            A profile id <code>Long</code>.
+     * @return A <code>List</code> of <code>Feature</code>s.
+     */
+    public List<Feature> readFeatures(final Long profileId);
 
     /**
      * Update a profile.

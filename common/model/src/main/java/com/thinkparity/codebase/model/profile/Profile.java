@@ -3,9 +3,13 @@
  */
 package com.thinkparity.codebase.model.profile;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.user.User;
 
 /**
@@ -20,6 +24,9 @@ import com.thinkparity.codebase.model.user.User;
  */
 public class Profile extends User {
 
+    /** A list of <code>Feature</code>s the user has enabled. */
+    private final List<Feature> features;
+
     /** The profile's vcard info. */
     private ProfileVCard vcard;
 
@@ -29,6 +36,49 @@ public class Profile extends User {
      */
 	public Profile() {
         super();
+        this.features = new ArrayList<Feature>(2);
+    }
+
+    /**
+     * Set the features for the profile.
+     * 
+     * @param features
+     *            A <code>List</code> of <code>Feature</code>s.
+     */
+    public void setFeatures(final List<Feature> features) {
+        this.features.clear();
+        this.features.addAll(features);
+    }
+
+    /**
+     * Obtain the features for the profile.
+     * 
+     * @return A <code>List</code> of <code>Feature</code>s.
+     */
+    public List<Feature> getFeatures() {
+        return Collections.unmodifiableList(features);
+    }
+
+    /**
+     * Add a feature.
+     * 
+     * @param feature
+     *            A <code>Feature</code>.
+     * @return True if the list of features is modified.
+     */
+    public boolean add(final Feature feature) {
+        return this.features.add(feature);
+    }
+
+    /**
+     * Remove a feature.
+     * 
+     * @param feature
+     *            A <code>Feature</code>.
+     * @return True if the list of features is modified.
+     */
+    public boolean remove(final Feature feature) {
+        return this.features.remove(feature);
     }
 
     /**

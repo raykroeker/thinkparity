@@ -21,6 +21,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -84,6 +85,10 @@ public class XMPPMethodResponse extends IQ {
 
     public List<Container> readResultContainers(final String name) {
         return (List<Container>) readResult(name);
+    }
+
+    public List<Feature> readResultFeatures(final String name) {
+        return (List<Feature>) readResult(name);
     }
 
     public List<ContainerVersion> readResultContainerVersions(final String name) {

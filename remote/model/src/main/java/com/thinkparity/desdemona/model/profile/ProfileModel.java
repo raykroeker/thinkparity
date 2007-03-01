@@ -8,9 +8,9 @@ import java.util.List;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.user.Feature;
 import com.thinkparity.codebase.model.user.Token;
 
 import com.thinkparity.desdemona.model.AbstractModel;

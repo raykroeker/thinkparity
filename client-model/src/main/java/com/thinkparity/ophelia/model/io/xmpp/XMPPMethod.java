@@ -48,6 +48,7 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -705,6 +706,12 @@ public class XMPPMethod extends IQ {
                     parser.next();
                     parser.next();
                     return container;
+                } else if (javaType.equals(Feature.class)) {
+                    Feature feature = null;
+                    feature = (Feature) xstreamUtil.unmarshal(new SmackXppReader(parser), feature);
+                    parser.next();
+                    parser.next();
+                    return feature;
                 } else if (javaType.equals(Locale.class)) {
                     Locale locale = null;
                     locale = (Locale) xstreamUtil.unmarshal(new SmackXppReader(parser), locale);

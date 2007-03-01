@@ -19,6 +19,7 @@ import com.thinkparity.desdemona.model.container.ContainerModel;
 import com.thinkparity.desdemona.model.migrator.MigratorModel;
 import com.thinkparity.desdemona.model.profile.ProfileModel;
 import com.thinkparity.desdemona.model.queue.QueueModel;
+import com.thinkparity.desdemona.model.rules.RulesModel;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.stream.StreamModel;
 import com.thinkparity.desdemona.model.user.UserModel;
@@ -115,9 +116,6 @@ public abstract class AbstractHandler extends
                 IQ_LOGGER.logVariable("iq", iq);
                 IQ_LOGGER.logVariable("iq length", iq.getChildElement().asXML().length());
                 service(new ServiceModelProvider() {
-                    public MigratorModel getMigratorModel() {
-                        return MigratorModel.getModel(session);
-                    }
                     public ArchiveModel getArchiveModel() {
                         return ArchiveModel.getModel(session);
                     }
@@ -133,11 +131,17 @@ public abstract class AbstractHandler extends
                     public ContainerModel getContainerModel() {
                         return ContainerModel.getModel(session);
                     }
+                    public MigratorModel getMigratorModel() {
+                        return MigratorModel.getModel(session);
+                    }
                     public ProfileModel getProfileModel() {
                         return ProfileModel.getModel(session);
                     }
                     public QueueModel getQueueModel() {
                         return QueueModel.getModel(session);
+                    }
+                    public RulesModel getRulesModel() {
+                        return RulesModel.getModel(session);
                     }
                     public StreamModel getStreamModel() {
                         return StreamModel.getModel(session);

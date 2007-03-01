@@ -22,16 +22,17 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.VerificationKey;
-import com.thinkparity.codebase.model.user.Feature;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
+import com.thinkparity.desdemona.model.Constants.Product.Ophelia;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.model.session.Session;
@@ -40,7 +41,6 @@ import com.thinkparity.desdemona.util.smtp.TransportManager;
 
 import org.jivesoftware.wildfire.auth.UnauthorizedException;
 import org.jivesoftware.wildfire.user.UserManager;
-
 
 /**
  * <b>Title:</b>thinkParity Profile Model Implementation</br>
@@ -158,6 +158,7 @@ class ProfileModelImpl extends AbstractModelImpl {
 
             final Profile profile = new Profile();
             profile.setVCard(getUserModel().readVCard(userId, new ProfileVCard()));
+            profile.setFeatures(userSql.readFeatures(userId, Ophelia.PRODUCT_ID));
             return inject(profile, user);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -194,7 +195,7 @@ class ProfileModelImpl extends AbstractModelImpl {
         logVariable("userId", userId);
         try {
             assertIsAuthenticatedUser(userId);
-            return userSql.readFeatures(userId);
+            return userSql.readFeatures(userId, Ophelia.PRODUCT_ID);
         } catch (final Throwable t) {
             throw translateError(t);
         }

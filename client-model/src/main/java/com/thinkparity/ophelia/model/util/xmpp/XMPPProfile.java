@@ -102,6 +102,7 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         final Profile profile = new Profile();
         profile.setId(response.readResultJabberId("id"));
         profile.setVCard(response.readResultProfileVCard("vcard"));
+        profile.setFeatures(response.readResultFeatures("features"));
         profile.setName(response.readResultString("name"));
         profile.setOrganization(response.readResultString("organization"));
         profile.setTitle(response.readResultString("title"));

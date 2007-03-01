@@ -51,6 +51,7 @@ import com.thinkparity.desdemona.model.queue.QueueModel;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.stream.InternalStreamModel;
 import com.thinkparity.desdemona.model.stream.StreamModel;
+import com.thinkparity.desdemona.model.user.InternalUserModel;
 import com.thinkparity.desdemona.model.user.UserModel;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
 import com.thinkparity.desdemona.wildfire.JIDBuilder;
@@ -235,6 +236,38 @@ public abstract class AbstractModelImpl
     }
 
     /**
+     * Determine if a list contains a user.
+     * 
+     * @param <U>
+     *            A type of <code>User</code>.
+     * @param list
+     *            A <code>User</code> <code>List</code>.
+     * @param o
+     *            A <code>User</code>
+     * @return True if the list contains the user.
+     */
+    protected final <T extends User> boolean contains(final List<T> list,
+            final JabberId id) {
+        return -1 < indexOf(list, id);
+    }
+
+    /**
+     * Determine if a list contains a user.
+     * 
+     * @param <U>
+     *            A type of <code>User</code>.
+     * @param list
+     *            A <code>User</code> <code>List</code>.
+     * @param o
+     *            A <code>User</code>
+     * @return True if the list contains the user.
+     */
+    protected final <T extends User, U extends User> boolean contains(
+            final List<T> list, final U o) {
+        return -1 < indexOf(list, o);
+    }
+
+    /**
      * Obtain the date and time.
      * 
      * @return A <code>Calendar</code>.
@@ -351,7 +384,6 @@ public abstract class AbstractModelImpl
             backupEvent(userId, userId, event);
         }
     }
-
     /**
      * Enqueue a priority event for a user.
      * 
@@ -397,6 +429,7 @@ public abstract class AbstractModelImpl
             backupEvent(userId, userId, event);
         }
     }
+
     /**
      * Obtain a thinkParity archive interface.
      * 
@@ -439,7 +472,7 @@ public abstract class AbstractModelImpl
         return sessionList;
     }
 
-    /**
+	/**
      * Obtain the parity contact interface.
      * 
      * @return The parity contact interface.
@@ -457,7 +490,7 @@ public abstract class AbstractModelImpl
         return 1024 * 1024 * 8; // BUFFER 8MB
     }
 
-	/**
+    /**
      * Obtain the default buffer size.
      * 
      * @return A buffer size <code>Integer</code>.
@@ -492,23 +525,55 @@ public abstract class AbstractModelImpl
                     t.getMessage());
     }
 
-    protected InternalQueueModel getQueueModel() {
+	protected InternalQueueModel getQueueModel() {
         return QueueModel.getInternalModel(getContext(), session);
     }
 
-    protected InternalStreamModel getStreamModel() {
+	protected InternalStreamModel getStreamModel() {
         return StreamModel.getInternalModel(getContext(), session);
     }
 
-    /**
-     * Obtain the parity user interface.
-     * 
-     * @return The parity user interface.
-     */
-	protected UserModel getUserModel() {
-		final UserModel uModel = UserModel.getModel(session);
-		return uModel;
+    protected InternalUserModel getUserModel() {
+		return UserModel.getInternalModel(getContext(), session);
 	}
+
+	/**
+     * Obtain the index of a user in the list.
+     * 
+     * @param <U>
+     *            A type of <code>User</code>.
+     * @param list
+     *            A user <code>List</code>.
+     * @param o
+     *            A <code>User</code>
+     * @return The index of the first user in the list with a matching id; or -1
+     *         if no such user exists.
+     */
+    protected final <T extends User, U extends User> int indexOf(
+            final List<T> users, final U user) {
+        return indexOf(users, user.getId());
+    }
+
+	/**
+     * Obtain the index of a user in the list with the given id.
+     * 
+     * @param <U>
+     *            A type of <code>User</code>.
+     * @param list
+     *            A user <code>List</code>.
+     * @param id
+     *            A user id <code>JabberId</code>.
+     * @return The index of the first user in the list with a matching id; or -1
+     *         if no such user exists.
+     */
+    protected final <U extends User> int indexOf(final List<U> list,
+            final JabberId o) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getId().equals(o))
+                return i;
+        }
+        return -1;
+    }
 
 	/**
      * Inject the fields of a user into a user type object.
@@ -555,11 +620,11 @@ public abstract class AbstractModelImpl
 		else { return Boolean.FALSE; }
 	}
 
-	protected Boolean isSessionUserKeyHolder(final UUID uniqueId) {
+    protected Boolean isSessionUserKeyHolder(final UUID uniqueId) {
 		return readKeyHolder(uniqueId).equals(session.getJabberId());
 	}
 
-	/**
+    /**
      * Determine if the user id is a system user.
      * 
      * @param userId
@@ -570,12 +635,12 @@ public abstract class AbstractModelImpl
         return userId.equals(User.THINK_PARITY.getId());
     }
 
-    /** Log an api id. */
+	/** Log an api id. */
     protected final void logApiId() {
         logger.logApiId();
     }
 
-	/**
+    /**
      * Log an api id with a message.
      * 
      * @param message
@@ -598,7 +663,7 @@ public abstract class AbstractModelImpl
         logger.logInfo(infoPattern, infoArguments);
     }
 
-    /** Log a trace id. */
+	/** Log a trace id. */
     protected final void logTraceId() {
         logger.logApiId();
     }
@@ -646,7 +711,7 @@ public abstract class AbstractModelImpl
         session.process(query);
     }
 
-	/**
+    /**
      * Read thinkParity configuration.
      * 
      * @return A configuration <code>Properties</code>.
@@ -660,7 +725,7 @@ public abstract class AbstractModelImpl
         return properties;
     }
 
-	/**
+    /**
      * Read the jive property for the environment.
      * 
      * @return An environment.
@@ -671,7 +736,7 @@ public abstract class AbstractModelImpl
         return Environment.valueOf(thinkParityEnvironment);
     }
 
-    /**
+	/**
      * Read the key holder.
      * 
      * @param uniqueId
@@ -683,7 +748,7 @@ public abstract class AbstractModelImpl
         return getArtifactModel().readKeyHolder(session.getJabberId(), uniqueId);
     }
 
-    /**
+	/**
      * Set the to field in the query.
      * 
      * @param query
@@ -728,7 +793,7 @@ public abstract class AbstractModelImpl
         }
     }
 
-	/**
+    /**
      * Build a local file to back a stream. Note that the file is transient in
      * nature and will be deleted when the user logs out or the next time the
      * session is established.
@@ -742,7 +807,7 @@ public abstract class AbstractModelImpl
         return session.createTempFile(streamId);
     }
 
-	/**
+    /**
      * Create a client session filter for a user.
      * 
      * @param userId
@@ -754,6 +819,7 @@ public abstract class AbstractModelImpl
         filter.setUsername(userId.getUsername());
         return filter;
     }
+
 
     /**
      * Create an event for user.
@@ -808,7 +874,6 @@ public abstract class AbstractModelImpl
         }
         return jiveProperties;
     }
-
 
     /**
      * Obtain a jive property.
@@ -868,75 +933,5 @@ public abstract class AbstractModelImpl
         for (final ClientSession session : getClientSessions(userId)) {
             process(session, query);
         }        
-    }
-
-    /**
-     * Determine if a list contains a user.
-     * 
-     * @param <U>
-     *            A type of <code>User</code>.
-     * @param list
-     *            A <code>User</code> <code>List</code>.
-     * @param o
-     *            A <code>User</code>
-     * @return True if the list contains the user.
-     */
-    protected final <T extends User> boolean contains(final List<T> list,
-            final JabberId id) {
-        return -1 < indexOf(list, id);
-    }
-
-    /**
-     * Determine if a list contains a user.
-     * 
-     * @param <U>
-     *            A type of <code>User</code>.
-     * @param list
-     *            A <code>User</code> <code>List</code>.
-     * @param o
-     *            A <code>User</code>
-     * @return True if the list contains the user.
-     */
-    protected final <T extends User, U extends User> boolean contains(
-            final List<T> list, final U o) {
-        return -1 < indexOf(list, o);
-    }
-
-    /**
-     * Obtain the index of a user in the list.
-     * 
-     * @param <U>
-     *            A type of <code>User</code>.
-     * @param list
-     *            A user <code>List</code>.
-     * @param o
-     *            A <code>User</code>
-     * @return The index of the first user in the list with a matching id; or -1
-     *         if no such user exists.
-     */
-    protected final <T extends User, U extends User> int indexOf(
-            final List<T> users, final U user) {
-        return indexOf(users, user.getId());
-    }
-
-    /**
-     * Obtain the index of a user in the list with the given id.
-     * 
-     * @param <U>
-     *            A type of <code>User</code>.
-     * @param list
-     *            A user <code>List</code>.
-     * @param id
-     *            A user id <code>JabberId</code>.
-     * @return The index of the first user in the list with a matching id; or -1
-     *         if no such user exists.
-     */
-    protected final <U extends User> int indexOf(final List<U> list,
-            final JabberId o) {
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getId().equals(o))
-                return i;
-        }
-        return -1;
     }
 }

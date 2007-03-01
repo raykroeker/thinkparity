@@ -60,7 +60,7 @@ public final class AuditModelImpl extends Model implements
         logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", teamMember);
-        event.setTeamMember(lookupUser(teamMember));
+        event.setTeamMember(readLazyCreate(teamMember));
         auditIO.audit(event);
     }
 
@@ -70,7 +70,7 @@ public final class AuditModelImpl extends Model implements
         logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", teamMember);
-        event.setTeamMember(lookupUser(teamMember));
+        event.setTeamMember(readLazyCreate(teamMember));
         auditIO.audit(event);
     }
 
@@ -88,7 +88,7 @@ public final class AuditModelImpl extends Model implements
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", closedBy);
-        event.setClosedBy(lookupUser(closedBy));
+        event.setClosedBy(readLazyCreate(closedBy));
 		auditIO.audit(event);
 	}
 
@@ -104,7 +104,7 @@ public final class AuditModelImpl extends Model implements
         logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", receivedFrom);
-        event.setReceivedFrom(lookupUser(receivedFrom));
+        event.setReceivedFrom(readLazyCreate(receivedFrom));
 		auditIO.audit(event);
 	}
 
@@ -114,7 +114,7 @@ public final class AuditModelImpl extends Model implements
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", deniedBy);
-        event.setDeniedBy(lookupUser(deniedBy));
+        event.setDeniedBy(readLazyCreate(deniedBy));
 		auditIO.audit(event);
 	}
 
@@ -124,7 +124,7 @@ public final class AuditModelImpl extends Model implements
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", requestedBy);
-        event.setRequestedBy(lookupUser(requestedBy));
+        event.setRequestedBy(readLazyCreate(requestedBy));
 		auditIO.audit(event);
 	}
 
@@ -146,7 +146,7 @@ public final class AuditModelImpl extends Model implements
         logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", reactivatedBy);
-        event.setReactivatedBy(lookupUser(reactivatedBy));
+        event.setReactivatedBy(readLazyCreate(reactivatedBy));
         auditIO.audit(event);
     }
 
@@ -161,7 +161,7 @@ public final class AuditModelImpl extends Model implements
 		logger.logApiId();
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
-        event.setReceivedFrom(lookupUser(receivedFrom));
+        event.setReceivedFrom(readLazyCreate(receivedFrom));
 		auditIO.audit(event);
 	}
 
@@ -181,8 +181,8 @@ public final class AuditModelImpl extends Model implements
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", requestedBy);
         logger.logVariable("variable", requestedFrom);
-        event.setRequestedBy(lookupUser(requestedBy));
-        event.setRequestedFrom(lookupUser(requestedFrom));
+        event.setRequestedBy(readLazyCreate(requestedBy));
+        event.setRequestedFrom(readLazyCreate(requestedFrom));
 		auditIO.audit(event);
 	}
 
@@ -198,7 +198,7 @@ public final class AuditModelImpl extends Model implements
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", sentTo);
-        event.setSentTo(lookupUser(sentTo));
+        event.setSentTo(readLazyCreate(sentTo));
 		auditIO.audit(event);
 	}
 
@@ -208,7 +208,7 @@ public final class AuditModelImpl extends Model implements
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", sentTo);
-        event.setSentTo(lookupUser(sentTo));
+        event.setSentTo(readLazyCreate(sentTo));
 		auditIO.audit(event);
 	}
 
@@ -242,15 +242,7 @@ public final class AuditModelImpl extends Model implements
      *      The user id.
      * @return The user.
      */
-    private User lookupUser(final JabberId jabberId) {
-        final InternalUserModel iUModel = getUserModel();
-        // read the local user
-        User user = iUModel.read(jabberId);
-        if(null == user) {
-            // the local user doesn't exist; create it
-            // from the remote info
-            user = iUModel.create(jabberId);
-        }
-        return user;
+    private User readLazyCreate(final JabberId userId) {
+        return getUserModel().readLazyCreate(userId);
     }
 }

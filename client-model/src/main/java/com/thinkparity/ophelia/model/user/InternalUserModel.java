@@ -20,16 +20,6 @@ import com.thinkparity.codebase.model.util.jta.TransactionType;
 public interface InternalUserModel extends UserModel {
 
     /**
-     * Create a user.  This api will download the user's info as set
-     * on the server and save it to the database.
-     *
-     * @param jabberId
-     *      The user's jabber id.
-     * @return The user.
-     */
-    public User create(final JabberId jabberId);
-
-    /**
      * Read a user.
      *
      * @param userId

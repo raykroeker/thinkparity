@@ -34,7 +34,6 @@ import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
-import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -65,30 +64,22 @@ public final class ArtifactModelImpl extends Model implements
 		this.auditor = new ArtifactModelAuditor(modelFactory);
 	}
 
-	/**
-     * Add the team member. Add the user to the local team data in a local
-     * state. If the user has been locally removed (ie no publish has yet
-     * occured) that row will be replaced.
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#addTeamMember(java.lang.Long,
+     *      com.thinkparity.codebase.jabber.JabberId)
      * 
-     * @param artifactId
-     *            The artifact id <code>Long</code>.
-     * @param userId
-     *            The user id <code>JabberId</code>.
      */
 	public TeamMember addTeamMember(final Long artifactId, final JabberId userId) {
-	    logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
-        logger.logVariable("artifactId", userId);
-        assertNotTeamMember("TEAM MEMBER ALREADY ADDED", artifactId, userId);
-        assertOnline("USER NOT ONLINE");
-        // create local user data
-        final InternalUserModel userModel = getUserModel();
-        User user = userModel.read(userId);
-        if (null == user) {
-            user = userModel.create(userId);
+        try {
+            assertNotTeamMember("TEAM MEMBER ALREADY ADDED", artifactId, userId);
+            assertOnline("USER NOT ONLINE");
+            // create local user data
+            final User user = getUserModel().readLazyCreate(userId);
+            // create local team data
+            return addTeamMember(artifactId, user.getLocalId());
+        } catch (final Throwable t) {
+            throw panic(t);
         }
-        // create local team data
-        return addTeamMember(artifactId, user.getLocalId());
     }
 
     /**

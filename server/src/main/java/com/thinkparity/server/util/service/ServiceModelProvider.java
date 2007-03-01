@@ -11,6 +11,7 @@ import com.thinkparity.desdemona.model.container.ContainerModel;
 import com.thinkparity.desdemona.model.migrator.MigratorModel;
 import com.thinkparity.desdemona.model.profile.ProfileModel;
 import com.thinkparity.desdemona.model.queue.QueueModel;
+import com.thinkparity.desdemona.model.rules.RulesModel;
 import com.thinkparity.desdemona.model.stream.StreamModel;
 import com.thinkparity.desdemona.model.user.UserModel;
 
@@ -19,7 +20,7 @@ import com.thinkparity.desdemona.model.user.UserModel;
  * <b>Description:</b><br>
  * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.2
+ * @version 1.1.2.3
  */
 public interface ServiceModelProvider {
 
@@ -78,6 +79,13 @@ public interface ServiceModelProvider {
      * @return A <code>QueueModel</code>.
      */
     public QueueModel getQueueModel();
+
+    /**
+     * Obtain a rules model.
+     * 
+     * @return An instance of <code>RulesModel</code>.
+     */
+    public RulesModel getRulesModel();
 
     /**
      * Obtain a stream model.

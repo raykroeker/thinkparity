@@ -31,6 +31,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.user.UserFlag;
 import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
@@ -331,18 +332,17 @@ public final class Session {
     }
 
     public ArtifactFlag getFlagFromInteger(final String columnName) {
-		assertConnectionIsOpen();
-		assertResultSetIsSet();
-		try {
+        assertConnectionIsOpen();
+        assertResultSetIsSet();
+        try {
             final Integer value = resultSet.getInt(columnName);
             logColumnExtraction(columnName, value);
             return resultSet.wasNull() ? null : ArtifactFlag.fromId(value);
-		} catch (final SQLException sqlx) {
+        } catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
-		}
-	}
+        }
+    }
 
-    
     public ArtifactFlag getFlagFromString(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
@@ -475,7 +475,7 @@ public final class Session {
 		}
 	}
 
-	public ArtifactState getStateFromInteger(final String columnName) {
+    public ArtifactState getStateFromInteger(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -557,6 +557,18 @@ public final class Session {
             return resultSet.wasNull() ? null : UUID.fromString(value);
         } catch (final SQLException sqlx) {
             throw panic(sqlx);
+        }
+    }
+
+	public UserFlag getUserFlagFromInteger(final String columnName) {
+        assertConnectionIsOpen();
+        assertResultSetIsSet();
+        try {
+            final Integer value = resultSet.getInt(columnName);
+            logColumnExtraction(columnName, value);
+            return resultSet.wasNull() ? null : UserFlag.fromId(value);
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
         }
     }
 
@@ -833,15 +845,15 @@ public final class Session {
 	}
 
     public void setTypeAsInteger(final Integer index, final ArtifactType value) {
-		assertConnectionIsOpen();
-		assertPreparedStatementIsSet();
+        assertConnectionIsOpen();
+        assertPreparedStatementIsSet();
         logColumnInjection(index, value);
-		try {
+        try {
             preparedStatement.setInt(index, value.getId());
-		} catch (final SQLException sqlx) {
+        } catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
-		}
-	}
+        }
+    }
 
     public void setTypeAsInteger(final Integer index, final AuditEventType value) {
 		assertConnectionIsOpen();
@@ -866,6 +878,17 @@ public final class Session {
 	}
 
     public void setTypeAsInteger(final Integer index, final SystemMessageType value) {
+        assertConnectionIsOpen();
+        assertPreparedStatementIsSet();
+        logColumnInjection(index, value);
+        try {
+            preparedStatement.setInt(index, value.getId());
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
+
+    public void setTypeAsInteger(final Integer index, final UserFlag value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);

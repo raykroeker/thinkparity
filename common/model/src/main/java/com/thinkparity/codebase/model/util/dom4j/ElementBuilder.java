@@ -29,6 +29,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -471,6 +472,18 @@ public class ElementBuilder {
     }
 
     public static final Element addElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final Feature value) {
+        if (null == value) {
+            return addNullElement(parent, name, Feature.class);
+        } else {
+            final Element element = addElement(parent, name, value.getClass());
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
+            return element;
+        }
+    }
+
+    public static final Element addElement(final XStreamUtil xstreamUtil,
             final Element parent, final String name, final Locale value) {
         if (null == value) {
             return addNullElement(parent, name, Locale.class);
@@ -552,6 +565,20 @@ public class ElementBuilder {
             final Element element = addElement(parent, parentName, List.class);
             for (final EMail value : values) {
                 addElement(element, name, value);
+            }
+            return element;
+        }
+    }
+
+    public static final Element addFeatureElements(
+            final XStreamUtil xstreamUtil, final Element parent,
+            final String name, final List<Feature> values) {
+        if (values.size() < 1) {
+            return addNullElement(parent, name, List.class);
+        } else {
+            final Element element = addElement(parent, name, List.class);
+            for (final Feature value : values) {
+                addElement(xstreamUtil, element, XmlRpc.LIST_ITEM, value);
             }
             return element;
         }
@@ -651,7 +678,6 @@ public class ElementBuilder {
             return element;
         }
     }
-
 
     /**
      * Add a list of string values.

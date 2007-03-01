@@ -37,14 +37,14 @@ import com.thinkparity.ophelia.model.util.xmpp.event.SessionListener;
 import com.thinkparity.ophelia.model.util.xmpp.event.XMPPEventListener;
 
 /**
- * XMPPSession
- * The XMPPSession is the main interface with which the client application
- * interacts.  It provides functionality for connectivity, registration of
- * listeners for session events, roster events as well as obtaining roster and
- * user information.  Additionally the session provides the capability to send
- * notes\files to other smack users.
+ * XMPPSession The XMPPSession is the main interface with which the client
+ * application interacts. It provides functionality for connectivity,
+ * registration of listeners for session events, roster events as well as
+ * obtaining roster and user information. Additionally the session provides the
+ * capability to send notes\files to other smack users.
+ * 
  * @author raykroeker@gmail.com
- * @version 1.7
+ * @version 1.2.1.37
  */
 public interface XMPPSession {
 
@@ -328,6 +328,20 @@ public interface XMPPSession {
      * @return True if the user is logged in; false otherwise.
      */
     public Boolean isLoggedIn();
+
+    /**
+     * Determine if publish is restricted for the user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param publishFrom
+     *            The publish from user id <code>JabberId</code>.
+     * @param publishTo
+     *            The publish to user id <code>JabberId</code>.
+     * @return True if publish to the user is restricted.
+     */
+    public Boolean isPublishRestricted(final JabberId userId,
+            final JabberId publishFrom, final JabberId publishTo);
 
     /**
      * Login.

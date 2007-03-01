@@ -19,6 +19,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -223,6 +224,14 @@ public final class IQWriter implements ServiceResponseWriter {
                 XSTREAM_UTIL.marshal(value, writer);
             }
         }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeFeatures(java.lang.String, java.util.List)
+     *
+     */
+    public void writeFeatures(final String name, final List<Feature> values) {
+        ElementBuilder.addFeatureElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
     }
 
     /**

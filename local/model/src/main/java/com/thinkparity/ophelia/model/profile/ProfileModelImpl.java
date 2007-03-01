@@ -14,6 +14,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
@@ -21,6 +22,7 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.Model;
+import com.thinkparity.ophelia.model.Constants.Product.Features;
 import com.thinkparity.ophelia.model.events.ProfileEvent;
 import com.thinkparity.ophelia.model.events.ProfileListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
@@ -30,8 +32,9 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 /**
  * <b>Title:</b>thinkParity Profile Model Implementation<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.10
+ * @version 1.1.2.15
  */
 public final class ProfileModelImpl extends Model<ProfileListener> implements
         ProfileModel, InternalProfileModel {
@@ -145,8 +148,18 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      * @return True if sign up is available.
      */
     public Boolean isSignUpAvailable() {
-        logger.logApiId();
-        return Boolean.FALSE;
+        try {
+            final Profile profile = read();
+            final List<Feature> features = profileIO.readFeatures(profile.getLocalId());
+            for (final Feature feature : features) {
+                if (Features.CORE.equals(feature.getName())) {
+                    return Boolean.FALSE;
+                }
+            }
+            return Boolean.TRUE;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**

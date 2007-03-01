@@ -12,9 +12,9 @@ import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.VerificationKey;
 import com.thinkparity.codebase.model.session.Credentials;
-import com.thinkparity.codebase.model.user.Feature;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
 
@@ -47,15 +47,6 @@ public class UserSql extends AbstractSql {
         .append("order by PU.USERNAME asc")
         .toString();
 
-    /** Sql to read an archive user's credentials. */
-    private static final String SQL_READ_BACKUP_CREDENTIALS =
-            new StringBuffer("select JU.USERNAME,JU.PASSWORD ")
-            .append("from jiveUser JU ")
-            .append("inner join PARITY_USER PU on JU.USERNAME=PU.USERNAME ")
-            .append("inner join USER_BACKUP_REL UBR on PU.USER_ID=UBR.BACKUP_ID ")
-            .append("where PU.USERNAME=?")
-            .toString();
-
     /** Sql to read a user's archive ids. */
     private static final String SQL_READ_ARCHIVE_IDS =
             new StringBuffer("select PU.USERNAME \"BACKUP_USERNAME\" ")
@@ -63,6 +54,15 @@ public class UserSql extends AbstractSql {
             .append("inner join PARITY_USER PU on UBR.BACKUP_ID=PU.USER_ID ")
             .append("where UBR.USER_ID=? ")
             .append("order by UBR.BACKUP_ID asc")
+            .toString();
+
+    /** Sql to read an archive user's credentials. */
+    private static final String SQL_READ_BACKUP_CREDENTIALS =
+            new StringBuffer("select JU.USERNAME,JU.PASSWORD ")
+            .append("from jiveUser JU ")
+            .append("inner join PARITY_USER PU on JU.USERNAME=PU.USERNAME ")
+            .append("inner join USER_BACKUP_REL UBR on PU.USER_ID=UBR.BACKUP_ID ")
+            .append("where PU.USERNAME=?")
             .toString();
 
     /** Sql to read a user. */
@@ -98,12 +98,13 @@ public class UserSql extends AbstractSql {
 
     /** Read all custom features for the user. */
     private static final String SQL_READ_FEATURES =
-            new StringBuffer("select PF.FEATURE_ID,PF.FEATURE_NAME ")
-            .append("from PARITY_USER PU ")
-            .append("inner join USER_FEATURE_REL UFR on PU.USER_ID=UFR.USER_ID ")
-            .append("inner join FEATURE F on UFR.FEATURE_ID=F.FEATURE_ID ")
-            .append("where PU.USERNAME=?")
-            .toString();
+        new StringBuffer("select PF.PRODUCT_ID,PF.FEATURE_ID,")
+        .append("PF.FEATURE_NAME ")
+        .append("from PARITY_USER PU ")
+        .append("inner join USER_FEATURE_REL UFR on PU.USER_ID=UFR.USER_ID ")
+        .append("inner join PRODUCT_FEATURE PF on UFR.FEATURE_ID=PF.FEATURE_ID ")
+        .append("where PF.PRODUCT_ID=? and PU.USERNAME=?")
+        .toString();
 
     /** Sql to read the user id. */
     private static final String SQL_READ_LOCAL_USER_ID =
@@ -133,13 +134,6 @@ public class UserSql extends AbstractSql {
         .append("where PU.USERNAME=? and PU.TOKEN is not null")
         .toString();
 
-    /** Sql to read the user's vcard. */
-    private static final String SQL_READ_VCARD =
-        new StringBuffer("select PU.VCARD ")
-        .append("from PARITY_USER PU ")
-        .append("where PU.USERNAME=?")
-        .toString();
-
     /** Sql to read a username from an e-mail address. */
     private static final String SQL_READ_USERNAME =
             new StringBuffer("select PU.USERNAME ")
@@ -147,6 +141,13 @@ public class UserSql extends AbstractSql {
             .append("inner join PARITY_USER PU on UE.USER_ID=PU.USER_ID ")
             .append("where UE.EMAIL=?")
             .toString();
+
+    /** Sql to read the user's vcard. */
+    private static final String SQL_READ_VCARD =
+        new StringBuffer("select PU.VCARD ")
+        .append("from PARITY_USER PU ")
+        .append("where PU.USERNAME=?")
+        .toString();
 
     /** Sql to create the user's token. */
     private static final String SQL_UPDATE_TOKEN =
@@ -333,11 +334,13 @@ public class UserSql extends AbstractSql {
         }
     }
 
-    public List<Feature> readFeatures(final JabberId userId) {
+    public List<Feature> readFeatures(final JabberId userId,
+            final Long productId) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_FEATURES);
-            session.setString(1, userId.getUsername());
+            session.setLong(1, productId);
+            session.setString(2, userId.getUsername());
             session.executeQuery();
             final List<Feature> features = new ArrayList<Feature>();
             while (session.nextResult()) {
@@ -529,7 +532,11 @@ public class UserSql extends AbstractSql {
     }
 
     Feature extractFeature(final HypersonicSession session) {
-        return Feature.valueOf(session.getString("FEATURE"));
+        final Feature feature = new Feature();
+        feature.setFeatureId(session.getLong("FEATURE_ID"));
+        feature.setName(session.getString("FEATURE_NAME"));
+        feature.setProductId(session.getLong("PRODUCT_ID"));
+        return feature;
     }
 
     /**

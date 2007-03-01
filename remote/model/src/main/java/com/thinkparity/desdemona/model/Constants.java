@@ -3,10 +3,12 @@
  */
 package com.thinkparity.desdemona.model;
 
-
 /**
- * @author raykroeker@gmail.com
- * @version 1.1.2.9
+ * <b>Title:</b>thinkParity DesdemonaModel Constants<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.8
  */
 public interface Constants {
 
@@ -30,13 +32,29 @@ public interface Constants {
         public static final String DRIVER = "org.hsqldb.jdbcDriver";
     }
 
-	/** Jive Messenger Property Names */
+    /** Jive Messenger Property Names */
     public static final class JivePropertyNames {
         public static final String THINKPARITY_BACKUP_ROOT = "thinkparity.backup.root";
+        public static final String THINKPARITY_ENVIRONMENT = "thinkparity.environment";
         public static final String THINKPARITY_STREAM_ROOT = "thinkparity.stream.root";
         public static final String THINKPARITY_TEMP_ROOT = "thinkparity.temp.root";
-        public static final String THINKPARITY_ENVIRONMENT = "thinkparity.environment";
         public static final String XMPP_DOMAIN = "xmpp.domain";
+    }
+
+	/** Product Constants */
+    public static final class Product {
+        /** Ophelia Product Constants */
+        public static final class Ophelia {
+            /** Ophelia Product Id Constant */
+            public static final Long PRODUCT_ID = 1000L;
+            /** Ophelia Product Feature Constants */
+            public static final class Feature {
+                /** Ophelia Product Feature Backup */
+                public static final String BACKUP = "BACKUP";
+                /** Ophelia Product Feature Core */
+                public static final String CORE = "CORE";
+            }
+        }
     }
 
     public static final class VCardFields {

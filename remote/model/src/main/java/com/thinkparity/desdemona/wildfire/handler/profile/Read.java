@@ -43,6 +43,7 @@ public final class Read extends AbstractHandler {
             logger.logVariable("profile", read(provider, reader.readJabberId("userId")));
 
         if(null != profile) {
+            writer.writeFeatures("features", profile.getFeatures());
             writer.writeJabberId("id", profile.getId());
             writer.writeString("name", profile.getName());
             writer.writeString("organization", profile.getOrganization());

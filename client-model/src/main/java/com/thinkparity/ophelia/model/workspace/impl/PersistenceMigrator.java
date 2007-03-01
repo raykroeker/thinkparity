@@ -10,6 +10,7 @@ import com.thinkparity.codebase.config.ConfigFactory;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.user.UserFlag;
 
 import com.thinkparity.ophelia.model.Constants;
 import com.thinkparity.ophelia.model.audit.AuditEventType;
@@ -47,6 +48,8 @@ public class PersistenceMigrator {
 
     private static final String INSERT_SEED_SYSTEM_MESSAGE_TYPE;
 
+    private static final String INSERT_SEED_USER_FLAG;
+
     private static final String INSERT_SEED_VERSION;
 
     private static final String READ_META_DATA_RELEASE_ID;
@@ -60,8 +63,11 @@ public class PersistenceMigrator {
                 CONFIG.getProperty("CreateMetaData"),
                 CONFIG.getProperty("CreateEmail"),
                 CONFIG.getProperty("CreateUser"),
+                CONFIG.getProperty("CreateUserFlag"),
+                CONFIG.getProperty("CreateUserFlagRel"),
                 CONFIG.getProperty("CreateProfile"),
                 CONFIG.getProperty("CreateProfileEmailRel"),
+                CONFIG.getProperty("CreateProfileFeature"),
                 CONFIG.getProperty("CreateContact"),
                 CONFIG.getProperty("CreateContactEmailRel"),
                 CONFIG.getProperty("CreateContactInvitation"),
@@ -112,6 +118,8 @@ public class PersistenceMigrator {
         INSERT_SEED_ARTIFACT_TYPE = CONFIG.getProperty("InsertSeedArtifactType");
 
         INSERT_SEED_ARTIFACT_AUDIT_TYPE = CONFIG.getProperty("InsertSeedArtifactAuditType");
+
+        INSERT_SEED_USER_FLAG = CONFIG.getProperty("InsertSeedUserFlag");
 
         INSERT_SEED_SYSTEM_MESSAGE_TYPE = CONFIG.getProperty("InsertSeedSystemMessageType");
 
@@ -257,6 +265,15 @@ public class PersistenceMigrator {
             if(1 != session.executeUpdate())
                 throw new HypersonicException(
                         "Could not insert system message type seed data:  " + smt);
+        }
+
+        session.prepareStatement(INSERT_SEED_USER_FLAG);
+        for(final UserFlag userFlag : UserFlag.values()) {
+            session.setTypeAsInteger(1, userFlag);
+            session.setTypeAsString(2, userFlag);
+            if(1 != session.executeUpdate())
+                throw new HypersonicException(
+                        "Could not insert user flag seed data:  " + userFlag);
         }
     }
 

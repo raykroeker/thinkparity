@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
@@ -18,10 +19,12 @@ import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
- * @version
+ * @version 1.1.2.1
  */
-public class ProfileIOHandler extends AbstractIOHandler implements
+public final class ProfileIOHandler extends AbstractIOHandler implements
         com.thinkparity.ophelia.model.io.handler.ProfileIOHandler {
 
     /** Sql to create a profile. */
@@ -36,6 +39,13 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             new StringBuffer("insert into PROFILE_EMAIL_REL ")
             .append("(PROFILE_ID,EMAIL_ID,VERIFIED) ")
             .append("values (?,?,?)")
+            .toString();
+
+    /** Sql to create a profile feature. */
+    private static final String SQL_CREATE_FEATURE =
+            new StringBuffer("insert into PROFILE_FEATURE ")
+            .append("(PROFILE_ID,FEATURE_NAME) ")
+            .append("values (?,?)")
             .toString();
 
     /** Sql to delete an email. */
@@ -74,6 +84,14 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             .append("where P.PROFILE_ID=?")
             .toString();
 
+    /** Sql to read the profile features. */
+    private static final String SQL_READ_FEATURES =
+        new StringBuffer("select PF.FEATURE_ID,PF.FEATURE_NAME ")
+        .append("from PROFILE_FEATURE PF ")
+        .append("inner join PROFILE P on PF.PROFILE_ID=P.PROFILE_ID ")
+        .append("where PROFILE_ID=?")
+        .toString();
+
     /** Sql to update a profile. */
     private static final String SQL_UPDATE =
             new StringBuffer("update PROFILE ")
@@ -108,6 +126,7 @@ public class ProfileIOHandler extends AbstractIOHandler implements
 
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ProfileIOHandler#create(com.thinkparity.codebase.model.profile.Profile)
+     *
      */
     public void create(final Profile profile) {
         final Session session = openSession();
@@ -118,6 +137,16 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             session.setVCard(2, profile.getVCard());
             if(1 != session.executeUpdate())
                 throw translateError("Could not create user profile {0}.", profile);
+
+            session.prepareStatement(SQL_CREATE_FEATURE);
+            session.setLong(1, profile.getLocalId());
+            for (final Feature feature : profile.getFeatures()) {
+                session.setString(2, feature.getName());
+                if (1 != session.executeUpdate())
+                    throw translateError(
+                            "Could not create feature {0} for profile {1}.",
+                            feature, profile);
+            }
         } finally {
             session.close();
         }
@@ -211,6 +240,26 @@ public class ProfileIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.ProfileIOHandler#readFeatures(java.lang.Long)
+     * 
+     */
+    public List<Feature> readFeatures(final Long profileId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_FEATURES);
+            session.setLong(1, profileId);
+            session.executeQuery();
+            final List<Feature> features = new ArrayList<Feature>();
+            while (session.nextResult()) {
+                features.add(extractFeature(session));
+            }
+            return features;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ProfileIOHandler#update(com.thinkparity.codebase.model.profile.Profile)
      */
     public void update(final Profile profile) {
@@ -278,5 +327,19 @@ public class ProfileIOHandler extends AbstractIOHandler implements
         profile.setOrganization(session.getString("ORGANIZATION"));
         profile.setTitle(session.getString("TITLE"));
         return profile;
+    }
+
+    /**
+     * Extract the feature from the session.
+     * 
+     * @param session
+     *            A <code>Session</code>.
+     * @return A <code>Feature</code>.
+     */
+    private Feature extractFeature(final Session session) {
+        final Feature feature = new Feature();
+        feature.setFeatureId(session.getLong("FEATURE_ID"));
+        feature.setName(session.getString("FEATURE_NAME"));
+        return feature;
     }
 }

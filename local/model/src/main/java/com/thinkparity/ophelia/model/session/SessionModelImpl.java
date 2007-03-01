@@ -131,7 +131,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#archiveArtifact(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.UUID)
      * 
@@ -147,7 +147,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    public void confirmArtifactReceipt(final JabberId userId, final UUID uniqueId,
+	public void confirmArtifactReceipt(final JabberId userId, final UUID uniqueId,
             final Long versionId, final JabberId publishedBy,
             final Calendar publishedOn, final List<JabberId> publishedTo,
             final JabberId receivedBy, final Calendar receivedOn) {
@@ -315,7 +315,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * Delete a contact.
      * 
      * @param userId
@@ -363,7 +363,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteDraft(java.util.UUID,
      *      java.util.Calendar)
      * 
@@ -382,7 +382,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * Delete a stream session.
      * 
      * @param session
@@ -440,7 +440,7 @@ public final class SessionModelImpl extends Model<SessionListener>
 		}
 	}
 
-    /**
+	/**
      * Handle the session established remote event.
      *
      */
@@ -457,7 +457,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * Handle the remote session terminated event.
      *
      */
@@ -474,7 +474,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * Handle the remote session terminated event.
      * 
      * @param cause
@@ -526,6 +526,22 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw translateError(t);
         }
 	}
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isPublishRestricted(com.thinkparity.codebase.jabber.JabberId)
+     *
+     */
+    public Boolean isPublishRestricted(final JabberId publishTo) {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.isPublishRestricted(localUserId(),
+                        localUserId(), publishTo);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     /**
      * Establish a new xmpp session.

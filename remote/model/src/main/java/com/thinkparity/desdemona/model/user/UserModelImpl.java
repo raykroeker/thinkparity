@@ -14,8 +14,8 @@ import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.session.Credentials;
-import com.thinkparity.codebase.model.user.Feature;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
@@ -177,11 +177,12 @@ class UserModelImpl extends AbstractModelImpl {
      *            A user id <code>JabberId</code>.
      * @return A <code>List&lt;Feature&gt</code>.
      */
-    List<Feature> readFeatures(final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
+    List<Feature> readFeatures(final JabberId userId, final Long productId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("productId", productId);
         try {
-            return userSql.readFeatures(userId);
+            return userSql.readFeatures(userId, productId);
         } catch (final Throwable t) {
             throw translateError(t);
         }

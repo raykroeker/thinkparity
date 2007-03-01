@@ -9,8 +9,8 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.session.Credentials;
-import com.thinkparity.codebase.model.user.Feature;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.AbstractModel;
@@ -22,7 +22,12 @@ import com.thinkparity.desdemona.model.session.Session;
  */
 public class UserModel extends AbstractModel<UserModelImpl> {
 
-	public static UserModel getModel() {
+	public static InternalUserModel getInternalModel(final Context context,
+            final Session session) {
+        return new InternalUserModel(context, session);
+    }
+
+    public static UserModel getModel() {
         return new UserModel();
     }
 
@@ -38,19 +43,19 @@ public class UserModel extends AbstractModel<UserModelImpl> {
 		return userModel;
 	}
 
-	private UserModel() {
-        super(new UserModelImpl());
-    }
-
-    /**
+	/**
 	 * Create a UserModel.
 	 * 
 	 * @param session
 	 *            The user session.
 	 */
-	private UserModel(final Session session) {
+	protected UserModel(final Session session) {
 		super(new UserModelImpl(session));
 	}
+
+    private UserModel() {
+        super(new UserModelImpl());
+    }
 
     /**
      * Determine if the user is an archive.
@@ -107,19 +112,6 @@ public class UserModel extends AbstractModel<UserModelImpl> {
     public JabberId readArchiveId(final JabberId userId) {
         synchronized (getImplLock()) {
             return getImpl().readArchiveId(userId);
-        }
-    }
-
-    /**
-     * Read all features for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A <code>List&lt;Feature&gt</code>.
-     */
-    public List<Feature> readFeatures(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readFeatures(userId);
         }
     }
 

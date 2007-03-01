@@ -17,6 +17,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -104,6 +105,8 @@ public interface ServiceResponseWriter {
 
     public void writeEvents(final String name, String childName,
             List<XMPPEvent> values);
+
+    public void writeFeatures(final String name, final List<Feature> values);
 
     /**
      * Write a jabber id value.

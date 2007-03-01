@@ -122,14 +122,14 @@ public interface InternalSessionModel extends SessionModel {
 
     public String createStream(final StreamSession session);
 
-	/**
+    /**
      * Initialize a stream.
      * 
      * @return A <code>StreamSession</code>.
      */
     public StreamSession createStreamSession();
 
-    /**
+	/**
      * Deny the presence visibility request from user to the currently logged
      * in user.
      * 
@@ -141,7 +141,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void declineInvitation(final EMail invitedAs, final JabberId invitedBy);
 
-	/**
+    /**
      * Delete an artifact from the backup.
      * 
      * @param userId
@@ -151,7 +151,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void deleteArtifact(final JabberId userId, final UUID uniqueId);
 
-    /**
+	/**
      * Delete a contact.
      * 
      * @param userId
@@ -177,7 +177,7 @@ public interface InternalSessionModel extends SessionModel {
     // TODO-javadoc InternalSessionModel#deleteDraft()
     public void deleteDraft(final UUID uniqueId, final Calendar deletedOn);
 
-	/**
+    /**
      * Delete a stream session.
      * 
      * @param session
@@ -185,7 +185,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void deleteStreamSession(final StreamSession session);
 
-    /**
+	/**
      * Deploy a migrator release.
      * 
      * @param release
@@ -237,6 +237,15 @@ public interface InternalSessionModel extends SessionModel {
      * @return True if the email is not being used.
      */
     public Boolean isEmailAvailable(final JabberId userId, final EMail email);
+
+    /**
+     * Determine if publish is restricted to the publish to user.
+     * 
+     * @param publishTo
+     *            A publish to user id <code>JabberId</code>.
+     * @return True if publish to the user is restricted.
+     */
+    public Boolean isPublishRestricted(final JabberId publishTo);
 
     /**
      * Process the remote event queue.

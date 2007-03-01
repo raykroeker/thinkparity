@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model;
 
-import java.awt.Color;
 
 /**
  * The parity local model constants.
@@ -12,14 +11,6 @@ import java.awt.Color;
  * @version 1.1
  */
 public final class Constants {
-
-    public static final class Colors {
-        public static final Color LIST_EVEN_BG = new Color(245, 248, 252, 255);
-        public static final Color LIST_ODD_BG = Color.WHITE;
-    }
-    public static final class Compression {
-        public static final Integer NONE = 0;
-    }
     public static final class DirectoryNames {
         public static final String BIN = "bin";
         public static final String CORE = "core";
@@ -46,65 +37,45 @@ public final class Constants {
             }
         }
     }
-
-    public static final class Image {
-        public static final String MAIN = "com.thinkparity.browser.Browser";
-        public static final String MAIN_ARGS = "";
-        public static final String PROPERTIES_FILENAME = "thinkParityImage.properties";
-    }
-
-    public static final class LibraryFileExtensions {
-        public static final String JAVA = ".jar";
-        public static final String NATIVE = ".dll";
-    }
-
     public static final class MetaData {
         public static final String RELEASE_ID_KEY = "com.thinkparity.model.parity.releaseId";
         public static final Long RELEASE_ID_PK = 1000L;
     }
-
     public static final class Preferences {
         public static final class Properties {
             public static final String LAST_RUN = "com.thinkparity.parity.model.lastRun";
             public static final String PASSWORD = "parity.password";
         }
     }
-
+    public static final class Product {
+        public static final String NAME = "OpheliaProduct";
+        public static final class Features {
+            public static final String BACKUP = "BACKUP";
+            public static final String CORE = "CORE";
+        }
+    }
     public static final class Release {
         public static final String ARTIFACT_ID = "lBrowser";
         public static final String GROUP_ID = "com.thinkparity.parity";
         public static final String VERSION = "1.0.0-RC4";
     }
-
     public static final class ShutdownHookNames {
         public static final String HYPERSONIC = "thinkParity Hypersonic Database";
         public static final String WORKSPACE_CLOSE = "thinkParity Workspace - Close";
         public static final String WORKSPACE_DELETE = "thinkParity Workspace - Delete";
     }
-
     public static final class ShutdownHookPriorities {
         public static final Integer HYPERSONIC = 9;
         public static final Integer WORKSPACE_CLOSE = 0;
         public static final Integer WORKSPACE_DELETE = 1;
     }
-
-    public static final class Sundry {
-        public static final String THINKPARITY_GROUP_ID = "com.thinkparity.parity";
-    }
-
     public static final class ThreadNames {
         public static final String SHUTDOWN_HOOK = "thinkParity Shutdown Hook";
     }
-
-    public static final class VCardFields {
-        public static final String TITLE = "TITLE";
-    }
-
     public static final class Versioning {
         public static final Long INCREMENT = 1L;
         public static final Long START = 1L;
     }
-
     public static final class Xml {
         public static final class All {
             public static final String EXECUTED_ON = "executedOn";

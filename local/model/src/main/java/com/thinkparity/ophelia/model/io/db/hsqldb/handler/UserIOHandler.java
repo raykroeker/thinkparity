@@ -3,27 +3,47 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.sql.DataSource;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.user.UserFlag;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 
-
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity OpheliaModel User IO<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.10
  */
-public class UserIOHandler extends AbstractIOHandler implements
+public final class UserIOHandler extends AbstractIOHandler implements
         com.thinkparity.ophelia.model.io.handler.UserIOHandler {
 
+    /** Sql to create a user. */
     private static final String SQL_CREATE =
         new StringBuffer("insert into PARITY_USER ")
         .append("(JABBER_ID,NAME,ORGANIZATION,TITLE) ")
         .append("values (?,?,?,?)")
+        .toString();
+
+    /** Sql to create a user flag. */
+    private static final String SQL_CREATE_FLAG =
+        new StringBuffer("insert into USER_FLAG_REL")
+        .append("(USER_ID,USER_FLAG_ID) ")
+        .append("values(?,?)")
+        .toString();
+
+    /** Sql to delete all user flags. */
+    private static final String SQL_DELETE_FLAGS =
+        new StringBuffer("delete from USER_FLAG_REL ")
+        .append("where USER_ID=?")
         .toString();
 
     /** Sql to read a user by their jabber id. */
@@ -39,6 +59,20 @@ public class UserIOHandler extends AbstractIOHandler implements
         .append("U.ORGANIZATION,U.TITLE ")
         .append("from PARITY_USER U ")
         .append("where U.USER_ID=?")
+        .toString();
+
+    /** Sql to read the user flag count. */
+    private static final String SQL_READ_FLAG_COUNT =
+        new StringBuffer("select COUNT(USER_FLAG_ID) \"USER_FLAG_COUNT\" ")
+        .append("from USER_FLAG_REL UFR ")
+        .append("where UFR.USER_ID=?")
+        .toString();
+
+    /** Sql to read the user flags. */
+    private static final String SQL_READ_FLAGS =
+        new StringBuffer("select UFR.USER_FLAG_ID ")
+        .append("from USER_FLAG_REL UFR ")
+        .append("where UFR.USER_ID=?")
         .toString();
 
     /** Sql to read a user's local user id. */
@@ -73,7 +107,22 @@ public class UserIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.UserIOHandler#applyFlags(java.lang.Long, java.util.List)
+     *
+     */
+    public void applyFlags(final Long userId, final List<UserFlag> flags) {
+        final Session session = openSession();
+        try {
+            deleteFlags(session, userId);
+            createFlags(session, userId, flags);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.UserIOHandler#create(com.thinkparity.codebase.model.user.User)
+     * 
      */
     public void create(final User user) {
         final Session session = openSession();
@@ -125,12 +174,34 @@ public class UserIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * Create a user.
+     * @see com.thinkparity.ophelia.model.io.handler.UserIOHandler#readFlags(java.lang.Long)
+     *
+     */
+    public List<UserFlag> readFlags(final Long userId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_FLAGS);
+            session.setLong(1, userId);
+            session.executeQuery();
+            final List<UserFlag> flags = new ArrayList<UserFlag>();
+            while (session.nextResult()) {
+                flags.add(session.getUserFlagFromInteger("USER_FLAG_ID"));
+            }
+            return flags;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Create the user.
      * 
      * @param session
-     *            A database session.
+     *            A <code>Session</code>.
      * @param user
-     *            A user.
+     *            A <code>User</code>.
+     * @param features
+     *            A <code>List</code> of <code>Feature</code>s.
      */
     void create(final Session session, final User user) {
         session.prepareStatement(SQL_CREATE);
@@ -140,6 +211,7 @@ public class UserIOHandler extends AbstractIOHandler implements
         session.setString(4, user.getTitle());
         if(1 != session.executeUpdate())
             throw translateError("Could not create user {0}.", user);
+
         user.setLocalId(session.getIdentity("PARITY_USER"));
     }
 
@@ -217,5 +289,53 @@ public class UserIOHandler extends AbstractIOHandler implements
         session.setLong(4, user.getLocalId());
         if (1 != session.executeUpdate())
             throw new HypersonicException("Could not update user.");
+    }
+
+    private void createFlags(final Session session, final Long userId,
+            final List<UserFlag> flags) {
+        session.prepareStatement(SQL_CREATE_FLAG);
+        session.setLong(1, userId);
+        for (final UserFlag flag : flags) {
+            session.setTypeAsInteger(1, flag);
+            if (1 != session.executeUpdate())
+                throw translateError("Could not create flag {0} for user {1}.",
+                        flag, userId);
+        }
+    }
+
+    /**
+     * Delete all flags for a user.
+     * 
+     * @param session
+     *            A <code>Session</code>.
+     * @param userId
+     *            A user id <code>Long</code>.
+     */
+    private void deleteFlags(final Session session, final Long userId) {
+        final Integer flagCount = readFlagCount(session, userId);
+        session.prepareStatement(SQL_DELETE_FLAGS);
+        session.setLong(1, userId);
+        if (flagCount.intValue() != session.executeUpdate())
+            throw translateError("Could not delete flags for user {0}", userId);
+    }
+
+    /**
+     * Read the flag count for a user.
+     * 
+     * @param session
+     *            A <code>Session</code>.
+     * @param userId
+     *            A user id <code>Long</code>.
+     * @return A count <code>Integer</code> of all flags for the user.
+     */
+    private Integer readFlagCount(final Session session, final Long userId) {
+        session.prepareStatement(SQL_READ_FLAG_COUNT);
+        session.setLong(1, userId);
+        session.executeQuery();
+        if (session.nextResult()) {
+            return session.getInteger("USER_FLAG_COUNT");
+        } else {
+            return null;
+        }
     }
 }

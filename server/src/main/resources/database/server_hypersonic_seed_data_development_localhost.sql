@@ -25,8 +25,8 @@ insert into USER_EMAIL(USER_ID,EMAIL,VERIFIED)
     values(7000,'thinkParity@thinkparity.com',true);
 
 insert into PRODUCT(PRODUCT_NAME) values('OpheliaProduct');
-insert into PRODUCT_FEATURE(PRODUCT_ID,FEATURE) values(1000,'CORE');
-insert into PRODUCT_FEATURE(PRODUCT_ID,FEATURE) values(1000,'BACKUP');
+insert into PRODUCT_FEATURE(PRODUCT_ID,FEATURE_NAME) values(1000,'CORE');
+insert into PRODUCT_FEATURE(PRODUCT_ID,FEATURE_NAME) values(1000,'BACKUP');
 
 insert into jiveUser(USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('asahebjam','parity',0,0);
@@ -88,8 +88,6 @@ insert into PARITY_USER(USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCAR
     values('djohnson','What is my username?','djohnson',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Don Johnson</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into USER_EMAIL(USER_ID,EMAIL,VERIFIED)
     values(7007,'djohnson@thinkparity.com',true);
-insert into USER_FEATURE_REL(USER_ID,FEATURE_ID)
-    values(7007,5000);
 
 insert into jiveUser(USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('emorrison','parity',0,0);
@@ -187,8 +185,6 @@ insert into PARITY_USER(USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCAR
     values('gdengo','What is my username?','gdengo',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Goto Dengo</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into USER_EMAIL(USER_ID,EMAIL,VERIFIED)
     values(7018,'goto@gotoengineering.com',true);
-insert into USER_FEATURE_REL(USER_ID,FEATURE_ID)
-    values(7018,5000);
 
 insert into USER_CONTACT(USER_ID,CONTACT_ID,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON)
     values(7001,7002,7001,NOW(),7001,NOW());

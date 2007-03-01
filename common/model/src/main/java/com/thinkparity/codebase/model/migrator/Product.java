@@ -11,6 +11,8 @@ import com.thinkparity.codebase.model.artifact.ArtifactType;
  * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
+ * 
+ * NOCOMMIT - a product is no longer an artifact.
  */
 public class Product extends Artifact {
 

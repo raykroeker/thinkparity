@@ -4,7 +4,9 @@
  */
 package com.thinkparity.ophelia.browser.application.system.notify;
 
+import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -12,6 +14,9 @@ import javax.swing.JDialog;
 import javax.swing.Timer;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
+import com.thinkparity.ophelia.browser.Constants.Dimensions;
+import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
 
 /**
  * @author rob_masako@shaw.ca
@@ -28,7 +33,16 @@ public final class NotifyAnimator {
     /** The <code>JDialog</code>. */
     private final JDialog jDialog;
 
-    /** The panel original location <code>Point</code>. */
+    /** The JDialog current size <code>Dimension</code>. */
+    private Dimension jDialogSize;
+
+    /** The JDialog current location <code>Point</code>. */
+    private Point jDialogLocation;
+
+    /** The JDialog original size <code>Dimension</code>. */
+    private final Dimension jDialogOriginalSize;
+
+    /** The JDialog original location <code>Point</code>. */
     private final Point jDialogOriginalLocation;
 
     /** An apache logger wrapper. */
@@ -47,6 +61,7 @@ public final class NotifyAnimator {
         super();
         this.jDialog = jDialog;
         this.jDialogOriginalLocation = jDialog.getLocation();
+        this.jDialogOriginalSize = jDialog.getSize();
         this.timerDelay = 5;
     }
 
@@ -61,14 +76,14 @@ public final class NotifyAnimator {
 
     /**
      * Reset the animator. This will stop the timer (if it is running) and reset
-     * the dialog's original location.
+     * the dialog's original location and size.
      * 
      */
     public void reset() {
         if (null != animator && animator.isRunning()) {
             stopAnimator();
         }
-        setLocation(jDialogOriginalLocation);
+        setBounds(jDialogOriginalLocation, jDialogOriginalSize);
     }
 
     /**
@@ -82,54 +97,124 @@ public final class NotifyAnimator {
     }
 
     /**
-     * Slide in the panel via a timer.
+     * Slide in the frame via a timer.
      * 
      * @param incrementY
      *            The <code>int</code> amount by which to increment the
      *            y location.
      * @param finalY
      *            The <code>int</code> final y location.
+     * @param finalHeight
+     *            The <code>int</code> final height.
      * @param animatorCompletion
      *            The completion runnable to execute when finished.
      */
     public void slideIn(final int incrementY, final int finalY,
+            final int finalHeight,
             final Runnable animatorCompletion) {
         if (null != animator && animator.isRunning()) {
             reset();
         }
+        this.jDialogLocation = jDialog.getLocation();
+        this.jDialogSize = jDialog.getSize();
         this.animatorCompletion = animatorCompletion;
         animator = new Timer(timerDelay, new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 if (null != logger) logger.logApiId();
-                incrementLocation(incrementY, finalY);
+                incrementLocationAndHeight(incrementY, finalY, finalHeight);
             }
         });
         animator.start();
     }
 
     /**
-     * Increment the y location of the panel to a final location. This api is
-     * intended to be used only by the animator's animate event as it will stop
-     * the timer when the final y is hit.
+     * Increment the y location of the frame to a final location.
+     * This api is intended to be used only by the animator's
+     * animate event as it will stop the timer when the final y is hit.
      * 
      * @param incrementY
      *            The Y increment <code>int</code>.
      * @param finalY
-     *            The final Y <code>int</code>.
+     *            The <code>int</code> final y location.
      */
     private void incrementLocation(final int incrementY, final int finalY) {
-        final Point location = jDialog.getLocation();
-        location.y += incrementY;
-        if ((incrementY < 0 && location.y <= finalY) ||
-            (incrementY > 0 && location.y >= finalY)) {
-            location.y = finalY;
+        boolean done = false;
+        jDialogLocation.y += incrementY;
+        if ((incrementY < 0 && jDialogLocation.y <= finalY) ||
+            (incrementY > 0 && jDialogLocation.y >= finalY)) {
+            jDialogLocation.y = finalY;
+            done = true;
+        }
+        setLocation(jDialogLocation);
+        if (done) {
             stopAnimator();
         }
-        setLocation(location);
     }
 
     /**
-     * Set the location of the panel.
+     * Increment the y location and height of the frame to a final location
+     * and height. This api is intended to be used only by the animator's
+     * animate event as it will stop the timer when the final y is hit.
+     * 
+     * @param incrementY
+     *            The Y increment <code>int</code>.
+     * @param finalY
+     *            The <code>int</code> final y location.
+     * @param finalHeight
+     *            The <code>int</code> final height.
+     */
+    private void incrementLocationAndHeight(final int incrementY,
+            final int finalY, final int finalHeight) {
+        boolean done = false;
+        if (jDialogSize.height == finalHeight) {
+            incrementLocation(incrementY, finalHeight);
+        }
+        jDialogLocation.y += incrementY;
+        jDialogSize.height += (incrementY>0 ? incrementY : -incrementY);
+        if (jDialogSize.height > finalHeight) {
+            jDialogSize.height = finalHeight;
+        }
+        if ((incrementY < 0 && jDialogLocation.y <= finalY) ||
+            (incrementY > 0 && jDialogLocation.y >= finalY)) {
+            jDialogLocation.y = finalY;
+            done = true;
+        }
+        setBounds(jDialogLocation, jDialogSize);
+        maybeRoundCorners(jDialogSize);
+        jDialog.validate();
+        if (done) {
+            stopAnimator();
+        }
+    }
+
+    /**
+     * Make the corners of the notify frame round provided the
+     * size of the dialog is big enough.
+     * 
+     * @param size
+     *            The <code>Dimension</code> dialog size.
+     */
+    private void maybeRoundCorners(final Dimension size) {
+        if (size.height > 2*Dimensions.BrowserWindow.CORNER_SIZE) {
+            new NativeSkin().roundCorners(jDialog, Dimensions.BrowserWindow.CORNER_SIZE);
+        }
+    }
+
+    /**
+     * Set the bounds of the frame.
+     * 
+     * @param location
+     *            The new location <code>Point</code>.
+     * @param size
+     *            The new size <code>Dimension</code>.
+     */
+    private void setBounds(final Point location, final Dimension size) {
+        final Rectangle bounds = new Rectangle(location, size);
+        jDialog.setBounds(bounds);
+    }
+
+    /**
+     * Set the location of the frame.
      * 
      * @param location
      *            The new location <code>Point</code>.

@@ -79,9 +79,14 @@ public final class NotifyPanel extends AbstractJPanel {
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
-        if(null == scaledBackground || null == scaledSize
-                || !getSize().equals(scaledSize)) {
-            scaledSize = getSize();
+        // The preferred size is used as the minimum image size. This improves
+        // the look and performance of the notify dialog during animation.
+        if (null == scaledBackground || null == scaledSize ||
+                getSize().width > scaledSize.width ||
+                getSize().height > scaledSize.height) {
+            scaledSize = new Dimension(
+                    Math.max(getPreferredSize().width, getSize().width),
+                    Math.max(getPreferredSize().height, getSize().height));
             scaledBackground = BACKGROUND.getScaledInstance(scaledSize.width,
                     scaledSize.height, Image.SCALE_SMOOTH);
         }

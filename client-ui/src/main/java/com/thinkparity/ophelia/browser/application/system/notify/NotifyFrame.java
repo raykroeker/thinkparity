@@ -15,9 +15,7 @@ import com.thinkparity.codebase.swing.AbstractJDialog;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.Constants.Dimensions;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2;
-import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
 
 /**
  *
@@ -61,7 +59,7 @@ public class NotifyFrame extends AbstractJDialog {
                 if (frame.isVisible())
                     frame.toFront();
                 else
-                    frame.setVisible(true);
+                    frame.show(Boolean.FALSE);
             }
         });
     }
@@ -89,16 +87,7 @@ public class NotifyFrame extends AbstractJDialog {
                 if (frame.isVisible()) {
                     frame.toFront();
                 } else {
-                    frame.setLocation(frame.getStartLocation());
-                    frame.setAlwaysOnTop(false);
-                    frame.setVisible(true);
-                    frame.toFront();
-                    frame.notifyAnimator.slideIn(ANIMATION_Y_LOCATION_ADJUSTMENT,
-                            frame.getFinalLocation().y, new Runnable() {
-                                public void run() {
-                                    frame.setAlwaysOnTop(true);
-                                }
-                    });
+                    frame.show(Boolean.TRUE);
                 }
             }
         });
@@ -132,8 +121,30 @@ public class NotifyFrame extends AbstractJDialog {
         super(null, Boolean.FALSE, "");
         this.notifyAnimator = new NotifyAnimator(this);
         initComponents();
-        new NativeSkin().roundCorners(this, Dimensions.BrowserWindow.CORNER_SIZE);
         getRootPane().setBorder(new WindowBorder2());
+    }
+
+    /**
+     * Show the notify frame.
+     * 
+     * @param animate
+     *            Animate <code>Boolean</code>.
+     */
+    private void show(final Boolean animate) {
+        if (animate) {
+            setLocation(getStartLocation());
+            setSize(getStartSize()); 
+            validate();
+            notifyAnimator.slideIn(ANIMATION_Y_LOCATION_ADJUSTMENT,
+                    getFinalLocation().y, getFinalSize().height,
+                    new Runnable() {
+                        public void run() {}
+            });
+            setVisible(true);
+        } else {
+            setLocation(getFinalLocation());
+            setVisible(true);
+        }
     }
 
     /**
@@ -148,27 +159,46 @@ public class NotifyFrame extends AbstractJDialog {
      * Get the final location for the notify frame.
      * This will be bottom right, accounting for the location of the taskbar.
      * 
-     * @return The final location for the frame.
+     * @return The final location <code>Point</code> for the frame.
      */
     private Point getFinalLocation() {
-        final Point location = getStartLocation();
-        location.y -= getSize().height;
+        final Rectangle maxBounds = SwingUtil.getPrimaryDesktopBounds();  
+        final Point location = new Point(
+                maxBounds.x + maxBounds.width - getFinalSize().width - 1,
+                maxBounds.y + maxBounds.height - getFinalSize().height - 1);
         return location;
+    }
+
+    /**
+     * Get the final size for the notify frame.
+     * 
+     * @return The final size <code>Dimension</code> for the frame.
+     */
+    private Dimension getFinalSize() {
+        return getPreferredSize();
     }
 
     /**
      * Get the start location for the notify frame.
      * This will be bottom right, accounting for the location of the taskbar.
      * 
-     * @return The start location for the frame.
+     * @return The start location <code>Point</code> for the frame.
      */
     private Point getStartLocation() {
-        final Rectangle maxBounds = SwingUtil.getPrimaryDesktopBounds();   
-        final Dimension windowSize = getSize();
+        final Rectangle maxBounds = SwingUtil.getPrimaryDesktopBounds();
         final Point location = new Point(
-                maxBounds.x + maxBounds.width - windowSize.width - 1,
-                maxBounds.y + maxBounds.height - 1);
+                maxBounds.x + maxBounds.width - getFinalSize().width - 1,
+                maxBounds.y + maxBounds.height);
         return location;
+    }
+
+    /**
+     * Get the start size for the notify frame.
+     * 
+     * @return The start size <code>Dimension</code> for the frame.
+     */
+    private Dimension getStartSize() {
+        return new Dimension(getFinalSize().width, 3);
     }
 
     /** This method is called from within the constructor to

@@ -1341,7 +1341,6 @@ public class ContainerPanel extends DefaultTabPanel {
                 add(new VersionDocumentCell(this, documentView.getVersion(),
                         documentView.getDelta()));
             }
-            add(new VersionUserCell(this, publishedBy));
             for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
                 add(new VersionUserCell(this, entry.getKey(), entry.getValue()));
             }
@@ -1420,20 +1419,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private final class VersionUserCell extends AbstractEastCell {
         /** A <code>User</code>. */
         private final User user;
-        /**
-         * Create VersionUserCell.
-         * 
-         * @param user
-         *            A <code>User</code>.
-         */
-        private VersionUserCell(final WestCell parent, final User user) {
-            super(parent);
-            this.user = user;
-            setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
-            setText(user.getName());
-            setAdditionalText(localization.getString("UserPublished"));
-        }
-        
+
         /**
          * Create VersionUserCell.
          * 

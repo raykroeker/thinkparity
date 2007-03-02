@@ -41,6 +41,8 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
+// NOCOMMIT suppress warnings
+@SuppressWarnings("unused")
 public final class MigratorModelImpl extends Model<MigratorListener> implements
         MigratorModel, InternalMigratorModel {
 

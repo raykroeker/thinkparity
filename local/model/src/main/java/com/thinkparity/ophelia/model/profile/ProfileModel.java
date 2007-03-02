@@ -42,12 +42,6 @@ public interface ProfileModel {
     public void addListener(final ProfileListener listener);
 
     /**
-     * Create the user's profile locally.
-     *
-     */
-    public Profile create();
-
-    /**
      * Determine whether or not an e-mail address is available.
      * 
      * @param email

@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.profile;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 /**
@@ -13,4 +14,11 @@ import com.thinkparity.codebase.model.util.jta.TransactionType;
  * @version 1.1.2.6
  */
 @ThinkParityTransaction(TransactionType.REQUIRED)
-public interface InternalProfileModel extends ProfileModel {}
+public interface InternalProfileModel extends ProfileModel {
+
+    /**
+     * Create the user's profile locally.
+     *
+     */
+    public Profile create();
+}

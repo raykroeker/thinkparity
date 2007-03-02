@@ -14,7 +14,6 @@ import junit.framework.Assert;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileSystem;
-import com.thinkparity.codebase.FileUtil;
 
 /**
  * @author raykroeker@gmail.com
@@ -123,12 +122,12 @@ public class TestSession {
      */
 	private File createSessionDirectory(final File parent) throws IOException {
 		final File sessionDirectory = new File(parent, JUnitX.getShortName());
+		final String sessionFileName = JUnitX.getShortName() + ".session";
         if (sessionDirectory.exists()) {
             final FileSystem fileSystem = new FileSystem(sessionDirectory);
-            final String sessionFileName = JUnitX.getShortName() + ".session";
 
             final File sessionFile = fileSystem.findFile("/" + sessionFileName);
-            final String sessionId = FileUtil.readString(sessionFile);
+            final String sessionId = TestCaseUtil.read(sessionFile);
             final Calendar sessionDate = DateUtil.getInstance(Long.valueOf(sessionId));
 
             final File newSessionDirectory = new File(parent,
@@ -140,9 +139,7 @@ public class TestSession {
             Assert.assertTrue("Cannot delete session file.", newSessionFile.delete());
         }
 		Assert.assertTrue(sessionDirectory.mkdir());
-        FileUtil.writeBytes(
-                new File(sessionDirectory, JUnitX.getShortName() + ".session"),
-                this.sessionId.getBytes());
+        TestCaseUtil.write(new File(sessionDirectory, sessionFileName), sessionId);
 		return sessionDirectory;
 	}
 }

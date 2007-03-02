@@ -77,7 +77,8 @@ class PreferencesImpl implements Preferences {
      * 
      */
     public Integer getDefaultBufferSize() {
-        final Integer defaultValue = 1024 * 1024 * 2;   // BUFFER 2MB
+        // BUFFER - 512KB - PreferencesImpl#getDefaultBufferSize()
+        final Integer defaultValue = 1024 * 512;
         return getInteger("buffer-default", defaultValue);
     }
 

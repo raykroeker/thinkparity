@@ -13,10 +13,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 
@@ -25,27 +26,27 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
  */
 public class TestCaseHelper {
 
-	/** A <code>List</code> of input <code>File</code>s. */
-	private static List<File> inputFiles;
+	/** A <code>List</code> of input file md5 checksum <code>String</code>s. */
+    private static List<String> inputFileMD5Checksums;
 
     /** A <code>List</code> of input file name <code>String</code>s. */
     private static List<String> inputFileNames;
 
-    /** A <code>List</code> of input file md5 checksum <code>String</code>s. */
-    private static List<String> inputFileMD5Checksums;
+    /** A <code>List</code> of input <code>File</code>s. */
+	private static List<File> inputFiles;
     
-	/**
-	 * List of modified input files to use for testing.
-	 * 
-	 */
-	private static List<File> modFiles;
-
 	/**
 	 * The directory that contains the input files.
 	 * 
 	 * @see #getInputFilesDirectory()
 	 */
 	private static File inputFilesDirectory;
+
+	/**
+	 * List of modified input files to use for testing.
+	 * 
+	 */
+	private static List<File> modFiles;
 
 	/**
 	 * JUnit root directory. Either the "${basedir}/target" or
@@ -96,6 +97,24 @@ public class TestCaseHelper {
 		return StringUtil.printStackTrace(t);
 	}
 
+    static String[] getInputFileMD5Checksums() {
+        if (null == inputFileMD5Checksums) {
+            inputFileMD5Checksums = new ArrayList<String>();
+            inputFileMD5Checksums.add("bff1335bddbbec6825f28a452cf89eb7");
+            inputFileMD5Checksums.add("da943e042bba49db773955de4596ade8");
+            inputFileMD5Checksums.add("c672813799783c87e1d0c71ea01aa203");
+            inputFileMD5Checksums.add("f8600055e0e298e758d7a3f47a0794be");
+            inputFileMD5Checksums.add("f025bb38caeae6d25d41af5da12a1088");
+            inputFileMD5Checksums.add("65cbd1464eb95d74cdcc9ec73fb92a7e");
+            inputFileMD5Checksums.add("65cbd1464eb95d74cdcc9ec73fb92a7e");
+            inputFileMD5Checksums.add("23c48cbb68603cd9a078e548cce61ab7");
+            inputFileMD5Checksums.add("a32663e1998e908a73e4c9e88287b9ba");
+            inputFileMD5Checksums.add("19edc66c9f6603dad03fd3dde85f02cb");
+            inputFileMD5Checksums.add("30e61cba71f4f7499f74f0dbc6ede060");
+        }
+        return inputFileMD5Checksums.toArray(new String[] {});
+    }
+
     /**
      * Obtain a list of the input file names.
      * 
@@ -118,24 +137,6 @@ public class TestCaseHelper {
         }
         return inputFileNames.toArray(new String[] {});
     }
-
-    static String[] getInputFileMD5Checksums() {
-        if (null == inputFileMD5Checksums) {
-            inputFileMD5Checksums = new ArrayList<String>();
-            inputFileMD5Checksums.add("bff1335bddbbec6825f28a452cf89eb7");
-            inputFileMD5Checksums.add("da943e042bba49db773955de4596ade8");
-            inputFileMD5Checksums.add("c672813799783c87e1d0c71ea01aa203");
-            inputFileMD5Checksums.add("f8600055e0e298e758d7a3f47a0794be");
-            inputFileMD5Checksums.add("f025bb38caeae6d25d41af5da12a1088");
-            inputFileMD5Checksums.add("65cbd1464eb95d74cdcc9ec73fb92a7e");
-            inputFileMD5Checksums.add("65cbd1464eb95d74cdcc9ec73fb92a7e");
-            inputFileMD5Checksums.add("23c48cbb68603cd9a078e548cce61ab7");
-            inputFileMD5Checksums.add("a32663e1998e908a73e4c9e88287b9ba");
-            inputFileMD5Checksums.add("19edc66c9f6603dad03fd3dde85f02cb");
-            inputFileMD5Checksums.add("30e61cba71f4f7499f74f0dbc6ede060");
-        }
-        return inputFileMD5Checksums.toArray(new String[] {});
-    }
 	/**
      * Obtain a list of all of the input files.
      * 
@@ -149,6 +150,20 @@ public class TestCaseHelper {
             }
 		}
 		return inputFiles.toArray(new File[] {});
+	}
+
+	/**
+	 * Obtain the directory within which the input files will reside.
+	 * 
+	 * @return The input directory.
+	 */
+	static File getInputFilesDirectory() {
+		if(null == inputFilesDirectory) {
+			inputFilesDirectory = new File(testSession.getSessionDirectory(), JUnitX.getShortName() + "Input");
+			Assert.assertTrue(inputFilesDirectory.mkdir(),
+                    "Could not create directory {0}.", inputFilesDirectory);
+		}
+		return inputFilesDirectory;
 	}
 
 	static File[] getModFiles() throws IOException {
@@ -166,19 +181,6 @@ public class TestCaseHelper {
 			modFiles.add(copyInputFile("JUnitTestFramework4MBMod.txt"));
 		}
 		return modFiles.toArray(new File[] {});
-	}
-
-	/**
-	 * Obtain the directory within which the input files will reside.
-	 * 
-	 * @return The input directory.
-	 */
-	static File getInputFilesDirectory() {
-		if(null == inputFilesDirectory) {
-			inputFilesDirectory = new File(testSession.getSessionDirectory(), JUnitX.getShortName() + "Input");
-			Assert.assertTrue(inputFilesDirectory.mkdir());
-		}
-		return inputFilesDirectory;
 	}
 
 	/**
@@ -217,23 +219,19 @@ public class TestCaseHelper {
 	private static File copyInputFile(final String inputName,
 			final String outputName) throws IOException {
         final File outputFile = new File(getInputFilesDirectory(), outputName);
-		Assert.assertTrue(outputFile.createNewFile());
-		final InputStream is =
-            TestCaseHelper.class.getClassLoader().getResourceAsStream(
+        final OutputStream output = new FileOutputStream(outputFile);
+        try {
+            final InputStream input = TestCaseHelper.class.getClassLoader().getResourceAsStream(
                     "junitx-files/" + inputName);
-        final OutputStream os = new FileOutputStream(outputFile);
-		try {
-			int len;
-			final byte[] b = new byte[512];
-			while((len = is.read(b)) > 0) {
-				os.write(b, 0, len);
-			}
-			os.flush();
-		}
-		finally {
-			try { os.close(); }
-			finally { is.close(); }
-		}
+            try {
+                // BUFFER - 1KB - TestCaseHelper#copyInputFile(String, String)
+                StreamUtil.copy(input, output, 1024);
+            } finally {
+                input.close();
+            }
+        } finally {
+            output.close();
+        }
 		return outputFile;
 	}
 
@@ -257,7 +255,8 @@ public class TestCaseHelper {
 				else { TestCase.fail(""); }
 			}
 			if(!rootDirectory.exists())
-				Assert.assertTrue(rootDirectory.mkdir());
+				Assert.assertTrue(rootDirectory.mkdir(),
+                        "Could not create directory {0}.", rootDirectory);
 		}
 		return rootDirectory;
 	}
@@ -342,7 +341,8 @@ public class TestCaseHelper {
 	 */
 	void addSessionDataItem(final String key, final Object value) {
 		final Object originalValue = testSession.getData(key);
-		Assert.assertNull(originalValue);
+		Assert.assertIsNull(originalValue,
+                "Cannot overwrite original value {0} for {1}.", originalValue, key);
 		testSession.setData(key, value);
 	}
 
@@ -361,8 +361,24 @@ public class TestCaseHelper {
 	 */
 	File createDirectory(final String directoryName) {
 		final File directory = new File(getTestCaseDirectory(), directoryName);
-		Assert.assertTrue(directory.mkdir());
+		Assert.assertTrue(directory.mkdir(),
+                "Cannot create directory {0}.", directory);
 		return directory;
+	}
+
+	/**
+	 * Obtain the directory for the test case.
+	 * 
+	 * @return The directory for the test case.
+	 */
+	File getTestCaseDirectory() {
+		if(null == testCaseDirectory) {
+			testCaseDirectory =
+				new File(testSession.getSessionDirectory(), testCase.getName());
+			Assert.assertTrue(testCaseDirectory.mkdir(),
+                    "Cannot create directory {0}.", testCaseDirectory);
+		}
+		return testCaseDirectory;
 	}
 
 	/**
@@ -373,7 +389,7 @@ public class TestCaseHelper {
 	 * @return The test text.
 	 */
 	String getTestText(final Integer textLength) {
-		Assert.assertTrue(textLength > 0);
+		Assert.assertTrue(textLength > 0, "Text length is {0}.", textLength);
 		final StringBuffer textBuffer = new StringBuffer(textLength);
 		for(int i = 0; i < textLength; i++) {
 			textBuffer.append(
@@ -389,22 +405,8 @@ public class TestCaseHelper {
 	 */
 	void removeSessionDataItem(final String key) {
 		final Object originalValue = testSession.getData(key);
-		Assert.assertNotNull(originalValue);
+		Assert.assertNotNull(originalValue, "Session value for {0} is null.", key);
 		testSession.setData(key, null);
-	}
-
-	/**
-	 * Obtain the directory for the test case.
-	 * 
-	 * @return The directory for the test case.
-	 */
-	File getTestCaseDirectory() {
-		if(null == testCaseDirectory) {
-			testCaseDirectory =
-				new File(testSession.getSessionDirectory(), testCase.getName());
-			Assert.assertTrue(testCaseDirectory.mkdir());
-		}
-		return testCaseDirectory;
 	}
 
 	/**

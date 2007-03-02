@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.thinkparity.codebase.DateUtil;
-import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.StringUtil.Separator;
@@ -1174,9 +1173,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             final File tempFile = File.createTempFile(prefix, suffix);
             tempFile.deleteOnExit();
     
-            FileUtil.writeBytes(tempFile,
-                    ("jUnit Test MOD " +
-                    DateUtil.format(DateUtil.getInstance(), DateImage.ISO)).getBytes());
+            write(tempFile,
+                    "jUnit Test MOD " +
+                    DateUtil.format(DateUtil.getInstance(), DateImage.ISO));
             final InputStream content = new FileInputStream(tempFile);
             try {
                 getDocumentModel(modifyAs).updateDraft(localDocumentId, content);

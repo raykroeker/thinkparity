@@ -3,12 +3,10 @@
  */
 package com.thinkparity.codebase;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,11 +30,7 @@ public abstract class FileUtil {
 	/** Format for file sizes. */
     private static Format SIZE_FORMAT;
 
-    /** An internal buffer. */
-    private static final Integer BUFFER;
-
     static {
-        BUFFER = 1024 * 1024 * 2; // BUFFER 2MB
         SIZE_FORMAT =  new DecimalFormat("###.#");
 	}
 
@@ -292,31 +286,6 @@ public abstract class FileUtil {
     }
 
 	/**
-	 * Read a file into a string.
-	 * 
-	 * @param file
-	 *            The file to read.
-	 * @return The contents of the file.
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	public static String readString(final File file)
-			throws FileNotFoundException, IOException {
-		final BufferedReader br =
-			new BufferedReader(new FileReader(file), BUFFER);
-		try {
-			final StringBuffer sbuf = new StringBuffer();
-			char[] cbuf = new char[BUFFER];
-			int chars;
-			while((chars = br.read(cbuf)) > 0) {
-				sbuf.append(cbuf, 0, chars);
-			}
-			return sbuf.toString();
-		}
-		finally { br.close(); }
-	}
-
-	/**
      * Modfiy the last update date of a directory.
      * 
      * @param file
@@ -389,37 +358,8 @@ public abstract class FileUtil {
     }
 
     /**
-	 * Write a byte[] to a file.
-	 * 
-	 * @param file
-	 *            The file to write to.
-	 * @param content
-	 *            The file content to write.
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	public static void writeBytes(final File file, byte[] content)
-			throws FileNotFoundException, IOException {
-		final FileOutputStream fileOutputStream = new FileOutputStream(file);
-		try {
-			int amountWritten = 0;
-			final int contentLength = content.length;
-			int amountToWrite;
-			while(amountWritten < contentLength) {
-				amountToWrite = BUFFER > contentLength - amountWritten
-					? contentLength - amountWritten : BUFFER;
-				fileOutputStream.write(content, amountWritten, amountToWrite);
-				amountWritten += amountToWrite;
-			}
-		}
-		finally {
-			fileOutputStream.flush();
-			fileOutputStream.close();
-		}
-	}
-
-	/**
-	 * Create a new FileUtil [Singleton]
-	 */
+     * Create FileUtil.
+     *
+     */
 	private FileUtil() { super(); }
 }

@@ -78,13 +78,13 @@ public abstract class TestCase extends junit.framework.TestCase {
             actualRead = actual.read(actualBuffer);
         }
     }
-    
+
     protected static void assertTrue(final boolean expression,
             final String assertionPattern, final Object... assertionArguments) {
         assertTrue(new MessageFormat(assertionPattern)
                 .format(assertionArguments), expression);
     }
-
+    
     /**
      * Fail a test.
      * 
@@ -98,11 +98,17 @@ public abstract class TestCase extends junit.framework.TestCase {
         fail(MessageFormat.format(message, arguments));
     }
 
-	protected static final Integer getDefaultBufferSize() {
-        return 1024 * 1024 * 2; // BUFFER 2MB
+    /**
+     * Obtain the default buffer size for a test case.
+     * 
+     * @return A buffer size <code>Integer</code>.
+     */
+    protected static final Integer getDefaultBufferSize() {
+        // BUFFER - 2MB - TestCase#getDefaultBufferSize()
+        return 1024 * 1024 * 2;
     }
 
-    /**
+	/**
 	 * Obtain the test session.
 	 * 
 	 * @return The test session.
@@ -111,7 +117,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 		return TestCaseHelper.getTestSession();
 	}
 
-	/**
+    /**
      * Return the current date and time as a GMT ISO string.
      * 
      * @return The date time <code>String</code>.
@@ -120,6 +126,20 @@ public abstract class TestCase extends junit.framework.TestCase {
      */
     protected static String toGMTISO() {
         return DateUtil.toGMTISO(DateUtil.getInstance());
+    }
+
+	/**
+     * Write a string to a file.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @param string
+     *            A <code>String</code>.
+     * @throws IOException
+     */
+    protected static void write(final File file, final String string)
+            throws IOException {
+        TestCaseUtil.write(file, string);
     }
 
 	/** An apache logger wrapper. */

@@ -658,7 +658,8 @@ public class ContactTabPanel extends DefaultTabPanel {
         java.awt.GridBagConstraints gridBagConstraints;
 
         final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
-        final javax.swing.JPanel expandedDataJPanel = new javax.swing.JPanel();
+        final javax.swing.JPanel row1JPanel = new javax.swing.JPanel();
+        final javax.swing.JPanel row2JPanel = new javax.swing.JPanel();
         final javax.swing.JPanel expandedDataLabelsJPanel = new javax.swing.JPanel();
         final javax.swing.JLabel contactEMailJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel contactAddressJLabel = new javax.swing.JLabel();
@@ -792,8 +793,6 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.weightx = 1.0;
         collapsedIncomingInvitationJPanel.add(fillerJLabel, gridBagConstraints);
 
-        expandedContactJPanel.setLayout(new java.awt.GridBagLayout());
-
         expandedContactJPanel.setOpaque(false);
         expandedContactJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -804,20 +803,23 @@ public class ContactTabPanel extends DefaultTabPanel {
             }
         });
 
+        row1JPanel.setLayout(new java.awt.GridBagLayout());
+
+        row1JPanel.setOpaque(false);
         contactIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconUser.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.insets = new java.awt.Insets(4, 27, 0, 5);
-        expandedContactJPanel.add(contactIconJLabel, gridBagConstraints);
+        row1JPanel.add(contactIconJLabel, gridBagConstraints);
 
         contactTextJLabel.setText("!Name!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
-        expandedContactJPanel.add(contactTextJLabel, gridBagConstraints);
+        row1JPanel.add(contactTextJLabel, gridBagConstraints);
 
         contactAdditionalTextJLabel.setForeground(Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG);
         contactAdditionalTextJLabel.setText("!Title, Organization!");
@@ -827,11 +829,11 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 4, 0);
-        expandedContactJPanel.add(contactAdditionalTextJLabel, gridBagConstraints);
+        row1JPanel.add(contactAdditionalTextJLabel, gridBagConstraints);
 
-        expandedDataJPanel.setLayout(new java.awt.GridBagLayout());
+        row2JPanel.setLayout(new java.awt.GridBagLayout());
 
-        expandedDataJPanel.setOpaque(false);
+        row2JPanel.setOpaque(false);
         expandedDataLabelsJPanel.setLayout(new java.awt.GridBagLayout());
 
         expandedDataLabelsJPanel.setOpaque(false);
@@ -841,7 +843,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(14, 51, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(8, 51, 0, 0);
         expandedDataLabelsJPanel.add(contactEMailJLabel, gridBagConstraints);
 
         contactAddressJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.addressJLabel"));
@@ -883,7 +885,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
         gridBagConstraints.weighty = 1.0;
-        expandedDataJPanel.add(expandedDataLabelsJPanel, gridBagConstraints);
+        row2JPanel.add(expandedDataLabelsJPanel, gridBagConstraints);
 
         expandedDataValuesJPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -893,7 +895,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(14, 10, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(8, 10, 0, 0);
         expandedDataValuesJPanel.add(contactEMailValueJLabel, gridBagConstraints);
 
         contactAddressValueJLabel.setText("Address Value");
@@ -943,16 +945,22 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        expandedDataJPanel.add(expandedDataValuesJPanel, gridBagConstraints);
+        row2JPanel.add(expandedDataValuesJPanel, gridBagConstraints);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        expandedContactJPanel.add(expandedDataJPanel, gridBagConstraints);
+        org.jdesktop.layout.GroupLayout expandedContactJPanelLayout = new org.jdesktop.layout.GroupLayout(expandedContactJPanel);
+        expandedContactJPanel.setLayout(expandedContactJPanelLayout);
+        expandedContactJPanelLayout.setHorizontalGroup(
+            expandedContactJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(row1JPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .add(row2JPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+        );
+        expandedContactJPanelLayout.setVerticalGroup(
+            expandedContactJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(expandedContactJPanelLayout.createSequentialGroup()
+                .add(row1JPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(row2JPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 141, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+        );
 
         setLayout(new java.awt.GridBagLayout());
 

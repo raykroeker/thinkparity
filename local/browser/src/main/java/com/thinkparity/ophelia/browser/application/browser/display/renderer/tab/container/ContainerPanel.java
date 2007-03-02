@@ -484,7 +484,7 @@ public class ContainerPanel extends DefaultTabPanel {
             repaint();
             firePropertyChange("expanded", !expanded, expanded);
         }
-    }    
+    }
 
     private void eastJPanelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJPanelMouseReleased
         if (e.isPopupTrigger()) {
@@ -507,7 +507,7 @@ public class ContainerPanel extends DefaultTabPanel {
             tabDelegate.toggleExpansion(this);
         }
     }//GEN-LAST:event_eastJPanelMousePressed
-    
+
     private void expandedJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMousePressed
         logger.logApiId();
         logger.logVariable("e", e);
@@ -587,10 +587,12 @@ public class ContainerPanel extends DefaultTabPanel {
         java.awt.GridBagConstraints gridBagConstraints;
         javax.swing.JLabel westFillerJLabel;
 
+        final javax.swing.JPanel fixedSizeJPanel = new javax.swing.JPanel();
         westListJPanel = new PanelCellListJPanel(westListModel, ListType.WEST_LIST);
         westFillerJLabel = new javax.swing.JLabel();
         eastListJPanel = new PanelCellListJPanel(eastListModel, ListType.EAST_LIST);
         eastFillerJLabel = new javax.swing.JLabel();
+        final javax.swing.JPanel fillerJPanel = new javax.swing.JPanel();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -651,8 +653,6 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
         add(collapsedJPanel, gridBagConstraints);
 
-        expandedJPanel.setLayout(new java.awt.GridLayout(1, 0));
-
         expandedJPanel.setOpaque(false);
         expandedJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -663,6 +663,9 @@ public class ContainerPanel extends DefaultTabPanel {
             }
         });
 
+        fixedSizeJPanel.setLayout(new java.awt.GridLayout(1, 0));
+
+        fixedSizeJPanel.setOpaque(false);
         westJPanel.setLayout(new java.awt.GridBagLayout());
 
         westJPanel.setOpaque(false);
@@ -719,7 +722,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         westJPanel.add(westLastJLabel, gridBagConstraints);
 
-        expandedJPanel.add(westJPanel);
+        fixedSizeJPanel.add(westJPanel);
 
         eastJPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -786,8 +789,23 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 0);
         eastJPanel.add(eastLastJLabel, gridBagConstraints);
 
-        expandedJPanel.add(eastJPanel);
+        fixedSizeJPanel.add(eastJPanel);
 
+        org.jdesktop.layout.GroupLayout expandedJPanelLayout = new org.jdesktop.layout.GroupLayout(expandedJPanel);
+        expandedJPanel.setLayout(expandedJPanelLayout);
+        expandedJPanelLayout.setHorizontalGroup(
+            expandedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, fixedSizeJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 425, Short.MAX_VALUE)
+            .add(fillerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
+        );
+        expandedJPanelLayout.setVerticalGroup(
+            expandedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(expandedJPanelLayout.createSequentialGroup()
+                .add(fixedSizeJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 164, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(fillerJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -798,7 +816,7 @@ public class ContainerPanel extends DefaultTabPanel {
         add(expandedJPanel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
-    
+
     /**
      * Determine if there is a latest version or not.
      * 

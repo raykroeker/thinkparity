@@ -32,9 +32,9 @@ public enum Environment {
             "thinkparity.dyndns.org", 80, Boolean.FALSE),
 
     /** Robert's development environment. */
-    DEVELOPMENT_ROBERT("thinkparity.dyndns.org", 5228, Boolean.FALSE, "thinkparity.net",
+    DEVELOPMENT_ROBERT("thinkparity.dyndns.org", 5229, Boolean.TRUE, "thinkparity.net",
             "thinkparity.dyndns.org", 20003, Boolean.TRUE,
-            "thinkparity.dyndns.org", 80, Boolean.FALSE),
+            "thinkparity.dyndns.org", 80, Boolean.TRUE),
 
     /** Production environment. */
     PRODUCTION("thinkparity.net", 5223, Boolean.TRUE, "thinkparity.net",

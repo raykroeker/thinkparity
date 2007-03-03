@@ -248,7 +248,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             notifyDetermine(monitor, contactIds.size());
             for (final JabberId contactId : contactIds) {
                 notifyStepBegin(monitor, DownloadStep.DOWNLOAD);
-                createLocal(read(contactId));
+                createLocal(sessionModel.readContact(localUserId(), contactId));
                 notifyStepEnd(monitor, DownloadStep.DOWNLOAD);
             }
         } catch (final Throwable t) {

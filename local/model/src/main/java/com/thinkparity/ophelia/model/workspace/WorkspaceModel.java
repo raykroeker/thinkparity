@@ -290,6 +290,7 @@ public class WorkspaceModel {
                 // process events
                 notifyStepBegin(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
                 sessionModel.processQueue(monitor);
+                sessionModel.registerQueueListener();
                 notifyStepEnd(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
 
                 findImpl(workspace).initialize();

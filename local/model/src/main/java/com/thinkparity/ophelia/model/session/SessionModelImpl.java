@@ -37,6 +37,7 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.events.SessionListener;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -147,7 +148,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	public void confirmArtifactReceipt(final JabberId userId, final UUID uniqueId,
+    public void confirmArtifactReceipt(final JabberId userId, final UUID uniqueId,
             final Long versionId, final JabberId publishedBy,
             final Calendar publishedOn, final List<JabberId> publishedTo,
             final JabberId receivedBy, final Calendar receivedOn) {
@@ -172,7 +173,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
 	}
 
-    /**
+	/**
      * Send an artifact creation packet to the parity server.
      * 
      * @param uniqueId
@@ -337,7 +338,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * Delete a contact invitation.
      * 
      * @param userId
@@ -382,7 +383,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * Delete a stream session.
      * 
      * @param session
@@ -401,7 +402,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deployMigratorRelease(java.util.UUID)
      *
      */
@@ -457,7 +458,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * Handle the remote session terminated event.
      *
      */
@@ -474,7 +475,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * Handle the remote session terminated event.
      * 
      * @param cause
@@ -494,7 +495,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isEmailAvailable(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.email.EMail)
      * 
@@ -544,39 +545,84 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Establish a new xmpp session.
-     * 
-     * @param monitor
-     *            A <code>LoginMonitor</code>.
-     * @throws ParityException
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#login(com.thinkparity.codebase.model.session.Credentials)
+     *
      */
-    public void login(final LoginMonitor monitor) {
-        logger.logApiId();
-        logger.logVariable("monitor", monitor);
+    public void login(final Credentials credentials)
+            throws InvalidCredentialsException {
+        logger.logVariable("environment", environment);
+        logger.logVariable("credentials", credentials);
         try {
-            login(monitor, readCredentials());
+            assertNotIsOnline();
+            assertXMPPIsReachable(environment);
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                // register xmpp event listeners
+                new SessionModelEventDispatcher(workspace, modelFactory, xmppSession);
+                // login
+                try {
+                    xmppSession.login(environment, credentials);
+                } catch (final InvalidCredentialsException icx) {
+                    throw icx;
+                }
+                // this was the first login
+                createCredentials(credentials);
+                createToken(xmppSession.createToken(localUserId()));
+            }
+        } catch (final InvalidCredentialsException icx) {
+            throw icx;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
     /**
-     * Establish a new xmpp session.
+     * @see com.thinkparity.ophelia.model.session.SessionModel#login(com.thinkparity.ophelia.model.util.ProcessMonitor)
      * 
-     * @param monitor
-     *            A <code>LoginMonitor</code>.
-     * @param credentials
-     *            The user's credentials.
-     * @throws ParityException
      */
-    public void login(final LoginMonitor monitor, final Credentials credentials) {
-        logger.logApiId();
-        logger.logVariable("monitor", monitor);
-        logger.logVariable("credentials", credentials);
+    public void login(final ProcessMonitor monitor)
+            throws InvalidCredentialsException {
         try {
-            login(1, monitor, credentials);
+            assertNotIsOnline();
+            assertXMPPIsReachable(environment);
+            notifyProcessBegin(monitor);
+            final Credentials credentials = readCredentials();
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                // check that the credentials match
+                final Credentials localCredentials = readCredentials();
+                Assert.assertTrue(
+                        localCredentials.getUsername().equals(credentials.getUsername()) &&
+                        localCredentials.getPassword().equals(credentials.getPassword()),
+                        "Credentials {0} do not match local credentials {1}.",
+                        credentials, localCredentials);
+                credentials.setResource(localCredentials.getResource());
+                // register xmpp event listeners
+                new SessionModelEventDispatcher(workspace, modelFactory, xmppSession);
+                // login
+                try {
+                    xmppSession.login(environment, credentials);
+                } catch (final InvalidCredentialsException icx) {
+                    throw icx;
+                }
+                // ensure environment integrity
+                final Token localToken = readToken();
+                final Token remoteToken = xmppSession.readToken(localUserId());
+                if (localToken.equals(remoteToken)) {
+                    // process queued events
+                    xmppSession.processEventQueue(monitor, localUserId());
+                    xmppSession.registerQueueListener();
+                } else {
+                    logger.logError("Cannot login from more than one location.");
+                    xmppSession.logout();
+                }
+            }
+        } catch (final InvalidCredentialsException icx) {
+            throw icx;
         } catch (final Throwable t) {
             throw translateError(t);
+        } finally {
+            notifyProcessEnd(monitor);
         }
     }
 
@@ -602,15 +648,14 @@ public final class SessionModelImpl extends Model<SessionListener>
 	}
 
     /**
-     * Process the remote event queue.
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#processQueue(com.thinkparity.ophelia.model.util.ProcessMonitor)
      * 
      */
-    public void processQueue() {
-        logger.logApiId();
+    public void processQueue(final ProcessMonitor monitor) {
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                xmppSession.processEventQueue(localUserId());
+                xmppSession.processEventQueue(monitor, localUserId());
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -1055,6 +1100,21 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readContactIds()
+     *
+     */
+    public List<JabberId> readContactIds() {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized(xmppSession) {
+                return xmppSession.readContactIds(localUserId());
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     public List<Contact> readContactList(final JabberId userId) {
 		try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
@@ -1066,7 +1126,7 @@ public final class SessionModelImpl extends Model<SessionListener>
 		}
 	}
 
-    /**
+	/**
      * Return the remote date and time.
      * 
      * @return A <code>Calendar</code>.
@@ -1105,7 +1165,8 @@ public final class SessionModelImpl extends Model<SessionListener>
 		}
 	}
 
-	/**
+    
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorLatestRelease(java.util.UUID, com.thinkparity.codebase.OS)
      *
      */
@@ -1121,7 +1182,6 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
     
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorProduct(java.lang.String)
@@ -1138,7 +1198,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorRelease(java.lang.String)
      *
@@ -1175,7 +1235,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * Read the logged in user's profile.
      * 
      * @return A profile.
@@ -1192,7 +1252,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	public List<EMail> readProfileEMails() {
+    public List<EMail> readProfileEMails() {
         logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
@@ -1255,6 +1315,21 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw translateError(t);
         }
 	}
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#registerQueueListener()
+     *
+     */
+    public void registerQueueListener() {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                xmppSession.registerQueueListener();
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
 
     /**
      * @see com.thinkparity.ophelia.model.Model#removeListener(com.thinkparity.ophelia.model.util.EventListener)
@@ -1446,104 +1521,5 @@ public final class SessionModelImpl extends Model<SessionListener>
     @Override
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
-    }
-
-    /**
-     * Login to the environment with the credentials.
-     * 
-     * @param attempt
-     *            The attempt number.
-     * @param monitor
-     *            A <code>LoginMonitor</code>.
-     * @param environment
-     *            The environment to login to.
-     * @param credentials
-     *            The credentials to login with.
-     */
-    private void login(final Integer attempt, final LoginMonitor monitor,
-            final Credentials credentials) {
-        logger.logVariable("attempt", attempt);
-        logger.logVariable("monitor", monitor);
-        logger.logVariable("environment", environment);
-        logger.logVariable("credentials", credentials);
-        try {
-            assertNotIsOnline();
-            assertXMPPIsReachable(environment);
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                // check that the user's credentials match
-                final Credentials localCredentials = readCredentials();
-                if(null != localCredentials) {
-                    Assert.assertTrue(
-                            localCredentials.getUsername().equals(credentials.getUsername()) &&
-                            localCredentials.getPassword().equals(credentials.getPassword()),
-                            "Credentials {0} do not match local credentials {1}.",
-                            credentials, localCredentials);
-                    credentials.setResource(localCredentials.getResource());
-                }
-                // register with xmpp event listeners
-                new SessionModelEventDispatcher(workspace, modelFactory, xmppSession);
-
-                // login
-                try {
-                    xmppSession.login(environment, credentials);
-                } catch (final InvalidCredentialsException icx) {
-                    monitor.notifyInvalidCredentials(credentials);
-                    return;
-                }
-
-                // this was the first login
-                if (null == localCredentials) {
-                    createCredentials(credentials);
-                    getProfileModel().create();
-                }
-
-                // syncrhonize the local environment
-                final Token localToken = readToken();
-                if (null == localToken) {
-                    final Token remoteToken = xmppSession.readToken(localUserId());
-                    if (null == remoteToken) {
-                        // first login ever
-                        createToken(xmppSession.createToken(localUserId()));
-                    } else {
-                        // first login in this environment
-                        if (monitor.confirmSynchronize()) {
-                            getContainerModel().restoreBackup();
-                            createToken(xmppSession.createToken(localUserId()));
-                        } else {
-                            xmppSession.logout();
-                            return; /*
-                                     * HACK shouldn't really have more than one
-                                     * return path; but i don't want to process
-                                     * the offline event queue for this case
-                                     */
-                        }
-                    }
-                } else {
-                    final Token remoteToken = xmppSession.readToken(localUserId());
-                    if (localToken.equals(remoteToken)) {
-                        // here; we know the local environment is the primary
-                        // expected environment
-                    } else {
-                        // here we know the local environment is different from
-                        // what was expected
-                        if (monitor.confirmSynchronize()) {
-                            getContainerModel().restoreBackup();      
-                        } else {
-                            xmppSession.logout();
-                            return; /*
-                                     * HACK shouldn't really have more than one
-                                     * return path; but i don't want to process
-                                     * the offline event queue for this case
-                                     */
-                        }
-                    }
-                }
-                // process queued events
-                xmppSession.processEventQueue(localUserId());
-            }
-        } catch(final Throwable t) {
-            throw translateError(t);
-        }
     }
 }

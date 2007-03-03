@@ -9,8 +9,9 @@ import java.util.TimeZone;
 
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
-import com.thinkparity.ophelia.model.session.LoginMonitor;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Preferences;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -40,8 +41,9 @@ public interface Platform extends ApplicationListener {
      * @param credentials
      *            A user's <code>Credentials</code>.
      */
-    public void initializeWorkspace(final Workspace workspace,
-            final LoginMonitor loginMonitor, final Credentials credentials);
+    public void initializeWorkspace(final ProcessMonitor monitor,
+            final Workspace workspace, final Credentials credentials)
+            throws InvalidCredentialsException;
 
     /**
      * Determine if a workspace has been initialized.

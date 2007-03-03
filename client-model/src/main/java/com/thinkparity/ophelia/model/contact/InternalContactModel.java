@@ -13,6 +13,8 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEv
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+
 /**
  * <b>Title:</b>thinkParity Internal Contact Model<br>
  * <b>Description:</b><br>
@@ -24,9 +26,11 @@ public interface InternalContactModel extends ContactModel {
 
     /**
      * Download the contacts from the server and create local contacts.
-     *
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
      */
-    public void download();
+    public void download(final ProcessMonitor monitor);
 
     /**
      * Handle the remote event generated when a contact is deleted.

@@ -18,15 +18,18 @@ import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookNames;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookPriorities;
 import com.thinkparity.ophelia.model.Constants.ThreadNames;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
-import com.thinkparity.ophelia.model.session.LoginMonitor;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
+import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.workspace.impl.WorkspaceImpl;
+import com.thinkparity.ophelia.model.workspace.monitor.InitializeStep;
 
 import org.apache.log4j.Logger;
 
@@ -37,9 +40,13 @@ import org.apache.log4j.Logger;
  * The root of the workspace in a win32 environment is the %APPDATA% environment
  * variable followed by the corporation property followed by the product
  * property.  An example is as follows:
+ * <pre>
  * C:\Documents and Settings\Joe Blow\Application Data\
- * 	+>Parity Software
- * 		+>Parity
+ * +-->thinkParity
+ *    +-->data
+ *    +-->index
+ *    +-->logs
+ * </pre>
  * @author raykroeker@gmail.com
  * @version 1.1
  */
@@ -85,6 +92,84 @@ public class WorkspaceModel {
         return new WorkspaceModel(environment);
     }
 
+    /**
+     * Notify a process monitor that a given number of steps is upcoming.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param steps
+     *            An <code>Integer</code> number of steps.
+     */
+    protected static final void notifyDetermine(final ProcessMonitor monitor,
+            final Integer steps) {
+        monitor.determineSteps(steps);
+    }
+
+    /**
+     * Notify a process monitor that a given process will begin.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param steps
+     *            An <code>Integer</code> number of steps.
+     */
+    protected static final void notifyProcessBegin(final ProcessMonitor monitor) {
+        monitor.beginProcess();
+    }
+
+    /**
+     * Notify a process monitor that a given process will end.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param steps
+     *            An <code>Integer</code> number of steps.
+     */
+    protected static final void notifyProcessEnd(final ProcessMonitor monitor) {
+        monitor.endProcess();
+    }
+
+    /**
+     * Notify a process monitor that a given step will begin.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param step
+     *            A <code>Step</code>.
+     */
+    protected static final void notifyStepBegin(final ProcessMonitor monitor,
+            final Step step) {
+        notifyStepBegin(monitor, step, null);
+    }
+
+    /**
+     * Notify a process monitor that a given step will begin.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param step
+     *            A <code>Step</code>.
+     * @param data
+     *            Any extra step data.
+     */
+    protected static final void notifyStepBegin(final ProcessMonitor monitor,
+            final Step step, final Object data) {
+        monitor.beginStep(step, data);
+    }
+
+    /**
+     * Notify a process monitor that a given step will end.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param step
+     *            A <code>Step</code>.
+     */
+    protected static final void notifyStepEnd(final ProcessMonitor monitor,
+            final Step step) {
+        monitor.endStep(step);
+    }
+
     /** A thinkParity <code>Context</code>. */
     private final Context context;
 
@@ -115,6 +200,7 @@ public class WorkspaceModel {
             WORKSPACES.remove(workspace.getWorkspaceDirectory());
         }
     }
+
 
     /**
      * Delete a workspace.
@@ -175,22 +261,41 @@ public class WorkspaceModel {
      * @param credentials
      *            The user's login <code>Credentials</code>.
      */
-    public void initialize(final Workspace workspace,
-            final LoginMonitor loginMonitor, final Credentials credentials) {
+    public void initialize(final ProcessMonitor monitor,
+            final Workspace workspace, final Credentials credentials)
+            throws InvalidCredentialsException {
+        notifyProcessBegin(monitor);
         try {
             final InternalModelFactory modelFactory = InternalModelFactory.getInstance(context, environment, workspace);
-
-            // login
             final InternalSessionModel sessionModel = modelFactory.getSessionModel();
-            sessionModel.login(loginMonitor, credentials);
+            // login
+            notifyStepBegin(monitor, InitializeStep.SESSION_LOGIN);
+            sessionModel.login(credentials);
+            notifyStepEnd(monitor, InitializeStep.SESSION_LOGIN);
             if (sessionModel.isLoggedIn()) {
                 // initialize migrator
                 modelFactory.getMigratorModel().initialize();
+                // create the profile
+                notifyStepBegin(monitor, InitializeStep.PROFILE_CREATE);
+                modelFactory.getProfileModel().create();
+                notifyStepEnd(monitor, InitializeStep.PROFILE_CREATE);
                 // download contacts
-                modelFactory.getContactModel().download();
-    
+                notifyStepBegin(monitor, InitializeStep.CONTACT_DOWNLOAD);
+                modelFactory.getContactModel().download(monitor);
+                notifyStepEnd(monitor, InitializeStep.CONTACT_DOWNLOAD);
+                // restore backup
+                notifyStepBegin(monitor, InitializeStep.CONTAINER_RESTORE_BACKUP);
+                modelFactory.getContainerModel().restoreBackup(monitor);
+                notifyStepEnd(monitor, InitializeStep.CONTAINER_RESTORE_BACKUP);
+                // process events
+                notifyStepBegin(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
+                sessionModel.processQueue(monitor);
+                notifyStepEnd(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
+
                 findImpl(workspace).initialize();
             }
+        } catch (final InvalidCredentialsException icx) {
+            throw icx;
         } catch (final Throwable t) {
             final WorkspaceImpl impl = findImpl(workspace);
             final File workspaceDirectory = impl.getWorkspaceDirectory();
@@ -213,6 +318,8 @@ public class WorkspaceModel {
                 }
             });
             throw panic(t);
+        } finally {
+            notifyProcessEnd(monitor);
         }
     }
 

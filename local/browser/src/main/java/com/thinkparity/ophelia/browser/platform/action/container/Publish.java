@@ -19,9 +19,11 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
-import com.thinkparity.ophelia.model.container.monitor.PublishStage;
+import com.thinkparity.ophelia.model.container.monitor.PublishStep;
 import com.thinkparity.ophelia.model.document.CannotLockException;
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.util.Step;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
@@ -186,7 +188,7 @@ public class Publish extends AbstractAction {
         private final List<Contact> contacts;
         private final Container container;
         private final ContainerModel containerModel;
-        private PublishMonitor publishMonitor;
+        private ProcessMonitor publishMonitor;
         private final List<TeamMember> teamMembers;
         private PublishWorker(final Publish publish, final String comment,
                 final List<Contact> contacts, final Container container,
@@ -229,35 +231,40 @@ public class Publish extends AbstractAction {
          * 
          * @return A <code>PublishMonitor</code>.
          */
-        private PublishMonitor newPublishMonitor() {
-            return new PublishMonitor() {
-                private Integer stageIndex;
-                private Integer stages;
-                public void determine(final Integer stages) {
-                    this.stageIndex = 0;
-                    this.stages = stages;
-                    monitor.setSteps(stages);
-                    monitor.setStep(stageIndex);
+        private ProcessMonitor newPublishMonitor() {
+            return new ProcessAdapter() {
+                private Integer stepIndex;
+                private Integer steps;
+                @Override
+                public void determineSteps(final Integer steps) {
+                    this.stepIndex = 0;
+                    this.steps = steps;
+                    monitor.setSteps(steps);
+                    monitor.setStep(stepIndex);
                 }
-                public void processBegin() {
+                @Override
+                public void beginProcess() {
                     monitor.monitor();
                 }
-                public void processEnd() {
+                @Override
+                public void endProcess() {
                     monitor.complete();
                 }
-                public void stageBegin(final PublishStage stage,
+                @Override
+                public void beginStep(final Step step,
                         final Object data) {
-                    if (null != stages && stages.intValue() > 0) {
-                        if (PublishStage.UploadStream == stage)
-                            monitor.setStep(stageIndex, (String) data);
+                    if (null != steps && steps.intValue() > 0) {
+                        if (PublishStep.UPLOAD_STREAM == step)
+                            monitor.setStep(stepIndex, (String) data);
                         else
-                            monitor.setStep(stageIndex);
+                            monitor.setStep(stepIndex);
                     }
                 }
-                public void stageEnd(final PublishStage stage) {
-                    if (null != stages && stages.intValue() > 0) {
-                        stageIndex++;
-                        monitor.setStep(stageIndex);
+                @Override
+                public void endStep(final Step step) {
+                    if (null != steps && steps.intValue() > 0) {
+                        stepIndex++;
+                        monitor.setStep(stepIndex);
                     }
                 }
             };

@@ -30,6 +30,13 @@ import com.thinkparity.codebase.model.util.codec.MD5Util;
  */
 public abstract class TestCase extends junit.framework.TestCase {
 
+    /** An apache <code>Log4JWrapper</code> that outputs to the test log.*/
+    protected static final Log4JWrapper TEST_LOGGER;
+
+    static {
+        TEST_LOGGER = new Log4JWrapper("TEST_LOGGER");
+    }
+
     /**
      * Assert the contents of two streams are equal.
      * 
@@ -157,7 +164,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 	protected TestCase(final String name) {
 		super(name);
 		this.testCaseHelper = new TestCaseHelper(this);
-		this.logger = new Log4JWrapper("TEST_LOGGER");
+		this.logger = TEST_LOGGER;
 	}
 
 	/**

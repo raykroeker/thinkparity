@@ -32,6 +32,7 @@ import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.util.xmpp.event.SessionListener;
 import com.thinkparity.ophelia.model.util.xmpp.event.XMPPEventListener;
@@ -366,8 +367,11 @@ public interface XMPPSession {
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
      */
-    public void processEventQueue(final JabberId userId);
+    public void processEventQueue(final ProcessMonitor monitor,
+            final JabberId userId);
 
     // TODO-javadoc XMPPSession#publish
     public void publish(final JabberId userId,
@@ -408,7 +412,7 @@ public interface XMPPSession {
     public List<ContainerVersion> readArchiveContainerVersions(
             final JabberId userId, final UUID uniqueId);
 
-	/**
+    /**
      * Read the archived containers.
      * 
      * @param userId
@@ -422,7 +426,7 @@ public interface XMPPSession {
     public List<Document> readArchiveDocuments(final JabberId userId,
             final UUID uniqueId, final Long versionId);
 
-    public DocumentVersion readArchiveDocumentVersion(final JabberId userId,
+	public DocumentVersion readArchiveDocumentVersion(final JabberId userId,
             final UUID uniqueId, final UUID documentUniqueId,
             final Long documentVersionId);
 
@@ -432,6 +436,7 @@ public interface XMPPSession {
     public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
             final JabberId userId, final UUID uniqueId,
             final Long compareVersionId, final Long compareToVersionId);
+
     /**
      * Read the archived document versions.
      * 
@@ -462,7 +467,6 @@ public interface XMPPSession {
      */
     public List<JabberId> readArchiveTeamIds(final JabberId userId,
             final UUID uniqueId);
-
     /**
      * Read the backup's containers.
      * 
@@ -540,7 +544,7 @@ public interface XMPPSession {
     public List<JabberId> readBackupTeamIds(final JabberId userId,
             final UUID uniqueId);
 
-	/**
+    /**
      * Read a user's contact.
      * 
      * @param userId
@@ -550,6 +554,15 @@ public interface XMPPSession {
      * @return A contact.
      */
     public Contact readContact(final JabberId userId, final JabberId contactId);
+
+	/**
+     * Read a user's contact ids.
+     * 
+     * @param userId
+     *            A user id.
+     * @return A <code>List</code> of contact id <code>JabberId</code>s.
+     */
+    public List<JabberId> readContactIds(final JabberId userId);
 
     /**
      * Read a user's contacts.
@@ -582,6 +595,7 @@ public interface XMPPSession {
      * @return A jabber id.
      */
 	public JabberId readKeyHolder(final JabberId userId, final UUID uniqueId);
+
     /**
      * Read the latest release.
      * 
@@ -593,7 +607,6 @@ public interface XMPPSession {
      */
     public Release readMigratorLatestRelease(final JabberId userId,
             final UUID productUniqueId, final OS os);
-
     /**
      * Read a migrator product.
      * 
@@ -688,6 +701,14 @@ public interface XMPPSession {
      * @return A <code>User</code>.
      */
     public User readUser(final JabberId userId);
+
+    /**
+     * Register the remote queue listener. The queue listener will monitor the
+     * session and when remote events are queued will fire the appropriate local
+     * event notification.
+     * 
+     */
+    public void registerQueueListener();
 
     /**
      * Remove a session listener.

@@ -13,8 +13,7 @@ import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.events.MigratorListener;
-import com.thinkparity.ophelia.model.migrator.monitor.DeployMonitor;
-import com.thinkparity.ophelia.model.migrator.monitor.MigrateMonitor;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
 /**
  * <b>Title:</b>thinkParity Migrator Model<br>
@@ -50,7 +49,7 @@ public interface MigratorModel {
      * @param file
      *            A <code>File</code>.
      */
-    public void deploy(final DeployMonitor monitor, final Product product,
+    public void deploy(final ProcessMonitor monitor, final Product product,
             final Release release, final List<Resource> resources,
             final File file);
 
@@ -65,7 +64,7 @@ public interface MigratorModel {
      * Migrate.
      *
      */
-    public void migrate(final MigrateMonitor monitor);
+    public void migrate(final ProcessMonitor monitor);
 
     /**
      * Remove a migrator listener.

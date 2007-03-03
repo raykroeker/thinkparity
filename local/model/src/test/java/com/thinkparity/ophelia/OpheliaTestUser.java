@@ -19,7 +19,8 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
-import com.thinkparity.ophelia.model.session.LoginMonitor;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -49,16 +50,42 @@ public class OpheliaTestUser extends User {
     /** A system user. */
     public static final OpheliaTestUser THINKPARITY;
 
+    /** An initialize <code>ProcessMonitor</code>. */
+    private static final ProcessMonitor INITIALIZE_MONITOR;
+
+    /** An apache <code>Log4JWrapper</code>. */
+    private static final Log4JWrapper LOGGER;
+
     /** The test users' password. */
-    private static final String PASSWORD = "parity";
+    private static final String PASSWORD;
 
 	static {
+        LOGGER = new Log4JWrapper("");
         JUNIT = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit");
         JUNIT_W = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.w");
         JUNIT_X = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.x");
         JUNIT_Y = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.y");
         JUNIT_Z = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.z");
         THINKPARITY = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "thinkparity");
+        INITIALIZE_MONITOR = new ProcessMonitor() {
+            public void beginProcess() {
+                LOGGER.logInfo("Begin workspace initialize process.");
+            }
+            public void beginStep(final Step step, final Object data) {
+                LOGGER.logInfo("Begin workspace initialize process step {0}:{1}.",
+                        step, data);
+            }
+            public void determineSteps(final Integer steps) {
+                LOGGER.logInfo("Determine workspace initialize process steps {0}.", steps);
+            }
+            public void endProcess() {
+                LOGGER.logInfo("End workspace initialize process.");
+            }
+            public void endStep(final Step step) {
+                LOGGER.logInfo("End workspace initialize process step {0}.", step);
+            }
+        };
+        PASSWORD = "parity";
     }
 
     /** The test user's <code>Context</code>. */
@@ -99,7 +126,7 @@ public class OpheliaTestUser extends User {
         try {
             processOfflineQueue();
         } catch (final InvalidCredentialsException icx) {
-            new Log4JWrapper().logFatal("Could not login as {0}.", username);
+            LOGGER.logFatal("Could not login as {0}.", username);
         }
         initialize();
 	}
@@ -180,14 +207,11 @@ public class OpheliaTestUser extends User {
     private void initialize() {
         final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
         if (!workspaceModel.isInitialized(workspace)) {
-            workspaceModel.initialize(workspace, new LoginMonitor() {
-                public Boolean confirmSynchronize() {
-                    return Boolean.TRUE;
-                }
-                public void notifyInvalidCredentials(
-                        final Credentials credentials) {
-                }
-            }, credentials);
+            try {
+                workspaceModel.initialize(INITIALIZE_MONITOR, workspace, credentials);
+            } catch (final InvalidCredentialsException icx) {
+                LOGGER.logFatal("Could not login with credentials {0}.", credentials);
+            }
         }
         setId(JabberIdBuilder.build(
                 credentials.getUsername(), environment.getXMPPService()));

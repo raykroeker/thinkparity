@@ -133,7 +133,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
         execute(extendInvitation);
 	}
 
-	/**
+    /**
      * Read a user's contacts.
      * 
      * @return The list of contacts for the user.
@@ -154,7 +154,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
         return contacts;
 	}
 
-    /**
+	/**
      * Read a user's contact.
      * 
      * @return A contact.
@@ -177,5 +177,11 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
         contact.setTitle(response.readResultString("title"));
         contact.addAllEmails(response.readResultEMails("emails"));
         return contact;
+    }
+
+    List<JabberId> readIds(final JabberId userId) {
+        final XMPPMethod readIds = new XMPPMethod("contact:readids");
+        readIds.setParameter("userId", userId);
+        return execute(readIds, Boolean.TRUE).readResultJabberIds("contactIds");
     }
 }

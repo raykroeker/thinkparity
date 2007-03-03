@@ -26,10 +26,13 @@ import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
+
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
 /**
  * <b>Title:</b>thinkParity Internal Session Model<br>
@@ -248,11 +251,24 @@ public interface InternalSessionModel extends SessionModel {
     public Boolean isPublishRestricted(final JabberId publishTo);
 
     /**
+     * Login for the first time in this workspace.
+     * 
+     * @param credentials
+     *            A set of <code>Credentials</code>.
+     * @throws InvalidCredentialsException
+     *             if either the username or password do not match
+     */
+    public void login(final Credentials credentials)
+            throws InvalidCredentialsException;
+
+    /**
      * Process the remote event queue.
      * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
      */
     @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
-    public void processQueue();
+    public void processQueue(final ProcessMonitor monitor);
 
     // TODO-javadoc InternalSessionModel#publish
     public void publish(final ContainerVersion container,
@@ -423,13 +439,13 @@ public interface InternalSessionModel extends SessionModel {
     public Contact readContact(final JabberId userId, final JabberId contactId);
 
     /**
-     * Read the contacts.
+     * Read the contact ids.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @return A <code>List</code> of <code>Contact</code>s.
+     * @return A <code>List</code> of contact id <code>JabberId</code>s.
      */
-    public List<Contact> readContactList(final JabberId userId);
+    public List<JabberId> readContactIds();
 
     /**
      * Return the remote date and time.
@@ -532,6 +548,12 @@ public interface InternalSessionModel extends SessionModel {
     public User readUser(final JabberId userId);
 
     /**
+     * Register the remote event queue listener. 
+     *
+     */
+    public void registerQueueListener();
+	
+    /**
      * Remove an email from a user's profile.
      * 
      * @param userId
@@ -540,7 +562,7 @@ public interface InternalSessionModel extends SessionModel {
      *            A <code>ProfileEMail</code>.
      */
     public void removeProfileEmail(final JabberId userId, final ProfileEMail email);
-	
+
     /**
      * Remove a team member from the artifact team.
      * 

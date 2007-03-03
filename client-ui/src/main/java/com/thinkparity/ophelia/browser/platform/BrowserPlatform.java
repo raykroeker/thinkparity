@@ -23,8 +23,9 @@ import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
-import com.thinkparity.ophelia.model.session.LoginMonitor;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Preferences;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
@@ -327,13 +328,16 @@ public class BrowserPlatform implements Platform {
 	}
 
 	/**
-     * @see com.thinkparity.ophelia.browser.platform.Platform#initializeWorkspace(com.thinkparity.ophelia.model.workspace.Workspace, com.thinkparity.ophelia.model.session.LoginMonitor, com.thinkparity.codebase.model.session.Credentials)
-     *
+     * @see com.thinkparity.ophelia.browser.platform.Platform#initializeWorkspace(com.thinkparity.ophelia.model.util.ProcessMonitor,
+     *      com.thinkparity.ophelia.model.workspace.Workspace,
+     *      com.thinkparity.codebase.model.session.Credentials)
+     * 
      */
-    public void initializeWorkspace(final Workspace workspace,
-            final LoginMonitor loginMonitor, final Credentials credentials) {
-        WorkspaceModel.getInstance(environment).initialize(workspace,
-                loginMonitor, credentials);
+    public void initializeWorkspace(final ProcessMonitor monitor,
+            final Workspace workspace, final Credentials credentials)
+            throws InvalidCredentialsException {
+        WorkspaceModel.getInstance(environment).initialize(monitor, workspace,
+                credentials);
     }
 
     /** @see com.thinkparity.ophelia.browser.platform.Platform#isDevelopmentMode() */

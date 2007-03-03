@@ -36,6 +36,8 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
+import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
@@ -47,19 +49,19 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerHistoryItem;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
-import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
-import com.thinkparity.ophelia.model.container.monitor.PublishStage;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.script.InternalScriptModel;
-import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.util.Opener;
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.workspace.InternalWorkspaceModel;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
@@ -80,16 +82,63 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     /** Number of files to use from the total test input set. */
     private static final Integer NUMBER_OF_INPUT_FILES = 7;
 
+    /** A process monitor for the session model process queue api. */
+    private static final ProcessMonitor PROCESS_QUEUE_MONITOR;
+
     /** A publish monitor. */
-    private static final PublishMonitor PUBLISH_MONITOR;
+    private static final ProcessMonitor PUBLISH_MONITOR;
 
     static {
-        PUBLISH_MONITOR = new PublishMonitor() {
-            public void determine(final Integer stages) {}
-            public void processBegin() {}
-            public void processEnd() {}
-            public void stageBegin(final PublishStage stage, final Object data) {}
-            public void stageEnd(final PublishStage stage) {}
+        PROCESS_QUEUE_MONITOR = new ProcessAdapter() {
+            @Override
+            public void beginProcess() {
+                TEST_LOGGER.logInfo("Begin process queue.");
+            }
+            @Override
+            public void beginStep(final Step step, final Object data) {
+                if (null == data)
+                    TEST_LOGGER.logInfo("Begin process queue step {0}.", step);
+                else
+                    TEST_LOGGER.logInfo("Begin process queue step {0}:{1}.", step, data);
+            }
+            @Override
+            public void determineSteps(final Integer steps) {
+                TEST_LOGGER.logInfo("Determine process queue steps {0}.", steps);
+            }
+            @Override
+            public void endProcess() {
+                TEST_LOGGER.logInfo("End process queue.");
+            }
+            @Override
+            public void endStep(final Step step) {
+                TEST_LOGGER.logInfo("End process queue step {0}.", step);
+            }
+        };
+        PUBLISH_MONITOR = new ProcessAdapter() {
+            @Override
+            public void determineSteps(final Integer stages) {
+                TEST_LOGGER.logTraceId();
+                TEST_LOGGER.logVariable("stages", stages);
+            }
+            @Override
+            public void beginProcess() {
+                TEST_LOGGER.logTraceId();
+            }
+            @Override
+            public void endProcess() {
+                TEST_LOGGER.logTraceId();
+            }
+            @Override
+            public void beginStep(final Step step, final Object data) {
+                TEST_LOGGER.logTraceId();
+                TEST_LOGGER.logVariable("step", step);
+                TEST_LOGGER.logVariable("data", data);
+            }
+            @Override
+            public void endStep(final Step step) {
+                TEST_LOGGER.logTraceId();
+                TEST_LOGGER.logVariable("step", step);
+            }
         };
         USER_UTILS = UserUtils.getInstance();
     }
@@ -338,7 +387,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [CONTAINER'S UPDATED ON IS NULL]", container.getUpdatedOn());
     }
 
-    /**
+	/**
      * Assert the history item and all of its required memebers are not null.
      * 
      * @param assertion
@@ -373,7 +422,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [CONTAINER VERSION'S VERSION ID IS NULL]", version.getVersionId());
     }
 
-	/**
+    /**
      * Assert that the document and all of its required members are not null.
      * 
      * @param assertion
@@ -681,6 +730,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return documents;
     }
 
+
     /**
      * Add documents.
      * 
@@ -698,7 +748,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         }
         return documents;
     }
-
 
     /**
      * Archive a container.
@@ -1135,12 +1184,13 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             logout(testUser);
         }
         logger.logInfo("Logging in user \"{0}.\"", testUser.getSimpleUsername());
-        getSessionModel(testUser).login(new DefaultLoginMonitor() {
-            @Override
-            public Boolean confirmSynchronize() {
-                return Boolean.TRUE;
-            }
-    	}, testUser.getCredentials());
+        final Credentials credentials = testUser.getCredentials();
+        try {
+            getSessionModel(testUser).login(credentials);
+        } catch (final InvalidCredentialsException icx) {
+            fail("Cannot login as {0}/{1}.", credentials.getUsername(),
+                    credentials.getPassword());
+        }
     }
 
     /**
@@ -1311,7 +1361,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 fail("Cannot publish to nobody.");
             }
         }
-        getContainerModel(publishAs).publishVersion(new TestPublishMonitor(),
+        getContainerModel(publishAs).publishVersion(PUBLISH_MONITOR,
                 localContainerId, versionId, contacts, teamMembers);
     }
 
@@ -1473,18 +1523,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      */
     protected List<Container> readContainers(final OpheliaTestUser readAs) {
         return getContainerModel(readAs).read();
-    }
-
-    /**
-     * Search for containers.
-     * 
-     * @param searchAs
-     *            An <code>OpheliaTestUser</code> to search as.
-     * @return A <code>List</code> of container id <code>Long</code>.
-     */
-    protected List<Long> searchContainers(final OpheliaTestUser searchAs,
-            final String expression) {
-        return getContainerModel(searchAs).search(expression);
     }
 
     protected Map<DocumentVersion, Delta> readContainerVersionDeltas(
@@ -1818,6 +1856,18 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
+     * Search for containers.
+     * 
+     * @param searchAs
+     *            An <code>OpheliaTestUser</code> to search as.
+     * @return A <code>List</code> of container id <code>Long</code>.
+     */
+    protected List<Long> searchContainers(final OpheliaTestUser searchAs,
+            final String expression) {
+        return getContainerModel(searchAs).search(expression);
+    }
+
+    /**
 	 * @see junit.framework.TestCase#setUp()
 	 * 
 	 */
@@ -1881,33 +1931,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 users.remove(i);
                 break;
             }
-        }
-    }
-
-    public final class TestPublishMonitor implements PublishMonitor {
-        
-        public TestPublishMonitor() {
-            super();
-        }
-
-        public void determine(final Integer stages) {
-            logger.logTraceId();
-            logger.logVariable("stages", stages);
-        }
-        public void processBegin() {
-            logger.logTraceId();
-        }
-        public void processEnd() {
-            logger.logTraceId();
-        }
-        public void stageBegin(final PublishStage stage, final Object data) {
-            logger.logTraceId();
-            logger.logVariable("stage", stage);
-            logger.logVariable("data", data);
-        }
-        public void stageEnd(final PublishStage stage) {
-            logger.logTraceId();
-            logger.logVariable("stage", stage);
         }
     }
 
@@ -2002,7 +2025,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                     }
                 }
                 logger.logTrace("Processing queue for user \"{0}.\"", testUser.getSimpleUsername());
-                sessionModel.processQueue();
+                sessionModel.processQueue(PROCESS_QUEUE_MONITOR);
             } else {
                 logger.logWarning("User \"{0}\" is not logged in.", testUser.getSimpleUsername());
             }

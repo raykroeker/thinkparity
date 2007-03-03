@@ -11,7 +11,9 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.xmpp.event.SystemListener;
+import com.thinkparity.ophelia.model.util.xmpp.monitor.ProcessEventQueue;
 
 final class XMPPSystem extends AbstractXMPP<SystemListener> {
 
@@ -33,10 +35,12 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
      * Process the remote event queue. Read the events; notify the local event
      * handlers then delete the remote event.
      * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
      * @param userId
      *            A user id <code>JabberId</code>.
      */
-    void processEventQueue(final JabberId userId) {
+    void processEventQueue(final ProcessMonitor monitor, final JabberId userId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         synchronized (queueLock) {
@@ -44,9 +48,12 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
             readQueueEvents.setParameter("userId", userId);
             final List<XMPPEvent> queue =
                 execute(readQueueEvents, Boolean.TRUE).readResultEvents("events");
-            for (final XMPPEvent queueEvent : queue) {
-                xmppCore.handleEvent(queueEvent);
-                deleteQueueEvent(userId, queueEvent.getId());
+            notifyDetermine(monitor, queue.size());
+            for (final XMPPEvent event : queue) {
+                notifyStepBegin(monitor, ProcessEventQueue.HANDLE_EVENT, event);
+                xmppCore.handleEvent(event);
+                deleteQueueEvent(userId, event.getId());
+                notifyStepEnd(monitor, ProcessEventQueue.HANDLE_EVENT);
             }
         }
     }

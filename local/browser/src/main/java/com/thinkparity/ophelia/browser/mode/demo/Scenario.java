@@ -16,10 +16,13 @@ import com.thinkparity.codebase.FileUtil;
 
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
 import com.thinkparity.ophelia.model.ModelFactory;
 import com.thinkparity.ophelia.model.script.Script;
-import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
@@ -30,6 +33,19 @@ import com.thinkparity.ophelia.browser.profile.ProfileManager;
  * @version 1.1.2.1
  */
 public final class Scenario {
+
+    /** An initialize <code>ProcessMonitor</code> for the workspace. */
+    private static final ProcessMonitor INITIALIZE_MONITOR;
+
+    static {
+        INITIALIZE_MONITOR = new ProcessMonitor() {
+            public void beginProcess() {}
+            public void beginStep(final Step step, final Object data) {}
+            public void determineSteps(final Integer steps) {}
+            public void endProcess() {}
+            public void endStep(final Step step) {}
+        };
+    }
 
     /** A list of script <code>Credential</code>s. */
     private final Map<Script, Credentials> credentials;
@@ -92,15 +108,23 @@ public final class Scenario {
         // initialize the workspaces
         for (final Script script : scripts) {
             initializeProfile(script);
-            initializeWorkspace(script);
+            try {
+                initializeWorkspace(script);
+            } catch (final InvalidCredentialsException icx) {
+                monitor.notifyScriptError(script, icx);
+                break;
+            }
             logout(script);
         }
 
         // execute the scripts
         for (final Script script : scripts) {
-            login(script);
             try {
+                login(script);
                 execute(script);
+            } catch (final InvalidCredentialsException icx) {
+                monitor.notifyScriptError(script, icx);
+                break;
             } catch (final Throwable t) {
                 logout(script);
                 monitor.notifyScriptError(script, t);
@@ -252,15 +276,11 @@ public final class Scenario {
      * @param script
      *            A <code>Script</code>.
      */
-    private void initializeWorkspace(final Script script) {
+    private void initializeWorkspace(final Script script)
+            throws InvalidCredentialsException {
         final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
         final Workspace workspace = workspaceModel.getWorkspace(profiles.get(script));
-        workspaceModel.initialize(workspace, new DefaultLoginMonitor() {
-            @Override
-            public Boolean confirmSynchronize() {
-                return Boolean.TRUE;
-            }
-        }, credentials.get(script));
+        workspaceModel.initialize(INITIALIZE_MONITOR, workspace, credentials.get(script));
         workspaces.put(script, workspace);
     }
 
@@ -270,8 +290,19 @@ public final class Scenario {
      * @param script
      *            A <code>Script</code>.
      */
-    private void login(final Script script) {
-        getModelFactory(script).getSessionModel().login(new DefaultLoginMonitor());
+    private void login(final Script script) throws InvalidCredentialsException {
+        getModelFactory(script).getSessionModel().login(new ProcessAdapter() {
+            @Override
+            public void beginProcess() {}
+            @Override
+            public void beginStep(final Step step, final Object data) {}
+            @Override
+            public void determineSteps(final Integer steps) {}
+            @Override
+            public void endProcess() {}
+            @Override
+            public void endStep(final Step step) {}
+        });
     }
 
     /**

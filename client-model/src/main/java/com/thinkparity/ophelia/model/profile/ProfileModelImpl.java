@@ -96,7 +96,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      *
      */
     public Profile create() {
-        logger.logApiId();
         try {
             final Profile remoteProfile = getSessionModel().readProfile();
             /*

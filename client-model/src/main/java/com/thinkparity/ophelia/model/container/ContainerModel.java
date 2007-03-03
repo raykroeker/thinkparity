@@ -23,10 +23,10 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
-import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 import com.thinkparity.ophelia.model.events.ContainerListener;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
 /**
  * <b>Title:</b>thinkParity Container Model<br>
@@ -190,7 +190,7 @@ public interface ContainerModel {
      * @param contacts
      *            A list of contacts to publish to.
      */
-    public void publish(final PublishMonitor monitor, final Long containerId,
+    public void publish(final ProcessMonitor monitor, final Long containerId,
             final String comment, final List<Contact> contacts,
             final List<TeamMember> teamMembers) throws CannotLockException;
 
@@ -206,7 +206,7 @@ public interface ContainerModel {
      * @param teamMembers
      *            A <code>TeamMember</code> <code>List</code>.
      */
-    public void publishVersion(final PublishMonitor monitor,
+    public void publishVersion(final ProcessMonitor monitor,
             final Long containerId, final Long versionId,
             final List<Contact> contacts, final List<TeamMember> teamMembers);
 

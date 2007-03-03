@@ -63,8 +63,8 @@ import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.container.export.PDFWriter;
-import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
-import com.thinkparity.ophelia.model.container.monitor.PublishStage;
+import com.thinkparity.ophelia.model.container.monitor.PublishStep;
+import com.thinkparity.ophelia.model.container.monitor.RestoreBackupStep;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentFileLock;
 import com.thinkparity.ophelia.model.document.DocumentNameGenerator;
@@ -79,6 +79,7 @@ import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
 import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
@@ -95,6 +96,35 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 public final class ContainerModelImpl extends
         Model<ContainerListener> implements ContainerModel,
         InternalContainerModel {
+
+    /**
+     * Used by the progress monitor to determine the number of steps based on
+     * file size.
+     */
+    private static final Integer STEP_SIZE;
+
+    static {
+        STEP_SIZE = 1024;
+    }
+
+    /**
+     * Initialize a publish monitor.
+     * 
+     * @param monitor
+     *            A <code>PublishMonitor</code>.
+     * @param stages
+     *            An <code>Integer</code>. number of stages.
+     */
+    private static final Integer countSteps(
+            final List<DocumentVersion> documentVersions) {
+        long totalSize = 0;
+        for (final DocumentVersion documentVersion : documentVersions) {
+            totalSize += documentVersion.getSize();
+        }
+        // 1 for the final publish stage; plus a step per k of size
+        final long steps = 1 + (totalSize / STEP_SIZE);
+        return Integer.valueOf((int) steps);
+    }
 
     /** The artifact io layer. */
     private ArtifactIOHandler artifactIO;
@@ -146,12 +176,6 @@ public final class ContainerModelImpl extends
 
     /** A remote event generator. */
     private final ContainerEventGenerator remoteEventGenerator;
-
-    /**
-     * Used by the progress monitor to determine the number of steps based on
-     * file size.
-     */
-    private Integer stepSize;
 
     /**
      * Create ContainerModelImpl.
@@ -876,7 +900,7 @@ public final class ContainerModelImpl extends
      * @param teamMembers
      *            A list of team members to publish to.
      */
-    public void publish(final PublishMonitor monitor, final Long containerId,
+    public void publish(final ProcessMonitor monitor, final Long containerId,
             final String comment, final List<Contact> contacts,
             final List<TeamMember> teamMembers) throws CannotLockException {
         assertOnline("The local user is currently offline.");
@@ -901,8 +925,8 @@ public final class ContainerModelImpl extends
                 // previous version
                 final ContainerVersion previous = readLatestVersion(containerId);
                 // create version
-                fireProcessBegin(monitor);
-                fireStageBegin(monitor, PublishStage.CreateVersion);
+                notifyProcessBegin(monitor);
+                notifyStepBegin(monitor, PublishStep.CREATE_VERSION);
                 final ContainerVersion version = createVersion(container.getId(),
                         readNextVersionId(containerId), comment, localUserId(),
                         publishedOn);
@@ -942,7 +966,7 @@ public final class ContainerModelImpl extends
                     // delta previous with version
                     containerIO.createDelta(calculateDelta(read(containerId), version, previous));
                 }
-                fireStageEnd(monitor, PublishStage.CreateVersion);
+                notifyStepEnd(monitor, PublishStep.CREATE_VERSION);
                 // delete draft
                 for (final Document document : documents) {
                     documentModel.deleteDraft(locks.get(document), document.getId());
@@ -976,7 +1000,7 @@ public final class ContainerModelImpl extends
         } catch (final Throwable t) {
             throw translateError(t);
         } finally {
-            fireProcessEnd(monitor);
+            notifyProcessEnd(monitor);
         }
     }
 
@@ -990,7 +1014,7 @@ public final class ContainerModelImpl extends
      * @param contacts
      *            A contact <code>List</code>.
      */
-    public void publishVersion(final PublishMonitor monitor,
+    public void publishVersion(final ProcessMonitor monitor,
             final Long containerId, final Long versionId,
             final List<Contact> contacts, final List<TeamMember> teamMembers) {
         logger.logApiId();
@@ -999,7 +1023,7 @@ public final class ContainerModelImpl extends
         logger.logVariable("contacts", contacts);
         try {
             // start monitor
-            fireProcessBegin(monitor);
+            notifyProcessBegin(monitor);
             final Calendar publishedOn = getSessionModel().readDateTime();
             final ContainerVersion version = readVersion(containerId, versionId);
             final List<User> publishToUsers = new ArrayList<User>();
@@ -1037,7 +1061,7 @@ public final class ContainerModelImpl extends
         } catch (final Throwable t) {
             throw translateError(t);
         } finally {
-            fireProcessEnd(monitor);
+            notifyProcessEnd(monitor);
         }
     }
 
@@ -1765,15 +1789,15 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Restore all containers from the backup.
-     *
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#restoreBackup(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     * 
      */
-    public void restoreBackup() {
-        logger.logApiId();
+    public void restoreBackup(final ProcessMonitor monitor) {
         try {
             final List<Container> containers = read();
+            notifyDetermine(monitor, containers.size());
             if (0 < containers.size()) {
-                logger.logWarning("{0} containers will be deleted.", containers.size());
+                notifyStepBegin(monitor, RestoreBackupStep.DELETE_LOCAL_CONTAINER);
                 final Map<Container, List<Document>> allDocuments = readAllDocuments();
                 final Map<Document, DocumentFileLock> allDocumentsLocks = new HashMap<Document, DocumentFileLock>();
                 final Map<DocumentVersion, DocumentFileLock> allDocumentsVersionsLocks = new HashMap<DocumentVersion, DocumentFileLock>();
@@ -1787,12 +1811,14 @@ public final class ContainerModelImpl extends
                     deleteLocal(container.getId(), allDocuments.get(container),
                             allDocumentsLocks, allDocumentsVersionsLocks);
                 }
+                notifyStepEnd(monitor, RestoreBackupStep.DELETE_LOCAL_CONTAINER);
             }
 
             final InternalBackupModel backupModel = getBackupModel();
             final List<Container> backupContainers = backupModel.readContainers();
-            logger.logVariable("backupContainers.size()", backupContainers.size());
+            notifyDetermine(monitor, backupContainers.size());
             for (final Container backupContainer : backupContainers) {
+                notifyStepBegin(monitor, RestoreBackupStep.RESTORE_REMOTE_CONTAINER);
                 restore(backupContainer, new RestoreModel() {
                     public InputStream openDocumentVersion(final UUID uniqueId,
                             final Long versionId) {
@@ -1822,6 +1848,7 @@ public final class ContainerModelImpl extends
                 });
                 // NOTE the model needs to apply the flag seen in this single case
                 getArtifactModel().applyFlagSeen(backupContainer.getId());
+                notifyStepEnd(monitor, RestoreBackupStep.RESTORE_REMOTE_CONTAINER);
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -1983,7 +2010,6 @@ public final class ContainerModelImpl extends
         this.auditor = new ContainerAuditor(modelFactory);
         this.containerIO = IOFactory.getDefault(workspace).createContainerHandler();
         this.documentIO = IOFactory.getDefault(workspace).createDocumentHandler();
-        this.stepSize = 1024;
     }
 
     /**
@@ -2531,60 +2557,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Initialize a publish monitor.
-     * 
-     * @param monitor
-     *            A <code>PublishMonitor</code>.
-     * @param stages
-     *            An <code>Integer</code>. number of stages.
-     */
-    private void fireDetermine(final PublishMonitor monitor,
-            final List<DocumentVersion> documentVersions) {
-        long totalSize = 0;
-        for (final DocumentVersion documentVersion : documentVersions) {
-            totalSize += documentVersion.getSize();
-        }
-        // 1 for the final publish stage; plus a step per k of size
-        final long steps = 1 + (totalSize / stepSize);
-        monitor.determine((int) steps);
-    }
-
-    /**
-     * Fire the process being for the publish monitor.
-     * 
-     * @param monitor
-     *            A <code>PublishMonitor</code>.
-     */
-    private void fireProcessBegin(final PublishMonitor monitor) {
-        monitor.processBegin();
-    }
-
-    /**
-     * Notify the monitor of the end of the process.
-     * 
-     * @param monitor
-     *            A <code>PublishMonitor</code>.
-     */
-    private void fireProcessEnd(final PublishMonitor monitor) {
-        monitor.processEnd();
-    }
-
-    private void fireStageBegin(final PublishMonitor monitor,
-            final PublishStage stage) {
-        fireStageBegin(monitor, stage, null);
-    }
-
-    private void fireStageBegin(final PublishMonitor monitor,
-            final PublishStage stage, final Object data) {
-        monitor.stageBegin(stage, data);
-    }
-
-    private void fireStageEnd(final PublishMonitor monitor,
-            final PublishStage stage) {
-        monitor.stageEnd(stage);
-    }
-
-    /**
      * Obtain a container name generator.
      * 
      * @return A <code>ContainerNameGenerator</code>.
@@ -3101,7 +3073,7 @@ public final class ContainerModelImpl extends
      *            A published on <code>Calendar</code>.
      * @throws IOException
      */
-    private void publish(final PublishMonitor monitor,
+    private void publish(final ProcessMonitor monitor,
             final ContainerVersion version, final JabberId publishedBy,
             final Calendar publishedOn, final List<User> publishedTo)
             throws IOException {
@@ -3112,13 +3084,13 @@ public final class ContainerModelImpl extends
         final Map<DocumentVersion, String> documentVersionStreamIds =
             new HashMap<DocumentVersion, String>(documentVersions.size(), 1.0F);
         // set fixed progress determination
-        fireDetermine(monitor, documentVersions);
+        notifyDetermine(monitor, countSteps(documentVersions));
         // upload versions
         final InternalDocumentModel documentModel = getDocumentModel();
         final InternalSessionModel sessionModel = getSessionModel();
         final StreamSession streamSession = sessionModel.createStreamSession();
         for (final DocumentVersion documentVersion : documentVersions) {
-            fireStageBegin(monitor, PublishStage.UploadStream, documentVersion.getName());
+            notifyStepBegin(monitor, PublishStep.UPLOAD_STREAM, documentVersion.getName());
             final String streamId = sessionModel.createStream(streamSession);
             documentModel.uploadVersion(documentVersion.getArtifactId(),
                     documentVersion.getVersionId(), new StreamUploader() {
@@ -3133,9 +3105,9 @@ public final class ContainerModelImpl extends
                                 private long totalChunks = 0;
                                 public void chunkUploaded(final int chunkSize) {
                                     totalChunks += chunkSize;
-                                    while (totalChunks >= stepSize) {
-                                        totalChunks -= stepSize;
-                                        fireStageEnd(monitor, PublishStage.UploadStream);
+                                    while (totalChunks >= STEP_SIZE) {
+                                        totalChunks -= STEP_SIZE;
+                                        notifyStepEnd(monitor, PublishStep.UPLOAD_STREAM);
                                     }
                                 }
                             }, streamId, streamSession, bufferedStream,
@@ -3143,15 +3115,15 @@ public final class ContainerModelImpl extends
                         }
                     });
                 documentVersionStreamIds.put(documentVersion, streamId);
-                fireStageEnd(monitor, PublishStage.UploadStream);
+                notifyStepEnd(monitor, PublishStep.UPLOAD_STREAM);
         }
         getSessionModel().deleteStreamSession(streamSession);
         // publish
-        fireStageBegin(monitor, PublishStage.PublishContainer);
+        notifyStepBegin(monitor, PublishStep.PUBLISH);
         getSessionModel().publish(version, documentVersionStreamIds,
                 readTeam(version.getArtifactId()), publishedBy, publishedOn,
                 publishedTo);
-        fireStageEnd(monitor, PublishStage.PublishContainer);
+        notifyStepEnd(monitor, PublishStep.PUBLISH);
     }
 
     /**

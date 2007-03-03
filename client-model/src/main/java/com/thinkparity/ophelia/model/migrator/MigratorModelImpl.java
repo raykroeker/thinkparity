@@ -29,9 +29,8 @@ import com.thinkparity.ophelia.model.events.MigratorEvent;
 import com.thinkparity.ophelia.model.events.MigratorListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.MigratorIOHandler;
-import com.thinkparity.ophelia.model.migrator.monitor.DeployMonitor;
-import com.thinkparity.ophelia.model.migrator.monitor.MigrateMonitor;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -74,7 +73,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      * @see com.thinkparity.ophelia.model.migrator.MigratorModel#deployProduct(com.thinkparity.ophelia.model.migrator.monitor.DeployMonitor, java.lang.String, java.lang.String, java.io.File)
      *
      */
-    public void deploy(final DeployMonitor monitor, final Product product,
+    public void deploy(final ProcessMonitor monitor, final Product product,
             final Release release, final List<Resource> resources,
             final File file) {
         try {
@@ -149,7 +148,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      * @see com.thinkparity.ophelia.model.migrator.MigratorModel#migrate()
      *
      */
-    public void migrate(final MigrateMonitor monitor) {
+    public void migrate(final ProcessMonitor monitor) {
 // TODO finish migrator implementation
 //        try {
 //            final Product product = migratorIO.readProduct();

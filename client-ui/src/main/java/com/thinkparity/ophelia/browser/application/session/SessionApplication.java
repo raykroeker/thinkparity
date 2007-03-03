@@ -9,7 +9,10 @@ import java.util.TimerTask;
 import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
+import com.thinkparity.ophelia.model.util.Step;
 
 import com.thinkparity.ophelia.browser.Constants.Session;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -184,7 +187,35 @@ public class SessionApplication extends AbstractApplication {
      *
      */
     private void connect() {
-        getSessionModel().login(new DefaultLoginMonitor());
+        try {
+            getSessionModel().login(new ProcessAdapter() {
+                @Override
+                public void beginProcess() {
+                    logger.logInfo("Begin login.");
+                }
+                @Override
+                public void beginStep(Step step, Object data) {
+                    if (null == data)
+                        logger.logDebug("Begin login step {0}.", step);
+                    else
+                        logger.logDebug("Begin login step {0}:{1}.", step, data);
+                }
+                @Override
+                public void determineSteps(final Integer steps) {
+                    logger.logDebug("Login will complete in {0} steps.", steps);
+                }
+                @Override
+                public void endProcess() {
+                    logger.logDebug("Login complete.");
+                }
+                @Override
+                public void endStep(final Step step) {
+                    logger.logDebug("Login step {0} complete.", step);
+                }
+            });
+        } catch (final InvalidCredentialsException icx) {
+            logger.logError(icx, "Cannot login.");
+        }
     }
 
     /**

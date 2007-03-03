@@ -19,6 +19,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
 import com.thinkparity.ophelia.model.events.ContainerEvent.Source;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
 /**
  * <b>Title:</b>thinkParity Container Internal Model<br>
@@ -143,7 +144,9 @@ public interface InternalContainerModel extends ContainerModel {
 
     /**
      * Restore all containers from the backup.
-     *
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
      */
-    public void restoreBackup();
+    public void restoreBackup(final ProcessMonitor monitor);
 }

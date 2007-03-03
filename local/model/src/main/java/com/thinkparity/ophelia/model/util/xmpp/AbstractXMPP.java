@@ -12,6 +12,8 @@ import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.util.Step;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -21,15 +23,93 @@ import com.thoughtworks.xstream.XStream;
  */
 abstract class AbstractXMPP<T extends EventListener> {
 
-    /** An <code>XStreamUtil</code> instance. */
-    protected static final XStreamUtil XSTREAM_UTIL;
-
     /** An apache logger. */
     protected static final Log4JWrapper logger;
+
+    /** An <code>XStreamUtil</code> instance. */
+    protected static final XStreamUtil XSTREAM_UTIL;
 
     static {
         logger = new Log4JWrapper();
         XSTREAM_UTIL = XStreamUtil.getInstance();
+    }
+
+    /**
+    * Notify a process monitor that a given number of steps is upcoming.
+    * 
+    * @param monitor
+    *            A <code>ProcessMonitor</code>.
+    * @param steps
+    *            An <code>Integer</code> number of steps.
+    */
+   protected static final void notifyDetermine(final ProcessMonitor monitor,
+        final Integer steps) {
+    monitor.determineSteps(steps);
+   }
+
+    /**
+     * Notify a process monitor that a given process will begin.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param steps
+     *            An <code>Integer</code> number of steps.
+     */
+    protected static final void notifyProcessBegin(final ProcessMonitor monitor) {
+        monitor.beginProcess();
+    }
+
+    /**
+     * Notify a process monitor that a given process will end.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param steps
+     *            An <code>Integer</code> number of steps.
+     */
+    protected static final void notifyProcessEnd(final ProcessMonitor monitor) {
+        monitor.endProcess();
+    }
+
+    /**
+     * Notify a process monitor that a given step will begin.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param step
+     *            A <code>Step</code>.
+     */
+    protected static final void notifyStepBegin(final ProcessMonitor monitor,
+            final Step step) {
+        notifyStepBegin(monitor, step, null);
+    }
+
+    /**
+     * Notify a process monitor that a given step will begin.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param step
+     *            A <code>Step</code>.
+     * @param data
+     *            Any extra step data.
+     */
+    protected static final void notifyStepBegin(final ProcessMonitor monitor,
+            final Step step, final Object data) {
+        monitor.beginStep(step, data);
+    }
+
+    /**
+     * Notify a process monitor that a given step will end.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param step
+     *            A <code>Step</code>.
+     */
+    protected static final void notifyStepEnd(final ProcessMonitor monitor,
+            final Step step) {
+        monitor.endStep(step);
     }
 
     /** The xmpp core functionality. */

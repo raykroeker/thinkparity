@@ -4,7 +4,8 @@
 package com.thinkparity.ophelia.browser.platform.migrator;
 
 import com.thinkparity.ophelia.model.migrator.MigratorModel;
-import com.thinkparity.ophelia.model.migrator.monitor.MigrateMonitor;
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
+import com.thinkparity.ophelia.model.util.Step;
 
 import com.thinkparity.ophelia.browser.platform.Platform;
 
@@ -43,6 +44,17 @@ public class MigratorHelper {
      *
      */
     public void migrate() {
-        model.migrate(new MigrateMonitor() {});
+        model.migrate(new ProcessAdapter() {
+            @Override
+            public void beginProcess() {}
+            @Override
+            public void beginStep(final Step step, final Object data) {}
+            @Override
+            public void determineSteps(final Integer steps) {}
+            @Override
+            public void endProcess() {}
+            @Override
+            public void endStep(final Step step) {}
+        });
     }
 }

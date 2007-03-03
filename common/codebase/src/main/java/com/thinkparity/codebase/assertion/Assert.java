@@ -41,7 +41,7 @@ public class Assert {
 	 * @param objectReference
 	 *            The object reference to test.
 	 */
-	public static void assertIsNull(final Object message,
+	public static void assertIsNull(final String message,
 			final Object objectReference) {
 		if(null != objectReference)
 			throw new NotNullPointerAssertion(

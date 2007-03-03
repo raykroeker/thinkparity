@@ -13,7 +13,9 @@ import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
 
-import com.thinkparity.ophelia.model.migrator.monitor.DeployMonitor;
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
@@ -27,17 +29,35 @@ import com.thinkparity.ophelia.OpheliaTestUser;
  */
 public final class MigratorTest extends MigratorTestCase {
 
+    /** A default deploy <code>ProcessMonitor</code>. */
+    private static final ProcessMonitor DEPLOY_MONITOR;
+
     private static final String NAME = "Migrator test";
+
+    static {
+        DEPLOY_MONITOR = new ProcessAdapter() {
+            @Override
+            public void beginProcess() {}
+            @Override
+            public void beginStep(final Step step, final Object data) {}
+            @Override
+            public void determineSteps(Integer steps) {}
+            @Override
+            public void endProcess() {}
+            @Override
+            public void endStep(final Step step) {}
+        };
+    }
+
+    private Fixture datum;
+
+    private File seedFile;
 
     private Product seedProduct;
 
     private Release seedRelease;
 
     private List<Resource> seedResources;
-
-    private File seedFile;
-
-    private Fixture datum;
 
     /**
      * Create MigratorTest.
@@ -52,8 +72,8 @@ public final class MigratorTest extends MigratorTestCase {
      * 
      */
     public void testDeployExistingRelease() {
-        getMigratorModel(datum.thinkparity).deploy(new DeployMonitor() {
-        }, seedProduct, seedRelease, seedResources, seedFile);
+        getMigratorModel(datum.thinkparity).deploy(DEPLOY_MONITOR, seedProduct,
+                seedRelease, seedResources, seedFile);
     }
 
     /**
@@ -64,8 +84,8 @@ public final class MigratorTest extends MigratorTestCase {
         final Release release = new Release();
         release.setChecksum(seedRelease.getChecksum());
         release.setName(seedRelease.getName() + System.currentTimeMillis());
-        getMigratorModel(datum.thinkparity).deploy(new DeployMonitor() {
-        }, seedProduct, release, seedResources, seedFile);
+        getMigratorModel(datum.thinkparity).deploy(DEPLOY_MONITOR, seedProduct,
+                release, seedResources, seedFile);
     }
 
     /**
@@ -95,8 +115,8 @@ public final class MigratorTest extends MigratorTestCase {
             seedResources = new ArrayList<Resource>();
 
             final MigratorModel migratorModel = getMigratorModel(OpheliaTestUser.THINKPARITY);
-            migratorModel.deploy(new DeployMonitor() {
-            }, seedProduct, seedRelease, seedResources, seedFile);
+            migratorModel.deploy(DEPLOY_MONITOR, seedProduct, seedRelease,
+                    seedResources, seedFile);
         } finally {
             logout(OpheliaTestUser.THINKPARITY);
         }

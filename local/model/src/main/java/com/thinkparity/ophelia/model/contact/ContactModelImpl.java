@@ -23,11 +23,14 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedE
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 
 import com.thinkparity.ophelia.model.Model;
+import com.thinkparity.ophelia.model.contact.monitor.DownloadStep;
 import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContactListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ContactIOHandler;
+import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.filter.Filter;
 import com.thinkparity.ophelia.model.util.filter.contact.DefaultInvitationFilter;
 import com.thinkparity.ophelia.model.util.filter.contact.FilterManager;
@@ -234,22 +237,19 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
-     * Download the contacts from the server and create the local data.
-     *
+     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#download(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     * 
      */
-    public void download() {
-        logger.logApiId();
-        assertOnline();
+    public void download(final ProcessMonitor monitor) {
         try {
-            final List<Contact> remoteContacts =
-                getSessionModel().readContactList(localUserId());
-            Contact localContact; 
-            for(final Contact remoteContact : remoteContacts) {
-                logger.logVariable("remoteContact", remoteContact);
-                localContact = read(remoteContact.getId());
-                if (null == localContact) {
-                    createLocal(remoteContact);
-                }
+            assertOnline();
+            final InternalSessionModel sessionModel = getSessionModel();
+            final List<JabberId> contactIds = sessionModel.readContactIds();
+            notifyDetermine(monitor, contactIds.size());
+            for (final JabberId contactId : contactIds) {
+                notifyStepBegin(monitor, DownloadStep.DOWNLOAD);
+                createLocal(read(contactId));
+                notifyStepEnd(monitor, DownloadStep.DOWNLOAD);
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -705,7 +705,7 @@ public final class ContactModelImpl extends Model<ContactListener>
      * @param email
      *            An e-mail address.
      */
-    private void assertDoesNotExist(final Object assertion, final EMail email) {
+    private void assertDoesNotExist(final String assertion, final EMail email) {
         Assert.assertIsNull(assertion, read(email));
     }
 

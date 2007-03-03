@@ -63,6 +63,8 @@ import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.util.Base64;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.util.localization.Localization;
 import com.thinkparity.ophelia.model.util.localization.LocalizationContext;
 import com.thinkparity.ophelia.model.workspace.InternalWorkspaceModel;
@@ -103,6 +105,84 @@ public abstract class Model<T extends EventListener> extends
 	protected static Calendar currentDateTime() {
         return DateUtil.getInstance();
 	}
+
+    /**
+     * Notify a process monitor that a given number of steps is upcoming.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param steps
+     *            An <code>Integer</code> number of steps.
+     */
+    protected static final void notifyDetermine(final ProcessMonitor monitor,
+            final Integer steps) {
+        monitor.determineSteps(steps);
+    }
+
+    /**
+     * Notify a process monitor that a given process will begin.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param steps
+     *            An <code>Integer</code> number of steps.
+     */
+    protected static final void notifyProcessBegin(final ProcessMonitor monitor) {
+        monitor.beginProcess();
+    }
+
+    /**
+     * Notify a process monitor that a given process will end.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param steps
+     *            An <code>Integer</code> number of steps.
+     */
+    protected static final void notifyProcessEnd(final ProcessMonitor monitor) {
+        monitor.endProcess();
+    }
+
+    /**
+     * Notify a process monitor that a given step will begin.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param step
+     *            A <code>Step</code>.
+     */
+    protected static final void notifyStepBegin(final ProcessMonitor monitor,
+            final Step step) {
+        notifyStepBegin(monitor, step, null);
+    }
+
+    /**
+     * Notify a process monitor that a given step will begin.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param step
+     *            A <code>Step</code>.
+     * @param data
+     *            Any extra step data.
+     */
+    protected static final void notifyStepBegin(final ProcessMonitor monitor,
+            final Step step, final Object data) {
+        monitor.beginStep(step, data);
+    }
+
+    /**
+     * Notify a process monitor that a given step will end.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param step
+     *            A <code>Step</code>.
+     */
+    protected static final void notifyStepEnd(final ProcessMonitor monitor,
+            final Step step) {
+        monitor.endStep(step);
+    }
 
 	/** The configuration io. */
     protected ConfigurationIOHandler configurationIO;

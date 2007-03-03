@@ -4,10 +4,11 @@
 package com.thinkparity.ophelia.model.session;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
-import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.events.SessionListener;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
 /**
  * <b>Title:</b>thinkParity Session Model<br>
@@ -35,27 +36,20 @@ public interface SessionModel {
 	public Boolean isLoggedIn();
 
     /**
-     * Login to parity. This will create a new singleton instance of a parity
-     * session.
-     * 
-     */
-    public void login(final LoginMonitor monitor);
-
-	/**
-     * Login to parity. This will create a new singleton instance of a parity
-     * session.
+     * Login.
      * 
      * @param monitor
-     *            A <code>LoginMonitor</code>.
-     * @param credentials
-     *            The user's credentials.
+     *            A <code>ProcessMonitor</code>.
+     * @throws InvalidCredentialsException
+     *             if the stored credentials do not match the actual credentials
      */
-	public void login(final LoginMonitor monitor, final Credentials credentials);
+    public void login(final ProcessMonitor monitor)
+            throws InvalidCredentialsException;
 
-	/**
-	 * Terminate the current parity session.
-	 * @throws ParityException
-	 */
+    /**
+     * Logout.
+     *
+     */
 	public void logout();
 
 	/**

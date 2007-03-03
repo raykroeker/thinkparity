@@ -21,11 +21,12 @@ import com.thinkparity.ophelia.model.ModelFactory;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
-import com.thinkparity.ophelia.model.container.monitor.PublishStage;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -38,15 +39,20 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 public class ContainerBuilder {
 
     /** A publish monitor. */
-    private static final PublishMonitor PUBLISH_MONITOR;
+    private static final ProcessMonitor PUBLISH_MONITOR;
 
     static {
-        PUBLISH_MONITOR = new PublishMonitor() {
-            public void determine(final Integer stages) {}
-            public void processBegin() {}
-            public void processEnd() {}
-            public void stageBegin(final PublishStage stage, final Object data) {}
-            public void stageEnd(final PublishStage stage) {}
+        PUBLISH_MONITOR = new ProcessAdapter() {
+            @Override
+            public void determineSteps(final Integer stages) {}
+            @Override
+            public void beginProcess() {}
+            @Override
+            public void endProcess() {}
+            @Override
+            public void beginStep(final Step step, final Object data) {}
+            @Override
+            public void endStep(final Step step) {}
         };
     }
 

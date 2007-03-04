@@ -357,6 +357,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
         add(headerJPanel, gridBagConstraints);
 
         tabJScrollPane.setBorder(null);
+        tabJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tabJScrollPane.setPreferredSize(new java.awt.Dimension(256, 128));
         tabJPanel.setLayout(new java.awt.GridBagLayout());
 

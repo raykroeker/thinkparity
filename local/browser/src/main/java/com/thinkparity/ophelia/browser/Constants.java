@@ -71,8 +71,9 @@ public final class Constants {
                 public static final Color PANEL_COLLAPSED_BACKGROUND = new Color(234, 234, 234, 255);
                 public static final Color PANEL_COLLAPSED_SELECTION_LINE = new Color(100, 100, 100, 255);
                 public static final Color PANEL_BORDER = new Color(212, 212, 212, 255);
-                public static final Color PANEL_LACK_MOST_RECENT_VERSION_TEXT_FG = new Color(100, 100, 100, 255);
+                public static final Color PANEL_CONTAINER_TEXT_FG = Color.BLACK;
                 public static final Color PANEL_ADDITIONAL_TEXT_FG = new Color(49, 102, 148, 255);
+                public static final Color PANEL_DISABLED_TEXT_FG = new Color(100, 100, 100, 255);
             }
             public static final class ProgressBar {
                 public static final Color BORDER = new Color(115, 106, 96, 255);

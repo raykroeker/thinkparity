@@ -3,10 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +15,7 @@ import javax.swing.Icon;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
@@ -50,7 +48,6 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 public class ContainerPanel extends DefaultTabPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel additionalTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel collapsedJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel eastCountJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel eastFirstJLabel = new javax.swing.JLabel();
@@ -112,6 +109,25 @@ public class ContainerPanel extends DefaultTabPanel {
     
     /** The visible west list model. */
     private final PanelCellListModel westListModel;
+
+    /** The space between container text and additional text. */
+    private static final int CONTAINER_TEXT_SPACE_BETWEEN;
+
+    /** The space to leave at the end of the container text. */
+    private static final int CONTAINER_TEXT_SPACE_END;
+
+    /** The X location of the container text. */
+    private static final int CONTAINER_TEXT_X;
+
+    /** The Y location of the container text. */
+    private static final int CONTAINER_TEXT_Y;
+
+    static {
+        CONTAINER_TEXT_SPACE_BETWEEN = 5;
+        CONTAINER_TEXT_SPACE_END = 20;
+        CONTAINER_TEXT_X = 56;
+        CONTAINER_TEXT_Y = 16;
+    }
 
     /**
      * Create ContainerPanel.
@@ -357,6 +373,56 @@ public class ContainerPanel extends DefaultTabPanel {
         } else {
             renderer.paintBackground(g, getWidth(), getHeight(), selected);
         }
+
+        // Paint text. Text is painted (instead of using JLabels) so that when the container
+        // is expanded the top west row can paint all the way across.
+        final Graphics2D g2 = (Graphics2D)g.create();
+        try {
+            paintText(g2);
+        }
+        finally { g2.dispose(); }
+    }
+
+    /**
+     * Paint text on the panel.
+     * 
+     * @param g
+     *            The <code>Graphics2D</code>.
+     */
+    private void paintText(final Graphics2D g) {
+        g.setFont(getContainerTextFont());
+        final Point location = new Point(CONTAINER_TEXT_X, CONTAINER_TEXT_Y);
+        if (paintText(g, location, getContainerTextColor(), getContainerText(container))) {
+            location.x = location.x + StringUtil.getWidth(getContainerText(container), g) + CONTAINER_TEXT_SPACE_BETWEEN;
+            paintText(g, location, getContainerAdditionalTextColor(), getContainerAdditionalText(container));
+        }
+    }
+
+    /**
+     * Paint text on the panel.
+     * 
+     * @param g
+     *            The <code>Graphics2D</code>.
+     * @param location
+     *            The text location <code>Point</code>.
+     * @param color
+     *            The text <code>Color</code>.
+     * @param text
+     *            The text <code>String</code>.
+     * @return true if the entire text is displayed; false if it is clipped.
+     */
+    private Boolean paintText(final Graphics2D g, final Point location, final Color color, final String text) {
+        final int availableWidth = getWidth() - location.x - CONTAINER_TEXT_SPACE_END;
+        final String clippedText = StringUtil.limitWidthWithEllipsis(text, availableWidth, g);
+        if (null != clippedText) {
+            g.setPaint(color);
+            g.drawString(clippedText, location.x, location.y);
+        }
+        if (null != clippedText && clippedText.equals(text)) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
     }
 
     /**
@@ -418,7 +484,6 @@ public class ContainerPanel extends DefaultTabPanel {
                             add(collapsedJPanel, constraints.clone());
                             
                             revalidate();
-                            reload();
                             repaint();
                             firePropertyChange("expanded", !expanded, expanded);
                         }
@@ -437,7 +502,6 @@ public class ContainerPanel extends DefaultTabPanel {
             setPreferredSize(preferredSize);
 
             revalidate();
-            reload();
             repaint();
             firePropertyChange("expanded", !expanded, expanded);
         }
@@ -468,7 +532,6 @@ public class ContainerPanel extends DefaultTabPanel {
                             animating = false;
 
                             revalidate();
-                            reload();
                             repaint();
                             firePropertyChange("expanded", !expanded, expanded);
                         }
@@ -480,7 +543,6 @@ public class ContainerPanel extends DefaultTabPanel {
             setPreferredSize(preferredSize);
 
             revalidate();
-            reload();
             repaint();
             firePropertyChange("expanded", !expanded, expanded);
         }
@@ -540,6 +602,52 @@ public class ContainerPanel extends DefaultTabPanel {
                     formatFuzzy(latestVersion.getUpdatedOn()));
         } else {
             return "";
+        }
+    }
+
+    /**
+     * Get the color for the container additional text.
+     * 
+     * @return A <code>Color</code>.
+     */
+    private Color getContainerAdditionalTextColor() {
+        return Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG;
+    }
+
+    /**
+     * Get the text associated with the container.
+     * 
+     * @param container
+     *       The <code>Container</code>.
+     * @return A <code>String</code>.
+     */
+    private String getContainerText(final Container container) {
+        return container.getName();
+    }
+
+    /**
+     * Get the color for the container text.
+     * 
+     * @return A <code>Color</code>.
+     */
+    private Color getContainerTextColor() {
+        if (!isLatest()) {
+            return Colors.Browser.Panel.PANEL_DISABLED_TEXT_FG;
+        } else {
+            return Colors.Browser.Panel.PANEL_CONTAINER_TEXT_FG;
+        }
+    }
+
+    /**
+     * Get the font for the container text.
+     * 
+     * @return A <code>Font</code>.
+     */
+    private Font getContainerTextFont() {
+        if (!container.isSeen().booleanValue()) {
+            return Fonts.DefaultFontBold;
+        } else {
+            return Fonts.DefaultFont;
         }
     }
 
@@ -631,20 +739,11 @@ public class ContainerPanel extends DefaultTabPanel {
 
         textJLabel.setText("!Package Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
-        collapsedJPanel.add(textJLabel, gridBagConstraints);
-
-        additionalTextJLabel.setForeground(Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG);
-        additionalTextJLabel.setText("!Package Additional Text!");
-        gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 4, 0);
-        collapsedJPanel.add(additionalTextJLabel, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
+        collapsedJPanel.add(textJLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -827,36 +926,14 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * Reload the container panel based upon internal criteria; more
-     * specifically whether or not the panel is expanded controls the text to
-     * display; the icons and fonts to use.
-     * 
-     */
-    private void reload() {
-        reloadText();
-    }
-    
-    /**
      * Reload the text on the panel.
-     *
      */
     private void reloadText() {
-        // if expanded display the container name;
-        // if the user doesn't have the latest version then tell him so;
-        // if not expanded and there exists a draft then display the draft owner;
-        // otherwise if there exists the latest version display the published on date
-        textJLabel.setText(container.getName());
-        if (!expanded) {
-            additionalTextJLabel.setText(getContainerAdditionalText(container));
-        }
-        if (!expanded && !container.isSeen().booleanValue()) {
-            textJLabel.setFont(Fonts.DefaultFontBold);
-            additionalTextJLabel.setFont(Fonts.DefaultFontBold);
-        }
-        if (!isLatest()) {
-            textJLabel.setForeground(
-                    Colors.Browser.Panel.PANEL_LACK_MOST_RECENT_VERSION_TEXT_FG);
-        }
+        // The container text is painted instead of setting JLabel text.
+        // This makes it possible to draw text all the way across the panel when
+        // the container is expanded.
+        // So, make the text in the JLabel blank.
+        textJLabel.setText(" ");
     }
 
     /** An east list cell. */
@@ -920,7 +997,6 @@ public class ContainerPanel extends DefaultTabPanel {
                 addRemovedVersionDocumentCells(version, documentViews.get(version));
             }
             addUserCells(team);
-            prepareText();
         }
         @Override
         public Icon getIcon() {
@@ -974,9 +1050,6 @@ public class ContainerPanel extends DefaultTabPanel {
             for (final TeamMember teamMember : team) {
                 add(new ContainerTeamMemberCell(this, teamMember));
             }
-        }
-        private void prepareText() {
-            setAdditionalText(getContainerAdditionalText(container));
         }
     }
 

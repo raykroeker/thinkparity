@@ -59,9 +59,9 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
         iconJLabel.setIcon(cell.getIcon());
         textJLabel.setText(cell.getText());
         if (cell.isEnabled()) {
-            textJLabel.setForeground(Colors.Browser.List.LIST_FG);
+            textJLabel.setForeground(Colors.Browser.Panel.PANEL_CONTAINER_TEXT_FG);
         } else {
-            textJLabel.setForeground(Colors.Browser.List.LIST_NOT_ENABLED_TEXT_FG);
+            textJLabel.setForeground(Colors.Browser.Panel.PANEL_DISABLED_TEXT_FG);
         }
         if (cell.isSetAdditionalText()) {
             additionalTextJLabel.setText(cell.getAdditionalText());

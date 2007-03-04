@@ -6,7 +6,6 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
-import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 
 /**
@@ -16,7 +15,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCellRenderer {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel additionalTextJLabel;
     private javax.swing.JLabel iconJLabel;
     private javax.swing.JLabel textJLabel;
     // End of variables declaration//GEN-END:variables
@@ -38,13 +36,17 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
         initComponents();
         installListeners(tabPanel, iconJLabel);
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCellRenderer#renderComponent(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, int)
      */
     @Override
     public void renderComponent(final Cell cell, final int index) {
-        renderComponent(cell, index, iconJLabel, textJLabel, additionalTextJLabel);
+        this.cell = cell;
+        iconJLabel.setIcon(cell.getIcon());
+        // The top west cell text is painted by the ContainerPanel.
+        // This makes it possible to draw text all the way across the panel.
+        textJLabel.setText(" ");
     }
 
     /** This method is called from within the constructor to
@@ -58,7 +60,6 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
 
         iconJLabel = new javax.swing.JLabel();
         textJLabel = new javax.swing.JLabel();
-        additionalTextJLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -74,17 +75,10 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
         textJLabel.setText("!Top West Cell Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
-        add(textJLabel, gridBagConstraints);
-
-        additionalTextJLabel.setForeground(Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG);
-        additionalTextJLabel.setText("!Top West Cell Additional Text!");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
-        add(additionalTextJLabel, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
+        add(textJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
 }

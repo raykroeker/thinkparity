@@ -3,6 +3,8 @@
  */
 package com.thinkparity.codebase;
 
+import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -177,7 +179,49 @@ public abstract class StringUtil {
 	public static Collection<StringBuffer> convertToList(StringBuffer list, StringBuffer separator) {
 		return StringUtil.convertToList(null == list ? null : list.toString(),  null == separator ? null : separator.toString());
 	}
-	
+
+    /**
+     * Get the string width in the context of Graphics.
+     * 
+     * @param text
+     *            The text <code>String</code>.
+     * @param g
+     *            The <code>Graphics</code>.
+     * @return The width <code>int</code>.
+     */
+    public static int getWidth(final String text, final Graphics g) {
+        final FontMetrics fontMetrics = g.getFontMetrics();
+        return fontMetrics.stringWidth(text);
+    }
+
+    /**
+     * Limit the string width in the context of Graphics, using an ellipsis at the end of the string.
+     * 
+     * @param text
+     *            The text <code>String</code>.
+     * @param maxWidth
+     *            The maximum width <code>int</code>.
+     * @param g
+     *            The <code>Graphics</code>.
+     * @return The adjusted <code>String</code>, or null if the text cannot fit.
+     */
+    public static String limitWidthWithEllipsis(final String text, final int maxWidth, final Graphics g) {
+        String clippedText = text;
+        int clipChars = 0;        
+        while (maxWidth < StringUtil.getWidth(clippedText, g) && clipChars < text.length()) {
+            clipChars++;
+            final StringBuffer buffer = new StringBuffer(text.substring(0, text.length()-clipChars).trim());
+            buffer.append("...");
+            clippedText = buffer.toString();
+        }
+        
+        if (clipChars == text.length()) {
+            return null;
+        } else {
+            return clippedText;
+        }
+    }
+
 	/**
      * Print the stack trace of the throwable to a string and return it.
      *

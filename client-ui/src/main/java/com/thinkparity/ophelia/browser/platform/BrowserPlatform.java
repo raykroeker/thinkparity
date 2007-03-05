@@ -5,13 +5,9 @@ package com.thinkparity.ophelia.browser.platform;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
+
+import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.assertion.Assert;
@@ -19,16 +15,10 @@ import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-import com.thinkparity.codebase.sort.StringComparator;
-
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
-
-import com.thinkparity.ophelia.model.util.ProcessMonitor;
-import com.thinkparity.ophelia.model.workspace.Preferences;
-import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
+import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.Directories;
@@ -49,8 +39,10 @@ import com.thinkparity.ophelia.browser.platform.plugin.PluginHelper;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.profile.Profile;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
-
-import org.apache.log4j.Logger;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.workspace.Preferences;
+import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -136,6 +128,9 @@ public class BrowserPlatform implements Platform {
 	/** The thinkParity <code>WindowRegistry</code>. */
 	private final WindowRegistry windowRegistry;
 
+    /** A thinkParity <code>Workspace</code>. */
+    private final Workspace workspace;
+
     /**
      * Create BrowserPlatform.
      * 
@@ -148,7 +143,7 @@ public class BrowserPlatform implements Platform {
         this.environment = environment;
         this.mode = mode;
 
-        final Workspace workspace = WorkspaceModel.getInstance(
+        this.workspace = WorkspaceModel.getInstance(
                 environment).getWorkspace(new File(profile.getParityWorkspace()));
         new BrowserPlatformInitializer(this).initialize(workspace);
         this.applicationFactory = ApplicationFactory.getInstance(this);
@@ -173,6 +168,13 @@ public class BrowserPlatform implements Platform {
      */
     public void addListener(final LifeCycleListener listener) {
         listenerHelper.addListener(listener);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#createTempFile(java.lang.String)
+     */
+    public File createTempFile(final String suffix) throws IOException {
+        return workspace.createTempFile(suffix);
     }
 
     /**

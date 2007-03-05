@@ -3,17 +3,17 @@
  */
 package com.thinkparity.ophelia.browser.platform;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.TimeZone;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
-
-import com.thinkparity.ophelia.model.util.ProcessMonitor;
-import com.thinkparity.ophelia.model.workspace.Preferences;
-import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
@@ -22,8 +22,9 @@ import com.thinkparity.ophelia.browser.platform.application.window.WindowRegistr
 import com.thinkparity.ophelia.browser.platform.event.LifeCycleListener;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
-
-import org.apache.log4j.Logger;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.workspace.Preferences;
+import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
  * @author raykroeker@gmail.com
@@ -61,6 +62,16 @@ public interface Platform extends ApplicationListener {
      *            A <code>LifeCycleListener</code>.
      */
     public void addListener(final LifeCycleListener listener);
+
+    /**
+     * Create a temporary file.
+     * 
+     * @param suffix
+     *            The suffix string to be used in generating the file's name.
+     * @return A <code>File</code>.
+     * @throws IOException
+     */
+    public File createTempFile(final String suffix) throws IOException;
 
     /**
      * End the platform.

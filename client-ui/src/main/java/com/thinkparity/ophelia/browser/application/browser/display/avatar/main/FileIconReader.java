@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.main;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
 import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.util.ArtifactUtil;
 import com.thinkparity.ophelia.browser.util.ArtifactVersionUtil;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
@@ -162,16 +164,11 @@ public class FileIconReader {
     private Icon readSystemIcon(final String extension) {
         Icon icon = null;
         try {
-             //Create a temporary file with the specified extension
-             final File file = File.createTempFile("icon", "." + extension);
-
+             final File file = BrowserPlatform.getInstance().createTempFile("." + extension);
              FileSystemView view = FileSystemView.getFileSystemView();
              icon = view.getSystemIcon(file);
-
-             //Delete the temporary file
-             file.delete();
-        } catch (final Exception x) {
-            throw new BrowserException("Cannot read system icon.", x);
+        } catch (final IOException iox) {
+            throw new BrowserException("Cannot read system file icon.", iox);
         }
 
         return icon;

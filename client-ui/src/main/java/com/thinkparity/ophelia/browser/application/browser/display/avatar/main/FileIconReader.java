@@ -3,36 +3,33 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.main;
 
-import java.awt.Image;
+import java.io.File;
 import java.util.Hashtable;
 import java.util.Map;
 
-import javax.swing.ImageIcon;
+import javax.swing.Icon;
+import javax.swing.filechooser.FileSystemView;
 
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
+import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.util.ArtifactUtil;
 import com.thinkparity.ophelia.browser.util.ArtifactVersionUtil;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
-
-import org.jdesktop.jdic.filetypes.Association;
-import org.jdesktop.jdic.filetypes.AssociationService;
-import org.jdesktop.jdic.icons.IconService;
 
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
 public class FileIconReader {
-    
+
     /** A cache of image icons. */
     private static final Map<String, Object> ICON_CACHE;
-    
+
     /** An apache logger. */
     private static final Log4JWrapper slogger;
 
@@ -43,7 +40,7 @@ public class FileIconReader {
 
         cacheIcons();
     }
-    
+
     /** Cache all file icons listed in the FileIcon enum. */
     private static void cacheIcons() {
         slogger.logApiId();
@@ -60,16 +57,12 @@ public class FileIconReader {
         }
     }
 
-    /** A jdic <code>AssociationService</code>. */
-    private final AssociationService associationService;
-
     /**
      * Create FileIconReader.
      *
      */
     public FileIconReader() {
         super();
-        this.associationService = new AssociationService();
     }
 
     /**
@@ -77,9 +70,9 @@ public class FileIconReader {
      * 
      * @param document.
      *            A <code>Document</code>.
-     * @return An <code>ImageIcon</code>.
+     * @return An <code>Icon</code>.
      */
-    public ImageIcon getIcon(final Document document) {
+    public Icon getIcon(final Document document) {
         return getFileIcon(ArtifactUtil.getNameExtension(document));
     }
 
@@ -88,32 +81,20 @@ public class FileIconReader {
      * 
      * @param version.
      *            A <code>DocumentVersion</code>.
-     * @return An <code>ImageIcon</code>.
+     * @return An <code>Icon</code>.
      */
-    public ImageIcon getIcon(final DocumentVersion version) {
+    public Icon getIcon(final DocumentVersion version) {
         return getFileIcon(ArtifactVersionUtil.getNameExtension(version));
     }
 
-    /**
-     * Read a file icon from the cache. This is useful only for
-     * the subset of file icons listed in the enum FileIcon.
-     * 
-     * @param icon
-     *            The icon.
-     * @return The icon.
-     */
-    public ImageIcon read(final FileIcon icon) {
-        return (ImageIcon) read(ICON_CACHE, icon.iconName);
-    }
-    
     /**
      * Obtain an icon for a file name extension.
      * 
      * @param extension
      *            A file name extension <code>String</code>.
-     * @return An <code>ImageIcon</code>.
+     * @return An <code>Icon</code>.
      */
-    private ImageIcon getFileIcon(final String extension) {
+    private Icon getFileIcon(final String extension) {
         // The name has the "." removed.
         final String name = StringUtil.searchAndReplace(extension,
                 Separator.Period, Separator.EmptyString).toUpperCase();
@@ -123,18 +104,18 @@ public class FileIconReader {
         if ((null==name) || (name.length()==0)) {
             return null;
         } else if (isCached(ICON_CACHE, name)) {
-            return (ImageIcon) read(ICON_CACHE, name);
+            return (Icon) read(ICON_CACHE, name);
         } else {
-            ImageIcon imageIcon = readSystemIcon(extension);
-            if (null != imageIcon) {
-                write(ICON_CACHE, name, imageIcon);
-                return imageIcon;
+            final Icon icon = readSystemIcon(extension);
+            if (null != icon) {
+                write(ICON_CACHE, name, icon);
+                return icon;
             } else {
                 return (read(FileIcon.FILE_DEFAULT));
             }
         }        
     }
-    
+
     /**
      * See if the key is in the cache.
      * 
@@ -147,6 +128,17 @@ public class FileIconReader {
     private Boolean isCached(final Map<String, Object> cache,
             final String cacheKey) {
         synchronized(cache) { return cache.containsKey(cacheKey); }
+    }
+
+    /**
+     * Read a file icon from the cache.
+     * 
+     * @param icon
+     *            The icon.
+     * @return The <code>Icon</code>.
+     */
+    private Icon read(final FileIcon icon) {
+        return (Icon) read(ICON_CACHE, icon.iconName);
     }
 
     /**
@@ -163,27 +155,28 @@ public class FileIconReader {
             return cache.get(cacheKey);
         }
     }
-    
+
     /**
      * Read the icon from the system if possible.
      */
-    private ImageIcon readSystemIcon(final String extension) {
-        if (null != associationService) {
-            final Association assoc =
-                associationService.getFileExtensionAssociation(extension);
-            if (null != assoc) {
-                final String iconSpec = assoc.getIconFileName();
-                if (null != iconSpec) {
-                    final Image image = IconService.getIcon(iconSpec, 16);
-                    if (null != image) {
-                        return new ImageIcon(image);
-                    }
-                }
-            }
+    private Icon readSystemIcon(final String extension) {
+        Icon icon = null;
+        try {
+             //Create a temporary file with the specified extension
+             final File file = File.createTempFile("icon", "." + extension);
+
+             FileSystemView view = FileSystemView.getFileSystemView();
+             icon = view.getSystemIcon(file);
+
+             //Delete the temporary file
+             file.delete();
+        } catch (final Exception x) {
+            throw new BrowserException("Cannot read system icon.", x);
         }
-        return null;
+
+        return icon;
     }
-    
+
     /**
      * Write to the cache.
      * 
@@ -199,13 +192,10 @@ public class FileIconReader {
         slogger.logVariable("fileIcon", cacheKey);
         synchronized(cache) { cache.put(cacheKey, cacheValue); }
     }
-    
-    /** All pre-configured file icons. Some common icons aren't read
-     *  properly by the jdic library so they are provided here. */
+
+    /** All pre-configured file icons. */
     public enum FileIcon {
-        FILE_DEFAULT("FILE_DEFAULT", "IconFileDefault.png"),
-        PDF("PDF", "IconFilePdf.png"),
-        TXT("TXT", "IconFileTxt.png");
+        FILE_DEFAULT("FILE_DEFAULT", "IconFileDefault.png");
         
         /** The icon file name. */
         private final String iconFileName;

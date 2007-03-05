@@ -22,11 +22,14 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+import com.thinkparity.codebase.model.session.InvalidLocationException;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
-import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
+import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
@@ -456,19 +459,44 @@ class ArchiveModelImpl extends AbstractModelImpl {
         createContext(archiveId, environment, workspace);
         final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
         if (!workspaceModel.isInitialized(workspace)) {
-            workspaceModel.initialize(workspace, new DefaultLoginMonitor() {
-                @Override
-                public Boolean confirmSynchronize() {
-                    return Boolean.TRUE;
-                }
-            }, credentials);
+            try {
+                workspaceModel.initialize(new ProcessAdapter() {
+                    @Override
+                    public void beginProcess() {}
+                    @Override
+                    public void beginStep(final Step step, final Object data) {}
+                    @Override
+                    public void determineSteps(final Integer steps) {}
+                    @Override
+                    public void endProcess() {}
+                    @Override
+                    public void endStep(final Step step) {}
+                }, workspace, credentials);
+            } catch (final InvalidCredentialsException icx) {
+                throw new ArchiveException(icx,
+                        "Cannot initialize backup {0}.", archiveId.getUsername());
+            }
         } else {
-            getModelFactory(archiveId).getSessionModel(getClass()).login(new DefaultLoginMonitor() {
-                @Override
-                public Boolean confirmSynchronize() {
-                    return Boolean.TRUE;
-                }
-            }, credentials);
+            try {
+                getModelFactory(archiveId).getSessionModel(getClass()).login(new ProcessAdapter() {
+                        @Override
+                        public void beginProcess() {}
+                        @Override
+                        public void beginStep(final Step step, final Object data) {}
+                        @Override
+                        public void determineSteps(final Integer steps) {}
+                        @Override
+                        public void endProcess() {}
+                        @Override
+                        public void endStep(final Step step) {}
+                });
+            } catch (final InvalidCredentialsException icx) {
+                throw new ArchiveException(icx,
+                        "Cannot login backup {0}.", archiveId.getUsername());
+            } catch (final InvalidLocationException ilx) {
+                throw new ArchiveException(ilx,
+                        "Cannot login backup {0}.", archiveId.getUsername());
+            }
         }
     }
 

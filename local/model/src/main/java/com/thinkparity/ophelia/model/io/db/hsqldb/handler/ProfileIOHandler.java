@@ -89,7 +89,7 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
         new StringBuffer("select PF.FEATURE_ID,PF.FEATURE_NAME ")
         .append("from PROFILE_FEATURE PF ")
         .append("inner join PROFILE P on PF.PROFILE_ID=P.PROFILE_ID ")
-        .append("where PROFILE_ID=?")
+        .append("where P.PROFILE_ID=?")
         .toString();
 
     /** Sql to update a profile. */

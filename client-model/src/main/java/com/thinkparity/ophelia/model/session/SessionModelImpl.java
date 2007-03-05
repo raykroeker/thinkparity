@@ -29,6 +29,7 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+import com.thinkparity.codebase.model.session.InvalidLocationException;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
@@ -581,7 +582,7 @@ public final class SessionModelImpl extends Model<SessionListener>
      * 
      */
     public void login(final ProcessMonitor monitor)
-            throws InvalidCredentialsException {
+            throws InvalidCredentialsException, InvalidLocationException {
         try {
             assertNotIsOnline();
             assertXMPPIsReachable(environment);
@@ -615,10 +616,13 @@ public final class SessionModelImpl extends Model<SessionListener>
                 } else {
                     logger.logError("Cannot login from more than one location.");
                     xmppSession.logout();
+                    throw new InvalidLocationException();
                 }
             }
         } catch (final InvalidCredentialsException icx) {
             throw icx;
+        } catch (final InvalidLocationException ilx) {
+            throw ilx;
         } catch (final Throwable t) {
             throw translateError(t);
         } finally {

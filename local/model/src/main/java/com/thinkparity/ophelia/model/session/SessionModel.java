@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.session;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+import com.thinkparity.codebase.model.session.InvalidLocationException;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.events.SessionListener;
@@ -44,7 +45,7 @@ public interface SessionModel {
      *             if the stored credentials do not match the actual credentials
      */
     public void login(final ProcessMonitor monitor)
-            throws InvalidCredentialsException;
+            throws InvalidCredentialsException, InvalidLocationException;
 
     /**
      * Logout.

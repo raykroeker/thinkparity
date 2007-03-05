@@ -10,6 +10,7 @@ import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+import com.thinkparity.codebase.model.session.InvalidLocationException;
 
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.Step;
@@ -215,6 +216,8 @@ public class SessionApplication extends AbstractApplication {
             });
         } catch (final InvalidCredentialsException icx) {
             logger.logError(icx, "Cannot login.");
+        } catch (final InvalidLocationException ilx) {
+            logger.logError(ilx, "Cannot login.");
         }
     }
 

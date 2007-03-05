@@ -17,6 +17,7 @@ import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+import com.thinkparity.codebase.model.session.InvalidLocationException;
 
 import com.thinkparity.ophelia.model.ModelFactory;
 import com.thinkparity.ophelia.model.script.Script;
@@ -290,7 +291,8 @@ public final class Scenario {
      * @param script
      *            A <code>Script</code>.
      */
-    private void login(final Script script) throws InvalidCredentialsException {
+    private void login(final Script script) throws InvalidCredentialsException,
+            InvalidLocationException {
         getModelFactory(script).getSessionModel().login(new ProcessAdapter() {
             @Override
             public void beginProcess() {}

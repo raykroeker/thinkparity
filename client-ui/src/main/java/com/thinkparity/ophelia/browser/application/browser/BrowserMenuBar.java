@@ -18,6 +18,7 @@ import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
@@ -177,16 +178,29 @@ public class BrowserMenuBar extends JMenuBar {
         });
     }
 
+    /**
+     * Get a button sized for an icon.
+     * 
+     * @param icon
+     *          The icon.
+     * @return A JButton.
+     */
+    private javax.swing.JButton getButton(final Icon icon) {
+        final javax.swing.JButton button = ButtonFactory.create(icon);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setFocusPainted(false);
+        button.setFocusable(false);
+        final Dimension size = new java.awt.Dimension(icon.getIconWidth(), icon.getIconHeight());
+        button.setMaximumSize(size);
+        button.setMinimumSize(size);
+        button.setPreferredSize(size);
+        
+        return button;
+    }
+
     private javax.swing.JButton getSignUpButton() {
-        final javax.swing.JButton signUpJButton = new javax.swing.JButton(SIGNUP_ICON);
-        signUpJButton.setBorderPainted(false);
-        signUpJButton.setContentAreaFilled(false);
-        signUpJButton.setFocusPainted(false);
-        signUpJButton.setFocusable(false);
-        final Dimension size = new java.awt.Dimension(SIGNUP_ICON.getIconWidth(), SIGNUP_ICON.getIconHeight());
-        signUpJButton.setMaximumSize(size);
-        signUpJButton.setMinimumSize(size);
-        signUpJButton.setPreferredSize(size);
+        final javax.swing.JButton signUpJButton = getButton(SIGNUP_ICON);
         signUpJButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(final java.awt.event.MouseEvent e) {
                 signUpJButtonMouseEntered(e);
@@ -205,14 +219,7 @@ public class BrowserMenuBar extends JMenuBar {
     }
 
     private javax.swing.JButton getMinimizeButton() {
-        javax.swing.JButton minimizeJButton = new javax.swing.JButton(MINIMIZE_ICON);
-        minimizeJButton.setBorderPainted(false);
-        minimizeJButton.setContentAreaFilled(false);
-        minimizeJButton.setFocusPainted(false);
-        minimizeJButton.setFocusable(false);
-        minimizeJButton.setMaximumSize(new java.awt.Dimension(14, 14));
-        minimizeJButton.setMinimumSize(new java.awt.Dimension(14, 14));
-        minimizeJButton.setPreferredSize(new java.awt.Dimension(14, 14));
+        final javax.swing.JButton minimizeJButton = getButton(MINIMIZE_ICON);
         minimizeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(final java.awt.event.MouseEvent e) {
                 minimizeJButtonMouseEntered(e);
@@ -231,14 +238,7 @@ public class BrowserMenuBar extends JMenuBar {
     }
 
     private javax.swing.JButton getMaximizeButton(final Boolean maximized) {
-        javax.swing.JButton maximizeJButton = new javax.swing.JButton();
-        maximizeJButton.setBorderPainted(false);
-        maximizeJButton.setContentAreaFilled(false);
-        maximizeJButton.setFocusPainted(false);
-        maximizeJButton.setFocusable(false);
-        maximizeJButton.setMaximumSize(new java.awt.Dimension(14, 14));
-        maximizeJButton.setMinimumSize(new java.awt.Dimension(14, 14));
-        maximizeJButton.setPreferredSize(new java.awt.Dimension(14, 14));
+        final javax.swing.JButton maximizeJButton = getButton(MAXIMIZE_ICON);
         setMaximizeJButtonIcon(maximizeJButton, maximized);
         maximizeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(final java.awt.event.MouseEvent e) {
@@ -258,14 +258,7 @@ public class BrowserMenuBar extends JMenuBar {
     }
 
     private javax.swing.JButton getCloseButton() {
-        final javax.swing.JButton closeJButton = new javax.swing.JButton(CLOSE_ICON);
-        closeJButton.setBorderPainted(false);
-        closeJButton.setContentAreaFilled(false);
-        closeJButton.setFocusPainted(false);
-        closeJButton.setFocusable(false);
-        closeJButton.setMaximumSize(new java.awt.Dimension(14, 14));
-        closeJButton.setMinimumSize(new java.awt.Dimension(14, 14));
-        closeJButton.setPreferredSize(new java.awt.Dimension(14, 14));
+        final javax.swing.JButton closeJButton = getButton(CLOSE_ICON);
         closeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(final java.awt.event.MouseEvent e) {
                 closeJButtonMouseEntered(e);

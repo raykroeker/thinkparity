@@ -37,17 +37,17 @@ class PersistenceManagerImpl {
     /** An apache logger. */
     private final Log4JWrapper logger;
 
+    /** The persistence log <code>File</code>. */
+    private final File persistenceLogFile;
+
+    /** The persistence root directory <code>File</code>. */
+    private final File persistenceRoot;
+
     /** A persistence <code>SessionManager</code>. */
     private SessionManager sessionManager;
 
     /** A <code>TransactionManager</code>. */
     private TransactionManager transactionManager;
-
-    /** The persistence root directory <code>File</code>. */
-    private final File persistenceRoot;
-
-    /** The persistence log <code>File</code>. */
-    private final File persistenceLogFile;
 
     /**
      * Create SessionManagerImpl.
@@ -83,6 +83,25 @@ class PersistenceManagerImpl {
     }
 
     /**
+     * Initialize the persistence manager.
+     *
+     */
+    void initialize() {
+        try {
+            final Transaction transaction = beginTransaction();
+            try {
+                new PersistenceMigrator(sessionManager).migrate();
+                transaction.commit();
+            } catch (final Throwable t) {
+                transaction.rollback();
+                throw t;
+            }
+        } catch (final Throwable t) {
+            throw new WorkspaceException("Cannot initialize persistence.", t);
+        }
+    }
+
+    /**
      * Start the persistence manager.
      *
      */
@@ -105,15 +124,6 @@ class PersistenceManagerImpl {
             // bind the transaction manager to the data source
             transactionManager.bind(dataSource);
             sessionManager = new SessionManager(dataSource);
-
-            final Transaction transaction = beginTransaction();
-            try {
-                new PersistenceMigrator(sessionManager).migrate();
-                transaction.commit();
-            } catch (final Throwable t) {
-                transaction.rollback();
-                throw t;
-            }
         } catch (final Throwable t) {
             throw new WorkspaceException("Cannot start persistence manager.", t);
         }

@@ -265,7 +265,12 @@ public class WorkspaceModel {
             final Workspace workspace, final Credentials credentials)
             throws InvalidCredentialsException {
         notifyProcessBegin(monitor);
+        final WorkspaceImpl workspaceImpl = findImpl(workspace);
         try {
+            // initialize persistence
+            notifyStepBegin(monitor, InitializeStep.PERSISTENCE_INITIALIZE);
+            workspaceImpl.initializePersistence();
+            notifyStepEnd(monitor, InitializeStep.PERSISTENCE_INITIALIZE);
             final InternalModelFactory modelFactory = InternalModelFactory.getInstance(context, environment, workspace);
             final InternalSessionModel sessionModel = modelFactory.getSessionModel();
             // login
@@ -293,7 +298,7 @@ public class WorkspaceModel {
                 sessionModel.registerQueueListener();
                 notifyStepEnd(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
 
-                findImpl(workspace).initialize();
+                workspaceImpl.initializePreferences();
             }
         } catch (final InvalidCredentialsException icx) {
             throw icx;

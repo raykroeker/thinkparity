@@ -263,6 +263,14 @@ public class WorkspaceImpl implements Workspace {
     }
 
 	/**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getTransaction()
+     *
+     */
+    public Transaction getTransaction() {
+        return persistenceManagerImpl.getTransaction();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getWorkspaceDirectory()
      */
     public File getWorkspaceDirectory() {
@@ -285,10 +293,18 @@ public class WorkspaceImpl implements Workspace {
     }
 
     /**
-     * Initialize the workspace.
+     * Initialize the persistence.
      *
      */
-    public void initialize() {
+    public void initializePersistence() {
+        persistenceManagerImpl.initialize();
+    }
+
+    /**
+     * Initialize the preferences.
+     *
+     */
+    public void initializePreferences() {
         preferencesImpl.initialize();
     }
 
@@ -299,14 +315,6 @@ public class WorkspaceImpl implements Workspace {
      */
     public Boolean isInitialized() {
         return preferencesImpl.isInitialized();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.workspace.Workspace#getTransaction()
-     *
-     */
-    public Transaction getTransaction() {
-        return persistenceManagerImpl.getTransaction();
     }
 
     /**

@@ -462,7 +462,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      */
     private SortBy getInitialSort() {
         // TODO figure out why this double cast needs to happen
-        final SortBy sortBy = (SortBy)(Comparator<TabPanel>)persistence.get(sortByKey, SortBy.CREATED_ON);
+        final SortBy sortBy = (SortBy)(Comparator<TabPanel>)persistence.get(sortByKey, SortBy.DATE_CREATED_ON);
         sortBy.ascending = persistence.get(sortAscendingKey, false);
         return sortBy;
     }
@@ -852,7 +852,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     /** An enumerated type defining the tab panel ordering. */
     private enum SortBy implements Comparator<TabPanel> {
 
-        BOOKMARK(true), CREATED_ON(false), NAME(true), OWNER(true), UPDATED_ON(false);
+        BOOKMARK(true), DATE_CREATED_ON(false), DATE_UPDATED_ON(false), DRAFT_OWNER(true), NAME(true);
 
         /** An ascending <code>StringComparator</code>. */
         private static final StringComparator STRING_COMPARATOR_ASC;
@@ -896,12 +896,10 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
                     result = compareDefault(p1, p2);
                 }
                 return result;
-            case CREATED_ON:
-                return multiplier * p1.getContainer().getCreatedOn().compareTo(
-                        p2.getContainer().getCreatedOn());
-            case UPDATED_ON:
-                return multiplier * p1.getContainer().getUpdatedOn().compareTo(
-                        p2.getContainer().getUpdatedOn());
+            case DATE_CREATED_ON:
+                return multiplier * p1.getDateFirstSeen().compareTo(p2.getDateFirstSeen());
+            case DATE_UPDATED_ON:
+                return multiplier * p1.getDateLastSeen().compareTo(p2.getDateLastSeen());
             case NAME:
                 // note the lack of multiplier
                 return ascending
@@ -911,7 +909,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
                     : STRING_COMPARATOR_DESC.compare(
                             p1.getContainer().getName(),
                             p2.getContainer().getName());
-            case OWNER:
+            case DRAFT_OWNER:
                 // Sort by local draft first
                 if (p1.getContainer().isLocalDraft() && !p2.getContainer().isLocalDraft()) {
                     return multiplier * -1;

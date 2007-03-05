@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -91,6 +92,9 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /** A  <code>FileIconReader</code>. */
     private final FileIconReader fileIconReader;
+
+    /** The first <code>ContainerVersion</code>. */
+    private ContainerVersion firstVersion;
 
     /** The most recent <code>ContainerVersion</code>. */
     private ContainerVersion latestVersion;
@@ -193,6 +197,34 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * Get the date of the first version, or the creation
+     * date of the container if there is no version yet.
+     * 
+     * @return The first version date <code>Calendar</code>.
+     */
+    public Calendar getDateFirstSeen() {
+        if (!isDistributed()) {
+            return container.getCreatedOn();
+        } else {
+            return firstVersion.getCreatedOn();  
+        }
+    }
+
+    /**
+     * Get the date of the most recent version, or the creation
+     * date of the container if there is no version yet.
+     * 
+     * @return The last version date <code>Calendar</code>.
+     */
+    public Calendar getDateLastSeen() {
+        if (!isDistributed()) {
+            return container.getCreatedOn();
+        } else {
+            return latestVersion.getCreatedOn();
+        }
+    }
+
+    /**
      * Obtain the container draft.
      * 
      * @return A <code>ContainerDraft</code>.
@@ -227,6 +259,15 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     public Boolean isAnimating() {
         return Boolean.valueOf(animating);
+    }
+
+    /**
+     * Determine if the container has been distributed.
+     * 
+     * @return True if the container has been distributed, false otherwise.
+     */
+    public Boolean isDistributed() {
+        return (null != latestVersion);
     }
 
     /**
@@ -324,6 +365,9 @@ public class ContainerPanel extends DefaultTabPanel {
         this.container = container;
         this.draft = draftView.getDraft();
         this.latestVersion = latestVersion;
+        if (versions.size() > 0) {
+            this.firstVersion = versions.get(versions.size()-1);
+        }
         
         // Build the west list
         westCells.add(new ContainerCell(draftView, latestVersion, versions,

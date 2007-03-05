@@ -23,6 +23,9 @@ public final class TabAnimator {
     /** The working <code>Timer</code>. */
     private Timer animator;
 
+    /** A flag indicating the animation is done. */
+    private Boolean animationDone;
+
     /** A completion <code>Runnable</code>. */
     private Runnable animatorCompletion;
 
@@ -82,12 +85,17 @@ public final class TabAnimator {
         if (null != animator && animator.isRunning()) {
             reset();
         }
+        this.animationDone = Boolean.FALSE;
         this.animatorCompletion = animatorCompletion;
         animator = new Timer(timerDelay, new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 if (null != logger) logger.logApiId();
-                decrementHeight(heightDecrement, heightBound);
-                jPanel.revalidate();
+                if (animationDone) {
+                    stopAnimator();
+                } else {
+                    decrementHeight(heightDecrement, heightBound);
+                    jPanel.revalidate();
+                }
             }
         });
         animator.start();
@@ -124,12 +132,17 @@ public final class TabAnimator {
         if (null != animator && animator.isRunning()) {
             reset();
         }
+        this.animationDone = Boolean.FALSE;
         this.animatorCompletion = animatorCompletion;
         animator = new Timer(timerDelay, new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 if (null != logger) logger.logApiId();
-                incrementHeight(heightIncrement, heightBound);
-                jPanel.revalidate();
+                if (animationDone) {
+                    stopAnimator();
+                } else {
+                    incrementHeight(heightIncrement, heightBound);
+                    jPanel.revalidate();
+                }
             }
         });
         animator.start();
@@ -190,7 +203,7 @@ public final class TabAnimator {
         size.height -= decrement;
         if (bound >= size.height) {
             size.height = bound;
-            stopAnimator();
+            animationDone = true;
         }
         setHeight(size.height);
     }
@@ -210,7 +223,7 @@ public final class TabAnimator {
         size.height += increment;
         if (bound <= size.height) {
             size.height = bound;
-            stopAnimator();
+            animationDone = true;
         }
         setHeight(size.height);
     }

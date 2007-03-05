@@ -15,6 +15,7 @@ import javax.swing.Icon;
 import javax.swing.JMenuBar;
 
 import com.thinkparity.codebase.swing.GradientPainter;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
@@ -25,47 +26,56 @@ import com.thinkparity.ophelia.browser.util.ImageIOUtil;
  * @version 1.1.2.1
  */
 public class BrowserMenuBar extends JMenuBar {
-    
+
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
-    
+
     /** The browser application. */
     private final Browser browser;
-    
+
     /** Close label icon. */
     private static final Icon CLOSE_ICON;
-    
+
     /** Close label rollover icon. */
     private static final Icon CLOSE_ROLLOVER_ICON;
 
     /** Minimize label icon. */
     private static final Icon MINIMIZE_ICON;
-    
+
     /** Minimize label rollover icon. */
     private static final Icon MINIMIZE_ROLLOVER_ICON;
-    
+
     /** Maximize label icon. */
     private static final Icon MAXIMIZE_ICON;
-    
+
     /** Maximize label rollover icon. */
     private static final Icon MAXIMIZE_ROLLOVER_ICON;
-    
+
+    /** Sign-Up label icon. */
+    private static final Icon SIGNUP_ICON;
+
+    /** Sign-Up label rollover icon. */
+    private static final Icon SIGNUP_ROLLOVER_ICON;
+
     /** Un-Maximize label icon. */
     private static final Icon UNMAXIMIZE_ICON;
-    
+
     /** Un-Maximize label rollover icon. */
     private static final Icon UNMAXIMIZE_ROLLOVER_ICON;
-    
+
     static {
         CLOSE_ICON = ImageIOUtil.readIcon("BrowserTitle_Close.png");
         CLOSE_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_CloseRollover.png");
 
         MINIMIZE_ICON = ImageIOUtil.readIcon("BrowserTitle_Minimize.png");
         MINIMIZE_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_MinimizeRollover.png");
-        
+
         MAXIMIZE_ICON = ImageIOUtil.readIcon("BrowserTitle_Maximize.png");
         MAXIMIZE_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_MaximizeRollover.png");
-        
+
+        SIGNUP_ICON = ImageIOUtil.readIcon("BrowserTitle_SignUp.png");
+        SIGNUP_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_SignUpRollover.png");
+
         UNMAXIMIZE_ICON = ImageIOUtil.readIcon("BrowserTitle_UnMaximize.png");
         UNMAXIMIZE_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_UnMaximizeRollover.png");
     }
@@ -120,10 +130,11 @@ public class BrowserMenuBar extends JMenuBar {
         installMouseListener();
 
         // Create the Sign-Up button
-        // TODO Add this button back when the user is a guest
         this.add(Box.createHorizontalGlue());
-/*        this.add(getSignUpButton());
-        this.add(Box.createRigidArea(new Dimension(2,0)));*/
+        if (browser.getPlatform().isSignUpAvailable()) {
+            this.add(getSignUpButton());
+            this.add(Box.createRigidArea(new Dimension(2,0)));
+        }
 
         // Add minimize, maximize and close buttons
         this.add(getMinimizeButton());
@@ -164,6 +175,33 @@ public class BrowserMenuBar extends JMenuBar {
                 }
             }
         });
+    }
+
+    private javax.swing.JButton getSignUpButton() {
+        final javax.swing.JButton signUpJButton = new javax.swing.JButton(SIGNUP_ICON);
+        signUpJButton.setBorderPainted(false);
+        signUpJButton.setContentAreaFilled(false);
+        signUpJButton.setFocusPainted(false);
+        signUpJButton.setFocusable(false);
+        final Dimension size = new java.awt.Dimension(SIGNUP_ICON.getIconWidth(), SIGNUP_ICON.getIconHeight());
+        signUpJButton.setMaximumSize(size);
+        signUpJButton.setMinimumSize(size);
+        signUpJButton.setPreferredSize(size);
+        signUpJButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(final java.awt.event.MouseEvent e) {
+                signUpJButtonMouseEntered(e);
+            }
+            public void mouseExited(final java.awt.event.MouseEvent e) {
+                signUpJButtonMouseExited(e);
+            }
+        });
+        signUpJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(final java.awt.event.ActionEvent e) {
+                signUpJButtonActionPerformed(e);
+            }
+        });
+
+        return signUpJButton;
     }
 
     private javax.swing.JButton getMinimizeButton() {
@@ -243,6 +281,20 @@ public class BrowserMenuBar extends JMenuBar {
         });
         
         return closeJButton;        
+    }
+
+    private void signUpJButtonActionPerformed(final java.awt.event.ActionEvent e) {
+        browser.runProfileSignUp();
+    }
+
+    private void signUpJButtonMouseEntered(final java.awt.event.MouseEvent e) {
+        SwingUtil.setCursor((javax.swing.JButton) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+        ((javax.swing.JButton) e.getSource()).setIcon(SIGNUP_ROLLOVER_ICON);
+    }
+
+    private void signUpJButtonMouseExited(final java.awt.event.MouseEvent e) {
+        SwingUtil.setCursor((javax.swing.JButton) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
+        ((javax.swing.JButton) e.getSource()).setIcon(SIGNUP_ICON);
     }
 
     private void minimizeJButtonActionPerformed(final java.awt.event.ActionEvent e) {

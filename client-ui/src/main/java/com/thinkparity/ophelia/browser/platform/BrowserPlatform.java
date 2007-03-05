@@ -361,7 +361,15 @@ public class BrowserPlatform implements Platform {
         return onlineHelper.isOnline();
     }
 
-	/** @see com.thinkparity.ophelia.browser.platform.Platform#isTestingMode() */
+	/**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#isSignUpAvailable()
+     */
+    @Deprecated
+    public Boolean isSignUpAvailable() {
+        return getModelFactory().getProfileModel(getClass()).isSignUpAvailable();
+    }
+
+    /** @see com.thinkparity.ophelia.browser.platform.Platform#isTestingMode() */
 	public Boolean isTestingMode() {
         switch (mode) {
         case DEMO:

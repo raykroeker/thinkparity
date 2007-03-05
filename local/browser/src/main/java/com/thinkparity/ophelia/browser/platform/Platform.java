@@ -158,6 +158,14 @@ public interface Platform extends ApplicationListener {
     public Boolean isOnline();
 
     /**
+     * Determine if sign-up is available.
+     * 
+     * @return True if sign-up is available for the user.
+     */
+    @Deprecated
+    public Boolean isSignUpAvailable();
+
+    /**
 	 * Indicates whether or not the platform is running in test mode.
 	 * 
 	 * @return True if the application is in debug mode; false otherwise.

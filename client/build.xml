@@ -172,8 +172,6 @@ Local Configuration:            ${localconfig}
         path="i686/${thinkparity.os-platform}/nativeskin/6.7"/>
     <antx:dependency type="native" scope="runtime" provider="java.net" version="0.9.1"
         path="i686/${thinkparity.os-platform}/jdic/0.9.1"/>
-    <antx:dependency type="native" scope="runtime" provider="java.net" version="0.1.1"
-        path="i686/${thinkparity.os-platform}/jdic_icon/0.1.1"/>
 
     <!-- test dependencies -->
     <antx:dependency type="java" scope="test" provider="junit.org" version="3.8.1"

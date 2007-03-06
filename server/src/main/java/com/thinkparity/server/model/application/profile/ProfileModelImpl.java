@@ -26,6 +26,7 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.VerificationKey;
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
@@ -40,7 +41,6 @@ import com.thinkparity.desdemona.util.smtp.MessageFactory;
 import com.thinkparity.desdemona.util.smtp.TransportManager;
 
 import org.jivesoftware.wildfire.auth.UnauthorizedException;
-import org.jivesoftware.wildfire.user.UserManager;
 
 /**
  * <b>Title:</b>thinkParity Profile Model Implementation</br>
@@ -54,11 +54,16 @@ class ProfileModelImpl extends AbstractModelImpl {
     /** Contact db io. */
     private final ContactSql contactSql;
 
-    /** A jive user provider. */
-    private final UserManager userManager;
-
     /** User db io. */
     private final UserSql userSql;
+
+    /**
+     * Create ProfileModelImpl.
+     *
+     */
+    ProfileModelImpl() {
+        this(null);
+    }
 
     /**
      * Create ProfileModelImpl.
@@ -69,7 +74,6 @@ class ProfileModelImpl extends AbstractModelImpl {
     ProfileModelImpl(final Session session) {
         super(session);
         this.contactSql = new ContactSql();
-        this.userManager = UserManager.getInstance();
         this.userSql = new UserSql();
     }
 
@@ -277,9 +281,10 @@ class ProfileModelImpl extends AbstractModelImpl {
                 userSql.readProfileSecurityAnswer(userId);
             Assert.assertTrue("SECURITY ANSWER DOES NOT MATCH",
                     securityAnswer.equals(storedSecurityAnswer));
-            final String password = PasswordGenerator.generate();
-            userManager.getUser(userId.getUsername()).setPassword(password);
-            return password;
+            final Credentials credentials = userSql.readCredentials(userId);
+            final String newPassword = PasswordGenerator.generate();
+            userSql.updatePassword(userId, credentials.getPassword(), newPassword);
+            return newPassword;
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -298,6 +303,24 @@ class ProfileModelImpl extends AbstractModelImpl {
             } finally {
                 vcardXMLWriter.close();
             }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Reset a user's credentials.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param securityAnswer
+     *            A security question answer <code>String</code>.
+     * @return The user's new password.
+     */
+    void updatePassword(final JabberId userId, final String password,
+            final String newPassword) {
+        try {
+            userSql.updatePassword(userId, password, newPassword);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -343,7 +366,6 @@ class ProfileModelImpl extends AbstractModelImpl {
      */
     private void assertIsSet(final String name, final String value) {
        Assert.assertNotNull(value, "Profile field {0} is not set.", name);
-       Assert.assertNotTrue("".equals(value.trim()), "Profile field {0} is not set.", name);
     }
 
     private void assertIsValid(final ProfileVCard vcard) {

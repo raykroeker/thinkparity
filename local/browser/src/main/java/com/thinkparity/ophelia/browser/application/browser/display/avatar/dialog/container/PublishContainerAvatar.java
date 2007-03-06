@@ -153,7 +153,7 @@ public final class PublishContainerAvatar extends Avatar implements
     public void updateProgress(final Long containerId, final Integer step,
             final String status) {
         publishJProgressBar.setValue(step);
-        if (null != status && 0 < status.trim().length()) {
+        if (null != status) {
             documentJLabel.setText(getDocumentJLabelText());
             documentNameJLabel.setText(status);
         } else {

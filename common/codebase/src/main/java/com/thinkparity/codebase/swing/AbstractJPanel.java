@@ -9,7 +9,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.*;
+import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -117,13 +123,6 @@ public class AbstractJPanel extends JPanel {
 	public void debug() {
         containerTools.debug();
 	}
-
-	/**
-	 * Determine whether the user input for the frame is valid.
-	 * 
-	 * @return True if the input is valid; false otherwise.
-	 */
-	public Boolean isInputValid() { return Boolean.TRUE; }
 
     /**
      * Add a move listener to the component for the panel. A move listener will

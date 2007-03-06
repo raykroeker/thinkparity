@@ -20,6 +20,7 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.Constants.Product.Features;
@@ -178,13 +179,10 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * Read the user's credentials.
+     * @see com.thinkparity.ophelia.model.Model#readCredentials()
      * 
-     * @return The user's credentials.
      */
-    @Override
     public Credentials readCredentials() {
-        logger.logApiId();
         return super.readCredentials();
     }
 
@@ -206,7 +204,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         }
     }
 
-
     /**
      * Read a list of profile email addresses.
      * 
@@ -221,6 +218,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             throw translateError(t);
         }
     }
+
 
     /**
      * Read the security question.
@@ -311,34 +309,51 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         }
     }
 
-        /**
-         * Update the profile password.
-         * 
-         * @param password
-         *            The current password <code>String</code>.
-         * @param newPassword
-         *            The new password <code>String</code>.
-         */
-        public void updatePassword(final String password,
-                final String newPassword) {
-            logger.logApiId();
-            logger.logVariable("password", "XXXXX");
-            logger.logVariable("newPassword", "XXXXX");
-            try {
-                final Credentials credentials = readCredentials();
-                Assert.assertTrue("PASSWORD INCORRECT",
-                        password.equals(credentials.getPassword()));
-                // update local data
-                credentials.setPassword(newPassword);
-                updateCredentials(credentials);
-                // update remote data.
-                getSessionModel().updateProfileCredentials(localUserId(),
-                        credentials);
-                notifyPasswordUpdated(read(), localEventGenerator);
-            } catch (final Throwable t) {
-                throw translateError(t);
-            }
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#updatePassword(java.lang.String,
+     *      java.lang.String)
+     * 
+     */
+    public void updatePassword(final String password, final String newPassword)
+            throws InvalidCredentialsException {
+        try {
+            final Credentials credentials = readCredentials();
+            if (!credentials.getPassword().equals(password))
+                throw new InvalidCredentialsException();
+            // update local data
+            credentials.setPassword(newPassword);
+            updateCredentials(credentials);
+            // update remote data.
+            getSessionModel().updateProfilePassword(password, newPassword);
+            notifyPasswordUpdated(read(), localEventGenerator);
+        } catch (final InvalidCredentialsException icx) {
+            throw icx;
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#validateCredentials(com.thinkparity.codebase.model.session.Credentials)
+     *
+     */
+    public void validateCredentials(final Credentials credentials) throws InvalidCredentialsException {
+        try {
+            final Credentials localCredentials = readCredentials();
+            if (localCredentials.getUsername().equals(credentials.getUsername()) &&
+                    localCredentials.getPassword().equals(credentials.getPassword())) {
+            } else {
+                throw new InvalidCredentialsException();
+            }
+        } catch (final InvalidCredentialsException icx) {
+            try {
+                Thread.sleep(3 * 1000);
+            } catch (final InterruptedException ix) {}
+            throw icx;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
 
     /**
      * Verify an email.
@@ -385,7 +400,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      */
     private void assertIsSet(final String name, final String value) {
        Assert.assertNotNull(value, "Profile field {0} is not set.", name);
-       Assert.assertNotTrue("".equals(value.trim()), "Profile field {0} is not set.", name);
     }
 
     private void assertIsValid(final Profile profile) {

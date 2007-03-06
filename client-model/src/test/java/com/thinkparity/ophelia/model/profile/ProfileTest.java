@@ -10,6 +10,7 @@ import com.thinkparity.codebase.email.EMailBuilder;
 
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
 import com.thinkparity.ophelia.model.events.ProfileAdapter;
 import com.thinkparity.ophelia.model.events.ProfileEvent;
@@ -111,10 +112,14 @@ public final class ProfileTest extends ProfileTestCase {
         getModel(datum.junit).resetPassword(datum.junit.getSimpleUsername());
         datum.waitForEvents();
         getModel(datum.junit).removeListener(datum.reset_password_listener);
+        assertTrue("Reset password event not fired.", datum.reset_password_notify);
         // change it back
         final String newPassword = getModel(datum.junit).readCredentials().getPassword();
-        getModel(datum.junit).updatePassword(newPassword, password);
-        assertTrue("Reset password event not fired.", datum.reset_password_notify);
+        try {
+            getModel(datum.junit).updatePassword(newPassword, password);
+        } catch (final InvalidCredentialsException icx) {
+            fail("Cannot update password:  {0}", icx.getMessage());
+        }
     }
 
     /**
@@ -143,11 +148,19 @@ public final class ProfileTest extends ProfileTestCase {
         getModel(datum.junit).addListener(datum.update_password_listener);
         final String password = datum.junit.getCredentials().getPassword();
         final String newPassword = "ASKJSL!)!(#^)!:@#{}";
-        getModel(datum.junit).updatePassword(password, newPassword);
+        try {
+            getModel(datum.junit).updatePassword(password, newPassword);
+        } catch (final InvalidCredentialsException icx) {
+            fail("Cannot update password:  {0}", icx.getMessage());
+        }
         datum.waitForEvents();
         getModel(datum.junit).removeListener(datum.update_password_listener);
         // change it back
-        getModel(datum.junit).updatePassword(newPassword, password);
+        try {
+            getModel(datum.junit).updatePassword(newPassword, password);
+        } catch (final InvalidCredentialsException icx) {
+            fail("Cannot update password:  {0}", icx.getMessage());
+        }
         assertTrue("Update password event not fired.", datum.update_password_notify);
     }
 

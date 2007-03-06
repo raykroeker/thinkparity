@@ -777,11 +777,13 @@ public interface XMPPSession {
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @param credentials
-     *            A user's <code>Credentials</code>.
+     * @param password
+     *            A user's password <code>String</code>.
+     * @param newPassword
+     *            A user's new password <code>String</code>.
      */
-    public void updateProfileCredentials(final JabberId userId,
-            final Credentials credentials);
+    public void updateProfilePassword(final JabberId userId,
+            final String password, final String newPassword);
 
     /**
      * Verify an email in a user's profile.

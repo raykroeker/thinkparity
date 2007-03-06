@@ -23,9 +23,10 @@ import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.AbstractJPanel;
 import com.thinkparity.codebase.swing.JOptionPaneUtil;
 
+import com.thinkparity.ophelia.model.script.Script;
+
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.Colors;
-import com.thinkparity.ophelia.model.script.Script;
 
 /**
  * @author raymond@thinkparity.com
@@ -73,8 +74,7 @@ public class DemoManagerPanel extends AbstractJPanel implements ExecutionMonitor
         initComponents();
     }
 
-    @Override
-    public Boolean isInputValid() {
+    private Boolean isInputValid() {
         return !scenarioJList.isSelectionEmpty();
     }
 

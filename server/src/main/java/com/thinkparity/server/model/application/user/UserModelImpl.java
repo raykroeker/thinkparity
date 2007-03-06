@@ -144,7 +144,7 @@ class UserModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    Credentials readArchiveCredentials(final JabberId archiveId) {
+	Credentials readArchiveCredentials(final JabberId archiveId) {
         logApiId();
         logVariable("archiveId", archiveId);
         try {
@@ -154,7 +154,7 @@ class UserModelImpl extends AbstractModelImpl {
         }
     }
 
-	JabberId readArchiveId(final JabberId userId) {
+    JabberId readArchiveId(final JabberId userId) {
         logApiId();
         logVariable("userId", userId);
         try {

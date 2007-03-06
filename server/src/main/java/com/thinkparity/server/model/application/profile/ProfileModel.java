@@ -26,23 +26,23 @@ import com.thinkparity.desdemona.model.session.Session;
 public class ProfileModel extends AbstractModel<ProfileModelImpl> {
 
     /**
-	 * Create a Profile interface.
-	 * 
-	 * @return The Profile interface.
-	 */
-	public static ProfileModel getModel(final Session session) {
-		return new ProfileModel(session);
-	}
+     * Create a Profile interface.
+     * 
+     * @return The Profile interface.
+     */
+    public static ProfileModel getModel(final Session session) {
+        return new ProfileModel(session);
+    }
 
     /**
-	 * Create ProfileModel.
-	 *
-	 * @param workspace
-	 *		The thinkParity workspace.
-	 */
-	protected ProfileModel(final Session session) {
-		super(new ProfileModelImpl(session));
-	}
+     * Create ProfileModel.
+     *
+     * @param workspace
+     *      The thinkParity workspace.
+     */
+    protected ProfileModel(final Session session) {
+        super(new ProfileModelImpl(session));
+    }
 
 	/**
      * Add an email to a user's profile.
@@ -187,6 +187,23 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
     public void update(final JabberId userId, final ProfileVCard vcard) {
         synchronized (getImplLock()) {
             getImpl().update(userId, vcard);
+        }
+    }
+
+    /**
+     * Update a user's password.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param password
+     *            The existing password <code>String</code>.
+     * @param newPassword
+     *            The new password <code>String</code>.
+     */
+    public void updatePassword(final JabberId userId, final String password,
+            final String newPassword) {
+        synchronized (getImplLock()) {
+            getImpl().updatePassword(userId, password, newPassword);
         }
     }
 

@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.profile;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 /**
@@ -21,4 +22,11 @@ public interface InternalProfileModel extends ProfileModel {
      *
      */
     public Profile create();
+
+    /**
+     * Read the user's credentials.
+     * 
+     * @return An instance of <code>Credentials</code>.
+     */
+    public Credentials readCredentials();
 }

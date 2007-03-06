@@ -58,9 +58,8 @@ public class UserSql extends AbstractSql {
 
     /** Sql to read an archive user's credentials. */
     private static final String SQL_READ_BACKUP_CREDENTIALS =
-            new StringBuffer("select JU.USERNAME,JU.PASSWORD ")
-            .append("from jiveUser JU ")
-            .append("inner join PARITY_USER PU on JU.USERNAME=PU.USERNAME ")
+            new StringBuffer("select PU.USERNAME,PU.PASSWORD ")
+            .append("from PARITY_USER PU ")
             .append("inner join USER_BACKUP_REL UBR on PU.USER_ID=UBR.BACKUP_ID ")
             .append("where PU.USERNAME=?")
             .toString();
@@ -72,6 +71,13 @@ public class UserSql extends AbstractSql {
             .append("where PU.USERNAME=?")
             .toString();
 
+    /** Sql to read the user credentials. */
+    private static final String SQL_READ_CREDENTIALS =
+        new StringBuffer("select PU.USERNAME,PU.PASSWORD ")
+        .append("from PARITY_USER PU ")
+        .append("where PU.USERNAME=? ")
+        .toString();
+
     /** Sql to read email addresses. */
     private static final String SQL_READ_EMAIL =
         new StringBuffer("select E.EMAIL ")
@@ -80,7 +86,7 @@ public class UserSql extends AbstractSql {
         .append("where PU.USERNAME=? and E.EMAIL=? ")
         .append("and E.VERIFICATIONKEY=?")
         .toString();
-        
+
     /** Sql to count email addresses. */
     private static final String SQL_READ_EMAIL_COUNT =
         new StringBuffer("select COUNT(UE.EMAIL) \"EMAIL_COUNT\" ")
@@ -105,7 +111,7 @@ public class UserSql extends AbstractSql {
         .append("inner join PRODUCT_FEATURE PF on UFR.FEATURE_ID=PF.FEATURE_ID ")
         .append("where PF.PRODUCT_ID=? and PU.USERNAME=?")
         .toString();
-
+        
     /** Sql to read the user id. */
     private static final String SQL_READ_LOCAL_USER_ID =
         new StringBuffer("select PU.USER_ID ")
@@ -147,6 +153,13 @@ public class UserSql extends AbstractSql {
         new StringBuffer("select PU.VCARD ")
         .append("from PARITY_USER PU ")
         .append("where PU.USERNAME=?")
+        .toString();
+
+    /** Sql to update the password. */
+    private static final String SQL_UPDATE_PASSWORD =
+        new StringBuffer("update PARITY_USER ")
+        .append("set PASSWORD=? ")
+        .append("where USERNAME=? and PASSWORD=?")
         .toString();
 
     /** Sql to create the user's token. */
@@ -292,6 +305,29 @@ public class UserSql extends AbstractSql {
                         session.getString("BACKUP_USERNAME")));
             }
             return archiveIds;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read the user credentials.
+     * 
+     * @param username
+     *            A username <code>String</code>.
+     * @return The user <code>Credentials</code>.
+     */
+    public Credentials readCredentials(final JabberId userId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_CREDENTIALS);
+            session.setString(1, userId.getUsername());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractCredentials(session);
+            } else {
+                return null;
+            }
         } finally {
             session.close();
         }
@@ -449,6 +485,37 @@ public class UserSql extends AbstractSql {
             } else {
                 return null;
             }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Update the user's password.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param password
+     *            A password <code>String</code>.
+     * @param newPassword
+     *            A new password <code>String</code>.
+     */
+    public void updatePassword(final JabberId userId, final String password,
+            final String newPassword) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_PASSWORD);
+            session.setString(1, newPassword);
+            session.setString(2, userId.getUsername());
+            session.setString(3, password);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException(
+                        "Could not update password for user {0}.",
+                        userId.getUsername());
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
         } finally {
             session.close();
         }

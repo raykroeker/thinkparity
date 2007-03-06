@@ -3,7 +3,16 @@
  */
 package com.thinkparity.codebase.swing;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
 
@@ -35,12 +44,49 @@ public class SwingUtil {
                 .createCompatibleImage(width, height);
     }
 
-    public static void insertWrappable(final JLabel jLabel, final String text) {
-        SINGLETON.doInsertWrappable(jLabel, text);
+    /**
+     * Limit the string width in the context of Graphics, using an ellipsis at the end of the string.
+     * 
+     * @param text
+     *            The text <code>String</code>.
+     * @param maxWidth
+     *            The maximum width <code>int</code>.
+     * @param g
+     *            The <code>Graphics</code>.
+     * @return The adjusted <code>String</code>, or null if the text cannot fit.
+     */
+    public static String limitWidthWithEllipsis(final String text,
+            final int maxWidth, final Graphics g) {
+        String clippedText = text;
+        int clipChars = 0;        
+        while (maxWidth < getStringWidth(clippedText, g)
+                && clipChars < text.length()) {
+            clipChars++;
+            final StringBuffer buffer = new StringBuffer(text.substring(0,
+                    text.length() - clipChars));
+            buffer.append("...");
+            clippedText = buffer.toString();
+        }
+        
+        if (clipChars == text.length()) {
+            return null;
+        } else {
+            return clippedText;
+        }
     }
 
-    private void doInsertWrappable(final JLabel jLabel, final String text) {
-        jLabel.setText(MessageFormat.format("<html>{0}</html>", text));
+    /**
+     * Get the string width in the context of Graphics.
+     * 
+     * @param text
+     *            The text <code>String</code>.
+     * @param g
+     *            The <code>Graphics</code>.
+     * @return The width <code>int</code>.
+     */
+    public static int getStringWidth(final String text, final Graphics g) {
+        final FontMetrics fontMetrics = g.getFontMetrics();
+        return fontMetrics.stringWidth(text);
     }
 
     /**
@@ -65,41 +111,17 @@ public class SwingUtil {
         return SINGLETON.doExtract(jTextArea);
     }
 
-    public static void setCursor(final javax.swing.JComponent jComponent, final int cursor) {
-        SINGLETON.doSetCursor(jComponent, cursor);
-    }
-    
-    public static void setCursor(final java.awt.Component component, final int cursor) {
-        SINGLETON.doSetCursor(component, cursor);
-    }
-
-    public static void setCursor(final java.awt.Container container, final int cursor) {
-        SINGLETON.doSetCursor(container, cursor);
-    }
-    
-    public static void setCursor(final javax.swing.JComponent jComponent, final java.awt.Cursor cursor) {
-        SINGLETON.doSetCursor(jComponent, cursor);
-    }
-    
-    public static void setCursor(final java.awt.Component component, final java.awt.Cursor cursor) {
-        SINGLETON.doSetCursor(component, cursor);
-    }
-
-    public static void setCursor(final java.awt.Container container, final java.awt.Cursor cursor) {
-        SINGLETON.doSetCursor(container, cursor);
-    }
-    
-    private void doSetCursor(final java.awt.Component component, final int cursor) {
-        doSetCursor(component, java.awt.Cursor.getPredefinedCursor(cursor));
-    }
-
-    private void doSetCursor(final java.awt.Component component, final java.awt.Cursor cursor) {
-        final Window window = javax.swing.SwingUtilities.getWindowAncestor(component);
-        if (null != window) {
-            window.setCursor(cursor);
-        } else {
-            component.setCursor(cursor);
-        }
+    /**
+     * Extract the value of a text area.
+     * 
+     * @param jTextArea
+     *            A <code>JTextArea</code>.
+     * @param trim
+     *            Whether or not to trim the value before returning.
+     * @return The text of the text area.
+     */
+    public static String extract(final JTextArea jTextArea, final Boolean trim) {
+        return SINGLETON.doExtract(jTextArea, trim);
     }
 
     /**
@@ -109,9 +131,22 @@ public class SwingUtil {
      *            A <code>JTextField</code>.
      * @return The <code>String</code> value of the text field.
      */
-	public static String extract(final JTextField jTextField) {
-		return SINGLETON.doExtract(jTextField);
-	}
+    public static String extract(final JTextField jTextField) {
+        return SINGLETON.doExtract(jTextField);
+    }
+
+    /**
+     * Extract the value of a text field.
+     * 
+     * @param jTextField
+     *            A <code>JTextField</code>.
+     * @param trim
+     *            Whether or not the value should be trimmed before returning.
+     * @return The <code>String</code> value of the text field.
+     */
+    public static String extract(final JTextField jTextField, final Boolean trim) {
+        return SINGLETON.doExtract(jTextField, trim);
+    }
 
     /**
      * Obtain the primary desktop bounds.
@@ -121,6 +156,10 @@ public class SwingUtil {
     public static Rectangle getPrimaryDesktopBounds() {
         return GraphicsEnvironment.getLocalGraphicsEnvironment()
                 .getMaximumWindowBounds();
+    }
+    
+    public static void insertWrappable(final JLabel jLabel, final String text) {
+        SINGLETON.doInsertWrappable(jLabel, text);
     }
 
     /**
@@ -132,7 +171,7 @@ public class SwingUtil {
     public static Boolean isInMaximizedWindow(final Component component) {
         return SINGLETON.isInMaximizedWindowImpl(component);
     }
-
+    
     /**
      * Determine whether or not the region contains the point.
      * 
@@ -146,6 +185,30 @@ public class SwingUtil {
             final Point point) {
 		return SINGLETON.doesRegionContain(region, point);
 	}
+    
+    public static void setCursor(final java.awt.Component component, final int cursor) {
+        SINGLETON.doSetCursor(component, cursor);
+    }
+
+    public static void setCursor(final java.awt.Component component, final java.awt.Cursor cursor) {
+        SINGLETON.doSetCursor(component, cursor);
+    }
+    
+    public static void setCursor(final java.awt.Container container, final int cursor) {
+        SINGLETON.doSetCursor(container, cursor);
+    }
+
+    public static void setCursor(final java.awt.Container container, final java.awt.Cursor cursor) {
+        SINGLETON.doSetCursor(container, cursor);
+    }
+
+    public static void setCursor(final javax.swing.JComponent jComponent, final int cursor) {
+        SINGLETON.doSetCursor(jComponent, cursor);
+    }
+
+    public static void setCursor(final javax.swing.JComponent jComponent, final java.awt.Cursor cursor) {
+        SINGLETON.doSetCursor(jComponent, cursor);
+    }
 
     /**
      * Obtain the primary screen size.
@@ -214,8 +277,19 @@ public class SwingUtil {
      *            A <code>JTextArea</code>.
      * @return The text of the text area.
      */
-	private String doExtract(final JTextArea jTextArea) {
-        return doExtract(jTextArea.getText());
+    private String doExtract(final JTextArea jTextArea) {
+        return doExtract(jTextArea, Boolean.FALSE);
+    }
+
+    /**
+     * Extract the value of a text area.
+     * 
+     * @param jTextArea
+     *            A <code>JTextArea</code>.
+     * @return The text of the text area.
+     */
+    private String doExtract(final JTextArea jTextArea, final Boolean trim) {
+        return doExtract(jTextArea.getText(), trim.booleanValue());
     }
 
     /**
@@ -225,9 +299,22 @@ public class SwingUtil {
      *            A <code>JTextField</code>.
      * @return The <code>String</code> value of the text field.
      */
-	private String doExtract(final JTextField jTextField) {
-		return doExtract(jTextField.getText());
-	}
+    private String doExtract(final JTextField jTextField) {
+        return doExtract(jTextField, Boolean.FALSE);
+    }
+
+    /**
+     * Extract the value of a text field.
+     * 
+     * @param jTextField
+     *            A <code>JTextField</code>.
+     * @param trim
+     *            Whether or not the value should be trimmed before returning.
+     * @return The <code>String</code> value of the text field.
+     */
+    private String doExtract(final JTextField jTextField, final Boolean trim) {
+        return doExtract(jTextField.getText(), trim.booleanValue());
+    }
 
     /**
      * Extract the value of a string. If it is of 0 length; null will be
@@ -237,15 +324,41 @@ public class SwingUtil {
      *            A <code>String</code>.
      * @return The value of the <code>String</code>.
      */
-	private String doExtract(final String string) {
+	private String doExtract(final String string, final boolean trim) {
 		if (null == string) {
             return null;
 		} else if (0 == string.length()) {
             return null;
 		} else {
-		    return string;
+            if (trim) {
+                final String trimmed = string.trim();
+                if (0 == trimmed.length()) {
+                    return null;
+                } else {
+                    return trimmed;
+                }
+            } else {
+                return string;
+            }
         }
 	}
+
+    private void doInsertWrappable(final JLabel jLabel, final String text) {
+        jLabel.setText(MessageFormat.format("<html>{0}</html>", text));
+    }
+
+    private void doSetCursor(final java.awt.Component component, final int cursor) {
+        doSetCursor(component, java.awt.Cursor.getPredefinedCursor(cursor));
+    }
+
+    private void doSetCursor(final java.awt.Component component, final java.awt.Cursor cursor) {
+        final Window window = javax.swing.SwingUtilities.getWindowAncestor(component);
+        if (null != window) {
+            window.setCursor(cursor);
+        } else {
+            component.setCursor(cursor);
+        }
+    }
 
     /**
      * Get the Window ancestor of the Component.

@@ -1,9 +1,6 @@
 /*
- * ChangePasswordAvatar.java
- *
- * Created on January 30, 2007, 10:02 PM
+ * Created On: January 30, 2007, 10:02 PM
  */
-
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile;
 
 import java.awt.event.ActionEvent;
@@ -11,10 +8,11 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.Document;
+
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.session.Credentials;
-import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
@@ -26,17 +24,14 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
- *
- * @author  user
+ * <b>Title:</b>thinkParity OpheliaUI Update Password Avatar<br>
+ * <b>Description:</b><br>
+ * 
+ * @author robert@thinkparity.com
+ * @version 1.1.2.5
  */
 public class UpdatePasswordAvatar extends Avatar {
-    
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
-    
-    /** Bad password. */
-    private String badPassword = null;
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPasswordField confirmNewPasswordJPasswordField = new javax.swing.JPasswordField();
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
@@ -45,8 +40,11 @@ public class UpdatePasswordAvatar extends Avatar {
     private final javax.swing.JButton okJButton = new javax.swing.JButton();
     private final javax.swing.JPasswordField oldPasswordJPasswordField = new javax.swing.JPasswordField();
     // End of variables declaration//GEN-END:variables
-    
-    /** Creates new form ChangePasswordAvatar */
+
+    /**
+     * Create UpdatePasswordAvatar.
+     * 
+     */
     public UpdatePasswordAvatar() {
         super("UpdatePasswordDialog", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
@@ -67,29 +65,43 @@ public class UpdatePasswordAvatar extends Avatar {
     }
 
     /**
-     * Determine whether the user input is valid.
-     * This method should return false whenever we want the
-     * OK button to be disabled.
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
      * 
-     * @return True if the input is valid; false otherwise.
      */
-    public Boolean isInputValid() {
-        if (isOldPasswordValidQuick() && isNewPasswordValid()) {
-            return Boolean.TRUE;
-        } else {
-            return Boolean.FALSE;
-        }
-    }
-
     public void reload() {
-        reloadOldPassword();
+        reloadPassword();
         reloadNewPassword();
         reloadConfirmNewPassword();
-        reloadErrorMessage();
-        okJButton.setEnabled(Boolean.FALSE);
+        validateInput();
     }
 
     public void setState(final State state) {
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#validateInput()
+     *
+     */
+    @Override
+    protected final void validateInput() {
+        super.validateInput();
+        final String password = extractPassword();
+        final String newPassword = extractNewPassword();
+        final String confirmNewPassword = extractConfirmNewPassword();
+        if (null == password)
+            addInputError(getString("ErrorPasswordNotSpecified"));
+        if (null == newPassword)
+            addInputError(getString("ErrorNewPasswordNotSpecified"));
+        if (null == confirmNewPassword)
+            addInputError(getString("ErrorConfirmNewPasswordNotSpecified"));
+        if (null != newPassword && null != confirmNewPassword &&
+                !newPassword.equals(confirmNewPassword))
+            addInputError(getString("ErrorPasswordsDoNotMatch"));
+
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors())
+            errorMessageJLabel.setText(getInputErrors().get(0));
+        okJButton.setEnabled(!containsInputErrors());
     }
 
     private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
@@ -102,11 +114,23 @@ public class UpdatePasswordAvatar extends Avatar {
      * @return The confirm new password.
      */
     private String extractConfirmNewPassword() {
-        String password = SwingUtil.extract(confirmNewPasswordJPasswordField);
-        if (null!=password) {
-            return password.trim();
+        return SwingUtil.extract(confirmNewPasswordJPasswordField, Boolean.TRUE);
+    }
+
+    /**
+     * Extract the credentials from the profile and the password text control.
+     * 
+     * @return An instance of <code>Credentials</code>.
+     */
+    private Credentials extractCredentials() {
+        final String password = extractPassword();
+        if (null == password) {
+            return null;
         } else {
-            return password;
+            final Credentials credentials = new Credentials();
+            credentials.setPassword(password);
+            credentials.setUsername(getSimpleUsername());
+            return credentials;
         }
     }
 
@@ -116,31 +140,30 @@ public class UpdatePasswordAvatar extends Avatar {
      * @return The new password.
      */
     private String extractNewPassword() {
-        String password = SwingUtil.extract(newPasswordJPasswordField);
-        if (null!=password) {
-            return password.trim();
-        } else {
-            return password;
-        }
+        return SwingUtil.extract(newPasswordJPasswordField, Boolean.TRUE);
     }
 
     /**
-     * Extract the old password from the control.
-     *
-     * @return The old password.
+     * Extract the password from the control.
+     * 
+     * @return The password <code>String</code>.
      */
-    private String extractOldPassword() {
-        String password = SwingUtil.extract(oldPasswordJPasswordField);
-        if (null!=password) {
-            return password.trim();
-        } else {
-            return password;
-        }
+    private String extractPassword() {
+        return SwingUtil.extract(oldPasswordJPasswordField, Boolean.TRUE);
     }
 
     private void forgotPasswordJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_forgotPasswordJLabelMousePressed
         getController().runResetProfilePassword();
     }//GEN-LAST:event_forgotPasswordJLabelMousePressed
+
+    /**
+     * Obtain the simple username from the content provider.
+     * 
+     * @return A username <code>String</code>.
+     */
+    private String getSimpleUsername() {
+        return ((UpdatePasswordProvider) contentProvider).getSimpleUsername();
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -276,147 +299,88 @@ public class UpdatePasswordAvatar extends Avatar {
     }// </editor-fold>//GEN-END:initComponents
 
     private void initDocumentHandlers() {
-        final Document oldPasswordDocument = oldPasswordJPasswordField.getDocument();
-        oldPasswordDocument.addDocumentListener( new DocumentHandler() );
-        final Document newPasswordDocument = newPasswordJPasswordField.getDocument();
-        newPasswordDocument.addDocumentListener( new DocumentHandler() );
-        final Document confirmNewPasswordDocument = confirmNewPasswordJPasswordField.getDocument();
-        confirmNewPasswordDocument.addDocumentListener( new DocumentHandler() );
-    }
-
-    /**
-     * Determine if the string is empty.
-     * 
-     * @param text
-     *            A <code>String</code>.
-     * @return true if the string is null or blank; false otherwise.
-     */
-    private Boolean isEmpty(final String text) {
-        return (null==text || 0==text.length() ? Boolean.TRUE : Boolean.FALSE);
-    }
-
-    /**
-     * Determines if the new password is valid. The "confirm new password"
-     * and the "new password" must be the same.
-     * 
-     * @return True if the new password is valid; false otherwise.
-     */
-    private Boolean isNewPasswordValid() {
-        final String newPassword = extractNewPassword();
-        final String confirmNewPassword = extractConfirmNewPassword();
-        if (!isEmpty(newPassword) && !isEmpty(confirmNewPassword) &&
-            newPassword.equals(confirmNewPassword)) {
-            return Boolean.TRUE;
-        } else {
-            return Boolean.FALSE;
-        }
-    }
-
-    /**
-     * Determines if the old password is empty.
-     * 
-     * @return True if the old password is empty; false otherwise.
-     */
-    private Boolean isOldPasswordEmpty() {
-        return isEmpty(extractOldPassword());
-    }
-
-    /**
-     * Determines if the old password is correct.
-     * 
-     * @return True if the old password is correct; false otherwise.
-     */
-    private Boolean isOldPasswordValid() {
-        final String oldPassword = extractOldPassword();
-        if (!isEmpty(oldPassword)) {
-            final Boolean valid = readIsPasswordCorrect(oldPassword);
-            if (!valid) {
-                badPassword = oldPassword;
+        final DocumentListener documentListener = new DocumentListener() {
+            public void changedUpdate(final DocumentEvent e) {
+                validateInput();
             }
-            return valid;
-        } else {
-            return Boolean.FALSE;
-        }
+            public void insertUpdate(final DocumentEvent e) {
+                validateInput();
+            }
+            public void removeUpdate(final DocumentEvent e) {
+                validateInput();
+            }
+        };
+        oldPasswordJPasswordField.getDocument().addDocumentListener(documentListener);
+        newPasswordJPasswordField.getDocument().addDocumentListener(documentListener);
+        confirmNewPasswordJPasswordField.getDocument().addDocumentListener(documentListener);
     }
 
     /**
-     * Determine if the input password is different from the last
-     * known bad password.
-     * 
-     * @return True if the old password is correct; false otherwise.
+     * Validate the user's credentials.
+     *
      */
-    private Boolean isOldPasswordValidQuick() {
-        final String oldPassword = extractOldPassword();
-        if (!isEmpty(oldPassword)) {
-            if (null != badPassword) {
-                return !badPassword.equals(extractOldPassword());
-            } else {
+    private Boolean isPasswordValid() {
+        final Credentials credentials = extractCredentials();
+        if (null != credentials) {
+            try {
+                ((UpdatePasswordProvider) contentProvider).validateCredentials(credentials);
                 return Boolean.TRUE;
+            } catch (final InvalidCredentialsException icx) {
+                addInputError(getString("ErrorInvalidCredentials"));
+                errorMessageJLabel.setText(" ");
+                if (containsInputErrors())
+                    errorMessageJLabel.setText(getInputErrors().get(0));
+                okJButton.setEnabled(containsInputErrors());
+
+                return Boolean.FALSE;
             }
         } else {
+            addInputError(getString("ErrorInvalidCredentials"));
+            errorMessageJLabel.setText(" ");
+            if (containsInputErrors())
+                errorMessageJLabel.setText(getInputErrors().get(0));
+            okJButton.setEnabled(containsInputErrors());
+
             return Boolean.FALSE;
         }
     }
 
     private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
-        if (isInputValid() && isOldPasswordValid()) {
+        if (isInputValid() && isPasswordValid()) {
             disposeWindow();
             updatePassword();
-        } else {
-            // This is done because we may learn the password is invalid for the first time here.
-            reloadErrorMessage();
-            okJButton.setEnabled(isInputValid());
         }
     }//GEN-LAST:event_okJButtonActionPerformed
-    
-    private Boolean readIsPasswordCorrect(final String password) {
-        final Credentials credentials = ((UpdatePasswordProvider) contentProvider).readCredentials();
-        return password.equals(credentials.getPassword());
-    }
 
     private void reloadConfirmNewPassword() {
         confirmNewPasswordJPasswordField.setText("");
     }
 
-    private void reloadErrorMessage() {
-        if (!isOldPasswordEmpty() && !isOldPasswordValidQuick()) {
-            errorMessageJLabel.setText(getString("ErrorOldPasswordInvalid"));
-        } else {
-            errorMessageJLabel.setText(" ");
-        }
-    }
-
+    /**
+     * Reload the new password text control.
+     *
+     */
     private void reloadNewPassword() {
         newPasswordJPasswordField.setText("");
     }
 
-    private void reloadOldPassword() {
+    /**
+     * Reload the password text control.
+     *
+     */
+    private void reloadPassword() {
         oldPasswordJPasswordField.setText("");
     }
 
+    /**
+     * Run the update profile password action.
+     *
+     */
     private void updatePassword() {
-        if (isInputValid()) {
-            final String password = extractOldPassword();
-            final String newPassword = extractNewPassword();
-            final String newPasswordConfirm = extractConfirmNewPassword();
-            getController().runUpdateProfilePassword(password, newPassword,
-                    newPasswordConfirm);
-        }
-    }
-
-    class DocumentHandler implements DocumentListener {
-        public void changedUpdate(final DocumentEvent e) {
-            checkInputValid();
-        }
-        public void insertUpdate(final DocumentEvent e) {
-            checkInputValid();
-        }
-        public void removeUpdate(final DocumentEvent e) {
-            checkInputValid();
-        }
-        private void checkInputValid() {
-            okJButton.setEnabled(isInputValid());
-            reloadErrorMessage();
-        }
+        final String password = extractPassword();
+        final String newPassword = extractNewPassword();
+        final String newPasswordConfirm = extractConfirmNewPassword();
+        getController().runUpdateProfilePassword(password, newPassword,
+                newPasswordConfirm);
     }
 }

@@ -1477,15 +1477,13 @@ public final class SessionModelImpl extends Model<SessionListener>
      * @param credentials
      *            A user's <code>Credentials</code>.
      */
-    public void updateProfileCredentials(final JabberId userId,
-            final Credentials credentials) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("credentials", credentials);
+    public void updateProfilePassword(final String password,
+            final String newPassword) {
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                xmppSession.updateProfileCredentials(userId, credentials);
+                xmppSession.updateProfilePassword(localUserId(), password,
+                        newPassword);
             }
         } catch (final Throwable t) {
             throw translateError(t);

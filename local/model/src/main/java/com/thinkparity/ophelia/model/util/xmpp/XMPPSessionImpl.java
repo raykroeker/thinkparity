@@ -54,7 +54,6 @@ import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQPro
 import com.thinkparity.ophelia.model.util.xmpp.event.SessionListener;
 import com.thinkparity.ophelia.model.util.xmpp.event.XMPPEventListener;
 
-import org.jivesoftware.smack.AccountManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.PacketListener;
@@ -977,16 +976,9 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#updateCredentials(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.model.session.Credentials)
      */
-    public void updateProfileCredentials(final JabberId userId,
-            final Credentials credentials) {
-        try {
-            Assert.assertTrue("CAN ONLY UPDATE PROFILE CREDENTIALS",
-                    userId.equals(getUserId()));
-            final AccountManager accountManager = new AccountManager(xmppConnection);
-            accountManager.changePassword(credentials.getPassword());
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
+    public void updateProfilePassword(final JabberId userId,
+            final String password, final String newPassword) {
+        xmppProfile.updatePassword(userId, password, newPassword);
     }
 
 	/**

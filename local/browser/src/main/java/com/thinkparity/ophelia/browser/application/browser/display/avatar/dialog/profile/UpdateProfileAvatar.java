@@ -21,9 +21,10 @@ import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
@@ -122,12 +123,7 @@ public class UpdateProfileAvatar extends Avatar {
     }//GEN-LAST:event_cancelJButtonActionPerformed
 
     private String extract(final javax.swing.JTextField jTextField) {
-        String text = SwingUtil.extract(jTextField);
-        if (null!=text) {
-            return text.trim();
-        } else {
-            return text;
-        }
+        return SwingUtil.extract(jTextField, Boolean.TRUE);
     }
 
     private String extractInputAddress() {
@@ -590,7 +586,7 @@ public class UpdateProfileAvatar extends Avatar {
      */
     private void reload(final javax.swing.JTextField jTextField,
             final String value) {
-        jTextField.setText(null == value ? "" : value.trim());
+        jTextField.setText(null == value ? "" : value);
     }
 
     /**

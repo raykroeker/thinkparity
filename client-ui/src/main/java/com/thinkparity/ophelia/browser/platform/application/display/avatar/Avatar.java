@@ -9,6 +9,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,10 +46,7 @@ public abstract class Avatar extends AbstractJPanel {
     /** The avatar's content provider. */
 	protected ContentProvider contentProvider;
 
-    /** A list of the avatar's errors. */
-	protected final List<Throwable> errors;
-
-	/** The avatar input. */
+    /** The avatar input. */
 	protected Object input;
 
 	/** Localization helper utility. */
@@ -57,20 +55,23 @@ public abstract class Avatar extends AbstractJPanel {
 	/** The thinkParity <code>PluginRegistry</code>. */
     protected final PluginRegistry pluginRegistry;
 
-    /** The Resizer */
+	/** The Resizer */
     protected Resizer resizer;
 
-	/** The thinkparity application registry. */
+    /** The thinkparity application registry. */
     private final ApplicationRegistry applicationRegistry;
 
-    /** The clipped background image. */
+	/** The clipped background image. */
     private BufferedImage clippedBackgroundImage;
-    
+
     /** An avatar's <code>EventDispatcher</code>. */
     private EventDispatcher eventDispatcher;
     
     /** The F1 action. */
     private Action F1Action;
+    
+    /** A list of the avatar's input error messages. */
+	private final List<String> inputErrors;
     
     /** The scaled background image. */
     private BufferedImage scaledBackgroundImage;
@@ -121,7 +122,7 @@ public abstract class Avatar extends AbstractJPanel {
 	protected Avatar(final String l18nContext, final ScrollPolicy scrollPolicy) {
 		super();
         this.applicationRegistry = new ApplicationRegistry();
-		this.errors = new LinkedList<Throwable>();
+		this.inputErrors = new LinkedList<String>();
         this.localization = new JPanelLocalization(l18nContext);
         this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
@@ -141,19 +142,11 @@ public abstract class Avatar extends AbstractJPanel {
 			final Color background) {
 		super(background);
         this.applicationRegistry = new ApplicationRegistry();
-		this.errors = new LinkedList<Throwable>();
+		this.inputErrors = new LinkedList<String>();
         this.localization = new JPanelLocalization(l18nContext);
         this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
 	}
-
-    /**
-	 * Set an error for display.
-	 * 
-	 * @param error
-	 *            The error.
-	 */
-	public void addError(final Throwable error) { errors.add(error); }
 
     /**
      * Bind the F1 key to the appropriate action.
@@ -170,28 +163,6 @@ public abstract class Avatar extends AbstractJPanel {
     }
 
     /**
-	 * Clear all display errors.
-	 *
-	 */
-	public void clearErrors() { errors.clear(); }
-
-    /**
-	 * Determine whether or not the error has been set.
-	 * 
-	 * @return True if error has been set; false otherwise.
-	 */
-	public Boolean containsErrors() { return 0 < errors.size(); }
-
-    /**
-     * Obtain the avatar's event dispatcher.
-     * 
-     * @return An <code>EventDispatcher</code>.
-     */
-    public EventDispatcher getEventDispatcher() {
-        return eventDispatcher;
-    }
-
-	/**
      * Get the avatar title, used for dialogs.
      * 
      * @return the avatar title
@@ -209,7 +180,7 @@ public abstract class Avatar extends AbstractJPanel {
         return contentProvider;
 	}
 
-	/**
+    /**
      * Obtain the browser application.
      * 
      * @return The browser application.
@@ -218,14 +189,14 @@ public abstract class Avatar extends AbstractJPanel {
 	    return (Browser) applicationRegistry.get(ApplicationId.BROWSER);
 	}
 
-	/**
-	 * Obtain the error.
-	 * 
-	 * @return The error.
-	 */
-	public List<Throwable> getErrors() {
-        return errors;
-	}
+    /**
+     * Obtain the avatar's event dispatcher.
+     * 
+     * @return An <code>EventDispatcher</code>.
+     */
+    public EventDispatcher getEventDispatcher() {
+        return eventDispatcher;
+    }
 
 	/**
 	 * Obtain the avatar id.
@@ -243,7 +214,7 @@ public abstract class Avatar extends AbstractJPanel {
         return input;
 	}
 
-    /**
+	/**
 	 * Obtain the scroll policy for the avatar.
 	 * 
 	 * @return The scroll policy for the avatar.
@@ -251,15 +222,15 @@ public abstract class Avatar extends AbstractJPanel {
 	public ScrollPolicy getScrollPolicy() {
         return scrollPolicy;
 	}
-    
-    /**
+
+	/**
 	 * Obtain the avatar's state information.
 	 * 
 	 * @return The avatar's state information.
 	 */
 	public abstract State getState();
-    
-    /**
+
+	/**
      * Install the move listener so the mouse can be used to
      * move the avatar.
      */
@@ -267,7 +238,7 @@ public abstract class Avatar extends AbstractJPanel {
         addMoveListener(this);
     }
 
-	/**
+    /**
      * Install the resizer so the mouse can be used to resize
      * the avatar.
      */
@@ -278,7 +249,7 @@ public abstract class Avatar extends AbstractJPanel {
         resizer = new Resizer(getController(), this, Boolean.FALSE, getResizeEdges());
     }
 
-	/**
+    /**
      * Determine if there is an avatar background image, used for dialogs.
      * With few exceptions (eg. title, main, and status areas of browser)
      * this should be true.
@@ -287,15 +258,15 @@ public abstract class Avatar extends AbstractJPanel {
         return Boolean.TRUE;
         
     }
-
-	/**
+    
+    /**
      * Determine if there is an avatar title, used for dialogs.
      * With few exceptions (eg. help-about) this should be true.
      */
     public Boolean isAvatarTitle() {
         return Boolean.TRUE;
     }
-
+    
     /**
 	 * Reload the avatar. This event is called when either the content provider
 	 * or the input has changed; or as a manual reload of the avatar.
@@ -303,7 +274,7 @@ public abstract class Avatar extends AbstractJPanel {
 	 */
 	public void reload() {}
 
-    /**
+	/**
      * Set the avatar's content provider. The avatar is reloaded when the
      * content provider is changed. The content provider is a bound property.
      * 
@@ -357,13 +328,49 @@ public abstract class Avatar extends AbstractJPanel {
         firePropertyChange("input", oldInput, input);
 	}
 
-	/**
+    /**
 	 * Set the avatar state.
 	 * 
 	 * @param state
 	 *            The avatar's state information.
 	 */
 	public abstract void setState(final State state);
+
+    /**
+	 * Set an error for display.
+	 * 
+	 * @param error
+	 *            The error.
+	 */
+	protected final void addInputError(final String inputError) {
+        inputErrors.add(inputError);
+	}
+
+	/**
+	 * Clear all display errors.
+	 *
+	 */
+	protected final void clearInputErrors() {
+        inputErrors.clear();
+	}
+
+	/**
+	 * Determine whether or not the error has been set.
+	 * 
+	 * @return True if error has been set; false otherwise.
+	 */
+	protected final Boolean containsInputErrors() {
+        return 0 < inputErrors.size();
+	}
+
+	/**
+	 * Obtain the error.
+	 * 
+	 * @return The error.
+	 */
+	protected final List<String> getInputErrors() {
+        return Collections.unmodifiableList(inputErrors);
+	}
 
 	/**
      * Obtain the avatar's localization.
@@ -450,6 +457,16 @@ public abstract class Avatar extends AbstractJPanel {
 	}
     
     /**
+     * Determine whether the user input for the frame is valid.
+     * 
+     * @return True if the input is valid; false otherwise.
+     */
+    protected Boolean isInputValid() {
+        validateInput();
+        return !containsInputErrors();
+    }
+    
+    /**
      * These get and set methods are used by classes that intend to do their
      * own mouse dragging. (For example, the bottom right resize control.)
      */
@@ -460,7 +477,7 @@ public abstract class Avatar extends AbstractJPanel {
             return resizer.isResizeDragging();
         }
     }
-    
+
     /**
 	 * Determine whether or not the platform is running in test mode.
 	 * 
@@ -540,6 +557,17 @@ public abstract class Avatar extends AbstractJPanel {
             setIsNotWorking();
 		}
 	}
+
+    /**
+     * Validate the avatar input. The default implementation of this method will
+     * clear the error list.  Each avatar should implment this method and add
+     * localized text to the errors list in order to create a user-meaningful
+     * list.
+     * 
+     */
+    protected void validateInput() {
+        clearInputErrors();
+    }
 
     /**
      * Determine if the F1 key is bound.

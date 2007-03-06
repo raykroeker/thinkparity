@@ -615,8 +615,8 @@ public interface InternalSessionModel extends SessionModel {
      * @param credentials
      *            A user's <code>Credentials</code>.
      */
-    public void updateProfileCredentials(final JabberId userId,
-            final Credentials credentials);
+    public void updateProfilePassword(final String password,
+            final String newPassword);
 
     /**
      * Verify an email in a user's profile.

@@ -57,7 +57,7 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 	/** Sql to update a meta data value. */
 	private static final String SQL_UPDATE =
 		new StringBuffer("update META_DATA ")
-		.append("set META_DATA_TYPE_ID=?,KEY=?,VALUE=? ")
+		.append("set META_DATA_TYPE_ID=?,META_DATA_KEY=?,META_DATA_VALUE=? ")
 		.append("where META_DATA_ID=?")
 		.toString();
 

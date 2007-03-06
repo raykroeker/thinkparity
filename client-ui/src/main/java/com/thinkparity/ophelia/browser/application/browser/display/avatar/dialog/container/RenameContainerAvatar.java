@@ -117,12 +117,7 @@ public class RenameContainerAvatar extends Avatar {
      * @return The name.
      */
     private String extractName() {
-        String name = SwingUtil.extract(nameJTextField);
-        if (null!=name) {
-            return name.trim();
-        } else {
-            return name;
-        }
+        return SwingUtil.extract(nameJTextField, Boolean.TRUE);
     }
     
     /**

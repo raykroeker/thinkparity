@@ -11,6 +11,7 @@ import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.events.ProfileListener;
@@ -63,13 +64,6 @@ public interface ProfileModel {
      * @return A profile.
      */
     public Profile read();
-
-    /**
-     * Read the user's credentials.
-     * 
-     * @return The user's credentials.
-     */
-    public Credentials readCredentials();
 
     /**
      * Read a profile email.
@@ -134,9 +128,20 @@ public interface ProfileModel {
      *            The current password <code>String</code>.
      * @param newPassword
      *            The new password <code>String</code>.
+     * @throws InvalidCredentialsException
+     *             if the password does not match the existing password
      */
-    public void updatePassword(final String password,
-            final String newPassword);
+    public void updatePassword(final String password, final String newPassword)
+            throws InvalidCredentialsException;
+
+    /**
+     * Determine the validity of the credentials.
+     * 
+     * @param credentials
+     *            The <code>Credentials</code> to validate.
+     */
+    public void validateCredentials(final Credentials credentials)
+            throws InvalidCredentialsException;
 
     /**
      * Verify an email.

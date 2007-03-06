@@ -3,7 +3,14 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -16,8 +23,9 @@ import javax.swing.Icon;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -26,7 +34,8 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -36,9 +45,16 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.M
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.*;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellListModel;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.TopWestCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCellRenderer;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b>thinkParity Container Panel<br>
@@ -437,7 +453,7 @@ public class ContainerPanel extends DefaultTabPanel {
         g.setFont(getContainerTextFont());
         final Point location = new Point(CONTAINER_TEXT_X, CONTAINER_TEXT_Y);
         if (paintText(g, location, getContainerTextColor(), getContainerText(container))) {
-            location.x = location.x + StringUtil.getWidth(getContainerText(container), g) + CONTAINER_TEXT_SPACE_BETWEEN;
+            location.x = location.x + SwingUtil.getStringWidth(getContainerText(container), g) + CONTAINER_TEXT_SPACE_BETWEEN;
             paintText(g, location, getContainerAdditionalTextColor(), getContainerAdditionalText(container));
         }
     }
@@ -457,7 +473,7 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     private Boolean paintText(final Graphics2D g, final Point location, final Color color, final String text) {
         final int availableWidth = getWidth() - location.x - CONTAINER_TEXT_SPACE_END;
-        final String clippedText = StringUtil.limitWidthWithEllipsis(text, availableWidth, g);
+        final String clippedText = SwingUtil.limitWidthWithEllipsis(text, availableWidth, g);
         if (null != clippedText) {
             g.setPaint(color);
             g.drawString(clippedText, location.x, location.y);

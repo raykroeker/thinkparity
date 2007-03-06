@@ -210,6 +210,25 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
     }
 
     /**
+     * Update the user's password.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     */
+    void updatePassword(final JabberId userId, final String password, final String newPassword) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("password", "XXXX");
+        logger.logVariable("newPassword", "XXXX");
+        assertIsAuthenticatedUser(userId);
+        final XMPPMethod updatePassword = new XMPPMethod("profile:updatepassword");
+        updatePassword.setParameter("userId", userId);
+        updatePassword.setParameter("password", password);
+        updatePassword.setParameter("newPassword", newPassword);
+        execute(updatePassword);
+    }
+
+    /**
      * Verify an email in a user's profile.
      * 
      * @param userId

@@ -22,7 +22,7 @@ import com.thinkparity.desdemona.model.session.Session;
  */
 public class UserModel extends AbstractModel<UserModelImpl> {
 
-	public static InternalUserModel getInternalModel(final Context context,
+    public static InternalUserModel getInternalModel(final Context context,
             final Session session) {
         return new InternalUserModel(context, session);
     }
@@ -43,18 +43,24 @@ public class UserModel extends AbstractModel<UserModelImpl> {
 		return userModel;
 	}
 
-	/**
-	 * Create a UserModel.
-	 * 
-	 * @param session
-	 *            The user session.
-	 */
-	protected UserModel(final Session session) {
-		super(new UserModelImpl(session));
-	}
-
-    private UserModel() {
+    /**
+     * Create a UserModel.
+     * 
+     * @param session
+     *            The user session.
+     */
+    protected UserModel() {
         super(new UserModelImpl());
+    }
+
+    /**
+     * Create a UserModel.
+     * 
+     * @param session
+     *            The user session.
+     */
+    protected UserModel(final Session session) {
+        super(new UserModelImpl(session));
     }
 
     /**
@@ -70,7 +76,7 @@ public class UserModel extends AbstractModel<UserModelImpl> {
         }
     }
 
-    public List<User> read() {
+	public List<User> read() {
         synchronized (getImplLock()) {
             return getImpl().read();
         }
@@ -82,7 +88,7 @@ public class UserModel extends AbstractModel<UserModelImpl> {
         }
     }
 
-	/**
+    /**
      * Read a list of users.
      * 
      * @return A list of users.
@@ -121,6 +127,7 @@ public class UserModel extends AbstractModel<UserModelImpl> {
             return getImpl().readVCard(userId, vcard);
         }
     }
+
     public void updateVCard(final JabberId userId,
             final com.thinkparity.codebase.model.user.UserVCard vcard) {
         synchronized (getImplLock()) {

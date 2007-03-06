@@ -268,6 +268,7 @@ public class WorkspaceModel {
         final WorkspaceImpl workspaceImpl = findImpl(workspace);
         try {
             // initialize persistence
+            // TODO Need to make sure db isn't set up again if bad password
             notifyStepBegin(monitor, InitializeStep.PERSISTENCE_INITIALIZE);
             workspaceImpl.initializePersistence();
             notifyStepEnd(monitor, InitializeStep.PERSISTENCE_INITIALIZE);

@@ -10,6 +10,9 @@ import java.util.List;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
+import com.thinkparity.codebase.filter.Filter;
+import com.thinkparity.codebase.filter.FilterChain;
+import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
@@ -31,10 +34,7 @@ import com.thinkparity.ophelia.model.io.handler.ContactIOHandler;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
-import com.thinkparity.ophelia.model.util.filter.Filter;
-import com.thinkparity.ophelia.model.util.filter.contact.DefaultInvitationFilter;
-import com.thinkparity.ophelia.model.util.filter.contact.FilterManager;
-import com.thinkparity.ophelia.model.util.filter.user.DefaultFilter;
+import com.thinkparity.ophelia.model.util.filter.UserFilterManager;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.util.sort.contact.InvitationIdComparator;
 import com.thinkparity.ophelia.model.util.sort.contact.NameComparator;
@@ -78,9 +78,9 @@ public final class ContactModelImpl extends Model<ContactListener>
     public ContactModelImpl() {
         super();
         this.defaultComparator = new NameComparator(Boolean.TRUE);
-        this.defaultFilter = new DefaultFilter();
+        this.defaultFilter = FilterManager.createDefault();
         this.defaultInvitationComparator = new InvitationIdComparator();
-        this.defaultInvitationFilter = new DefaultInvitationFilter();
+        this.defaultInvitationFilter = FilterManager.createDefault();
         this.localEventGenerator = new ContactEventGenerator(ContactEvent.Source.LOCAL);
         this.remoteEventGenerator = new ContactEventGenerator(ContactEvent.Source.REMOTE);
     }
@@ -562,7 +562,7 @@ public final class ContactModelImpl extends Model<ContactListener>
         logger.logVariable("filter", filter);
         final List<IncomingInvitation> invitations =
                 contactIO.readIncomingInvitations();
-        FilterManager.filterIncomingInvitations(invitations, filter);
+        FilterManager.filter(invitations, filter);
         ModelSorter.sortIncomingContactInvitations(invitations, comparator);
         return invitations;
     }
@@ -620,7 +620,7 @@ public final class ContactModelImpl extends Model<ContactListener>
         logger.logVariable("filter", filter);
         final List<OutgoingInvitation> invitations =
                 contactIO.readOutgoingInvitations();
-        FilterManager.filterOutgoingInvitations(invitations, filter);
+        FilterManager.filter(invitations, filter);
         ModelSorter.sortOutgoingContactInvitations(invitations, comparator);
         return invitations;
     }
@@ -635,6 +635,21 @@ public final class ContactModelImpl extends Model<ContactListener>
         logger.logApiId();
         logger.logVariable("filter", filter);
         return readOutgoingInvitations(defaultInvitationComparator, filter);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.contact.ContactModel#readPublishTo()
+     *
+     */
+    public List<Contact> readContainerPublishTo() {
+        try {
+            // filter out the contacts flagged with resitricted publish
+            final FilterChain<User> filter = new FilterChain<User>();
+            filter.addFilter(UserFilterManager.createContainerPublishTo());
+            return read(defaultComparator, filter);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**

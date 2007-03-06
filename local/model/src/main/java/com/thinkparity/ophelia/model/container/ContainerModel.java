@@ -442,6 +442,15 @@ public interface ContainerModel {
             final Long versionId, final Filter<? super User> filter);
 
     /**
+     * Read a list of team members that the user can publish to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A <code>List</code> of <code>TeamMember</code>s.
+     */
+    public List<TeamMember> readPublishToTeam(final Long containerId);
+
+    /**
      * Read the team for the container.
      * 
      * @param containerId

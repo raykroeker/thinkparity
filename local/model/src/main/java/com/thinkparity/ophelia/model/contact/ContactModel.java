@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
@@ -15,7 +16,6 @@ import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.events.ContactListener;
-import com.thinkparity.ophelia.model.util.filter.Filter;
 
 /**
  * <b>Title:</b>thinkParity Contact Model<br>
@@ -164,7 +164,6 @@ public interface ContactModel {
     public List<IncomingInvitation> readIncomingInvitations(
             final Filter<? super ContactInvitation> filter);
 
-
     /**
      * Read an outgoing invitation.
      * 
@@ -173,6 +172,7 @@ public interface ContactModel {
      * @return An outgoing invitation.
      */
     public OutgoingInvitation readOutgoingInvitation(final Long invitationId);
+
 
     /**
      * Read a list of outgoing invitations.
@@ -198,7 +198,6 @@ public interface ContactModel {
             final Comparator<ContactInvitation> comparator,
             final Filter<? super ContactInvitation> filter);
 
-
     /**
      * Read a list of outgoing invitations.
      * 
@@ -206,6 +205,14 @@ public interface ContactModel {
      */
     public List<OutgoingInvitation> readOutgoingInvitations(
             final Filter<? super ContactInvitation> filter);
+
+
+    /**
+     * Read a list of container publish to contacts.
+     * 
+     * @return A <code>List</code> of <code>Contact</code>s.
+     */
+    public List<Contact> readContainerPublishTo();
 
     /**
      * Remove a contact listener.

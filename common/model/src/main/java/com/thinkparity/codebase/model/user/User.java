@@ -3,6 +3,10 @@
  */
 package com.thinkparity.codebase.model.user;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
@@ -20,30 +24,39 @@ public class User {
     /** The thinkParity user. */
     public static final User THINK_PARITY;
 
-	static final String NAME_SEP = " ";
+    static final String NAME_SEP = " ";
 
 	static {
         THINK_PARITY = new User();
         THINK_PARITY.setId(JabberIdBuilder.parseUsername("thinkparity"));
     }
 
-	/** The user's jabber id. */
+    /** A list of all applied <code>UserFlag</code>s. */
+    private final List<UserFlag> flags;
+
+    /** The user's jabber id. */
 	private JabberId id;
 
-    /** The local user pk. */
+	/** The local user pk. */
     private Long localId;
 
-    /** The user's name. */
+	/** The user's name. */
 	private String name;
 
-	/** The user's organization. */
+    /** The user's organization. */
 	private String organization;
 
-	/** The user's title. */
+    /** The user's title. */
     private String title;
 
-    /** Create User. */
-	public User() { super(); }
+	/**
+     * Create User.
+     *
+     */
+	public User() {
+        super();
+        this.flags = new ArrayList<UserFlag>();
+	}
 
 	/** @see java.lang.Object#equals(java.lang.Object) */
 	public boolean equals(final Object obj) {
@@ -54,6 +67,15 @@ public class User {
 	}
 
     /**
+     * Obtain the flags for the user.
+     * 
+     * @return A <code>List</code> of <code>UserFlag</code>s.
+     */
+    public List<UserFlag> getFlags() {
+        return Collections.unmodifiableList(flags);
+    }
+
+	/**
      * Obtain the user's id.
      * 
      * @return The user's jabber id.
@@ -71,7 +93,7 @@ public class User {
         return localId;
     }
 
-	/**
+    /**
 	 * Obtain the user's name.
 	 * 
 	 * @return The user's name.
@@ -80,7 +102,7 @@ public class User {
         return name;
 	}
 
-	/**
+    /**
 	 * Obtain the user's organization.
 	 * 
 	 * @return Returns the organization.
@@ -98,7 +120,7 @@ public class User {
         return id.getUsername();
 	}
 
-    /**
+	/**
      * Obtain the title
      *
      * @return The String.
@@ -107,7 +129,7 @@ public class User {
         return title;
     }
 
-    /**
+	/**
 	 * Obtain the username of the user.
 	 * 
 	 * @return The username of the user.
@@ -121,6 +143,27 @@ public class User {
      */
     @Override
 	public int hashCode() { return id.hashCode(); }
+
+    /**
+     * Determine whether or not the user is restricted from being published to.
+     * 
+     * @return True if the user is restricted from receiving a container
+     *         publish.
+     */
+    public Boolean isContainerPublishRestricted() {
+        return flags.contains(UserFlag.CONTAINER_PUBLISH_RESTRICTED);
+    }
+
+    /**
+     * Set the flags for the user.
+     * 
+     * @param flags
+     *            A <code>List</code> of <code>UserFlag</code>s.
+     */
+    public void setFlags(final List<UserFlag> flags) {
+        this.flags.clear();
+        this.flags.addAll(flags);
+    }
 
     /**
 	 * Set the user's id.

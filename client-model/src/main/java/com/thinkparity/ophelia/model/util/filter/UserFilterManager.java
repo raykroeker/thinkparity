@@ -7,8 +7,9 @@ package com.thinkparity.ophelia.model.util.filter;
 import java.util.Iterator;
 import java.util.List;
 
-import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.filter.Filter;
 
+import com.thinkparity.codebase.model.user.User;
 
 /**
  * <b>Title:</b>thinkParity Model User Filter Manager<br>
@@ -24,6 +25,30 @@ public class UserFilterManager {
 	private static final UserFilterManager SINGLETON;
 
 	static { SINGLETON = new UserFilterManager(); }
+
+    public static Filter<User> createContainerPublishTo() {
+        return new Filter<User>() {
+            public Boolean doFilter(final User o) {
+                if (o.isContainerPublishRestricted()) {
+                    return Boolean.TRUE;
+                } else {
+                    return Boolean.FALSE;
+                }
+            }
+        };
+    }
+
+    public static Filter<User> createLocalUser(final User localUser) {
+        return new Filter<User>() {
+            public Boolean doFilter(final User o) {
+                if (o.getLocalId().equals(localUser.getLocalId())) {
+                    return Boolean.TRUE;
+                } else {
+                    return Boolean.FALSE;
+                }
+            }
+        };
+    }
 
 	/**
      * Filter a list of users.

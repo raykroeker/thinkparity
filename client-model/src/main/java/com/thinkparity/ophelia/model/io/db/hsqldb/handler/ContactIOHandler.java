@@ -581,6 +581,8 @@ public class ContactIOHandler extends AbstractIOHandler implements
         contact.setOrganization(session.getString("ORGANIZATION"));
         contact.setTitle(session.getString("TITLE"));
         contact.addAllEmails(readEmails(contact.getLocalId()));
+
+        contact.setFlags(userIO.readFlags(contact.getLocalId()));
         return contact;
     }
 

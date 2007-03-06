@@ -7,8 +7,6 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,9 +19,10 @@ import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.ophelia.model.user.UserUtils;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -46,8 +45,12 @@ import com.thinkparity.ophelia.browser.platform.util.State;
 public final class PublishContainerAvatar extends Avatar implements
         PublishContainerSwingDisplay {
 
-    /** The names list model <code>PublishContainerAvatarUserListModel</code>. */
-    private final PublishContainerAvatarUserListModel namesListModel;
+    /** An instance of <code>UserUtils</code>. */
+    private static final UserUtils USER_UTIL;
+
+    static {
+        USER_UTIL = UserUtils.getInstance();
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPanel buttonBarJPanel = new javax.swing.JPanel();
@@ -60,6 +63,9 @@ public final class PublishContainerAvatar extends Avatar implements
     private final javax.swing.JButton publishJButton = new javax.swing.JButton();
     private final javax.swing.JProgressBar publishJProgressBar = new javax.swing.JProgressBar();
     // End of variables declaration//GEN-END:variables
+
+    /** The publish to list model <code>PublishContainerAvatarUserListModel</code>. */
+    private final PublishContainerAvatarUserListModel namesListModel;
 
     /**
      * Creates PublishContainerAvatar.
@@ -74,13 +80,21 @@ public final class PublishContainerAvatar extends Avatar implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerSwingDisplay#dispose()
+     *
+     */
+    public void dispose() {
+        disposeWindow();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getId()
      */
     @Override
     public AvatarId getId() {
         return AvatarId.DIALOG_CONTAINER_PUBLISH;
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getState()
      */
@@ -109,17 +123,17 @@ public final class PublishContainerAvatar extends Avatar implements
         final PublishContainerAvatarUserListModel model = (PublishContainerAvatarUserListModel) namesJList.getModel();
         return (model.isItemSelected());
     }
-    
+
     public void reload() {
         reloadProgressBar();
         if (input != null) { 
+            reloadPublishTo();           
             reloadComment();
-            reloadJList();           
             publishJButton.setEnabled(isInputValid());
             namesJScrollPane.getViewport().setViewPosition(new Point(0,0));
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerSwingDisplay#resetProgressBar(java.lang.Long)
      * 
@@ -128,7 +142,7 @@ public final class PublishContainerAvatar extends Avatar implements
         reloadProgressBar();
         publishJButton.setEnabled(isInputValid());
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerSwingDisplay#setDetermination(java.lang.Long, java.lang.Integer)
      *
@@ -165,14 +179,6 @@ public final class PublishContainerAvatar extends Avatar implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerSwingDisplay#dispose()
-     *
-     */
-    public void dispose() {
-        disposeWindow();
-    }
-
-    /**
      * Make the escape key behave like cancel.
      */
     private void bindEscapeKey() {
@@ -201,7 +207,7 @@ public final class PublishContainerAvatar extends Avatar implements
      * @return The user comment <code>String</code>.
      */
     private String extractComment() {
-        return SwingUtil.extract(commentJTextArea);
+        return SwingUtil.extract(commentJTextArea, Boolean.TRUE);
     }
     
     /**
@@ -437,20 +443,25 @@ public final class PublishContainerAvatar extends Avatar implements
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private Boolean isVersionUser(final User user, final User publisher, final Map<User, ArtifactReceipt> versionUsers) {
-        if (null != publisher) {
-            if (publisher.getId().equals(user.getId())) {
-                return Boolean.TRUE;
-            }
-        }
-        if (null != versionUsers) {
-            for (final User versionUser : versionUsers.keySet()) {
-                if (versionUser.getId().equals(user.getId())) {
-                    return Boolean.TRUE;
-                }
-            }
-        }
-        return Boolean.FALSE;       
+    /**
+     * Determine whether or not the user is a version recipient. The user can be
+     * a recipient if they are either the updated by user or in the publish to
+     * list.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param updatedBy
+     *            The updated by <code>User</code> of the previous version.
+     * @param publishedTo
+     *            The published to <code>Map</code> of the previous version.
+     * @return True if the user is a version recipient.
+     */
+    private boolean isVersionRecipient(final User user, final User updatedBy,
+            final Map<User, ArtifactReceipt> publishedTo) {
+        final List<User> versionRecipientUsers = new ArrayList<User>(publishedTo.size());
+        versionRecipientUsers.add(updatedBy);
+        versionRecipientUsers.addAll(publishedTo.keySet());
+        return USER_UTIL.contains(versionRecipientUsers, user);
     }
 
     private void namesJListMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_namesJListMousePressed
@@ -503,162 +514,68 @@ public final class PublishContainerAvatar extends Avatar implements
      * @return The list of contacts.
      */
     private List<Contact> readContacts(List<TeamMember> teamMembers) {
-        final List<Contact> allContacts = ((PublishContainerProvider)contentProvider).readContacts();
-        final List<Contact> contacts = new LinkedList <Contact>();
-        for (final Contact contact : allContacts) {
-            Boolean found = Boolean.FALSE;
-            if (null != teamMembers) {
-                for (final TeamMember teamMember : teamMembers) {
-                    if (teamMember.getId().equals(contact.getId())) {
-                        found = Boolean.TRUE;
-                        break;
-                    }
-                }
-            }
-            if (!found) {
-                contacts.add(contact);
-            }
-        }
-        return contacts;
+        return ((PublishContainerProvider) contentProvider)
+                .readPublishToContacts(teamMembers);
     }
-    
-    /**
-     * Get the publisher of the most recent version.
-     */
-    private User readLatestPublisher() {
-        final Long containerId = getInputContainerId();
-        final Long versionId = readLatestVersionId(containerId);
-        if ((null != containerId) && (null != versionId)) {
-            return ((PublishContainerProvider)contentProvider).readPublisher(containerId, versionId);
-        } else {
-            return null;
-        }
-    } 
     
     /**
      * Get most recent version id, or null if there is no version.
      */
     private Long readLatestVersionId(final Long containerId) {
         return ((PublishContainerProvider)contentProvider).readLatestVersionId(containerId);
-    }    
+    } 
     
     /**
      * Read users that got this version.
      */
-    private Map<User, ArtifactReceipt> readLatestVersionUsers() {
-        final Long containerId = getInputContainerId();
-        final Long versionId = readLatestVersionId(containerId);
-        if ((null != containerId) && (null != versionId)) {
-            return ((PublishContainerProvider)contentProvider).readVersionUsers(containerId, versionId);
-        } else {
-            return null;
-        }
-    }
+    private Map<User, ArtifactReceipt> readLatestVersionPublishedTo() {
+        return ((PublishContainerProvider) contentProvider).readLatestVersionPublishedTo(
+                getInputContainerId());
+    }    
     
     /**
-     * Read the profile.
-     * 
-     * @return The profile.
+     * Get the publisher of the most recent version.
      */
-    private Profile readProfile() {
-        final Profile profile = (Profile) ((PublishContainerProvider)contentProvider).readProfile();
-        return profile;
+    private User readLatestVersionUpdatedBy() {
+        return ((PublishContainerProvider) contentProvider).readLatestVersionUpdatedBy(
+                getInputContainerId());
     }
     
     /**
-     * Read team members. The current user is removed.
-     * When forwarding, an empty list is returned.
-     * When this is the first publish, an empty list is returned.
-     *              
-     * @return The list of team members.
+     * Read the team members for the container.
+     * 
+     * @return A <code>List</code> of <code>TeamMember</code>s.
      */
     private List<TeamMember> readTeamMembers() {
-        final List<TeamMember> teamMembers = new LinkedList <TeamMember>();
-        final Long containerId = getInputContainerId();
-        final Profile profile = readProfile();  
-        final List<TeamMember> allTeamMembers = ((PublishContainerProvider)contentProvider).readTeamMembers(containerId);
-        for (final TeamMember teamMember : allTeamMembers) {
-            if (!teamMember.getId().equals(profile.getId())) {
-                teamMembers.add(teamMember);
-            }
-        }
-        
-        return teamMembers;
+        return ((PublishContainerProvider) contentProvider).readPublishToTeam(
+                getInputContainerId());
     }
     
     /**
-     * Reload the comment control.
-     * Normally the control is blank and editable. If PUBLISH_VERSION then
-     * load the existing comment and don't allow edit.
+     * Reload the comment control. Normally the control is blank and editable.
+     * If we are publishing a specific version then load the existing comment
+     * and don't allow edit.
      */
     private void reloadComment() {
-        final PublishType publishType = getInputPublishType();
-        if (publishType == PublishType.PUBLISH_VERSION) {
+        switch (getInputPublishType()) {
+        case PUBLISH_VERSION:
             final Long containerId = getInputContainerId();
             final Long versionId = getInputVersionId();
             final String comment = ((PublishContainerProvider) contentProvider).readContainerVersionComment(containerId, versionId);
             commentJTextArea.setText(comment);
             commentJTextArea.setEditable(false);
             commentJTextArea.setFocusable(false);
-        } else {
+            break;
+        case PUBLISH:
             commentJTextArea.setText(null);
             commentJTextArea.setEditable(true);
             commentJTextArea.setFocusable(true);
-        }
-    }
-    
-    /**
-     * Reload the jList.
-     */
-    private void reloadJList() {
-        final List<TeamMember> teamMembers;
-        final List<Contact> contacts;
-        final Boolean selectLatestVersionUsers;
-        
-        switch (getPublishTypeSpecific()) {
-        case PUBLISH_FIRST_TIME:
-            selectLatestVersionUsers = Boolean.FALSE;            
-            teamMembers = Collections.emptyList();
-            break;
-        case PUBLISH_NOT_FIRST_TIME:
-            selectLatestVersionUsers = Boolean.TRUE;            
-            teamMembers = readTeamMembers();
-            break;
-        case PUBLISH_VERSION:
-            selectLatestVersionUsers = Boolean.FALSE;            
-            teamMembers = readTeamMembers();
             break;
         default:
-            throw Assert.createUnreachable("Unknown publish type");
-        }
-         
-        contacts = readContacts(teamMembers);        
-        namesListModel.clear();
-        
-        // Populate team members
-        if (selectLatestVersionUsers) {
-            final User publisher = readLatestPublisher();
-            final Map<User, ArtifactReceipt> versionUsers = readLatestVersionUsers();
-            for (final TeamMember teamMember : teamMembers) {
-                namesListModel.addElement(new PublishContainerAvatarUser(
-                        teamMember, isVersionUser(teamMember, publisher, versionUsers)));
-            }
-        } else {
-            for (final TeamMember teamMember : teamMembers) {
-                namesListModel.addElement(new PublishContainerAvatarUser(
-                        teamMember, Boolean.FALSE));
-            }
-        }
-        // Add a spacer if necessary to separate team members from contacts
-        if (!teamMembers.isEmpty()) {
-            namesListModel.addElement(new PublishContainerAvatarUser(null, Boolean.FALSE));
-        }
-        // Populate contacts
-        for (final Contact contact : contacts) {
-            namesListModel.addElement(new PublishContainerAvatarUser(contact, Boolean.FALSE));
+            Assert.assertUnreachable("Unknown publish type.");
         }
     }
-    
+
     private void reloadProgressBar() {
         buttonBarJPanel.setVisible(true);
         progressBarJPanel.setVisible(false);
@@ -667,6 +584,52 @@ public final class PublishContainerAvatar extends Avatar implements
         documentJLabel.setText(" ");
         documentNameJLabel.setText(" ");
         validate();
+    }
+    
+    /**
+     * Reload the list of team members and contacts in the publish to list.
+     *
+     */
+    private void reloadPublishTo() {
+        namesListModel.clear();
+
+        final List<TeamMember> teamMembers = readTeamMembers();
+        final List<Contact> contacts = readContacts(teamMembers);
+        final boolean autoSelect;
+        switch (getPublishTypeSpecific()) {
+        case PUBLISH_FIRST_TIME:
+        case PUBLISH_VERSION:
+            autoSelect = false;
+            break;
+        case PUBLISH_NOT_FIRST_TIME:
+            autoSelect = true;            
+            break;
+        default:
+            throw Assert.createUnreachable("Unknown publish type");
+        }
+        // populate team members
+        if (autoSelect) {
+            final User updatedBy = readLatestVersionUpdatedBy();
+            final Map<User, ArtifactReceipt> publishedTo = readLatestVersionPublishedTo();
+            for (final TeamMember teamMember : teamMembers) {
+                namesListModel.addElement(new PublishContainerAvatarUser(
+                        teamMember, isVersionRecipient(teamMember, updatedBy,
+                                publishedTo)));
+            }
+        } else {
+            for (final TeamMember teamMember : teamMembers) {
+                namesListModel.addElement(new PublishContainerAvatarUser(
+                        teamMember, Boolean.FALSE));
+            }
+        }
+        // add a spacer if necessary to separate team members from contacts
+        if (!teamMembers.isEmpty()) {
+            namesListModel.addElement(new PublishContainerAvatarUser(null, Boolean.FALSE));
+        }
+        // populate contacts
+        for (final Contact contact : contacts) {
+            namesListModel.addElement(new PublishContainerAvatarUser(contact, Boolean.FALSE));
+        }
     }
     
     public enum DataKey { CONTAINER_ID, PUBLISH_TYPE, VERSION_ID }

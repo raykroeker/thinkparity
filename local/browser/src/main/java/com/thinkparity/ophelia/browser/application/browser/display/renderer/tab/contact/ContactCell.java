@@ -21,7 +21,6 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 
-
 /**
  * An extension of a contact that allows the {@link TabCellRenderer} to display
  * a parity contact.
@@ -39,12 +38,7 @@ public class ContactCell extends DefaultTabCell {
      */
     public ContactCell(final Contact contact) {  
         super();
-        this.contact = new Contact();
-        this.contact.setId(contact.getId());
-        this.contact.setLocalId(contact.getLocalId());
-        this.contact.setName(contact.getName());
-        this.contact.setOrganization(contact.getOrganization());
-        this.contact.addAllEmails(contact.getEmails());
+        this.contact = contact;
     }
 
     /**
@@ -52,10 +46,13 @@ public class ContactCell extends DefaultTabCell {
      * 
      */
     public boolean equals(final Object obj) {
-        if (null != obj && obj instanceof ContactCell) {
-            return ((ContactCell) obj).contact.equals(contact);
-        }
-        return false;
+        if (this == obj)
+            return true;
+        if (null == obj)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        return ((ContactCell) obj).contact.equals(contact);
     }
 
     /**

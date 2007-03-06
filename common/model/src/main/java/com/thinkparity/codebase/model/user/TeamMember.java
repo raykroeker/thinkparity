@@ -18,8 +18,13 @@ public class TeamMember extends User {
     /** The artifact id. */
     private Long artifactId;
 
-    /** Create TeamMember. */
-    public TeamMember() { super(); }
+    /**
+     * Create TeamMember.
+     *
+     */
+    public TeamMember() {
+        super();
+    }
 
     /**
      * @see com.thinkparity.codebase.model.user.User#equals(java.lang.Object)

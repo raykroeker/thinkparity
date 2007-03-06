@@ -29,6 +29,7 @@ import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
+import com.thinkparity.codebase.filter.FilterChain;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -81,6 +82,7 @@ import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
+import com.thinkparity.ophelia.model.util.filter.UserFilterManager;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.util.sort.user.UserComparatorFactory;
@@ -1563,11 +1565,26 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Read the team for the container.
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#readPublishToTeam(java.lang.Long)
+     *
+     */
+    public List<TeamMember> readPublishToTeam(final Long containerId) {
+        try {
+            /* filter out the team members flagged with resitricted publish and
+             * the local user */
+            final FilterChain<User> filter = new FilterChain<User>();
+            filter.addFilter(UserFilterManager.createLocalUser(localUser()));
+            filter.addFilter(UserFilterManager.createContainerPublishTo());
+            return getArtifactModel().readTeam(containerId,
+                    UserComparatorFactory.createName(Boolean.TRUE), filter);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#readTeam(java.lang.Long)
      * 
-     * @param containerId
-     *            A container id.
-     * @return A list of users.
      */
     public List<TeamMember> readTeam(final Long containerId) {
         logger.logApiId();

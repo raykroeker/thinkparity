@@ -234,6 +234,8 @@ public final class UserIOHandler extends AbstractIOHandler implements
         u.setName(session.getString("NAME"));
         u.setOrganization(session.getString("ORGANIZATION"));
         u.setTitle(session.getString("TITLE"));
+
+        u.setFlags(readFlags(u.getLocalId()));
         return u;
     }
 
@@ -296,7 +298,7 @@ public final class UserIOHandler extends AbstractIOHandler implements
         session.prepareStatement(SQL_CREATE_FLAG);
         session.setLong(1, userId);
         for (final UserFlag flag : flags) {
-            session.setTypeAsInteger(1, flag);
+            session.setTypeAsInteger(2, flag);
             if (1 != session.executeUpdate())
                 throw translateError("Could not create flag {0} for user {1}.",
                         flag, userId);

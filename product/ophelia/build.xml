@@ -137,8 +137,6 @@ Local Configuration:            ${localconfig}
         path="dom4j/1.6.1/dom4j.jar"/>
     <antx:dependency type="java" scope="compile" provider="java.net" version="0.9.1"
         path="jdic/0.9.1/${thinkparity.os-platform}/jdic.jar"/>
-    <antx:dependency type="java" scope="compile" provider="java.net" version="0.1.1"
-        path="jdic_icon/0.1.1/${thinkparity.os-platform}/jdic_icon.jar"/>
     <antx:dependency type="java" scope="compile" provider="java.net" version="1.0"
         path="swing-layout/1.0/swing-layout.jar"/>
     <antx:dependency type="java" scope="compile" provider="jivesoftware.org" version="2.2.1"

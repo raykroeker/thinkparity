@@ -152,7 +152,8 @@ public class ContactIOHandler extends AbstractIOHandler implements
     /** Sql to read an incoming contact invitation. */
     private static final String SQL_READ_INCOMING_INVITATION =
             new StringBuffer("select CI.CREATED_BY,CI.CREATED_ON,")
-            .append("UI.JABBER_ID,CI.CONTACT_INVITATION_ID,E.EMAIL ")
+            .append("UI.JABBER_ID,UI.USER_ID,UI.NAME,UI.ORGANIZATION,UI.TITLE,")
+            .append("CI.CONTACT_INVITATION_ID,E.EMAIL ")
             .append("from CONTACT_INVITATION CI ")
             .append("inner join CONTACT_INVITATION_INCOMING CII on ")
             .append("CI.CONTACT_INVITATION_ID=CII.CONTACT_INVITATION_ID ")
@@ -175,7 +176,8 @@ public class ContactIOHandler extends AbstractIOHandler implements
     /** Sql to read all incoming contact invitation. */
     private static final String SQL_READ_INCOMING_INVITATIONS =
             new StringBuffer("select CI.CREATED_BY,CI.CREATED_ON,")
-            .append("UI.JABBER_ID,CI.CONTACT_INVITATION_ID,E.EMAIL ")
+            .append("UI.JABBER_ID,UI.USER_ID,UI.NAME,UI.ORGANIZATION,UI.TITLE,")
+            .append("CI.CONTACT_INVITATION_ID,E.EMAIL ")
             .append("from CONTACT_INVITATION CI ")
             .append("inner join CONTACT_INVITATION_INCOMING CII on ")
             .append("CI.CONTACT_INVITATION_ID=CII.CONTACT_INVITATION_ID ")
@@ -813,7 +815,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
         final IncomingInvitation incoming = new IncomingInvitation();
         extractInvitation(session, incoming);
         incoming.setInvitedAs(emailIO.extractEMail(session));
-        incoming.setInvitedBy(session.getQualifiedUsername("JABBER_ID"));
+        incoming.setInvitedBy(userIO.extractUser(session));
         return incoming;
     }
 

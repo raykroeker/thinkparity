@@ -103,7 +103,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             // delete the invitation
             contactIO.deleteIncomingInvitation(incoming.getId());
             // delete an invitation that might have been sent to the user
-            final Contact remoteContact = readRemote(incoming.getInvitedBy());
+            final Contact remoteContact = readRemote(incoming.getInvitedBy().getId());
             final List<OutgoingEMailInvitation> deletedEMailInvitations = new ArrayList<OutgoingEMailInvitation>();
             OutgoingEMailInvitation outgoingEMail;
             // email invitations
@@ -127,11 +127,10 @@ public final class ContactModelImpl extends Model<ContactListener>
                 outgoingUser = null;
             }
             // create contact data
-            final Contact localContact = createLocal(readRemote(
-                    incoming.getInvitedBy()));
+            final Contact localContact = createLocal(remoteContact);
             // accept
             getSessionModel().acceptContactInvitation(localUserId(),
-                    incoming.getInvitedBy(), currentDateTime());
+                    incoming.getInvitedBy().getId(), currentDateTime());
             // fire accepted event
             notifyIncomingInvitationAccepted(localContact, incoming,
                     localEventGenerator);
@@ -231,11 +230,11 @@ public final class ContactModelImpl extends Model<ContactListener>
             // decline
             if (invitation.isSetInvitedAs()) {
                 sessionModel.declineContactEMailInvitation(
-                        invitation.getInvitedAs(), invitation.getInvitedBy(),
-                        declinedOn);
+                        invitation.getInvitedAs(),
+                        invitation.getInvitedBy().getId(), declinedOn);
             } else {
                 sessionModel.declineContactUserInvitation(
-                        invitation.getInvitedBy(), declinedOn);
+                        invitation.getInvitedBy().getId(), declinedOn);
             }
             // fire event
             notifyIncomingInvitationDeclined(invitation, localEventGenerator);
@@ -485,7 +484,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             incoming.setCreatedBy(localUser().getLocalId());
             incoming.setCreatedOn(currentDateTime());
             incoming.setInvitedAs(event.getInvitedAs());
-            incoming.setInvitedBy(extendedByUser.getId());
+            incoming.setInvitedBy(extendedByUser);
             contactIO.createIncomingInvitation(incoming, extendedByUser);
             getIndexModel().indexIncomingInvitation(incoming.getId());
             // fire event
@@ -607,7 +606,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             final IncomingInvitation incoming = new IncomingInvitation();
             incoming.setCreatedBy(localUser().getLocalId());
             incoming.setCreatedOn(currentDateTime());
-            incoming.setInvitedBy(extendedByUser.getId());
+            incoming.setInvitedBy(extendedByUser);
             contactIO.createIncomingInvitation(incoming, extendedByUser);
             getIndexModel().indexIncomingInvitation(incoming.getId());
             // fire event

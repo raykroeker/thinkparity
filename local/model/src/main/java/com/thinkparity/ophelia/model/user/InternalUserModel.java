@@ -20,15 +20,6 @@ import com.thinkparity.codebase.model.util.jta.TransactionType;
 public interface InternalUserModel extends UserModel {
 
     /**
-     * Read a user.
-     *
-     * @param userId
-     *      A user id.
-     * @return A user.
-     */
-    public User read(final Long userId);
-
-    /**
      * Read a user. If the user does not exist then create the user.
      * 
      * @param userId

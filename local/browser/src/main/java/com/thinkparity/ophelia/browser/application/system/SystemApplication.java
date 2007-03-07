@@ -5,13 +5,14 @@ package com.thinkparity.ophelia.browser.application.system;
 
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.ophelia.model.events.ContactEvent;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -28,8 +29,8 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
 import com.thinkparity.ophelia.browser.platform.util.State;
-import com.thinkparity.ophelia.model.events.ContactEvent;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -269,11 +270,8 @@ public class SystemApplication extends AbstractApplication {
         final Data data = new Data(1);
         data.set(com.thinkparity.ophelia.browser.platform.action.contact.Show.DataKey.INVITATION_ID, e.getIncomingInvitation().getId());
         final String name = getName(e.getIncomingInvitation().getInvitedBy());
-        fireNotification(ActionId.CONTACT_SHOW,
-                data,
-                name,
-                "Notification.ContactIncomingInvitationCreatedMessage",
-                name);
+        fireNotification(ActionId.CONTACT_SHOW, data, name,
+                "Notification.ContactIncomingInvitationCreatedMessage", name);
     }
 
     /**
@@ -288,16 +286,14 @@ public class SystemApplication extends AbstractApplication {
         if (null == e.getPreviousVersion()) {
             // this is the first publish event
             fireNotification(ActionId.CONTAINER_SHOW,
-                    data,
-                    e.getContainer().getName(),
+                    data, e.getContainer().getName(),
                     "Notification.ContainerPublishedFirstTimeMessage",
                     fuzzyDateFormat.format(e.getVersion().getUpdatedOn()),
                     getName(e.getTeamMember()));
         } else {
             // this is a subsequent publish event
             fireNotification(ActionId.CONTAINER_SHOW,
-                    data,
-                    e.getContainer().getName(),
+                    data, e.getContainer().getName(),
                     "Notification.ContainerPublishedNotFirstTimeMessage",
                     fuzzyDateFormat.format(e.getVersion().getUpdatedOn()),
                     getName(e.getTeamMember()));
@@ -343,18 +339,6 @@ public class SystemApplication extends AbstractApplication {
      */
     private String getName(final User user) {
         return user.getName();
-    }
-
-    /**
-     * Extract the name from the user id.
-     * 
-     * @param userId
-     *            A <code>JabberId</code>.
-     * @return The <code>User</code>'s name.
-     */
-    private String getName(final JabberId userId) {
-        // NOCOMMIT
-        return "Angelina Jolie";
     }
 
     /**

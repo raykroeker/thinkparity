@@ -4,7 +4,8 @@
 package com.thinkparity.ophelia.model.contact;
 
 import com.thinkparity.codebase.email.EMail;
-import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.codebase.model.user.User;
 
 /**
  * <b>Title:</b>thinkParity OpheliaModel Incoming Contact Invitation<br>
@@ -19,7 +20,7 @@ public final class IncomingInvitation extends ContactInvitation {
     private EMail invitedAs;
 
     /** A the inviting user. */
-    private JabberId invitedBy;
+    private User invitedBy;
 
     /** Create IncomingInvitation. */
     public IncomingInvitation() {
@@ -40,7 +41,7 @@ public final class IncomingInvitation extends ContactInvitation {
      *
      * @return The Long.
      */
-    public JabberId getInvitedBy() {
+    public User getInvitedBy() {
         return invitedBy;
     }
 
@@ -67,7 +68,7 @@ public final class IncomingInvitation extends ContactInvitation {
      *
      * @param userId The Long.
      */
-    public void setInvitedBy(final JabberId invitedBy) {
+    public void setInvitedBy(final User invitedBy) {
         this.invitedBy = invitedBy;
     }
 

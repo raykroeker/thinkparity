@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import com.thinkparity.codebase.model.user.User;
-
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 import com.thinkparity.ophelia.model.index.AbstractIndexImpl;
@@ -149,18 +147,17 @@ public final class IncomingInvitationIndexImpl extends
      * @see com.thinkparity.ophelia.model.index.IndexImpl#index(java.lang.Object)
      */
     public void index(final IncomingInvitation o) throws IOException {
-        final User user = getUserModel().read(o.getInvitedBy());
         final DocumentBuilder builder = new DocumentBuilder(4)
             .append(IDX_INVITATION_ID.setValue(o.getId()).toField());
         if (o.isSetInvitedAs()) {
             builder.append(IDX_INVITED_AS.setValue(o.getInvitedAs()).toField())
                 .append(IDX_INVITED_AS_REV.setValue(reverse(IDX_INVITED_AS)).toField());
         }
-        builder.append(IDX_USER_NAME.setValue(user.getName()).toField())
+        builder.append(IDX_USER_NAME.setValue(o.getInvitedBy().getName()).toField())
             .append(IDX_USER_NAME_REV.setValue(reverse(IDX_USER_NAME)).toField())
-            .append(IDX_USER_ORGANIZATION.setValue(user.getOrganization()).toField())
+            .append(IDX_USER_ORGANIZATION.setValue(o.getInvitedBy().getOrganization()).toField())
             .append(IDX_USER_ORGANIZATION_REV.setValue(reverse(IDX_USER_ORGANIZATION)).toField())
-            .append(IDX_USER_TITLE.setValue(user.getTitle()).toField())
+            .append(IDX_USER_TITLE.setValue(o.getInvitedBy().getTitle()).toField())
             .append(IDX_USER_TITLE_REV.setValue(reverse(IDX_USER_TITLE)).toField());
         index(builder.toDocument());
     }

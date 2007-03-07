@@ -3,15 +3,13 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.contact;
 
-import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.ophelia.model.contact.ContactModel;
+import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.contact.ContactModel;
-import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.user.UserModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -39,12 +37,10 @@ public class DeclineIncomingInvitation extends AbstractBrowserAction {
 	    final Long invitationId = (Long) data.get(DataKey.INVITATION_ID);
 
         final ContactModel contactModel = getContactModel();
-        final UserModel userModel = getUserModel();
         final IncomingInvitation invitation = contactModel.readIncomingInvitation(invitationId);
-        final User invitedBy = userModel.read(invitation.getInvitedBy());
         if (browser.confirm(
                 "ContactIncomingInvitationDecline.ConfirmDeclineMessage",
-                new Object[] { invitedBy.getName() })) {
+                new Object[] { invitation.getInvitedBy().getName() })) {
             contactModel.declineIncomingInvitation(invitationId);
         }
 	}

@@ -131,7 +131,7 @@ public class ProviderFactory {
             provider = new ArchiveTabProvider(profile, contactModel, containerModel, documentModel, userModel);
             break;
         case TAB_CONTACT:
-            provider = new ContactProvider(profile, profileModel, contactModel, userModel);
+            provider = new ContactProvider(profile, profileModel, contactModel);
             break;
         case TAB_CONTAINER:
             provider = new ContainerProvider(profile, contactModel, containerModel, documentModel, userModel);

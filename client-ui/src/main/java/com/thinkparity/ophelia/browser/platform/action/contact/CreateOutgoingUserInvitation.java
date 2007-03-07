@@ -4,8 +4,10 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.contact;
 
+import com.thinkparity.codebase.model.user.User;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
@@ -17,8 +19,11 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class CreateOutgoingUserInvitation extends AbstractAction {
-    
+public final class CreateOutgoingUserInvitation extends AbstractBrowserAction {
+
+    /** The <code>Browser</code> application. */
+    private final Browser browser;
+
     /**
      * Create CreateOutgoingUserInvitation.
      * 
@@ -27,6 +32,7 @@ public final class CreateOutgoingUserInvitation extends AbstractAction {
      */
     public CreateOutgoingUserInvitation(final Browser browser) {
         super(ActionId.CONTACT_CREATE_OUTGOING_USER_INVITATION);
+        this.browser = browser;
     }
     
     /**
@@ -35,7 +41,13 @@ public final class CreateOutgoingUserInvitation extends AbstractAction {
      */
     public void invoke(final Data data) {
         final Long userId = (Long) data.get(DataKey.USER_ID);
-        getContactModel().createOutgoingUserInvitation(userId);
+
+        final User user = getUserModel().read(userId);
+        if (browser.confirm("ContactOutgoingUserInvitationCreate.ConfirmCreateMessage",
+                new Object[] {user.getName()})) {
+            getContactModel().createOutgoingUserInvitation(userId);
+        }
+
     }
 
     /**

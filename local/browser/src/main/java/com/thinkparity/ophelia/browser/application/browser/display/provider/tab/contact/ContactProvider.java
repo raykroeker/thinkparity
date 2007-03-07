@@ -11,14 +11,12 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 import com.thinkparity.ophelia.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.ophelia.model.contact.OutgoingUserInvitation;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
-import com.thinkparity.ophelia.model.user.UserModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 
@@ -36,9 +34,6 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
     /** A thinkParity <code>ProfileModel</code>. */
     private final ProfileModel profileModel;
 
-    /** A thinkParity <code>UserModel</code>. */
-    private final UserModel userModel;
-
     /**
      * Create ContactProvider.
      * 
@@ -52,11 +47,10 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
      *            A thinkParity user interface.
      */
 	public ContactProvider(final Profile profile, final ProfileModel profileModel,
-            final ContactModel contactModel, final UserModel userModel) {
+            final ContactModel contactModel) {
 		super(profile);
         this.contactModel = contactModel;
         this.profileModel = profileModel;
-        this.userModel = userModel;
 	}
 
     @Override
@@ -109,10 +103,6 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
 
     public Profile readProfile() {
         return profileModel.read();
-    }
-
-    public User readUser(final JabberId userId) {
-        return userModel.read(userId);
     }
 
     public List<JabberId> search(final String expression) {

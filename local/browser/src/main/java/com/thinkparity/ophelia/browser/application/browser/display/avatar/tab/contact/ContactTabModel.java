@@ -678,17 +678,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         return ((ContactProvider) contentProvider).readProfile();
     }
 
-    /**
-     * Read a user from the content provider.
-     * 
-     * @param jabberId
-     *            A jabber id.
-     * @return A user.
-     */
-    private User readUser(final JabberId jabberId) {
-        return (User) ((ContactProvider) contentProvider).readUser(jabberId);
-    }
-
     private void removePanel(final JabberId userId,
             final boolean removeExpandedState) {
         final int panelIndex = lookupIndex(userId);
@@ -738,7 +727,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     private TabPanel toDisplay(final IncomingInvitation invitation) {
         final ContactTabPanel panel = new ContactTabPanel(session);
         panel.setActionDelegate(actionDelegate);
-        panel.setPanelData(invitation, readUser(invitation.getInvitedBy()));
+        panel.setPanelData(invitation, invitation.getInvitedBy());
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
         panel.setTabDelegate(this);

@@ -22,6 +22,15 @@ public interface UserModel {
     /**
      * Read a user.
      *
+     * @param userId
+     *      A user id.
+     * @return A user.
+     */
+    public User read(final Long userId);
+
+    /**
+     * Read a user.
+     *
      * @param jabberId
      *      The user's jabber id.
      * @return The user.

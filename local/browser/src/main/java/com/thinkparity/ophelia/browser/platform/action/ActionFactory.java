@@ -234,7 +234,7 @@ public class ActionFactory extends AbstractFactory {
             action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.MoveToFront(getPlatform());
             break;
 		case PLATFORM_BROWSER_OPEN_HELP:
-		    action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.OpenHelp(getBrowser());
+		    action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.OpenHelp(getPlatform());
 		    break;            
 		case PLATFORM_BROWSER_RESTORE:
 		    action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.Restore(getPlatform());

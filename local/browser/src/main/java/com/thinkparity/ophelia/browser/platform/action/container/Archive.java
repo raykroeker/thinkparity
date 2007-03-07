@@ -5,12 +5,11 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 
 import com.thinkparity.codebase.model.container.Container;
 
-import com.thinkparity.ophelia.model.container.ContainerModel;
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.model.container.ContainerModel;
 
 /**
  * <b>Title:</b>thinkParity Archive Container Action<br>
@@ -19,7 +18,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class Archive extends AbstractAction {
+public class Archive extends AbstractBrowserAction {
 
     /** A thinkParity <code>Browser</code> application. */
     private final Browser browser;

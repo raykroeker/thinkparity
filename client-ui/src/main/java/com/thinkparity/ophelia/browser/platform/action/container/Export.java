@@ -9,7 +9,7 @@ import java.io.File;
 
 import com.thinkparity.ophelia.browser.Constants;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
@@ -17,7 +17,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class Export extends AbstractAction {
+public class Export extends AbstractBrowserAction {
     
     /** The browser application. */
     private final Browser browser;

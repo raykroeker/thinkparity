@@ -6,12 +6,11 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 
-import com.thinkparity.ophelia.model.document.CannotLockException;
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.model.document.CannotLockException;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Remove Document Action<br>
@@ -20,7 +19,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author raymond@thinkparity.com
  * @version 1.1.2.3
  */
-public class RemoveDocument extends AbstractAction {
+public class RemoveDocument extends AbstractBrowserAction {
 
     /** The thinkParity browser application. */
     private final Browser browser;

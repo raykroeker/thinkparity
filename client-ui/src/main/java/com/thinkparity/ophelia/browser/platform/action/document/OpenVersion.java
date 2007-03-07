@@ -5,21 +5,20 @@ package com.thinkparity.ophelia.browser.platform.action.document;
 
 import java.io.File;
 
-import com.thinkparity.ophelia.model.util.Opener;
+import org.jdesktop.jdic.desktop.DesktopException;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
-
-import org.jdesktop.jdic.desktop.DesktopException;
+import com.thinkparity.ophelia.model.util.Opener;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class OpenVersion extends AbstractAction {
+public class OpenVersion extends AbstractBrowserAction {
 
 	/** @see java.io.Serializable */
     private static final long serialVersionUID = 1;

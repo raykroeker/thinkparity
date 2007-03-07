@@ -11,6 +11,12 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
+import com.thinkparity.ophelia.browser.platform.action.ActionId;
+import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.monitor.PublishStep;
@@ -18,18 +24,11 @@ import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
 
-import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
-
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class PublishVersion extends AbstractAction {
+public class PublishVersion extends AbstractBrowserAction {
 
     /** A thinkParity browser application. */
     private final Browser browser;

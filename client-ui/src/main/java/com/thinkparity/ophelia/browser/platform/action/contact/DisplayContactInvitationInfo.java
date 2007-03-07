@@ -11,7 +11,7 @@ import java.util.List;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.AbstractLinkAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -21,7 +21,7 @@ import com.thinkparity.ophelia.model.contact.IncomingInvitation;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class DisplayContactInvitationInfo extends AbstractAction {
+public class DisplayContactInvitationInfo extends AbstractBrowserAction {
     
     /** The browser application. */
     private final Browser browser;

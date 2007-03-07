@@ -6,9 +6,8 @@ package com.thinkparity.ophelia.browser.platform.action.contact;
 
 import com.thinkparity.codebase.email.EMail;
 
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
@@ -16,7 +15,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class CreateIncomingInvitation extends AbstractAction {
+public class CreateIncomingInvitation extends AbstractBrowserAction {
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;

@@ -4,7 +4,7 @@
 package com.thinkparity.ophelia.browser.platform.action.artifact;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
@@ -16,7 +16,7 @@ import com.thinkparity.ophelia.model.artifact.ArtifactModel;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ApplyFlagSeen extends AbstractAction {
+public class ApplyFlagSeen extends AbstractBrowserAction {
     
     /** The browser application. */
     private final Browser browser;

@@ -624,7 +624,7 @@ public class BrowserPlatform implements Platform {
      */
     private void invoke(final ActionId actionId, final Data data) {
         try {
-            getAction(actionId).invokePlatformAction(data);
+            getAction(actionId).invokeAction(data);
         } catch(final Throwable t) {
             logger.logError(t, "Could not invoke action {0} with data {1}.", actionId, data);
             throw new BrowserException("Could not invoke platform action.", t);

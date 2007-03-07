@@ -203,9 +203,19 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     protected List<ContactPanelId> readSearchResults() {
         checkThread();
         final List<JabberId> contactIds = ((ContactProvider) contentProvider).search(searchExpression);
-        final List<ContactPanelId> panelIds = new ArrayList<ContactPanelId>(contactIds.size());
-        for (final JabberId contactId : contactIds)
+        final List<Long> incomingInvitationIds = ((ContactProvider) contentProvider).searchIncomingInvitations(searchExpression);
+        final List<Long> outgoingInvitationIds = ((ContactProvider) contentProvider).searchOutgoingInvitations(searchExpression);
+        final int size = contactIds.size() + incomingInvitationIds.size() + outgoingInvitationIds.size();
+        final List<ContactPanelId> panelIds = new ArrayList<ContactPanelId>(size);
+        for (final JabberId contactId : contactIds) {
             panelIds.add(new ContactPanelId(contactId));
+        }
+        for (final Long incomingInvitationId : incomingInvitationIds) {
+            panelIds.add(new ContactPanelId(incomingInvitationId));
+        }
+        for (final Long outgoingInvitationId : outgoingInvitationIds) {
+            panelIds.add(new ContactPanelId(outgoingInvitationId));
+        }
         return panelIds;
     }
 

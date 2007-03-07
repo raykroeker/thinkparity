@@ -13,7 +13,7 @@ import com.thinkparity.codebase.model.util.http.LinkFactory;
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
@@ -22,7 +22,7 @@ import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class SignUp extends AbstractAction {
+public class SignUp extends AbstractBrowserAction {
 
     /**
      * Create a Create.

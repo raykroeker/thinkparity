@@ -5,30 +5,28 @@
 package com.thinkparity.ophelia.browser.platform.action.container;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
+
+import org.jdesktop.jdic.desktop.DesktopException;
 
 import com.thinkparity.codebase.FileUtil;
-
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 
-import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.container.ContainerDraftPrinter;
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
-
-import org.jdesktop.jdic.desktop.DesktopException;
+import com.thinkparity.ophelia.model.container.ContainerDraftPrinter;
+import com.thinkparity.ophelia.model.container.ContainerModel;
 
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class PrintDraft extends AbstractAction {
+public class PrintDraft extends AbstractBrowserAction {
 
     /** The browser application. */
     private final Browser browser;

@@ -4,7 +4,7 @@
 package com.thinkparity.ophelia.browser.platform.action.container;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
@@ -16,7 +16,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @version 1.1.2.1
  * @see Browser#runReadContainerVersion(Long, Long)
  */
-public final class ReadVersion extends AbstractAction {
+public final class ReadVersion extends AbstractBrowserAction {
 
     /**
      * Create ReadVersion.

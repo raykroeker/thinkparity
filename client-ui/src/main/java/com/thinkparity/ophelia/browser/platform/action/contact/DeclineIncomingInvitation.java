@@ -5,10 +5,8 @@ package com.thinkparity.ophelia.browser.platform.action.contact;
 
 import com.thinkparity.codebase.model.user.User;
 
-
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.model.contact.ContactModel;
@@ -19,7 +17,7 @@ import com.thinkparity.ophelia.model.user.UserModel;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class DeclineIncomingInvitation extends AbstractAction {
+public class DeclineIncomingInvitation extends AbstractBrowserAction {
 
 	/** @see java.io.Serializable */
     private static final long serialVersionUID = 1;

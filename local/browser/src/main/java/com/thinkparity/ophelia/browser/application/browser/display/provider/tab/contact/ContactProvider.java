@@ -105,4 +105,12 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
     public List<JabberId> search(final String expression) {
         return contactModel.search(expression);
     }
+
+    public List<Long> searchIncomingInvitations(final String expression) {
+        return contactModel.searchIncomingInvitations(expression);
+    }
+
+    public List<Long> searchOutgoingInvitations(final String expression) {
+        return contactModel.searchOutgoingInvitations(expression);
+    }
 }

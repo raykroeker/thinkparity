@@ -9,7 +9,7 @@ package com.thinkparity.ophelia.browser.platform.action;
  * @version $Revision$
  */
 public interface ActionInvocation {
-    
+
     /**
      * Invoke the action.
      * 
@@ -17,14 +17,6 @@ public interface ActionInvocation {
      *            The action data.
      */
     public void invokeAction(final Data data);
-
-    /**
-     * Invoke a platform action.
-     * 
-     * @param data
-     *            The action data.
-     */
-    public void invokePlatformAction(final Data data);
 
     /**
      * Retry invoking the action.

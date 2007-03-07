@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
@@ -16,6 +15,12 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
+import com.thinkparity.ophelia.browser.platform.action.ActionId;
+import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -25,13 +30,6 @@ import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
 
-import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
-
 /**
  * Publish a document. This will send a given document version to every member
  * of the team.
@@ -39,7 +37,7 @@ import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class Publish extends AbstractAction {
+public class Publish extends AbstractBrowserAction {
 
     /** The <code>Browser</code> application. */
     private final Browser browser;

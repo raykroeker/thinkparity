@@ -7,12 +7,11 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 
 import com.thinkparity.codebase.model.document.Document;
 
-import com.thinkparity.ophelia.model.document.CannotLockException;
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.model.document.CannotLockException;
 
 /**
  * RenameDocument is run when the user rename's an artifact.
@@ -20,7 +19,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author raykroeker@gmail.com
  * @version $Revision$
  */
-public class RenameDocument extends AbstractAction {
+public class RenameDocument extends AbstractBrowserAction {
 
 	/** The browser application. */
 	private final Browser browser;

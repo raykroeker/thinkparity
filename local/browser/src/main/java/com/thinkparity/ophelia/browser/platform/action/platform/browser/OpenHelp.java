@@ -12,8 +12,8 @@ import com.thinkparity.codebase.model.util.http.Link;
 import com.thinkparity.codebase.model.util.http.LinkFactory;
 
 import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
+import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -28,10 +28,10 @@ public class OpenHelp extends AbstractAction {
     /**
      * Create a Create.
      * 
-     * @param browser
-     *            The browser application.
+     * @param platform
+     *            The browser platform.
      */
-    public OpenHelp(final Browser browser) {
+    public OpenHelp(final Platform platform) {
         super(ActionId.PLATFORM_BROWSER_OPEN_HELP);
     }
     

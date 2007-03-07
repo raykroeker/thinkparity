@@ -8,7 +8,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.contact.Contact;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
@@ -17,7 +17,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class Delete extends AbstractAction {
+public class Delete extends AbstractBrowserAction {
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;

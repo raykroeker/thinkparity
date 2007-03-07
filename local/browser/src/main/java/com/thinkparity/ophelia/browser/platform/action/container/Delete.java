@@ -5,12 +5,11 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 
 import com.thinkparity.codebase.model.container.Container;
 
-import com.thinkparity.ophelia.model.document.CannotLockException;
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.model.document.CannotLockException;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Delete Action<br>
@@ -19,7 +18,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author raymond@thinkparity.com
  * @version 1.1.2.2
  */
-public class Delete extends AbstractAction {
+public class Delete extends AbstractBrowserAction {
 
     /** The thinkParity browser application. */
     private final Browser browser;

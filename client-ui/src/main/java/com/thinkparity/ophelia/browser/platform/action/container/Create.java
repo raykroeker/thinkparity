@@ -8,9 +8,8 @@ import java.util.List;
 
 import com.thinkparity.codebase.model.container.Container;
 
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
@@ -19,7 +18,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class Create extends AbstractAction {
+public class Create extends AbstractBrowserAction {
 
     /** The browser application. */
     private final Browser browser;

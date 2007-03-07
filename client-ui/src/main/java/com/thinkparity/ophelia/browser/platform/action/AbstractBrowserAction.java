@@ -26,6 +26,6 @@ public abstract class AbstractBrowserAction extends AbstractAction {
     @Override
     public void invokeAction(Data data) {
         getBrowserApplication().fireActionInvoked();
-        invoke(data);
+        super.invokeAction(data);
     }
 }

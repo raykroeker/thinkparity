@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.container;
 
+import java.io.File;
 import java.util.List;
 
 import com.thinkparity.codebase.model.container.Container;
@@ -65,7 +66,8 @@ public class ExportVersionTest extends ContainerTestCase {
 
         final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
         exportContainerVersion(datum.junit, c.getId(),
-                cv_latest.getVersionId(), getOutputDirectory());
+                cv_latest.getVersionId(),
+                new File(getOutputDirectory(), c.getName() + ".zip"));
     }
 
     /**

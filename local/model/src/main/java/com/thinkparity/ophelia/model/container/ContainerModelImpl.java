@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -25,6 +26,7 @@ import javax.xml.transform.TransformerException;
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.Pair;
+import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
@@ -532,17 +534,11 @@ public final class ContainerModelImpl extends
      * @param containerId
      *            The container id <code>Long</code>.
      */
-    public File export(final File exportDirectory, final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("exportDirectory", exportDirectory);
-        logger.logVariable("containerId", containerId);
+    public void export(final OutputStream exportStream, final Long containerId) {
         try {
-            Assert.assertTrue(exportDirectory.isDirectory(),
-                    "Export directory {0} is not a directory.", exportDirectory);
             final Container container = read(containerId);
             final List<ContainerVersion> versions = readVersions(containerId);
-            return export(exportDirectory,
-                    getNameGenerator().exportFileName(container), container, versions);
+            export(exportStream, container, versions);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -558,21 +554,14 @@ public final class ContainerModelImpl extends
      * @param versionId
      *            A container version id <code>Long</code>.
      */
-    public File exportVersion(final File exportDirectory, final Long containerId,
-            final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("exportDirectory", exportDirectory);
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
+    public void exportVersion(final OutputStream exportStream,
+            final Long containerId, final Long versionId) {
         try {
-            Assert.assertTrue(exportDirectory.isDirectory(),
-                    "Export directory {0} is not a directory.", exportDirectory);
             final Container container = read(containerId);
             final List<ContainerVersion> versions = new ArrayList<ContainerVersion>(1);
             final ContainerVersion version = readVersion(containerId, versionId);
             versions.add(version);
-            return export(exportDirectory,
-                    getNameGenerator().exportFileName(version), container, versions);
+            export(exportStream, container, versions);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -2509,10 +2498,9 @@ public final class ContainerModelImpl extends
      * @throws IOException
      * @throws TransformerException
      */
-    private File export(final File exportDirectory,
-            final String exportFileName, final Container container,
-            final List<ContainerVersion> versions) throws IOException,
-            TransformerException {
+    private void export(final OutputStream exportStream,
+            final Container container, final List<ContainerVersion> versions)
+            throws IOException, TransformerException {
         final ContainerNameGenerator nameGenerator = getNameGenerator();
         final FileSystem exportFileSystem = new FileSystem(
                 workspace.createTempDirectory(
@@ -2562,12 +2550,14 @@ public final class ContainerModelImpl extends
                     readUser(container.getCreatedBy()), versions,
                     versionsPublishedBy, documents, documentsSize, publishedTo);
 
-            final File zipFile = new File(exportFileSystem.getRoot(), exportFileName);
+            final File zipFile = new File(exportFileSystem.getRoot(), container.getName());
             ZipUtil.createZipFile(zipFile, exportFileSystem.getRoot(), getDefaultBufferSize());
-            final File exportFile = new File(exportDirectory, zipFile.getName());
-            FileUtil.copy(zipFile, exportFile, getDefaultBufferSize(),
-                    Boolean.TRUE, getString("container.export.niceFilePattern"));
-            return exportFile;
+            final InputStream inputStream = new FileInputStream(zipFile);
+            try {
+                StreamUtil.copy(inputStream, exportStream, getDefaultBufferSize());
+            } finally {
+                inputStream.close();
+            }
         } finally {
             exportFileSystem.deleteTree();
         }

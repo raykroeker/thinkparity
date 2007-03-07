@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.container;
 
+import java.io.File;
 import java.util.List;
 
 import com.thinkparity.codebase.model.container.Container;
@@ -57,7 +58,8 @@ public class ExportTest extends ContainerTestCase {
         }
         publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
-        exportContainer(datum.junit, c.getId(), getOutputDirectory());
+        exportContainer(datum.junit, c.getId(),
+                new File(getOutputDirectory(), c.getName() + ".zip"));
     }
 
     /**

@@ -70,29 +70,6 @@ public final class ContainerNameGenerator {
     }
 
     /**
-     * Generate a directory name for export.
-     * 
-     * @param version
-     *            A <code>ContainerVersion</code>.
-     * @return A directory name <code>String</code>.
-     */
-    public String exportFileName(final Container container) {
-        return MessageFormat.format("{0}.zip", container.getName());
-    }
-
-    /**
-     * Generate a directory name for export.
-     * 
-     * @param version
-     *            A <code>ContainerVersion</code>.
-     * @return A directory name <code>String</code>.
-     */
-    public String exportFileName(final ContainerVersion version) {
-        return MessageFormat.format("{0} {1,date,MMM dd, yyyy h mm ss a}.zip",
-                version.getName(), version.getUpdatedOn().getTime());
-    }
-
-    /**
      * Generate a pdf name for a container.
      * 
      * @param container

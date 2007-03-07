@@ -3,8 +3,8 @@
  */
 package com.thinkparity.ophelia.model.container;
 
-import java.util.List;
 import java.io.File;
+import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -97,9 +97,8 @@ public class ArchiveTest extends ContainerTestCase {
         assertTrue("Local container team list does not contain publish to user.", t_id_list_z.contains(datum.junit_x.getId()));
 
         // verify the package can be exported
-        final File exportFile = getContainerModel(datum.junit_z).export(getOutputDirectory(), c_z.getId());
-        assertNotNull("Export file is null.", exportFile);
-        assertTrue("Export file does not exist.", exportFile.exists());
+        exportContainer(datum.junit_z, c_z.getId(),
+                new File(getOutputDirectory(), c_z.getName() + ".zip"));
     }
 
     /**

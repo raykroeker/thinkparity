@@ -3,7 +3,7 @@
  */
 package com.thinkparity.ophelia.model.container;
 
-import java.io.File;
+import java.io.OutputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -114,27 +114,27 @@ public interface ContainerModel {
     /**
      * Export a container version to a directory. The 
      * 
-     * @param exportDirectory
-     *            A file output stream representing a zip file.
+     * @param exportStream
+     *            A <code>OutputStream</code> to export to.
      * @param containerId
      *            A container id <code>Long</code>.
      * @param versionId
      *            A container version id <code>Long</code>.
      */
-    public File export(final File exportDirectory, final Long containerId);
+    public void export(final OutputStream outputStream, final Long containerId);
 
     /**
      * Export a container version to a directory. The 
      * 
-     * @param exportDirectory
-     *            A file output stream representing a zip file.
+     * @param exportStream
+     *            An <code>OutputStream</code> to export to.
      * @param containerId
      *            A container id <code>Long</code>.
      * @param versionId
      *            A container version id <code>Long</code>.
      */
-    public File exportVersion(final File exportDirectory, final Long containerId,
-            final Long versionId);
+    public void exportVersion(final OutputStream exportStream,
+            final Long containerId, final Long versionId);
 
     /**
      * Create a document monitor.

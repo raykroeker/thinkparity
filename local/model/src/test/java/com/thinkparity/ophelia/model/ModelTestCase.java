@@ -5,8 +5,10 @@ package com.thinkparity.ophelia.model;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -938,7 +940,16 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         final Container container = readContainer(exportAs, localContainerId);
         logger.logInfo("Exporting container \"{0}\" as \"{1}\" to \"{2}\".", container.getId(),
                 exportAs.getSimpleUsername(), exportTo);
-        getContainerModel(exportAs).export(exportTo, localContainerId);
+        try {
+            final OutputStream exportStream = new FileOutputStream(exportTo);
+            try {
+                getContainerModel(exportAs).export(exportStream, localContainerId);
+            } finally {
+                exportStream.close();
+            }
+        } catch (final IOException iox) {
+            fail("Cannot export {0} as {1}.", exportTo, exportAs.getSimpleUsername());
+        }
     }
 
     /**
@@ -959,7 +970,17 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         final Container container = readContainer(exportAs, localContainerId);
         logger.logInfo("Exporting container \"{0}\" version \"{1}\" as \"{2}\" to \"{3}\".",
                 container.getId(), versionId, exportAs.getSimpleUsername(), exportTo);
-        getContainerModel(exportAs).exportVersion(exportTo, localContainerId, versionId);
+        try {
+            final OutputStream exportStream = new FileOutputStream(exportTo);
+            try {
+                getContainerModel(exportAs).exportVersion(exportStream,
+                        localContainerId, versionId);
+            } finally {
+                exportStream.close();
+            }
+        } catch (final IOException iox) {
+            fail("Cannot export {0} as {1}.", exportTo, exportAs.getSimpleUsername());
+        }
     }
 
     /**

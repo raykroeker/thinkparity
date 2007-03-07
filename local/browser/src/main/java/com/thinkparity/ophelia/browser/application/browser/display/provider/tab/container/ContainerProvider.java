@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
@@ -23,6 +22,9 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 import com.thinkparity.ophelia.model.Constants.Versioning;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
@@ -30,10 +32,6 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 import com.thinkparity.ophelia.model.user.UserModel;
-
-import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 
 /**
  * <b>Title:</b>thinkParity Container Tab Provider<br>
@@ -155,7 +153,18 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public Boolean isDraftDocumentModified(final Long documentId) {
         return documentModel.isDraftModified(documentId);
     }
-    
+
+    /**
+     * Determine if the local draft is modified, ie. at least one document changed.
+     * 
+     * @param containerId
+     *            A <code>Long</code>.
+     * @return True if this container has a document that has been modified; false otherwise.
+     */
+    public Boolean isLocalDraftModified(final Long containerId) {
+        return containerModel.isLocalDraftModified(containerId);
+    }
+
     /**
 	 * Read a list of containers.
 	 * 

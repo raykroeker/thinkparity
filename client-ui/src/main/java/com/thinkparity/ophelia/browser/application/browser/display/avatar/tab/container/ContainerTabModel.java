@@ -9,14 +9,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -24,9 +17,6 @@ import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.sort.DefaultComparator;
-import com.thinkparity.codebase.sort.StringComparator;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -34,11 +24,8 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
-import com.thinkparity.ophelia.model.events.ContainerDraftListener;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.codebase.sort.DefaultComparator;
+import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
@@ -51,6 +38,10 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 import com.thinkparity.ophelia.browser.platform.application.Application;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
+import com.thinkparity.ophelia.model.events.ContainerDraftListener;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
@@ -298,6 +289,17 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     Boolean readIsDistributed(final Long containerId) {
         checkThread();
         return ((ContainerProvider) contentProvider).isDistributed(containerId).booleanValue();
+    }
+
+    /**
+     * Determine if the local draft is modified, ie. at least one document changed.
+     * 
+     * @param containerId
+     *            A <code>Long</code>.
+     * @return True if this container has a document that has been modified; false otherwise.
+     */
+    Boolean readIsLocalDraftModified(final Long containerId) {
+        return ((ContainerProvider) contentProvider).isLocalDraftModified(containerId).booleanValue();
     }
 
     /**

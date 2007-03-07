@@ -23,9 +23,6 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
-
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
@@ -36,26 +33,13 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Archive;
-import com.thinkparity.ophelia.browser.platform.action.container.Collapse;
-import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Delete;
-import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
-import com.thinkparity.ophelia.browser.platform.action.container.Expand;
-import com.thinkparity.ophelia.browser.platform.action.container.PrintDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
-import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Rename;
-import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.RevertDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.UndeleteDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
 /**
  * <b>Title:</b><br>
@@ -101,7 +85,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         }
 
         if (isOnline()) {
-            if (container.isLocalDraft()) {
+            if (container.isLocalDraft() && isLocalDraftModified(container.getId())) {
                 final Data publishData = new Data(1);
                 publishData.set(Publish.DataKey.CONTAINER_ID, container.getId());
                 addWithExpand(ActionId.CONTAINER_PUBLISH, publishData, container);
@@ -230,9 +214,11 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         
         // Publish, delete draft
         if (isOnline()) {
-            final Data publishData = new Data(1);
-            publishData.set(Publish.DataKey.CONTAINER_ID, draft.getContainerId());
-            add(ActionId.CONTAINER_PUBLISH, publishData);
+            if (isLocalDraftModified(container.getId())) {
+                final Data publishData = new Data(1);
+                publishData.set(Publish.DataKey.CONTAINER_ID, draft.getContainerId());
+                add(ActionId.CONTAINER_PUBLISH, publishData);
+            }
 
             final Data deleteData = new Data(2);
             deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, draft.getContainerId());
@@ -518,6 +504,17 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      */
     private boolean isDistributed(final Long containerId) {
         return model.readIsDistributed(containerId);
+    }
+
+    /**
+     * Determine if the local draft is modified, ie. at least one document changed.
+     * 
+     * @param containerId
+     *            A <code>Long</code>.
+     * @return True if this container has a document that has been modified; false otherwise.
+     */
+    private boolean isLocalDraftModified(final Long containerId) {
+        return model.readIsLocalDraftModified(containerId);
     }
 
     /**

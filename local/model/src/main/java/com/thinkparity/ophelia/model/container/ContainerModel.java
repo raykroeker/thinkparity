@@ -148,7 +148,7 @@ public interface ContainerModel {
     public ContainerDraftMonitor getDraftMonitor(final Long containerId,
             final ContainerDraftListener listener);
 
-	/**
+    /**
      * Determine whether or not the container has been distributed.
      * 
      * @param containerId
@@ -156,6 +156,15 @@ public interface ContainerModel {
      * @return True if the container has been distributed.
      */
     public Boolean isDistributed(final Long containerId);
+
+	/**
+     * Determine whether or not a draft is modified.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if the draft is modified.
+     */
+    public Boolean isLocalDraftModified(final Long containerId);
 
 	/**
      * Print a container draft.

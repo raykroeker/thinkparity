@@ -2674,11 +2674,22 @@ public final class ContainerModelImpl extends
      *            A container id <code>Long</code>.
      * @return True if the local draft is modified.
      */
-    private Boolean isLocalDraftModified(final Long containerId) {
+    public Boolean isLocalDraftModified(final Long containerId) {
         boolean modified = false;
-        final ContainerDraft draft = readDraft(containerId);
-        for (final Artifact artifact : draft.getDocuments()) {
-            modified |= ContainerDraft.ArtifactState.NONE != draft.getState(artifact);
+        final ContainerDraft draft = containerIO.readDraft(containerId);
+        for (final Document document : draft.getDocuments()) {
+            // if the draft document is added or removed the state will be
+            // recorded and the draft is modified
+            switch (draft.getState(document)) {
+            case ADDED:
+            case REMOVED:
+            case MODIFIED:
+                return Boolean.TRUE;
+            case NONE:
+                return getDocumentModel().isDraftModified(document.getId());
+            default:
+                Assert.assertUnreachable("Unknown draft document state.");
+            }
         }
         return Boolean.valueOf(modified);
     }

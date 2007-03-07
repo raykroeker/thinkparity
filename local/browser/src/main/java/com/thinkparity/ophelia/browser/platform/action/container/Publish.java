@@ -4,16 +4,21 @@
 package com.thinkparity.ophelia.browser.platform.action.container;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
-import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.container.monitor.PublishStep;
+import com.thinkparity.ophelia.model.document.CannotLockException;
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.util.Step;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
@@ -21,14 +26,6 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.container.monitor.PublishStep;
-import com.thinkparity.ophelia.model.document.CannotLockException;
-import com.thinkparity.ophelia.model.util.ProcessAdapter;
-import com.thinkparity.ophelia.model.util.ProcessMonitor;
-import com.thinkparity.ophelia.model.util.Step;
 
 /**
  * Publish a document. This will send a given document version to every member
@@ -78,40 +75,9 @@ public class Publish extends AbstractBrowserAction {
         final String comment = (String) data.get(DataKey.COMMENT);
         final ContainerModel containerModel = getContainerModel();
         final Container container = containerModel.read(containerId);
-        // check there are documents with changes to publish.
-        Boolean publishableDocuments = Boolean.FALSE;
-        Boolean changes = Boolean.FALSE;
-        List<Document> documents = Collections.emptyList();
-        if (container.isLocalDraft()) {
-            final ContainerDraft draft = containerModel.readDraft(containerId);
-            if (null != draft) {
-                documents = draft.getDocuments();
-                for (final Document document : documents) {
-                    switch (draft.getState(document)) {
-                    case ADDED:
-                    case MODIFIED:
-                        changes = Boolean.TRUE;
-                        publishableDocuments = Boolean.TRUE;
-                        break;
-                    case REMOVED:
-                        changes = Boolean.TRUE;
-                        break;
-                    case NONE:
-                        publishableDocuments = Boolean.TRUE;
-                        break;
-                    default:
-                        throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
-                    }
-                }
-            }
-        }
-        if (!publishableDocuments) {
+        if (!containerModel.isLocalDraftModified(containerId)) {
             browser.displayErrorDialog("ErrorNoDocumentToPublish",
                     new Object[] {container.getName()});
-        } else if (!changes) {
-            /* in this case, publish the most recent version. */
-            long versionId = getContainerModel().readLatestVersion(containerId).getVersionId();
-            browser.displayPublishContainerDialog(containerId, versionId);
         } else if ((null == contactsIn || contactsIn.isEmpty()) &&
             (null == teamMembersIn || teamMembersIn.isEmpty())) {
             // TODO raymond@thinkparity.com - Adjust such that the list input is never null 

@@ -14,11 +14,11 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
-import com.thinkparity.ophelia.model.events.ContainerEvent.Source;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
 /**
@@ -66,6 +66,16 @@ public interface InternalContainerModel extends ContainerModel {
     public void handleDraftDeleted(final ArtifactDraftDeletedEvent event);
 
     /**
+     * Handle the remove event that is fired when an artifact is published. This
+     * occurs in sequence after the container published event. Here we restore
+     * the container from the archive and delete the draft.
+     * 
+     * @param event
+     *            A <code>ArtifactPublishedEvent</code>.
+     */
+    public void handlePublished(final ArtifactPublishedEvent event);
+
+    /**
      * Handle the container published remote event.
      * 
      * @param event
@@ -80,17 +90,6 @@ public interface InternalContainerModel extends ContainerModel {
      *            An <code>ArtifactReceivedEvent</code>.
      */
     public void handleReceived(final ArtifactReceivedEvent event);
-
-    /**
-     * Notify that a container has been flagged.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param source
-     *            A container event <code>Source</code>.
-     */
-    public void notifyContainerFlagged(final Long containerId,
-            final Source source);
 
     /**
      * Read the list of audit events for a container.

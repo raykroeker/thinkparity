@@ -37,6 +37,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.UploadMonitor;
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -57,6 +58,7 @@ import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
@@ -266,10 +268,11 @@ public final class ContainerModelImpl extends
      */
     public void archive(final Long containerId) {
         try {
+            assertOnline("User is not online.");
             assertIsDistributed("Container has not been distributed.", containerId);
 
-            getBackupModel().archive(containerId);
             getArtifactModel().applyFlagArchived(containerId);
+            getBackupModel().archive(containerId);
             getSessionModel().removeTeamMember(
                     getArtifactModel().readUniqueId(containerId),
                     getArtifactModel().readTeamIds(containerId), localUserId());
@@ -813,24 +816,6 @@ public final class ContainerModelImpl extends
             return getArtifactModel().doesVersionExist(containerId);
         } catch (final Throwable t) {
             throw translateError(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#notifyContainerFlagged(java.lang.Long, com.thinkparity.ophelia.model.events.ContainerEvent.Source)
-     *
-     */
-    public void notifyContainerFlagged(final Long containerId,
-            final Source source) {
-        switch (source) {
-        case LOCAL:
-            notifyContainerFlagged(read(containerId), localEventGenerator);
-            break;
-        case REMOTE:
-            notifyContainerFlagged(read(containerId), remoteEventGenerator);
-            break;
-        default:
-            Assert.assertUnreachable("Unknown event source.");
         }
     }
 
@@ -1769,24 +1754,53 @@ public final class ContainerModelImpl extends
         }
     }
 
+    
     /**
-     * Restore a container from an archive.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handlePublished(com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent)
+     *
+     */
+    public void handlePublished(final ArtifactPublishedEvent event) {
+        try {
+            final InternalArtifactModel artifactModel = getArtifactModel();
+            final Long containerId = artifactModel.readId(event.getUniqueId());
+            // restore
+            final boolean didFlag;
+            if (artifactModel.isFlagApplied(containerId, ArtifactFlag.ARCHIVED)) {
+                // note that we do not update the local team - this has been
+                // done as part of the handling of the event within the artifact
+                // model
+                artifactModel.removeFlagArchived(containerId);
+                getBackupModel().restore(containerId);
+                didFlag = true;
+            } else {
+                didFlag = false;
+            }
+            if (doesExistDraft(containerId))
+                deleteDraft(containerId);
+
+            if (didFlag)
+                notifyContainerFlagged(read(containerId), remoteEventGenerator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#restore(java.lang.Long)
+     *
      */
     public void restore(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
         try {
+            assertOnline("User is not online.");
             assertIsDistributed("Container has not been distributed.", containerId);
 
+            final InternalArtifactModel artifactModel = getArtifactModel();
+            artifactModel.removeFlagArchived(containerId);
+            artifactModel.addTeamMember(containerId, localUserId());
             getBackupModel().restore(containerId);
-            getArtifactModel().removeFlagArchived(containerId);
             getSessionModel().addTeamMember(
                     getArtifactModel().readUniqueId(containerId),
                     getArtifactModel().readTeamIds(containerId), localUserId());
-            getArtifactModel().addTeamMember(containerId, localUserId());
 
             notifyContainerRestored(read(containerId), localEventGenerator);
         } catch (final Throwable t) {

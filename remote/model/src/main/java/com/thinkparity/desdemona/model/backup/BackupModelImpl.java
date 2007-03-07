@@ -82,12 +82,6 @@ final class BackupModelImpl extends AbstractModelImpl {
                 final Long artifactId = artifactModel.readId(uniqueId);
                 artifactModel.applyFlagArchived(artifactId);
             }
-            // remove user from the team
-            final com.thinkparity.desdemona.model.artifact.InternalArtifactModel
-                    artifactModel = getArtifactModel();
-            final Artifact artifact = getArtifactModel().read(uniqueId);
-            final User user = getUserModel().read(userId);
-            artifactModel.removeTeamMember(userId, artifact.getId(), user.getLocalId());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -299,12 +293,6 @@ final class BackupModelImpl extends AbstractModelImpl {
                         archiveId.getUsername());
                 artifactModel.removeFlagArchived(artifactId);
             }
-            // add user to the team
-            final com.thinkparity.desdemona.model.artifact.InternalArtifactModel
-                    artifactModel = getArtifactModel();
-            final Artifact artifact = getArtifactModel().read(uniqueId);
-            final User user = getUserModel().read(userId);
-            artifactModel.addTeamMember(userId, artifact.getId(), user.getLocalId());
         } catch (final Throwable t) {
             throw translateError(t);
         }

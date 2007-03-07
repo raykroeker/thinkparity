@@ -30,8 +30,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEve
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
 
 import com.thinkparity.ophelia.model.Model;
-import com.thinkparity.ophelia.model.container.InternalContainerModel;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
@@ -319,7 +317,7 @@ public final class ArtifactModelImpl extends Model implements
             } else {
                 removeFlagLatest(artifactId);
             }
-            // update team definition
+            // update local team definition
             final List<JabberId> localTeamIds = readTeamIds(artifactId);
             final List<JabberId> eventTeamIds = event.getTeamUserIds();
             for (final JabberId localTeamId : localTeamIds) {
@@ -332,19 +330,9 @@ public final class ArtifactModelImpl extends Model implements
                     addTeamMember(artifactId, eventTeamId);
                 }
             }
-            /* delete a draft - this will happen when an existing team member is
-             * not published to */
-            final InternalContainerModel containerModel = getContainerModel();
             switch (readType(artifactId)) {
             case CONTAINER:
-                // update archive flag
-                if (isFlagApplied(artifactId, ArtifactFlag.ARCHIVED))
-                    containerModel.restore(artifactId);
-                containerModel.notifyContainerFlagged(artifactId,
-                        ContainerEvent.Source.REMOTE);
-                if (containerModel.doesExistDraft(artifactId)) {
-                    containerModel.deleteDraft(artifactId);
-                }
+                getContainerModel().handlePublished(event);
                 break;
             case DOCUMENT:  // deliberate fall through
             default:

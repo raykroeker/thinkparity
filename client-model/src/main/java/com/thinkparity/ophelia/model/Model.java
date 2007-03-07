@@ -504,8 +504,8 @@ public abstract class Model<T extends EventListener> extends
      */
     protected void assertXMPPIsReachable(final Environment environment) {
         Assert.assertTrue(environment.isXMPPReachable(),
-                "XMPP environment {0} is not reachable.",
-                environment.getXMPPService());
+                "XMPP environment {0}:{1} is not reachable.",
+                environment.getXMPPHost(), environment.getXMPPPort());
     }
 
     /**

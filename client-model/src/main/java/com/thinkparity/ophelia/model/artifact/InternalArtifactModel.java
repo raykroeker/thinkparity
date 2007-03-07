@@ -34,14 +34,13 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedE
 public interface InternalArtifactModel extends ArtifactModel {
 
 	/**
-     * Add the team member. Add the user to the local team data in a pending
-     * state; and call the server's add team member api.
+     * Add the team member. Add the user to the local team data. Needs to be
+     * online in order to retreive user information.
      * 
      * @param artifactId
-     *            The artifact id.
+     *            The artifact id <code>Long</code>.
      * @param userId
-     *            The user id.
-     * @throws ParityException
+     *            The user id <code>JabberId</code>.
      */
     public TeamMember addTeamMember(final Long artifactId, final JabberId userId);
 

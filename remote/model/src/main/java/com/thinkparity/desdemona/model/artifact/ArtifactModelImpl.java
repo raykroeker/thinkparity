@@ -309,6 +309,13 @@ class ArtifactModelImpl extends AbstractModelImpl {
             if (userModel.isArchive(userId)) {
                 logInfo("Ignoring archive user {0}.", userId);
             } else {
+                final Artifact artifact = read(uniqueId);
+                final User teamMember = userModel.read(teamMemberId);
+                artifactSql.deleteTeamRel(artifact.getId(), teamMember.getLocalId());
+                if (0 == artifactSql.readTeamRelCount(artifact.getId())) {
+                    artifactSql.delete(artifact.getId());
+                }
+
                 final ArtifactTeamMemberRemovedEvent teamMemberRemoved = 
                     new ArtifactTeamMemberRemovedEvent();
                 teamMemberRemoved.setUniqueId(uniqueId);

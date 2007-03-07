@@ -2689,8 +2689,8 @@ public final class ContainerModelImpl extends
      * @return True if the local draft is modified.
      */
     public Boolean isLocalDraftModified(final Long containerId) {
-        boolean modified = false;
         final ContainerDraft draft = containerIO.readDraft(containerId);
+        boolean isLocalDraftModified = false;
         for (final Document document : draft.getDocuments()) {
             // if the draft document is added or removed the state will be
             // recorded and the draft is modified
@@ -2698,14 +2698,19 @@ public final class ContainerModelImpl extends
             case ADDED:
             case REMOVED:
             case MODIFIED:
-                return Boolean.TRUE;
+                isLocalDraftModified = true;
+                break;
             case NONE:
-                return getDocumentModel().isDraftModified(document.getId());
+                isLocalDraftModified = getDocumentModel().isDraftModified(
+                        document.getId());
+                break;
             default:
                 Assert.assertUnreachable("Unknown draft document state.");
             }
+            if (isLocalDraftModified)
+                return Boolean.TRUE;
         }
-        return Boolean.valueOf(modified);
+        return Boolean.valueOf(isLocalDraftModified);
     }
 
     /**

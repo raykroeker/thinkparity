@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,9 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
+
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
@@ -33,13 +37,26 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.*;
+import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.Archive;
+import com.thinkparity.ophelia.browser.platform.action.container.Collapse;
+import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.Delete;
+import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
+import com.thinkparity.ophelia.browser.platform.action.container.Expand;
+import com.thinkparity.ophelia.browser.platform.action.container.PrintDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.Publish;
+import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.RemoveDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.Rename;
+import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.RevertDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.UndeleteDocument;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
 /**
  * <b>Title:</b><br>
@@ -86,8 +103,10 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
 
         if (isOnline()) {
             if (container.isLocalDraft() && isLocalDraftModified(container.getId())) {
-                final Data publishData = new Data(1);
+                final Data publishData = new Data(3);
                 publishData.set(Publish.DataKey.CONTAINER_ID, container.getId());
+                publishData.set(Publish.DataKey.CONTACTS, Collections.emptyList());
+                publishData.set(Publish.DataKey.TEAM_MEMBERS, Collections.emptyList());
                 addWithExpand(ActionId.CONTAINER_PUBLISH, publishData, container);
                 needSeparator = true;
             }
@@ -217,6 +236,8 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             if (isLocalDraftModified(container.getId())) {
                 final Data publishData = new Data(1);
                 publishData.set(Publish.DataKey.CONTAINER_ID, draft.getContainerId());
+                publishData.set(Publish.DataKey.CONTACTS, Collections.emptyList());
+                publishData.set(Publish.DataKey.TEAM_MEMBERS, Collections.emptyList());
                 add(ActionId.CONTAINER_PUBLISH, publishData);
             }
 

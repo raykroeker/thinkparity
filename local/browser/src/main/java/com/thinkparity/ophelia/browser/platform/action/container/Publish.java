@@ -3,16 +3,15 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.container;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
-import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
-import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.monitor.PublishStep;
 import com.thinkparity.ophelia.model.document.CannotLockException;
@@ -69,45 +68,39 @@ public class Publish extends AbstractBrowserAction {
 	 * 
 	 */
 	public void invoke(final Data data) {
-		final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
-        final List<User> contactsIn = getDataUsers(data, DataKey.CONTACTS);
-        final List<User> teamMembersIn = getDataUsers(data, DataKey.TEAM_MEMBERS);
-        final String comment = (String) data.get(DataKey.COMMENT);
+        final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         final ContainerModel containerModel = getContainerModel();
         final Container container = containerModel.read(containerId);
-        if (!containerModel.isLocalDraftModified(containerId)) {
-            browser.displayErrorDialog("ErrorNoDocumentToPublish",
+        if (containerModel.isLocalDraftModified(containerId)) {
+            final ContainerDraft draft = containerModel.readDraft(containerId);
+            boolean isPublishable = false;
+            for (final Artifact artifact : draft.getArtifacts()) {
+                switch (draft.getState(artifact)) {
+                case ADDED:
+                case MODIFIED:
+                    isPublishable = true;
+                    break;
+                }
+                if (isPublishable)
+                    break;
+            }
+            if (isPublishable) {
+                final List<Contact> contacts = data.getList(DataKey.CONTACTS);
+                final List<TeamMember> teamMembers = data.getList(DataKey.TEAM_MEMBERS);
+                if (0 == contacts.size() && teamMembers.size() == 0) {
+                    browser.displayPublishContainerDialog(containerId);
+                } else {
+                    final String comment = (String) data.get(DataKey.COMMENT);
+                    final ThinkParitySwingMonitor monitor = (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
+                    invoke(monitor, comment, contacts, container, teamMembers);
+                }
+            } else {
+                browser.displayErrorDialog("Publish.NoDocumentToPublish",
                     new Object[] {container.getName()});
-        } else if ((null == contactsIn || contactsIn.isEmpty()) &&
-            (null == teamMembersIn || teamMembersIn.isEmpty())) {
-            // TODO raymond@thinkparity.com - Adjust such that the list input is never null 
-            // launch publish dialog
-            browser.displayPublishContainerDialog(containerId);
+            }
         } else {
-            final Profile profile = getProfileModel().read();
-            final ArrayList<TeamMember> teamMembers = new ArrayList<TeamMember>();
-            final ArrayList<Contact> contacts = new ArrayList<Contact>();
-            // build team members list, minus the current user
-            for (final User teamMemberIn : teamMembersIn) {
-                if (!teamMemberIn.getId().equals(profile.getId())) {
-                    teamMembers.add((TeamMember)teamMemberIn);
-                }
-            }
-            // build contacts list, minus any overlap with team members
-            for (final User contactIn : contactsIn) {
-                Boolean found = Boolean.FALSE;
-                for (final TeamMember teamMember : teamMembers) {
-                    if (teamMember.getId().equals(contactIn.getId())) {
-                        found = Boolean.TRUE;
-                        break;
-                    }
-                }
-                if (!found) {
-                    contacts.add((Contact) contactIn);
-                }
-            }
-            final ThinkParitySwingMonitor monitor = (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
-            invoke(monitor, comment, contacts, container, teamMembers);
+	        browser.displayErrorDialog("NoPublish.NoChangesToDraft",
+	                new Object[] {container.getName()});
         }
 	}
 

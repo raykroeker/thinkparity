@@ -265,6 +265,7 @@ public class WorkspaceModel {
             final Workspace workspace, final Credentials credentials)
             throws InvalidCredentialsException {
         notifyProcessBegin(monitor);
+        notifyDetermine(monitor, 3);
         final WorkspaceImpl workspaceImpl = findImpl(workspace);
         try {
             // initialize persistence

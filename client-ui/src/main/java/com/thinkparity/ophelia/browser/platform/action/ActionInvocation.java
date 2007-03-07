@@ -19,6 +19,14 @@ public interface ActionInvocation {
     public void invokeAction(final Data data);
 
     /**
+     * Invoke a platform action.
+     * 
+     * @param data
+     *            The action data.
+     */
+    public void invokePlatformAction(final Data data);
+
+    /**
      * Retry invoking the action.
      *
      */

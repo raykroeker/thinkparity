@@ -1,8 +1,8 @@
-/*
- * Created On: Aug 29, 2006 8:38:00 AM
+/**
+ * Created On: Mar 6, 2007 4:23:29 PM
+ * $Id$
  */
-package com.thinkparity.ophelia.browser.platform.action.profile;
-
+package com.thinkparity.ophelia.browser.platform.action.platform;
 
 import org.jdesktop.jdic.desktop.DesktopException;
 
@@ -11,22 +11,22 @@ import com.thinkparity.codebase.model.util.http.Link;
 import com.thinkparity.codebase.model.util.http.LinkFactory;
 
 import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
+import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
 
 /**
- * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @author rob_masako@shaw.ca
+ * @version $Revision$
  */
 public class ResetPassword extends AbstractAction {
 
     /** Create ResetPassword. */
-    public ResetPassword(final Browser browser) {
-        super(ActionId.PROFILE_RESET_PASSWORD);
+    public ResetPassword(final Platform platform) {
+        super(ActionId.PLATFORM_RESET_PASSWORD);
     }
 
     /**

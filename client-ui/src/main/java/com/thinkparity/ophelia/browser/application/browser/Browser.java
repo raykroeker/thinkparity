@@ -1663,11 +1663,11 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Run the reset profile password action.
+     * Run the reset password action.
      *
      */
-    public void runResetProfilePassword() {
-        invoke(ActionId.PROFILE_RESET_PASSWORD, Data.emptyData());
+    public void runResetPassword() {
+        getPlatform().runResetPassword();
     }
 
     /**

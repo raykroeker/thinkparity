@@ -153,7 +153,7 @@ public class UpdatePasswordAvatar extends Avatar {
     }
 
     private void forgotPasswordJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_forgotPasswordJLabelMousePressed
-        getController().runResetProfilePassword();
+        getController().runResetPassword();
     }//GEN-LAST:event_forgotPasswordJLabelMousePressed
 
     /**

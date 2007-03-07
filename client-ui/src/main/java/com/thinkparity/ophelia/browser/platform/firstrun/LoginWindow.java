@@ -24,22 +24,15 @@ public class LoginWindow extends OpheliaJFrame {
     private WindowPanel windowPanel;
 
     /** Creates new form LoginWindow */
-    public LoginWindow(final String username, final String password) {
+    public LoginWindow() {
         super(null);
-        loginAvatar = new LoginAvatar(username, password);
+        loginAvatar = new LoginAvatar();
         windowPanel = new WindowPanel();
         windowPanel.getWindowTitle().setBorderType(WindowTitle.BorderType.WINDOW_BORDER2);
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         initComponents(loginAvatar);
+        loginAvatar.reload();
         pack();
-    }
-
-    String getUsername() {
-        return loginAvatar.getUsername();
-    }
-
-    String getPassword() {
-        return loginAvatar.getPassword();
     }
 
     /**

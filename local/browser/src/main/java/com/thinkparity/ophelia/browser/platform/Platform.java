@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowRegistry;
@@ -203,6 +204,23 @@ public interface Platform extends ApplicationListener {
 	 *            The application id.
 	 */
 	public void restore(final ApplicationId applicationId);
+
+    /**
+     * Run the login action.
+     * 
+     * @param username
+     *            The username <code>String</code>.
+     * @param password
+     *            The password <code>String</code>.
+     * @param monitor
+     *            A <code>ThinkParitySwingMonitor</code>.
+     */
+    public void runLogin(final String username, final String password, final ThinkParitySwingMonitor monitor);
+
+    /**
+     * Run the reset password action.
+     */
+    public void runResetPassword();
 
     /**
      * Start the browser platform.

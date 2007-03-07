@@ -25,6 +25,13 @@ import com.thinkparity.ophelia.browser.Constants.Directories;
 import com.thinkparity.ophelia.browser.Constants.Java;
 import com.thinkparity.ophelia.browser.Constants.PropertyNames;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
+import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
+import com.thinkparity.ophelia.browser.platform.action.ActionId;
+import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
+import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
+import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
+import com.thinkparity.ophelia.browser.platform.action.platform.Login;
 import com.thinkparity.ophelia.browser.platform.application.Application;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationFactory;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
@@ -82,6 +89,9 @@ public class BrowserPlatform implements Platform {
 
     /** The platform's log4j wrapper. */
 	protected final Log4JWrapper logger;
+
+    /** Action registry. */
+    private final ActionRegistry actionRegistry;
 
     /** An application factory. */
     private final ApplicationFactory applicationFactory;
@@ -146,6 +156,7 @@ public class BrowserPlatform implements Platform {
         this.workspace = WorkspaceModel.getInstance(
                 environment).getWorkspace(new File(profile.getParityWorkspace()));
         new BrowserPlatformInitializer(this).initialize(workspace);
+        this.actionRegistry = new ActionRegistry();
         this.applicationFactory = ApplicationFactory.getInstance(this);
 		this.applicationRegistry = new ApplicationRegistry();
 		this.avatarRegistry = new AvatarRegistry();
@@ -487,6 +498,24 @@ public class BrowserPlatform implements Platform {
 	}
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#runLogin(java.lang.String, java.lang.String, com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor)
+     */
+    public void runLogin(final String username, final String password, final ThinkParitySwingMonitor monitor) {
+        final Data data = new Data(3);
+        data.set(Login.DataKey.MONITOR, monitor);
+        data.set(Login.DataKey.PASSWORD, password);
+        data.set(Login.DataKey.USERNAME, username);
+        invoke(ActionId.PLATFORM_LOGIN, data);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#runResetPassword()
+     */
+    public void runResetPassword() {
+        invoke(ActionId.PLATFORM_RESET_PASSWORD, Data.emptyData());
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#start()
      * 
      */
@@ -560,11 +589,46 @@ public class BrowserPlatform implements Platform {
     }
 
     /**
+     * Obtain the action from the controller's cache. If the action does not
+     * exist in the cache it is created and stored.
+     * 
+     * @param id
+     *            The action id.
+     * @return The action.
+     * 
+     * @see ActionId
+     */
+    private ActionInvocation getAction(final ActionId id) {
+        if (actionRegistry.contains(id)) {
+            return actionRegistry.get(id);
+        } else {
+            return ActionFactory.create(id);
+        }
+    }
+
+    /**
      * Perform first run initialization.
      * 
      */
     private void initializeWorkspace() {
         firstRunHelper.firstRun();
+    }
+
+    /**
+     * Invoke an action.
+     * 
+     * @param actionId
+     *            The action id.
+     * @param data
+     *            The action data.
+     */
+    private void invoke(final ActionId actionId, final Data data) {
+        try {
+            getAction(actionId).invokePlatformAction(data);
+        } catch(final Throwable t) {
+            logger.logError(t, "Could not invoke action {0} with data {1}.", actionId, data);
+            throw new BrowserException("Could not invoke platform action.", t);
+        }
     }
 
     /**

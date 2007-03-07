@@ -169,6 +169,13 @@ public abstract class AbstractAction implements ActionInvocation {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.action.ActionInvocation#invokePlatformAction(com.thinkparity.ophelia.browser.platform.action.Data)
+     */
+    public void invokePlatformAction(Data data) {
+        invoke(data);
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.action.ActionInvocation#retryInvokeAction()
      * 
      */

@@ -50,9 +50,6 @@ public class ActionFactory extends AbstractFactory {
 	/** The action registry. */
     private final ActionRegistry actionRegistry;
 
-    /** The thinkParity browser application. */
-    private final Browser browser;
-
     /** The thinkParity platform. */
     private final Platform platform;
 
@@ -60,7 +57,6 @@ public class ActionFactory extends AbstractFactory {
 	private ActionFactory() {
         super();
         this.actionRegistry = new ActionRegistry();
-        this.browser = (Browser) new ApplicationRegistry().get(ApplicationId.BROWSER);
         this.platform = BrowserPlatform.getInstance();
     }
 
@@ -90,186 +86,189 @@ public class ActionFactory extends AbstractFactory {
         final AbstractAction action;
 		switch (id) {
         case ARTIFACT_APPLY_FLAG_SEEN:
-            action = new com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen(getBrowser());
             break;
         case ARTIFACT_REMOVE_FLAG_SEEN:
-            action = new com.thinkparity.ophelia.browser.platform.action.artifact.RemoveFlagSeen(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.artifact.RemoveFlagSeen(getBrowser());
             break;
 
         case CONTACT_ACCEPT_INCOMING_INVITATION:
-            action = new com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation(getBrowser());
             break;
         case CONTACT_COLLAPSE:
-            action = new com.thinkparity.ophelia.browser.platform.action.contact.Collapse(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.Collapse(getBrowser());
             break;
 		case CONTACT_CREATE_INCOMING_INVITATION:
-            action = new com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInvitation(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInvitation(getBrowser());
             break;
 		case CONTACT_DECLINE_INCOMING_INVITATION:
-            action = new com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation(getBrowser());
             break;
 		case CONTACT_DELETE:
-		    action = new com.thinkparity.ophelia.browser.platform.action.contact.Delete(browser);
+		    action = new com.thinkparity.ophelia.browser.platform.action.contact.Delete(getBrowser());
             break;
         case CONTACT_DELETE_OUTGOING_INVITATION:
-            action = new com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingInvitation(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingInvitation(getBrowser());
             break;
         case CONTACT_DISPLAY_INVITATION_INFO:
-            action = new com.thinkparity.ophelia.browser.platform.action.contact.DisplayContactInvitationInfo(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.DisplayContactInvitationInfo(getBrowser());
             break;
         case CONTACT_EXPAND:
-            action = new com.thinkparity.ophelia.browser.platform.action.contact.Expand(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.Expand(getBrowser());
             break;
 		case CONTACT_READ:
-            action = new com.thinkparity.ophelia.browser.platform.action.contact.Read(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.Read(getBrowser());
             break;
         case CONTACT_SHOW:
-            action = new com.thinkparity.ophelia.browser.platform.action.contact.Show(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.Show(getBrowser());
             break;
 
 		case CONTAINER_ADD_BOOKMARK:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.AddBookmark(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.AddBookmark(getBrowser());
             break;
         case CONTAINER_ADD_DOCUMENT:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.AddDocument(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.AddDocument(getBrowser());
             break;
         case CONTAINER_ARCHIVE:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.Archive(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Archive(getBrowser());
             break;
         case CONTAINER_COLLAPSE:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.Collapse(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Collapse(getBrowser());
             break;
 		case CONTAINER_CREATE:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.Create(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Create(getBrowser());
             break;
 		case CONTAINER_CREATE_DRAFT:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.CreateDraft(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.CreateDraft(getBrowser());
             break;
 		case CONTAINER_DELETE:
-		    action = new com.thinkparity.ophelia.browser.platform.action.container.Delete(browser);
+		    action = new com.thinkparity.ophelia.browser.platform.action.container.Delete(getBrowser());
 		    break;
         case CONTAINER_DELETE_DRAFT:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft(getBrowser());
             break;
         case CONTAINER_DISPLAY_FLAG_SEEN_INFO:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.DisplayFlagSeenInfo(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.DisplayFlagSeenInfo(getBrowser());
             break;
         case CONTAINER_DISPLAY_VERSION_INFO:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo(getBrowser());
             break;
         case CONTAINER_EXPAND:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.Expand(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Expand(getBrowser());
             break;
         case CONTAINER_EXPORT:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.Export(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Export(getBrowser());
             break;
         case CONTAINER_EXPORT_VERSION:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.ExportVersion(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.ExportVersion(getBrowser());
             break;            
         case CONTAINER_PRINT_DRAFT:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.PrintDraft(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.PrintDraft(getBrowser());
             break;
         case CONTAINER_PRINT_VERSION:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.PrintVersion(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.PrintVersion(getBrowser());
             break;
         case CONTAINER_PUBLISH:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.Publish(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Publish(getBrowser());
             break;
         case CONTAINER_PUBLISH_VERSION:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.PublishVersion(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.PublishVersion(getBrowser());
             break;
         case CONTAINER_READ_VERSION:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.ReadVersion(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.ReadVersion(getBrowser());
             break;
         case CONTAINER_REMOVE_BOOKMARK:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark(getBrowser());
             break;
         case CONTAINER_REMOVE_DOCUMENT:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.RemoveDocument(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.RemoveDocument(getBrowser());
             break;
         case CONTAINER_RENAME:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.Rename(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Rename(getBrowser());
             break;
         case CONTAINER_RENAME_DOCUMENT:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.RenameDocument(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.RenameDocument(getBrowser());
             break;
         case CONTAINER_RESTORE:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.Restore(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Restore(getBrowser());
             break;
         case CONTAINER_REVERT_DOCUMENT:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.RevertDocument(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.RevertDocument(getBrowser());
             break;
         case CONTAINER_SHOW:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.Show(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Show(getBrowser());
             break;
         case CONTAINER_SUBSCRIBE:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.Subscribe(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Subscribe(getBrowser());
             break;
         case CONTAINER_UNDELETE_DOCUMENT:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.UndeleteDocument(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.UndeleteDocument(getBrowser());
             break;
         case CONTAINER_UNSUBSCRIBE:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.Unsubscribe(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Unsubscribe(getBrowser());
             break;
 
         case DOCUMENT_OPEN:
-            action = new com.thinkparity.ophelia.browser.platform.action.document.Open(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.document.Open(getBrowser());
             break;
 		case DOCUMENT_OPEN_VERSION:
-            action = new com.thinkparity.ophelia.browser.platform.action.document.OpenVersion(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.document.OpenVersion(getBrowser());
             break;
         case DOCUMENT_PRINT_DRAFT:
-            action = new com.thinkparity.ophelia.browser.platform.action.document.PrintDraft(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.document.PrintDraft(getBrowser());
             break;
         case DOCUMENT_PRINT_VERSION:
-            action = new com.thinkparity.ophelia.browser.platform.action.document.PrintVersion(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.document.PrintVersion(getBrowser());
             break;
         case DOCUMENT_UPDATE_DRAFT:
-            action = new com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft(getBrowser());
             break;
 
 		case PLATFORM_BROWSER_DISPLAY_INFO:
-		    action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.DisplayInfo(browser);
+		    action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.DisplayInfo(getBrowser());
 		    break;
 		case PLATFORM_BROWSER_ICONIFY:
-		    action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.Iconify(platform);
+		    action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.Iconify(getPlatform());
 		    break;
         case PLATFORM_BROWSER_MOVE_TO_FRONT:
-            action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.MoveToFront(platform);
+            action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.MoveToFront(getPlatform());
             break;
 		case PLATFORM_BROWSER_OPEN_HELP:
-		    action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.OpenHelp(browser);
+		    action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.OpenHelp(getBrowser());
 		    break;            
 		case PLATFORM_BROWSER_RESTORE:
-		    action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.Restore(platform);
+		    action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.Restore(getPlatform());
 		    break;
+        case PLATFORM_LOGIN:
+            action = new com.thinkparity.ophelia.browser.platform.action.platform.Login(getPlatform());
+            break;
         case PLATFORM_QUIT:
-            action = new com.thinkparity.ophelia.browser.platform.action.platform.Quit(platform);
+            action = new com.thinkparity.ophelia.browser.platform.action.platform.Quit(getPlatform());
+            break;
+        case PLATFORM_RESET_PASSWORD:
+            action = new com.thinkparity.ophelia.browser.platform.action.platform.ResetPassword(getPlatform());
             break;
         case PLATFORM_RESTART:
-            action = new com.thinkparity.ophelia.browser.platform.action.platform.Restart(platform);
+            action = new com.thinkparity.ophelia.browser.platform.action.platform.Restart(getPlatform());
             break;
 
         case PROFILE_ADD_EMAIL:
-            action = new com.thinkparity.ophelia.browser.platform.action.profile.AddEmail(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.profile.AddEmail(getBrowser());
             break;
         case PROFILE_REMOVE_EMAIL:
-            action = new com.thinkparity.ophelia.browser.platform.action.profile.RemoveEmail(browser);
-            break;
-        case PROFILE_RESET_PASSWORD:
-            action = new com.thinkparity.ophelia.browser.platform.action.profile.ResetPassword(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.profile.RemoveEmail(getBrowser());
             break;
         case PROFILE_SIGN_UP:
-            action = new com.thinkparity.ophelia.browser.platform.action.profile.SignUp(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.profile.SignUp(getBrowser());
             break;
         case PROFILE_UPDATE:
-            action = new com.thinkparity.ophelia.browser.platform.action.profile.Update(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.profile.Update(getBrowser());
             break;
         case PROFILE_UPDATE_PASSWORD:
-            action = new com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword(getBrowser());
             break;
         case PROFILE_VERIFY_EMAIL:
-            action = new com.thinkparity.ophelia.browser.platform.action.profile.VerifyEmail(browser);
+            action = new com.thinkparity.ophelia.browser.platform.action.profile.VerifyEmail(getBrowser());
             break;
 
         default:
@@ -278,6 +277,20 @@ public class ActionFactory extends AbstractFactory {
         register(action);
         return action;
 	}
+
+    /**
+     * Get the browser.
+     */
+    private Browser getBrowser() {
+        return (Browser) new ApplicationRegistry().get(ApplicationId.BROWSER);
+    }
+
+    /**
+     * Get the platform.
+     */
+    private Platform getPlatform() {
+        return platform;
+    }
 
     /**
      * Register an action.

@@ -12,6 +12,7 @@ import com.thinkparity.codebase.LocaleUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.migrator.Feature;
@@ -114,6 +115,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
                 profileEmail.setVerified(Boolean.TRUE);
                 profileIO.createEmail(remoteProfile.getLocalId(), profileEmail);
             }
+            getIndexModel().indexProfile();
             return profileIO.read(localUserId());
         } catch (final Throwable t) {
             throw translateError(t);
@@ -219,7 +221,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         }
     }
 
-
     /**
      * Read the security question.
      * 
@@ -234,6 +235,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             throw translateError(t);
         }
     }
+
 
     /**
      * Remove an email from a the profile.
@@ -289,6 +291,18 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#search(java.lang.String)
+     *
+     */
+    public List<JabberId> search(final String expression) {
+        try {
+            return getIndexModel().searchProfile(expression);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Update the logged in user's profile.
      * 
      * @param profile
@@ -302,6 +316,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             
             // update local data
             profileIO.update(profile);
+            getIndexModel().indexProfile();
             getSessionModel().updateProfile(localUserId(), profile);
             notifyProfileUpdated(read(), localEventGenerator);
         } catch (final Throwable t) {

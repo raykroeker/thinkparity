@@ -12,6 +12,7 @@ import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.Model;
@@ -26,6 +27,8 @@ import com.thinkparity.ophelia.model.index.container.ContainerIndexImpl;
 import com.thinkparity.ophelia.model.index.container.ContainerVersionIndexImpl;
 import com.thinkparity.ophelia.model.index.document.DocumentIndexEntry;
 import com.thinkparity.ophelia.model.index.document.DocumentIndexImpl;
+import com.thinkparity.ophelia.model.index.profile.ProfileIndexImpl;
+import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -59,6 +62,9 @@ public final class IndexModelImpl extends Model implements
 
     /** An outgoing user invitation index implementation. */
     private IndexImpl<OutgoingUserInvitation, Long> outgoingUserInvitationIndex;
+
+    /** A profile index implementation. */
+    private IndexImpl<Profile, JabberId> profileIndex;
 
     /**
 	 * Create a IndexModelImpl.
@@ -121,6 +127,19 @@ public final class IndexModelImpl extends Model implements
             documentIndex.delete(documentId);
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#deleteProfile()
+     * 
+     */
+    public void deleteProfile() {
+        try {
+            final Profile profile = getProfileModel().read();
+            profileIndex.delete(profile.getId());
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 
@@ -237,6 +256,21 @@ public final class IndexModelImpl extends Model implements
     }
 
 	/**
+     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#indexProfile()
+     *
+     */
+    public void indexProfile() {
+        try {
+            final InternalProfileModel profileModel = getProfileModel();
+            final Profile profile = profileModel.read();
+            profileIndex.delete(profile.getId());
+            profileIndex.index(profile);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Search the contact index.
      * 
      * @param expression
@@ -330,6 +364,18 @@ public final class IndexModelImpl extends Model implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#searchProfile(java.lang.String)
+     * 
+     */
+    public List<JabberId> searchProfile(final String expression) {
+        try {
+            return profileIndex.search(expression);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.index.InternalIndexModel#updateContact(com.thinkparity.codebase.jabber.JabberId)
      *
      */
@@ -364,5 +410,6 @@ public final class IndexModelImpl extends Model implements
         this.incomingInvitationIndex = new IncomingInvitationIndexImpl(workspace, modelFactory);
         this.outgoingEMailInvitationIndex = new OutgoingEMailInvitationIndexImpl(workspace, modelFactory);
         this.outgoingUserInvitationIndex = new OutgoingUserInvitationIndexImpl(workspace, modelFactory);
+        this.profileIndex = new ProfileIndexImpl(workspace, modelFactory);
     }
 }

@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.profile;
 import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.profile.Profile;
@@ -112,6 +113,15 @@ public interface ProfileModel {
      *            The security question answer <code>String</code>.
      */
 	public void resetPassword(final String securityAnswer);
+
+    /**
+     * Search for profiles.
+     * 
+     * @param expression
+     *            A search expression <code>String</code>.
+     * @return A <code>List</code> of <code>JabberId</code>s.
+     */
+    public List<JabberId> search(final String expression);
 
     /**
      * Update the logged in user's profile.

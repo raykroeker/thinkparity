@@ -215,9 +215,11 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         final List<Long> incomingInvitationIds = ((ContactProvider) contentProvider).searchIncomingInvitations(searchExpression);
         final List<Long> outgoingEMailInvitationIds = ((ContactProvider) contentProvider).searchOutgoingEMailInvitations(searchExpression);
         final List<Long> outgoingUserInvitationIds = ((ContactProvider) contentProvider).searchOutgoingUserInvitations(searchExpression);
+        final List<JabberId> profileIds = ((ContactProvider) contentProvider).searchProfile(searchExpression);
         final int size = contactIds.size() + incomingInvitationIds.size()
                 + outgoingEMailInvitationIds.size()
-                + outgoingUserInvitationIds.size();
+                + outgoingUserInvitationIds.size()
+                + profileIds.size();
         final List<ContactPanelId> panelIds = new ArrayList<ContactPanelId>(size);
         for (final JabberId contactId : contactIds)
             panelIds.add(new ContactPanelId(contactId));
@@ -227,6 +229,8 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             panelIds.add(new ContactPanelId(invitationId));
         for (final Long invitationId : outgoingUserInvitationIds)
             panelIds.add(new ContactPanelId(invitationId));
+        for (final JabberId profileId : profileIds)
+            panelIds.add(new ContactPanelId(profileId));
         return panelIds;
     }
 

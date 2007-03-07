@@ -46,6 +46,12 @@ public interface InternalIndexModel extends IndexModel {
     public void deleteDocument(final Long documentId);
 
     /**
+     * Delete the user profile index
+     *
+     */
+    public void deleteProfile();
+
+    /**
      * Index a contact.
      * 
      * @param contactId
@@ -79,7 +85,7 @@ public interface InternalIndexModel extends IndexModel {
      *            A document id <code>Long</code>.
      */
 	public void indexDocument(final Long containerId, final Long documentId);
-
+    
     /**
      * Index an incoming invitation.
      * 
@@ -87,7 +93,7 @@ public interface InternalIndexModel extends IndexModel {
      *            An invitation id <code>Long</code>.
      */
     public void indexIncomingInvitation(final Long invitationId);
-    
+
     /**
      * Index an outgoing e-mail invitation.
      * 
@@ -103,6 +109,12 @@ public interface InternalIndexModel extends IndexModel {
      *            An invitation id <code>Long</code>.
      */
     public void indexOutgoingUserInvitation(final Long invitationId);
+
+    /**
+     * Index the user profile.
+     *
+     */
+    public void indexProfile();
 
     /**
      * Search the index for contacts.
@@ -167,6 +179,15 @@ public interface InternalIndexModel extends IndexModel {
      * @return A <code>List</code> of invitation id <code>Long</code>s.
      */
     public List<Long> searchOutgoingUserInvitations(final String expression);
+
+    /**
+     * Index the user profile.
+     * 
+     * @param expression
+     *            A search expresssion.
+     * @return A <code>List&lt;JabberId&gt;</code>.
+     */
+    public List<JabberId> searchProfile(final String expression);
 
     /**
      * Update a contact in the index.

@@ -68,7 +68,11 @@ public class ContactPanelId {
         if (getClass() != obj.getClass())
             return false;
         final ContactPanelId contactPanelId = (ContactPanelId) obj;
-        if (isSetContactId() && contactPanelId.isSetContactId())
+        if (isSetContactId() && !contactPanelId.isSetContactId())
+            return false;
+        else if (isSetInvitationId() && !contactPanelId.isSetInvitationId())
+            return false;
+        else if (isSetContactId() && contactPanelId.isSetContactId())
             return contactId.equals(contactPanelId.contactId);
         else if (isSetInvitationId() && contactPanelId.isSetInvitationId())
             return invitationId.equals(contactPanelId.invitationId);

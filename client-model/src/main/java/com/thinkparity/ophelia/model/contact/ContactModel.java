@@ -27,7 +27,7 @@ import com.thinkparity.ophelia.model.events.ContactListener;
 @ThinkParityTransaction(TransactionType.REQUIRED)
 public interface ContactModel {
 
-	/**
+    /**
      * Accept the incoming invitation.
      * 
      * @param invitationId
@@ -35,7 +35,7 @@ public interface ContactModel {
      */
     public void acceptIncomingInvitation(final Long invitationId);
 
-    /**
+	/**
      * Add a contact listener.
      * 
      * @param listener
@@ -49,11 +49,21 @@ public interface ContactModel {
      * 
      * @param email
      *            An e-mail address.
-     * @return The new contact invitation.
+     * @return The new <code>OutgoingEMailInvitation</code>.
      */
-    public OutgoingInvitation createOutgoingInvitation(final EMail email);
+    public OutgoingEMailInvitation createOutgoingEMailInvitation(
+            final EMail email);
 
-	/**
+    /**
+     * Create a contact invitation.
+     * 
+     * @param userId
+     *            A user id <code>Long</code>.
+     * @return The new <code>OutgoingUserInvitation</code>.
+     */
+    public OutgoingUserInvitation createOutgoingUserInvitation(final Long userId);
+
+    /**
      * Accept the incoming invitation.
      * 
      * @param invitationId
@@ -69,13 +79,40 @@ public interface ContactModel {
      * @return A contact.
      */
     public void delete(final JabberId contactId);
+
 	/**
-     * Delete an outgoing invitation.
+     * Delete an outgoing e-mail invitation.
      * 
      * @param invitationId
      *            An invitation id.
      */
-    public void deleteOutgoingInvitation(final Long invitationId);
+    public void deleteOutgoingEMailInvitation(final Long invitationId);
+
+    /**
+     * Delete an outgoing user invitation.
+     * 
+     * @param invitationId
+     *            An invitation id.
+     */
+    public void deleteOutgoingUserInvitation(final Long invitationId);
+
+    /**
+     * Determine if the contact exists.
+     * 
+     * @param contactId
+     *            A contact id <code>Long</code>.
+     * @return True if the contact exists; false otherwise.
+     */
+    public Boolean doesExist(final Long contactId);
+
+    /**
+     * Determine if the outgoing user invitation exists.
+     * 
+     * @param userId
+     *            A user id <code>Long</code>.
+     * @return True if there exists an outgoing user invitation for the user.
+     */
+    public Boolean doesExistOutgoingUserInvitationForUser(final Long userId);
 
     /**
      * Read a list of contacts.
@@ -124,6 +161,13 @@ public interface ContactModel {
     public Contact read(final JabberId contactId);
 
     /**
+     * Read a list of container publish to contacts.
+     * 
+     * @return A <code>List</code> of <code>Contact</code>s.
+     */
+    public List<Contact> readContainerPublishTo();
+
+    /**
      * Read an outgoing invitation.
      * 
      * @param invitationId
@@ -165,54 +209,39 @@ public interface ContactModel {
             final Filter<? super ContactInvitation> filter);
 
     /**
-     * Read an outgoing invitation.
+     * Read an outgoing email invitation.
      * 
      * @param invitationId
      *            An invitation id.
      * @return An outgoing invitation.
      */
-    public OutgoingInvitation readOutgoingInvitation(final Long invitationId);
-
+    public OutgoingEMailInvitation readOutgoingEMailInvitation(
+            final Long invitationId);
 
     /**
-     * Read a list of outgoing invitations.
+     * Read a list of outgoing e-mail invitations.
      * 
      * @return A list of outgoing invitations.
      */
-    public List<OutgoingInvitation> readOutgoingInvitations();
+    public List<OutgoingEMailInvitation> readOutgoingEMailInvitations();
 
     /**
-     * Read a list of outgoing invitations.
+     * Read an outgoing email invitation.
+     * 
+     * @param invitationId
+     *            An invitation id.
+     * @return An outgoing user invitation.
+     */
+    public OutgoingUserInvitation readOutgoingUserInvitation(
+            final Long invitationId);
+
+    
+    /**
+     * Read a list of outgoing user invitations.
      * 
      * @return A list of outgoing invitations.
      */
-    public List<OutgoingInvitation> readOutgoingInvitations(
-            final Comparator<ContactInvitation> comparator) ;
-
-    /**
-     * Read a list of outgoing invitations.
-     * 
-     * @return A list of outgoing invitations.
-     */
-    public List<OutgoingInvitation> readOutgoingInvitations(
-            final Comparator<ContactInvitation> comparator,
-            final Filter<? super ContactInvitation> filter);
-
-    /**
-     * Read a list of outgoing invitations.
-     * 
-     * @return A list of outgoing invitations.
-     */
-    public List<OutgoingInvitation> readOutgoingInvitations(
-            final Filter<? super ContactInvitation> filter);
-
-
-    /**
-     * Read a list of container publish to contacts.
-     * 
-     * @return A <code>List</code> of <code>Contact</code>s.
-     */
-    public List<Contact> readContainerPublishTo();
+    public List<OutgoingUserInvitation> readOutgoingUserInvitations();
 
     /**
      * Remove a contact listener.
@@ -248,5 +277,14 @@ public interface ContactModel {
      *            A search expression.
      * @return A <code>List&lt;Long&gt;</code>.
      */
-    public List<Long> searchOutgoingInvitations(final String expression);
+    public List<Long> searchOutgoingEMailInvitations(final String expression);
+
+    /**
+     * Search for outgoing invitations.
+     * 
+     * @param expression
+     *            A search expression.
+     * @return A <code>List&lt;Long&gt;</code>.
+     */
+    public List<Long> searchOutgoingUserInvitations(final String expression);
 }

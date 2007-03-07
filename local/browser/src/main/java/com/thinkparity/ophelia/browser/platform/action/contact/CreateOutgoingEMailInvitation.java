@@ -7,25 +7,31 @@ package com.thinkparity.ophelia.browser.platform.action.contact;
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
 /**
- * @author rob_masako@shaw.ca
- * @version $Revision$
+ * <b>Title:</b>thinkParity OpheliaUI Browser Application Create Outgoing EMail
+ * Invitation Action<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class CreateIncomingInvitation extends AbstractBrowserAction {
-
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
+public final class CreateOutgoingEMailInvitation extends AbstractAction {
 
     /** The browser application. */
     private final Browser browser;
     
-    /** Create CreateIncomingInvitation. */
-    public CreateIncomingInvitation(final Browser browser) {
-        super(ActionId.CONTACT_CREATE_INCOMING_INVITATION);
+    /**
+     * Create CreateOutgoingEMailInvitation.
+     * 
+     * @param browser
+     *            The <code>Browser</code> application.
+     */
+    public CreateOutgoingEMailInvitation(final Browser browser) {
+        super(ActionId.CONTACT_CREATE_OUTGOING_EMAIL_INVITATION);
         this.browser = browser;
     }
     
@@ -39,7 +45,7 @@ public class CreateIncomingInvitation extends AbstractBrowserAction {
             browser.displayContactCreateInvitation();
         }
         else {
-            getContactModel().createOutgoingInvitation(contactEmail);
+            getContactModel().createOutgoingEMailInvitation(contactEmail);
         }
     }
 

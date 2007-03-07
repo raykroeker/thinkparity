@@ -98,8 +98,11 @@ public class ActionFactory extends AbstractFactory {
         case CONTACT_COLLAPSE:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.Collapse(getBrowser());
             break;
-		case CONTACT_CREATE_INCOMING_INVITATION:
-            action = new com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInvitation(getBrowser());
+        case CONTACT_CREATE_OUTGOING_EMAIL_INVITATION:
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingEMailInvitation(getBrowser());
+            break;
+        case CONTACT_CREATE_OUTGOING_USER_INVITATION:
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingUserInvitation(getBrowser());
             break;
 		case CONTACT_DECLINE_INCOMING_INVITATION:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation(getBrowser());
@@ -107,8 +110,11 @@ public class ActionFactory extends AbstractFactory {
 		case CONTACT_DELETE:
 		    action = new com.thinkparity.ophelia.browser.platform.action.contact.Delete(getBrowser());
             break;
-        case CONTACT_DELETE_OUTGOING_INVITATION:
-            action = new com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingInvitation(getBrowser());
+        case CONTACT_DELETE_OUTGOING_EMAIL_INVITATION:
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingEMailInvitation(getBrowser());
+            break;
+        case CONTACT_DELETE_OUTGOING_USER_INVITATION:
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingUserInvitation(getBrowser());
             break;
         case CONTACT_DISPLAY_INVITATION_INFO:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.DisplayContactInvitationInfo(getBrowser());

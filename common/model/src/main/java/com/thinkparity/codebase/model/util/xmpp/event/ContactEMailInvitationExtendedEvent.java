@@ -14,7 +14,7 @@ import com.thinkparity.codebase.jabber.JabberId;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ContactInvitationExtendedEvent extends XMPPEvent {
+public final class ContactEMailInvitationExtendedEvent extends XMPPEvent {
 
     /** The original invitation <code>EMail</code>. */
     private EMail invitedAs;
@@ -29,7 +29,7 @@ public final class ContactInvitationExtendedEvent extends XMPPEvent {
      * Create ContactInvitationExtendedEvent.
      *
      */
-    public ContactInvitationExtendedEvent() {
+    public ContactEMailInvitationExtendedEvent() {
         super();
     }
 

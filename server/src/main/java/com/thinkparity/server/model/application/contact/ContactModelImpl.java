@@ -21,10 +21,13 @@ import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.ContactVCard;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationExtendedEvent;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
@@ -107,8 +110,8 @@ class ContactModelImpl extends AbstractModelImpl {
 	}
 
     /**
-     * Decline an invitation. Delete the invitation and send a notification
-     * (which will delete that invitation).
+     * Decline an e-mail invitation. Delete the invitation and send a
+     * notification (which will delete that invitation).
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
@@ -119,8 +122,9 @@ class ContactModelImpl extends AbstractModelImpl {
      * @param declinedOn
      *            When the invitation was declined.
      */
-	void declineInvitation(final JabberId userId, final JabberId invitedBy,
-            final EMail invitedAs, final Calendar declinedOn) {
+    void declineEMailInvitation(final JabberId userId,
+            final JabberId invitedBy, final EMail invitedAs,
+            final Calendar declinedOn) {
         logApiId();
         logVariable("userId", userId);
         logVariable("invitedBy", invitedBy);
@@ -130,7 +134,7 @@ class ContactModelImpl extends AbstractModelImpl {
             // delete the invitation
             invitationSql.delete(invitedBy, userId);
             // send notification
-            final ContactInvitationDeclinedEvent invitationDeclined = new ContactInvitationDeclinedEvent();
+            final ContactEMailInvitationDeclinedEvent invitationDeclined = new ContactEMailInvitationDeclinedEvent();
             invitationDeclined.setDeclinedBy(userId);
             invitationDeclined.setDeclinedOn(declinedOn);
             invitationDeclined.setInvitedAs(invitedAs);
@@ -138,7 +142,39 @@ class ContactModelImpl extends AbstractModelImpl {
         } catch (final Throwable t) {
             throw translateError(t);
         }
-	}
+    }
+
+    /**
+     * Decline an e-mail invitation. Delete the invitation and send a
+     * notification (which will delete that invitation).
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitedBy
+     *            Who invited the user.
+     * @param invitedAs
+     *            To which <code>EMail</code> the invitation was sent.
+     * @param declinedOn
+     *            When the invitation was declined.
+     */
+    void declineUserInvitation(final JabberId userId, final JabberId invitedBy,
+            final Calendar declinedOn) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("invitedBy", invitedBy);
+        logVariable("declinedOn", declinedOn);
+        try {
+            // delete the invitation
+            invitationSql.delete(invitedBy, userId);
+            // send notification
+            final ContactUserInvitationDeclinedEvent invitationDeclined = new ContactUserInvitationDeclinedEvent();
+            invitationDeclined.setDeclinedBy(userId);
+            invitationDeclined.setDeclinedOn(declinedOn);
+            enqueueEvent(userId, invitedBy, invitationDeclined);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     /**
      * Delete a contact for a user.
@@ -166,8 +202,8 @@ class ContactModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
-     * Delete a contact invitation.
+    /**
+     * Delete a contact e-mail invitation.
      * 
      * @param userId
      *            A user id.
@@ -176,14 +212,14 @@ class ContactModelImpl extends AbstractModelImpl {
      * @param deletedOn
      *            The deletion date\time <code>Calendar<code>.
      */
-	void deleteInvitation(final JabberId userId, final EMail invitedAs,
+    void deleteEMailInvitation(final JabberId userId, final EMail invitedAs,
             final Calendar deletedOn) {
         logApiId();
         logVariable("userId", userId);
         logVariable("invitedAs", invitedAs);
         logVariable("deletedOn", deletedOn);
-		try {
-		    final UserModel userModel = getUserModel();
+        try {
+            final UserModel userModel = getUserModel();
             final User invitedAsUser = userModel.read(invitedAs);
             if (null == invitedAsUser) {
                 // delete remote data
@@ -192,19 +228,54 @@ class ContactModelImpl extends AbstractModelImpl {
                 // delete remote data
                 invitationSql.delete(userId, invitedAsUser.getId());
                 // send notification
-                final ContactInvitationDeletedEvent invitationDeleted = new ContactInvitationDeletedEvent();
+                final ContactEMailInvitationDeletedEvent invitationDeleted =
+                    new ContactEMailInvitationDeletedEvent();
                 invitationDeleted.setInvitedAs(invitedAs);
                 invitationDeleted.setDeletedBy(userId);
                 invitationDeleted.setDeletedOn(deletedOn);
                 enqueueEvent(userId, invitedAsUser.getId(), invitationDeleted);
             }
-		} catch(final Throwable t) {
-			throw translateError(t);
-		}
-	}
+        } catch(final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Delete a contact e-mail invitation.
+     * 
+     * @param userId
+     *            A user id.
+     * @param invitedAs
+     *            The <code>EMail</code> the invitation was sent to.
+     * @param deletedOn
+     *            The deletion date\time <code>Calendar<code>.
+     */
+    void deleteUserInvitation(final JabberId userId, final JabberId invitedAs,
+            final Calendar deletedOn) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("invitedAs", invitedAs);
+        logVariable("deletedOn", deletedOn);
+        try {
+            final UserModel userModel = getUserModel();
+            final User invitedAsUser = userModel.read(invitedAs);
+            // delete remote data
+            invitationSql.delete(userId, invitedAsUser.getId());
+            // send notification
+            final ContactUserInvitationDeletedEvent invitationDeleted =
+                new ContactUserInvitationDeletedEvent();
+            invitationDeleted.setDeletedBy(userId);
+            invitationDeleted.setDeletedOn(deletedOn);
+            enqueueEvent(userId, invitedAsUser.getId(), invitationDeleted);
+        } catch(final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
 	/**
-     * Extend an invitation for a user.
+     * Extend an invitation to an e-mail address. If the e-mail address is
+     * known; then a standard invitation is created and sent; otherwise an
+     * e-mail is sent.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
@@ -213,12 +284,8 @@ class ContactModelImpl extends AbstractModelImpl {
      * @param extendedOn
      *            The date <code>Calendar</code>.
      */
-	void extendInvitation(final JabberId userId, final EMail extendTo,
+	void extendEMailInvitation(final JabberId userId, final EMail extendTo,
             final Calendar extendedOn) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("extendTo", extendTo);
-        logVariable("extendedOn", extendedOn);
         try {
             final UserModel userModel = getUserModel();
             final User extendToUser = userModel.read(extendTo);
@@ -234,7 +301,8 @@ class ContactModelImpl extends AbstractModelImpl {
                 // create remote data
                 invitationSql.create(userId, extendToUser.getId(), extendedOn);
                 // extend the invitation within thinkParity
-                final ContactInvitationExtendedEvent invitationExtended = new ContactInvitationExtendedEvent();
+                final ContactEMailInvitationExtendedEvent invitationExtended =
+                    new ContactEMailInvitationExtendedEvent();
                 invitationExtended.setInvitedAs(extendTo);
                 invitationExtended.setInvitedBy(userId);
                 invitationExtended.setInvitedOn(extendedOn);
@@ -242,6 +310,33 @@ class ContactModelImpl extends AbstractModelImpl {
             }
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * Extend an invitation to a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param extendTo
+     *            An extend to user id <code>JabberId</code>.
+     * @param extendedOn
+     *            An extended on <code>Calendar</code>.
+     */
+    void extendUserInvitation(final JabberId userId, final JabberId extendTo,
+            final Calendar extendedOn) {
+        try {
+            final User extendToUser = getUserModel().read(extendTo);
+            // create remote data
+            invitationSql.create(userId, extendToUser.getId(), extendedOn);
+            // extend the invitation within thinkParity
+            final ContactUserInvitationExtendedEvent invitation =
+                new ContactUserInvitationExtendedEvent();
+            invitation.setInvitedBy(userId);
+            invitation.setInvitedOn(extendedOn);
+            enqueueEvent(userId, extendToUser.getId(), invitation);
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 

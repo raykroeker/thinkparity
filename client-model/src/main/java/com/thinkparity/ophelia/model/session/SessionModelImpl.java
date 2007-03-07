@@ -282,25 +282,40 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-	 * Decline a user's invitation to their contact list.
-	 * 
-	 * @param jabberId
-	 *            The user's jabber id.
-	 * @throws ParityException
-	 */
-    public void declineInvitation(final EMail invitedAs, final JabberId invitedBy) {
-        logger.logApiId();
-        logger.logVariable("invitedAs", invitedAs);
-        logger.logVariable("invitedBy", invitedBy);
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#declineContactEMailInvitation(com.thinkparity.codebase.email.EMail,
+     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
+     * 
+     */
+    public void declineContactEMailInvitation(final EMail invitedAs,
+            final JabberId invitedBy, final Calendar declinedOn) {
 		try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
 		    synchronized(xmppSession) {
-		        xmppSession.declineInvitation(invitedAs, invitedBy);
+		        xmppSession.declineContactEMailInvitation(localUserId(),
+                        invitedAs, invitedBy, declinedOn);
             }
 		} catch(final Throwable t) {
             throw translateError(t);
 		}
 	}
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#declineContactUserInvitation(com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.Calendar)
+     * 
+     */
+    public void declineContactUserInvitation(final JabberId invitedBy,
+            final Calendar declinedOn) {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized(xmppSession) {
+                xmppSession.declineContactUserInvitation(localUserId(),
+                        invitedBy, declinedOn);
+            }
+        } catch(final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteArtifact(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
@@ -340,25 +355,35 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Delete a contact invitation.
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteContactEMailInvitation(com.thinkparity.codebase.email.EMail,
+     *      java.util.Calendar)
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param invitedAs
-     *            The invitation <code>EMail</code>.
-     * @param deletedOn
-     *            The deletion <code>Calendar</code>.
      */
-    public void deleteContactInvitation(final JabberId userId, final EMail invitedAs,
+    public void deleteContactEMailInvitation(final EMail invitedAs,
             final Calendar deletedOn) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("invitedAs", invitedAs);
-        logger.logVariable("deletedOn", deletedOn);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                xmppSession.deleteContactInvitation(userId, invitedAs, deletedOn);
+                xmppSession.deleteContactEMailInvitation(localUserId(),
+                        invitedAs, deletedOn);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteContactUserInvitation(com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.Calendar)
+     * 
+     */
+    public void deleteContactUserInvitation(final JabberId invitedAs,
+            final Calendar deletedOn) {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                xmppSession.deleteContactUserInvitation(localUserId(), invitedAs,
+                        deletedOn);
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -422,25 +447,43 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
-	 * Extend an invitation to a contact.
-	 * 
-	 * @param extendTo
-	 *            An <code>EMail</code> to invite.
-	 */
-    public void extendInvitation(final EMail extendTo) {
-        logger.logApiId();
-        logger.logVariable("extendTo", extendTo);
-		try {
+    /**
+     * Extend an invitation to a contact.
+     * 
+     * @param extendTo
+     *            An <code>EMail</code> to invite.
+     */
+    public void extendContactEMailInvitation(final EMail extendTo,
+            final Calendar extendedOn) {
+        try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
-		    synchronized (xmppSession) {
-		        xmppSession.extendInvitation(localUserId(), extendTo,
-                        currentDateTime());
-		    }
-		} catch(final Throwable t) {
-			throw translateError(t);
-		}
-	}
+            synchronized (xmppSession) {
+                xmppSession.extendContactEMailInvitation(localUserId(),
+                        extendTo, extendedOn);
+            }
+        } catch(final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Extend an invitation to a contact.
+     * 
+     * @param extendTo
+     *            An <code>EMail</code> to invite.
+     */
+    public void extendContactUserInvitation(final JabberId extendTo,
+            final Calendar extendedOn) {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                xmppSession.extendContactUserInvitation(localUserId(), extendTo,
+                        extendedOn);
+            }
+        } catch(final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
 	/**
      * Handle the session established remote event.

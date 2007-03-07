@@ -6,6 +6,9 @@ package com.thinkparity.ophelia.model.events;
 import com.thinkparity.codebase.event.EventListener;
 
 /**
+ * <b>Title:</b>thinkParity OpheliaModel Contact Event Listener<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
@@ -16,8 +19,12 @@ public interface ContactListener extends EventListener {
     public void incomingInvitationCreated(final ContactEvent e);
     public void incomingInvitationDeclined(final ContactEvent e);
     public void incomingInvitationDeleted(final ContactEvent e);
-    public void outgoingInvitationAccepted(final ContactEvent e);
-    public void outgoingInvitationCreated(final ContactEvent e);
-    public void outgoingInvitationDeclined(final ContactEvent e);
-    public void outgoingInvitationDeleted(final ContactEvent e);
+    public void outgoingEMailInvitationAccepted(final ContactEvent e);
+    public void outgoingEMailInvitationCreated(final ContactEvent e);
+    public void outgoingEMailInvitationDeclined(final ContactEvent e);
+    public void outgoingEMailInvitationDeleted(final ContactEvent e);
+    public void outgoingUserInvitationAccepted(final ContactEvent e);
+    public void outgoingUserInvitationCreated(final ContactEvent e);
+    public void outgoingUserInvitationDeclined(final ContactEvent e);
+    public void outgoingUserInvitationDeleted(final ContactEvent e);
 }

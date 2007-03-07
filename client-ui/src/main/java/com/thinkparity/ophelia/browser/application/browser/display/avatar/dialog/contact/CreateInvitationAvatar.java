@@ -219,7 +219,7 @@ public final class CreateInvitationAvatar extends Avatar {
         if(isInputValid()) {
             disposeWindow();
             final EMail email = extractEmail();
-            getController().runCreateContactInvitation(email);
+            getController().runCreateContactOutgoingEMailInvitation(email);
         }
     }//GEN-LAST:event_addJButtonActionPerformed
 

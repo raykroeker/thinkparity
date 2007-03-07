@@ -6,9 +6,11 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingUserInvitation;
+
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 
 /**
  * <b>Title:</b><br>
@@ -37,12 +39,20 @@ public interface PopupDelegate extends TabPanelPopupDelegate {
     public void showForInvitation(final IncomingInvitation invitation);
 
     /**
-     * Show a popup for a contact invitation.
+     * Show a popup for an outgoing e-mail invitation.
      * 
      * @param invitation
-     *            An <code>OutgoingInvitation</code>.
+     *            An <code>OutgoingEMailInvitation</code>.
      */
-    public void showForInvitation(final OutgoingInvitation invitation);
+    public void showForInvitation(final OutgoingEMailInvitation invitation);
+
+    /**
+     * Show a popup for an outgoing e-mail invitation.
+     * 
+     * @param invitation
+     *            An <code>OutgoingUserInvitation</code>.
+     */
+    public void showForInvitation(final OutgoingUserInvitation invitation);
 
     /**
      * Show a popup for a profile.

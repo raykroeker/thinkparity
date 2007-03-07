@@ -1,14 +1,12 @@
 /*
- * Created On: Aug 29, 2006 3:00:18 PM
+ * Feb 28, 2006
  */
 package com.thinkparity.desdemona.wildfire.handler.contact;
 
 import java.util.Calendar;
 
-import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
 import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
@@ -20,13 +18,15 @@ import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class DeleteInvitation extends AbstractHandler {
+public final class DeclineUserInvitation extends AbstractHandler {
 
     /**
-     * Create DeleteInvitation.
+     * Create DeclineUserInvitation.
      *
      */
-    public DeleteInvitation() { super("contact:deleteinvitation"); }
+	public DeclineUserInvitation() {
+        super("contact:declineuserinvitation");
+	}
 
     /**
      * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
@@ -38,18 +38,15 @@ public final class DeleteInvitation extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        logger.logApiId();
-        deleteInvitation(provider, reader.readJabberId("userId"), reader
-                .readEMail("invitedAs"), reader.readCalendar("deletedOn"));
+        declineUserInvitation(provider, reader.readJabberId("userId"),
+                reader.readJabberId("invitedBy"),
+                reader.readCalendar("declinedOn"));
     }
 
-    /**
-     * @see ContactModel#deleteInvitation(JabberId, EMail, Calendar)
-     */
-    private void deleteInvitation(final ServiceModelProvider context,
-            final JabberId userId, final EMail invitedAs,
-            final Calendar deletedOn) {
-        context.getContactModel()
-                .deleteInvitation(userId, invitedAs, deletedOn);
+    private void declineUserInvitation(final ServiceModelProvider context,
+            final JabberId userId, final JabberId invitedBy,
+            final Calendar declinedOn) {
+        context.getContactModel().declineUserInvitation(userId, invitedBy,
+                declinedOn);
     }
 }

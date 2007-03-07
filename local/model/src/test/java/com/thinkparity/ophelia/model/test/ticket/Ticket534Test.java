@@ -52,12 +52,19 @@ public class Ticket534Test extends TicketTestCase {
             cm.delete(c.getId());
             datum.waitForEvents();
         }
-        List<OutgoingInvitation> oi_list = cm.readOutgoingInvitations();
+        List<? extends OutgoingInvitation> oi_list = cm.readOutgoingEMailInvitations();
         for (final OutgoingInvitation oi : oi_list) {
-            logger.logInfo("Deleting invitation to {0} as {1}.", oi.getEmail(), datum.junit.getSimpleUsername());
-            cm.deleteOutgoingInvitation(oi.getId());
+            logger.logInfo("Deleting e-mail invitation {0} as {1}.", oi.getId(), datum.junit.getSimpleUsername());
+            cm.deleteOutgoingEMailInvitation(oi.getId());
             datum.waitForEvents();
         }
+        oi_list = cm.readOutgoingUserInvitations();
+        for (final OutgoingInvitation oi : oi_list) {
+            logger.logInfo("Deleting user invitation {0} as {1}.", oi.getId(), datum.junit.getSimpleUsername());
+            cm.deleteOutgoingUserInvitation(oi.getId());
+            datum.waitForEvents();
+        }
+
         final InternalContactModel cm_x = getContactModel(datum.junit_x); 
         final Contact c_x = cm_x.read(datum.junit.getId());
         if (null != c_x) {
@@ -65,18 +72,24 @@ public class Ticket534Test extends TicketTestCase {
             cm_x.delete(c_x.getId());
             datum.waitForEvents();
         }
-        List<OutgoingInvitation> oi_list_x = cm_x.readOutgoingInvitations();
+        List<? extends OutgoingInvitation> oi_list_x = cm_x.readOutgoingEMailInvitations();
         for (final OutgoingInvitation oi_x : oi_list_x) {
-            logger.logInfo("Deleting invitation to {0} as {1}.",oi_x.getEmail(), datum.junit_x.getSimpleUsername());
-            cm_x.deleteOutgoingInvitation(oi_x.getId());
+            logger.logInfo("Deleting invitation {0} as {1}.", oi_x.getId(), datum.junit_x.getSimpleUsername());
+            cm_x.deleteOutgoingEMailInvitation(oi_x.getId());
+            datum.waitForEvents();
+        }
+        oi_list_x = cm_x.readOutgoingUserInvitations();
+        for (final OutgoingInvitation oi_x : oi_list_x) {
+            logger.logInfo("Deleting invitation {0} as {1}.", oi_x.getId(), datum.junit_x.getSimpleUsername());
+            cm_x.deleteOutgoingEMailInvitation(oi_x.getId());
             datum.waitForEvents();
         }
 
         // invite junit_x from junit
-        getContactModel(datum.junit).createOutgoingInvitation(datum.junit_x.getEmail());
+        getContactModel(datum.junit).createOutgoingEMailInvitation(datum.junit_x.getEmail());
         datum.waitForEvents();
         // invite junit from junit_x
-        getContactModel(datum.junit_x).createOutgoingInvitation(datum.junit.getEmail());
+        getContactModel(datum.junit_x).createOutgoingEMailInvitation(datum.junit.getEmail());
         datum.waitForEvents();
         // accept the invitation from junit to junit_x
         final List<IncomingInvitation> invitations = getContactModel(datum.junit).readIncomingInvitations();

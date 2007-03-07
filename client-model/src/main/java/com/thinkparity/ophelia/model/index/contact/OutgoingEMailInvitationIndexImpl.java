@@ -9,7 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.ophelia.model.index.AbstractIndexImpl;
 import com.thinkparity.ophelia.model.index.lucene.DocumentBuilder;
 import com.thinkparity.ophelia.model.index.lucene.FieldBuilder;
@@ -25,8 +25,8 @@ import org.apache.lucene.index.Term;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class OutgoingInvitationIndexImpl extends
-        AbstractIndexImpl<OutgoingInvitation, Long> {
+public final class OutgoingEMailInvitationIndexImpl extends
+        AbstractIndexImpl<OutgoingEMailInvitation, Long> {
 
     /** Contact name index field. */
     private static final FieldBuilder IDX_INVITATION_EMAIL;
@@ -49,19 +49,19 @@ public final class OutgoingInvitationIndexImpl extends
 
         IDX_INVITATION_ID = new FieldBuilder()
                 .setIndex(Field.Index.UN_TOKENIZED)
-                .setName("CONTACT_INVITATION_OUTGOING.CONTACT_INVITATION_ID")
+                .setName("CONTACT_INVITATION_OUTGOING_EMAIL.CONTACT_INVITATION_ID")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 
         IDX_INVITATION_EMAIL = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_OUTGOING.EMAIL")
+                .setName("CONTACT_INVITATION_OUTGOING_EMAIL.EMAIL")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 
         IDX_INVITATION_EMAIL_REV = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_OUTGOING.EMAIL_REV")
+                .setName("CONTACT_INVITATION_OUTGOING_EMAIL.EMAIL_REV")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
     }
@@ -74,7 +74,7 @@ public final class OutgoingInvitationIndexImpl extends
      * @param modelFactory
      *            A thinkParity <code>InternalModelFactory</code>.
      */
-    public OutgoingInvitationIndexImpl(final Workspace workspace,
+    public OutgoingEMailInvitationIndexImpl(final Workspace workspace,
             final InternalModelFactory modelFactory) {
         super(workspace, modelFactory);
     }
@@ -91,7 +91,7 @@ public final class OutgoingInvitationIndexImpl extends
     /**
      * @see com.thinkparity.ophelia.model.index.IndexImpl#index(java.lang.Object)
      */
-    public void index(final OutgoingInvitation o) throws IOException {
+    public void index(final OutgoingEMailInvitation o) throws IOException {
         final DocumentBuilder builder = new DocumentBuilder(4)
             .append(IDX_INVITATION_ID.setValue(o.getId()).toField())
             .append(IDX_INVITATION_EMAIL.setValue(o.getEmail()).toField())

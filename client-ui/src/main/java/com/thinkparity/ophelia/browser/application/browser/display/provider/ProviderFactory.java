@@ -128,13 +128,13 @@ public class ProviderFactory {
             provider = new VerifyEMailProvider(profile, profileModel);
             break;
         case TAB_ARCHIVE:
-            provider = new ArchiveTabProvider(profile, containerModel, documentModel, userModel);
+            provider = new ArchiveTabProvider(profile, contactModel, containerModel, documentModel, userModel);
             break;
         case TAB_CONTACT:
             provider = new ContactProvider(profile, profileModel, contactModel, userModel);
             break;
         case TAB_CONTAINER:
-            provider = new ContainerProvider(profile, containerModel, documentModel, userModel);
+            provider = new ContainerProvider(profile, contactModel, containerModel, documentModel, userModel);
             break;
         default:
             throw Assert.createUnreachable("[UNKNOWN AVATAR ID]");

@@ -11,60 +11,70 @@ import javax.swing.JPopupMenu;
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.ophelia.model.contact.OutgoingUserInvitation;
+
 import com.thinkparity.ophelia.browser.Constants.DateFormats;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingUserInvitation;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
-
 
 /**
- * @author raymond@thinkparity.com
+ * <b>Title:</b>thinkParity OpheliaUI Contact Outgoing User Invitation Cell<br>
+ * <b>Description:</b><br>
+ * 
+ * @author robert@thinkparity.com
  * @version 1.1.2.1
  */
-public class OutgoingInvitationCell extends DefaultInvitationCell {
+public class OutgoingUserInvitationCell extends DefaultInvitationCell {
 
     /** A thinkParity fuzzy date format. */
     private final FuzzyDateFormat fuzzyDateFormat; 
 
+    /** The outgoing invitation associated with this cell. */
+    private OutgoingUserInvitation invitation;
+
     /** The invitation cell localization. */
     private final MainCellL18n localization;
-    
-    /** The outgoing invitation associated with this cell. */
-    private OutgoingInvitation outgoingInvitation;
 
-    /** Create OutgoingInvitationCell. */
-    public OutgoingInvitationCell(final OutgoingInvitation outgoingInvitation) {
+    /**
+     * Create OutgoingInvitationCell.
+     * 
+     * @param invitation
+     *            An <code>OutgoingUserInvitation</code>.
+     */
+    public OutgoingUserInvitationCell(final OutgoingUserInvitation invitation) {
         super();
-        this.outgoingInvitation = new OutgoingInvitation();
-        this.outgoingInvitation.setCreatedBy(outgoingInvitation.getCreatedBy());
-        this.outgoingInvitation.setCreatedOn(outgoingInvitation.getCreatedOn());
-        this.outgoingInvitation.setEmail(outgoingInvitation.getEmail());
-        this.outgoingInvitation.setId(outgoingInvitation.getId());
+        this.invitation = invitation;
         this.fuzzyDateFormat = DateFormats.FUZZY;
-        this.localization = new MainCellL18n("OutgoingInvitation");
+        this.localization = new MainCellL18n("OutgoingUserInvitation");
     }
-    
+
     /**
      * @see com.thinkparity.codebase.model.artifact.Artifact#equals(java.lang.Object)
      * 
      */
     public boolean equals(final Object obj) {
-        if (null != obj && obj instanceof OutgoingInvitationCell) {
-            return ((OutgoingInvitationCell) obj).outgoingInvitation.equals(outgoingInvitation);
-        }
-        return false;
+        if (this == obj)
+            return true;
+        if (null == obj)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        return ((OutgoingUserInvitationCell) obj).invitation.equals(invitation);
     }
-    
+
     /**
-     * @see com.thinkparity.codebase.model.artifact.Artifact#hashCode()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.DefaultInvitationCell#getId()
      * 
      */
-    public int hashCode() { return outgoingInvitation.hashCode(); }
+    @Override
+    public Long getId() {
+        return invitation.getId();
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextNoClipping(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
@@ -73,11 +83,25 @@ public class OutgoingInvitationCell extends DefaultInvitationCell {
     public String getTextNoClipping(TextGroup textGroup) {
         if (textGroup == TextGroup.WEST) {
             return localization.getString("Text", new Object[] {
-                    outgoingInvitation.getEmail(), fuzzyDateFormat.format(outgoingInvitation.getCreatedOn()) });
+                    invitation.getUser().getName(),
+                    fuzzyDateFormat.format(invitation.getCreatedOn()) });
         } else {
             return null;
         }
     }
+
+    /**
+     * @see com.thinkparity.codebase.model.artifact.Artifact#hashCode()
+     * 
+     */
+    public int hashCode() {
+        return invitation.hashCode();
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     */
+    public void triggerDoubleClickAction(final Browser browser) {}
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)
@@ -88,8 +112,8 @@ public class OutgoingInvitationCell extends DefaultInvitationCell {
         switch(connection) {
         case ONLINE:
             final Data deleteData = new Data(1);
-            deleteData.set(DeleteOutgoingInvitation.DataKey.INVITATION_ID, outgoingInvitation.getId());
-            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_DELETE_OUTGOING_INVITATION, deleteData));
+            deleteData.set(DeleteOutgoingUserInvitation.DataKey.INVITATION_ID, invitation.getId());
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_DELETE_OUTGOING_USER_INVITATION, deleteData));
             jPopupMenu.show(invoker, e.getX(), e.getY());
             break;
         case OFFLINE:
@@ -97,19 +121,5 @@ public class OutgoingInvitationCell extends DefaultInvitationCell {
         default:
             Assert.assertUnreachable("UNKNOWN CONECTION");
         }
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
-     */
-    public void triggerDoubleClickAction(Browser browser) {
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.DefaultInvitationCell#getId()
-     */
-    @Override
-    public Long getId() {
-        return outgoingInvitation.getId();
     }
 }

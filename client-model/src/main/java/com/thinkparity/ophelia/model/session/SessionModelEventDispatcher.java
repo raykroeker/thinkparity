@@ -12,11 +12,14 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEvent;
 
@@ -90,35 +93,53 @@ class SessionModelEventDispatcher {
                 logger.logApiId();
                 getContactModel().handleContactDeleted(event);
             }});
+        xmppSession.addListener(ContactEMailInvitationDeclinedEvent.class,
+                new XMPPEventListener<ContactEMailInvitationDeclinedEvent>() {
+            public void handleEvent(final ContactEMailInvitationDeclinedEvent event) {
+                logger.logApiId();
+                getContactModel().handleEMailInvitationDeclined(event);
+            }});
+        xmppSession.addListener(ContactEMailInvitationDeletedEvent.class,
+                new XMPPEventListener<ContactEMailInvitationDeletedEvent>() {
+            public void handleEvent(final ContactEMailInvitationDeletedEvent event) {
+                logger.logApiId();
+                getContactModel().handleEMailInvitationDeleted(event);
+            }});
+        xmppSession.addListener(ContactEMailInvitationExtendedEvent.class,
+                new XMPPEventListener<ContactEMailInvitationExtendedEvent>() {
+            public void handleEvent(final ContactEMailInvitationExtendedEvent event) {
+                logger.logApiId();
+                getContactModel().handleEMailInvitationExtended(event);
+            }});
         xmppSession.addListener(ContactInvitationAcceptedEvent.class,
                 new XMPPEventListener<ContactInvitationAcceptedEvent>() {
             public void handleEvent(final ContactInvitationAcceptedEvent event) {
                 logger.logApiId();
                 getContactModel().handleInvitationAccepted(event);
             }});
-        xmppSession.addListener(ContactInvitationDeclinedEvent.class,
-                new XMPPEventListener<ContactInvitationDeclinedEvent>() {
-            public void handleEvent(final ContactInvitationDeclinedEvent event) {
-                logger.logApiId();
-                getContactModel().handleInvitationDeclined(event);
-            }});
-        xmppSession.addListener(ContactInvitationDeletedEvent.class,
-                new XMPPEventListener<ContactInvitationDeletedEvent>() {
-            public void handleEvent(final ContactInvitationDeletedEvent event) {
-                logger.logApiId();
-                getContactModel().handleInvitationDeleted(event);
-            }});
-        xmppSession.addListener(ContactInvitationExtendedEvent.class,
-                new XMPPEventListener<ContactInvitationExtendedEvent>() {
-            public void handleEvent(final ContactInvitationExtendedEvent event) {
-                logger.logApiId();
-                getContactModel().handleInvitationExtended(event);
-            }});
         xmppSession.addListener(ContactUpdatedEvent.class,
                 new XMPPEventListener<ContactUpdatedEvent>() {
             public void handleEvent(final ContactUpdatedEvent event) {
                 logger.logApiId();
                 getContactModel().handleContactUpdated(event);
+            }});
+        xmppSession.addListener(ContactUserInvitationDeclinedEvent.class,
+                new XMPPEventListener<ContactUserInvitationDeclinedEvent>() {
+            public void handleEvent(final ContactUserInvitationDeclinedEvent event) {
+                logger.logApiId();
+                getContactModel().handleUserInvitationDeclined(event);
+            }});
+        xmppSession.addListener(ContactUserInvitationDeletedEvent.class,
+                new XMPPEventListener<ContactUserInvitationDeletedEvent>() {
+            public void handleEvent(final ContactUserInvitationDeletedEvent event) {
+                logger.logApiId();
+                getContactModel().handleUserInvitationDeleted(event);
+            }});
+        xmppSession.addListener(ContactUserInvitationExtendedEvent.class,
+                new XMPPEventListener<ContactUserInvitationExtendedEvent>() {
+            public void handleEvent(final ContactUserInvitationExtendedEvent event) {
+                logger.logApiId();
+                getContactModel().handleUserInvitationExtended(event);
             }});
         xmppSession.addListener(ContainerPublishedEvent.class,
                 new XMPPEventListener<ContainerPublishedEvent>() {

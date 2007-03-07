@@ -24,6 +24,7 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.Constants.Versioning;
+import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
@@ -47,16 +48,19 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  */
 public class ContainerProvider extends CompositeFlatSingleContentProvider {
 
-    /** A thinkParity container interface. */
+    /** An instance of <code>ContactModel</code>. */
+    private final ContactModel contactModel;
+
+    /** An instance of <code>ContainerModel</code>. */
     private final ContainerModel containerModel;
     
-    /** A thinkParity document interface. */
+    /** An instance of <code>DocumentModel</code>. */
     private final DocumentModel documentModel;
 
     /** An <code>Artifact</code> <code>Filter</code>. */
     private final Filter<? super Artifact> filter;
 
-    /** A thinkParity user interface. */
+    /** An instance of <code>UserModel</code>. */
     private final UserModel userModel;
 
     /**
@@ -72,13 +76,14 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
      *            An instance of <code>UserModel</code>.
      */
     public ContainerProvider(final Profile profile,
+            final ContactModel contactModel,
             final ContainerModel containerModel,
             final DocumentModel documentModel, final UserModel userModel) {
         this(new Filter<Artifact>() {
             public Boolean doFilter(final Artifact o) {
                 return o.isArchived();
             }
-        }, profile, containerModel, documentModel, userModel);
+        }, profile, contactModel, containerModel, documentModel, userModel);
     }
 
     /**
@@ -94,10 +99,12 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
      *            A thinkParity user interface.
      */
     protected ContainerProvider(final Filter<? super Artifact> filter,
-            final Profile profile, final ContainerModel containerModel,
+            final Profile profile, final ContactModel contactModel,
+            final ContainerModel containerModel,
             final DocumentModel documentModel, final UserModel userModel) {
         super(profile);
         this.filter = filter;
+        this.contactModel = contactModel;
         this.containerModel = containerModel;
         this.documentModel = documentModel;
         this.userModel = userModel;
@@ -213,6 +220,28 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     }
 
     /**
+     * Determine if the user is a contact.
+     * 
+     * @param userId
+     *            A user id <code>Long</code>.
+     * @return True if the user is a contact.
+     */
+    public Boolean doesExistContact(final Long userId) {
+        return contactModel.doesExist(userId);
+    }
+    
+    /**
+     * Determine if there exists an outgoing user invitation.
+     * 
+     * @param userId
+     *            A user id <code>Long</code>.
+     * @return True if the user is a contact.
+     */
+    public Boolean doesExistOutgoingUserInvitationForUser(final Long userId) {
+        return contactModel.doesExistOutgoingUserInvitationForUser(userId);
+    }
+    
+    /**
 	 * Read a container draft view.
 	 * 
 	 * @param containerId
@@ -244,7 +273,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public ContainerVersion readLatestVersion(final Long containerId) {
         return containerModel.readLatestVersion(containerId);
     }
-    
+
     /**
      * Read the profile.
      * 
@@ -289,7 +318,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public User readUser(final JabberId userId) {
         return userModel.read(userId);
     }
-
+    
     /**
      * Read a list of container versions.
      * 
@@ -300,7 +329,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public List<ContainerVersion> readVersions(final Long containerId) {
         return containerModel.readVersions(containerId);
     }
-    
+
     /**
 	 * Search for containers.
 	 * 

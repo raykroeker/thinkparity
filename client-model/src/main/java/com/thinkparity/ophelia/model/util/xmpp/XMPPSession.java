@@ -202,17 +202,14 @@ public interface XMPPSession {
      */
     public Token createToken(final JabberId userId);
 
-    /**
-     * Decline an invitation.
-     * 
-     * @param invitedAs
-     *            The orginal invitation e-mail address.
-     * @param invitedBy
-     *            The inviting user.
-     * @throws SmackException
-     */
-    public void declineInvitation(final EMail invitedAs,
-            final JabberId invitedBy);
+    // TODO-javadoc XMPPSession#declineContactEMailInvitation()
+    public void declineContactEMailInvitation(final JabberId userId,
+            final EMail invitedAs, final JabberId invitedBy,
+            final Calendar declinedOn);
+
+    // TODO-javadoc XMPPSession#declineContactEMailInvitation()
+    public void declineContactUserInvitation(final JabberId userId,
+            final JabberId invitedBy, final Calendar declinedOn);
 
     /**
      * Archive an artifact. This will simply apply the archived flag within the
@@ -245,8 +242,22 @@ public interface XMPPSession {
      * @param deletedOn
      *            The deletion <code>Calendar</code>.
      */
-    public void deleteContactInvitation(final JabberId userId, final EMail invitedAs,
+    public void deleteContactEMailInvitation(final JabberId userId, final EMail invitedAs,
             final Calendar deletedOn);
+
+    
+    /**
+     * Delete a contact invitation.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitedAs
+     *            The invitation <code>EMail</code>.
+     * @param deletedOn
+     *            The deletion <code>Calendar</code>.
+     */
+    public void deleteContactUserInvitation(final JabberId userId,
+            final JabberId invitedAs, final Calendar deletedOn);
 
     /**
      * Delete an artifact draft.
@@ -304,13 +315,26 @@ public interface XMPPSession {
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @param extendedTo
+     * @param extendTo
      *            An <code>EMail</code> to extend the invitation to.
      * @param extendedOn
      *            The date <code>Calendar</code>.
      */
-    public void extendInvitation(final JabberId userId, final EMail extendedTo,
-            final Calendar extendedOn);
+    public void extendContactEMailInvitation(final JabberId userId,
+            final EMail extendTo, final Calendar extendedOn);
+
+    /**
+     * Extend an invitation for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param extendTo
+     *            A user id <code>JabberId</code>.
+     * @param extendedOn
+     *            The date <code>Calendar</code>.
+     */
+    public void extendContactUserInvitation(final JabberId userId,
+            final JabberId extendTo, final Calendar extendedOn);
 
     /**
      * Determine the availability of an e-mail address.

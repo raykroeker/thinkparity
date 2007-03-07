@@ -38,7 +38,7 @@ public class BrowserPopupDelegate extends DefaultPopupDelegate {
      */
     private void prepareMenu() {  
         add(ActionId.CONTAINER_CREATE, Data.emptyData());
-        add(ActionId.CONTACT_CREATE_INCOMING_INVITATION, Data.emptyData());
+        add(ActionId.CONTACT_CREATE_OUTGOING_EMAIL_INVITATION, Data.emptyData());
         
         addSeparator();
         

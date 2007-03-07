@@ -22,11 +22,14 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import org.dom4j.Element;
@@ -108,9 +111,12 @@ public final class XStreamXMPPEventTest extends XStreamTestCase {
 
         data.add(setUp(new ContactDeletedEvent(), new ContactDeletedEvent()));
         data.add(setUp(new ContactInvitationAcceptedEvent(), new ContactInvitationAcceptedEvent()));
-        data.add(setUp(new ContactInvitationDeclinedEvent(), new ContactInvitationDeclinedEvent()));
-        data.add(setUp(new ContactInvitationDeletedEvent(), new ContactInvitationDeletedEvent()));
-        data.add(setUp(new ContactInvitationExtendedEvent(), new ContactInvitationExtendedEvent()));
+        data.add(setUp(new ContactEMailInvitationDeclinedEvent(), new ContactEMailInvitationDeclinedEvent()));
+        data.add(setUp(new ContactEMailInvitationDeletedEvent(), new ContactEMailInvitationDeletedEvent()));
+        data.add(setUp(new ContactEMailInvitationExtendedEvent(), new ContactEMailInvitationExtendedEvent()));
+        data.add(setUp(new ContactUserInvitationDeclinedEvent(), new ContactUserInvitationDeclinedEvent()));
+        data.add(setUp(new ContactUserInvitationDeletedEvent(), new ContactUserInvitationDeletedEvent()));
+        data.add(setUp(new ContactUserInvitationExtendedEvent(), new ContactUserInvitationExtendedEvent()));
         data.add(setUp(new ContactUpdatedEvent(), new ContactUpdatedEvent()));
     }
 
@@ -181,6 +187,30 @@ public final class XStreamXMPPEventTest extends XStreamTestCase {
         return new Fixture(event);
     }
 
+    private Fixture setUp(final ContactEMailInvitationDeclinedEvent event,
+            final ContactEMailInvitationDeclinedEvent event2) {
+        event.setDeclinedBy(jabberId);
+        event.setDeclinedOn(DateUtil.getInstance());
+        event.setInvitedAs(email);
+        return new Fixture(event);
+    }
+
+    private Fixture setUp(final ContactEMailInvitationDeletedEvent event,
+            final ContactEMailInvitationDeletedEvent event2) {
+        event.setDeletedBy(jabberId);
+        event.setDeletedOn(DateUtil.getInstance());
+        event.setInvitedAs(email);
+        return new Fixture(event);
+    }
+
+    private Fixture setUp(final ContactEMailInvitationExtendedEvent event,
+            final ContactEMailInvitationExtendedEvent event2) {
+        event.setInvitedAs(email);
+        event.setInvitedBy(jabberId);
+        event.setInvitedOn(DateUtil.getInstance());
+        return new Fixture(event);
+    }
+
     private Fixture setUp(final ContactInvitationAcceptedEvent event,
             final ContactInvitationAcceptedEvent event2) {
         event.setAcceptedBy(jabberId);
@@ -188,34 +218,31 @@ public final class XStreamXMPPEventTest extends XStreamTestCase {
         return new Fixture(event);
     }
 
-    private Fixture setUp(final ContactInvitationDeclinedEvent event,
-            final ContactInvitationDeclinedEvent event2) {
-        event.setDeclinedBy(jabberId);
-        event.setDeclinedOn(DateUtil.getInstance());
-        event.setInvitedAs(email);
-        return new Fixture(event);
-    }
-
-    private Fixture setUp(final ContactInvitationDeletedEvent event,
-            final ContactInvitationDeletedEvent event2) {
-        event.setDeletedBy(jabberId);
-        event.setDeletedOn(DateUtil.getInstance());
-        event.setInvitedAs(email);
-        return new Fixture(event);
-    }
-
-    private Fixture setUp(final ContactInvitationExtendedEvent event,
-            final ContactInvitationExtendedEvent event2) {
-        event.setInvitedAs(email);
-        event.setInvitedBy(jabberId);
-        event.setInvitedOn(DateUtil.getInstance());
-        return new Fixture(event);
-    }
-
     private Fixture setUp(final ContactUpdatedEvent event,
             final ContactUpdatedEvent event2) {
         event.setContactId(jabberId);
         event.setUpdatedOn(DateUtil.getInstance());
+        return new Fixture(event);
+    }
+
+    private Fixture setUp(final ContactUserInvitationDeclinedEvent event,
+            final ContactUserInvitationDeclinedEvent event2) {
+        event.setDeclinedBy(jabberId);
+        event.setDeclinedOn(DateUtil.getInstance());
+        return new Fixture(event);
+    }
+
+    private Fixture setUp(final ContactUserInvitationDeletedEvent event,
+            final ContactUserInvitationDeletedEvent event2) {
+        event.setDeletedBy(jabberId);
+        event.setDeletedOn(DateUtil.getInstance());
+        return new Fixture(event);
+    }
+
+    private Fixture setUp(final ContactUserInvitationExtendedEvent event,
+            final ContactUserInvitationExtendedEvent event2) {
+        event.setInvitedBy(jabberId);
+        event.setInvitedOn(DateUtil.getInstance());
         return new Fixture(event);
     }
 

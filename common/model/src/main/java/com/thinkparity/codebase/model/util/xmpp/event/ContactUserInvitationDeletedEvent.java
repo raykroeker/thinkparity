@@ -5,7 +5,6 @@ package com.thinkparity.codebase.model.util.xmpp.event;
 
 import java.util.Calendar;
 
-import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 /**
@@ -14,7 +13,7 @@ import com.thinkparity.codebase.jabber.JabberId;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ContactInvitationDeletedEvent extends XMPPEvent {
+public final class ContactUserInvitationDeletedEvent extends XMPPEvent {
 
     /** The deleted by user id <code>JabberId</code>. */
     private JabberId deletedBy;
@@ -22,14 +21,11 @@ public final class ContactInvitationDeletedEvent extends XMPPEvent {
     /** The deleted on date <code>Calendar</code>. */
     private Calendar deletedOn;
 
-    /** The invited as <code>EMail</code>. */
-    private EMail invitedAs;
-
     /**
-     * Create ContactInvitationDeletedEvent.
+     * Create ContactUserInvitationDeletedEvent.
      *
      */
-    public ContactInvitationDeletedEvent() {
+    public ContactUserInvitationDeletedEvent() {
         super();
     }
 
@@ -52,15 +48,6 @@ public final class ContactInvitationDeletedEvent extends XMPPEvent {
     }
 
     /**
-     * Obtain invitedAs.
-     *
-     * @return A EMail.
-     */
-    public EMail getInvitedAs() {
-        return invitedAs;
-    }
-
-    /**
      * Set deletedBy.
      *
      * @param deletedBy
@@ -78,15 +65,5 @@ public final class ContactInvitationDeletedEvent extends XMPPEvent {
      */
     public void setDeletedOn(final Calendar deletedOn) {
         this.deletedOn = deletedOn;
-    }
-
-    /**
-     * Set invitedAs.
-     *
-     * @param invitedAs
-     *		A EMail.
-     */
-    public void setInvitedAs(final EMail invitedAs) {
-        this.invitedAs = invitedAs;
     }
 }

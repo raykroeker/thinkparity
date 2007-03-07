@@ -132,17 +132,13 @@ public interface InternalSessionModel extends SessionModel {
      */
     public StreamSession createStreamSession();
 
-	/**
-     * Deny the presence visibility request from user to the currently logged
-     * in user.
-     * 
-     * @param user
-     *            The user who's presence request the currently logged in user
-     *            will deny.
-     * @see SessionModel#acceptPresence(User)
-     * @throws ParityException
-     */
-    public void declineInvitation(final EMail invitedAs, final JabberId invitedBy);
+    // TODO-javadoc InternalSessionModel#declineContactEMailInvitation
+    public void declineContactEMailInvitation(final EMail invitedAs,
+            final JabberId invitedBy, final Calendar declinedOn);
+
+    // TODO-javadoc InternalSessionModel#declineContactUserInvitation
+    public void declineContactUserInvitation(final JabberId invitedBy,
+            final Calendar declinedOn);
 
     /**
      * Delete an artifact from the backup.
@@ -167,15 +163,25 @@ public interface InternalSessionModel extends SessionModel {
     /**
      * Delete a contact invitation.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param invitedAs
-     *            The invitation <code>EMail</code>.
+     *            The invitation <code>EMail</code> address.
      * @param deletedOn
      *            The deletion <code>Calendar</code>.
      */
-    public void deleteContactInvitation(final JabberId userId,
-            final EMail invitedAs, final Calendar deletedOn);
+    public void deleteContactEMailInvitation(final EMail invitedAs,
+            final Calendar deletedOn);
+
+    
+    /**
+     * Delete a contact invitation.
+     * 
+     * @param invitedAs
+     *            The invitation user id <code>JabberId</code>.
+     * @param deletedOn
+     *            The deletion <code>Calendar</code>.
+     */
+    public void deleteContactUserInvitation(final JabberId invitedAs,
+            final Calendar deletedOn);
 
     // TODO-javadoc InternalSessionModel#deleteDraft()
     public void deleteDraft(final UUID uniqueId, final Calendar deletedOn);
@@ -202,12 +208,26 @@ public interface InternalSessionModel extends SessionModel {
             final List<Resource> resources, final String streamId);
 
     /**
-     * Extend an invitation to a contact.
+     * Extend an invitation to a user.
      * 
      * @param extendTo
-     *            An <code>EMail</code> to invite.
+     *            An <code>EMail</code> address.
+     * @param extendedOn
+     *            The extended on <code>Calendar</code>.
      */
-    public void extendInvitation(final EMail extendTo);
+    public void extendContactEMailInvitation(final EMail extendTo,
+            final Calendar extendedOn);
+
+    /**
+     * Extend an invitation to a user.
+     * 
+     * @param extendTo
+     *            A user id <code>JabberId</code>.
+     * @param extendedOn
+     *            The extended on <code>Calendar</code>.
+     */
+    public void extendContactUserInvitation(final JabberId extendTo,
+            final Calendar extendedOn);
 
     /**
      * Handle the remote session established event.

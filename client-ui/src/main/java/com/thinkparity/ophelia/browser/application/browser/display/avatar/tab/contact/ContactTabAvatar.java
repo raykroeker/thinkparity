@@ -41,16 +41,11 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            A contact id <code>JabberId</code>.
      */
     public void collapseContact(final JabberId contactId) {
-        final ContactPanelId contactPanelId = new ContactPanelId(contactId);
-        if (EventQueue.isDispatchThread()) {
-            model.collapsePanel(contactPanelId, Boolean.FALSE);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    model.collapsePanel(contactPanelId, Boolean.FALSE);
-                }
-            });
-        }
+        ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.collapsePanel(new ContactPanelId(contactId), Boolean.FALSE);
+            }
+        });
     }
 
     /**
@@ -60,26 +55,11 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            A contact id <code>JabberId</code>.
      */
     public void expandContact(final JabberId contactId) {
-        final ContactPanelId contactPanelId = new ContactPanelId(contactId);
-        showPanel(contactPanelId, true);
-    }
-
-    /**
-     * Show the contact invitation (select the panel and scroll so it visible).
-     * 
-     * @param invitationId
-     *            The invitationId. 
-     */
-    public void showContactInvitation(final Long invitationId) {
-        if (EventQueue.isDispatchThread()) {
-            showPanel(new ContactPanelId(invitationId), false);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    showPanel(new ContactPanelId(invitationId), false);
-                }
-            });
-        }
+        ensureDispatchThread(new Runnable() {
+            public void run() {
+                showPanel(new ContactPanelId(contactId), true);
+            }
+        });
     }
 
     /**
@@ -91,15 +71,31 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            The index of the invitation to show (0 indicates the invitation displayed at top).   
      */
     public void showContactInvitation(final List<Long> invitationIds, final int index) {
-        if (EventQueue.isDispatchThread()) {
-            showContactInvitationImpl(invitationIds, index);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    showContactInvitationImpl(invitationIds, index);
+        ensureDispatchThread(new Runnable() {
+            public void run() {
+                final List<ContactPanelId> panelIds = new ArrayList<ContactPanelId>(invitationIds.size());
+                for (final Long invitationId : invitationIds)
+                    panelIds.add(new ContactPanelId(invitationId));
+                final List<ContactPanelId> sortedInvitationIds = model.getCurrentVisibleOrder(panelIds);
+                if (index < sortedInvitationIds.size()) {
+                    showPanel(sortedInvitationIds.get(index), false);
                 }
-            });
-        }
+            }
+        });
+    }
+
+    /**
+     * Show the contact invitation (select the panel and scroll so it visible).
+     * 
+     * @param invitationId
+     *            The invitationId. 
+     */
+    public void showContactInvitation(final Long invitationId) {
+        ensureDispatchThread(new Runnable() {
+            public void run() {
+                showPanel(new ContactPanelId(invitationId), false);
+            }
+        });
     }
 
     /**
@@ -111,15 +107,11 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            Indicates whether the sync is the result of a remote event
      */
     public void syncContact(final JabberId contactId, final Boolean remote) {
-        if (EventQueue.isDispatchThread()) {
-            model.syncContact(contactId, remote);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    model.syncContact(contactId, remote);
-                }
-            });
-        }
+        ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.syncContact(contactId, remote);
+            }
+        });
     }
 
     /**
@@ -132,16 +124,11 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      */
     public void syncIncomingInvitation(final Long invitationId,
             final Boolean remote) {
-        if (EventQueue.isDispatchThread()) {
-            model.syncIncomingInvitation(invitationId, remote);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    model.syncIncomingInvitation(invitationId, remote);
-                }
-            });
-        }
-        getController().runDisplayContactInvitationInfo();
+        ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.syncIncomingInvitation(invitationId, remote);
+            }
+        });
     }
 
     /**
@@ -152,17 +139,31 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      * @param remote
      *            Whether or not the the source is a remote event.
      */
-    public void syncOutgoingInvitation(final Long invitationId,
+    public void syncOutgoingEMailInvitation(final Long invitationId,
             final Boolean remote) {
-        if (EventQueue.isDispatchThread()) {
-            model.syncOutgoingInvitation(invitationId, remote);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    model.syncOutgoingInvitation(invitationId, remote);
-                }
-            });
-        }
+        ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.syncOutgoingEMailInvitation(invitationId, remote);    
+            }
+        });
+    }
+
+    /**
+     * Synchronize an outgoing user invitation in the list.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     * @param remote
+     *            Whether or not the source is a remove event
+     *            <code>Boolean</code>.
+     */
+    public void syncOutgoingUserInvitation(final Long invitationId,
+            final Boolean remote) {
+        ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.syncOutgoingUserInvitation(invitationId, remote);    
+            }
+        });
     }
 
     /**
@@ -172,86 +173,24 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            Indicates whether the sync is the result of a remote event
      */
     public void syncProfile(final Boolean remote) {
-        if (EventQueue.isDispatchThread()) {
-            model.syncProfile(remote);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    model.syncProfile(remote);
-                }
-            });
-        }
+        ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.syncProfile(remote);
+            }
+        });
     }
 
     /**
-     * Expand a panel.
+     * Ensure the runnable is executed on the AWT event dispatch thread.
      * 
-     * @param panelId
-     *            A panel id <code>ContactPanelId</code>.
+     * @param runnable
+     *            A <code>Runnable</code>.
      */
-    private void expandPanel(final ContactPanelId panelId) {
+    private void ensureDispatchThread(final Runnable runnable) {
         if (EventQueue.isDispatchThread()) {
-            model.expandPanel(panelId, Boolean.FALSE);
+            runnable.run();
         } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    model.expandPanel(panelId, Boolean.FALSE);
-                }
-            });
-        }
-    }
-
-    /**
-     * Scroll a panel to make it visible.
-     * 
-     * @param panelId
-     *            A panel id <code>ContactPanelId</code>.
-     */
-    private void scrollPanelToVisible(final ContactPanelId panelId) {
-        if (EventQueue.isDispatchThread()) {
-            model.scrollPanelToVisible(panelId);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    model.scrollPanelToVisible(panelId);
-                }
-            });
-        }
-    }
-
-    /**
-     * Select a panel.
-     * 
-     * @param panelId
-     *            A panel id <code>ContactPanelId</code>.
-     */
-    private void selectPanel(final ContactPanelId panelId) {
-        if (EventQueue.isDispatchThread()) {
-            model.selectPanel(panelId);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    model.selectPanel(panelId);
-                }
-            });
-        }
-    }
-
-    /**
-     * Show the contact invitation (select the panel and scroll so it visible).
-     * 
-     * @param invitationIds
-     *            The list of invitationIds.
-     * @param index
-     *            The index of the invitation to show (0 indicates the invitation displayed at top).   
-     */
-    private void showContactInvitationImpl(final List<Long> invitationIds, final int index) {
-        final List<ContactPanelId> panelIds = new ArrayList<ContactPanelId>(invitationIds.size());
-        for (final Long invitationId : invitationIds)
-            panelIds.add(new ContactPanelId(invitationId));
-        final List<ContactPanelId> sortedInvitationIds = model.getCurrentVisibleOrder(panelIds);
-        if (index < sortedInvitationIds.size()) {
-            showPanel(sortedInvitationIds.get(index), false);
+            SwingUtilities.invokeLater(runnable);
         }
     }
 
@@ -262,10 +201,10 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            A panel id <code>ContactPanelId</code>.
      */
     private void showPanel(final ContactPanelId panelId, final boolean expand) {
-        selectPanel(panelId);
+        model.selectPanel(panelId);
         if (expand) {
-            expandPanel(panelId);
+            model.expandPanel(panelId, Boolean.FALSE);
         }
-        scrollPanelToVisible(panelId); 
+        model.scrollPanelToVisible(panelId); 
     }  
 }

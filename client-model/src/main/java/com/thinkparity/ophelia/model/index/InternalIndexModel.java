@@ -89,12 +89,20 @@ public interface InternalIndexModel extends IndexModel {
     public void indexIncomingInvitation(final Long invitationId);
     
     /**
-     * Index an outgoing invitation.
+     * Index an outgoing e-mail invitation.
      * 
      * @param invitationId
      *            An invitation id <code>Long</code>.
      */
-    public void indexOutgoingInvitation(final Long invitationId);
+    public void indexOutgoingEMailInvitation(final Long invitationId);
+
+    /**
+     * Index an outgoing user invitation.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     */
+    public void indexOutgoingUserInvitation(final Long invitationId);
 
     /**
      * Search the index for contacts.
@@ -143,13 +151,22 @@ public interface InternalIndexModel extends IndexModel {
     public List<Long> searchIncomingInvitations(final String expression);
 
     /**
-     * Search the index for outgoing invitations.
+     * Search the index for outgoing e-mail invitations.
      * 
      * @param expression
      *            A search expression <code>String</code>..
      * @return A <code>List</code> of invitation id <code>Long</code>s.
      */
-    public List<Long> searchOutgoingInvitations(final String expression);
+    public List<Long> searchOutgoingEMailInvitations(final String expression);
+
+    /**
+     * Search the index for outgoing user invitations.
+     * 
+     * @param expression
+     *            A search expression <code>String</code>..
+     * @return A <code>List</code> of invitation id <code>Long</code>s.
+     */
+    public List<Long> searchOutgoingUserInvitations(final String expression);
 
     /**
      * Update a contact in the index.

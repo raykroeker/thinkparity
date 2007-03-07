@@ -8,7 +8,6 @@ import java.util.Calendar;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
 import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
@@ -20,14 +19,14 @@ import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class DeclineInvitation extends AbstractHandler {
+public final class ExtendEMailInvitation extends AbstractHandler {
 
     /**
-     * Create DeclineInvitation.
+     * Create ExtendEMailInvitation.
      *
      */
-	public DeclineInvitation() {
-        super("contact:declineinvitation");
+	public ExtendEMailInvitation() {
+        super("contact:extendemailinvitation");
 	}
 
     /**
@@ -40,20 +39,26 @@ public final class DeclineInvitation extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        logger.logApiId();
-        declineInvitation(provider, reader.readJabberId("declinedBy"),
-                reader.readJabberId("invitedBy"), reader.readEMail("invitedAs"),
-                reader.readCalendar("executedOn"));
+        extendEMailInvitation(provider, reader.readJabberId("userId"),
+                reader.readEMail("extendTo"), reader.readCalendar("extendedOn"));
     }
 
     /**
-     * @see ContactModel#declineInvitation(JabberId, JabberId, EMail, Calendar)
+     * Extend an invitation. If the email is registered within the thinkParity
+     * community an invitation will be sent via thinkParity otherwise an
+     * invitation will be sent via and email.
      * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param extendedTo
+     *            A <code>EMail</code> to invite.
+     * @param extendedOn
+     *            The date <code>Calendar</code> of the invitation.
      */
-    private void declineInvitation(final ServiceModelProvider context,
-            final JabberId userId, final JabberId invitedBy,
-            final EMail invitedAs, final Calendar declinedOn) {
-        context.getContactModel().declineInvitation(userId, invitedBy,
-                invitedAs, declinedOn);
+    private void extendEMailInvitation(final ServiceModelProvider context,
+            final JabberId userId, final EMail extendTo,
+            final Calendar extendedOn) {
+        context.getContactModel().extendEMailInvitation(userId, extendTo,
+                extendedOn);
     }
 }

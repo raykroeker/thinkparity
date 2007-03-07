@@ -22,8 +22,8 @@ public enum Environment {
             "localhost", 80, Boolean.TRUE),
 
     /** A localhost development environment. */
-    DEVELOPMENT_LOCALHOST("localhost", 5226, Boolean.FALSE, "thinkparity.net",
-            "localhost", 20002, Boolean.FALSE,
+    DEVELOPMENT_LOCALHOST("localhost", 5227, Boolean.TRUE, "thinkparity.net",
+            "localhost", 20002, Boolean.TRUE,
             "localhost", 80, Boolean.FALSE),
 
     /** Raymond's development environment. */

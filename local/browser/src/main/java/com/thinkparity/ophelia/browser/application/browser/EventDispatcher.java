@@ -3,7 +3,17 @@
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
-import com.thinkparity.ophelia.model.events.*;
+import com.thinkparity.ophelia.model.events.ContactAdapter;
+import com.thinkparity.ophelia.model.events.ContactEvent;
+import com.thinkparity.ophelia.model.events.ContactListener;
+import com.thinkparity.ophelia.model.events.ContainerAdapter;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.ophelia.model.events.ContainerListener;
+import com.thinkparity.ophelia.model.events.ProfileAdapter;
+import com.thinkparity.ophelia.model.events.ProfileEvent;
+import com.thinkparity.ophelia.model.events.ProfileListener;
+import com.thinkparity.ophelia.model.events.SessionAdapter;
+import com.thinkparity.ophelia.model.events.SessionListener;
 
 /**
  * The browser's event dispatcher.
@@ -79,43 +89,62 @@ class EventDispatcher {
         return new ContactAdapter() {
             @Override
             public void contactDeleted(final ContactEvent e) {
-                browser.fireContactDeleted(e.getContact().getId(), e.isRemote());
+                browser.syncContactTabContact(e.getContact().getId(), e.isRemote());
             }
             @Override
             public void contactUpdated(final ContactEvent e) {
-                browser.fireContactUpdated(e.getContact().getId());
+                browser.syncContactTabContact(e.getContact().getId(), e.isRemote());
             }
             @Override
             public void incomingInvitationAccepted(final ContactEvent e) {
-                browser.fireIncomingContactInvitationAccepted(e.getContact().getId(), e.getIncomingInvitation().getId(), e.isRemote());
+                browser.syncContactTabIncomingInvitation(e.getIncomingInvitation().getId(), e.isRemote());
+                browser.syncContactTabContact(e.getContact().getId(), e.isRemote());
             }
             @Override
             public void incomingInvitationCreated(final ContactEvent e) {
-                browser.fireIncomingContactInvitationCreated(e.getIncomingInvitation().getId(), e.isRemote());
+                browser.syncContactTabIncomingInvitation(e.getIncomingInvitation().getId(), e.isRemote());
             }
             @Override
             public void incomingInvitationDeclined(final ContactEvent e) {
-                browser.fireIncomingContactInvitationDeclined(e.getIncomingInvitation().getId(), e.isRemote());
+                browser.syncContactTabIncomingInvitation(e.getIncomingInvitation().getId(), e.isRemote());
             }
             @Override
             public void incomingInvitationDeleted(final ContactEvent e) {
-                browser.fireIncomingContactInvitationDeleted(e.getIncomingInvitation().getId(), e.isRemote());
+                browser.syncContactTabIncomingInvitation(e.getIncomingInvitation().getId(), e.isRemote());
             }
             @Override
-            public void outgoingInvitationAccepted(final ContactEvent e) {
-                browser.fireOutgoingContactInvitationAccepted(e.getContact().getId(), e.getOutgoingInvitation().getId(), e.isRemote());
+            public void outgoingEMailInvitationAccepted(final ContactEvent e) {
+                browser.syncContactTabOutgoingEMailInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
+                browser.syncContactTabContact(e.getContact().getId(), e.isRemote());
             }
             @Override
-            public void outgoingInvitationCreated(final ContactEvent e) {
-                browser.fireOutgoingContactInvitationCreated(e.getOutgoingInvitation().getId(), e.isRemote());
+            public void outgoingEMailInvitationCreated(final ContactEvent e) {
+                browser.syncContactTabOutgoingEMailInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
             }
             @Override
-            public void outgoingInvitationDeclined(final ContactEvent e) {
-                browser.fireOutgoingContactInvitationDeclined(e.getOutgoingInvitation().getId(), e.isRemote());
+            public void outgoingEMailInvitationDeclined(final ContactEvent e) {
+                browser.syncContactTabOutgoingEMailInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
             }
             @Override
-            public void outgoingInvitationDeleted(final ContactEvent e) {
-                browser.fireOutgoingContactInvitationDeleted(e.getOutgoingInvitation().getId(), e.isRemote());
+            public void outgoingEMailInvitationDeleted(final ContactEvent e) {
+                browser.syncContactTabOutgoingEMailInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
+            }
+            @Override
+            public void outgoingUserInvitationAccepted(final ContactEvent e) {
+                browser.syncContactTabOutgoingUserInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
+                browser.syncContactTabContact(e.getContact().getId(), e.isRemote());
+            }
+            @Override
+            public void outgoingUserInvitationCreated(final ContactEvent e) {
+                browser.syncContactTabOutgoingUserInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
+            }
+            @Override
+            public void outgoingUserInvitationDeclined(final ContactEvent e) {
+                browser.syncContactTabOutgoingUserInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
+            }
+            @Override
+            public void outgoingUserInvitationDeleted(final ContactEvent e) {
+                browser.syncContactTabOutgoingUserInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
             }
         };
     }
@@ -143,27 +172,27 @@ class EventDispatcher {
         return new ProfileAdapter() {
             @Override
             public void emailAdded(final ProfileEvent e) {
-                browser.fireProfileEmailAdded(e.isRemote());
+                browser.syncContactTabProfile(e.isRemote());
             }
             @Override
             public void emailRemoved(final ProfileEvent e) {
-                browser.fireProfileEmailRemoved(e.isRemote());
+                browser.syncContactTabProfile(e.isRemote());
             }
             @Override
             public void emailVerified(final ProfileEvent e) {
-                browser.fireProfileEmailVerified(e.isRemote());
+                browser.syncContactTabProfile(e.isRemote());
             }
             @Override
             public void passwordReset(final ProfileEvent e) {
-                browser.fireProfilePasswordReset(e.isRemote());
+                browser.syncContactTabProfile(e.isRemote());
             }
             @Override
             public void passwordUpdated(final ProfileEvent e) {
-                browser.fireProfilePasswordUpdated(e.isRemote());
+                browser.syncContactTabProfile(e.isRemote());
             }
             @Override
             public void profileUpdated(final ProfileEvent e) {
-                browser.fireProfileUpdated(e.isRemote());
+                browser.syncContactTabProfile(e.isRemote());
             }
         };
     }

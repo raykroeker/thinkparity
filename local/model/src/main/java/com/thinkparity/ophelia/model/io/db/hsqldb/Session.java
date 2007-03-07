@@ -756,7 +756,11 @@ public final class Session {
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
 		try {
-            preparedStatement.setLong(index, value);
+		    if (null == value) {
+                preparedStatement.setNull(index, Types.BIGINT);
+            } else {
+                preparedStatement.setLong(index, value);
+            }
 		} catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
 		}

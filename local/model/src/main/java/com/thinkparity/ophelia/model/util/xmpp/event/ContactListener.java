@@ -4,11 +4,14 @@
 package com.thinkparity.ophelia.model.util.xmpp.event;
 
 import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationExtendedEvent;
 
 /**
  * <b>Title:</b>thinkParity XMPP Contact Listener<br>
@@ -20,9 +23,12 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
  */
 public interface ContactListener extends XMPPEventListener {
     public void handleDeleted(final ContactDeletedEvent event);
+    public void handleEMailInvitationDeclined(final ContactEMailInvitationDeclinedEvent event);
+	public void handleEMailInvitationDeleted(final ContactEMailInvitationDeletedEvent event);
+    public void handleEMailInvitationExtended(final ContactEMailInvitationExtendedEvent event);
     public void handleInvitationAccepted(final ContactInvitationAcceptedEvent event);
-	public void handleInvitationDeclined(final ContactInvitationDeclinedEvent event);
-    public void handleInvitationDeleted(final ContactInvitationDeletedEvent event);
-    public void handleInvitationExtended(final ContactInvitationExtendedEvent event);
     public void handleUpdated(final ContactUpdatedEvent event);
+    public void handleUserInvitationDeclined(final ContactUserInvitationDeclinedEvent event);
+    public void handleUserInvitationDeleted(final ContactUserInvitationDeletedEvent event);
+    public void handleUserInvitationExtended(final ContactUserInvitationExtendedEvent event);
 }

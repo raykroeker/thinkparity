@@ -1,5 +1,5 @@
 /*
- * Created On:  10-Nov-06 3:11:25 PM
+ * Created On:  10-Nov-06 3:11:29 PM
  */
 package com.thinkparity.codebase.model.util.xmpp.event;
 
@@ -14,41 +14,41 @@ import com.thinkparity.codebase.jabber.JabberId;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ContactInvitationDeclinedEvent extends XMPPEvent {
+public final class ContactEMailInvitationDeletedEvent extends XMPPEvent {
 
-    /** The declined by user id <code>JabberId</code>. */
-    private JabberId declinedBy;
+    /** The deleted by user id <code>JabberId</code>. */
+    private JabberId deletedBy;
 
-    /** The declined on date <code>Calendar</code>. */
-    private Calendar declinedOn;
+    /** The deleted on date <code>Calendar</code>. */
+    private Calendar deletedOn;
 
     /** The invited as <code>EMail</code>. */
     private EMail invitedAs;
 
     /**
-     * Create ContactInvitationDeclinedEvent.
+     * Create ContactInvitationDeletedEvent.
      *
      */
-    public ContactInvitationDeclinedEvent() {
+    public ContactEMailInvitationDeletedEvent() {
         super();
     }
 
     /**
-     * Obtain declinedBy.
+     * Obtain deletedBy.
      *
      * @return A JabberId.
      */
-    public JabberId getDeclinedBy() {
-        return declinedBy;
+    public JabberId getDeletedBy() {
+        return deletedBy;
     }
 
     /**
-     * Obtain declinedOn.
+     * Obtain deletedOn.
      *
      * @return A Calendar.
      */
-    public Calendar getDeclinedOn() {
-        return declinedOn;
+    public Calendar getDeletedOn() {
+        return deletedOn;
     }
 
     /**
@@ -61,23 +61,23 @@ public final class ContactInvitationDeclinedEvent extends XMPPEvent {
     }
 
     /**
-     * Set declinedBy.
+     * Set deletedBy.
      *
-     * @param declinedBy
+     * @param deletedBy
      *		A JabberId.
      */
-    public void setDeclinedBy(final JabberId declinedBy) {
-        this.declinedBy = declinedBy;
+    public void setDeletedBy(final JabberId deletedBy) {
+        this.deletedBy = deletedBy;
     }
 
     /**
-     * Set declinedOn.
+     * Set deletedOn.
      *
-     * @param declinedOn
+     * @param deletedOn
      *		A Calendar.
      */
-    public void setDeclinedOn(final Calendar declinedOn) {
-        this.declinedOn = declinedOn;
+    public void setDeletedOn(final Calendar deletedOn) {
+        this.deletedOn = deletedOn;
     }
 
     /**

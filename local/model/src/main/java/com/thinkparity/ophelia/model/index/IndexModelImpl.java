@@ -16,10 +16,12 @@ import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingUserInvitation;
 import com.thinkparity.ophelia.model.index.contact.ContactIndexImpl;
 import com.thinkparity.ophelia.model.index.contact.IncomingInvitationIndexImpl;
-import com.thinkparity.ophelia.model.index.contact.OutgoingInvitationIndexImpl;
+import com.thinkparity.ophelia.model.index.contact.OutgoingEMailInvitationIndexImpl;
+import com.thinkparity.ophelia.model.index.contact.OutgoingUserInvitationIndexImpl;
 import com.thinkparity.ophelia.model.index.container.ContainerIndexImpl;
 import com.thinkparity.ophelia.model.index.container.ContainerVersionIndexImpl;
 import com.thinkparity.ophelia.model.index.document.DocumentIndexEntry;
@@ -52,8 +54,11 @@ public final class IndexModelImpl extends Model implements
     /** An incoming invitation index implementation. */
     private IndexImpl<IncomingInvitation, Long> incomingInvitationIndex;
 
-    /** An outgoing invitation index implementation. */
-    private IndexImpl<OutgoingInvitation, Long> outgoingInvitationIndex;
+    /** An outgoing e-mail invitation index implementation. */
+    private IndexImpl<OutgoingEMailInvitation, Long> outgoingEMailInvitationIndex;
+
+    /** An outgoing user invitation index implementation. */
+    private IndexImpl<OutgoingUserInvitation, Long> outgoingUserInvitationIndex;
 
     /**
 	 * Create a IndexModelImpl.
@@ -202,15 +207,30 @@ public final class IndexModelImpl extends Model implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#indexOutgoingInvitation(java.lang.Long)
+     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#indexOutgoingEMailInvitation(java.lang.Long)
      *
      */
-    public void indexOutgoingInvitation(final Long invitationId) {
+    public void indexOutgoingEMailInvitation(final Long invitationId) {
         try {
-            outgoingInvitationIndex.delete(invitationId);
-            final OutgoingInvitation invitation =
-                getContactModel().readOutgoingInvitation(invitationId);
-            outgoingInvitationIndex.index(invitation);
+            outgoingEMailInvitationIndex.delete(invitationId);
+            final OutgoingEMailInvitation invitation =
+                getContactModel().readOutgoingEMailInvitation(invitationId);
+            outgoingEMailInvitationIndex.index(invitation);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#indexOutgoingUserInvitation(java.lang.Long)
+     *
+     */
+    public void indexOutgoingUserInvitation(final Long invitationId) {
+        try {
+            outgoingUserInvitationIndex.delete(invitationId);
+            final OutgoingUserInvitation invitation =
+                getContactModel().readOutgoingUserInvitation(invitationId);
+            outgoingUserInvitationIndex.index(invitation);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -286,12 +306,24 @@ public final class IndexModelImpl extends Model implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#searchOutgoingInvitations(java.lang.String)
+     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#searchOutgoingEMailInvitations(java.lang.String)
      *
      */
-    public List<Long> searchOutgoingInvitations(final String expression) {
+    public List<Long> searchOutgoingEMailInvitations(final String expression) {
         try {
-            return outgoingInvitationIndex.search(expression);
+            return outgoingEMailInvitationIndex.search(expression);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#searchOutgoingEMailInvitations(java.lang.String)
+     *
+     */
+    public List<Long> searchOutgoingUserInvitations(final String expression) {
+        try {
+            return outgoingUserInvitationIndex.search(expression);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -330,6 +362,7 @@ public final class IndexModelImpl extends Model implements
         this.containerVersionIndex = new ContainerVersionIndexImpl(workspace, modelFactory);
         this.documentIndex = new DocumentIndexImpl(workspace, modelFactory);
         this.incomingInvitationIndex = new IncomingInvitationIndexImpl(workspace, modelFactory);
-        this.outgoingInvitationIndex = new OutgoingInvitationIndexImpl(workspace, modelFactory);
+        this.outgoingEMailInvitationIndex = new OutgoingEMailInvitationIndexImpl(workspace, modelFactory);
+        this.outgoingUserInvitationIndex = new OutgoingUserInvitationIndexImpl(workspace, modelFactory);
     }
 }

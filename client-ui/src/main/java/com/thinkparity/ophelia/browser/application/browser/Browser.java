@@ -65,7 +65,7 @@ import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.artifact.RemoveFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingEMailInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.DisplayContactInvitationInfo;
@@ -626,51 +626,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Notify the application that a contact has been added.
-     * 
-     * @param contactId
-     *            The contact id.
-     * @param remote
-     *            True if the action was the result of a remote event; false if
-     *            the action was a local event.  
-     */
-    public void fireContactAdded(final JabberId contactId, final Boolean remote) {
-        // refresh the contact list
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getTabContactAvatar().syncContact(contactId, remote); }
-        });
-    }
-    
-    /**
-     * Notify the application that a contact has been deleted.
-     * 
-     * @param contactId
-     *           The contact id.
-     */
-    public void fireContactDeleted(final JabberId contactId,
-            final Boolean remote) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncContact(contactId, remote);
-            }
-        });
-    }
-
-    /**
-     * Notify the application that a contact has been updated.
-     * 
-     * @param contactId
-     *           The contact id.
-     */
-    public void fireContactUpdated(final JabberId contactId) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncContact(contactId, Boolean.TRUE);
-            }
-        });
-    }
-
-    /**
      * Handle the container restored event.
      * 
      * @param e
@@ -701,243 +656,6 @@ public class Browser extends AbstractApplication {
      */
     public void fireDocumentUpdated(final Long documentId, final Boolean remote) {
         syncDocumentTabContainer(documentId, remote);
-    }
-    
-    /**
-     * Notify the application that an incoming contact invitation has been
-     * accepted.
-     * 
-     * @param contactId
-     *            A contact id.
-     * @param invitationId
-     *            An invitation id.
-     * @param remote
-     *            A remote event indicator.
-     */
-    public void fireIncomingContactInvitationAccepted(final JabberId contactId,
-            final Long invitationId, final Boolean remote) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncContact(contactId, remote);
-                getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
-            }
-        });
-    }
-
-    /**
-     * Notify the application than an incoming contact invitation has been
-     * created.
-     * 
-     * @param invitationId
-     *            An invitation id.
-     * @param remote
-     *            True if the notification is the result of a remote event.
-     */
-    public void fireIncomingContactInvitationCreated(final Long invitationId,
-            final Boolean remote) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
-            }
-        });
-    }
-
-    /**
-     * Notify the application that an incoming contact invitation has been
-     * accepted.
-     * 
-     * @param contactId
-     *            A contact id.
-     * @param invitationId
-     *            An invitation id.
-     * @param remote
-     *            A remote event indicator.
-     */
-    public void fireIncomingContactInvitationDeclined(final Long invitationId,
-            final Boolean remote) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
-            }
-        });
-    }
-
-    /**
-     * Notify the application that an incoming contact invitation has been
-     * deleted.
-     * 
-     * @param contactId
-     *            A contact id.
-     * @param invitationId
-     *            An invitation id.
-     * @param remote
-     *            A remote event indicator.
-     */
-    public void fireIncomingContactInvitationDeleted(final Long invitationId,
-            final Boolean remote) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
-            }
-        });
-    }
-
-    /**
-     * Notify the application that an outgoing invitation has been accepted.
-     * 
-     * @param contactId
-     *            A contact id.
-     * @param invitationId
-     *            An invitation id.
-     * @param remote
-     *            A remote event indicator.
-     */
-    public void fireOutgoingContactInvitationAccepted(final JabberId contactId,
-            final Long invitationId, final Boolean remote) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncContact(contactId, remote);
-                getTabContactAvatar().syncOutgoingInvitation(invitationId, remote);
-            }
-        });
-    }
-
-    /**
-     * Notify the application than an outgoing contact invitation has been
-     * created.
-     * 
-     * @param invitationId
-     *            An invitation id.
-     * @param remote
-     *            True if the notification is the result of a remote event.
-     */
-    public void fireOutgoingContactInvitationCreated(final Long invitationId,
-            final Boolean remote) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncOutgoingInvitation(invitationId, remote);
-            }
-        });
-    }
-
-    /**
-     * Notify the application than an outgoing contact invitation has been
-     * created.
-     * 
-     * @param invitationId
-     *            An invitation id.
-     * @param remote
-     *            True if the notification is the result of a remote event.
-     */
-    public void fireOutgoingContactInvitationDeclined(final Long invitationId,
-            final Boolean remote) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncOutgoingInvitation(invitationId, remote);
-            }
-        });
-    }
-
-    /**
-     * Notify the application that an outgoing contact invitation has been
-     * deleted.
-     * 
-     * @param invitationId
-     *            An invitation id.
-     * @param remote
-     *            True if the notification is the result of a remote event.
-     */
-    public void fireOutgoingContactInvitationDeleted(final Long invitationId,
-            final Boolean remote) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncOutgoingInvitation(invitationId, remote);
-            }
-        });
-    }
-
-    /**
-     * Notify the application that a profile email has been added.
-     * 
-     * @param remote
-     *            True if the notification is the result of a remote event.
-     */
-    public void fireProfileEmailAdded(final Boolean remote) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncProfile(remote);
-            }
-        });
-    }
-
-    /**
-     * Notify the application that a profile email has been removed.
-     * 
-     * @param remote
-     *            True if the notification is the result of a remote event.
-     */
-    public void fireProfileEmailRemoved(final Boolean remote) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncProfile(remote);
-            }
-        });
-    }
-
-    /**
-     * Notify the application that a profile email has been verified.
-     * 
-     * @param remote
-     *            True if the notification is the result of a remote event.
-     */
-    public void fireProfileEmailVerified(final Boolean remote) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncProfile(remote);
-            }
-        });
-    }
-
-    /**
-     * Notify the application that a profile password has been reset.
-     * 
-     * @param remote
-     *            True if the notification is the result of a remote event.
-     */
-    public void fireProfilePasswordReset(final Boolean remote) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncProfile(remote);
-            }
-        });
-    }
-
-    /**
-     * Notify the application that a profile password has been updated.
-     * 
-     * @param remote
-     *            True if the notification is the result of a remote event.
-     */
-    public void fireProfilePasswordUpdated(final Boolean remote) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncProfile(remote);
-            }
-        });
-    }
-
-    /**
-     * Notify the application that the user profile has been updated.
-     * 
-     * @param remote
-     *            True if the notification is the result of a remote event.
-     */
-    public void fireProfileUpdated(final Boolean remote) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncProfile(remote);
-            }
-        });
     }
 
     /**
@@ -1003,7 +721,7 @@ public class Browser extends AbstractApplication {
 	 */
 	public Object getSelectedSystemMessage() { return null; }
 
-	/**
+    /**
      * Obtain a session for an avatar type; and if one does not already exist
      * for the type create one.
      * 
@@ -1015,7 +733,7 @@ public class Browser extends AbstractApplication {
         return sessionImpl.getSession(new BrowserContext(avatarId), Boolean.TRUE);
     }
 
-	/**
+    /**
      * Obtain a session for an avatar type.
      * 
      * @param avatarId
@@ -1029,7 +747,7 @@ public class Browser extends AbstractApplication {
         return sessionImpl.getSession(new BrowserContext(avatarId), create);
     }
 
-	/**
+    /**
      * Obtain the browser's locales.
      * 
      * @return The browser's available <code>Locale[]</code>s.
@@ -1038,13 +756,13 @@ public class Browser extends AbstractApplication {
         return getPlatform().getTimeZone();
     }
 
-	/**
+    /**
 	 * Close the main window.
 	 *
 	 */
 	public void hibernate() { getPlatform().hibernate(getId()); }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#hibernate()
 	 * 
 	 */
@@ -1057,7 +775,7 @@ public class Browser extends AbstractApplication {
 		notifyHibernate();
 	}
 
-    /**
+	/**
      * Iconify (or uniconify) the browser application.
      * 
      * @param iconify
@@ -1075,7 +793,7 @@ public class Browser extends AbstractApplication {
         }
     }
 
-    /**
+	/**
      * Initialize the status message.
      */
     public void initializeStatus() {
@@ -1083,7 +801,7 @@ public class Browser extends AbstractApplication {
         runDisplayContactInvitationInfo();
     }
 
-    /**
+	/**
      * Determine if the browser window is maximized.
      * 
      * @return true if the browser window is maximized; false otherwise.
@@ -1092,12 +810,12 @@ public class Browser extends AbstractApplication {
         return ((mainWindow.getExtendedState() & JFrame.MAXIMIZED_BOTH) > 0);
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.application.Application#isDevelopmentMode() */
+	/** @see com.thinkparity.ophelia.browser.platform.application.Application#isDevelopmentMode() */
     public Boolean isDevelopmentMode() { 
         return getPlatform().isDevelopmentMode();
     }
 
-    /**
+	/**
      * Maximize (or unmaximize) the browser application.
      * 
      * @param maximize
@@ -1115,7 +833,7 @@ public class Browser extends AbstractApplication {
         }
     }
 
-	/**
+    /**
      * Move and resize the browser window.
      * (See moveBrowserWindow, resizeBrowserWindow)
      *
@@ -1135,7 +853,7 @@ public class Browser extends AbstractApplication {
         mainWindow.setMainWindowSizeAndLocation(newL, newS);
     }
 
-	/**
+    /**
 	 * Move the browser window.
 	 * 
 	 * @param l
@@ -1147,13 +865,13 @@ public class Browser extends AbstractApplication {
 		newL.y += l.y;
 		mainWindow.setLocation(newL);
 	}
-    
+
     /**
      * Call <code>toFront()</code> on the browser's main window.
      *
      */
     public void moveToFront() { mainWindow.toFront(); }
-    
+
     /**
      * Resize the browser window.
      * 
@@ -1167,7 +885,7 @@ public class Browser extends AbstractApplication {
         mainWindow.setMainWindowSize(newS);
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#restore(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -1183,13 +901,13 @@ public class Browser extends AbstractApplication {
         setStatus(ApplicationStatus.RUNNING);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.Saveable#restoreState(com.thinkparity.ophelia.browser.platform.util.State)
 	 * 
 	 */
 	public void restoreState(final State state) {}
 
-    /**
+	/**
      * Confirm an attempt to retry an invocation of an action with the user and
      * if positive retry.
      * 
@@ -1228,7 +946,7 @@ public class Browser extends AbstractApplication {
         data.set(AddBookmark.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_ADD_BOOKMARK, data);
     }
-  
+
 	/**
      * Run the create document action, browse to select the document.
      * 
@@ -1268,7 +986,7 @@ public class Browser extends AbstractApplication {
         data.set(AddEmail.DataKey.EMAIL, email);
         invoke(ActionId.PROFILE_ADD_EMAIL, data);
     }
-
+    
     /**
      * Run the apply flag seen action.
      * 
@@ -1280,7 +998,7 @@ public class Browser extends AbstractApplication {
         data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, containerId);
         invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
     }
-
+    
     /**
      * Run the apply flag seen action.
      * 
@@ -1292,13 +1010,13 @@ public class Browser extends AbstractApplication {
         data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, documentId);
         invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
     }
-
-    /**
+  
+	/**
      * Run the add contact action.
      *
      */
-    public void runCreateContactInvitation() {
-        runCreateContactInvitation(null);
+    public void runCreateContactOutgoingEMailInvitation() {
+        runCreateContactOutgoingEMailInvitation(null);
     }
 
     /**
@@ -1307,11 +1025,11 @@ public class Browser extends AbstractApplication {
      * @param newContactEmail
      *              New contact email.
      */
-    public void runCreateContactInvitation(final EMail email) {
+    public void runCreateContactOutgoingEMailInvitation(final EMail email) {
         final Data data = new Data(1);
         if(null != email)
-            data.set(CreateIncomingInvitation.DataKey.CONTACT_EMAIL, email);
-        invoke(ActionId.CONTACT_CREATE_INCOMING_INVITATION, data);
+            data.set(CreateOutgoingEMailInvitation.DataKey.CONTACT_EMAIL, email);
+        invoke(ActionId.CONTACT_CREATE_OUTGOING_EMAIL_INVITATION, data);
     }
 
     /**
@@ -1343,7 +1061,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer(final String name) {
         runCreateContainer(name, null);
     }
-    
+
     /**
      * Run the create container action. If name and files are both not set; a
      * dialog will be used to prompt the user.
@@ -1373,7 +1091,7 @@ public class Browser extends AbstractApplication {
         data.set(CreateDraft.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_CREATE_DRAFT, data);         
     }
-    
+
     /**
      * Decline an invitation.
      * 
@@ -1404,7 +1122,7 @@ public class Browser extends AbstractApplication {
      */
     public void runDisplayContactInvitationInfo() {
         invoke(ActionId.CONTACT_DISPLAY_INVITATION_INFO, Data.emptyData());     
-    }    
+    }
     
     /**
      * Run the display contact invitation info action.
@@ -1419,7 +1137,7 @@ public class Browser extends AbstractApplication {
         }
         invoke(ActionId.CONTACT_DISPLAY_INVITATION_INFO, data);     
     }
-    
+
     /**
      * Run the display container flag seen info action.
      */
@@ -1440,14 +1158,14 @@ public class Browser extends AbstractApplication {
         }
         invoke(ActionId.CONTAINER_DISPLAY_FLAG_SEEN_INFO, data);  
     }
-    
+
     /**
      * Run the action associated with the F1 key.
      */
     public void runF1Action() {
         runPlatformBrowserOpenHelp();
     }
-    
+
     /**
 	 * Run the open document action.
 	 *
@@ -1460,7 +1178,7 @@ public class Browser extends AbstractApplication {
 		final Data data = new Data(1);
 		data.set(Open.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_OPEN, data);
-	}
+	}    
     
     /**
 	 * Run the open document version action.
@@ -1479,7 +1197,7 @@ public class Browser extends AbstractApplication {
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
 	}
-
+    
     /**
      * Run the platform browser open help action.
      *
@@ -1487,7 +1205,7 @@ public class Browser extends AbstractApplication {
     public void runPlatformBrowserOpenHelp() {
         invoke(ActionId.PLATFORM_BROWSER_OPEN_HELP, Data.emptyData());
     }
-
+    
     /**
      * Run the platform browser restore action.
      *
@@ -1495,7 +1213,7 @@ public class Browser extends AbstractApplication {
     public void runPlatformBrowserRestore() {
         invoke(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
     }
-
+    
     /**
      * Run the profile sign-up action.
      *
@@ -1564,7 +1282,7 @@ public class Browser extends AbstractApplication {
             public void run() { invoke(ActionId.CONTAINER_PUBLISH_VERSION, data); }
         });
     }
-    
+
     /**
      * Run the open contact action.
      * 
@@ -1577,7 +1295,7 @@ public class Browser extends AbstractApplication {
         data.set(Read.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_READ, data);
     }
-    
+
     /**
      * Run the read container version action.
      * 
@@ -1593,7 +1311,7 @@ public class Browser extends AbstractApplication {
         data.set(ReadVersion.DataKey.VERSION_ID, versionId);
         invoke(ActionId.CONTAINER_READ_VERSION, data);
     }
-    
+
     /**
      * Run the remove bookmark action.
      * 
@@ -1605,7 +1323,7 @@ public class Browser extends AbstractApplication {
         data.set(RemoveBookmark.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_REMOVE_BOOKMARK, data);
     }
-
+    
     /**
      * Run the remove flag seen action.
      * 
@@ -1617,8 +1335,8 @@ public class Browser extends AbstractApplication {
         data.set(RemoveFlagSeen.DataKey.ARTIFACT_ID, containerId);
         invoke(ActionId.ARTIFACT_REMOVE_FLAG_SEEN, data);         
     }
-
-	/**
+    
+    /**
      * Run the profile's remove email action.
      *
      */
@@ -1627,7 +1345,7 @@ public class Browser extends AbstractApplication {
         data.set(RemoveEmail.DataKey.EMAIL_ID, emailId);
         invoke(ActionId.PROFILE_REMOVE_EMAIL, data);
     }
-
+    
     /**
      * Run the container rename action.
      * 
@@ -1661,7 +1379,7 @@ public class Browser extends AbstractApplication {
         data.set(RenameDocument.DataKey.DOCUMENT_NAME, documentName);
         invoke(ActionId.CONTAINER_RENAME_DOCUMENT, data);
     }
-
+    
     /**
      * Run the reset password action.
      *
@@ -1685,7 +1403,7 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);
     }
 
-    /**
+	/**
      * Update the user's profile.
      *
      * @param name
@@ -1758,7 +1476,7 @@ public class Browser extends AbstractApplication {
         data.set(UpdatePassword.DataKey.NEW_PASSWORD_CONFIRM, confirmNewPassword);
         invoke(ActionId.PROFILE_UPDATE_PASSWORD, data);
     }
-
+    
     /**
      * Run the profile's verify email action.  Since no key is specified; this
      * will display a dialog.
@@ -1804,7 +1522,7 @@ public class Browser extends AbstractApplication {
         getMainTitleAvatar().setInput(data); 
     }
 
-	/**
+    /**
      * Set the cursor.
      * 
      * @param cursor
@@ -1813,7 +1531,7 @@ public class Browser extends AbstractApplication {
     public void setCursor(Cursor cursor) {
         SwingUtil.setCursor(mainWindow.getContentPane(), cursor);
     }
-        
+
     /**
      * Set a custom status message with a link.
      * 
@@ -1822,20 +1540,6 @@ public class Browser extends AbstractApplication {
      */
     public void setStatus(final LinkAction linkAction) {
         setStatus("Empty", null, linkAction);
-    }
-
-    /**
-     * Show the contact invitation.
-     * 
-     * @param invitationId
-     *            The invitationId.
-     */
-    public void showContactInvitation(final Long invitationId) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().showContactInvitation(invitationId);
-            }
-        });   
     }
 
     /**
@@ -1853,7 +1557,21 @@ public class Browser extends AbstractApplication {
             }
         });   
     }
-    
+
+    /**
+     * Show the contact invitation.
+     * 
+     * @param invitationId
+     *            The invitationId.
+     */
+    public void showContactInvitation(final Long invitationId) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().showContactInvitation(invitationId);
+            }
+        });   
+    }
+
     /**
      * Show the container.
      * This expands the container without animation, and scrolls so it is visible.
@@ -1871,7 +1589,7 @@ public class Browser extends AbstractApplication {
         });   
     }
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#start()
 	 * 
 	 */
@@ -1894,6 +1612,68 @@ public class Browser extends AbstractApplication {
         setStatus(ApplicationStatus.RUNNING);
 		notifyStart();
 	}
+        
+    /**
+     * Synchronize a contact on the contact tab.
+     * 
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
+     * @param remote
+     *            True if the synchronization is the result of a remote event.
+     */
+    public void syncContactTabContact(final JabberId contactId,
+            final Boolean remote) {
+        getTabContactAvatar().syncContact(contactId, remote);
+    }
+
+    /**
+     * Synchronize an incoming invitation on the contact tab.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     * @param remote
+     *            True if the synchronization is the result of a remote event.
+     */
+    public void syncContactTabIncomingInvitation(final Long invitationId,
+            final Boolean remote) {
+        getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
+    }
+
+    /**
+     * Synchronize an outgoing e-mail invitation on the contact tab.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     * @param remote
+     *            True if the synchronization is the result of a remote event.
+     */
+    public void syncContactTabOutgoingEMailInvitation(final Long invitationId,
+            final Boolean remote) {
+        getTabContactAvatar().syncOutgoingEMailInvitation(invitationId, remote);
+    }
+
+    /**
+     * Synchronize an outgoing user invitation on the contact tab.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     * @param remote
+     *            True if the synchronization is the result of a remote event.
+     */
+    public void syncContactTabOutgoingUserInvitation(final Long invitationId,
+            final Boolean remote) {
+        getTabContactAvatar().syncOutgoingUserInvitation(invitationId, remote);
+    }
+
+    /**
+     * Synchronize the profile on the contact tab.
+     * 
+     * @param remote
+     *            True if the synchronization is the result of a remote event.
+     */
+    public void syncContactTabProfile(final Boolean remote) {
+        getTabContactAvatar().syncProfile(remote);
+    }
 
     public void toggleStatusImage() {
         ((com.thinkparity.ophelia.browser.application.browser.display.StatusDisplay) mainWindow.getDisplay(DisplayId.STATUS)).toggleImage();

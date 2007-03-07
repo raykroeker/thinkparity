@@ -8,6 +8,7 @@ import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.profile.Profile;
 
+import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.user.UserModel;
@@ -37,12 +38,14 @@ public class ArchiveTabProvider extends ContainerProvider {
      * @param userModel
      *            An instance of <code>UserModel</code>.
      */
-    public ArchiveTabProvider(Profile profile, ContainerModel containerModel,
-            DocumentModel documentModel, UserModel userModel) {
+    public ArchiveTabProvider(final Profile profile,
+            final ContactModel contactModel,
+            final ContainerModel containerModel,
+            final DocumentModel documentModel, final UserModel userModel) {
         super(new Filter<Artifact>() {
             public Boolean doFilter(final Artifact o) {
                 return Boolean.valueOf(!o.isArchived().booleanValue());
             }
-        }, profile, containerModel, documentModel, userModel);
+        }, profile, contactModel, containerModel, documentModel, userModel);
     }
 }

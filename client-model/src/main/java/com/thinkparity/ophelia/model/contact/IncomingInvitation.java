@@ -6,12 +6,14 @@ package com.thinkparity.ophelia.model.contact;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
-
 /**
+ * <b>Title:</b>thinkParity OpheliaModel Incoming Contact Invitation<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class IncomingInvitation extends ContactInvitation {
+public final class IncomingInvitation extends ContactInvitation {
 
     /** The invitation e-mail address. */
     private EMail invitedAs;
@@ -40,6 +42,15 @@ public class IncomingInvitation extends ContactInvitation {
      */
     public JabberId getInvitedBy() {
         return invitedBy;
+    }
+
+    /**
+     * Determine if the invited as e-mail address is set.
+     * 
+     * @return True if the invited as e-mail address is set.
+     */
+    public Boolean isSetInvitedAs() {
+        return null != invitedAs;
     }
 
     /**

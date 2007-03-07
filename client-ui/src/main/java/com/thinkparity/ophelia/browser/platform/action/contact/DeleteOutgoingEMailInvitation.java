@@ -3,29 +3,35 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.contact;
 
+import com.thinkparity.ophelia.model.contact.ContactModel;
+import com.thinkparity.ophelia.model.contact.OutgoingEMailInvitation;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.contact.ContactModel;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 /**
+ * <b>Title:</b>thinkParity OpheliaUI Browser Application Delete Outgoing
+ * Contact EMail Invitation Action<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class DeleteOutgoingInvitation extends AbstractBrowserAction {
-
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
+public final class DeleteOutgoingEMailInvitation extends AbstractAction {
 
     /** The browser application. */
     private final Browser browser;
     
-    /** Create DeleteInvitation. */
-    public DeleteOutgoingInvitation(final Browser browser) {
-        super(ActionId.CONTACT_DELETE_OUTGOING_INVITATION);
+    /**
+     * Create DeleteOutgoingEMailInvitation.
+     * 
+     * @param browser
+     *            The <code>Browser</code> application.
+     */
+    public DeleteOutgoingEMailInvitation(final Browser browser) {
+        super(ActionId.CONTACT_DELETE_OUTGOING_EMAIL_INVITATION);
         this.browser = browser;
     }
 
@@ -37,10 +43,10 @@ public class DeleteOutgoingInvitation extends AbstractBrowserAction {
         final Long invitationId = (Long) data.get(DataKey.INVITATION_ID);
 
         final ContactModel contactModel = getContactModel();
-        final OutgoingInvitation outgoing = contactModel.readOutgoingInvitation(invitationId);
-        if(browser.confirm("ContactOutgoingInvitationDelete.ConfirmDeleteMessage",
+        final OutgoingEMailInvitation outgoing = contactModel.readOutgoingEMailInvitation(invitationId);
+        if (browser.confirm("ContactOutgoingEMailInvitationDelete.ConfirmDeleteMessage",
                 new Object[] {outgoing.getEmail()})) {
-            contactModel.deleteOutgoingInvitation(invitationId);
+            contactModel.deleteOutgoingEMailInvitation(invitationId);
         }
     }
 

@@ -13,7 +13,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
@@ -24,6 +23,9 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
+
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
@@ -32,14 +34,28 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
+import com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.*;
+import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.Archive;
+import com.thinkparity.ophelia.browser.platform.action.container.Collapse;
+import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.Delete;
+import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
+import com.thinkparity.ophelia.browser.platform.action.container.Expand;
+import com.thinkparity.ophelia.browser.platform.action.container.PrintDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.Publish;
+import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.RemoveDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.Rename;
+import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.RevertDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.UndeleteDocument;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
 /**
  * <b>Title:</b><br>
@@ -50,14 +66,14 @@ import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         TabPanelPopupDelegate, PopupDelegate {
 
-    /** A <code>ContainerModel</code>. */
-    private final ContainerTabModel model;
-    
     /** A list of action ids, used for the container popup. */
     private final List<ActionId> actionIds;
     
     /** A list of data, used for the container popup. */
     private final List<Data> dataList;
+    
+    /** A <code>ContainerModel</code>. */
+    private final ContainerTabModel model;
 
     /**
      * Create ContainerTabPopupFactory.
@@ -339,19 +355,35 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         }
         
         // Open submenu, users
-        for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
-            if (isLocalUser(entry.getKey())) {
+        for (final User publishedToUser : publishedTo.keySet()) {
+            if (isLocalUser(publishedToUser)) {
                 final Data data = new Data(1);
                 data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-                add(ActionId.CONTACT_READ, entry.getKey().getName(), ActionId.PROFILE_UPDATE, data);
+                add(ActionId.CONTACT_READ, publishedToUser.getName(), ActionId.PROFILE_UPDATE, data);
             } else {
                 final Data data = new Data(1);
-                data.set(Read.DataKey.CONTACT_ID, entry.getKey().getId());
-                add(ActionId.CONTACT_READ, entry.getKey().getName(), data);
+                data.set(Read.DataKey.CONTACT_ID, publishedToUser.getId());
+                add(ActionId.CONTACT_READ, publishedToUser.getName(), data);
             }
         }
         
         addSeparator();
+
+        // invite submenu users
+        if (isOnline()) {
+            if (!isLocalUser(publishedBy) && !doesExistContact(publishedBy) && !doesExistOutgoingUserInvitation(publishedBy)) {
+                final Data data = new Data(1);
+                data.set(CreateOutgoingUserInvitation.DataKey.USER_ID, publishedBy.getLocalId());
+                add(ActionId.CONTACT_CREATE_OUTGOING_USER_INVITATION, publishedBy.getName(), data);
+            }
+            for (final User publishedToUser : publishedTo.keySet()) {
+                if (!isLocalUser(publishedToUser) && !doesExistContact(publishedToUser) && !doesExistOutgoingUserInvitation(publishedToUser)) {
+                    final Data data = new Data(1);
+                    data.set(CreateOutgoingUserInvitation.DataKey.USER_ID, publishedToUser.getLocalId());
+                    add(ActionId.CONTACT_CREATE_OUTGOING_USER_INVITATION, publishedToUser.getName(), data);
+                }
+            }
+        }
         
         // Show version comment
         if (version.isSetComment()) {
@@ -453,6 +485,28 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         actionIds.add(actionId);
         dataList.add(data);
         add(actionIds, dataList, 1);
+    }
+
+    /**
+     * Determine if the specified user is a contact.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if this is the local user; false otherwise.
+     */
+    private boolean doesExistContact(final User user) {
+        return model.readDoesExistContact(user).booleanValue();
+    }
+
+    /**
+     * Determine if the specified user is a contact.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if this is the local user; false otherwise.
+     */
+    private boolean doesExistOutgoingUserInvitation(final User user) {
+        return model.readDoesExistOutgoingUserInvitation(user).booleanValue();
     }
 
     /**

@@ -45,11 +45,14 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import org.dom4j.DocumentFactory;
@@ -826,6 +829,45 @@ public class ElementBuilder {
     }
 
     public static final Element createElement(final String name,
+            final ContactEMailInvitationDeclinedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ContactEMailInvitationDeclinedEvent.class);
+        } else {
+            final Element element = createElement(name, value.getClass());
+            addElement(element, "declinedBy", value.getDeclinedBy());
+            addElement(element, "declinedOn", value.getDeclinedOn());
+            addElement(element, "invitedAs", value.getInvitedAs());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ContactEMailInvitationDeletedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ContactEMailInvitationDeletedEvent.class);
+        } else {
+            final Element element = createElement(name, value.getClass());
+            addElement(element, "deletedBy", value.getDeletedBy());
+            addElement(element, "deletedOn", value.getDeletedOn());
+            addElement(element, "invitedAs", value.getInvitedAs());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ContactEMailInvitationExtendedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ContactEMailInvitationExtendedEvent.class);
+        } else {
+            final Element element = createElement(name, value.getClass());
+            addElement(element, "invitedAs", value.getInvitedAs());
+            addElement(element, "invitedBy", value.getInvitedBy());
+            addElement(element, "invitedOn", value.getInvitedOn());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
             final ContactInvitationAcceptedEvent value) {
         if (null == value) {
             return createNullElement(name, ContactInvitationAcceptedEvent.class);
@@ -838,45 +880,6 @@ public class ElementBuilder {
     }
 
     public static final Element createElement(final String name,
-            final ContactInvitationDeclinedEvent value) {
-        if (null == value) {
-            return createNullElement(name, ContactInvitationDeclinedEvent.class);
-        } else {
-            final Element element = createElement(name, ContactInvitationDeclinedEvent.class);
-            addElement(element, "declinedBy", value.getDeclinedBy());
-            addElement(element, "declinedOn", value.getDeclinedOn());
-            addElement(element, "invitedAs", value.getInvitedAs());
-            return element;
-        }
-    }
-
-    public static final Element createElement(final String name,
-            final ContactInvitationDeletedEvent value) {
-        if (null == value) {
-            return createNullElement(name, ContactInvitationDeclinedEvent.class);
-        } else {
-            final Element element = createElement(name, ContactInvitationDeclinedEvent.class);
-            addElement(element, "deletedBy", value.getDeletedBy());
-            addElement(element, "deletedOn", value.getDeletedOn());
-            addElement(element, "invitedAs", value.getInvitedAs());
-            return element;
-        }
-    }
-
-    public static final Element createElement(final String name,
-            final ContactInvitationExtendedEvent value) {
-        if (null == value) {
-            return createNullElement(name, ContactInvitationExtendedEvent.class);
-        } else {
-            final Element element = createElement(name, ContactInvitationExtendedEvent.class);
-            addElement(element, "invitedAs", value.getInvitedAs());
-            addElement(element, "invitedBy", value.getInvitedBy());
-            addElement(element, "invitedOn", value.getInvitedOn());
-            return element;
-        }
-    }
-
-    public static final Element createElement(final String name,
             final ContactUpdatedEvent value) {
         if (null == value) {
             return createNullElement(name, ContactUpdatedEvent.class);
@@ -884,6 +887,42 @@ public class ElementBuilder {
             final Element element = createElement(name, value.getClass());
             addElement(element, "contactId", value.getContactId());
             addElement(element, "updatedOn", value.getUpdatedOn());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ContactUserInvitationDeclinedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ContactUserInvitationDeclinedEvent.class);
+        } else {
+            final Element element = createElement(name, value.getClass());
+            addElement(element, "declinedBy", value.getDeclinedBy());
+            addElement(element, "declinedOn", value.getDeclinedOn());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ContactUserInvitationDeletedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ContactUserInvitationDeletedEvent.class);
+        } else {
+            final Element element = createElement(name, value.getClass());
+            addElement(element, "deletedBy", value.getDeletedBy());
+            addElement(element, "deletedOn", value.getDeletedOn());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ContactUserInvitationExtendedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ContactUserInvitationExtendedEvent.class);
+        } else {
+            final Element element = createElement(name, value.getClass());
+            addElement(element, "invitedBy", value.getInvitedBy());
+            addElement(element, "invitedOn", value.getInvitedOn());
             return element;
         }
     }

@@ -7,17 +7,20 @@ import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingUserInvitation;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.user.UserModel;
+
+import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 
 /**
  * Provide a flat list of contacts from the session model.
@@ -86,12 +89,22 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
         return contactModel.readIncomingInvitations();
     }
 
-    public OutgoingInvitation readOutgoingInvitation(final Long invitationId) {
-        return contactModel.readOutgoingInvitation(invitationId);
+    public OutgoingEMailInvitation readOutgoingEMailInvitation(
+            final Long invitationId) {
+        return contactModel.readOutgoingEMailInvitation(invitationId);
     }
 
-    public List<OutgoingInvitation> readOutgoingInvitations() {
-        return contactModel.readOutgoingInvitations();
+    public List<OutgoingEMailInvitation> readOutgoingEMailInvitations() {
+        return contactModel.readOutgoingEMailInvitations();
+    }
+
+    public OutgoingUserInvitation readOutgoingUserInvitation(
+            final Long invitationId) {
+        return contactModel.readOutgoingUserInvitation(invitationId);
+    }
+
+    public List<OutgoingUserInvitation> readOutgoingUserInvitations() {
+        return contactModel.readOutgoingUserInvitations();
     }
 
     public Profile readProfile() {
@@ -110,7 +123,11 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
         return contactModel.searchIncomingInvitations(expression);
     }
 
-    public List<Long> searchOutgoingInvitations(final String expression) {
-        return contactModel.searchOutgoingInvitations(expression);
+    public List<Long> searchOutgoingEMailInvitations(final String expression) {
+        return contactModel.searchOutgoingEMailInvitations(expression);
+    }
+
+    public List<Long> searchOutgoingUserInvitations(final String expression) {
+        return contactModel.searchOutgoingUserInvitations(expression);
     }
 }

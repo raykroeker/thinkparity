@@ -4,8 +4,13 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
+
+import com.thinkparity.ophelia.model.contact.IncomingInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingUserInvitation;
 
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactTabPanel;
@@ -17,12 +22,11 @@ import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInv
 import com.thinkparity.ophelia.browser.platform.action.contact.Collapse;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
-import com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingEMailInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Expand;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword;
-import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 /**
  * <b>Title:</b><br>
@@ -87,16 +91,37 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.PopupDelegate#showForInvitation(com.thinkparity.ophelia.model.contact.OutgoingInvitation)
-     *
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.PopupDelegate#showForInvitation(com.thinkparity.ophelia.model.contact.OutgoingEMailInvitation)
+     * 
      */
-    public void showForInvitation(final OutgoingInvitation invitation) {
+    public void showForInvitation(final OutgoingEMailInvitation invitation) {
         if (isOnline()) {
             final Data deleteData = new Data(1);
-            deleteData.set(DeleteOutgoingInvitation.DataKey.INVITATION_ID, invitation.getId());
-            add(ActionId.CONTACT_DELETE_OUTGOING_INVITATION, deleteData);
+            deleteData.set(DeleteOutgoingEMailInvitation.DataKey.INVITATION_ID, invitation.getId());
+            add(ActionId.CONTACT_DELETE_OUTGOING_EMAIL_INVITATION, deleteData);
             show();
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.PopupDelegate#showForInvitation(com.thinkparity.ophelia.model.contact.OutgoingEMailInvitation)
+     * 
+     */
+    public void showForInvitation(final OutgoingUserInvitation invitation) {
+        if (isOnline()) {
+            final Data deleteData = new Data(1);
+            deleteData.set(DeleteOutgoingUserInvitation.DataKey.INVITATION_ID, invitation.getId());
+            add(ActionId.CONTACT_DELETE_OUTGOING_USER_INVITATION, deleteData);
+            show();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate#showForPanel(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     * 
+     */
+    public void showForPanel(final TabPanel tabPanel) {
+        showForContact(((ContactTabPanel) tabPanel).getContact(), false);
     }
 
     /**
@@ -128,14 +153,6 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
         }
 
         show();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate#showForPanel(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
-     * 
-     */
-    public void showForPanel(final TabPanel tabPanel) {
-        showForContact(((ContactTabPanel) tabPanel).getContact(), false);
     }
 
     /**

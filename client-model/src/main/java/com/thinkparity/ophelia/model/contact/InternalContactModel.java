@@ -7,11 +7,14 @@ package com.thinkparity.ophelia.model.contact;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationExtendedEvent;
 
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
@@ -53,50 +56,65 @@ public interface InternalContactModel extends ContactModel {
     public void handleContactUpdated(final ContactUpdatedEvent event);
 
     /**
+     * Handle the e-mail invitation extended remote event.
+     * 
+     * @param event
+     *            A <code>ContactEmailInvitationDeclinedEvent</code>.
+     */
+    public void handleEMailInvitationDeclined(
+            final ContactEMailInvitationDeclinedEvent event);
+
+    /**
+     * Handle the remote contact invitation deleted remote event.
+     * 
+     * @param event
+     *            A <code>ContactEMailInvitationDeletedEvent</code>.
+     */
+    public void handleEMailInvitationDeleted(
+            final ContactEMailInvitationDeletedEvent event);
+
+    /**
      * Handle the invitation extended remote event.
      * 
-     * @param acceptedBy
-     *            By whom the invitation was accepted.
-     * @param acceptedOn
-     *            When the invitation was accepted.
+     * @param event
+     *            A <code>ContactEmailInvitationEvent</code>.
+     */
+    public void handleEMailInvitationExtended(
+            final ContactEMailInvitationExtendedEvent event);
+
+    /**
+     * Handle the invitation extended remote event.
+     * 
+     * @param event
+     *            A <code>ContactInvitationAcceptedEvent</code>.
      */
     public void handleInvitationAccepted(
             final ContactInvitationAcceptedEvent event);
 
     /**
-     * Handle the invitation extended remote event.
+     * Handle the user invitation declined remote event.
      * 
-     * @param invitedAs
-     *            The original invitation e-mail address.
-     * @param declinedBy
-     *            By whom the invitation was declined.
-     * @param declinedOn
-     *            When the invitation was declined.
+     * @param event
+     *            A <code>ContactEmailInvitationDeclinedEvent</code>.
      */
-    public void handleInvitationDeclined(
-            final ContactInvitationDeclinedEvent event);
+    public void handleUserInvitationDeclined(
+            final ContactUserInvitationDeclinedEvent event);
 
     /**
      * Handle the remote contact invitation deleted remote event.
      * 
-     * @param invitedAs
-     *            The original invitation e-mail address.
-     * @param deletedBy
-     *            By whom the invitation was deleted.
-     * @param deletedOn
-     *            When the invitation was deleted.
+     * @param event
+     *            A <code>ContactUserInvitationDeletedEvent</code>.
      */
-    public void handleInvitationDeleted(
-            final ContactInvitationDeletedEvent event);
+    public void handleUserInvitationDeleted(
+            final ContactUserInvitationDeletedEvent event);
 
     /**
      * Handle the invitation extended remote event.
      * 
-     * @param invitedBy
-     *            By whom the invitation was extended.
-     * @param invitedOn
-     *            When the invitation was extended.
+     * @param event
+     *            A <code>ContactUserInvitationExtendedEvent</code>.
      */
-    public void handleInvitationExtended(
-            final ContactInvitationExtendedEvent event);
+    public void handleUserInvitationExtended(
+            final ContactUserInvitationExtendedEvent event);
 }

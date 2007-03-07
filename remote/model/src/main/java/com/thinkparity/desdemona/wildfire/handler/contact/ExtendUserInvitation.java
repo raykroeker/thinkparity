@@ -5,7 +5,6 @@ package com.thinkparity.desdemona.wildfire.handler.contact;
 
 import java.util.Calendar;
 
-import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
@@ -19,14 +18,14 @@ import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ExtendInvitation extends AbstractHandler {
+public final class ExtendUserInvitation extends AbstractHandler {
 
     /**
-     * Create ExtendInvitation.
+     * Create ExtendUserInvitation.
      *
      */
-	public ExtendInvitation() {
-        super("contact:extendinvitation");
+	public ExtendUserInvitation() {
+        super("contact:extenduserinvitation");
 	}
 
     /**
@@ -39,9 +38,9 @@ public final class ExtendInvitation extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        logger.logApiId();
-        extendInvitation(provider, reader.readJabberId("userId"),
-                reader.readEMail("extendedTo"), reader.readCalendar("extendedOn"));
+        extendUserInvitation(provider, reader.readJabberId("userId"),
+                reader.readJabberId("extendTo"),
+                reader.readCalendar("extendedOn"));
     }
 
     /**
@@ -56,10 +55,10 @@ public final class ExtendInvitation extends AbstractHandler {
      * @param extendedOn
      *            The date <code>Calendar</code> of the invitation.
      */
-    private void extendInvitation(final ServiceModelProvider context,
-            final JabberId userId, final EMail extendedTo,
+    private void extendUserInvitation(final ServiceModelProvider context,
+            final JabberId userId, final JabberId extendTo,
             final Calendar extendedOn) {
-        context.getContactModel().extendInvitation(userId, extendedTo,
+        context.getContactModel().extendUserInvitation(userId, extendTo,
                 extendedOn);
     }
 }

@@ -4,7 +4,6 @@
 package com.thinkparity.desdemona.model.migrator;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -90,11 +89,8 @@ class MigratorModelImpl extends AbstractModelImpl {
                     OutputStream fileStream;
                     InputStream resourceStream;
                     for (final Resource resource : resources) {
-                        fileStream = new BufferedOutputStream(
-                                new FileOutputStream(
-                                        streamFileSystem.createFile(
-                                                resource.getPath())),
-                                                getDefaultBufferSize());
+                        fileStream = new FileOutputStream(
+                                streamFileSystem.createFile(resource.getPath()));
                         try {
                             resourceStream = migratorSql.openResource(
                                     resource.getName(), resource.getVersion(),

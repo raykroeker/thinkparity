@@ -445,15 +445,14 @@ class MigratorModelImpl extends AbstractModelImpl {
     private void validateRelease(final Release release,
             final List<Resource> resources, final File releaseFile,
             final FileSystem releaseFileSystem) throws IOException {
-        final InputStream streamFileInput = new BufferedInputStream(
-                new FileInputStream(releaseFile), getDefaultBufferSize());
-        final String streamFileChecksum;
+        final InputStream stream = new FileInputStream(releaseFile);
+        final String checksum;
         try {
-            streamFileChecksum = MD5Util.md5Hex(streamFileInput, getDefaultBufferSize());
+            checksum = MD5Util.md5Hex(stream, getDefaultBufferSize());
         } finally {
-            streamFileInput.close();
+            stream.close();
         }
-        Assert.assertTrue(release.getChecksum().equals(streamFileChecksum),
+        Assert.assertTrue(release.getChecksum().equals(checksum),
                 "Checksum for release {0} does not match calculation.  {1} <> {2}",
                 release.getName());
     }

@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.document;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -25,6 +24,7 @@ import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -35,6 +35,7 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
+
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -1087,7 +1088,7 @@ public final class DocumentModelImpl extends
 	    final File temp = workspace.createTempFile();
         try {
             // create a temp file containing the stream
-            final OutputStream os = new BufferedOutputStream(new FileOutputStream(temp), buffer);
+            final OutputStream os = new FileOutputStream(temp);
             try {
                 StreamUtil.copy(stream, os, buffer);
             } finally {

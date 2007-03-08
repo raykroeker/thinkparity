@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.document;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -58,7 +57,7 @@ public class CreateTest extends DocumentTestCase {
 
         InputStream content;
 		for(final File inputFile : getInputFiles()) {
-            content = new BufferedInputStream(new FileInputStream(inputFile), getDefaultBufferSize());
+            content = new FileInputStream(inputFile);
             data.add(new Fixture(content, documentModel, inputFile.getName()));
 		}
 	}

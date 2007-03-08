@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -529,8 +528,7 @@ public abstract class Model<T extends EventListener> extends
      */
     protected final String checksum(final File file, final Integer buffer)
             throws IOException {
-        final InputStream stream = new BufferedInputStream(
-                new FileInputStream(file), buffer);
+        final InputStream stream = new FileInputStream(file);
         try {
             return MD5Util.md5Hex(stream, buffer);
         } finally {

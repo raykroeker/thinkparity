@@ -65,6 +65,12 @@ class ArtifactModelImpl extends AbstractModelImpl {
             if (userModel.isArchive(userId)) {
                 logInfo("Ignoring archive user {0}.", userId);
             } else {
+                final Artifact artifact = read(uniqueId);
+                final User teamMember = userModel.read(teamMemberId);
+                final List<TeamMember> teamMembers = readTeam(userId, artifact.getId());
+                if (!contains(teamMembers, teamMember))
+                    addTeamMember(userId, artifact.getId(), teamMember.getLocalId());
+
                 final ArtifactTeamMemberAddedEvent teamMemberAdded = new ArtifactTeamMemberAddedEvent();
                 teamMemberAdded.setJabberId(teamMemberId);
                 teamMemberAdded.setUniqueId(uniqueId);

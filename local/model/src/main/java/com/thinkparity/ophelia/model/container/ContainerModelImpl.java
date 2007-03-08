@@ -271,6 +271,8 @@ public final class ContainerModelImpl extends
             assertOnline("User is not online.");
             assertIsDistributed("Container has not been distributed.", containerId);
 
+            if (doesExistDraft(containerId))
+                deleteDraft(containerId);
             getArtifactModel().applyFlagArchived(containerId);
             getBackupModel().archive(containerId);
             getSessionModel().removeTeamMember(
@@ -1764,22 +1766,36 @@ public final class ContainerModelImpl extends
             final InternalArtifactModel artifactModel = getArtifactModel();
             final Long containerId = artifactModel.readId(event.getUniqueId());
             // restore
-            final boolean didFlag;
-            if (artifactModel.isFlagApplied(containerId, ArtifactFlag.ARCHIVED)) {
+            final boolean doRestore = artifactModel.isFlagApplied(
+                    containerId, ArtifactFlag.ARCHIVED);
+            if (doRestore) {
+                // restore the draft
+                final JabberId draftOwner = getSessionModel().readKeyHolder(
+                        localUserId(), event.getUniqueId());
+                if (draftOwner.equals(User.THINK_PARITY.getId())) {
+                    logger.logInfo("No remote draft exists for {0}.", containerId);
+                } else {
+                    final List<TeamMember> team = readTeam(containerId);
+                    final ContainerDraft draft = new ContainerDraft();
+                    draft.setContainerId(containerId);
+                    draft.setOwner(team.get(indexOf(team, draftOwner)));
+                    containerIO.createDraft(draft);
+                }
                 // note that we do not update the local team - this has been
                 // done as part of the handling of the event within the artifact
                 // model
                 artifactModel.removeFlagArchived(containerId);
                 getBackupModel().restore(containerId);
-                didFlag = true;
-            } else {
-                didFlag = false;
             }
+
             if (doesExistDraft(containerId))
                 deleteDraft(containerId);
 
-            if (didFlag)
-                notifyContainerFlagged(read(containerId), remoteEventGenerator);
+            if (doRestore) {
+                final Container container = read(containerId);
+                notifyDraftCreated(container, readDraft(containerId), remoteEventGenerator);
+                notifyContainerFlagged(container, remoteEventGenerator);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1796,11 +1812,23 @@ public final class ContainerModelImpl extends
 
             final InternalArtifactModel artifactModel = getArtifactModel();
             artifactModel.removeFlagArchived(containerId);
-            artifactModel.addTeamMember(containerId, localUserId());
+            // restore the draft if one existed
+            final InternalSessionModel sessionModel = getSessionModel();
+            final JabberId draftOwner = sessionModel.readKeyHolder(
+                    localUserId(), artifactModel.readUniqueId(containerId));
+            if (draftOwner.equals(User.THINK_PARITY.getId())) {
+                logger.logInfo("No remote draft exists for {0}.", containerId);
+            } else {
+                final List<TeamMember> team = readTeam(containerId);
+                final ContainerDraft draft = new ContainerDraft();
+                draft.setContainerId(containerId);
+                draft.setOwner(team.get(indexOf(team, draftOwner)));
+                containerIO.createDraft(draft);
+            }
             getBackupModel().restore(containerId);
-            getSessionModel().addTeamMember(
-                    getArtifactModel().readUniqueId(containerId),
-                    getArtifactModel().readTeamIds(containerId), localUserId());
+            sessionModel.addTeamMember(
+                    artifactModel.readUniqueId(containerId),
+                    artifactModel.readTeamIds(containerId), localUserId());
 
             notifyContainerRestored(read(containerId), localEventGenerator);
         } catch (final Throwable t) {

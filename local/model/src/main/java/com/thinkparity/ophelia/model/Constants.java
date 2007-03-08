@@ -38,26 +38,18 @@ public final class Constants {
         }
     }
     public static final class MetaData {
-        public static final String RELEASE_ID_KEY = "com.thinkparity.model.parity.releaseId";
+        public static final String RELEASE_ID_KEY = "thinkparity.release-name";
         public static final Long RELEASE_ID_PK = 1000L;
     }
-    public static final class Preferences {
-        public static final class Properties {
-            public static final String LAST_RUN = "com.thinkparity.parity.model.lastRun";
-            public static final String PASSWORD = "parity.password";
-        }
-    }
     public static final class Product {
-        public static final String NAME = "OpheliaProduct";
+        public static final String NAME = System.getProperty("thinkparity.product-name");
         public static final class Features {
             public static final String BACKUP = "BACKUP";
             public static final String CORE = "CORE";
         }
     }
     public static final class Release {
-        public static final String ARTIFACT_ID = "lBrowser";
-        public static final String GROUP_ID = "com.thinkparity.parity";
-        public static final String VERSION = "1.0.0-RC4";
+        public static final String NAME = System.getProperty("thinkparity.release-name");
     }
     public static final class ShutdownHookNames {
         public static final String HYPERSONIC = "thinkParity Hypersonic Database";

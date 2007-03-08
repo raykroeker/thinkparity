@@ -39,7 +39,6 @@ public class GetWorkspaceTest extends ModelTestCase {
 				assertNotNull(workspace);
 				assertNotNull(workspace.getDataDirectory());
                 assertNotNull(workspace.getIndexDirectory());
-                assertNotNull(workspace.getPreferences());
                 assertNotNull(workspace.getWorkspaceDirectory());
 			}
 		}

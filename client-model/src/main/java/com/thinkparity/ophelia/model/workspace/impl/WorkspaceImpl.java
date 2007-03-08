@@ -33,7 +33,6 @@ import com.thinkparity.ophelia.model.Constants.FileNames;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl;
-import com.thinkparity.ophelia.model.workspace.Preferences;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
 
@@ -57,9 +56,6 @@ public class WorkspaceImpl implements Workspace {
 
     /** The persistence manager. */
     private PersistenceManagerImpl persistenceManagerImpl;
-
-    /** The preferences. */
-    private PreferencesImpl preferencesImpl;
 
     /** A list of shutdown hooks to execute upon jvm termination. */
     private List<ShutdownHook> shutdownHooks;
@@ -110,15 +106,20 @@ public class WorkspaceImpl implements Workspace {
     }
 
     /**
+     * Begin the workspace initialization.
+     *
+     */
+    public void beginInitialize() {
+        persistenceManagerImpl.beginInitialize();
+    }
+
+    /**
      * Close the workspace.
      *
      */
     public void close() {
         listenersImpl.stop();
         listenersImpl = null;
-
-        preferencesImpl.save();
-        preferencesImpl = null;
 
         persistenceManagerImpl.stop();
         persistenceManagerImpl = null;
@@ -187,6 +188,14 @@ public class WorkspaceImpl implements Workspace {
     }
 
     /**
+     * Finish the workspace initialization.
+     *
+     */
+    public void finishInitialize() {
+        persistenceManagerImpl.finishInitialize();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getDataDirectory()
      */
     public File getDataDirectory() {
@@ -202,11 +211,20 @@ public class WorkspaceImpl implements Workspace {
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getDefaultBufferSize()
+     *
+     */
+    public Integer getDefaultBufferSize() {
+        // BUFFER - 512KB - PreferencesImpl#getDefaultBufferSize()
+        return 1024 * 512;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getIndexDirectory()
      */
     public File getIndexDirectory() {
         return initChild(DirectoryNames.Workspace.INDEX);
-    }
+    }            
 
     /**
      * Obtain the model's event listeners.
@@ -226,7 +244,7 @@ public class WorkspaceImpl implements Workspace {
      */
     public File getLogDirectory() {
         return initChild(DirectoryNames.Workspace.LOG);
-    }            
+    }
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getLogFile()
@@ -236,7 +254,7 @@ public class WorkspaceImpl implements Workspace {
         return new File(loggingDirectory, FileNames.Workspace.Logging.LOGFILE);
     }
 
-    /**
+	/**
      * Obtain the workspace name.
      * 
      * @return A name <code>String</code>.
@@ -246,14 +264,6 @@ public class WorkspaceImpl implements Workspace {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.workspace.Workspace#getPreferences()
-     * 
-     */
-    public Preferences getPreferences() {
-        return preferencesImpl;
-    }
-
-	/**
      * Obtain the shutdownHooks
      *
      * @return The List<ShutdownHook>.
@@ -262,7 +272,7 @@ public class WorkspaceImpl implements Workspace {
         return Collections.unmodifiableList(shutdownHooks);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getTransaction()
      *
      */
@@ -293,28 +303,12 @@ public class WorkspaceImpl implements Workspace {
     }
 
     /**
-     * Initialize the persistence.
-     *
-     */
-    public void initializePersistence() {
-        persistenceManagerImpl.initialize();
-    }
-
-    /**
-     * Initialize the preferences.
-     *
-     */
-    public void initializePreferences() {
-        preferencesImpl.initialize();
-    }
-
-    /**
-     * Determine if the workspace has been initialized.
+     * Determine if the workspace is initialized.
      * 
-     * @return True if the workspace has been initialized.
+     * @return True if it has already been initialized.
      */
     public Boolean isInitialized() {
-        return preferencesImpl.isInitialized();
+        return persistenceManagerImpl.isInitialized();
     }
 
     /**
@@ -324,9 +318,6 @@ public class WorkspaceImpl implements Workspace {
     public void open() {
         listenersImpl = new ListenersImpl(this);
         listenersImpl.start();
-
-        preferencesImpl = new PreferencesImpl(this);
-        preferencesImpl.load();
 
         persistenceManagerImpl = new PersistenceManagerImpl(this);
         persistenceManagerImpl.start();

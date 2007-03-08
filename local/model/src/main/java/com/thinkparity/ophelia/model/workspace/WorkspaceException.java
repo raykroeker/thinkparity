@@ -23,4 +23,14 @@ public class WorkspaceException extends RuntimeException {
     public WorkspaceException(final String message, final Throwable cause) {
         super(message, cause);
     }
+
+    /**
+     * Create a WorkspaceException.
+     * 
+     * @param message
+     *            The error message.
+     */
+    public WorkspaceException(final String message) {
+        super(message);
+    }
 }

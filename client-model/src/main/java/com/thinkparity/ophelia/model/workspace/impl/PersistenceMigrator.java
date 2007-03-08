@@ -145,12 +145,12 @@ public class PersistenceMigrator {
     }
 
     void migrate() throws HypersonicException {
-        final String actualVersionId = Constants.Release.VERSION;
-        final String expectedVersionId = getExpectedVersionId();
-        if (null == expectedVersionId) {
+        final String schemaVersionId = getSchemaVersionId();
+        if (null == schemaVersionId) {
             initializeSchema();
-        } else if(actualVersionId.equals(expectedVersionId)) {
-            migrateSchema(expectedVersionId, actualVersionId);
+        } else {
+            final String softwareVersionId = "";
+            migrateSchema(schemaVersionId, softwareVersionId);
         }
     }
 
@@ -160,7 +160,7 @@ public class PersistenceMigrator {
         }
     }
 
-    private String getExpectedVersionId() {
+    private String getSchemaVersionId() {
         final Session session = openSession();
         session.openMetaData();
         try {
@@ -218,7 +218,7 @@ public class PersistenceMigrator {
         session.prepareStatement(INSERT_SEED_VERSION);
         session.setTypeAsInteger(1, MetaDataType.STRING);
         session.setString(2, Constants.MetaData.RELEASE_ID_KEY);
-        session.setString(3, Constants.Release.VERSION);
+        session.setString(3, Constants.Release.NAME);
         if(1 != session.executeUpdate())
             throw new HypersonicException(
                     "Could not insert version seed.");

@@ -9,11 +9,12 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.TimeZone;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
@@ -23,9 +24,8 @@ import com.thinkparity.ophelia.browser.platform.application.window.WindowRegistr
 import com.thinkparity.ophelia.browser.platform.event.LifeCycleListener;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
-import com.thinkparity.ophelia.model.util.ProcessMonitor;
-import com.thinkparity.ophelia.model.workspace.Preferences;
-import com.thinkparity.ophelia.model.workspace.Workspace;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -122,8 +122,6 @@ public interface Platform extends ApplicationListener {
      * @return A plugin registry.
      */
     public PluginRegistry getPluginRegistry();
-
-	public Preferences getPreferences();
 
     /**
      * Obtain the time zone.

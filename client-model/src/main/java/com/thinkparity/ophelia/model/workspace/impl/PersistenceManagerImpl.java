@@ -19,6 +19,7 @@ import com.thinkparity.codebase.model.util.jta.TransactionManager;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
+import com.thinkparity.ophelia.model.io.md.MetaDataType;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
 import com.thinkparity.ophelia.model.workspace.impl.xapool.OpheliaXADataSource;
 
@@ -65,6 +66,59 @@ class PersistenceManagerImpl {
     }
 
     /**
+     * Initialize the persistence manager.
+     *
+     */
+    void beginInitialize() {
+        try {
+            final Transaction transaction = beginTransaction();
+            try {
+                new PersistenceMigrator(sessionManager).migrate();
+                transaction.commit();
+            } catch (final Throwable t) {
+                transaction.rollback();
+                throw t;
+            }
+        } catch (final Throwable t) {
+            throw new WorkspaceException("Cannot initialize persistence.", t);
+        }
+    }
+
+    /**
+     * Finish the initialization.
+     *
+     */
+    void finishInitialize() {
+        try {
+            final Transaction transaction = beginTransaction();
+            try {
+                final Session session = sessionManager.openSession();
+                try {
+                    final String sql =
+                        new StringBuffer("insert into META_DATA ")
+                        .append("(META_DATA_TYPE_ID,META_DATA_KEY,META_DATA_VALUE) ")
+                        .append("values(?,?,?)")
+                        .toString();
+                    session.prepareStatement(sql);
+                    session.setTypeAsInteger(1, MetaDataType.BOOLEAN);
+                    session.setString(2, "thinkparity.workspace-initialized");
+                    session.setString(3, Boolean.TRUE.toString());
+                    if (1 != session.executeUpdate())
+                        throw new WorkspaceException("Cannot initialize persistence.");
+                } finally {
+                    session.close();
+                }
+                transaction.commit();
+            } catch (final Throwable t) {
+                transaction.rollback();
+                throw t;
+            }
+        } catch (final Throwable t) {
+            throw new WorkspaceException("Cannot initialize persistence.", t);
+        }
+    }
+
+    /**
      * Obtain the data source.
      * 
      * @return The <code>DataSource</code>.
@@ -83,15 +137,50 @@ class PersistenceManagerImpl {
     }
 
     /**
-     * Initialize the persistence manager.
-     *
+     * Determine whether or not the persistence manager has been initialized.
+     * 
+     * @return True if it has been initialized.
      */
-    void initialize() {
+    Boolean isInitialized() {
         try {
             final Transaction transaction = beginTransaction();
             try {
-                new PersistenceMigrator(sessionManager).migrate();
+                final Session session = sessionManager.openSession();
+                final Boolean isInitialized;
+                try {
+                    // check for the existence of the META_DATA table
+                    session.openMetaData();
+                    session.getMetaDataTables();
+                    boolean existsMetaDataTable = false;
+                    while (session.nextResult()) {
+                        if (session.getString("TABLE_NAME").equals("META_DATA")) {
+                            existsMetaDataTable = true;
+                            break;
+                        }
+                    }
+                    if (existsMetaDataTable) {
+                        final String sql =
+                            new StringBuffer("select META_DATA_VALUE ")
+                            .append("from META_DATA ")
+                            .append("where META_DATA_KEY=?")
+                            .toString();
+                        session.prepareStatement(sql);
+                        session.setString(1, "thinkparity.workspace-initialized");
+                        session.executeQuery();
+                        if (session.nextResult()) {
+                            isInitialized = Boolean.valueOf(
+                                    session.getString("META_DATA_VALUE"));
+                        } else {
+                            isInitialized = null;
+                        }
+                    } else {
+                        isInitialized = Boolean.FALSE;
+                    }
+                } finally {
+                    session.close();
+                }
                 transaction.commit();
+                return isInitialized;
             } catch (final Throwable t) {
                 transaction.rollback();
                 throw t;

@@ -5,9 +5,13 @@ package com.thinkparity.ophelia.browser.platform;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-
-import org.apache.log4j.Logger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.TimeZone;
 
 import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.assertion.Assert;
@@ -15,10 +19,15 @@ import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+import com.thinkparity.codebase.sort.StringComparator;
+
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
-import com.thinkparity.codebase.sort.StringComparator;
+
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.Directories;
@@ -46,10 +55,8 @@ import com.thinkparity.ophelia.browser.platform.plugin.PluginHelper;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.profile.Profile;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
-import com.thinkparity.ophelia.model.util.ProcessMonitor;
-import com.thinkparity.ophelia.model.workspace.Preferences;
-import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -132,9 +139,6 @@ public class BrowserPlatform implements Platform {
 	/** The platform plugin helper. */
     private final PluginHelper pluginHelper;
 
-    /** The parity preferences. */
-	private final Preferences preferences;
-
 	/** The thinkParity <code>WindowRegistry</code>. */
 	private final WindowRegistry windowRegistry;
 
@@ -162,7 +166,6 @@ public class BrowserPlatform implements Platform {
 		this.avatarRegistry = new AvatarRegistry();
 		this.windowRegistry = new WindowRegistry();
 		this.modelFactory = ModelFactory.getInstance();
-		this.preferences = modelFactory.getPreferences(getClass());
 
 		this.logger = new Log4JWrapper();
 		this.persistence = new BrowserPlatformPersistence(this);
@@ -311,12 +314,6 @@ public class BrowserPlatform implements Platform {
 //        return pluginHelper.getRegistry();
         return null;
     }
-
-    /**
-	 * @see com.thinkparity.ophelia.browser.platform.Platform#getPreferences()
-	 * 
-	 */
-	public Preferences getPreferences() { return preferences; }
 
 	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getTimeZone()

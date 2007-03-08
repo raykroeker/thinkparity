@@ -268,10 +268,9 @@ public class WorkspaceModel {
         notifyDetermine(monitor, 3);
         final WorkspaceImpl workspaceImpl = findImpl(workspace);
         try {
-            // initialize persistence
-            // TODO Need to make sure db isn't set up again if bad password
+            // begin initialization
             notifyStepBegin(monitor, InitializeStep.PERSISTENCE_INITIALIZE);
-            workspaceImpl.initializePersistence();
+            workspaceImpl.beginInitialize();
             notifyStepEnd(monitor, InitializeStep.PERSISTENCE_INITIALIZE);
             final InternalModelFactory modelFactory = InternalModelFactory.getInstance(context, environment, workspace);
             final InternalSessionModel sessionModel = modelFactory.getSessionModel();
@@ -279,29 +278,27 @@ public class WorkspaceModel {
             notifyStepBegin(monitor, InitializeStep.SESSION_LOGIN);
             sessionModel.login(credentials);
             notifyStepEnd(monitor, InitializeStep.SESSION_LOGIN);
-            if (sessionModel.isLoggedIn()) {
-                // initialize migrator
-                modelFactory.getMigratorModel().initialize();
-                // create the profile
-                notifyStepBegin(monitor, InitializeStep.PROFILE_CREATE);
-                modelFactory.getProfileModel().create();
-                notifyStepEnd(monitor, InitializeStep.PROFILE_CREATE);
-                // download contacts
-                notifyStepBegin(monitor, InitializeStep.CONTACT_DOWNLOAD);
-                modelFactory.getContactModel().download(monitor);
-                notifyStepEnd(monitor, InitializeStep.CONTACT_DOWNLOAD);
-                // restore backup
-                notifyStepBegin(monitor, InitializeStep.CONTAINER_RESTORE_BACKUP);
-                modelFactory.getContainerModel().restoreBackup(monitor);
-                notifyStepEnd(monitor, InitializeStep.CONTAINER_RESTORE_BACKUP);
-                // process events
-                notifyStepBegin(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
-                sessionModel.processQueue(monitor);
-                sessionModel.registerQueueListener();
-                notifyStepEnd(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
-
-                workspaceImpl.initializePreferences();
-            }
+            // initialize migrator
+            modelFactory.getMigratorModel().initialize();
+            // create the profile
+            notifyStepBegin(monitor, InitializeStep.PROFILE_CREATE);
+            modelFactory.getProfileModel().create();
+            notifyStepEnd(monitor, InitializeStep.PROFILE_CREATE);
+            // download contacts
+            notifyStepBegin(monitor, InitializeStep.CONTACT_DOWNLOAD);
+            modelFactory.getContactModel().download(monitor);
+            notifyStepEnd(monitor, InitializeStep.CONTACT_DOWNLOAD);
+            // restore backup
+            notifyStepBegin(monitor, InitializeStep.CONTAINER_RESTORE_BACKUP);
+            modelFactory.getContainerModel().restoreBackup(monitor);
+            notifyStepEnd(monitor, InitializeStep.CONTAINER_RESTORE_BACKUP);
+            // process events
+            notifyStepBegin(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
+            sessionModel.processQueue(monitor);
+            sessionModel.registerQueueListener();
+            notifyStepEnd(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
+            // finish initialization
+            workspaceImpl.finishInitialize();
         } catch (final InvalidCredentialsException icx) {
             throw icx;
         } catch (final Throwable t) {

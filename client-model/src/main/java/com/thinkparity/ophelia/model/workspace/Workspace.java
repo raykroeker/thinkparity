@@ -81,6 +81,13 @@ public interface Workspace {
     public DataSource getDataSource();
 
     /**
+     * Obtain the default buffer size.
+     * 
+     * @return A buffer size <code>Integer</code>.
+     */
+    public Integer getDefaultBufferSize();
+
+    /**
 	 * Obtain the index directory.
 	 * 
 	 * @return The index directory <code>File</code.
@@ -100,13 +107,6 @@ public interface Workspace {
      * @return A log <code>File</code>.
      */
     public File getLogFile();
-
-    /**
-     * Obtain the preferences for the workspace.
-     * 
-     * @return The workspace <code>Preferences</code>.
-     */
-	public Preferences getPreferences();
 
     /**
      * Obtain a transaction.

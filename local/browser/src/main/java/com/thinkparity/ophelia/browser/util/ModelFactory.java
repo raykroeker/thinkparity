@@ -16,7 +16,6 @@ import com.thinkparity.ophelia.model.migrator.MigratorModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.UserModel;
-import com.thinkparity.ophelia.model.workspace.Preferences;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -39,9 +38,6 @@ public class ModelFactory {
 
     /** The thinkParity <code>ModelFactory</code>. */
     private com.thinkparity.ophelia.model.ModelFactory modelFactory;
-
-    /** The thinkParity preferences. */
-	private Preferences preferences;
 
     /** The thinkParity workspace. */
 	private Workspace workspace;
@@ -107,18 +103,6 @@ public class ModelFactory {
         return modelFactory.getMigratorModel();
     }
 
-	/**
-     * Obtain thinkParity <code>Preferences</code>.
-     * 
-     * @param clasz
-     *            The name of clasz will be used to obtain appropriate
-     *            preferences.
-     * @return An instance of <code>Preferences</code>.
-     */
-    public final Preferences getPreferences(final Class clasz) {
-		return preferences;
-	}
-
     /**
      * Obtain a profile model.
      * 
@@ -177,7 +161,6 @@ public class ModelFactory {
         Assert.assertIsNull("The model factory has already been initialized.",
                 this.workspace);
         this.workspace = workspace;
-        this.preferences = workspace.getPreferences();
         this.modelFactory = com.thinkparity.ophelia.model.ModelFactory.getInstance(environment, workspace);
     }
 }

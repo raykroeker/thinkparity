@@ -68,7 +68,6 @@ import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.util.localization.Localization;
 import com.thinkparity.ophelia.model.util.localization.LocalizationContext;
 import com.thinkparity.ophelia.model.workspace.InternalWorkspaceModel;
-import com.thinkparity.ophelia.model.workspace.Preferences;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -195,9 +194,6 @@ public abstract class Model<T extends EventListener> extends
 
 	/** A thinkParity <code>InternalModelFactory</code>. */
     protected InternalModelFactory modelFactory;
-
-    /** The thinkParity workspace <code>Preferences</code>. */
-	protected Preferences preferences;
 
     /** A thinkParity <code>Workspace</code>. */
 	protected Workspace workspace;
@@ -764,17 +760,6 @@ public abstract class Model<T extends EventListener> extends
         return modelFactory.getBackupModel();
     }
 
-    /**
-     * Obtain a buffer size.
-     * 
-     * @param context
-     *            A context <code>String</code>.
-     * @return A buffer size <code>Integer</code>.
-     */
-    protected final Integer getBufferSize(final String context) {
-        return preferences.getBufferSize(context);
-    }
-
     protected final String getChecksumAlgorithm() {
         return ChecksumAlgorithm.MD5.name();
     }
@@ -803,7 +788,7 @@ public abstract class Model<T extends EventListener> extends
      * @return An <code>Integer</code> default buffer size.
      */
     protected Integer getDefaultBufferSize() {
-        return preferences.getDefaultBufferSize();
+        return workspace.getDefaultBufferSize();
     }
 
     /**
@@ -904,7 +889,6 @@ public abstract class Model<T extends EventListener> extends
 
         this.configurationIO = IOFactory.getDefault(workspace).createConfigurationHandler();
         this.modelFactory = InternalModelFactory.getInstance(getContext(), environment, workspace);
-        this.preferences = (null == workspace ? null : workspace.getPreferences());
     }
 
     /**

@@ -648,6 +648,13 @@ public final class PublishContainerAvatar extends Avatar implements
         }
         
         public String getExtendedName() {
+            if (null == user.getTitle()) {
+                logger.logWarning("{0}{0}{0}TITLE IS NULL{0}{1}{0}{2}{0}{3}{0}{4}{0}{5}{0}{6}{0}{7}{0}{8}{0}{0}{0}",
+                        "\r\n", user.getFlags(), user.getId(), user.getLocalId(),
+                        user.getName(), user.getOrganization(),
+                        user.getSimpleUsername(), user.getUsername(),
+                        user.getClass());
+            }
             return localization.getString("UserName",
                     new Object[] {user.getName(), user.getTitle(), user.getOrganization()} );
         }

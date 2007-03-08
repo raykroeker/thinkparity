@@ -25,7 +25,6 @@ import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -36,7 +35,6 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
-
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -396,8 +394,10 @@ public final class DocumentModelImpl extends
             draftFile.setWritable(true, true);
             final FileChannel draftFileChannel = new RandomAccessFile(draftFile, "rws").getChannel();
             final FileLock draftFileLock = draftFileChannel.tryLock();
-            if (null == draftFileLock)
+            if (null == draftFileLock) {
+            	draftFileChannel.close();
                 throw new CannotLockException(document.getName());
+            }
             lock.setFile(draftFile);
             lock.setFileChannel(draftFileChannel);
             lock.setFileLock(draftFileLock);

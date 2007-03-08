@@ -9,7 +9,12 @@ import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.user.TeamMember;
-
+import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
+import com.thinkparity.ophelia.browser.platform.action.ActionId;
+import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -18,13 +23,6 @@ import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
-
-import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
 
 /**
  * Publish a document. This will send a given document version to every member
@@ -167,6 +165,7 @@ public class Publish extends AbstractBrowserAction {
                 monitor.reset();
                 publishMonitor = newPublishMonitor();
                 action.browser.retry(action, container.getName());
+                return null;
             }
             try {
                 containerModel.publish(publishMonitor, container.getId(), comment,
@@ -174,11 +173,15 @@ public class Publish extends AbstractBrowserAction {
             } catch (final CannotLockException clx) {
                 try {
                     containerModel.restoreDraft(container.getId());
-                } catch (final CannotLockException clx2) {}
-
+                } catch (final CannotLockException clx2) {
+                	// not a whole lot that can be done here
+                	action.logger.logFatal(clx2,
+                			"Could not restore draft for {0}.", container);
+                }
                 monitor.reset();
                 publishMonitor = newPublishMonitor();
                 action.browser.retry(action, container.getName());
+                return null;
             }
             artifactModel.applyFlagSeen(container.getId());
             return containerModel.readLatestVersion(container.getId());

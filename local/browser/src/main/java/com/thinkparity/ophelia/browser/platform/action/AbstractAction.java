@@ -9,12 +9,10 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.user.User;
-
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
@@ -41,8 +39,7 @@ public abstract class AbstractAction implements ActionInvocation {
 	protected final ActionLocalization localization;
 
 	/** An apache logger. */
-	protected final Logger logger =
-		Logger.getLogger(getClass());
+	protected final Log4JWrapper logger;
 
 	/** The thinkParity model factory. */
 	protected final ModelFactory modelFactory = ModelFactory.getInstance();
@@ -80,6 +77,7 @@ public abstract class AbstractAction implements ActionInvocation {
         this.id = id;
         this.icon = null;
         this.localization = new ActionLocalization(id.toString());
+        this.logger = new Log4JWrapper(getClass());
         this.name = localization.getString("NAME");
         this.menuName = localization.getString("MENUNAME");
         this.mnemonic = localization.getString("MNEMONIC").substring(0,1);
@@ -99,6 +97,7 @@ public abstract class AbstractAction implements ActionInvocation {
         this.id = null;
         this.icon = null;
         this.localization = new ActionLocalization(extension);
+        this.logger = new Log4JWrapper(getClass());
         this.name = localization.getString("NAME");
         this.menuName = localization.getString("MENUNAME");
         this.mnemonic = localization.getString("MNEMONIC").substring(0,1);
@@ -430,7 +429,7 @@ public abstract class AbstractAction implements ActionInvocation {
                     .append(getId()).append(" - ")
                     .append(t.getMessage())
                     .toString();
-            logger.error(internalErrorId, t);
+            logger.logError(t, internalErrorId);
             return new BrowserException(internalErrorId, t);
         }
     }

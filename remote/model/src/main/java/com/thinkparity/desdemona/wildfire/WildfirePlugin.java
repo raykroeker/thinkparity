@@ -97,6 +97,8 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 	    final JiveProperties jiveProperties = JiveProperties.getInstance();
 	    final Mode mode = Mode.valueOf((String) jiveProperties.get("thinkparity.mode"));
         System.setProperty("thinkparity.mode", mode.toString());
+        System.setProperty("thinkparity.product-name", (String) jiveProperties.get("thinkparity.product-name"));
+        System.setProperty("thinkparity.release-name", (String) jiveProperties.get("thinkparity.release-name"));
         bootstrapLog4J(mode);
         logger = new Log4JWrapper();
 		logger.logInfo("{0}:{1}", "xmpp.auth.anonymous", jiveProperties.get("xmpp.auth.anonymous"));
@@ -109,6 +111,8 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 		logger.logInfo("{0}:{1}", "thinkparity.backup.root", jiveProperties.get("thinkparity.backup.root"));
         logger.logInfo("{0}:{1}", "thinkparity.environment", jiveProperties.get("thinkparity.environment"));
         logger.logInfo("{0}:{1}", "thinkparity.mode", jiveProperties.get("thinkparity.mode"));
+        logger.logInfo("{0}:{1}", "thinkparity.product-name", jiveProperties.get("thinkparity.product-name"));
+        logger.logInfo("{0}:{1}", "thinkparity.release-name", jiveProperties.get("thinkparity.release-name"));
         logger.logInfo("{0}:{1}", "thinkparity.stream.root", jiveProperties.get("thinkparity.stream.root"));
         logger.logInfo("{0}:{1}", "thinkparity.temp.root", jiveProperties.get("thinkparity.temp.root"));
 		initializeHandlers(pluginClassLoader, pluginDirectory);

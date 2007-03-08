@@ -10,6 +10,7 @@ import javax.swing.AbstractAction;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -76,7 +77,7 @@ public class ErrorAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        final javax.swing.JButton closeJButton = new javax.swing.JButton();
+        final javax.swing.JButton closeJButton = ButtonFactory.create();
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setText("Error encountered.");

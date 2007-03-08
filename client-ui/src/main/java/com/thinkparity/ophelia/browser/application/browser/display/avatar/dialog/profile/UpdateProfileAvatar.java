@@ -21,14 +21,14 @@ import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.UpdateProfileProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.dialog.profile.LocaleRenderer;
@@ -205,7 +205,7 @@ public class UpdateProfileAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        final javax.swing.JButton cancelJButton = new javax.swing.JButton();
+        final javax.swing.JButton cancelJButton = ButtonFactory.create();
         final javax.swing.JLabel phoneJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel mobilePhoneJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel addressJLabel = new javax.swing.JLabel();
@@ -719,7 +719,7 @@ public class UpdateProfileAvatar extends Avatar {
     private final javax.swing.JTextField mobilePhoneJTextField = new javax.swing.JTextField();
     private final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
-    private final javax.swing.JButton okJButton = new javax.swing.JButton();
+    private final javax.swing.JButton okJButton = ButtonFactory.create();
     private final javax.swing.JLabel organizationJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField organizationJTextField = new javax.swing.JTextField();
     private final javax.swing.JTextField phoneJTextField = new javax.swing.JTextField();

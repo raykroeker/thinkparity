@@ -106,6 +106,7 @@ public class ButtonFactory extends ComponentFactory {
 	private JButton doCreate() {
 		final JButton jButton = new JButton();
 		applyDefaultFont(jButton);
+        jButton.setOpaque(false);
 		return jButton;
 	}
 

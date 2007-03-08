@@ -15,18 +15,16 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.user.UserUtils;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.PublishContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.dialog.container.PublishContainerAvatarUserCellRenderer;
@@ -34,6 +32,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
+import com.thinkparity.ophelia.model.user.UserUtils;
 
 /**
  * <b>Title:</b><br>
@@ -60,7 +59,7 @@ public final class PublishContainerAvatar extends Avatar implements
     private final javax.swing.JList namesJList = new javax.swing.JList();
     private final javax.swing.JScrollPane namesJScrollPane = new javax.swing.JScrollPane();
     private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
-    private final javax.swing.JButton publishJButton = new javax.swing.JButton();
+    private final javax.swing.JButton publishJButton = ButtonFactory.create();
     private final javax.swing.JProgressBar publishJProgressBar = new javax.swing.JProgressBar();
     // End of variables declaration//GEN-END:variables
 
@@ -292,7 +291,7 @@ public final class PublishContainerAvatar extends Avatar implements
         final javax.swing.JLabel commentJLabel = new javax.swing.JLabel();
         final javax.swing.JScrollPane commentJScrollPane = new javax.swing.JScrollPane();
         final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
-        final javax.swing.JButton cancelJButton = new javax.swing.JButton();
+        final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
         namesJScrollPane.setBorder(null);
         namesJScrollPane.setOpaque(false);

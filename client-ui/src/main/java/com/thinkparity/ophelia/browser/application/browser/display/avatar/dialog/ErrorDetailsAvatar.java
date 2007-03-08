@@ -17,6 +17,7 @@ import com.thinkparity.codebase.swing.ClipboardUtils;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -64,7 +65,7 @@ public class ErrorDetailsAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        final javax.swing.JButton closeJButton = new javax.swing.JButton();
+        final javax.swing.JButton closeJButton = ButtonFactory.create();
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setText("Default Error Message:  This text should not be seen.");
@@ -233,7 +234,7 @@ public class ErrorDetailsAvatar extends Avatar {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JButton copyDetailsJButton = new javax.swing.JButton();
+    private final javax.swing.JButton copyDetailsJButton = ButtonFactory.create();
     private final javax.swing.JScrollPane errorJScrollPane = new javax.swing.JScrollPane();
     private final javax.swing.JTextArea errorJTextArea = new javax.swing.JTextArea();
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();

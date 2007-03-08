@@ -17,6 +17,7 @@ import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -101,7 +102,7 @@ public class CreateContainerAvatar extends Avatar {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
-        final javax.swing.JButton cancelJButton = new javax.swing.JButton();
+        final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
         nameJLabel.setFont(Fonts.DialogFont);
         nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.Name"));
@@ -242,7 +243,7 @@ public class CreateContainerAvatar extends Avatar {
       
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
-    private final javax.swing.JButton okJButton = new javax.swing.JButton();
+    private final javax.swing.JButton okJButton = ButtonFactory.create();
     // End of variables declaration//GEN-END:variables
 
     public enum DataKey { NUM_FILES, FILES }

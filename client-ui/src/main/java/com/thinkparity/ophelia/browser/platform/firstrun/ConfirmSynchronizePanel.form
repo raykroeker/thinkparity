@@ -18,9 +18,9 @@
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="confirmJLabel" alignment="0" pref="379" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="noJButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="yesJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="yesJButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="noJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -34,8 +34,8 @@
               <Component id="confirmJLabel" min="-2" pref="176" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="yesJButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="noJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="noJButton" linkSize="2" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="yesJButton" linkSize="2" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -60,6 +60,9 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="yesJButtonActionPerformed"/>
       </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create();"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JButton" name="noJButton">
       <Properties>
@@ -70,6 +73,9 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="noJButtonActionPerformed"/>
       </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create();"/>
+      </AuxValues>
     </Component>
   </SubComponents>
 </Form>

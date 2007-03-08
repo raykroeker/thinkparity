@@ -10,6 +10,7 @@ import javax.swing.AbstractAction;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -28,9 +29,9 @@ public final class ConfirmAvatar extends Avatar {
     private Boolean confirm;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JButton confirmJButton = new javax.swing.JButton();
+    private final javax.swing.JButton confirmJButton = ButtonFactory.create();
     private final javax.swing.JLabel confirmMessageJLabel = new javax.swing.JLabel();
-    private final javax.swing.JButton denyJButton = new javax.swing.JButton();
+    private final javax.swing.JButton denyJButton = ButtonFactory.create();
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -159,19 +160,18 @@ public final class ConfirmAvatar extends Avatar {
         confirmMessageJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         confirmJButton.setFont(Fonts.DialogButtonFont);
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        confirmJButton.setText(bundle.getString("ConfirmDialog.Confirm")); // NOI18N
+        confirmJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ConfirmDialog.Confirm"));
         confirmJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                confirmJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmJButtonActionPerformed(evt);
             }
         });
 
         denyJButton.setFont(Fonts.DialogButtonFont);
-        denyJButton.setText(bundle.getString("ConfirmDialog.Deny")); // NOI18N
+        denyJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ConfirmDialog.Deny"));
         denyJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                denyJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                denyJButtonActionPerformed(evt);
             }
         });
 

@@ -16,6 +16,7 @@ import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
@@ -136,29 +137,28 @@ public final class CreateInvitationAvatar extends Avatar {
         javax.swing.JLabel emailJLabel;
 
         addContactJPanel = new javax.swing.JPanel();
-        addJButton = new javax.swing.JButton();
-        cancelJButton = new javax.swing.JButton();
+        addJButton = ButtonFactory.create();
+        cancelJButton = ButtonFactory.create();
         emailJLabel = LabelFactory.create();
         emailJTextField = TextFactory.create();
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        addContactJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("AddContact.Title"))); // NOI18N
+        addContactJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("AddContact.Title")));
         addContactJPanel.setOpaque(false);
-        addJButton.setText(bundle.getString("AddContact.AddButton")); // NOI18N
+        addJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("AddContact.AddButton"));
         addJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                addJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addJButtonActionPerformed(evt);
             }
         });
 
-        cancelJButton.setText(bundle.getString("AddContact.CancelButton")); // NOI18N
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("AddContact.CancelButton"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                cancelJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelJButtonActionPerformed(evt);
             }
         });
 
-        emailJLabel.setText(bundle.getString("AddContact.EmailLabel")); // NOI18N
+        emailJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("AddContact.EmailLabel"));
 
         org.jdesktop.layout.GroupLayout addContactJPanelLayout = new org.jdesktop.layout.GroupLayout(addContactJPanel);
         addContactJPanel.setLayout(addContactJPanelLayout);
@@ -168,9 +168,9 @@ public final class CreateInvitationAvatar extends Avatar {
                 .addContainerGap()
                 .add(addContactJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, addContactJPanelLayout.createSequentialGroup()
-                        .add(cancelJButton)
+                        .add(addJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(addJButton))
+                        .add(cancelJButton))
                     .add(addContactJPanelLayout.createSequentialGroup()
                         .add(emailJLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -188,8 +188,8 @@ public final class CreateInvitationAvatar extends Avatar {
                     .add(emailJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(addContactJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(addJButton)
-                    .add(cancelJButton))
+                    .add(cancelJButton)
+                    .add(addJButton))
                 .addContainerGap())
         );
 

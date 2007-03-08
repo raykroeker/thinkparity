@@ -177,8 +177,7 @@ class ProfileManagerAvatar extends Avatar {
         newJButton = ButtonFactory.create(getString("NewButton"));
         deleteJButton = ButtonFactory.create(getString("DeleteButton"));
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        eaJLabel.setText(bundle.getString("ProfileManagerAvatar.EmbeddedAssistance")); // NOI18N
+        eaJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ProfileManagerAvatar.EmbeddedAssistance"));
 
         profileJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         profileJList.setCellRenderer(new ProfileListCellRenderer());
@@ -192,7 +191,8 @@ class ProfileManagerAvatar extends Avatar {
         profileJScrollPane.setViewportView(profileJList);
 
         startJButton.setMnemonic('S');
-        startJButton.setText(bundle.getString("ProfileManagerAvatar.StartButton")); // NOI18N
+        startJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ProfileManagerAvatar.StartButton"));
+        startJButton.setPreferredSize(new java.awt.Dimension(57, 23));
         startJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 startJButtonActionPerformed(evt);
@@ -200,7 +200,7 @@ class ProfileManagerAvatar extends Avatar {
         });
 
         exitJButton.setMnemonic('x');
-        exitJButton.setText(bundle.getString("ProfileManagerAvatar.ExitButton")); // NOI18N
+        exitJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ProfileManagerAvatar.ExitButton"));
         exitJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 exitJButtonActionPerformed(evt);
@@ -208,7 +208,7 @@ class ProfileManagerAvatar extends Avatar {
         });
 
         renameJButton.setMnemonic('R');
-        renameJButton.setText(bundle.getString("ProfileManagerAvatar.RenameButton")); // NOI18N
+        renameJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ProfileManagerAvatar.RenameButton"));
         renameJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 renameJButtonActionPerformed(evt);
@@ -216,7 +216,7 @@ class ProfileManagerAvatar extends Avatar {
         });
 
         newJButton.setMnemonic('N');
-        newJButton.setText(bundle.getString("ProfileManagerAvatar.NewButton")); // NOI18N
+        newJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ProfileManagerAvatar.NewButton"));
         newJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 newJButtonActionPerformed(evt);
@@ -224,7 +224,7 @@ class ProfileManagerAvatar extends Avatar {
         });
 
         deleteJButton.setMnemonic('D');
-        deleteJButton.setText(bundle.getString("ProfileManagerAvatar.DeleteButton")); // NOI18N
+        deleteJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ProfileManagerAvatar.DeleteButton"));
         deleteJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deleteJButtonActionPerformed(evt);
@@ -249,7 +249,7 @@ class ProfileManagerAvatar extends Avatar {
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(exitJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(startJButton)))
+                        .add(startJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -261,9 +261,9 @@ class ProfileManagerAvatar extends Avatar {
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(profileJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 7, Short.MAX_VALUE)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(startJButton)
+                            .add(startJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(exitJButton)))
                     .add(layout.createSequentialGroup()
                         .add(25, 25, 25)

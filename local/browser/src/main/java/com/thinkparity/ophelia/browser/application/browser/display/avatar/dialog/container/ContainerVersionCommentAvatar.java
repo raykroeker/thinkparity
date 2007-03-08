@@ -10,6 +10,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.ContainerVersionProvider;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -84,7 +85,7 @@ public class ContainerVersionCommentAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        final javax.swing.JButton okJButton = new javax.swing.JButton();
+        final javax.swing.JButton okJButton = ButtonFactory.create();
         final javax.swing.JScrollPane commentJScrollPane = new javax.swing.JScrollPane();
 
         okJButton.setFont(Fonts.DialogButtonFont);

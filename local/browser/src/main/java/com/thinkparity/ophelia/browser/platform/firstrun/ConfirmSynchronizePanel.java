@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
@@ -71,21 +72,20 @@ public class ConfirmSynchronizePanel extends Avatar {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         confirmJLabel = new javax.swing.JLabel();
-        yesJButton = new javax.swing.JButton();
-        noJButton = new javax.swing.JButton();
+        yesJButton = ButtonFactory.create();
+        noJButton = ButtonFactory.create();
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        confirmJLabel.setText(bundle.getString("DIALOG_PLATFORM_CONFIRM_SYNCHRONIZE.confirmJLabel")); // NOI18N
+        confirmJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("DIALOG_PLATFORM_CONFIRM_SYNCHRONIZE.confirmJLabel"));
         confirmJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        yesJButton.setText(bundle.getString("DIALOG_PLATFORM_CONFIRM_SYNCHRONIZE.yesJButton")); // NOI18N
+        yesJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("DIALOG_PLATFORM_CONFIRM_SYNCHRONIZE.yesJButton"));
         yesJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 yesJButtonActionPerformed(evt);
             }
         });
 
-        noJButton.setText(bundle.getString("DIALOG_PLATFORM_CONFIRM_SYNCHRONIZE.noJButton")); // NOI18N
+        noJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("DIALOG_PLATFORM_CONFIRM_SYNCHRONIZE.noJButton"));
         noJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 noJButtonActionPerformed(evt);
@@ -101,11 +101,14 @@ public class ConfirmSynchronizePanel extends Avatar {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(org.jdesktop.layout.GroupLayout.LEADING, confirmJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 379, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
-                        .add(noJButton)
+                        .add(yesJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(yesJButton)))
+                        .add(noJButton)))
                 .addContainerGap())
         );
+
+        layout.linkSize(new java.awt.Component[] {noJButton, yesJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
@@ -113,10 +116,13 @@ public class ConfirmSynchronizePanel extends Avatar {
                 .add(confirmJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 176, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(yesJButton)
-                    .add(noJButton))
+                    .add(noJButton)
+                    .add(yesJButton))
                 .addContainerGap())
         );
+
+        layout.linkSize(new java.awt.Component[] {noJButton, yesJButton}, org.jdesktop.layout.GroupLayout.VERTICAL);
+
     }// </editor-fold>//GEN-END:initComponents
 
     private void noJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_noJButtonActionPerformed

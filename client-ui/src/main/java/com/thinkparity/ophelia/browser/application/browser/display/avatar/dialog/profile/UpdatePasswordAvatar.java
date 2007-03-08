@@ -9,14 +9,14 @@ import javax.swing.AbstractAction;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.UpdatePasswordProvider;
@@ -37,7 +37,7 @@ public class UpdatePasswordAvatar extends Avatar {
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel forgotPasswordJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JPasswordField newPasswordJPasswordField = new javax.swing.JPasswordField();
-    private final javax.swing.JButton okJButton = new javax.swing.JButton();
+    private final javax.swing.JButton okJButton = ButtonFactory.create();
     private final javax.swing.JPasswordField oldPasswordJPasswordField = new javax.swing.JPasswordField();
     // End of variables declaration//GEN-END:variables
 
@@ -177,7 +177,7 @@ public class UpdatePasswordAvatar extends Avatar {
         final javax.swing.JLabel oldPasswordJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel newPasswordJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel confirmNewPasswordJLabel = new javax.swing.JLabel();
-        final javax.swing.JButton cancelJButton = new javax.swing.JButton();
+        final javax.swing.JButton cancelJButton = ButtonFactory.create();
         final javax.swing.JPanel forgotPasswordJPanel = new javax.swing.JPanel();
         final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
 

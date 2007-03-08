@@ -11,6 +11,7 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.SingleContentProvider;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -82,7 +83,7 @@ public class UserInfoAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        final javax.swing.JButton closeJButton = new javax.swing.JButton();
+        final javax.swing.JButton closeJButton = ButtonFactory.create();
         final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel titleJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel companyJLabel = new javax.swing.JLabel();

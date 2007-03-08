@@ -16,6 +16,7 @@ import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -141,7 +142,7 @@ public class RenameContainerAvatar extends Avatar {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
-        final javax.swing.JButton cancelJButton = new javax.swing.JButton();
+        final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
         nameJLabel.setFont(Fonts.DialogFont);
         nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameContainerDialog.Name"));
@@ -192,11 +193,11 @@ public class RenameContainerAvatar extends Avatar {
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(36, 36, 36)
+                .add(34, 34, 34)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(nameJLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 45, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 47, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(cancelJButton)
                     .add(okJButton))
@@ -246,7 +247,7 @@ public class RenameContainerAvatar extends Avatar {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
-    private final javax.swing.JButton okJButton = new javax.swing.JButton();
+    private final javax.swing.JButton okJButton = ButtonFactory.create();
     // End of variables declaration//GEN-END:variables
 
     public enum DataKey { CONTAINER_ID, CONTAINER_NAME }

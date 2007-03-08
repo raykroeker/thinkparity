@@ -18,6 +18,7 @@ import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -103,7 +104,7 @@ public class DisplayInfoAvatar extends Avatar {
         fillLeftJLabel = new javax.swing.JLabel();
         webPageJLabel = new javax.swing.JLabel();
         fillRightJLabel = new javax.swing.JLabel();
-        okJButton = new javax.swing.JButton();
+        okJButton = ButtonFactory.create();
         fillBottomLeftJLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());

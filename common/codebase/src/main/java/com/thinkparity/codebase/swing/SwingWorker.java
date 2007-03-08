@@ -101,7 +101,7 @@ public abstract class SwingWorker {
      * <code>construct</code> method and then exit.
      */
     public SwingWorker() {
-        this("thinkParity SwingWorker");
+        this("[TPS-SwingWorker]");
     }
 
     /**

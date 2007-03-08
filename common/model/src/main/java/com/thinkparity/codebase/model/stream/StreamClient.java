@@ -75,6 +75,7 @@ abstract class StreamClient {
         RECOVERABLE_MESSAGES = new ArrayList<String>(2);
         RECOVERABLE_MESSAGES.add("bad record MAC");
         RECOVERABLE_MESSAGES.add("Connection reset");
+        RECOVERABLE_MESSAGES.add("Received fatal alert: handshake_failure");
         RECOVERABLE_MESSAGES.add("Socket closed");
         RECOVERABLE_MESSAGES.add("Software caused connection abort: socket write error");
     }

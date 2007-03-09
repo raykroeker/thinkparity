@@ -37,6 +37,7 @@ class PersistenceManagerImpl {
 
     static {
         // TIMEOUT 2H
+        // TODO change the timeout of the transaction back to the default
         XA_TIMEOUT = 60 * 60 * 2;
     }
 

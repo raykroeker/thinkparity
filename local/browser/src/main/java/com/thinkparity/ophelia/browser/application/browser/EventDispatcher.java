@@ -6,9 +6,6 @@ package com.thinkparity.ophelia.browser.application.browser;
 import com.thinkparity.ophelia.model.events.ContactAdapter;
 import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContactListener;
-import com.thinkparity.ophelia.model.events.ContainerAdapter;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
-import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.events.ProfileAdapter;
 import com.thinkparity.ophelia.model.events.ProfileEvent;
 import com.thinkparity.ophelia.model.events.ProfileListener;
@@ -29,9 +26,6 @@ class EventDispatcher {
     /** A thinkParity contact interface listener. */
     private ContactListener contactListener;
 
-	/** A thinkParity container interface listener. */
-    private ContainerListener containerListener;
-    
     /** A thinkParity profile interface listener. */
     private ProfileListener profileListener;
 
@@ -57,9 +51,6 @@ class EventDispatcher {
         browser.removeListener(contactListener);
         contactListener = null;
 
-        browser.getContainerModel().removeListener(containerListener);
-        containerListener = null;
-        
         browser.removeListener(profileListener);
         profileListener = null;
         
@@ -75,9 +66,6 @@ class EventDispatcher {
         contactListener = createContactListener();
         browser.addListener(contactListener);
 
-        containerListener = createContainerListener();
-        browser.getContainerModel().addListener(containerListener);
-        
         profileListener = createProfileListener();
         browser.addListener(profileListener);
         
@@ -149,20 +137,6 @@ class EventDispatcher {
         };
     }
 
-    /**
-     * Create a container listener for the browser application.
-     * 
-     * @return A <code>ContainerListener</code>.
-     */
-    private ContainerListener createContainerListener() {
-        return new ContainerAdapter() {
-            @Override
-            public void containerRestored(final ContainerEvent e) {
-                browser.fireContainerRestored(e);
-            }
-        };
-    }
-    
     /**
      * Create a profile listener for the browser application.
      * 

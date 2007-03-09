@@ -28,8 +28,6 @@ import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.TeamMember;
 
-import com.thinkparity.ophelia.model.events.ContainerEvent;
-
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
 import com.thinkparity.ophelia.browser.application.browser.display.DisplayId;
@@ -623,17 +621,6 @@ public class Browser extends AbstractApplication {
                 getTabContainerAvatar().fireSeenFlagUpdated(artifactId);
             }
         });    
-    }
-
-    /**
-     * Handle the container restored event.
-     * 
-     * @param e
-     *            A <code>ContainerEvent</code>.
-     */
-    public void fireContainerRestored(final ContainerEvent e) {
-        if (!e.getContainer().isSeen())
-            runApplyContainerFlagSeen(e.getContainer().getId());
     }
 
     /**

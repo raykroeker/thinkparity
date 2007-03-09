@@ -747,9 +747,13 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
             }
         }
         final int panelIndex = lookupIndex(containerId);
-        final TabPanel containerPanel = panels.remove(panelIndex);
-        if (removeExpandedState) {
-            expandedState.remove(containerPanel);
+        if (-1 == panelIndex) {
+            logger.logError("Cannot remove container panel, container id {0}.", containerId);
+        } else {
+            final TabPanel containerPanel = panels.remove(panelIndex);
+            if (removeExpandedState) {
+                expandedState.remove(containerPanel);
+            }
         }
         if (isSetSessionDraftMonitor(containerId)) {
             stopSessionDraftMonitor();

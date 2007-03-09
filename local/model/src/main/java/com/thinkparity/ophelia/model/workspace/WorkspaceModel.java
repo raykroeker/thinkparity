@@ -4,9 +4,7 @@
 package com.thinkparity.ophelia.model.workspace;
 
 import java.io.File;
-import java.text.MessageFormat;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.thinkparity.codebase.ErrorHelper;
@@ -23,15 +21,12 @@ import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookNames;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookPriorities;
-import com.thinkparity.ophelia.model.Constants.ThreadNames;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.workspace.impl.WorkspaceImpl;
 import com.thinkparity.ophelia.model.workspace.monitor.InitializeStep;
-
-import org.apache.log4j.Logger;
 
 /**
  * WorkspaceModel
@@ -57,28 +52,6 @@ public class WorkspaceModel {
 
     static {
         WORKSPACES = new HashMap<File, WorkspaceImpl>(1, 0.75F);
-
-        Runtime.getRuntime().addShutdownHook(new Thread(ThreadNames.SHUTDOWN_HOOK) {
-            @Override
-            public void run() {
-                Logger.getLogger(getClass()).trace("Runtime shutting down.");
-                synchronized (WORKSPACES) {
-                    List<ShutdownHook> shutdownHooks;
-                    for (final WorkspaceImpl workspace : WORKSPACES.values()) {
-                        Logger.getLogger(getClass()).trace(
-                                MessageFormat.format("Workspace {0} shutting down.", workspace.getName()));
-                        shutdownHooks = workspace.getShutdownHooks();
-                        for(final ShutdownHook shutdownHook : shutdownHooks) {
-                            Logger.getLogger(getClass()).trace(
-                                    MessageFormat.format("Workspace {0} priority {1} hook {2} shutting down.",
-                                            workspace.getName(), shutdownHook.getPriority(),
-                                            shutdownHook.getName()));
-                            shutdownHook.run();
-                        }
-                    }
-                }
-            }
-        });
     }
 
     /**

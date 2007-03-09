@@ -127,6 +127,21 @@ public class WorkspaceImpl implements Workspace {
         xmppSessionImpl = null;
 
         FileUtil.deleteTree(initChild(DirectoryNames.Workspace.TEMP));
+
+        // run the workspace shutdown hooks
+        logger.logTrace("Workspace {0} is closing.", getName());
+        for(final ShutdownHook shutdownHook : shutdownHooks) {
+            logger.logTrace("Workspace {0} priority {1} hook {2} running.",
+                    getName(), shutdownHook.getPriority(),
+                    shutdownHook.getName());
+            try {
+                shutdownHook.run();
+            } catch (final Throwable t) {
+                logger.logFatal(t, MessageFormat.format(
+                    "A fatal error occured running shutdown hook {2} priority {1} in workspace {0}.",
+                        getName(), shutdownHook.getPriority(), shutdownHook.getName()));
+            }
+        }
     }
 
     /**

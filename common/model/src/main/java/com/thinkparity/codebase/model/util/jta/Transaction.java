@@ -25,6 +25,12 @@ public final class Transaction {
     /** The jta <code>UserTransaction</code>. */
     private final UserTransaction userTransaction;
 
+    public void setTransactionTimeout(final int transactionTimeout) 
+        throws SystemException {
+        userTransaction.setTransactionTimeout(
+                transactionTimeout);
+    }
+
     /**
      * Create Transaction. Uses a default method transaction boundary.
      * 

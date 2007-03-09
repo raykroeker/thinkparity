@@ -12,7 +12,6 @@ import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
 import com.thinkparity.codebase.model.util.jta.Transaction;
 import com.thinkparity.codebase.model.util.jta.TransactionManager;
 
@@ -31,6 +30,13 @@ import com.thinkparity.ophelia.model.workspace.impl.xapool.OpheliaXADataSource;
  * @version 1.1.2.1
  */
 class PersistenceManagerImpl {
+
+    /** The user transaction timeout. */
+    private static final int XA_TIMEOUT;
+
+    static {
+        XA_TIMEOUT = 60 * 60 * 2;
+    }
 
     /** An <code>OpheliaXADataSource</code>. */
     private OpheliaXADataSource dataSource;
@@ -63,6 +69,18 @@ class PersistenceManagerImpl {
                 workspace.getLogDirectory(), "thinkParity Derby.log");
         this.persistenceRoot = new File(
                 workspace.getDataDirectory(), DirectoryNames.Workspace.Data.DB);
+    }
+
+    /**
+     * Begin a new transaction.
+     * 
+     * @return A <code>Transaction</code>.
+     */
+    private Transaction beginTransaction() throws NotSupportedException,
+            SystemException {
+        final Transaction transaction = getTransaction();
+        transaction.begin();
+        return transaction;
     }
 
     /**
@@ -133,7 +151,14 @@ class PersistenceManagerImpl {
      * @return A <code>Transaction</code>.
      */
     Transaction getTransaction() {
-        return transactionManager.getTransaction();
+        final Transaction tx = transactionManager.getTransaction();
+        try {
+            tx.setTransactionTimeout(XA_TIMEOUT);
+        } catch (final SystemException sx) {
+            logger.logWarning(sx, "Could not set timeout for transaction.",
+                    XA_TIMEOUT);
+        }
+        return tx;
     }
 
     /**
@@ -171,7 +196,7 @@ class PersistenceManagerImpl {
                             isInitialized = Boolean.valueOf(
                                     session.getString("META_DATA_VALUE"));
                         } else {
-                            isInitialized = null;
+                            isInitialized = Boolean.FALSE;
                         }
                     } else {
                         isInitialized = Boolean.FALSE;
@@ -240,17 +265,5 @@ class PersistenceManagerImpl {
 
         transactionManager.stop();
         transactionManager = null;
-    }
-
-    /**
-     * Begin a new transaction.
-     * 
-     * @return A <code>Transaction</code>.
-     */
-    private Transaction beginTransaction() throws NotSupportedException,
-            SystemException {
-        final Transaction transaction = getTransaction();
-        transaction.begin();
-        return transaction;
     }
 }

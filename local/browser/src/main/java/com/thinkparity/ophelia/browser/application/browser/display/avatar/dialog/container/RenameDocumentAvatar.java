@@ -17,6 +17,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
@@ -250,6 +251,7 @@ public class RenameDocumentAvatar extends Avatar {
         });
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
+        errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
         errorMessageJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameDocumentDialog.ErrorNotUnique"));
         errorMessageJLabel.setPreferredSize(new java.awt.Dimension(32, 14));
 

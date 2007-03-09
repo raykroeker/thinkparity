@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 
 import com.thinkparity.codebase.model.util.jta.Transaction;
 
+import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 
 /**
@@ -20,6 +21,14 @@ import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
  * @version 1.1.2.7
  */
 public interface Workspace {
+
+    /**
+     * Add a shutdown hook to the workspace.
+     * 
+     * @param shutdownHook
+     *            A <code>ShutdownHook</code>.
+     */
+    public Boolean addShutdownHook(final ShutdownHook shutdownHook);
 
     /**
      * Create a temporary directory within the workspace. The workspace will

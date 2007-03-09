@@ -57,9 +57,8 @@ public final class Constants {
         public static final String WORKSPACE_DELETE = "thinkParity Workspace - Delete";
     }
     public static final class ShutdownHookPriorities {
-        public static final Integer HYPERSONIC = 9;
-        public static final Integer WORKSPACE_CLOSE = 0;
-        public static final Integer WORKSPACE_DELETE = 1;
+        public static final Integer DEFAULT = Integer.valueOf(4);
+        public static final Integer WORKSPACE_DELETE = Integer.valueOf(9);
     }
     public static final class ThreadNames {
         public static final String SHUTDOWN_HOOK = "thinkParity Shutdown Hook";

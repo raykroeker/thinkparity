@@ -435,10 +435,15 @@ public final class Session {
 	}
 
     public void getMetaDataTables() {
+        getMetaDataTables(null);
+    }
+
+    public void getMetaDataTables(final String tableName) {
         assertConnectionIsOpen();
         assertMetaDataIsSet();
         try {
-            resultSet = metaData.getTables(null, "SA", null, new String[] {"TABLE"});
+            resultSet = metaData.getTables(null, "SA", tableName,
+                    new String[] { "TABLE" });
         } catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
         }

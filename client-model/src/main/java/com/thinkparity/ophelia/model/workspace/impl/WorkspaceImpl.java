@@ -91,18 +91,16 @@ public class WorkspaceImpl implements Workspace {
     }
 
     /**
-     * Add a shutdown hook.
-     * 
-     * @param hook
-     *            A runnable.
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#addShutdownHook(com.thinkparity.ophelia.model.util.ShutdownHook)
+     *
      */
-    public boolean addShutdownHook(final ShutdownHook shutdownHook) {
+    public Boolean addShutdownHook(final ShutdownHook shutdownHook) {
         if (shutdownHooks.contains(shutdownHook)) {
-            return false;
+            return Boolean.FALSE;
         }
         final boolean modified = shutdownHooks.add(shutdownHook);
         Collections.sort(shutdownHooks);
-        return modified;
+        return Boolean.valueOf(modified);
     }
 
     /**

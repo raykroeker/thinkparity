@@ -3,11 +3,29 @@
  */
 package com.thinkparity.ophelia.model.util;
 
+import com.thinkparity.ophelia.model.Constants.ShutdownHookPriorities;
+
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 public abstract class ShutdownHook implements Runnable, Comparable<ShutdownHook> {
+
+    /** The default shutdown hook priority <code>Integer</code>. */
+    private static final Integer DEFAULT_PRIORITY;
+
+    static {
+        DEFAULT_PRIORITY = ShutdownHookPriorities.DEFAULT;
+    }
+
+    /**
+     * Obtain the default shutdown hook priority.
+     * 
+     * @return A priority <code>Integer</code>.
+     */
+    protected static final Integer getDefaultPriority() {
+        return DEFAULT_PRIORITY;
+    }
 
     /**
      * Create ShutdownHook.

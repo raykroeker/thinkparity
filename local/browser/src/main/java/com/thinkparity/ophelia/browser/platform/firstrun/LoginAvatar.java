@@ -26,19 +26,22 @@ import com.thinkparity.ophelia.browser.application.browser.component.LabelFactor
 import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
+import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
- *
+ * <b>Title:</b>thinkParity OpheliaUI Login Avatar<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @revision $Revision$
+ * @version 1.1.2.1
  */
 public class LoginAvatar extends Avatar implements LoginSwingDisplay {
 
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
+    /** The <code>Platform</code>. */
+    private final Platform platform;
 
     /** The valid credentials flag. */
     private Boolean validCredentials;
@@ -49,12 +52,15 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     /** The password. */
     private String password;
 
-    /** Create LoginAvatar. */
+    /**
+     * Create LoginAvatar.
+     *
+     */
     public LoginAvatar() {
         super("LoginAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
-        validCredentials = Boolean.TRUE;
-        username = null;
-        password = null;
+        this.validCredentials = Boolean.TRUE;
+        this.password = this.username = null;
+        this.platform = BrowserPlatform.getInstance();
         initComponents();
         initDocumentHandlers();
         bindEscapeKey("Cancel", new AbstractAction() {
@@ -78,8 +84,35 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         disposeWindow();
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getId() */
-    public AvatarId getId() { return AvatarId.DIALOG_PLATFORM_LOGIN; }
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#validateInput()
+     *
+     */
+    @Override
+    protected void validateInput() {
+        super.validateInput();
+        if (Boolean.FALSE == platform.isOnline())
+            addInputError(getString("ErrorOffline"));
+        final String username = extractUsername();
+        final String password = extractPassword();
+        if (null == username)
+            addInputError(getString("ErrorNoUsername"));
+        if (null == password)
+            addInputError(getString("ErrorNoPassword"));
+
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors())
+            errorMessageJLabel.setText(getInputErrors().get(0));
+        nextJButton.setEnabled(!containsInputErrors());
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getId()
+     * 
+     */
+    public AvatarId getId() {
+        return AvatarId.DIALOG_PLATFORM_LOGIN;
+    }
 
     /** @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getState() */
     public State getState() {
@@ -88,20 +121,13 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#installProgressBar()
+     *
      */
     public void installProgressBar() {
         loginJProgressBar.setIndeterminate(true);
         progressBarJPanel.setVisible(true);
         buttonBarJPanel.setVisible(false);
         validate();
-    }
-
-    /** @see com.thinkparity.codebase.swing.AbstractJPanel#isInputValid() */
-    public Boolean isInputValid() {
-        final String username = extractUsername();
-        final String password = extractPassword();
-        return null != username && 0 < username.length()
-                && null != password && 0 < password.length();
     }
 
     /**
@@ -145,26 +171,32 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#setDetermination(java.lang.Integer)
      */
-    public void setDetermination(Integer steps) {
+    public void setDetermination(final Integer steps) {
         loginJProgressBar.setMinimum(0);
         loginJProgressBar.setMaximum(steps);
         loginJProgressBar.setIndeterminate(false);
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.ophelia.browser.platform.util.State) */
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.ophelia.browser.platform.util.State)
+     * 
+     */
     public void setState(final State state) {
         throw Assert.createNotYetImplemented("LoginAvatar#setState");
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#setValidCredentials(java.lang.Boolean)
+     * 
      */
     public void setValidCredentials(final Boolean validCredentials) {
         this.validCredentials = validCredentials;
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#updateProgress(java.lang.Integer, java.lang.String)
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#updateProgress(java.lang.Integer,
+     *      java.lang.String)
+     * 
      */
     public void updateProgress(final Integer step, final String note) {
         loginJProgressBar.setValue(step);
@@ -188,12 +220,16 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         return new LoginSwingMonitor(this);
     }
 
-    private String extractPassword() { return SwingUtil.extract(passwordJPasswordField); }
+    private String extractPassword() {
+        return SwingUtil.extract(passwordJPasswordField, Boolean.TRUE);
+    }
 
-    private String extractUsername() { return SwingUtil.extract(usernameJTextField); }
+    private String extractUsername() {
+        return SwingUtil.extract(usernameJTextField, Boolean.TRUE);
+    }
 
     private void forgotPasswordJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_forgotPasswordJLabelMousePressed
-        BrowserPlatform.getInstance().runResetPassword();
+        platform.runResetPassword();
     }//GEN-LAST:event_forgotPasswordJLabelMousePressed
 
     /**
@@ -202,8 +238,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
      * @return A text <code>String<code>.
      */
     private String getStepJLabelText() {
-        final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages");
-        return bundle.getString("LoginAvatar.progressBarJPanel.stepJLabel");
+        return getString("LoginAvatar.progressBarJPanel.stepJLabel");
     }
 
     /** This method is called from within the constructor to
@@ -355,18 +390,26 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
      *  Initialize the document handler for the username and password fields.
      */
     private void initDocumentHandlers() {
-        final DocumentHandler documentHandler = new DocumentHandler();
-        javax.swing.text.Document usernameDocument = usernameJTextField.getDocument();
-        javax.swing.text.Document passwordDocument = passwordJPasswordField.getDocument();
-        usernameDocument.addDocumentListener(documentHandler);
-        passwordDocument.addDocumentListener(documentHandler);
+        final DocumentListener documentListener = new DocumentListener() {
+            public void changedUpdate(final DocumentEvent e) {
+                validateInput();
+            }
+            public void insertUpdate(final DocumentEvent e) {
+                validateInput();
+            }
+            public void removeUpdate(final DocumentEvent e) {
+                validateInput();
+            }
+        };
+        usernameJTextField.getDocument().addDocumentListener(documentListener);
+        passwordJPasswordField.getDocument().addDocumentListener(documentListener);
     }
 
     /**
      * Perform the login.
      */
     private void login() {
-        BrowserPlatform.getInstance().runLogin(extractUsername(), extractPassword(), createMonitor());
+        platform.runLogin(extractUsername(), extractPassword(), createMonitor());
     }
 
     private void nextJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_nextJButtonActionPerformed
@@ -404,22 +447,6 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
 
     private void reloadUsername(final String username) {
         usernameJTextField.setText(username);
-    }
-
-    // Enable or disable the OK control.
-    class DocumentHandler implements DocumentListener {
-        public void changedUpdate(final DocumentEvent e) {
-            maybeEnableOKButton();
-        }
-        public void insertUpdate(final DocumentEvent e) {
-            maybeEnableOKButton();
-        }
-        public void removeUpdate(final DocumentEvent e) {
-            maybeEnableOKButton();
-        }
-        private void maybeEnableOKButton() {
-            nextJButton.setEnabled(isInputValid());
-        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -48,6 +48,10 @@ public class Login extends AbstractAction {
         final ThinkParitySwingMonitor monitor = (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
         final String password = (String) data.get(DataKey.PASSWORD);
         final String username = (String) data.get(DataKey.USERNAME);
+        invoke(username, password, monitor);
+    }
+
+    public void invoke(final String username, final String password, final ThinkParitySwingMonitor monitor) {
         final Credentials credentials = new Credentials();
         credentials.setPassword(password);
         credentials.setUsername(username);
@@ -94,15 +98,10 @@ public class Login extends AbstractAction {
          */
         @Override
         public Object construct() {
-            boolean done = false;
-            while (!done) {
-                try {
-                    platform.initializeWorkspace(loginMonitor, workspace, credentials);
-                    done = true;
-                } catch (final InvalidCredentialsException icx) {
-                    monitor.reset();
-                    done = false;
-                }
+            try {
+                platform.initializeWorkspace(loginMonitor, workspace, credentials);
+            } catch (final InvalidCredentialsException icx) {
+                monitor.reset();
             }
             return null;
         }

@@ -272,6 +272,7 @@ public class WorkspaceModel {
             notifyStepEnd(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
             // finish initialization
             workspaceImpl.finishInitialize();
+            notifyProcessEnd(monitor);
         } catch (final InvalidCredentialsException icx) {
             throw icx;
         } catch (final Throwable t) {
@@ -296,8 +297,6 @@ public class WorkspaceModel {
                 }
             });
             throw panic(t);
-        } finally {
-            notifyProcessEnd(monitor);
         }
     }
 

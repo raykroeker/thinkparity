@@ -371,6 +371,10 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
 
     private void nextJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_nextJButtonActionPerformed
         if (isInputValid()) {
+            // Username and password are saved in case they turn out to be wrong.
+            // In that event reload() will be called so the user can have another go.
+            username = extractUsername();
+            password = extractPassword();
             nextJButton.setEnabled(false);
             login();
         }

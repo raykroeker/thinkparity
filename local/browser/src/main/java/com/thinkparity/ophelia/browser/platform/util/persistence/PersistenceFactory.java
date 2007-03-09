@@ -60,6 +60,7 @@ public class PersistenceFactory {
 		this.cache = new Hashtable<Class, Persistence>(7, 0.75F);
 		this.javaProperties = load(file);
 
+        // NOCOMMIT
 		// save the preferences on shutdown
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() { store(javaProperties, file); }

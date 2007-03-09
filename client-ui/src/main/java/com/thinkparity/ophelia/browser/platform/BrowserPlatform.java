@@ -533,7 +533,7 @@ public class BrowserPlatform implements Platform {
                 startPlugins();
                 startApplications();
             }
-        notifyLifeCycleStarted();
+            notifyLifeCycleStarted();
         }
 	}
 

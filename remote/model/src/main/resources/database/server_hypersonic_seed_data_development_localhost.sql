@@ -8,7 +8,7 @@ insert into jiveProperty(NAME,PROPVALUE) values('xmpp.socket.ssl.port','5227');
 insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.environment','DEVELOPMENT_LOCALHOST');
 insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.mode','DEVELOPMENT');
 insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.product-name','DesdemonaProduct');
-insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.release-name','1.0.0-RC20070822');
+insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.release-name','20070308');
 
 insert into PARITY_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('thinkparity','parity','What is my username?','thinkparity',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>thinkParity Services Inc.</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');

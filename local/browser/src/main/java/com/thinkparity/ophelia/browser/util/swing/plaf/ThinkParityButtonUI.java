@@ -7,7 +7,10 @@ package com.thinkparity.ophelia.browser.util.swing.plaf;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.ButtonModel;
+import javax.swing.JComponent;
+import javax.swing.LookAndFeel;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicButtonUI;
 import javax.swing.plaf.basic.BasicGraphicsUtils;
@@ -192,14 +195,14 @@ public class ThinkParityButtonUI extends BasicButtonUI {
     /**
      * @see javax.swing.plaf.basic.BasicButtonUI#paintText(java.awt.Graphics, javax.swing.JComponent, java.awt.Rectangle, java.lang.String)
      * 
-     * There is no mnemonic. Also the disabled text is drawn gray without offset or shadow.
+     * Disabled text is drawn gray without offset or shadow.
      */
     @Override
     protected void paintText(final Graphics g, final JComponent c,
             final Rectangle textRect, final String text) {
         final AbstractButton button = (AbstractButton) c;                       
         final FontMetrics fm = SwingUtilities2.getFontMetrics(c, g);
-        final int mnemonicIndex = -1;
+        final int mnemonicIndex = button.getDisplayedMnemonicIndex();
 
         if (isEnabled(button)) {
             g.setColor(button.getForeground());

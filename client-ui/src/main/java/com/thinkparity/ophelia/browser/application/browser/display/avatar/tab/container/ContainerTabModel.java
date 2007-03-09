@@ -805,7 +805,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         debug();
         final Container container = read(containerId);
         // remove the container from the panel list
-        if (null == container) {
+        if (null == container && -1 != lookupIndex(containerId)) {
             removeContainerPanel(containerId, true);
         } else {
             final int panelIndex = lookupIndex(container.getId());

@@ -34,6 +34,7 @@ import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterChain;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.UploadMonitor;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
@@ -60,6 +61,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
+
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
@@ -1766,13 +1768,13 @@ public final class ContainerModelImpl extends
             // restore
             final boolean doRestore = artifactModel.isFlagApplied(
                     containerId, ArtifactFlag.ARCHIVED);
+            final boolean doCreateDraft;
             if (doRestore) {
                 // restore the draft
                 final JabberId draftOwner = getSessionModel().readKeyHolder(
                         localUserId(), event.getUniqueId());
-                if (draftOwner.equals(User.THINK_PARITY.getId())) {
-                    logger.logInfo("No remote draft exists for {0}.", containerId);
-                } else {
+                doCreateDraft = !draftOwner.equals(User.THINK_PARITY.getId());
+                if (doCreateDraft) {
                     final List<TeamMember> team = readTeam(containerId);
                     final ContainerDraft draft = new ContainerDraft();
                     draft.setContainerId(containerId);
@@ -1784,6 +1786,8 @@ public final class ContainerModelImpl extends
                 // model
                 artifactModel.removeFlagArchived(containerId);
                 getBackupModel().restore(containerId);
+            } else {
+                doCreateDraft = false;
             }
 
             if (doesExistDraft(containerId))
@@ -1791,8 +1795,10 @@ public final class ContainerModelImpl extends
 
             if (doRestore) {
                 final Container container = read(containerId);
-                notifyDraftCreated(container, readDraft(containerId), remoteEventGenerator);
+                if (doCreateDraft)
+                    notifyDraftCreated(container, readDraft(containerId), remoteEventGenerator);
                 notifyContainerFlagged(container, remoteEventGenerator);
+                notifyContainerRestored(container, remoteEventGenerator);
             }
         } catch (final Throwable t) {
             throw panic(t);

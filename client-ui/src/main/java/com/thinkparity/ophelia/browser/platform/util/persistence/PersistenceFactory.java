@@ -19,8 +19,10 @@ import java.util.TimeZone;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.ophelia.browser.util.ModelFactory;
+import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.workspace.Workspace;
+
+import com.thinkparity.ophelia.browser.util.ModelFactory;
 
 /**
  * @author raykroeker@gmail.com
@@ -60,10 +62,24 @@ public class PersistenceFactory {
 		this.cache = new Hashtable<Class, Persistence>(7, 0.75F);
 		this.javaProperties = load(file);
 
-        // NOCOMMIT
 		// save the preferences on shutdown
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() { store(javaProperties, file); }
+        workspace.addShutdownHook(new ShutdownHook() {
+            @Override
+            public String getDescription() {
+                return "Save persistence properties.";
+            }
+            @Override
+            public String getName() {
+                return "[TPS-PersistenceSave]";
+            }
+            @Override
+            public Integer getPriority() {
+                return getDefaultPriority();
+            }
+            @Override
+            public void run() {
+                store(javaProperties, file);
+            }
         });
     }
 
@@ -90,20 +106,28 @@ public class PersistenceFactory {
 						get(key + ".height", defaultValue.height));
 			}
 
+            public Enum<?> get(final String key, final Enum<?> defaultValue) {
+                return Enum.valueOf(defaultValue.getDeclaringClass(), get(key, defaultValue.toString()));
+            }
+
             public File get(final String key, final File defaultValue) {
-                final String sValue = javaProperties.getProperty(key, null);
-                if(null == sValue) { return defaultValue; }
-                return new File(sValue);
+                final String sValue = get(key, (String) null);
+                if (null == sValue) {
+                    return defaultValue;
+                } return new File(sValue);
             }
 
             public int get(final String key, final int defaultValue) {
-				try {
-                    return Integer.parseInt(
-                            javaProperties.getProperty(
-                                    contextualize(key),
-                                    String.valueOf(defaultValue)));
+                final String sValue = get(key, (String) null);
+                if (null == sValue) {
+                    return defaultValue;
+                } else {
+                    try {
+                        return Integer.parseInt(sValue);
+                    } catch (final NumberFormatException nfx) {
+                        return defaultValue;
+                    }
                 }
-				catch(final NumberFormatException nfx) { return defaultValue; }
 			}
 
             public Locale get(final String key, final Locale defaultValue) {
@@ -121,13 +145,9 @@ public class PersistenceFactory {
             public String get(final String key, final String defaultValue) {
 				return javaProperties.getProperty(contextualize(key), defaultValue);
 			}
-
+            
             public TimeZone get(final String key, final TimeZone defaultValue) {
                 return TimeZone.getTimeZone(get(key + ".id", defaultValue.getID()));
-            }
-            
-            public Enum<?> get(final String key, final Enum<?> defaultValue) {
-                return Enum.valueOf(defaultValue.getDeclaringClass(), get(key, defaultValue.toString()));
             }
 
 			public void set(final String key, final Boolean value) {
@@ -139,40 +159,42 @@ public class PersistenceFactory {
 				set(key + ".width", value.width);
 			}
 
+			public void set(final String key, final Enum<?> value) {
+                set(key, value.toString());
+            }
+
 			public void set(final String key, final File value) {
-                javaProperties.setProperty(key, value.getAbsolutePath());
+                set(key, value.getAbsolutePath());
             }
 
 			public void set(String key, int value) {
-				javaProperties.setProperty(contextualize(key), String.valueOf(value));
+                set(key, String.valueOf(value));
 			}
 
-			public void set(final String key, final Locale value) {
+            public void set(final String key, final Locale value) {
                 set(key + ".language", value.getLanguage());
                 set(key + ".country", value.getLanguage());
                 set(key + ".variant", value.getLanguage());
             }
 
-            public void set(final String key, final Point value) {
+			public void set(final String key, final Point value) {
 				set(key + ".x", value.x);
 				set(key + ".y", value.y);
 			}
 
-			public void set(final String key, final String value) {
+            public void set(final String key, final String value) {
 				javaProperties.setProperty(contextualize(key), value);
 			}
-
+            
             public void set(final String key, final TimeZone value) {
                 set(key + ".id", value.getID());
-            }
-            
-            public void set(final String key, final Enum<?> value) {
-                set(key, value.toString());
             }
 
 			/**
              * Contextualize the java property key.
-             * @param key The java property key.
+             * 
+             * @param key
+             *            The java property key.
              * @return A context sensitive key.
              */
             private String contextualize(final String key) {
@@ -189,8 +211,11 @@ public class PersistenceFactory {
      * @return The persistence.
      */
 	private Persistence doGetPersistence(final Class clasz) {
-	    if(cache.containsKey(clasz)) { return cache.get(clasz); }
-        else { return createPersistence(clasz); }
+	    if (cache.containsKey(clasz)) {
+            return cache.get(clasz);
+	    } else {
+            return createPersistence(clasz);
+	    }
 	}
 
     /**
@@ -225,8 +250,11 @@ public class PersistenceFactory {
      * @return The properties.
      */
 	private Properties load(final File file) {
-		try { init(file); }
-		catch(final IOException iox) { throw new RuntimeException(iox); }
+		try {
+            init(file);
+		} catch (final IOException iox) {
+            throw new RuntimeException(iox);
+		}
 
         final Properties properties = new Properties();
         try {
@@ -236,11 +264,10 @@ public class PersistenceFactory {
             } finally {
                 stream.close();
             }
+            return properties;
 		} catch (final IOException iox) {
             throw new RuntimeException(iox);
 		}
-
-        return properties;
 	}
 
     /**

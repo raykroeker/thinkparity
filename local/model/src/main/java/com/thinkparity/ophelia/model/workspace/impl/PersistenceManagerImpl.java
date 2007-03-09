@@ -12,6 +12,7 @@ import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.util.jta.Transaction;
 import com.thinkparity.codebase.model.util.jta.TransactionManager;
 
@@ -31,10 +32,11 @@ import com.thinkparity.ophelia.model.workspace.impl.xapool.OpheliaXADataSource;
  */
 class PersistenceManagerImpl {
 
-    /** The user transaction timeout. */
+    /** The user transaction timeout <code>int</code> in seconds. */
     private static final int XA_TIMEOUT;
 
     static {
+        // TIMEOUT 2H
         XA_TIMEOUT = 60 * 60 * 2;
     }
 
@@ -69,18 +71,6 @@ class PersistenceManagerImpl {
                 workspace.getLogDirectory(), "thinkParity Derby.log");
         this.persistenceRoot = new File(
                 workspace.getDataDirectory(), DirectoryNames.Workspace.Data.DB);
-    }
-
-    /**
-     * Begin a new transaction.
-     * 
-     * @return A <code>Transaction</code>.
-     */
-    private Transaction beginTransaction() throws NotSupportedException,
-            SystemException {
-        final Transaction transaction = getTransaction();
-        transaction.begin();
-        return transaction;
     }
 
     /**
@@ -168,48 +158,35 @@ class PersistenceManagerImpl {
      */
     Boolean isInitialized() {
         try {
-            final Transaction transaction = beginTransaction();
+            final Session session = sessionManager.openSession();
+            final Boolean isInitialized;
             try {
-                final Session session = sessionManager.openSession();
-                final Boolean isInitialized;
-                try {
-                    // check for the existence of the META_DATA table
-                    session.openMetaData();
+                // check for the existence of the META_DATA table
+                session.openMetaData();
+                session.getMetaDataTables("META_DATA");
+                if (session.nextResult()) {
                     session.getMetaDataTables();
-                    boolean existsMetaDataTable = false;
-                    while (session.nextResult()) {
-                        if (session.getString("TABLE_NAME").equals("META_DATA")) {
-                            existsMetaDataTable = true;
-                            break;
-                        }
-                    }
-                    if (existsMetaDataTable) {
-                        final String sql =
-                            new StringBuffer("select META_DATA_VALUE ")
-                            .append("from META_DATA ")
-                            .append("where META_DATA_KEY=?")
-                            .toString();
-                        session.prepareStatement(sql);
-                        session.setString(1, "thinkparity.workspace-initialized");
-                        session.executeQuery();
-                        if (session.nextResult()) {
-                            isInitialized = Boolean.valueOf(
-                                    session.getString("META_DATA_VALUE"));
-                        } else {
-                            isInitialized = Boolean.FALSE;
-                        }
+                    final String sql =
+                        new StringBuffer("select META_DATA_VALUE ")
+                        .append("from META_DATA ")
+                        .append("where META_DATA_KEY=?")
+                        .toString();
+                    session.prepareStatement(sql);
+                    session.setString(1, "thinkparity.workspace-initialized");
+                    session.executeQuery();
+                    if (session.nextResult()) {
+                        isInitialized = Boolean.valueOf(
+                                session.getString("META_DATA_VALUE"));
                     } else {
                         isInitialized = Boolean.FALSE;
                     }
-                } finally {
-                    session.close();
+                } else {
+                    isInitialized = Boolean.FALSE;
                 }
-                transaction.commit();
-                return isInitialized;
-            } catch (final Throwable t) {
-                transaction.rollback();
-                throw t;
+            } finally {
+                session.close();
             }
+            return isInitialized;
         } catch (final Throwable t) {
             throw new WorkspaceException("Cannot initialize persistence.", t);
         }
@@ -265,5 +242,17 @@ class PersistenceManagerImpl {
 
         transactionManager.stop();
         transactionManager = null;
+    }
+
+    /**
+     * Begin a new transaction.
+     * 
+     * @return A <code>Transaction</code>.
+     */
+    private Transaction beginTransaction() throws NotSupportedException,
+            SystemException {
+        final Transaction transaction = getTransaction();
+        transaction.begin();
+        return transaction;
     }
 }

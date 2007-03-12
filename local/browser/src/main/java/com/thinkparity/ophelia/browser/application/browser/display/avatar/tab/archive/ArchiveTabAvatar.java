@@ -3,11 +3,10 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.archive;
 
-import java.awt.EventQueue;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import javax.swing.SwingUtilities;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
@@ -50,15 +49,11 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
      *            A container id <code>Long</code>.
      */
     public void collapseContainer(final Long containerId) {
-        if (EventQueue.isDispatchThread()) {
-            model.collapsePanel(containerId, Boolean.FALSE);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    model.collapsePanel(containerId, Boolean.FALSE);
-                }
-            });
-        }
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.collapsePanel(containerId, Boolean.FALSE);
+            }
+        });
     }
 
     /**
@@ -108,15 +103,11 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
      *            A container id <code>Long</code>.
      */
     private void expandPanel(final Long containerId) {
-        if (EventQueue.isDispatchThread()) {
-            model.expandPanel(containerId, Boolean.FALSE);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    model.expandPanel(containerId, Boolean.FALSE);
-                }
-            });
-        }
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.expandPanel(containerId, Boolean.FALSE);
+            }
+        });
     }
 
     /**
@@ -126,15 +117,11 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
      *            A container id <code>Long</code>.
      */
     private void scrollPanelToVisible(final Long containerId) {
-        if (EventQueue.isDispatchThread()) {
-            model.scrollPanelToVisible(containerId);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    model.scrollPanelToVisible(containerId);
-                }
-            });
-        }
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.scrollPanelToVisible(containerId);
+            }
+        });
     }
 
     /**
@@ -144,15 +131,11 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
      *            A container id <code>Long</code>.
      */
     private void selectPanel(final Long containerId) {
-        if (EventQueue.isDispatchThread()) {
-            model.selectPanel(containerId);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    model.selectPanel(containerId);
-                }
-            });
-        }
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.selectPanel(containerId);
+            }
+        });
     }
 
     /**
@@ -175,14 +158,10 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
      *            A container id <code>Long</code>.
      */
     private void sync(final ContainerEvent e) {
-        if (EventQueue.isDispatchThread()) {
-            model.syncContainer(e.getContainer().getId(), e.isRemote());
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    model.syncContainer(e.getContainer().getId(), e.isRemote());
-                }
-            });
-        }
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.syncContainer(e.getContainer().getId(), e.isRemote());
+            }
+        });
     }
 }

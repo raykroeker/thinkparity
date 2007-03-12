@@ -3,13 +3,11 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
-import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.SwingUtilities;
-
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
@@ -41,7 +39,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            A contact id <code>JabberId</code>.
      */
     public void collapseContact(final JabberId contactId) {
-        ensureDispatchThread(new Runnable() {
+        SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 model.collapsePanel(new ContactPanelId(contactId), Boolean.FALSE);
             }
@@ -55,7 +53,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            A contact id <code>JabberId</code>.
      */
     public void expandContact(final JabberId contactId) {
-        ensureDispatchThread(new Runnable() {
+        SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 showPanel(new ContactPanelId(contactId), true);
             }
@@ -71,7 +69,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            The index of the invitation to show (0 indicates the invitation displayed at top).   
      */
     public void showContactInvitation(final List<Long> invitationIds, final int index) {
-        ensureDispatchThread(new Runnable() {
+        SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 final List<ContactPanelId> panelIds = new ArrayList<ContactPanelId>(invitationIds.size());
                 for (final Long invitationId : invitationIds)
@@ -91,7 +89,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            The invitationId. 
      */
     public void showContactInvitation(final Long invitationId) {
-        ensureDispatchThread(new Runnable() {
+        SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 showPanel(new ContactPanelId(invitationId), false);
             }
@@ -107,7 +105,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            Indicates whether the sync is the result of a remote event
      */
     public void syncContact(final JabberId contactId, final Boolean remote) {
-        ensureDispatchThread(new Runnable() {
+        SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 model.syncContact(contactId, remote);
             }
@@ -124,7 +122,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      */
     public void syncIncomingInvitation(final Long invitationId,
             final Boolean remote) {
-        ensureDispatchThread(new Runnable() {
+        SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 model.syncIncomingInvitation(invitationId, remote);
             }
@@ -141,7 +139,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      */
     public void syncOutgoingEMailInvitation(final Long invitationId,
             final Boolean remote) {
-        ensureDispatchThread(new Runnable() {
+        SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 model.syncOutgoingEMailInvitation(invitationId, remote);    
             }
@@ -159,7 +157,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      */
     public void syncOutgoingUserInvitation(final Long invitationId,
             final Boolean remote) {
-        ensureDispatchThread(new Runnable() {
+        SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 model.syncOutgoingUserInvitation(invitationId, remote);    
             }
@@ -173,25 +171,11 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      *            Indicates whether the sync is the result of a remote event
      */
     public void syncProfile(final Boolean remote) {
-        ensureDispatchThread(new Runnable() {
+        SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 model.syncProfile(remote);
             }
         });
-    }
-
-    /**
-     * Ensure the runnable is executed on the AWT event dispatch thread.
-     * 
-     * @param runnable
-     *            A <code>Runnable</code>.
-     */
-    private void ensureDispatchThread(final Runnable runnable) {
-        if (EventQueue.isDispatchThread()) {
-            runnable.run();
-        } else {
-            SwingUtilities.invokeLater(runnable);
-        }
     }
 
     /**

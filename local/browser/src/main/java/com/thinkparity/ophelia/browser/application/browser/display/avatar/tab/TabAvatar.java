@@ -100,4 +100,6 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         // Default avatar background image is not required for tab avatars.
         return Boolean.FALSE;
     }
+
+    public enum DataKey { CONNECTION, SEARCH_EXPRESSION }
 }

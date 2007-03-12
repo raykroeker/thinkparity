@@ -19,14 +19,15 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.swing.JFileChooserUtil;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.swing.JFileChooserUtil;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -44,7 +45,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameDocumentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabListAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.archive.ArchiveTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabAvatar;
@@ -52,14 +53,7 @@ import com.thinkparity.ophelia.browser.application.browser.window.WindowFactory;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowId;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
-import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
-import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
-import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.LinkAction;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
+import com.thinkparity.ophelia.browser.platform.action.*;
 import com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.artifact.RemoveFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation;
@@ -68,17 +62,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingIn
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.DisplayContactInvitationInfo;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Create;
-import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.DisplayFlagSeenInfo;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
-import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.Rename;
-import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
@@ -97,8 +81,6 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-
-import org.apache.log4j.Logger;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -166,7 +148,7 @@ public class Browser extends AbstractApplication {
 	public void applySearch(final String expression) {
 	    final Data data = new Data(1);
 	    if (null != expression) {
-	        data.set(TabListAvatar.DataKey.SEARCH_EXPRESSION, expression);
+	        data.set(TabAvatar.DataKey.SEARCH_EXPRESSION, expression);
         }
 	    setInput(AvatarId.TAB_ARCHIVE, data);
 	    setInput(AvatarId.TAB_CONTACT, data);
@@ -2032,13 +2014,29 @@ public class Browser extends AbstractApplication {
      *            A platform connection.
      */
     private void setStatus(final Connection connection) {
-        Data input = (Data) getMainStatusAvatar().getInput();
+        setStatus(connection, getMainStatusAvatar(), MainStatusAvatar.DataKey.CONNECTION);
+        setStatus(connection, getTabContactAvatar(), TabAvatar.DataKey.CONNECTION);
+    }
+
+    /**
+     * Set the connection status for an avatar.
+     * 
+     * @param connection
+     *            A platform connection.
+     * @param avatar
+     *            An Avatar.
+     * @param connectionKey
+     *            The connection data key.
+     */
+    private void setStatus(final Connection connection, final Avatar avatar,
+            final Enum<?> connectionKey) {
+        Data input = (Data) avatar.getInput();
         if (null == input) {
-            input = new Data(4);
+            input = new Data();
         }
-        input.set(MainStatusAvatar.DataKey.CONNECTION, connection);
-        getMainStatusAvatar().setInput((Data) input.clone());
-    } 
+        input.set(connectionKey, connection);
+        avatar.setInput((Data) input.clone());
+    }
 
     /**
      * Set a custom status message.

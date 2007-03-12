@@ -3,18 +3,18 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
-import java.awt.EventQueue;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 
 import javax.swing.DefaultListModel;
-import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
+import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
@@ -37,6 +37,9 @@ public abstract class TabModel implements TabDelegate {
 
     /** The thinkParity <code>ApplicationRegistry</code>. */
     private final ApplicationRegistry applicationRegistry;
+
+    /** The connection status. */
+    private Connection connection;
 
     /**
      * A flag indictating whether or not the model has been initialized.
@@ -82,13 +85,21 @@ public abstract class TabModel implements TabDelegate {
      * 
      */
     public void toggleExpansion(final TabPanel tabPanel) {}
-    
+
+    /**
+     * Notify the tab of changed connection status (offline, online).
+     * 
+     * @param connection
+     *            A <code>Connection</code>.
+     */
+    protected void applyConnection(final Connection connection) {}
+
     /**
      * Apply a series of filters on the panels.
      * 
      */
     protected void applyFilters() {}
-    
+
     /**
      * Apply an ordering to the tab.
      * 
@@ -104,7 +115,7 @@ public abstract class TabModel implements TabDelegate {
      *            A search expression <code>String</code>.
      */
     protected void applySearch(final String searchExpression) {}
-    
+
     /**
      * Apply the sort to the filtered list of panels.
      *
@@ -193,16 +204,16 @@ public abstract class TabModel implements TabDelegate {
      */
     protected final void reload() {
         if (initialized) {
-            final String searchExpression = getInputSearchExpression();
-            if (null == searchExpression) {
-                removeSearch();
-            } else {
-                applySearch(searchExpression);
-            }
+            reloadConnection();
+            reloadSearch();
             return;
         } else {
             if (null != contentProvider) {
-                initialize();
+                SwingUtil.ensureDispatchThread(new Runnable() {
+                    public void run() {
+                        initialize();    
+                    }
+                });
                 initialized = Boolean.TRUE;
                 synchronize();
             }
@@ -228,13 +239,11 @@ public abstract class TabModel implements TabDelegate {
     protected void synchronize() {
         // Use the AWT event dispatching thread. If we are already on the
         // thread then call directly so the sequence of code is not changed.
-        if (EventQueue.isDispatchThread()) {
-            synchronizeImpl();
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() { synchronizeImpl(); }
-            });
-        }
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                synchronizeImpl();    
+            }
+        });
     }
 
     /**
@@ -242,6 +251,19 @@ public abstract class TabModel implements TabDelegate {
      *
      */
     protected abstract void synchronizeImpl();
+
+    /**
+     * Obtain the input connection.
+     * 
+     * @return A platform connection.
+     */
+    private Connection getInputConnection() {
+        if (null == input) {
+            return null;
+        } else {
+            return (Connection) ((Data) input).get(TabAvatar.DataKey.CONNECTION);
+        }
+    }
 
     /**
      * Obtain the input search expression.
@@ -252,7 +274,42 @@ public abstract class TabModel implements TabDelegate {
         if (null == input) {
             return null;
         } else {
-            return (String) ((Data) input).get(TabListAvatar.DataKey.SEARCH_EXPRESSION);
+            return (String) ((Data) input).get(TabAvatar.DataKey.SEARCH_EXPRESSION);
+        }
+    }
+
+    /**
+     * Reload connection. If connection status has changed then alert the tab.
+     */
+    private void reloadConnection() {
+        final Connection connection = getInputConnection();
+        if (null==this.connection || !connection.equals(this.connection)) {
+            this.connection = connection;
+            SwingUtil.ensureDispatchThread(new Runnable() {
+                public void run() {
+                    applyConnection(connection);    
+                }
+            });
+        }
+    }
+
+    /**
+     * Reload search.
+     */
+    private void reloadSearch() {
+        final String searchExpression = getInputSearchExpression();
+        if (null == searchExpression) {
+            SwingUtil.ensureDispatchThread(new Runnable() {
+                public void run() {
+                    removeSearch();    
+                }
+            });
+        } else {
+            SwingUtil.ensureDispatchThread(new Runnable() {
+                public void run() {
+                    applySearch(searchExpression);    
+                }
+            });
         }
     }
 }

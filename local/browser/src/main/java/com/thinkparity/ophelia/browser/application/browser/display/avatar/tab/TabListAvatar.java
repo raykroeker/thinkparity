@@ -466,7 +466,5 @@ public abstract class TabListAvatar<T extends TabListModel> extends TabAvatar<T>
     protected final javax.swing.JScrollPane tabJScrollPane = new javax.swing.JScrollPane();
     // End of variables declaration//GEN-END:variables
 
-    public enum DataKey { SEARCH_EXPRESSION }
-
     private enum ClientProperty { SAVE_SELECTION }
 }

@@ -35,6 +35,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactTabPanel;
+import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 
 /**
  * <b>Title:</b>thinkParity Contact Tab Model<br>
@@ -72,6 +73,19 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         this.sortedBy = new ArrayList<SortBy>();
         this.availableLocales = browser.getAvailableLocales();
         this.locale = browser.getLocale();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applyConnection(com.thinkparity.ophelia.browser.platform.Platform.Connection)
+     */
+    @Override
+    protected void applyConnection(final Connection connection) {
+        for (final TabPanel panel : panels) {
+            final ContactTabPanel contactPanel = (ContactTabPanel) panel;
+            if (contactPanel.isSetIncoming()) {
+                contactPanel.applyConnection(connection);
+            }
+        }
     }
 
     /**

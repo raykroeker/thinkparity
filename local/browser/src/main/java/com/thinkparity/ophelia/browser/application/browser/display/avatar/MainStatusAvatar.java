@@ -432,7 +432,7 @@ public class MainStatusAvatar extends Avatar {
      */
     private void reloadUser() {
         userJLabel.setText("");
-        if (isTestMode() && (null != profile)) {
+        if ((isTestMode() || isDebugMode()) && (null != profile)) {
             userJLabel.setForeground(Colors.Browser.MainStatus.USER_NAME_FOREGROUND);
             userJLabel.setText(profile.getName());
         }

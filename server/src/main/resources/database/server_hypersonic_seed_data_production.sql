@@ -12,8 +12,10 @@ insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.release-name','2007
 
 insert into PARITY_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('thinkparity','parity','What is my username?','thinkparity',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>thinkParity Services Inc.</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
-insert into USER_EMAIL(USER_ID,EMAIL,VERIFIED)
-    values(7000,'thinkParity@thinkparity.com',true);
+insert into EMAIL(EMAIL)
+    values('thinkparity@thinkparity.com');
+insert into USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
+    values(7000,5000,true);
 
 insert into PRODUCT(PRODUCT_NAME) values('OpheliaProduct');
 insert into PRODUCT_FEATURE(PRODUCT_ID,FEATURE_NAME) values(1000,'CORE');
@@ -21,19 +23,23 @@ insert into PRODUCT_FEATURE(PRODUCT_ID,FEATURE_NAME) values(1000,'BACKUP');
 
 insert into PARITY_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('asahebjam','parity','What is my username?','asahebjam',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Amir Sahebjam</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
+insert into EMAIL(EMAIL)
+    values('asahebjam@gmail.com');
 insert into USER_EMAIL(USER_ID,EMAIL,VERIFIED)
-    values(7001,'asahebjam@gmail.com',true);
+    values(7001,5001,true);
 insert into USER_FEATURE_REL(USER_ID,FEATURE_ID)
-    values(7001,5000);
+    values(7001,6000);
 
 insert into PARITY_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('omid','parity','What is my username?','omid',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Omid Ejtemai</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
+insert into EMAIL(EMAIL)
+    values('omid@thinkparity.com');
 insert into USER_EMAIL(USER_ID,EMAIL,VERIFIED)
-    values(7002,'omid@thinkparity.com',true);
+    values(7002,5002,true);
 insert into USER_FEATURE_REL(USER_ID,FEATURE_ID)
-	values(7002,5000);
+	values(7002,6000);
 insert into USER_FEATURE_REL(USER_ID,FEATURE_ID)
-    values(7002,5001);
+    values(7002,6001);
 
 insert into PARITY_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('omid-backup','parity','What is my username?','omid-backup',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Omid Ejtemai Archive</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
@@ -42,59 +48,75 @@ insert into USER_BACKUP_REL(USER_ID,BACKUP_ID)
 
 insert into PARITY_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('rkroeker','parity','What is my username?','rkroeker',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Raymond Kroeker</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
+insert into EMAIL(EMAIL)
+    values('raymond@thinkparity.com');
 insert into USER_EMAIL(USER_ID,EMAIL,VERIFIED)
-    values(7004,'raymond@thinkparity.com',true);
+    values(7004,5003,true);
 insert into USER_FEATURE_REL(USER_ID,FEATURE_ID)
-    values(7004,5000);
+    values(7004,6000);
 
 insert into PARITY_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('robert','parity','What is my username?','robert',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Robert MacMartin</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
+insert into EMAIL(EMAIL)
+    values('robert@thinkparity.com');
 insert into USER_EMAIL(USER_ID,EMAIL,VERIFIED)
-    values(7005,'robert@thinkparity.com',true);
+    values(7005,5004,true);
 insert into USER_FEATURE_REL(USER_ID,FEATURE_ID)
-    values(7005,5000);
+    values(7005,6000);
 
 insert into PARITY_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('djohnson','parity','What is my username?','djohnson',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Don Johnson</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
+insert into EMAIL(EMAIL)
+    values('djohnson@thinkparity.com');
 insert into USER_EMAIL(USER_ID,EMAIL,VERIFIED)
-    values(7006,'djohnson@thinkparity.com',true);
+    values(7006,5005,true);
 insert into USER_FEATURE_REL(USER_ID,FEATURE_ID)
-    values(7006,5000);
+    values(7006,6000);
 
 insert into PARITY_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('emorrison','parity','What is my username?','emorrison',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Emily Morrison</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
+insert into EMAIL(EMAIL)
+    values('emorrison@thinkparity.com');
 insert into USER_EMAIL(USER_ID,EMAIL,VERIFIED)
-    values(7007,'emorrison@thinkparity.com',true);
+    values(7007,5006,true);
 insert into USER_FEATURE_REL(USER_ID,FEATURE_ID)
-    values(7007,5000);
+    values(7007,6000);
 
 insert into PARITY_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('kmfarland','parity','What is my username?','kmfarland',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Kevin MacFarland</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
+insert into EMAIL(EMAIL)
+    values('kmfarland@thinkparity.com');
 insert into USER_EMAIL(USER_ID,EMAIL,VERIFIED)
-    values(7008,'kmfarland@thinkparity.com',true);
+    values(7008,5007,true);
 insert into USER_FEATURE_REL(USER_ID,FEATURE_ID)
-    values(7008,5000);
+    values(7008,6000);
 
 insert into PARITY_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('strimnell','parity','What is my username?','strimnell',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Sarah Trimnell</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
+insert into EMAIL(EMAIL)
+    values('strimnell@thinkparity.com');
 insert into USER_EMAIL(USER_ID,EMAIL,VERIFIED)
-    values(7009,'strimnell@thinkparity.com',true);
+    values(7009,5008,true);
 insert into USER_FEATURE_REL(USER_ID,FEATURE_ID)
-    values(7009,5000);
+    values(7009,6000);
 
 insert into PARITY_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('kenjiro','parity','What is my username?','kenjiro',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Kenjiro MacMartin</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
+insert into EMAIL(EMAIL)
+    values('kenjiro@thinkparity.com');
 insert into USER_EMAIL(USER_ID,EMAIL,VERIFIED)
-    values(7010,'kenjiro@thinkparity.com',true);
+    values(7010,5009,true);
 insert into USER_FEATURE_REL(USER_ID,FEATURE_ID)
-    values(7010,5000);
+    values(7010,6000);
 
 insert into PARITY_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('masako','parity','What is my username?','masako',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Masako Saito</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
+insert into EMAIL(EMAIL)
+    values('masako@thinkparity.com');
 insert into USER_EMAIL(USER_ID,EMAIL,VERIFIED)
-    values(7011,'masako@thinkparity.com',true);
+    values(7011,5010,true);
 insert into USER_FEATURE_REL(USER_ID,FEATURE_ID)
-    values(7011,5000);
+    values(7011,6000);
 
 insert into USER_CONTACT(USER_ID,CONTACT_ID,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON)
     values(7001,7002,7001,NOW(),7001,NOW());

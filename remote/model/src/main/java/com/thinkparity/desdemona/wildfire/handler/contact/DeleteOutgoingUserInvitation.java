@@ -1,5 +1,5 @@
 /*
- * Feb 28, 2006
+ * Created On: Aug 29, 2006 3:00:18 PM
  */
 package com.thinkparity.desdemona.wildfire.handler.contact;
 
@@ -8,6 +8,9 @@ import java.util.Calendar;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
+
+import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
 import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
@@ -19,15 +22,13 @@ import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ExtendEMailInvitation extends AbstractHandler {
+public final class DeleteOutgoingUserInvitation extends AbstractHandler {
 
     /**
-     * Create ExtendEMailInvitation.
+     * Create DeleteOutgoingUserInvitation.
      *
      */
-	public ExtendEMailInvitation() {
-        super("contact:extendemailinvitation");
-	}
+    public DeleteOutgoingUserInvitation() { super("contact:deleteoutgoinguserinvitation"); }
 
     /**
      * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
@@ -39,26 +40,18 @@ public final class ExtendEMailInvitation extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        extendEMailInvitation(provider, reader.readJabberId("userId"),
-                reader.readEMail("extendTo"), reader.readCalendar("extendedOn"));
+        deleteOutgoingUserInvitation(provider, reader.readJabberId("userId"),
+                reader.readOutgoingUserInvitation("invitation"),
+                reader.readCalendar("deletedOn"));
     }
 
     /**
-     * Extend an invitation. If the email is registered within the thinkParity
-     * community an invitation will be sent via thinkParity otherwise an
-     * invitation will be sent via and email.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param extendedTo
-     *            A <code>EMail</code> to invite.
-     * @param extendedOn
-     *            The date <code>Calendar</code> of the invitation.
+     * @see ContactModel#deleteInvitation(JabberId, EMail, Calendar)
      */
-    private void extendEMailInvitation(final ServiceModelProvider context,
-            final JabberId userId, final EMail extendTo,
-            final Calendar extendedOn) {
-        context.getContactModel().extendEMailInvitation(userId, extendTo,
-                extendedOn);
+    private void deleteOutgoingUserInvitation(
+            final ServiceModelProvider context, final JabberId userId,
+            final OutgoingUserInvitation invitation, final Calendar deletedOn) {
+        context.getContactModel().deleteOutgoingUserInvitation(userId,
+                invitation, deletedOn);
     }
 }

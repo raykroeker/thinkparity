@@ -3,30 +3,31 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.contact;
 
-import java.util.Calendar;
-
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.desdemona.model.contact.ContactModel;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
 import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity DesdemonaModel Create Outgoing EMail Invitation
+ * Handler<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class AcceptInvitation extends AbstractHandler {
+public final class CreateOutgoingEMailInvitation extends AbstractHandler {
 
-	/**
-     * Create AcceptInvitation.
+    /**
+     * Create CreateOutgoingEMailInvitation.
      *
-	 */
-	public AcceptInvitation() {
-        super("contact:acceptinvitation");
+     */
+	public CreateOutgoingEMailInvitation() {
+        super("contact:createoutgoingemailinvitation");
 	}
 
     /**
@@ -39,18 +40,14 @@ public final class AcceptInvitation extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        logger.logApiId();
-        acceptInvitation(provider, reader.readJabberId("userId"),
-                reader.readJabberId("invitedBy"),
-                reader.readCalendar("acceptedOn"));
+        createOutgoingEMailInvitation(provider, reader.readJabberId("userId"),
+                reader.readOutgoingEMailInvitation("invitation"));
     }
 
-    /**
-     * @see ContactModel#acceptInvitation(JabberId, JabberId, Calendar)
-     */
-    private void acceptInvitation(final ServiceModelProvider context,
-            final JabberId userId, final JabberId invitedBy,
-            final Calendar acceptedOn) {
-        context.getContactModel().acceptInvitation(userId, invitedBy, acceptedOn);
+    private void createOutgoingEMailInvitation(
+            final ServiceModelProvider context, final JabberId userId,
+            final OutgoingEMailInvitation invitation) {
+        context.getContactModel().createOutgoingEMailInvitation(userId,
+                invitation);
     }
 }

@@ -3,10 +3,11 @@
  */
 package com.thinkparity.ophelia.model.util.filter.contact;
 
-import org.apache.log4j.Logger;
+import com.thinkparity.codebase.model.contact.ContactInvitation;
 
-import com.thinkparity.ophelia.model.contact.ContactInvitation;
 import com.thinkparity.ophelia.model.util.filter.AbstractFilter;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raymond@thinkparity.com

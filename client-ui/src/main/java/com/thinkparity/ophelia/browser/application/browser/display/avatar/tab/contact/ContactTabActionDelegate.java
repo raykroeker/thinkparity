@@ -4,7 +4,10 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingInvitation;
 import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ActionDelegate;
@@ -14,8 +17,6 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultActionDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
-import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 /**
  * <b>Title:</b><br>

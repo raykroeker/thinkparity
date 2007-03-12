@@ -3,9 +3,9 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.contact;
 
-import java.util.Calendar;
-
 import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
@@ -13,19 +13,21 @@ import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity DesdemonaModel Create Outgoing User Invitation
+ * Handler<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class DeclineUserInvitation extends AbstractHandler {
+public final class CreateOutgoingUserInvitation extends AbstractHandler {
 
     /**
-     * Create DeclineUserInvitation.
+     * Create CreateOutgoingUserInvitation.
      *
      */
-	public DeclineUserInvitation() {
-        super("contact:declineuserinvitation");
+	public CreateOutgoingUserInvitation() {
+        super("contact:createoutgoinguserinvitation");
 	}
 
     /**
@@ -38,15 +40,13 @@ public final class DeclineUserInvitation extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        declineUserInvitation(provider, reader.readJabberId("userId"),
-                reader.readJabberId("invitedBy"),
-                reader.readCalendar("declinedOn"));
+        createOutgoingUserInvitation(provider, reader.readJabberId("userId"),
+                reader.readOutgoingUserInvitation("invitation"));
     }
 
-    private void declineUserInvitation(final ServiceModelProvider context,
-            final JabberId userId, final JabberId invitedBy,
-            final Calendar declinedOn) {
-        context.getContactModel().declineUserInvitation(userId, invitedBy,
-                declinedOn);
+    private void createOutgoingUserInvitation(final ServiceModelProvider context,
+            final JabberId userId, final OutgoingUserInvitation invitation) {
+        context.getContactModel().createOutgoingUserInvitation(userId,
+                invitation);
     }
 }

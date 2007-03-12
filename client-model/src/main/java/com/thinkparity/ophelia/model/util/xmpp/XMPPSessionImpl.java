@@ -24,6 +24,9 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
@@ -208,14 +211,13 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         this.xmppEventDispatcher = new XMPPEventDispatcher(this);
 	}
 
-    /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#acceptContactInvitation(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
-     * 
-     */
-    public void acceptContactInvitation(final JabberId userId,
-            final JabberId invitedBy, final Calendar acceptedOn) {
-		xmppContact.acceptInvitation(userId, invitedBy, acceptedOn);
+	/**
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#acceptIncomingInvitation(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.ophelia.model.contact.IncomingInvitation, java.util.Calendar)
+     *
+	 */
+    public void acceptIncomingInvitation(final JabberId userId,
+            final IncomingInvitation invitation, final Calendar acceptedOn) {
+		xmppContact.acceptIncomingInvitation(userId, invitation, acceptedOn);
 	}
 
     /**
@@ -379,26 +381,14 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#declineContactEMailInvitation(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.email.EMail,
-     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#declineIncomingInvitation(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.ophelia.model.contact.IncomingInvitation,
+     *      java.util.Calendar)
      * 
      */
-    public void declineContactEMailInvitation(final JabberId userId,
-            final EMail invitedAs, final JabberId invitedBy,
-            final Calendar declinedOn) {
-        xmppContact.declineEMailInvitation(userId, invitedAs, invitedBy,
-                declinedOn);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#declineContactUserInvitation(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
-     * 
-     */
-    public void declineContactUserInvitation(final JabberId userId,
-            final JabberId invitedBy, final Calendar declinedOn) {
-        xmppContact.declineUserInvitation(userId, invitedBy, declinedOn);
+    public void declineIncomingInvitation(final JabberId userId,
+            final IncomingInvitation invitation, final Calendar declinedOn) {
+        xmppContact.declineIncomingInvitation(userId, invitation, declinedOn);
     }
 
     /**
@@ -417,33 +407,35 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppArtifact.delete(uniqueId);
     }
 
-	/**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteContact(com.thinkparity.codebase.jabber.JabberId,
+    /**
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#delete(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.jabber.JabberId)
      * 
      */
-    public void deleteContact(final JabberId userId, final JabberId contactId) {
+    public void delete(final JabberId userId, final JabberId contactId) {
         xmppContact.delete(userId, contactId);
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteContactEMailInvitation(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.email.EMail, java.util.Calendar)
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteOutgoingEMailInvitation(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.ophelia.model.contact.OutgoingEMailInvitation,
+     *      java.util.Calendar)
      * 
      */
-    public void deleteContactEMailInvitation(final JabberId userId, final EMail invitedAs,
-            final Calendar deletedOn) {
-        xmppContact.deleteEMailInvitation(userId, invitedAs, deletedOn);
+    public void deleteOutgoingEMailInvitation(final JabberId userId,
+            final OutgoingEMailInvitation invitation, final Calendar deletedOn) {
+        xmppContact.deleteOutgoingEMailInvitation(userId, invitation, deletedOn);
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteContactUserInvitation(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteOutgoingUserInvitation(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.ophelia.model.contact.OutgoingUserInvitation,
+     *      java.util.Calendar)
      * 
      */
-    public void deleteContactUserInvitation(final JabberId userId,
-            final JabberId invitedAs, final Calendar deletedOn) {
-        xmppContact.deleteUserInvitation(userId, invitedAs, deletedOn);
+    public void deleteOutgoingUserInvitation(final JabberId userId,
+            final OutgoingUserInvitation invitation, final Calendar deletedOn) {
+        xmppContact.deleteOutgoingUserInvitation(userId, invitation, deletedOn);
     }
 
 	/**
@@ -506,23 +498,23 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#extendContactEMailInvitation(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.email.EMail, java.util.Calendar)
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createOutgoingEMailInvitation(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.ophelia.model.contact.OutgoingEMailInvitation)
      * 
      */
-    public void extendContactEMailInvitation(final JabberId userId,
-            final EMail extendTo, final Calendar extendedOn) {
-        xmppContact.extendEMailInvitation(userId, extendTo, extendedOn);
+    public void createOutgoingEMailInvitation(final JabberId userId,
+            final OutgoingEMailInvitation invitation) {
+        xmppContact.createOutgoingEMailInvitation(userId, invitation);
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#extendContactUserInvitation(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createOutgoingUserInvitation(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.ophelia.model.contact.OutgoingUserInvitation)
      * 
      */
-    public void extendContactUserInvitation(final JabberId userId,
-            final JabberId extendTo, final Calendar extendedOn) {
-        xmppContact.extendUserInvitation(userId, extendTo, extendedOn);
+    public void createOutgoingUserInvitation(final JabberId userId,
+            final OutgoingUserInvitation invitation) {
+        xmppContact.createOutgoingUserInvitation(userId, invitation);
     }
 
     /**

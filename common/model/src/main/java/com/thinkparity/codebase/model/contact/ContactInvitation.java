@@ -1,7 +1,7 @@
 /*
  * Created On: Jul 13, 2006 10:17:57 AM
  */
-package com.thinkparity.ophelia.model.contact;
+package com.thinkparity.codebase.model.contact;
 
 import java.util.Calendar;
 

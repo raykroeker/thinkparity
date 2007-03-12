@@ -27,6 +27,9 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Product;
@@ -62,8 +65,9 @@ public final class IQReader implements ServiceRequestReader {
     /** The universal <code>DateFormat</code>. */
     private static final DateFormat UNIVERSAL_FORMAT;
 
+    /** An instance of <code>XStreamUtil</code>. */
     private static final XStreamUtil XSTREAM_UTIL;
-    
+
     static {
         LOCALE = Locale.getDefault();
         TIME_ZONE = TimeZone.getDefault();
@@ -219,6 +223,14 @@ public final class IQReader implements ServiceRequestReader {
     }
 
     /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readIncomingInvitation(java.lang.String)
+     * 
+     */
+    public IncomingInvitation readIncomingInvitation(final String name) {
+        return (IncomingInvitation) readXStreamObject(name, new IncomingInvitation());
+    }
+
+    /**
      * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readInteger(java.lang.String)
      * 
      */
@@ -292,6 +304,22 @@ public final class IQReader implements ServiceRequestReader {
         } else {
             return OS.valueOf(value);
         }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readOutgoingEMailInvitation(java.lang.String)
+     * 
+     */
+    public OutgoingEMailInvitation readOutgoingEMailInvitation(final String name) {
+        return (OutgoingEMailInvitation) readXStreamObject(name, new OutgoingEMailInvitation());
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readOutgoingUserInvitation(java.lang.String)
+     * 
+     */
+    public OutgoingUserInvitation readOutgoingUserInvitation(final String name) {
+        return (OutgoingUserInvitation) readXStreamObject(name, new OutgoingUserInvitation());
     }
 
     /**

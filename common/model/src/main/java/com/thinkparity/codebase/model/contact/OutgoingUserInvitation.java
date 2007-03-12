@@ -1,7 +1,7 @@
 /*
  * Created On: Aug 14, 2006 10:49:04 AM
  */
-package com.thinkparity.ophelia.model.contact;
+package com.thinkparity.codebase.model.contact;
 
 import com.thinkparity.codebase.StringUtil;
 

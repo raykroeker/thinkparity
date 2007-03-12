@@ -7,10 +7,10 @@ package com.thinkparity.ophelia.model.test.ticket;
 import java.util.List;
 
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingInvitation;
 
-import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 

@@ -12,6 +12,9 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
@@ -68,12 +71,12 @@ public interface ServiceResponseWriter {
      *      The element value.
      */
     public void writeCalendar(final String name, Calendar value);
-    
+
     public void writeContainer(final String name, Container value);
 
     public void writeContainers(final String parentName,
             String name, List<Container> values);
-
+    
     public void writeContainerVersions(final String parentName,
             String name, List<ContainerVersion> values);
 
@@ -109,6 +112,19 @@ public interface ServiceResponseWriter {
     public void writeFeatures(final String name, final List<Feature> values);
 
     /**
+     * Write contact invitations.
+     * 
+     * @param <T>
+     *            A contact invitation type.
+     * @param name
+     *            A service response name.
+     * @param values
+     *            A list of contact invitations.
+     */
+    public void writeIncomingInvitations(final String name,
+            final List<IncomingInvitation> values);
+
+    /**
      * Write a jabber id value.
      * 
      * @param name
@@ -141,6 +157,32 @@ public interface ServiceResponseWriter {
      */
     public void writeLongs(final String parentName, String name,
             List<Long> values);
+
+    /**
+     * Write contact invitations.
+     * 
+     * @param <T>
+     *            A contact invitation type.
+     * @param name
+     *            A service response name.
+     * @param values
+     *            A list of contact invitations.
+     */
+    public void writeOutgoingEMailInvitations(final String name,
+            final List<OutgoingEMailInvitation> values);
+
+    /**
+     * Write contact invitations.
+     * 
+     * @param <T>
+     *            A contact invitation type.
+     * @param name
+     *            A service response name.
+     * @param values
+     *            A list of contact invitations.
+     */
+    public void writeOutgoingUserInvitations(final String name,
+            final List<OutgoingUserInvitation> values);
 
     /**
      * Write the resources to the query.

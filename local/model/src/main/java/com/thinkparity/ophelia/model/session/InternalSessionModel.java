@@ -15,6 +15,9 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
@@ -47,15 +50,13 @@ public interface InternalSessionModel extends SessionModel {
     /**
      * Accept the contact invitation.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param invitedBy
-     *            The invited by user id <code>JabberId</code>.
+     * @param invitation
+     *            An <code>IncomingInvitation<code>.
      * @param acceptedOn
-     *            When the user accepted <code>Calendar</code>.
+     *            The accepted on <code>Calendar</code>.
      */
-    public void acceptContactInvitation(final JabberId userId,
-            final JabberId invitedBy, final Calendar acceptedOn);
+    public void acceptIncomingInvitation(final IncomingInvitation invitation,
+            final Calendar acceptedOn);
 
     /**
      * Add an email to a user's profile.
@@ -123,6 +124,24 @@ public interface InternalSessionModel extends SessionModel {
     public void createMigratorStream(final String streamId,
             final List<Resource> resources);
 
+    /**
+     * Create an outgoing e-mail invitation.
+     * 
+     * @param invitation
+     *            An <code>OutgoingEMailInvitation</code>.
+     */
+    public void createOutgoingEMailInvitation(
+            final OutgoingEMailInvitation invitation);
+
+    /**
+     * Create an outgoing user invitation.
+     * 
+     * @param invitation
+     *            An <code>OutgoingUserInvitation</code>.
+     */
+    public void createOutgoingUserInvitation(
+            final OutgoingUserInvitation invitation);
+
     public String createStream(final StreamSession session);
 
     /**
@@ -132,12 +151,15 @@ public interface InternalSessionModel extends SessionModel {
      */
     public StreamSession createStreamSession();
 
-    // TODO-javadoc InternalSessionModel#declineContactEMailInvitation
-    public void declineContactEMailInvitation(final EMail invitedAs,
-            final JabberId invitedBy, final Calendar declinedOn);
-
-    // TODO-javadoc InternalSessionModel#declineContactUserInvitation
-    public void declineContactUserInvitation(final JabberId invitedBy,
+	/**
+     * Decline an incoming invitation.
+     * 
+     * @param invitation
+     *            An <code>IncomingInvitation</code>.
+     * @param declinedOn
+     *            A declined on <code>Calendar</code>.
+     */
+    public void declineIncomingInvitation(final IncomingInvitation invitation,
             final Calendar declinedOn);
 
     /**
@@ -150,41 +172,39 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void deleteArtifact(final JabberId userId, final UUID uniqueId);
 
-	/**
+    
+    /**
      * Delete a contact.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param contactId
      *            A contact id <code>JabberId</code>.
      */
-    public void deleteContact(final JabberId userId, final JabberId contactId);
-
-    /**
-     * Delete a contact invitation.
-     * 
-     * @param invitedAs
-     *            The invitation <code>EMail</code> address.
-     * @param deletedOn
-     *            The deletion <code>Calendar</code>.
-     */
-    public void deleteContactEMailInvitation(final EMail invitedAs,
-            final Calendar deletedOn);
-
-    
-    /**
-     * Delete a contact invitation.
-     * 
-     * @param invitedAs
-     *            The invitation user id <code>JabberId</code>.
-     * @param deletedOn
-     *            The deletion <code>Calendar</code>.
-     */
-    public void deleteContactUserInvitation(final JabberId invitedAs,
-            final Calendar deletedOn);
+    public void delete(final JabberId contactId);
 
     // TODO-javadoc InternalSessionModel#deleteDraft()
     public void deleteDraft(final UUID uniqueId, final Calendar deletedOn);
+
+    /**
+     * Delete a contact invitation.
+     * 
+     * @param invitation
+     *            An <code>OutgoingEMailInvitation</code>.
+     * @param deletedOn
+     *            The deletion <code>Calendar</code>.
+     */
+    public void deleteOutgoingEMailInvitation(
+            final OutgoingEMailInvitation invitation, final Calendar deletedOn);
+
+	/**
+     * Delete a contact invitation.
+     * 
+     * @param invitation
+     *            An <code>OutgoingUserInvitation</code>.
+     * @param deletedOn
+     *            The deletion <code>Calendar</code>.
+     */
+    public void deleteOutgoingUserInvitation(
+            final OutgoingUserInvitation invitation, final Calendar deletedOn);
 
     /**
      * Delete a stream session.
@@ -194,7 +214,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void deleteStreamSession(final StreamSession session);
 
-	/**
+    /**
      * Deploy a migrator release.
      * 
      * @param release
@@ -206,28 +226,6 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void deployMigrator(final Product product, final Release release,
             final List<Resource> resources, final String streamId);
-
-    /**
-     * Extend an invitation to a user.
-     * 
-     * @param extendTo
-     *            An <code>EMail</code> address.
-     * @param extendedOn
-     *            The extended on <code>Calendar</code>.
-     */
-    public void extendContactEMailInvitation(final EMail extendTo,
-            final Calendar extendedOn);
-
-    /**
-     * Extend an invitation to a user.
-     * 
-     * @param extendTo
-     *            A user id <code>JabberId</code>.
-     * @param extendedOn
-     *            The extended on <code>Calendar</code>.
-     */
-    public void extendContactUserInvitation(final JabberId extendTo,
-            final Calendar extendedOn);
 
     /**
      * Handle the remote session established event.
@@ -453,10 +451,10 @@ public interface InternalSessionModel extends SessionModel {
      * Read a contact.
      * 
      * @param contactId
-     *            A contact id.
-     * @return A contact.
+     *            A contact id <code>JabberId</code>.
+     * @return A <code>Contact</code>.
      */
-    public Contact readContact(final JabberId userId, final JabberId contactId);
+    public Contact readContact(final JabberId contactId);
 
     /**
      * Read the contact ids.

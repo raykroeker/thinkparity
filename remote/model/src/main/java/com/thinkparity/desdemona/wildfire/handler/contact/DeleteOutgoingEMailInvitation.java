@@ -1,14 +1,14 @@
 /*
- * Feb 28, 2006
+ * Created On: Aug 29, 2006 3:00:18 PM
  */
 package com.thinkparity.desdemona.wildfire.handler.contact;
 
 import java.util.Calendar;
 
-import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.desdemona.model.contact.ContactModel;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
 import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
@@ -20,15 +20,15 @@ import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class DeclineEMailInvitation extends AbstractHandler {
+public final class DeleteOutgoingEMailInvitation extends AbstractHandler {
 
     /**
-     * Create DeclineEMailInvitation.
+     * Create DeleteOutgoingEMailInvitation.
      *
      */
-	public DeclineEMailInvitation() {
-        super("contact:declineemailinvitation");
-	}
+    public DeleteOutgoingEMailInvitation() {
+        super("contact:deleteoutgoingemailinvitation");
+    }
 
     /**
      * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
@@ -40,19 +40,15 @@ public final class DeclineEMailInvitation extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        declineInvitation(provider, reader.readJabberId("userId"),
-                reader.readJabberId("invitedBy"), reader.readEMail("invitedAs"),
-                reader.readCalendar("declinedOn"));
+        deleteOutgoingEMailInvitation(provider, reader.readJabberId("userId"),
+                reader.readOutgoingEMailInvitation("invitation"),
+                reader.readCalendar("deletedOn"));
     }
 
-    /**
-     * @see ContactModel#declineInvitation(JabberId, JabberId, EMail, Calendar)
-     * 
-     */
-    private void declineInvitation(final ServiceModelProvider context,
-            final JabberId userId, final JabberId invitedBy,
-            final EMail invitedAs, final Calendar declinedOn) {
-        context.getContactModel().declineEMailInvitation(userId, invitedBy,
-                invitedAs, declinedOn);
+    private void deleteOutgoingEMailInvitation(
+            final ServiceModelProvider context, final JabberId userId,
+            final OutgoingEMailInvitation invitation, final Calendar deletedOn) {
+        context.getContactModel().deleteOutgoingEMailInvitation(userId,
+                invitation, deletedOn);
     }
 }

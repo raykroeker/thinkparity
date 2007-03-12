@@ -42,6 +42,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.ContactInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
@@ -329,6 +330,11 @@ public class XMPPMethod extends IQ {
         this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
     }
 
+    public final <T extends ContactInvitation> void setParameter(
+            final String name, final T value) {
+        parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
+    }
+
     public final <T extends ArtifactVersion> void setParameter(
             final String name, final T value) {
         parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
@@ -499,6 +505,10 @@ public class XMPPMethod extends IQ {
             return parameter.javaValue.toString();
         } else if (parameter.javaType.equals(UUID.class)) {
             return parameter.javaValue.toString();
+        } else if (ContactInvitation.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
         } else if (Product.class.isAssignableFrom(parameter.javaType)) {
             final StringWriter xmlWriter = new StringWriter();
             XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);

@@ -14,6 +14,9 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
@@ -81,6 +84,7 @@ public final class IQWriter implements ServiceResponseWriter {
      * @return An xmpp <code>IQ</code>.
      */
     public final IQ getIQ() { return iq; }
+
 
     /**
      * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#write(java.lang.String,
@@ -235,6 +239,14 @@ public final class IQWriter implements ServiceResponseWriter {
     }
 
     /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeIncomingInvitations(java.lang.String, java.util.List)
+     *
+     */
+    public void writeIncomingInvitations(final String name, final List<IncomingInvitation> values) {
+        ElementBuilder.addIncomingInvitationElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
+    }
+
+    /**
      * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeJabberId(java.lang.String,
      *      com.thinkparity.codebase.jabber.JabberId)
      * 
@@ -261,6 +273,24 @@ public final class IQWriter implements ServiceResponseWriter {
     public final void writeLongs(final String parentName, final String name,
             final List<Long> values) {
         ElementBuilder.addLongElements(iq.getChildElement(), parentName, name, values);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeOutgoingEMailInvitations(java.lang.String, java.util.List)
+     *
+     */
+    public void writeOutgoingEMailInvitations(final String name,
+            final List<OutgoingEMailInvitation> values) {
+        ElementBuilder.addOutgoingEMailInvitationElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeOutgoingUserInvitations(java.lang.String, java.util.List)
+     *
+     */
+    public void writeOutgoingUserInvitations(final String name,
+            final List<OutgoingUserInvitation> values) {
+        ElementBuilder.addOutgoingUserInvitationElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
     }
 
     /**

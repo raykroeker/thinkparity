@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -515,7 +516,11 @@ public final class HypersonicSession {
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
         try {
-            preparedStatement.setString(index, value.toString());
+            if (null == value) {
+                preparedStatement.setNull(index, Types.VARCHAR);
+            } else {
+                preparedStatement.setString(index, value.toString());
+            }
         } catch (final SQLException sqlx) {
             throw panic(sqlx);
         }
@@ -548,7 +553,11 @@ public final class HypersonicSession {
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
 		try {
-            preparedStatement.setLong(index, value);
+            if (null == value) {
+                preparedStatement.setNull(index, Types.BIGINT);
+            } else {
+                preparedStatement.setLong(index, value);
+            }
 		} catch (final SQLException sqlx) {
             throw panic(sqlx);
 		}

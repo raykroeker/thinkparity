@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 
 import com.thinkparity.ophelia.model.Constants.Xml;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
@@ -18,8 +20,11 @@ import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.xmpp.event.ContactListener;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1.2.10
+ * <b>Title:</b>thinkParity OpheliaModel XMPP Contact Implementation<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.17
  */
 final class XMPPContact extends AbstractXMPP<ContactListener> {
 
@@ -41,36 +46,58 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      * @param acceptedOn
      *            When the user accepted <code>Calendar</code>.
      */
-	void acceptInvitation(final JabberId userId, final JabberId invitedBy,
-            final Calendar acceptedOn) {
-		logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("invitedBy", invitedBy);
-        logger.logVariable("acceptedOn", acceptedOn);
-		final XMPPMethod accept = new XMPPMethod("contact:acceptinvitation");
+	void acceptIncomingInvitation(final JabberId userId,
+            final IncomingInvitation invitation, final Calendar acceptedOn) {
+		final XMPPMethod accept = new XMPPMethod("contact:acceptincominginvitation");
         accept.setParameter("userId", userId);
-        accept.setParameter("invitedBy", invitedBy);
+        accept.setParameter("invitation", invitation);
         accept.setParameter("acceptedOn", acceptedOn);
 		execute(accept);
 	}
 
-	// TODO-javadoc XMPPContact#declineEMailInvitation
-    void declineEMailInvitation(final JabberId userId, final EMail invitedAs,
-            final JabberId invitedBy, final Calendar declinedOn) {
-        final XMPPMethod decline = new XMPPMethod("contact:declineemailinvitation");
-        decline.setParameter("userId", userId);
-        decline.setParameter("invitedAs", invitedAs);
-        decline.setParameter("invitedBy", invitedBy);
-        decline.setParameter("declinedOn", declinedOn);
-        execute(decline);
+    /**
+     * Create an outgoing e-mail invitation.
+     * 
+     * @param invitation
+     *            An <code>OutgoingEMailInvitation</code>.
+     */
+    void createOutgoingEMailInvitation(final JabberId userId,
+            final OutgoingEMailInvitation invitation) {
+        final XMPPMethod extendInvitation = new XMPPMethod("contact:createoutgoingemailinvitation");
+        extendInvitation.setParameter("userId", userId);
+        extendInvitation.setParameter("invitation", invitation);
+        execute(extendInvitation);
     }
 
-    // TODO-javadoc XMPPContact#declineUserInvitation
-    void declineUserInvitation(final JabberId userId, final JabberId invitedBy,
-            final Calendar declinedOn) {
-        final XMPPMethod decline = new XMPPMethod("contact:declineuserinvitation");
+    /**
+     * Create an outgoing user invitation.
+     * 
+     * @param invitation
+     *            An <code>OutgoingUserInvitation</code>.
+     */
+    void createOutgoingUserInvitation(final JabberId userId,
+            final OutgoingUserInvitation invitation) {
+        final XMPPMethod extendInvitation = new XMPPMethod("contact:createoutgoinguserinvitation");
+        extendInvitation.setParameter("userId", userId);
+        extendInvitation.setParameter("invitation", invitation);
+        execute(extendInvitation);
+    }
+
+    /**
+     * Decline an incoming invitation.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitation
+     *            An <code>IncomingInvitation</code>.
+     * @param declinedOn
+     *            A declined on <code>Calendar</code>.
+     */
+    void declineIncomingInvitation(final JabberId userId,
+            final IncomingInvitation invitation, final Calendar declinedOn) {
+        final XMPPMethod decline = new XMPPMethod("contact:declineincominginvitation");
         decline.setParameter("userId", userId);
-        decline.setParameter("invitedBy", invitedBy);
+        decline.setParameter("invitation", invitation);
         decline.setParameter("declinedOn", declinedOn);
         execute(decline);
     }
@@ -91,97 +118,41 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
     }
 
     /**
-     * Delete a contact e-mail invitation.
+     * Delete a contact invitation.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @param invitedAs
-     *            The invitation <code>EMail</code>.
+     * @param invitation
+     *            An <code>OutgoingEMailInvitation</code>.
      * @param deletedOn
      *            The deletion <code>Calendar</code>.
      */
-    void deleteEMailInvitation(final JabberId userId, final EMail invitedAs,
-            final Calendar deletedOn) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("invitedAs", invitedAs);
-        logger.logVariable("deletedOn", deletedOn);
-        final XMPPMethod deleteInvitation = new XMPPMethod("contact:deleteemailinvitation");
+    void deleteOutgoingEMailInvitation(final JabberId userId,
+            final OutgoingEMailInvitation invitation, final Calendar deletedOn) {
+        final XMPPMethod deleteInvitation = new XMPPMethod("contact:deleteoutgoingemailinvitation");
         deleteInvitation.setParameter("userId", userId);
-        deleteInvitation.setParameter("invitedAs", invitedAs);
+        deleteInvitation.setParameter("invitation", invitation);
         deleteInvitation.setParameter("deletedOn", deletedOn);
         execute(deleteInvitation);
     }
 
     /**
-     * Delete a contact user invitation.
+     * Delete a contact invitation.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @param invitedAs
-     *            The invitation <code>EMail</code>.
+     * @param invitation
+     *            An <code>OutgoingUserInvitation</code>.
      * @param deletedOn
      *            The deletion <code>Calendar</code>.
      */
-    void deleteUserInvitation(final JabberId userId, final JabberId invitedAs,
-            final Calendar deletedOn) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("invitedAs", invitedAs);
-        logger.logVariable("deletedOn", deletedOn);
-        final XMPPMethod deleteInvitation = new XMPPMethod("contact:deleteuserinvitation");
+    void deleteOutgoingUserInvitation(final JabberId userId,
+            final OutgoingUserInvitation invitation, final Calendar deletedOn) {
+        final XMPPMethod deleteInvitation = new XMPPMethod("contact:deleteoutgoinguserinvitation");
         deleteInvitation.setParameter("userId", userId);
-        deleteInvitation.setParameter("invitedAs", invitedAs);
+        deleteInvitation.setParameter("invitation", invitation);
         deleteInvitation.setParameter("deletedOn", deletedOn);
         execute(deleteInvitation);
-    }
-
-    /**
-     * Extend an e-mail invitation. If the email is registered within the
-     * thinkParity community an invitation will be sent via thinkParity
-     * otherwise an invitation will be sent via and email.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param extendTo
-     *            A <code>EMail</code> to invite.
-     * @param extendedOn
-     *            The date <code>Calendar</code> of the invitation.
-     */
-    void extendEMailInvitation(final JabberId userId, final EMail extendTo,
-            final Calendar extendedOn) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("extendTo", extendTo);
-        logger.logVariable("extendedOn", extendedOn);
-        final XMPPMethod extendInvitation = new XMPPMethod("contact:extendemailinvitation");
-        extendInvitation.setParameter("userId", userId);
-        extendInvitation.setParameter("extendTo", extendTo);
-        extendInvitation.setParameter("extendedOn", extendedOn);
-        execute(extendInvitation);
-    }
-
-    /**
-     * Extend a user invitation. 
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param extendTo
-     *            A user id <code>JabberId</code> to invite.
-     * @param extendedOn
-     *            The date <code>Calendar</code> of the invitation.
-     */
-    void extendUserInvitation(final JabberId userId, final JabberId extendTo,
-            final Calendar extendedOn) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("extendTo", extendTo);
-        logger.logVariable("extendedOn", extendedOn);
-        final XMPPMethod extendInvitation = new XMPPMethod("contact:extenduserinvitation");
-        extendInvitation.setParameter("userId", userId);
-        extendInvitation.setParameter("extendTo", extendTo);
-        extendInvitation.setParameter("extendedOn", extendedOn);
-        execute(extendInvitation);
     }
 
     /**

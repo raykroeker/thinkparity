@@ -64,12 +64,21 @@ public class UserSql extends AbstractSql {
             .append("where PU.USERNAME=?")
             .toString();
 
+    /** Sql to read a username from an e-mail address. */
+    private static final String SQL_READ_BY_EMAIL =
+        new StringBuilder("select PU.USERNAME,PU.USER_ID ")
+        .append("from PARITY_USER PU ")
+        .append("inner join USER_EMAIL UE on UE.USER_ID=PU.USER_ID ")
+        .append("inner join EMAIL E on E.EMAIL_ID=UE.EMAIL_ID ")
+        .append("where E.EMAIL=?")
+        .toString();
+
     /** Sql to read a user. */
-    private static final String SQL_READ_BY_USER_ID =
-            new StringBuffer("select PU.USERNAME,PU.USER_ID ")
-            .append("from PARITY_USER PU ")
-            .append("where PU.USERNAME=?")
-            .toString();
+    private static final String SQL_READ_BY_USERNAME =
+        new StringBuilder("select PU.USERNAME,PU.USER_ID ")
+        .append("from PARITY_USER PU ")
+        .append("where PU.USERNAME=?")
+        .toString();
 
     /** Sql to read the user credentials. */
     private static final String SQL_READ_CREDENTIALS =
@@ -89,19 +98,20 @@ public class UserSql extends AbstractSql {
 
     /** Sql to count email addresses. */
     private static final String SQL_READ_EMAIL_COUNT =
-        new StringBuffer("select COUNT(UE.EMAIL) \"EMAIL_COUNT\" ")
-        .append("from USER_EMAIL UE ")
-        .append("where UE.EMAIL=?")
+        new StringBuffer("select COUNT(E.EMAIL) \"EMAIL_COUNT\" ")
+        .append("from EMAIL E ")
+        .append("where E.EMAIL=?")
         .toString();
 
     /** Sql to read e-mail addresses. */
     private static final String SQL_READ_EMAILS =
-            new StringBuffer("select UE.EMAIL ")
-            .append("from USER_EMAIL UE ")
-            .append("inner join PARITY_USER PU on UE.USER_ID=PU.USER_ID ")
-            .append("where PU.USERNAME=? and UE.VERIFIED=?")
-            .toString();
-
+        new StringBuilder("select E.EMAIL ")
+        .append("from PARITY_USER PU ")
+        .append("inner join USER_EMAIL UE on PU.USER_ID=UE.USER_ID ")
+        .append("inner join EMAIL E on E.EMAIL_ID=UE.EMAIL_ID ")
+        .append("where PU.USER_ID=? and UE.VERIFIED=?")
+        .toString();
+        
     /** Read all custom features for the user. */
     private static final String SQL_READ_FEATURES =
         new StringBuffer("select PF.PRODUCT_ID,PF.FEATURE_ID,")
@@ -111,7 +121,7 @@ public class UserSql extends AbstractSql {
         .append("inner join PRODUCT_FEATURE PF on UFR.FEATURE_ID=PF.FEATURE_ID ")
         .append("where PF.PRODUCT_ID=? and PU.USERNAME=?")
         .toString();
-        
+
     /** Sql to read the user id. */
     private static final String SQL_READ_LOCAL_USER_ID =
         new StringBuffer("select PU.USER_ID ")
@@ -139,14 +149,6 @@ public class UserSql extends AbstractSql {
         .append("from PARITY_USER PU ")
         .append("where PU.USERNAME=? and PU.TOKEN is not null")
         .toString();
-
-    /** Sql to read a username from an e-mail address. */
-    private static final String SQL_READ_USERNAME =
-            new StringBuffer("select PU.USERNAME ")
-            .append("from USER_EMAIL UE ")
-            .append("inner join PARITY_USER PU on UE.USER_ID=PU.USER_ID ")
-            .append("where UE.EMAIL=?")
-            .toString();
 
     /** Sql to read the user's vcard. */
     private static final String SQL_READ_VCARD =
@@ -261,10 +263,33 @@ public class UserSql extends AbstractSql {
         }
     }
 
+    /**
+     * Read a user id for an e-mail address.
+     * 
+     * @param email
+     *            An <code>EMail</code> address.
+     * @return A <code>User</code>.
+     */
+    public User read(final EMail email) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_BY_EMAIL);
+            session.setString(1, email.toString());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extract(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
     public User read(final JabberId userId) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_READ_BY_USER_ID);
+            session.prepareStatement(SQL_READ_BY_USERNAME);
             session.setString(1, userId.getUsername());
             session.executeQuery();
             if (session.nextResult()) {
@@ -352,12 +377,11 @@ public class UserSql extends AbstractSql {
         }
     }
 
-    public List<EMail> readEmails(final JabberId jabberId,
-            final Boolean verified) throws SQLException {
+    public List<EMail> readEmails(final Long userId, final Boolean verified) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_EMAILS);
-            session.setString(1, jabberId.getUsername());
+            session.setLong(1, userId);
             session.setBoolean(2, verified);
             session.executeQuery();
             final List<EMail> emails = new ArrayList<EMail>();
@@ -458,30 +482,6 @@ public class UserSql extends AbstractSql {
             session.executeQuery();
             if (session.nextResult()) {
                 return session.getString("VCARD");
-            } else {
-                return null;
-            }
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
-     * Read a jabber id for an e-mail addreses.
-     * 
-     * @param email
-     *            An e-mail address.
-     * @return A jabber id.
-     * @throws SQLException
-     */
-    public String readUsername(final EMail email) throws SQLException {
-        final HypersonicSession session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_USERNAME);
-            session.setString(1, email.toString());
-            session.executeQuery();
-            if (session.nextResult()) {
-                return session.getString("USERNAME");
             } else {
                 return null;
             }

@@ -11,7 +11,7 @@ import javax.swing.JPopupMenu;
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.ophelia.model.contact.OutgoingUserInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 
 import com.thinkparity.ophelia.browser.Constants.DateFormats;
 import com.thinkparity.ophelia.browser.application.browser.Browser;

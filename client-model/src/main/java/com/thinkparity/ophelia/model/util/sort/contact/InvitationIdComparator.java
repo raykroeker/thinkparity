@@ -5,7 +5,7 @@ package com.thinkparity.ophelia.model.util.sort.contact;
 
 import java.util.Comparator;
 
-import com.thinkparity.ophelia.model.contact.ContactInvitation;
+import com.thinkparity.codebase.model.contact.ContactInvitation;
 
 /**
  * @author raymond@thinkparity.com

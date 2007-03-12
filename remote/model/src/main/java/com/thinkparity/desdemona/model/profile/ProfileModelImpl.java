@@ -177,13 +177,13 @@ class ProfileModelImpl extends AbstractModelImpl {
      * @return A <code>List&lt;EMail&gt;</code>.
      */
     List<EMail> readEmails(final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
         try {
             assertIsAuthenticatedUser(userId);
-            return userSql.readEmails(userId, Boolean.TRUE);
-        } catch (final SQLException sqlx) {
-            throw translateError(sqlx);
+            final User user = getUserModel().read(userId);
+
+            return userSql.readEmails(user.getLocalId(), Boolean.TRUE);
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 
@@ -254,9 +254,10 @@ class ProfileModelImpl extends AbstractModelImpl {
         logVariable("email", email);
         try {
             assertIsAuthenticatedUser(userId);
+
             // delete remote data
             userSql.deleteEmail(userId, email);
-            notifyContactUpdated(userId);
+            notifyContactUpdated(getUserModel().read(userId));
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -291,20 +292,19 @@ class ProfileModelImpl extends AbstractModelImpl {
     }
 
     void update(final JabberId userId, final ProfileVCard vcard) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("vcard", vcard);
         try {
+            assertIsAuthenticatedUser(userId);
             assertIsValid(vcard);
+
             final Writer vcardXMLWriter = new StringWriter();
             try {
                 getUserModel().updateVCard(userId, vcard);
-                notifyContactUpdated(userId);
             } finally {
                 vcardXMLWriter.close();
             }
+            notifyContactUpdated(getUserModel().read(userId));
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -350,7 +350,7 @@ class ProfileModelImpl extends AbstractModelImpl {
             Assert.assertTrue("VERIFICATION KEY INCORRECT", email.equals(verifiedEmail));
             userSql.verifyEmail(userId, verifiedEmail, verifiedKey);
             // notify all contacts
-            notifyContactUpdated(userId);
+            notifyContactUpdated(getUserModel().read(userId));
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -445,12 +445,11 @@ class ProfileModelImpl extends AbstractModelImpl {
      * @throws SQLException
      * @throws UnauthorizedException
      */
-    private void notifyContactUpdated(final JabberId userId)
-            throws SQLException, UnauthorizedException {
-        final List<JabberId> contactIds = contactSql.readIds(userId);
+    private void notifyContactUpdated(final User user) {
+        final List<JabberId> contactIds = contactSql.readIds(user.getLocalId());
         final ContactUpdatedEvent contactUpdated = new ContactUpdatedEvent();
-        contactUpdated.setContactId(userId);
+        contactUpdated.setContactId(user.getId());
         contactUpdated.setUpdatedOn(currentDateTime());
-        enqueueEvent(userId, contactIds, contactUpdated);
+        enqueueEvent(user.getId(), contactIds, contactUpdated);
     }
 }

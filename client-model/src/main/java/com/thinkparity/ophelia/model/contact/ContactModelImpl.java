@@ -17,6 +17,10 @@ import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.ContactInvitation;
+import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
@@ -53,7 +57,6 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  */
 public final class ContactModelImpl extends Model<ContactListener>
         implements ContactModel, InternalContactModel {
-
     
     /** The contact db io. */
     private ContactIOHandler contactIO;
@@ -91,14 +94,15 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
-     * Accept the incoming invitation.
+     * @see com.thinkparity.ophelia.model.contact.ContactModel#acceptIncomingInvitation(java.lang.Long)
      * 
-     * @param invitationId
-     *            An invitation id.
      */
     public void acceptIncomingInvitation(final Long invitationId) {
         try {
             assertOnline();
+            final InternalSessionModel sessionModel = getSessionModel();
+            final Calendar acceptedOn = sessionModel.readDateTime();
+
             final IncomingInvitation incoming = readIncomingInvitation(invitationId);
             // delete the invitation
             contactIO.deleteIncomingInvitation(incoming.getId());
@@ -129,14 +133,17 @@ public final class ContactModelImpl extends Model<ContactListener>
             // create contact data
             final Contact localContact = createLocal(remoteContact);
             // accept
-            getSessionModel().acceptContactInvitation(localUserId(),
-                    incoming.getInvitedBy().getId(), currentDateTime());
+            sessionModel.acceptIncomingInvitation(incoming, acceptedOn);
             // fire accepted event
             notifyIncomingInvitationAccepted(localContact, incoming,
                     localEventGenerator);
-            // fire deleted event
-            for (final OutgoingEMailInvitation deletedEMailInvitation : deletedEMailInvitations)
-                notifyOutgoingEMailInvitationDeleted(deletedEMailInvitation, localEventGenerator);
+            // fire events
+            if (null != outgoingUser)
+                notifyOutgoingUserInvitationDeleted(outgoingUser, localEventGenerator);
+            for (final OutgoingEMailInvitation dei : deletedEMailInvitations)
+                notifyOutgoingEMailInvitationDeleted(dei, localEventGenerator);
+            notifyIncomingInvitationAccepted(read(remoteContact.getId()),
+                    incoming, localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -169,7 +176,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             contactIO.createOutgoingInvitation(outgoing);
 
             getIndexModel().indexOutgoingEMailInvitation(outgoing.getId());
-            getSessionModel().extendContactEMailInvitation(email, createdOn);
+            sessionModel.createOutgoingEMailInvitation(outgoing);
             // fire event
             final OutgoingEMailInvitation postCreation =
                 contactIO.readOutgoingEMailInvitation(outgoing.getId());
@@ -198,8 +205,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             contactIO.createOutgoingInvitation(outgoing);
 
             getIndexModel().indexOutgoingUserInvitation(outgoing.getId());
-            getSessionModel().extendContactUserInvitation(user.getId(), createdOn);
-
+            sessionModel.createOutgoingUserInvitation(outgoing);
             // fire event
             final OutgoingUserInvitation postCreation =
                 contactIO.readOutgoingUserInvitation(outgoing.getId());
@@ -228,14 +234,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             // delete invitation data
             contactIO.deleteIncomingInvitation(invitation.getId());
             // decline
-            if (invitation.isSetInvitedAs()) {
-                sessionModel.declineContactEMailInvitation(
-                        invitation.getInvitedAs(),
-                        invitation.getInvitedBy().getId(), declinedOn);
-            } else {
-                sessionModel.declineContactUserInvitation(
-                        invitation.getInvitedBy().getId(), declinedOn);
-            }
+            sessionModel.declineIncomingInvitation(invitation, declinedOn);
             // fire event
             notifyIncomingInvitationDeclined(invitation, localEventGenerator);
         } catch (final Throwable t) {
@@ -259,7 +258,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             // delete data
             deleteLocal(contactId);
             // delete remote
-            getSessionModel().deleteContact(localUserId(), contactId);
+            getSessionModel().delete(contactId);
             // fire event
             notifyContactDeleted(contact, localEventGenerator);
         } catch (final Throwable t) {
@@ -276,13 +275,13 @@ public final class ContactModelImpl extends Model<ContactListener>
         try {
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar deletedOn = sessionModel.readDateTime();
+
             final OutgoingEMailInvitation invitation =
                 contactIO.readOutgoingEMailInvitation(invitationId);
             contactIO.deleteOutgoingEMailInvitation(invitationId);
             contactIO.deleteEMail(invitation.getEmail());
             // delete remote
-            getSessionModel().deleteContactEMailInvitation(
-                    invitation.getEmail(), deletedOn);
+            sessionModel.deleteOutgoingEMailInvitation(invitation, deletedOn);
             // fire event
             notifyOutgoingEMailInvitationDeleted(invitation, localEventGenerator);
         } catch (final Throwable t) {
@@ -299,12 +298,12 @@ public final class ContactModelImpl extends Model<ContactListener>
         try {
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar deletedOn = sessionModel.readDateTime();
+
             final OutgoingUserInvitation invitation =
                 contactIO.readOutgoingUserInvitation(invitationId);
             contactIO.deleteOutgoingUserInvitation(invitationId);
             // delete remote
-            getSessionModel().deleteContactUserInvitation(
-                    invitation.getUser().getId(), deletedOn);
+            sessionModel.deleteOutgoingUserInvitation(invitation, deletedOn);
             // fire event
             notifyOutgoingUserInvitationDeleted(invitation, localEventGenerator);
         } catch (final Throwable t) {
@@ -348,7 +347,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             notifyDetermine(monitor, contactIds.size());
             for (final JabberId contactId : contactIds) {
                 notifyStepBegin(monitor, DownloadStep.DOWNLOAD);
-                createLocal(sessionModel.readContact(localUserId(), contactId));
+                createLocal(sessionModel.readContact(contactId));
                 notifyStepEnd(monitor, DownloadStep.DOWNLOAD);
             }
         } catch (final Throwable t) {
@@ -448,6 +447,8 @@ public final class ContactModelImpl extends Model<ContactListener>
             final List<IncomingInvitation> invitations = readIncomingInvitations();
             final List<IncomingInvitation> deletedInvitations =
                 new ArrayList<IncomingInvitation>(invitations.size());
+            // NOCOMMIT this could be a bug if there exist n > 1 incoming invitations
+            // from various invited by sources
             // delete local data
             for (final IncomingInvitation invitation : invitations) {
                 if (invitation.isSetInvitedAs()
@@ -570,7 +571,8 @@ public final class ContactModelImpl extends Model<ContactListener>
      * @see com.thinkparity.ophelia.model.contact.InternalContactModel#handleUserInvitationDeleted(com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeletedEvent)
      *
      */
-    public void handleUserInvitationDeleted(final ContactUserInvitationDeletedEvent event) {
+    public void handleUserInvitationDeleted(
+            final ContactUserInvitationDeletedEvent event) {
         try {
             final List<IncomingInvitation> invitations = readIncomingInvitations();
             final List<IncomingInvitation> deletedInvitations =
@@ -578,7 +580,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             // delete local data
             for (final IncomingInvitation invitation : invitations) {
                 if (!invitation.isSetInvitedAs()
-                        && invitation.getInvitedBy().equals(
+                        && invitation.getInvitedBy().getId().equals(
                                 event.getDeletedBy())) {
                     contactIO.deleteIncomingInvitation(invitation.getId());
                     deletedInvitations.add(invitation);
@@ -1228,6 +1230,6 @@ public final class ContactModelImpl extends Model<ContactListener>
      * @return A contact.
      */
     private Contact readRemote(final JabberId contactId) {
-        return getSessionModel().readContact(localUserId(), contactId);
+        return getSessionModel().readContact(contactId);
     }
 }

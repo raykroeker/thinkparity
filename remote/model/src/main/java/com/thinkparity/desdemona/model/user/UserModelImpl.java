@@ -12,7 +12,6 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.session.Credentials;
@@ -89,19 +88,10 @@ class UserModelImpl extends AbstractModelImpl {
     }
 
     User read(final EMail email) {
-        logApiId();
-        logVariable("email", email);
         try {
-            final String username = userSql.readUsername(email);
-            if (null == username) {
-                return null;
-            } else {
-                final JabberId jabberId =
-                    JabberIdBuilder.parseUsername(username);
-                return read(jabberId);
-            }
+            return userSql.read(email);
         } catch(final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -167,6 +157,15 @@ class UserModelImpl extends AbstractModelImpl {
             }
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    List<EMail> readEMails(final JabberId userId, final Long localUserId) {
+        try {
+            assertIsAuthenticatedUser(userId);
+            return userSql.readEmails(localUserId, Boolean.TRUE);
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 

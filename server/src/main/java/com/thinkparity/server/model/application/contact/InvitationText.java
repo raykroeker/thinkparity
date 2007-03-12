@@ -21,11 +21,11 @@ import com.thinkparity.codebase.model.util.http.LinkFactory;
  */
 public class InvitationText {
 
+    /** The inviting user. */
+    private final User invitedBy;
+
     /** The invitee e-mail address. */
     private final EMail invitee;
-
-    /** The inviting user. */
-    private final User inviter;
 
     /** The invitation link factory. */
     private final LinkFactory linkFactory;
@@ -44,10 +44,10 @@ public class InvitationText {
      *            The inviter user.
      */
     InvitationText(final Environment environment, final Locale locale,
-            final EMail invitee, final User inviter) {
+            final EMail invitee, final User invitedBy) {
         super();
         this.invitee = invitee;
-        this.inviter = inviter;
+        this.invitedBy = invitedBy;
         this.resourceBundle = ResourceBundle.getBundle(
                 "localization.Invitation_Messages", locale);
         this.linkFactory = LinkFactory.getInstance(Application.ROSALINE, environment);
@@ -62,11 +62,11 @@ public class InvitationText {
      */
     public String getBody() {
         final Link acceptInvitation = linkFactory.create("invitation/accept");
-        acceptInvitation.addParameter("JabberId", inviter.getId().getQualifiedJabberId());
+        acceptInvitation.addParameter("JabberId", invitedBy.getId().getQualifiedJabberId());
 
         final Link createAccount = linkFactory.create("user/create");
         createAccount.addParameter("Email", invitee.toString());
-        createAccount.addParameter("JabberId", inviter.getId().getQualifiedJabberId());
+        createAccount.addParameter("JabberId", invitedBy.getId().getQualifiedJabberId());
         createAccount.addParameter("PostCompletion", "AcceptInvitation");
 
         return MessageFormat.format(
@@ -90,6 +90,6 @@ public class InvitationText {
      */
     public String getSubject() {
         return MessageFormat.format(
-                resourceBundle.getString("subject"), inviter.getName());
+                resourceBundle.getString("subject"), invitedBy.getName());
     }
 }

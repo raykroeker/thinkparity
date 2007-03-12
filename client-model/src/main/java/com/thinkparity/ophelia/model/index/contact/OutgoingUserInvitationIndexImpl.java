@@ -8,8 +8,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
+
 import com.thinkparity.ophelia.model.InternalModelFactory;
-import com.thinkparity.ophelia.model.contact.OutgoingUserInvitation;
 import com.thinkparity.ophelia.model.index.AbstractIndexImpl;
 import com.thinkparity.ophelia.model.index.lucene.DocumentBuilder;
 import com.thinkparity.ophelia.model.index.lucene.FieldBuilder;

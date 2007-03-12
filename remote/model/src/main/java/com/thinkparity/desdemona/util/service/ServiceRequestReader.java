@@ -13,6 +13,9 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Product;
@@ -96,6 +99,15 @@ public interface ServiceRequestReader {
     public List<EMail> readEMails(final String name);
 
     /**
+     * Read an incoming invitation.
+     * 
+     * @param name
+     *            A request parameter name <code>String</code>.
+     * @return An <code>IncomingInvitation</code>.
+     */
+    public IncomingInvitation readIncomingInvitation(final String name);
+
+    /**
      * Read an integer parameter from the internet query.
      * 
      * @param name
@@ -149,6 +161,24 @@ public interface ServiceRequestReader {
      * @return An <code>OS</code>.
      */
     public OS readOs(final String name);
+
+    /**
+     * Read an outgoing e-mail invitation.
+     * 
+     * @param name
+     *            A request parameter name <code>String</code>.
+     * @return An <code>OutgoingEMailInvitation</code>.
+     */
+    public OutgoingEMailInvitation readOutgoingEMailInvitation(final String name);
+
+    /**
+     * Read an outgoing user invitation.
+     * 
+     * @param name
+     *            A request parameter name <code>String</code>.
+     * @return An <code>OutgoingUserInvitation</code>.
+     */
+    public OutgoingUserInvitation readOutgoingUserInvitation(final String name);
 
     /**
      * Read a product from the service request.

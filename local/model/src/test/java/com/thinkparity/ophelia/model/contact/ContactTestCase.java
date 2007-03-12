@@ -7,10 +7,9 @@ package com.thinkparity.ophelia.model.contact;
 import java.util.List;
 
 import com.thinkparity.codebase.model.contact.Contact;
-
+import com.thinkparity.codebase.model.contact.ContactInvitation;
 
 import com.thinkparity.ophelia.model.ModelTestCase;
-import com.thinkparity.ophelia.model.contact.ContactInvitation;
 
 /**
  * <b>Title:</b>thinkParity Contact Model Test Case<br>

@@ -5,6 +5,7 @@ package com.thinkparity.desdemona.model.user;
 
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.Context;
@@ -26,6 +27,12 @@ public class InternalUserModel extends UserModel {
      */
     InternalUserModel(final Context context, final Session session) {
         super(session);
+    }
+
+    public List<EMail> readEMails(final JabberId userId, final Long localUserId) {
+        synchronized (getImplLock()) {
+            return getImpl().readEMails(userId, localUserId);
+        }
     }
 
     /**

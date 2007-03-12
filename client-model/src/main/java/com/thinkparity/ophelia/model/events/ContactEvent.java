@@ -4,9 +4,8 @@
 package com.thinkparity.ophelia.model.events;
 
 import com.thinkparity.codebase.model.contact.Contact;
-
-import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingInvitation;
 
 /**
  * @author raymond@thinkparity.com

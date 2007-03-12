@@ -16,7 +16,11 @@ import java.util.Locale;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.user.User;
@@ -29,9 +33,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.M
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
-import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.contact.OutgoingEMailInvitation;
-import com.thinkparity.ophelia.model.contact.OutgoingUserInvitation;
 
 /**
  * <b>Title:</b><br>
@@ -44,8 +45,10 @@ public class ContactTabPanel extends DefaultTabPanel {
 
     /** The contact tab's <code>DefaultActionDelegate</code>. */
     private ActionDelegate actionDelegate;
+
     /** The panel's animating state. */
     private boolean animating;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel collapsedAdditionalTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel collapsedContactJPanel = new javax.swing.JPanel();
@@ -72,10 +75,15 @@ public class ContactTabPanel extends DefaultTabPanel {
     /** A contact <code>IncomingInvitation</code>. */
     private IncomingInvitation incoming;
     private final javax.swing.JLabel incomingInvitationAcceptJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+
     private final javax.swing.JLabel incomingInvitationAdditionalTextJLabel = new javax.swing.JLabel();
+
     private final javax.swing.JLabel incomingInvitationDeclineJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+
     private final javax.swing.JLabel incomingInvitationIconJLabel = new javax.swing.JLabel();
+
     private final javax.swing.JLabel incomingInvitationTertiaryTextJLabel = new javax.swing.JLabel();
+
     private final javax.swing.JLabel incomingInvitationTextJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 

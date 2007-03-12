@@ -3,8 +3,9 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.contact;
 
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+
 import com.thinkparity.ophelia.model.contact.ContactModel;
-import com.thinkparity.ophelia.model.contact.OutgoingEMailInvitation;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;

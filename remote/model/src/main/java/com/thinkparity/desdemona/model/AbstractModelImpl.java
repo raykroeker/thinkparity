@@ -588,10 +588,11 @@ public abstract class AbstractModelImpl
      */
     protected <T extends User> T inject(final T type, final User user) {
         type.setId(user.getId());
+        type.setLocalId(user.getLocalId());
         type.setName(user.getName());
         type.setOrganization(user.getOrganization());
         type.setTitle(user.getTitle());
-        return logVariable("type", type);
+        return logger.logVariable("type", type);
     }
 
     /**

@@ -3,16 +3,7 @@
  */
 package com.thinkparity.codebase.swing;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
 
@@ -21,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -45,33 +37,16 @@ public class SwingUtil {
     }
 
     /**
-     * Limit the string width in the context of Graphics, using an ellipsis at the end of the string.
+     * Ensure the runnable is executed on the AWT event dispatch thread.
      * 
-     * @param text
-     *            The text <code>String</code>.
-     * @param maxWidth
-     *            The maximum width <code>int</code>.
-     * @param g
-     *            The <code>Graphics</code>.
-     * @return The adjusted <code>String</code>, or null if the text cannot fit.
+     * @param runnable
+     *            A <code>Runnable</code>.
      */
-    public static String limitWidthWithEllipsis(final String text,
-            final int maxWidth, final Graphics g) {
-        String clippedText = text;
-        int clipChars = 0;        
-        while (maxWidth < getStringWidth(clippedText, g)
-                && clipChars < text.length()) {
-            clipChars++;
-            final StringBuffer buffer = new StringBuffer(text.substring(0,
-                    text.length() - clipChars));
-            buffer.append("...");
-            clippedText = buffer.toString();
-        }
-        
-        if (clipChars == text.length()) {
-            return null;
+    public static void ensureDispatchThread(final Runnable runnable) {
+        if (EventQueue.isDispatchThread()) {
+            runnable.run();
         } else {
-            return clippedText;
+            SwingUtilities.invokeLater(runnable);
         }
     }
 
@@ -157,7 +132,7 @@ public class SwingUtil {
         return GraphicsEnvironment.getLocalGraphicsEnvironment()
                 .getMaximumWindowBounds();
     }
-    
+
     public static void insertWrappable(final JLabel jLabel, final String text) {
         SINGLETON.doInsertWrappable(jLabel, text);
     }
@@ -171,7 +146,23 @@ public class SwingUtil {
     public static Boolean isInMaximizedWindow(final Component component) {
         return SINGLETON.isInMaximizedWindowImpl(component);
     }
-    
+
+    /**
+     * Limit the string width in the context of Graphics, using an ellipsis at the end of the string.
+     * 
+     * @param text
+     *            The text <code>String</code>.
+     * @param maxWidth
+     *            The maximum width <code>int</code>.
+     * @param g
+     *            The <code>Graphics</code>.
+     * @return The adjusted <code>String</code>, or null if the text cannot fit.
+     */
+    public static String limitWidthWithEllipsis(final String text,
+            final int maxWidth, final Graphics g) {
+        return SINGLETON.doLimitWidthWithEllipsis(text, maxWidth, g);
+    }
+
     /**
      * Determine whether or not the region contains the point.
      * 
@@ -185,7 +176,7 @@ public class SwingUtil {
             final Point point) {
 		return SINGLETON.doesRegionContain(region, point);
 	}
-    
+
     public static void setCursor(final java.awt.Component component, final int cursor) {
         SINGLETON.doSetCursor(component, cursor);
     }
@@ -345,6 +336,37 @@ public class SwingUtil {
 
     private void doInsertWrappable(final JLabel jLabel, final String text) {
         jLabel.setText(MessageFormat.format("<html>{0}</html>", text));
+    }
+
+    /**
+     * Limit the string width in the context of Graphics, using an ellipsis at the end of the string.
+     * 
+     * @param text
+     *            The text <code>String</code>.
+     * @param maxWidth
+     *            The maximum width <code>int</code>.
+     * @param g
+     *            The <code>Graphics</code>.
+     * @return The adjusted <code>String</code>, or null if the text cannot fit.
+     */
+    private String doLimitWidthWithEllipsis(final String text,
+            final int maxWidth, final Graphics g) {
+        String clippedText = text;
+        int clipChars = 0;        
+        while (maxWidth < getStringWidth(clippedText, g)
+                && clipChars < text.length()) {
+            clipChars++;
+            final StringBuffer buffer = new StringBuffer(text.substring(0,
+                    text.length() - clipChars));
+            buffer.append("...");
+            clippedText = buffer.toString();
+        }
+        
+        if (clipChars == text.length()) {
+            return null;
+        } else {
+            return clippedText;
+        }
     }
 
     private void doSetCursor(final java.awt.Component component, final int cursor) {

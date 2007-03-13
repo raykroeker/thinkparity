@@ -45,8 +45,9 @@ import sun.swing.WindowsPlacesBar;
 
 /**
  * Based on the WindowsFileChooserUI with the following changes.
+ *  - stripped out support for older Windows versions
  *  - setOpaque(false) for various JPanels and JButtons
- *  - HI_RES_DISABLED_ICON_CLIENT_KEY moved here.
+ *  - HI_RES_DISABLED_ICON_CLIENT_KEY client key moved here.
  *  - Fix warnings
  *  - Apply the WINDOWS_BUTTON_STYLE_CLIENT_KEY property to "upFolderButton"
  *    and "new directory" buttons.
@@ -61,8 +62,6 @@ public class ThinkParityFileChooserUI extends BasicFileChooserUI {
 
     // The following are private because the implementation of the
     // Windows FileChooser L&F is not complete yet.
-
-    private static final String OS_VERSION = System.getProperty("os.version");
 
     private JPanel centerPanel;
 
@@ -146,8 +145,6 @@ public class ThinkParityFileChooserUI extends BasicFileChooserUI {
     private String upFolderToolTipText = null;
 
     private String upFolderAccessibleName = null;
-
-    private String homeFolderToolTipText = null;
 
     private String newFolderToolTipText = null;
 
@@ -246,8 +243,6 @@ public class ThinkParityFileChooserUI extends BasicFileChooserUI {
         filePane = new FilePane(new WindowsFileChooserUIAccessor());
         fc.addPropertyChangeListener(filePane);
 
-        FileSystemView fsv = fc.getFileSystemView();
-
         fc.setBorder(new EmptyBorder(4, 10, 10, 10));
         fc.setLayout(new BorderLayout(8, 8));
 
@@ -261,10 +256,7 @@ public class ThinkParityFileChooserUI extends BasicFileChooserUI {
         JToolBar topPanel = new JToolBar();
         topPanel.setOpaque(false);
         topPanel.setFloatable(false);
-        if (OS_VERSION.compareTo("4.9") >= 0) { // Windows Me/2000 and later
-                                                // (4.90/5.0)
-            topPanel.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
-        }
+        topPanel.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
 
         // Add the top panel to the fileChooser
         fc.add(topPanel, BorderLayout.NORTH);
@@ -336,34 +328,8 @@ public class ThinkParityFileChooserUI extends BasicFileChooserUI {
         upFolderButton.setMargin(shrinkwrap);
         upFolderButton.setFocusPainted(false);
         topPanel.add(upFolderButton);
-        if (OS_VERSION.compareTo("4.9") < 0) { // Before Windows Me/2000
-                                                // (4.90/5.0)
-            topPanel.add(Box.createRigidArea(hstrut10));
-        }
 
         JButton b;
-
-        if (OS_VERSION.startsWith("4.1")) { // Windows 98 (4.10)
-            // Desktop Button
-            File homeDir = fsv.getHomeDirectory();
-            String toolTipText = homeFolderToolTipText;
-            if (fsv.isRoot(homeDir)) {
-                toolTipText = getFileView(fc).getName(homeDir); // Probably
-                                                                // "Desktop".
-            }
-            b = new JButton(getFileView(fc).getIcon(homeDir));
-            b.setOpaque(false);
-            b.setToolTipText(toolTipText);
-            b.putClientProperty(AccessibleContext.ACCESSIBLE_NAME_PROPERTY,
-                    toolTipText);
-            b.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-            b.setAlignmentY(JComponent.CENTER_ALIGNMENT);
-            b.setMargin(shrinkwrap);
-            b.setFocusPainted(false);
-            b.addActionListener(getGoHomeAction());
-            topPanel.add(b);
-            topPanel.add(Box.createRigidArea(hstrut10));
-        }
 
         // New Directory Button
         if (!UIManager.getBoolean("FileChooser.readOnly")) {
@@ -383,10 +349,6 @@ public class ThinkParityFileChooserUI extends BasicFileChooserUI {
             b.setMargin(shrinkwrap);
             b.setFocusPainted(false);
             topPanel.add(b);
-        }
-        if (OS_VERSION.compareTo("4.9") < 0) { // Before Windows Me/2000
-                                                // (4.90/5.0)
-            topPanel.add(Box.createRigidArea(hstrut10));
         }
 
         // View button group
@@ -597,21 +559,18 @@ public class ThinkParityFileChooserUI extends BasicFileChooserUI {
                 }
             }
         }
-        if (OS_VERSION.compareTo("4.9") >= 0) { // Windows Me/2000 and later
-                                                // (4.90/5.0)
-            if (useShellFolder) {
-                if (placesBar == null
-                        && !UIManager.getBoolean("FileChooser.noPlacesBar")) {
-                    placesBar = new WindowsPlacesBar(fc, true);
-                    fc.add(placesBar, BorderLayout.BEFORE_LINE_BEGINS);
-                    fc.addPropertyChangeListener(placesBar);
-                }
-            } else {
-                if (placesBar != null) {
-                    fc.remove(placesBar);
-                    fc.removePropertyChangeListener(placesBar);
-                    placesBar = null;
-                }
+        if (useShellFolder) {
+            if (placesBar == null
+                    && !UIManager.getBoolean("FileChooser.noPlacesBar")) {
+                placesBar = new WindowsPlacesBar(fc, true);
+                fc.add(placesBar, BorderLayout.BEFORE_LINE_BEGINS);
+                fc.addPropertyChangeListener(placesBar);
+            }
+        } else {
+            if (placesBar != null) {
+                fc.remove(placesBar);
+                fc.removePropertyChangeListener(placesBar);
+                placesBar = null;
             }
         }
     }
@@ -654,9 +613,6 @@ public class ThinkParityFileChooserUI extends BasicFileChooserUI {
                 "FileChooser.upFolderToolTipText", l);
         upFolderAccessibleName = UIManager.getString(
                 "FileChooser.upFolderAccessibleName", l);
-
-        homeFolderToolTipText = UIManager.getString(
-                "FileChooser.homeFolderToolTipText", l);
 
         newFolderToolTipText = UIManager.getString(
                 "FileChooser.newFolderToolTipText", l);

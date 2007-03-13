@@ -16,6 +16,7 @@ import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Menus;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityButtonUI;
+import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityFileChooserUI;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItemUI;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityProgressBarUI;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityScrollBarUI;
@@ -59,6 +60,7 @@ public class Swing {
         	switch (OSUtil.getOS()) {
         	case WINDOWS_XP:
         		laf = new com.sun.java.swing.plaf.windows.WindowsLookAndFeel();
+                defaults.put("FileChooserUI", ThinkParityFileChooserUI.class.getName());
         		break;
         	case LINUX:
         		laf = new MetalLookAndFeel();

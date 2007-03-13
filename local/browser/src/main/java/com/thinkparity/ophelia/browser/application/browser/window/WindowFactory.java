@@ -5,11 +5,11 @@
 package com.thinkparity.ophelia.browser.application.browser.window;
 
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.ophelia.browser.application.browser.BrowserWindow;
 import com.thinkparity.ophelia.browser.platform.application.window.Window;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowRegistry;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * A factory for creating thinkParity windows.
@@ -82,6 +82,7 @@ public class WindowFactory {
 		switch(windowId) {
 		case CONFIRM: return doCreateConfirm(browserWindow);
         case ERROR: return doCreateError(browserWindow);
+        case FILE_CHOOSER: return doCreateFileChooser(browserWindow);
 		case POPUP: return doCreatePopup(browserWindow);
         case RENAME: return doCreateRename(browserWindow);
 		default:
@@ -111,6 +112,19 @@ public class WindowFactory {
      */
     private Window doCreateError(final BrowserWindow browserWindow) {
         final Window window = new ErrorWindow(browserWindow);
+        register(window);
+        return window;
+    }
+
+    /**
+     * Create the file chooser window.
+     * 
+     * @param browserWindow
+     *            The browser window.
+     * @return A window.
+     */
+    private Window doCreateFileChooser(final BrowserWindow browserWindow) {
+        final Window window = new FileChooserWindow(browserWindow);
         register(window);
         return window;
     }

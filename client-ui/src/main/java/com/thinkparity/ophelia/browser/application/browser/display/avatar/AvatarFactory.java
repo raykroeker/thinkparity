@@ -10,6 +10,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.DisplayInfoAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorDetailsAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.FileChooserAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.CreateInvitationAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.UserInfoAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ContainerVersionCommentAvatar;
@@ -134,6 +135,9 @@ public class AvatarFactory {
             break;
         case DIALOG_ERROR_DETAILS:
             avatar = new ErrorDetailsAvatar();
+            break;
+        case DIALOG_FILE_CHOOSER:
+            avatar = new FileChooserAvatar();
             break;
 
         case DIALOG_CONTACT_CREATE_OUTGOING_INVITATION:

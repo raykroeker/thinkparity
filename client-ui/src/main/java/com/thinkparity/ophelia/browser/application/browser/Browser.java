@@ -26,8 +26,8 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.TeamMember;
-import com.thinkparity.codebase.swing.JFileChooserUtil;
 import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -38,6 +38,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTi
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ConfirmAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorDetailsAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.FileChooserAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.UserInfoAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ContainerVersionCommentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
@@ -109,13 +110,6 @@ public class Browser extends AbstractApplication {
 
     /** The browser's event dispatcher. */
 	private EventDispatcher ed;
-	
-	/**
-	 * The file chooser.
-	 * 
-	 * @see #getJFileChooser()
-	 */
-	private JFileChooser jFileChooser;
 
 	/** The thinkParity browser application window. */
 	private BrowserWindow mainWindow;
@@ -407,6 +401,34 @@ public class Browser extends AbstractApplication {
      */
     public void displayErrorDialog(final Throwable error) {
         displayErrorDialog(null, null, error);
+    }
+
+    /**
+     * Display a file chooser dialog.
+     * 
+     * @param fileSelectionMode
+     *            The file selection mode <code>int</code>. See {@link JFileChooser#getFileSelectionMode()}.
+     * @param multiSelection
+     *            Multi-selection <code>Boolean</code>.
+     * @param currentDirectory
+     *            The current directory <code>File</code> (optional).
+     * @param source
+     *            A <code>String</code> key used to get title and approve button strings. (optional).
+     * @return A <code>ThinkParityJFileChooser</code>.
+     */
+    public ThinkParityJFileChooser displayFileChooser(final int fileSelectionMode,
+            final Boolean multiSelection, final File currentDirectory,
+            final String source) {
+        final Data input = new Data(4);
+        input.set(FileChooserAvatar.DataKey.FILE_SELECTION_MODE, fileSelectionMode);
+        input.set(FileChooserAvatar.DataKey.MULTI_SELECTION, multiSelection);
+        if (null != currentDirectory) {
+            input.set(FileChooserAvatar.DataKey.CURRENT_DIRECTORY, currentDirectory);
+        }
+        if (null != source) {
+            input.set(FileChooserAvatar.DataKey.SOURCE, source);
+        }
+        return displayFileChooser(input);
     }
 
     /**
@@ -921,10 +943,14 @@ public class Browser extends AbstractApplication {
      * 
      * @param containerId
      *            The container id.
-     *
      */
     public void runAddContainerDocuments(final Long containerId) {
-        if(JFileChooser.APPROVE_OPTION == getJFileChooserForFileSelection().showOpenDialog(mainWindow)) {
+        final ThinkParityJFileChooser jFileChooser = displayFileChooser(
+                JFileChooser.FILES_ONLY, Boolean.TRUE, 
+                persistence.get(Keys.Persistence.CONTAINER_ADD_DOCUMENT_CURRENT_DIRECTORY,
+                        (File) null),
+                "AddDocuments");
+        if (JFileChooser.APPROVE_OPTION == jFileChooser.getState()) {
             persistence.set(Keys.Persistence.CONTAINER_ADD_DOCUMENT_CURRENT_DIRECTORY,
                     jFileChooser.getCurrentDirectory());
             runAddContainerDocuments(containerId, jFileChooser.getSelectedFiles());
@@ -1732,7 +1758,7 @@ public class Browser extends AbstractApplication {
         open(WindowId.CONFIRM, AvatarId.DIALOG_CONFIRM, input);
         return getConfirmAvatar().didConfirm();
     }
-    
+
     /**
 	 * Display an avatar.
 	 * 
@@ -1782,6 +1808,18 @@ public class Browser extends AbstractApplication {
         if (null != error)
             input.set(ErrorDetailsAvatar.DataKey.ERROR, error);
         open(WindowId.ERROR, AvatarId.DIALOG_ERROR_DETAILS, input);
+    }
+
+    /**
+     * Open a file chooser dialogue.
+     * 
+     * @param input
+     *            The dialogue's input.
+     * @return A <code>ThinkParityJFileChooser</code>.
+     */
+    private ThinkParityJFileChooser displayFileChooser(final Data input) {
+        open(WindowId.FILE_CHOOSER, AvatarId.DIALOG_FILE_CHOOSER, input);
+        return getFileChooserAvatar().getFileChooser();
     }
 
     /**
@@ -1866,17 +1904,14 @@ public class Browser extends AbstractApplication {
         return (ConfirmAvatar) getAvatar(AvatarId.DIALOG_CONFIRM);
     }
 
-	/**
-	 * Obtain the file chooser.
-	 * 
-	 * @return The file chooser.
-	 */
-	private JFileChooser getJFileChooserForFileSelection() {
-        jFileChooser = JFileChooserUtil.getJFileChooser(JFileChooser.FILES_ONLY, Boolean.TRUE, null,
-                persistence.get(Keys.Persistence.CONTAINER_ADD_DOCUMENT_CURRENT_DIRECTORY,
-                        (File) null));
-		return jFileChooser;
-	}
+    /**
+     * Obtain the file chooser avatar.
+     * 
+     * @return The file chooser avatar.
+     */
+    private FileChooserAvatar getFileChooserAvatar() {
+        return (FileChooserAvatar) getAvatar(AvatarId.DIALOG_FILE_CHOOSER);
+    }
 
     /**
      * Obtain the main status avatar.

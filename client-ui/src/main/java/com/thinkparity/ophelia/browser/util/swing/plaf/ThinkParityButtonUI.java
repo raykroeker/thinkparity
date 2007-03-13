@@ -36,6 +36,13 @@ public class ThinkParityButtonUI extends BasicButtonUI {
         return new ThinkParityButtonUI();
     }
 
+    /**
+     * A client property. When set to Boolean.TRUE, the "windows" look is
+     * used instead of the "thinkParity shadow" look. Use for small buttons.
+     */
+    static final String WINDOWS_BUTTON_STYLE_CLIENT_KEY =
+        new StringBuilder("ThinkParityButtonUI.windowsButtonStyle").toString();
+
     /** The series of <code>BufferedImage</code>s for the button bottom. */
     private static final BufferedImage[] BUTTON_BOTTOM;
 
@@ -54,6 +61,9 @@ public class ThinkParityButtonUI extends BasicButtonUI {
     /** Disabled text colour. */
     private static final Color COLOR_DISABLED_TEXT;
 
+    /** The fill colour for pressed button, windows style. */
+    private static final Color COLOR_FILL_PRESSED_WINDOWS_STYLE;
+
     /** Focus rectangle colour. */  
     private static final Color COLOR_FOCUS_RECT;
 
@@ -63,6 +73,12 @@ public class ThinkParityButtonUI extends BasicButtonUI {
     /** The colours for the bottom line. */
     private static final Color[] COLORS_BOTTOM;
 
+    /** The colours for the pressed outline, windows style. */
+    private static final Color[] COLORS_PRESSED_WINDOWS_STYLE;
+
+    /** The colours for the rollover outline, windows style. */
+    private static final Color[] COLORS_ROLLOVER_WINDOWS_STYLE;
+
     /** The colours for the top line. */
     private static final Color[] COLORS_TOP;
 
@@ -71,6 +87,12 @@ public class ThinkParityButtonUI extends BasicButtonUI {
 
     /** Focus rectangle inset X. */  
     private static final int FOCUS_RECT_INSET_Y;
+
+    /** Focus rectangle inset X for windows style buttons. */
+    private static final int FOCUS_RECT_INSET_X_WINDOWS_STYLE;
+
+    /** Focus rectangle inset Y for windows style buttons. */
+    private static final int FOCUS_RECT_INSET_Y_WINDOWS_STYLE;
 
     /** The scaled background images for the button bottom. */
     private BufferedImage[] scaledButtonBottom;  
@@ -119,16 +141,27 @@ public class ThinkParityButtonUI extends BasicButtonUI {
                 Color.WHITE,
                 new Color(222, 222, 222, 255),
                 new Color(197, 197, 197, 223) };
+        COLORS_PRESSED_WINDOWS_STYLE = new Color[] {
+                new Color(157, 157, 146, 255),
+                new Color(179, 178, 168, 255),
+                new Color(208, 208, 197, 255) };
+        COLORS_ROLLOVER_WINDOWS_STYLE = new Color[] {
+                new Color(206, 206, 195, 255),
+                new Color(216, 216, 205, 255),
+                new Color(228, 228, 217, 255) };
         COLORS_TOP = new Color[] {
                 new Color(194, 206, 221, 255),
                 new Color(194, 206, 221, 255),
                 new Color(222, 222, 222, 255),
                 new Color(250, 250, 250, 223) };
+        COLOR_FILL_PRESSED_WINDOWS_STYLE = new Color(227, 226, 218, 255);
         COLOR_DISABLED_TEXT = new Color(150, 150, 150, 255);
         COLOR_FOCUS_RECT = new Color(125, 132, 136, 255);
         COLOR_TRANSPARENT = new Color(0, 0, 0, 0);
         FOCUS_RECT_INSET_X = 4;
         FOCUS_RECT_INSET_Y = 4;
+        FOCUS_RECT_INSET_X_WINDOWS_STYLE = 3;
+        FOCUS_RECT_INSET_Y_WINDOWS_STYLE = 3;
     }
 
     /**
@@ -165,7 +198,11 @@ public class ThinkParityButtonUI extends BasicButtonUI {
     @Override
     public void paint(final Graphics g, final JComponent c) {
         final AbstractButton button = (AbstractButton)c;
-        paintButtonBackground(g, button);
+        if (Boolean.TRUE.equals(c.getClientProperty(WINDOWS_BUTTON_STYLE_CLIENT_KEY))) {
+            paintButtonBackgroundWindowsStyle(g, button);
+        } else {
+            paintButtonBackground(g, button);
+        }
         super.paint(g, c);
     }
 
@@ -188,8 +225,17 @@ public class ThinkParityButtonUI extends BasicButtonUI {
             final Rectangle viewRect, final Rectangle textRect,
             final Rectangle iconRect) {
         g.setColor(COLOR_FOCUS_RECT);
-        BasicGraphicsUtils.drawDashedRect(g, FOCUS_RECT_INSET_X, FOCUS_RECT_INSET_Y,
-                button.getWidth() - 2*FOCUS_RECT_INSET_X, button.getHeight() - 2*FOCUS_RECT_INSET_Y);
+        final int insetX;
+        final int insetY;
+        if (Boolean.TRUE.equals(button.getClientProperty(WINDOWS_BUTTON_STYLE_CLIENT_KEY))) {
+            insetX = FOCUS_RECT_INSET_X_WINDOWS_STYLE;
+            insetY = FOCUS_RECT_INSET_Y_WINDOWS_STYLE;
+        } else {
+            insetX = FOCUS_RECT_INSET_X;
+            insetY = FOCUS_RECT_INSET_Y;
+        }
+        BasicGraphicsUtils.drawDashedRect(g, insetX, insetY,
+                button.getWidth() - 2*insetX, button.getHeight() - 2*insetY);
     }
 
     /**
@@ -212,6 +258,27 @@ public class ThinkParityButtonUI extends BasicButtonUI {
         SwingUtilities2.drawStringUnderlineCharAt(c, g, text, mnemonicIndex,
                       textRect.x + getTextShiftOffset(),
                       textRect.y + fm.getAscent() + getTextShiftOffset());
+    }
+
+    /**
+     * Fill the button background.
+     * 
+     * @param g
+     *            The <code>Graphics</code>.
+     * @param button
+     *            The <code>AbstractButton</code>.
+     * @param color
+     *            The <code>Color</code>.
+     * @param inset
+     *            The inset <code>int</code>.
+     */
+    private void fillButtonBackground(final Graphics g, final AbstractButton button, final Color color, final int inset) {
+        final Graphics2D g2 = (Graphics2D)g.create();
+        try {
+            g2.setPaint(color);
+            g2.fillRect(inset, inset, button.getWidth()-2*inset, button.getHeight()-2*inset);
+        }
+        finally { g2.dispose(); }
     }
 
     /**
@@ -251,6 +318,61 @@ public class ThinkParityButtonUI extends BasicButtonUI {
             }
             finally { g2.dispose(); }
         }
+    }
+
+    /**
+     * Paint the button background in windows style.
+     * 
+     * @param g
+     *            The <code>Graphics</code>.
+     * @param button
+     *            The <code>AbstractButton</code>.
+     */
+    private void paintButtonBackgroundWindowsStyle(final Graphics g, final AbstractButton button) {
+        if ( button.isContentAreaFilled() ) {
+            if (isPressed(button)) {
+                fillButtonBackground(g, button, COLOR_FILL_PRESSED_WINDOWS_STYLE, 1);
+                paintRoundedOutline(g, button, COLORS_PRESSED_WINDOWS_STYLE);
+            } else if (isRollover(button)) {
+                paintRoundedOutline(g, button, COLORS_ROLLOVER_WINDOWS_STYLE);
+            }
+        }
+    }
+
+    /**
+     * Paint a rounded outline.
+     * 
+     * @param g
+     *            The <code>Graphics</code>.
+     * @param button
+     *            The <code>AbstractButton</code>.
+     */
+    private void paintRoundedOutline(final Graphics g, final AbstractButton button, final Color[] colors) {
+        final Graphics2D g2 = (Graphics2D)g.create();
+        try {
+            final int width = button.getWidth();
+            final int height = button.getHeight();
+
+            // Paint outer line
+            g2.setPaint(colors[0]);
+            g2.drawLine(3, 0, width-4, 0);
+            g2.drawLine(3, height-1, width-4, height-1);
+            g2.drawLine(0, 3, 0, height-4);
+            g2.drawLine(width-1, 3, width-1, height-4);
+
+            // Paint rounded corners
+            g2.setPaint(colors[1]);
+            g2.drawLine(2, 0, 0, 2);
+            g2.drawLine(width-3, 0, width-1, 2);
+            g2.drawLine(2, height-1, 0, height-3);
+            g2.drawLine(width-3, height-1, width-1, height-3);
+            g2.setPaint(colors[2]);
+            g2.drawLine(1, 0, 0, 1);
+            g2.drawLine(width-2, 0, width-1, 1);
+            g2.drawLine(1, height-1, 0, height-2);
+            g2.drawLine(width-2, height-1, width-1, height-2);
+        }
+        finally { g2.dispose(); }
     }
 
     /**

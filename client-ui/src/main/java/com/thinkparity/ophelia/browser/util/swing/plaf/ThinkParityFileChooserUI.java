@@ -45,9 +45,11 @@ import sun.swing.WindowsPlacesBar;
 
 /**
  * Based on the WindowsFileChooserUI with the following changes.
- *  - setOpaque(false) for various JPanels and buttons
+ *  - setOpaque(false) for various JPanels and JButtons
  *  - HI_RES_DISABLED_ICON_CLIENT_KEY moved here.
  *  - Fix warnings
+ *  - Apply the WINDOWS_BUTTON_STYLE_CLIENT_KEY property to "upFolderButton"
+ *    and "new directory" buttons.
  * 
  * @author rob_masako@shaw.ca
  * @version $Revision$
@@ -318,6 +320,7 @@ public class ThinkParityFileChooserUI extends BasicFileChooserUI {
 
         // Up Button
         JButton upFolderButton = new JButton(getChangeToParentDirectoryAction());
+        upFolderButton.setOpaque(false);
         upFolderButton.setText(null);
         upFolderButton.setIcon(upFolderIcon);
         upFolderButton.setToolTipText(upFolderToolTipText);
@@ -326,6 +329,8 @@ public class ThinkParityFileChooserUI extends BasicFileChooserUI {
                 upFolderAccessibleName);
         upFolderButton.putClientProperty(
                 HI_RES_DISABLED_ICON_CLIENT_KEY, Boolean.TRUE);
+        upFolderButton.putClientProperty(ThinkParityButtonUI.WINDOWS_BUTTON_STYLE_CLIENT_KEY,
+                Boolean.TRUE);
         upFolderButton.setAlignmentX(JComponent.LEFT_ALIGNMENT);
         upFolderButton.setAlignmentY(JComponent.CENTER_ALIGNMENT);
         upFolderButton.setMargin(shrinkwrap);
@@ -347,6 +352,7 @@ public class ThinkParityFileChooserUI extends BasicFileChooserUI {
                                                                 // "Desktop".
             }
             b = new JButton(getFileView(fc).getIcon(homeDir));
+            b.setOpaque(false);
             b.setToolTipText(toolTipText);
             b.putClientProperty(AccessibleContext.ACCESSIBLE_NAME_PROPERTY,
                     toolTipText);
@@ -362,6 +368,7 @@ public class ThinkParityFileChooserUI extends BasicFileChooserUI {
         // New Directory Button
         if (!UIManager.getBoolean("FileChooser.readOnly")) {
             b = new JButton(filePane.getNewFolderAction());
+            b.setOpaque(false);
             b.setText(null);
             b.setIcon(newFolderIcon);
             b.setToolTipText(newFolderToolTipText);
@@ -369,6 +376,8 @@ public class ThinkParityFileChooserUI extends BasicFileChooserUI {
                     newFolderAccessibleName);
             b.putClientProperty(
                     HI_RES_DISABLED_ICON_CLIENT_KEY, Boolean.TRUE);
+            b.putClientProperty(ThinkParityButtonUI.WINDOWS_BUTTON_STYLE_CLIENT_KEY,
+                    Boolean.TRUE);
             b.setAlignmentX(JComponent.LEFT_ALIGNMENT);
             b.setAlignmentY(JComponent.CENTER_ALIGNMENT);
             b.setMargin(shrinkwrap);

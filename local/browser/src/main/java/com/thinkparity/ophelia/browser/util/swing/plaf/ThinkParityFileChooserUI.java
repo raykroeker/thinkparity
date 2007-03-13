@@ -57,6 +57,7 @@ import sun.swing.WindowsPlacesBar;
  */
 public class ThinkParityFileChooserUI extends BasicFileChooserUI {
 
+    // TODO This is a dependence on the windows look and feel. This should go away.
     static final String HI_RES_DISABLED_ICON_CLIENT_KEY = 
         new StringBuilder("WindowsLookAndFeel.generateHiResDisabledIcon").toString();
 

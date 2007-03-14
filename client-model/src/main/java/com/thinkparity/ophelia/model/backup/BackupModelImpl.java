@@ -505,7 +505,6 @@ public final class BackupModelImpl extends Model implements
      * @return True if the backup is online; false otherwise.
      */
     private Boolean isBackupOnline() {
-        return isOnline() && getProfileModel().isBackupAvailable() &&
-            getSessionModel().isBackupOnline();
+        return isOnline();
     }
 }

@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.JPopupMenu;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.contact.Contact;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -80,8 +81,17 @@ public class ContactCell extends DefaultTabCell {
      * @see com.thinkparity.codebase.model.artifact.Artifact#hashCode()
      * 
      */
-    public int hashCode() { return contact.hashCode(); }
+    public int hashCode() {
+        return contact.hashCode();
+    }
 
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     */
+    public void triggerDoubleClickAction(Browser browser) {  
+        browser.runReadContact(contact.getId());
+    }
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection,
      *      java.awt.Component, java.awt.event.MouseEvent, int, int)
@@ -99,12 +109,5 @@ public class ContactCell extends DefaultTabCell {
         deleteData.set(Delete.DataKey.CONTACT_ID, contact.getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_DELETE, deleteData));
         jPopupMenu.show(invoker, e.getX(), e.getY());
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
-     */
-    public void triggerDoubleClickAction(Browser browser) {  
-        browser.runReadContact(contact.getId());
     }
 }

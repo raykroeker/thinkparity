@@ -13,11 +13,11 @@ import com.thinkparity.ophelia.model.events.*;
  */
 class EventDispatcher {
 
-	/** A thinkParity <code>ContainerListener</code>. */
-    private ContainerListener containerListener;
-
-    /** A thinkParity <code>ContactListener</code>. */
+	/** A thinkParity <code>ContactListener</code>. */
     private ContactListener contactListener;
+
+    /** A thinkParity <code>ContainerListener</code>. */
+    private ContainerListener containerListener;
 
     /** A thinkParity document listener. */
 	private DocumentListener documentListener;
@@ -85,7 +85,13 @@ class EventDispatcher {
     private ContactListener createContactListener() {
         return new ContactAdapter() {
             @Override
-            public void incomingInvitationCreated(final ContactEvent e) {
+            public void incomingEMailInvitationCreated(final ContactEvent e) {
+                if (e.isRemote()) {
+                    systemApplication.fireContactIncomingInvitationCreated(e);                    
+                }
+            }
+            @Override
+            public void incomingUserInvitationCreated(final ContactEvent e) {
                 if (e.isRemote()) {
                     systemApplication.fireContactIncomingInvitationCreated(e);                    
                 }

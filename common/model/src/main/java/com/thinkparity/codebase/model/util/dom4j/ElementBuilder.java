@@ -24,7 +24,8 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactRemoteInfo;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
@@ -590,14 +591,28 @@ public class ElementBuilder {
         }
     }
 
-    public static final Element addIncomingInvitationElements(
+    public static final Element addIncomingEMailInvitationElements(
             final XStreamUtil xstreamUtil, final Element parent,
-            final String name, final List<IncomingInvitation> values) {
+            final String name, final List<IncomingEMailInvitation> values) {
         if (values.size() < 1) {
             return addNullElement(parent, name, List.class);
         } else {
             final Element element = addElement(parent, name, List.class);
-            for (final IncomingInvitation value : values) {
+            for (final IncomingEMailInvitation value : values) {
+                addElement(xstreamUtil, element, XmlRpc.LIST_ITEM, value);
+            }
+            return element;
+        }
+    }
+
+    public static final Element addIncomingUserInvitationElements(
+            final XStreamUtil xstreamUtil, final Element parent,
+            final String name, final List<IncomingUserInvitation> values) {
+        if (values.size() < 1) {
+            return addNullElement(parent, name, List.class);
+        } else {
+            final Element element = addElement(parent, name, List.class);
+            for (final IncomingUserInvitation value : values) {
                 addElement(xstreamUtil, element, XmlRpc.LIST_ITEM, value);
             }
             return element;
@@ -1043,9 +1058,22 @@ public class ElementBuilder {
 
     private static final Element addElement(final XStreamUtil xstreamUtil,
             final Element parent, final String name,
-            final IncomingInvitation value) {
+            final IncomingEMailInvitation value) {
         if (null == value) {
-            return addNullElement(parent, name, IncomingInvitation.class);
+            return addNullElement(parent, name, IncomingEMailInvitation.class);
+        } else {
+            final Element element = addElement(parent, name, value.getClass());
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
+            return element;
+        }
+    }
+
+    private static final Element addElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name,
+            final IncomingUserInvitation value) {
+        if (null == value) {
+            return addNullElement(parent, name, IncomingUserInvitation.class);
         } else {
             final Element element = addElement(parent, name, value.getClass());
             final Dom4JWriter writer = new Dom4JWriter(element);

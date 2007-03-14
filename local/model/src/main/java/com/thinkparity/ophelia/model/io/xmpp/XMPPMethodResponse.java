@@ -15,6 +15,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.contact.ContactInvitation;
 import com.thinkparity.codebase.model.contact.ContactVCard;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -75,6 +76,11 @@ public class XMPPMethodResponse extends IQ {
         return (Calendar) readResult(name);
     }
 
+    public final <T extends ContactInvitation> List<T> readResultContactInvitations(
+            final String name) {
+        return (List<T>) readResult(name);
+    }
+
     public ContactVCard readResultContactVCard(final String name) {
         return (ContactVCard) readResult(name);
     }
@@ -85,10 +91,6 @@ public class XMPPMethodResponse extends IQ {
 
     public List<Container> readResultContainers(final String name) {
         return (List<Container>) readResult(name);
-    }
-
-    public List<Feature> readResultFeatures(final String name) {
-        return (List<Feature>) readResult(name);
     }
 
     public List<ContainerVersion> readResultContainerVersions(final String name) {
@@ -121,6 +123,10 @@ public class XMPPMethodResponse extends IQ {
 
     public List<XMPPEvent> readResultEvents(final String name) {
         return (List<XMPPEvent>) readResult(name);
+    }
+
+    public List<Feature> readResultFeatures(final String name) {
+        return (List<Feature>) readResult(name);
     }
 
     /**

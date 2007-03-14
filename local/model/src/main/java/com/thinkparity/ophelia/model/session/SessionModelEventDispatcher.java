@@ -11,6 +11,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeclinedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeletedEvent;
@@ -25,6 +26,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEven
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
+import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
@@ -86,6 +88,12 @@ class SessionModelEventDispatcher {
             public void handleEvent(final ArtifactTeamMemberRemovedEvent event) {
                 logger.logApiId();
                 getArtifactModel().handleTeamMemberRemoved(event);
+            }});
+        xmppSession.addListener(BackupStatisticsUpdatedEvent.class,
+                new XMPPEventListener<BackupStatisticsUpdatedEvent>() {
+            public void handleEvent(BackupStatisticsUpdatedEvent event) {
+                logger.logApiId();
+                getBackupModel().handleStatisticsUpdated(event);
             }});
         xmppSession.addListener(ContactDeletedEvent.class,
                 new XMPPEventListener<ContactDeletedEvent>() {
@@ -171,6 +179,10 @@ class SessionModelEventDispatcher {
 
     private InternalArtifactModel getArtifactModel() {
         return modelFactory.getArtifactModel();
+    }
+
+    private InternalBackupModel getBackupModel() {
+        return modelFactory.getBackupModel();
     }
 
     private InternalContactModel getContactModel() {

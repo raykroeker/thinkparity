@@ -20,7 +20,8 @@ import com.thinkparity.codebase.sort.DefaultComparator;
 import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.profile.Profile;
@@ -75,19 +76,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applyConnection(com.thinkparity.ophelia.browser.platform.Platform.Connection)
-     */
-    @Override
-    protected void applyConnection(final Connection connection) {
-        for (final TabPanel panel : panels) {
-            final ContactTabPanel contactPanel = (ContactTabPanel) panel;
-            if (contactPanel.isSetIncoming()) {
-                contactPanel.applyConnection(connection);
-            }
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate#getSortBy()
      *
      */
@@ -112,6 +100,19 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             });
         }
         return sortBy;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applyConnection(com.thinkparity.ophelia.browser.platform.Platform.Connection)
+     */
+    @Override
+    protected void applyConnection(final Connection connection) {
+        for (final TabPanel panel : panels) {
+            final ContactTabPanel contactPanel = (ContactTabPanel) panel;
+            if (contactPanel.isSetIncomingEMail() || contactPanel.isSetIncomingUser()) {
+                contactPanel.applyConnection(connection);
+            }
+        }
     }
 
     /**
@@ -158,9 +159,13 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     protected void initialize() {
         debug();
         clearPanels();
-        final List<IncomingInvitation> incomingInvitations = readIncomingInvitations();
-        for (final IncomingInvitation incomingInvitation : incomingInvitations) {
-            addPanel(incomingInvitation);
+        final List<IncomingEMailInvitation> incomingEMailInvitations = readIncomingEMailInvitations();
+        for (final IncomingEMailInvitation iei : incomingEMailInvitations) {
+            addPanel(iei);
+        }
+        final List<IncomingUserInvitation> incomingUserInvitations = readIncomingUserInvitations();
+        for (final IncomingUserInvitation iui : incomingUserInvitations) {
+            addPanel(iui);
         }
         final List<OutgoingEMailInvitation> emailInvitations = readOutgoingEMailInvitations();
         for (final OutgoingEMailInvitation emailInvitation : emailInvitations) {
@@ -190,8 +195,10 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             return new ContactPanelId(panel.getContact().getId());
         } else if (panel.isSetProfile()) {
             return new ContactPanelId(panel.getProfile().getId());
-        } else if (panel.isSetIncoming()) {
-            return new ContactPanelId(panel.getIncoming().getId());
+        } else if (panel.isSetIncomingEMail()) {
+            return new ContactPanelId(panel.getIncomingEMail().getId());
+        } else if (panel.isSetIncomingUser()) {
+            return new ContactPanelId(panel.getIncomingUser().getId());
         } else if (panel.isSetOutgoingEMail()) {
             return new ContactPanelId(panel.getOutgoingEMail().getId());
         } else if (panel.isSetOutgoingUser()) {
@@ -225,18 +232,22 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     protected List<ContactPanelId> readSearchResults() {
         checkThread();
         final List<JabberId> contactIds = ((ContactProvider) contentProvider).search(searchExpression);
-        final List<Long> incomingInvitationIds = ((ContactProvider) contentProvider).searchIncomingInvitations(searchExpression);
+        final List<Long> incomingEMailInvitationIds = ((ContactProvider) contentProvider).searchIncomingEMailInvitations(searchExpression);
+        final List<Long> incomingUserInvitationIds = ((ContactProvider) contentProvider).searchIncomingUserInvitations(searchExpression);
         final List<Long> outgoingEMailInvitationIds = ((ContactProvider) contentProvider).searchOutgoingEMailInvitations(searchExpression);
         final List<Long> outgoingUserInvitationIds = ((ContactProvider) contentProvider).searchOutgoingUserInvitations(searchExpression);
         final List<JabberId> profileIds = ((ContactProvider) contentProvider).searchProfile(searchExpression);
-        final int size = contactIds.size() + incomingInvitationIds.size()
+        final int size = contactIds.size() + incomingEMailInvitationIds.size()
+                + incomingUserInvitationIds.size()
                 + outgoingEMailInvitationIds.size()
                 + outgoingUserInvitationIds.size()
                 + profileIds.size();
         final List<ContactPanelId> panelIds = new ArrayList<ContactPanelId>(size);
         for (final JabberId contactId : contactIds)
             panelIds.add(new ContactPanelId(contactId));
-        for (final Long invitationId : incomingInvitationIds)
+        for (final Long invitationId : incomingEMailInvitationIds)
+            panelIds.add(new ContactPanelId(invitationId));
+        for (final Long invitationId : incomingUserInvitationIds)
             panelIds.add(new ContactPanelId(invitationId));
         for (final Long invitationId : outgoingEMailInvitationIds)
             panelIds.add(new ContactPanelId(invitationId));
@@ -291,10 +302,36 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         debug();
     }
 
-    void syncIncomingInvitation(final Long invitationId, final Boolean remote) {
+    void syncIncomingEMailInvitation(final Long invitationId, final Boolean remote) {
         checkThread();
         debug();
-        final IncomingInvitation invitation = readIncomingInvitation(invitationId);
+        final IncomingEMailInvitation invitation = readIncomingEMailInvitation(invitationId);
+        // remove the container from the panel list
+        if (null == invitation) {
+            removePanel(invitationId, true);
+        } else {
+            final int panelIndex = lookupIndex(invitation.getId());
+            if (-1 < panelIndex) {
+                // if the reload is the result of a remote event add the panel
+                // at the top of the list; otherwise add it in the same location
+                // it previously existed
+                removePanel(invitationId, false);
+                if (remote) {
+                    addPanel(0, invitation);
+                } else {
+                    addPanel(panelIndex, invitation);
+                }
+            } else {
+                addPanel(0, invitation);
+            }
+        }
+        synchronize();
+        debug();
+    }
+    void syncIncomingUserInvitation(final Long invitationId, final Boolean remote) {
+        checkThread();
+        debug();
+        final IncomingUserInvitation invitation = readIncomingUserInvitation(invitationId);
         // remove the container from the panel list
         if (null == invitation) {
             removePanel(invitationId, true);
@@ -407,12 +444,22 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     /**
-     * Add an incoming invitation to the end of the panels list.
+     * Add an incoming e-mail invitation to the end of the panels list.
      * 
      * @param invitation
-     *            An <code>IncomingInvitation</code>.
+     *            An <code>IncomingEMailInvitation</code>.
      */
-    private void addPanel(final IncomingInvitation invitation) {
+    private void addPanel(final IncomingEMailInvitation invitation) {
+        addPanel(panels.size() == 0 ? 0 : panels.size(), invitation);
+    }
+
+    /**
+     * Add an incoming user invitation to the end of the panels list.
+     * 
+     * @param invitation
+     *            An <code>IncomingUserInvitation</code>.
+     */
+    private void addPanel(final IncomingUserInvitation invitation) {
         addPanel(panels.size() == 0 ? 0 : panels.size(), invitation);
     }
 
@@ -429,14 +476,26 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
     
     /**
-     * Add an incoming invitation to the panels list.
+     * Add an incoming e-mail invitation to the panels list.
      * 
      * @param index
      *            The index at which to add the invitation.
      * @param invitation
      *            An <code>IncomingInvitation</code>.
      */
-    private void addPanel(final int index, final IncomingInvitation invitation) {
+    private void addPanel(final int index, final IncomingEMailInvitation invitation) {
+        panels.add(index, toDisplay(invitation));
+    }
+
+    /**
+     * Add an incoming user invitation to the panels list.
+     * 
+     * @param index
+     *            The index at which to add the invitation.
+     * @param invitation
+     *            An <code>IncomingInvitation</code>.
+     */
+    private void addPanel(final int index, final IncomingUserInvitation invitation) {
         panels.add(index, toDisplay(invitation));
     }
 
@@ -614,8 +673,12 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         ContactTabPanel panel;
         for (int i = 0; i < panels.size(); i++) {
             panel = ((ContactTabPanel) panels.get(i));
-            if (panel.isSetIncoming()) {
-                if (panel.getIncoming().getId().equals(invitationId)) {
+            if (panel.isSetIncomingEMail()) {
+                if (panel.getIncomingEMail().getId().equals(invitationId)) {
+                    return i;
+                }
+            } else if (panel.isSetIncomingUser()) {
+                if (panel.getIncomingUser().getId().equals(invitationId)) {
                     return i;
                 }
             } else if (panel.isSetOutgoingEMail()) {
@@ -653,17 +716,30 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         return ((ContactProvider) contentProvider).readEmails();
     }
 
-    private IncomingInvitation readIncomingInvitation(final Long invitationId) {
-        return ((ContactProvider) contentProvider).readIncomingInvitation(invitationId);
+    private IncomingEMailInvitation readIncomingEMailInvitation(final Long invitationId) {
+        return ((ContactProvider) contentProvider).readIncomingEMailInvitation(invitationId);
     }
 
     /**
-     * Read the incoming invitations.
+     * Read the incoming e-mail invitations.
      * 
-     * @return A <code>List</code> of <code>IncomingInvitation</code>.
+     * @return A <code>List</code> of <code>IncomingEMailInvitation</code>.
      */
-    private List<IncomingInvitation> readIncomingInvitations() {
-        return ((ContactProvider) contentProvider).readIncomingInvitations();
+    private List<IncomingEMailInvitation> readIncomingEMailInvitations() {
+        return ((ContactProvider) contentProvider).readIncomingEMailInvitations();
+    }
+
+    private IncomingUserInvitation readIncomingUserInvitation(final Long invitationId) {
+        return ((ContactProvider) contentProvider).readIncomingUserInvitation(invitationId);
+    }
+
+    /**
+     * Read the incoming e-mail invitations.
+     * 
+     * @return A <code>List</code> of <code>IncomingEMailInvitation</code>.
+     */
+    private List<IncomingUserInvitation> readIncomingUserInvitations() {
+        return ((ContactProvider) contentProvider).readIncomingUserInvitations();
     }
 
     private OutgoingEMailInvitation readOutgoingEMailInvitation(
@@ -741,10 +817,27 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
      *            An <code>OutgoingInvitation</code>.
      * @return A contact display cell.
      */
-    private TabPanel toDisplay(final IncomingInvitation invitation) {
+    private TabPanel toDisplay(final IncomingEMailInvitation invitation) {
         final ContactTabPanel panel = new ContactTabPanel(session);
         panel.setActionDelegate(actionDelegate);
-        panel.setPanelData(invitation, invitation.getInvitedBy());
+        panel.setPanelData(invitation);
+        panel.setPopupDelegate(popupDelegate);
+        panel.setExpanded(isExpanded(panel));
+        panel.setTabDelegate(this);
+        return panel;
+    }
+
+    /**
+     * Obtain the contact display cell for a contact.
+     * 
+     * @param invitation
+     *            An <code>OutgoingInvitation</code>.
+     * @return A contact display cell.
+     */
+    private TabPanel toDisplay(final IncomingUserInvitation invitation) {
+        final ContactTabPanel panel = new ContactTabPanel(session);
+        panel.setActionDelegate(actionDelegate);
+        panel.setPanelData(invitation);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
         panel.setTabDelegate(this);
@@ -842,8 +935,8 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             // Sort outgoing e-mail invitations alphabetically by email
             if (0 == result && p1.isSetOutgoingEMail()) {
                 return STRING_COMPARATOR_ASC.compare(
-                        p1.getOutgoingEMail().getEmail().toString(),
-                        p2.getOutgoingEMail().getEmail().toString());
+                        p1.getOutgoingEMail().getInvitationEMail().toString(),
+                        p2.getOutgoingEMail().getInvitationEMail().toString());
             }
             
             // Sort incoming invitations, contacts, and profile
@@ -922,14 +1015,16 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
          * @return An <code>Integer</code> priority.
          */
         private Integer getTypePriority(final ContactTabPanel panel) {
-            if (panel.isSetIncoming()) {
+            if (panel.isSetIncomingEMail()) {
                 return 0;
-            } else if (panel.isSetOutgoingUser()) {
+            } else if (panel.isSetIncomingUser()) {
                 return 1;
-            } else if (panel.isSetOutgoingEMail()) {
+            } else if (panel.isSetOutgoingUser()) {
                 return 2;
-            } else {
+            } else if (panel.isSetOutgoingEMail()) {
                 return 3;
+            } else {
+                return 4;
             }
         }
 
@@ -941,16 +1036,20 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
          * @return A <code>User</code>.
          */
         private User getUser(final ContactTabPanel panel) {
-            if (panel.isSetIncoming()) {
-                return panel.getInvitedBy();
+            if (panel.isSetIncomingEMail()) {
+                return panel.getIncomingEMail().getExtendedBy();
+            } else if (panel.isSetIncomingUser()) {
+                return panel.getIncomingEMail().getExtendedBy();
             } else if (panel.isSetOutgoingEMail()) {
                 return null;
             } else if (panel.isSetOutgoingUser()) {
-                return panel.getOutgoingUser().getUser();
+                return panel.getOutgoingUser().getInvitationUser();
             } else if (panel.isSetProfile()) {
                 return panel.getProfile();
-            } else {
+            } else if (panel.isSetContact()) {
                 return panel.getContact();
+            } else {
+                throw Assert.createUnreachable("Inconsistent contact tab panel state.");
             }
         }
     }

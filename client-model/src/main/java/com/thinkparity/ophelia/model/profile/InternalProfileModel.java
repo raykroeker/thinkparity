@@ -24,6 +24,13 @@ public interface InternalProfileModel extends ProfileModel {
     public Profile create();
 
     /**
+     * Determine if the backup feature is available.
+     * 
+     * @return True if backup is available for the profile.
+     */
+    public Boolean isBackupAvailable();
+
+    /**
      * Read the user's credentials.
      * 
      * @return An instance of <code>Credentials</code>.

@@ -6,7 +6,8 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.c
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.profile.Profile;
@@ -17,9 +18,11 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
-import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingEMailInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Collapse;
-import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingEMailInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingEMailInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingUserInvitation;
@@ -73,18 +76,35 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.PopupDelegate#showForInvitation(com.thinkparity.ophelia.model.contact.IncomingInvitation)
-     *
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.PopupDelegate#showForInvitation(com.thinkparity.codebase.model.contact.IncomingEMailInvitation)
+     * 
      */
-    public void showForInvitation(final IncomingInvitation invitation) {
+    public void showForInvitation(final IncomingEMailInvitation invitation) {
         if (isOnline()) {
             final Data acceptData = new Data(1);
-            acceptData.set(AcceptIncomingInvitation.DataKey.INVITATION_ID, invitation.getId());
-            add(ActionId.CONTACT_ACCEPT_INCOMING_INVITATION, acceptData);
+            acceptData.set(AcceptIncomingEMailInvitation.DataKey.INVITATION_ID, invitation.getId());
+            add(ActionId.CONTACT_ACCEPT_INCOMING_EMAIL_INVITATION, acceptData);
 
             final Data declineData = new Data(1);
-            declineData.set(DeclineIncomingInvitation.DataKey.INVITATION_ID, invitation.getId());
-            add(ActionId.CONTACT_DECLINE_INCOMING_INVITATION, declineData);
+            declineData.set(DeclineIncomingEMailInvitation.DataKey.INVITATION_ID, invitation.getId());
+            add(ActionId.CONTACT_DECLINE_INCOMING_EMAIL_INVITATION, declineData);
+            show();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.PopupDelegate#showForInvitation(com.thinkparity.codebase.model.contact.IncomingUserInvitation)
+     * 
+     */
+    public void showForInvitation(final IncomingUserInvitation invitation) {
+        if (isOnline()) {
+            final Data acceptData = new Data(1);
+            acceptData.set(AcceptIncomingUserInvitation.DataKey.INVITATION_ID, invitation.getId());
+            add(ActionId.CONTACT_ACCEPT_INCOMING_USER_INVITATION, acceptData);
+
+            final Data declineData = new Data(1);
+            declineData.set(DeclineIncomingUserInvitation.DataKey.INVITATION_ID, invitation.getId());
+            add(ActionId.CONTACT_DECLINE_INCOMING_USER_INVITATION, declineData);
             show();
         }
     }

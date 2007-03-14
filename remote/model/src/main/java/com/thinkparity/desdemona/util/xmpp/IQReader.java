@@ -27,7 +27,8 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -226,8 +227,16 @@ public final class IQReader implements ServiceRequestReader {
      * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readIncomingInvitation(java.lang.String)
      * 
      */
-    public IncomingInvitation readIncomingInvitation(final String name) {
-        return (IncomingInvitation) readXStreamObject(name, new IncomingInvitation());
+    public IncomingEMailInvitation readIncomingEMailInvitation(final String name) {
+        return (IncomingEMailInvitation) readXStreamObject(name, new IncomingEMailInvitation());
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readIncomingInvitation(java.lang.String)
+     * 
+     */
+    public IncomingUserInvitation readIncomingUserInvitation(final String name) {
+        return (IncomingUserInvitation) readXStreamObject(name, new IncomingUserInvitation());
     }
 
     /**

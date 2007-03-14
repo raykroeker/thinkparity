@@ -25,9 +25,26 @@ import com.thinkparity.ophelia.model.util.xmpp.event.BackupListener;
  */
 final class XMPPBackup extends AbstractXMPP<BackupListener> {
 
-    /** Create XMPPBackup. */
+    /**
+     * Create XMPPBackup.
+     * 
+     * @param core
+     *            The <code>XMPPCore</code>.
+     */
     XMPPBackup(final XMPPCore core) {
         super(core);
+    }
+
+    /**
+     * Determine if the backup is online.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return True if the backup is online.
+     */
+    Boolean isOnline(final JabberId userId) {
+        final XMPPMethod isOnline = new XMPPMethod("backup:isonline");
+        return execute(isOnline, Boolean.TRUE).readResultBoolean("online");
     }
 
     /**

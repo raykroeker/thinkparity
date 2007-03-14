@@ -40,15 +40,15 @@ public final class DeleteOutgoingEMailInvitation extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        deleteOutgoingEMailInvitation(provider, reader.readJabberId("userId"),
+        deleteInvitation(provider, reader.readJabberId("userId"),
                 reader.readOutgoingEMailInvitation("invitation"),
                 reader.readCalendar("deletedOn"));
     }
 
-    private void deleteOutgoingEMailInvitation(
+    private void deleteInvitation(
             final ServiceModelProvider context, final JabberId userId,
             final OutgoingEMailInvitation invitation, final Calendar deletedOn) {
-        context.getContactModel().deleteOutgoingEMailInvitation(userId,
+        context.getContactModel().deleteInvitation(userId,
                 invitation, deletedOn);
     }
 }

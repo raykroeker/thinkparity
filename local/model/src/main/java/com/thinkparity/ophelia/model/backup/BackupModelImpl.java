@@ -30,6 +30,7 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent;
 
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
@@ -96,6 +97,13 @@ public final class BackupModelImpl extends Model implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#handleStatisticsUpdated(com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent)
+     *
+     */
+    public void handleStatisticsUpdated(final BackupStatisticsUpdatedEvent event) {
+    }
+
+    /**
      * Open a document version from the backup.
      * 
      * @param uniqueId
@@ -150,8 +158,11 @@ public final class BackupModelImpl extends Model implements
      * @return A <code>List&lt;Container&gt;</code>.
      */
     public List<Container> readContainers() {
-        logger.logApiId();
-        return readContainers(defaultComparator);
+        try {
+            return readContainers(defaultComparator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -162,8 +173,11 @@ public final class BackupModelImpl extends Model implements
      * @return A <code>List&lt;Container&gt;</code>.
      */
     public List<Container> readContainers(final Comparator<Artifact> comparator) {
-        logger.logApiId();
-        return readContainers(comparator, defaultFilter);
+        try {
+            return readContainers(comparator, defaultFilter);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -176,7 +190,6 @@ public final class BackupModelImpl extends Model implements
      * @return A <code>List&lt;Container&gt;</code>.
      */
     public List<Container> readContainers(final Comparator<Artifact> comparator, final Filter<? super Artifact> filter) {
-        logger.logApiId();
         try {
             assertBackupOnline();
             final List<Container> containers =
@@ -185,7 +198,7 @@ public final class BackupModelImpl extends Model implements
             ModelSorter.sortContainers(containers, comparator);
             return containers;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -492,7 +505,7 @@ public final class BackupModelImpl extends Model implements
      * @return True if the backup is online; false otherwise.
      */
     private Boolean isBackupOnline() {
-        // TODO Determine if the backup is actually online or not.
-        return Boolean.TRUE;
+        return isOnline() && getProfileModel().isBackupAvailable() &&
+            getSessionModel().isBackupOnline();
     }
 }

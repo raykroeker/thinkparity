@@ -23,6 +23,7 @@ import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.contact.Show;
 import com.thinkparity.ophelia.browser.platform.action.platform.browser.Iconify;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
@@ -268,8 +269,8 @@ public class SystemApplication extends AbstractApplication {
      */
     void fireContactIncomingInvitationCreated(final ContactEvent e) {
         final Data data = new Data(1);
-        data.set(com.thinkparity.ophelia.browser.platform.action.contact.Show.DataKey.INVITATION_ID, e.getIncomingInvitation().getId());
-        final String name = getName(e.getIncomingInvitation().getInvitedBy());
+        data.set(Show.DataKey.INVITATION_ID, e.getIncomingInvitation().getId());
+        final String name = getName(e.getIncomingInvitation().getExtendedBy());
         fireNotification(ActionId.CONTACT_SHOW, data, name,
                 "Notification.ContactIncomingInvitationCreatedMessage", name);
     }

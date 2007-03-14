@@ -95,7 +95,7 @@ public final class OutgoingEMailInvitationIndexImpl extends
     public void index(final OutgoingEMailInvitation o) throws IOException {
         final DocumentBuilder builder = new DocumentBuilder(4)
             .append(IDX_INVITATION_ID.setValue(o.getId()).toField())
-            .append(IDX_INVITATION_EMAIL.setValue(o.getEmail()).toField())
+            .append(IDX_INVITATION_EMAIL.setValue(o.getInvitationEMail()).toField())
             .append(IDX_INVITATION_EMAIL_REV.setValue(reverse(IDX_INVITATION_EMAIL)).toField());
         index(builder.toDocument());
     }

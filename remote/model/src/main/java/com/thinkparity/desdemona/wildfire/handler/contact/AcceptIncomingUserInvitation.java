@@ -7,7 +7,7 @@ import java.util.Calendar;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
@@ -15,19 +15,20 @@ import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity DesdemonaModel Accept Incoming Invitation Handler<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class DeclineIncomingInvitation extends AbstractHandler {
+public final class AcceptIncomingUserInvitation extends AbstractHandler {
 
-    /**
-     * Create DeclineIncomingInvitation.
+	/**
+     * Create AcceptIncomingInvitation.
      *
-     */
-	public DeclineIncomingInvitation() {
-        super("contact:declineincominginvitation");
+	 */
+	public AcceptIncomingUserInvitation() {
+        super("contact:acceptincominguserinvitation");
 	}
 
     /**
@@ -40,15 +41,15 @@ public final class DeclineIncomingInvitation extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        declineIncomingInvitation(provider, reader.readJabberId("userId"),
-                reader.readIncomingInvitation("invitation"),
-                reader.readCalendar("declinedOn"));
+        acceptIncomingInvitation(provider, reader.readJabberId("userId"),
+                reader.readIncomingUserInvitation("invitation"),
+                reader.readCalendar("acceptedOn"));
     }
 
-    private void declineIncomingInvitation(final ServiceModelProvider context,
-            final JabberId userId, final IncomingInvitation invitation,
-            final Calendar declinedOn) {
-        context.getContactModel().declineIncomingInvitation(userId, invitation,
-                declinedOn);
+    private void acceptIncomingInvitation(final ServiceModelProvider context,
+            final JabberId userId, final IncomingUserInvitation invitation,
+            final Calendar acceptedOn) {
+        context.getContactModel().acceptInvitation(userId, invitation,
+                acceptedOn);
     }
 }

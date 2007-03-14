@@ -14,11 +14,13 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.border.Border;
 
+import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.Constants.DateFormats;
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -30,8 +32,11 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.M
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 
 /**
+ * <b>Title:</b>thinkParity OpheliaUI Default Tab Cell Abstraction<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.14
  */
 public abstract class DefaultTabCell implements TabCell {
 
@@ -54,17 +59,22 @@ public abstract class DefaultTabCell implements TabCell {
     private static final Color TEXT_FG_MOUSEOVER;
     
     /** Maximum length of a container cell's text. */
-    private static final Integer TEXT_MAX_LENGTH;   
+    private static final Integer TEXT_MAX_LENGTH;
+
+    /** A date format for the tab cells to share. */
+    protected static final FuzzyDateFormat FUZZY_DATE_FORMAT;
 
     static {
         BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER);
         BORDER_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER, new Insets(2,0,0,0));
         BORDER_CHILD_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER_CHILD, new Insets(2,0,0,0));
         BORDER_GROUP_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER_GROUP, 3, new Insets(4,0,0,0));
-        
+
+        FUZZY_DATE_FORMAT = DateFormats.FUZZY;
+
         TEXT_FG = Colors.Browser.TabCell.TEXT;
         TEXT_FG_MOUSEOVER = Colors.Browser.TabCell.TEXT_MOUSEOVER;
-        
+
         TEXT_MAX_LENGTH = 100;
     }
     

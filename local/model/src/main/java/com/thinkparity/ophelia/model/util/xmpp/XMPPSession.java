@@ -14,7 +14,8 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
@@ -53,15 +54,26 @@ import com.thinkparity.ophelia.model.util.xmpp.event.XMPPEventListener;
 public interface XMPPSession {
 
     /**
-     * Accept the contact invitation.
+     * Accept the e-mail invitation.
      * 
      * @param invitation
-     *            An <code>IncomingInvitation<code>.
+     *            An <code>IncomingEMailInvitation<code>.
      * @param acceptedOn
      *            The accepted on <code>Calendar</code>.
      */
-    public void acceptIncomingInvitation(final JabberId userId,
-            final IncomingInvitation invitation, final Calendar acceptedOn);
+    public void acceptInvitation(final JabberId userId,
+            final IncomingEMailInvitation invitation, final Calendar acceptedOn);
+
+    /**
+     * Accept the e-mail invitation.
+     * 
+     * @param invitation
+     *            An <code>IncomingUserInvitation<code>.
+     * @param acceptedOn
+     *            The accepted on <code>Calendar</code>.
+     */
+    public void acceptInvitation(final JabberId userId,
+            final IncomingUserInvitation invitation, final Calendar acceptedOn);
 
     /**
      * Add an xmpp event listener.
@@ -75,6 +87,7 @@ public interface XMPPSession {
      */
     public <T extends XMPPEvent> void addListener(final Class<T> eventClass,
             final XMPPEventListener<T> listener);
+
 
     /**
      * Add an xmpp session event listener.
@@ -159,6 +172,28 @@ public interface XMPPSession {
     public void createDraft(final JabberId userId, final List<JabberId> team,
             final UUID uniqueId, final Calendar createdOn);
 
+    /**
+     * Create an outgoing e-mail invitation.
+     *
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitation
+     *            An <code>OutgoingEMailInvitation</code>.
+     */
+    public void createInvitation(final JabberId userId,
+            final OutgoingEMailInvitation invitation);
+
+    /**
+     * Create an outgoing user invitation.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitation
+     *            An <code>OutgoingUserInvitation</code>.
+     */
+    public void createInvitation(final JabberId userId,
+            final OutgoingUserInvitation invitation);
+
     public void createMigratorProduct(final JabberId userId,
             final Product product);
 
@@ -172,28 +207,6 @@ public interface XMPPSession {
      */
     public void createMigratorStream(final JabberId userId,
             final String streamId, final List<Resource> resources);
-
-    /**
-     * Create an outgoing e-mail invitation.
-     *
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param invitation
-     *            An <code>OutgoingEMailInvitation</code>.
-     */
-    public void createOutgoingEMailInvitation(final JabberId userId,
-            final OutgoingEMailInvitation invitation);
-
-    /**
-     * Create an outgoing user invitation.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param invitation
-     *            An <code>OutgoingUserInvitation</code>.
-     */
-    public void createOutgoingUserInvitation(final JabberId userId,
-            final OutgoingUserInvitation invitation);
 
     /**
      * Create a stream.
@@ -226,17 +239,36 @@ public interface XMPPSession {
     public Token createToken(final JabberId userId);
 
     /**
-     * Decline an incoming invitation.
+     * Accept the e-mail invitation.
+     * 
+     * @param invitation
+     *            An <code>IncomingEMailInvitation<code>.
+     * @param acceptedOn
+     *            The accepted on <code>Calendar</code>.
+     */
+    public void declineInvitation(final JabberId userId,
+            final IncomingEMailInvitation invitation, final Calendar declinedOn);
+
+    /**
+     * Accept the e-mail invitation.
+     * 
+     * @param invitation
+     *            An <code>IncomingUserInvitation<code>.
+     * @param acceptedOn
+     *            The accepted on <code>Calendar</code>.
+     */
+    public void declineInvitation(final JabberId userId,
+            final IncomingUserInvitation invitation, final Calendar declinedOn);
+
+    /**
+     * Delete a contact.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @param invitation
-     *            An <code>IncomingInvitation</code>.
-     * @param declinedOn
-     *            A declined on <code>Calendar</code>.
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
      */
-    public void declineIncomingInvitation(final JabberId userId,
-            final IncomingInvitation invitation, final Calendar declinedOn);
+    public void delete(final JabberId userId, final JabberId contactId);
 
     /**
      * Archive an artifact. This will simply apply the archived flag within the
@@ -249,16 +281,14 @@ public interface XMPPSession {
      */
     public void deleteArtifact(final JabberId userId, final UUID uniqueId);
 
-    
     /**
-     * Delete a contact.
+     * Delete an artifact draft.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param contactId
-     *            A contact id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id.
      */
-    public void delete(final JabberId userId, final JabberId contactId);
+    public void deleteDraft(final JabberId userId, final List<JabberId> team,
+            final UUID uniqueId, final Calendar deletedOn);
 
     /**
      * Delete a contact invitation.
@@ -270,7 +300,7 @@ public interface XMPPSession {
      * @param deletedOn
      *            The deletion <code>Calendar</code>.
      */
-    public void deleteOutgoingEMailInvitation(final JabberId userId,
+    public void deleteInvitation(final JabberId userId,
             final OutgoingEMailInvitation invitation, final Calendar deletedOn);
 
     /**
@@ -283,18 +313,9 @@ public interface XMPPSession {
      * @param deletedOn
      *            The deletion <code>Calendar</code>.
      */
-    public void deleteOutgoingUserInvitation(final JabberId userId,
+    public void deleteInvitation(final JabberId userId,
             final OutgoingUserInvitation invitation, final Calendar deletedOn);
-
-    /**
-     * Delete an artifact draft.
-     * 
-     * @param uniqueId
-     *            An artifact unique id.
-     */
-    public void deleteDraft(final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId, final Calendar deletedOn);
-
+    
     /**
      * Delete a stream.
      * 
@@ -336,6 +357,15 @@ public interface XMPPSession {
     public void deployMigrator(final JabberId userId, final Product product,
             final Release release, final List<Resource> resources,
             final String streamId);
+
+    /**
+     * Determine if the backup is online.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return True if the backup is online.
+     */
+    public Boolean isBackupOnline(final JabberId userId);
 
     /**
      * Determine the availability of an e-mail address.
@@ -451,7 +481,7 @@ public interface XMPPSession {
     public List<Document> readArchiveDocuments(final JabberId userId,
             final UUID uniqueId, final Long versionId);
 
-	public DocumentVersion readArchiveDocumentVersion(final JabberId userId,
+    public DocumentVersion readArchiveDocumentVersion(final JabberId userId,
             final UUID uniqueId, final UUID documentUniqueId,
             final Long documentVersionId);
 
@@ -462,7 +492,7 @@ public interface XMPPSession {
             final JabberId userId, final UUID uniqueId,
             final Long compareVersionId, final Long compareToVersionId);
 
-    /**
+	/**
      * Read the archived document versions.
      * 
      * @param userId
@@ -477,10 +507,13 @@ public interface XMPPSession {
      */
     public List<DocumentVersion> readArchiveDocumentVersions(
             final JabberId userId, final UUID uniqueId, final Long versionId);
+
     public Map<User, ArtifactReceipt> readArchivePublishedTo(
             final JabberId userId, final UUID uniqueId, final Long versionId);
+
     public List<TeamMember> readArchiveTeam(final JabberId userId,
             final UUID uniqueId);
+
     /**
      * Read the archive team for a user.
      * 
@@ -502,7 +535,6 @@ public interface XMPPSession {
      * @return A list of containers.
      */
     public Container readBackupContainer(final JabberId userId, final UUID uniqueId);
-
     /**
      * Read the backup's containers.
      * 
@@ -511,7 +543,6 @@ public interface XMPPSession {
      * @return A <code>List&lt;Container&gt;</code>.
      */
     public List<Container> readBackupContainers(final JabberId userId);
-
     /**
      * Read the backup containers versions.
      * 
@@ -523,7 +554,6 @@ public interface XMPPSession {
      */
     public List<ContainerVersion> readBackupContainerVersions(
             final JabberId userId, final UUID uniqueId);
-
     /**
      * Read the backup's documents.
      * 
@@ -580,7 +610,7 @@ public interface XMPPSession {
      */
     public Contact readContact(final JabberId userId, final JabberId contactId);
 
-	/**
+    /**
      * Read a user's contact ids.
      * 
      * @param userId
@@ -605,12 +635,28 @@ public interface XMPPSession {
      */
     public Calendar readDateTime(final JabberId userId);
 
-    /**
+	/**
      * Obtain the size of the event queue.
      * 
      * @return The size of the event queue.
      */
     public Integer readEventQueueSize(final JabberId userId);
+
+    /**
+     * Read all incoming e-mail invitations.
+     * 
+     * @return A <code>List</code> of <code>IncomingInvitation</code>s.
+     */
+    public List<IncomingEMailInvitation> readIncomingEMailInvitations(
+            final JabberId userId);
+
+    /**
+     * Read all incoming user invitations.
+     * 
+     * @return A <code>List</code> of <code>IncomingInvitation</code>s.
+     */
+    public List<IncomingUserInvitation> readIncomingUserInvitations(
+            final JabberId userId);
 
     /**
      * Read the artifact key holder.
@@ -632,6 +678,7 @@ public interface XMPPSession {
      */
     public Release readMigratorLatestRelease(final JabberId userId,
             final UUID productUniqueId, final OS os);
+
     /**
      * Read a migrator product.
      * 
@@ -658,7 +705,6 @@ public interface XMPPSession {
      */
     public Release readMigratorRelease(final JabberId userId,
             final UUID productUniqueId, final String name, final OS os);
-
     /**
      * Read migrator release resources.
      * 
@@ -672,6 +718,20 @@ public interface XMPPSession {
      */
     public List<Resource> readMigratorResources(final JabberId userId,
             final UUID productUniqueId, final String releaseName, final OS os);
+
+    /**
+     * Read all outgoing e-mail invitations.
+     * 
+     * @return A <code>List</code> of <code>OutgoingEMailInvitation</code>s.
+     */
+    public List<OutgoingEMailInvitation> readOutgoingEMailInvitations(final JabberId userId);
+
+    /**
+     * Read all outgoing user invitations.
+     * 
+     * @return A <code>List</code> of <code>OutgoingUserInvitation</code>s.
+     */
+    public List<OutgoingUserInvitation> readOutgoingUserInvitations(final JabberId userId);
 
     /**
      * Read the user's profile.

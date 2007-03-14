@@ -16,6 +16,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.UploadMonitor;
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -43,6 +44,12 @@ import com.thinkparity.desdemona.model.stream.InternalStreamModel;
  */
 final class BackupModelImpl extends AbstractModelImpl {
 
+    private static final Statistics EMPTY_STATISTICS;
+
+    static {
+        EMPTY_STATISTICS = new Statistics();
+        EMPTY_STATISTICS.setDiskUsage(0L);
+    }
     /**
      * Create BackupModelImpl.
      *
@@ -53,6 +60,7 @@ final class BackupModelImpl extends AbstractModelImpl {
         super(session);
     }
 
+    
     /**
      * Archive an artifact. This will simply apply the archived flag within the
      * backup.
@@ -209,6 +217,7 @@ final class BackupModelImpl extends AbstractModelImpl {
         }
 
     }
+
     /**
      * Obtain a document archive reader.
      * 
@@ -226,6 +235,30 @@ final class BackupModelImpl extends AbstractModelImpl {
             return createDocumentReader(userId, containerUniqueId, containerVersionId);
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    Boolean isBackupOnline(final JabberId userId) {
+        try {
+            return getArchiveModel().isArchiveOnline(userId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    Statistics readStatisitcs(final JabberId userId) {
+        try {
+            final JabberId backupId = readArchiveId(userId);
+            if (null == backupId) {
+                logger.logWarning("");
+                return emptyStatistics();
+            } else {
+                final Statistics statistics = new Statistics();
+                statistics.setDiskUsage(0L);
+                return statistics;
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 
@@ -338,6 +371,10 @@ final class BackupModelImpl extends AbstractModelImpl {
             return new DocumentReader(getModelFactory(archiveId),
                     containerUniqueId, containerVersionId);
         }
+    }
+
+    private Statistics emptyStatistics() {
+        return EMPTY_STATISTICS;
     }
 
     /**

@@ -13,7 +13,8 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -105,7 +106,16 @@ public interface ServiceRequestReader {
      *            A request parameter name <code>String</code>.
      * @return An <code>IncomingInvitation</code>.
      */
-    public IncomingInvitation readIncomingInvitation(final String name);
+    public IncomingEMailInvitation readIncomingEMailInvitation(final String name);
+
+    /**
+     * Read an incoming invitation.
+     * 
+     * @param name
+     *            A request parameter name <code>String</code>.
+     * @return An <code>IncomingInvitation</code>.
+     */
+    public IncomingUserInvitation readIncomingUserInvitation(final String name);
 
     /**
      * Read an integer parameter from the internet query.

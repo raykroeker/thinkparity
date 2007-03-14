@@ -4,7 +4,8 @@
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact;
 
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.profile.Profile;
@@ -33,9 +34,17 @@ public interface PopupDelegate extends TabPanelPopupDelegate {
      * Show a popup for a contact invitation.
      * 
      * @param invitation
-     *            An <code>IncomingInvitation</code>.
+     *            An <code>IncomingEMailInvitation</code>.
      */
-    public void showForInvitation(final IncomingInvitation invitation);
+    public void showForInvitation(final IncomingEMailInvitation invitation);
+
+    /**
+     * Show a popup for a contact invitation.
+     * 
+     * @param invitation
+     *            An <code>IncomingUserInvitation</code>.
+     */
+    public void showForInvitation(final IncomingUserInvitation invitation);
 
     /**
      * Show a popup for an outgoing e-mail invitation.

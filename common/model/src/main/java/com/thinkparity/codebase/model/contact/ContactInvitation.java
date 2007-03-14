@@ -5,17 +5,21 @@ package com.thinkparity.codebase.model.contact;
 
 import java.util.Calendar;
 
+import com.thinkparity.codebase.StringUtil;
+
+import com.thinkparity.codebase.model.user.User;
+
 /**
  * <b>Title:</b>thinkParity Contact Invitation<br>
  * <b>Description:</b>
  * 
  * @author raymond@thinkparity.com
- * @version
+ * @version 1.1.2.2
  */
 public abstract class ContactInvitation {
 
     /** By whom the invitation was created. */
-    protected Long createdBy;
+    protected User createdBy;
 
     /** The date/time the invitation was created. */
     protected Calendar createdOn;
@@ -23,18 +27,26 @@ public abstract class ContactInvitation {
     /** The invitation id. */
     protected Long id;
 
-    /** Create ContactInvitation. */
-    protected ContactInvitation() { super(); }
+    /**
+     * Create ContactInvitation.
+     * 
+     */
+    protected ContactInvitation() {
+        super();
+    }
 
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
     public boolean equals(final Object obj) {
-        if (null != obj && getClass().isAssignableFrom(obj.getClass())) {
-            return ((ContactInvitation) obj).id.equals(id);
-        }
-        return false;
+        if (null == obj)
+            return false;
+        if (this == obj)
+            return true;
+        if (getClass() != obj.getClass())
+            return false;
+        return id.equals(((ContactInvitation) obj).id); 
     }
 
     /**
@@ -42,7 +54,9 @@ public abstract class ContactInvitation {
      *
      * @return The JabberId.
      */
-    public Long getCreatedBy() { return createdBy; }
+    public User getCreatedBy() {
+        return createdBy;
+    }
 
     /**
      * Obtain the createdOn
@@ -60,6 +74,7 @@ public abstract class ContactInvitation {
 
     /**
      * @see java.lang.Object#hashCode()
+     * 
      */
     @Override
     public int hashCode() {
@@ -71,14 +86,15 @@ public abstract class ContactInvitation {
      *
      * @param createdBy The JabberId.
      */
-    public void setCreatedBy(final Long createdBy) {
+    public void setCreatedBy(final User createdBy) {
         this.createdBy = createdBy;
     }
 
     /**
-     * Set createdOn.
-     *
-     * @param createdOn The Calendar.
+     * Set created on.
+     * 
+     * @param createdOn
+     *            A created on <code>Calendar</code>.
      */
     public void setCreatedOn(final Calendar createdOn) {
         this.createdOn = createdOn;
@@ -89,15 +105,16 @@ public abstract class ContactInvitation {
      *
      * @param id The Long.
      */
-    public void setId(final Long id) { this.id = id; }
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
     /**
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
-        return new StringBuffer(getClass().getName()).append("//")
-                .append(id)
-                .toString();
+        return StringUtil.toString(getClass(), "createdBy", createdBy,
+                "createdOn", createdOn, "id", id);
     }
 }

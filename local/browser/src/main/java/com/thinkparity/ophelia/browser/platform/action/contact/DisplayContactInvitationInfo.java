@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar;
@@ -50,23 +51,27 @@ public class DisplayContactInvitationInfo extends AbstractBrowserAction {
      * 
      */
     public void invoke(final Data data) {
-        final List<IncomingInvitation> invitations;
+        final List<IncomingEMailInvitation> incomingEMailInvitations;
+        final List<IncomingUserInvitation> incomingUserInvitations;
         searchExpression = (String) data.get(DataKey.SEARCH_EXPRESSION);
-        
+
         // Prepare the list of incoming invitations
         if (isSearchApplied()) {
             // TODO At the moment search in contacts tab hides all invitations. When this
             // is fixed in contacts tab, fix here too.
-            invitations = Collections.emptyList();
+            incomingEMailInvitations = Collections.emptyList();
+            incomingUserInvitations = Collections.emptyList();
         } else {
-            invitations = getContactModel().readIncomingInvitations();
+            incomingEMailInvitations = getContactModel().readIncomingEMailInvitations();
+            incomingUserInvitations = getContactModel().readIncomingUserInvitations();
         }
 
-        // Build the list of invitation ids
+        // build the list of invitation ids
         final List<Long> invitationIds = new ArrayList<Long>();
-        for (final IncomingInvitation invitation : invitations) {
-            invitationIds.add(invitation.getId());
-        }
+        for (final IncomingEMailInvitation iei : incomingEMailInvitations)
+            invitationIds.add(iei.getId());
+        for (final IncomingUserInvitation iui : incomingUserInvitations)
+            invitationIds.add(iui.getId());
 
         displayContactInvitationInfoLink.setInvitationIds(invitationIds);
         browser.setStatus(displayContactInvitationInfoLink);                   

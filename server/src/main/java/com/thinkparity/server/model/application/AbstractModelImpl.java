@@ -35,6 +35,7 @@ import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
+import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
@@ -778,18 +779,39 @@ public abstract class AbstractModelImpl
         }
     }
 
+    /**
+     * Send an event to the user's backup.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param eventUserId
+     *            An event user id <code>JabberId</code>.
+     * @param event
+     *            An <code>XMPPEvent</code>.
+     */
     private void backupEvent(final JabberId userId, final JabberId eventUserId,
             final XMPPEvent event) {
-        final JabberId archiveId = getUserModel().readArchiveId(eventUserId);
-        if (null == archiveId) {
-            logger.logInfo("No archive exists for user {0}", eventUserId);
+        final JabberId backupId = getUserModel().readArchiveId(eventUserId);
+        if (null == backupId) {
+            logger.logInfo("No backup exists for user {0}.", eventUserId);
         } else {
-            createEvent(userId, archiveId, event);
-            if (isOnline(archiveId)) {
-                sendQueueUpdated(archiveId);
+            // create a backup statistics event in the database
+            final BackupStatisticsUpdatedEvent bsue = new BackupStatisticsUpdatedEvent();
+            bsue.setStatistics(getBackupModel().readStatistics(eventUserId));
+            createEvent(userId, eventUserId, bsue);
+            if (isOnline(eventUserId)) {
+                // send the user a notification that an event is pending
+                sendQueueUpdated(eventUserId);
+            }
+
+            // create the backup event in the database
+            createEvent(userId, backupId, event);
+            if (isOnline(backupId)) {
+                // send the backup user a notification that an event is pending
+                sendQueueUpdated(backupId);
             } else {
-                logWarning("Archive {0} for user {1} is not online.",
-                        archiveId, eventUserId);
+                logWarning("Backup {0} for user {1} is not online.",
+                        backupId, eventUserId);
             }
         }
     }

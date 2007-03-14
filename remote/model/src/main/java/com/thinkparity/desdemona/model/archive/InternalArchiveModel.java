@@ -47,11 +47,9 @@ public class InternalArchiveModel extends ArchiveModel {
      * @return An <code>ArchiveReader&lt;Document, DocumentVersion&gt;</code>.
      */
     public ArchiveReader<Document, DocumentVersion> getDocumentReader(
-            final JabberId userId, final UUID containerUniqueId,
-            final Long containerVersionId) {
+            final JabberId userId, final UUID containerUniqueId) {
         synchronized (getImplLock()) {
-            return getImpl().getDocumentReader(userId, containerUniqueId,
-                    containerVersionId);
+            return getImpl().getDocumentReader(userId, containerUniqueId);
         }
     }
 
@@ -65,9 +63,11 @@ public class InternalArchiveModel extends ArchiveModel {
      * @return An <code>ArchiveReader&lt;Document, DocumentVersion&gt;</code>.
      */
     public ArchiveReader<Document, DocumentVersion> getDocumentReader(
-            final JabberId userId, final UUID containerUniqueId) {
+            final JabberId userId, final UUID containerUniqueId,
+            final Long containerVersionId) {
         synchronized (getImplLock()) {
-            return getImpl().getDocumentReader(userId, containerUniqueId);
+            return getImpl().getDocumentReader(userId, containerUniqueId,
+                    containerVersionId);
         }
     }
 
@@ -81,6 +81,12 @@ public class InternalArchiveModel extends ArchiveModel {
     public ClientModelFactory getModelFactory(final JabberId archiveId) {
         synchronized (getImplLock()) {
             return getImpl().getModelFactory(archiveId);
+        }
+    }
+
+    public Boolean isArchiveOnline(final JabberId userId) {
+        synchronized (getImplLock()) {
+            return getImpl().isArchiveOnline(userId); 
         }
     }
 }

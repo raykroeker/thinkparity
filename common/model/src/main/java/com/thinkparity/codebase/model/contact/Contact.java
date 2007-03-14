@@ -11,10 +11,12 @@ import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.codebase.model.user.User;
 
-
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Contact<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
 public class Contact extends User {
 
@@ -58,7 +60,9 @@ public class Contact extends User {
      * @return True if the list is modified.
      */
     public boolean addEmail(final EMail email) {
-        if(emails.contains(email)) { return false; }
+        if (emails.contains(email)) {
+            return false;
+        }
         return emails.add(email);
     }
 
@@ -66,7 +70,9 @@ public class Contact extends User {
      * Clear the list of e-mails.
      * 
      */
-    public void clearEmails() { emails.clear(); }
+    public void clearEmails() {
+        emails.clear();
+    }
 
     /**
      * Obtain the contact's address.
@@ -199,23 +205,14 @@ public class Contact extends User {
     }
 
     /**
-     * Set the mobile phone.
+     * Set the contact's e-mail addresses.
      * 
-     * @param mobilePhone
-     *            A mobile phone <code>String</code>.
+     * @param emails
+     *            A <code>List</code> of <code>EMail</code> addresses.
      */
-    public void setMobilePhone(final String mobilePhone) {
-        vcard.setMobilePhone(mobilePhone);
-    }
-
-    /**
-     * Set the phone.
-     * 
-     * @param phone
-     *            A phone <code>String</code>.
-     */
-    public void setPhone(final String phone) {
-        vcard.setPhone(phone);
+    public void setEMails(final List<EMail> emails) {
+        this.emails.clear();
+        this.emails.addAll(emails);
     }
 
     /**

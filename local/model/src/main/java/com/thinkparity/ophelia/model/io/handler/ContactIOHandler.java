@@ -9,7 +9,8 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.user.User;
@@ -32,14 +33,12 @@ public interface ContactIOHandler {
     public void create(final Contact contact);
 
     /**
-     * Create an email.
+     * Create an incoming invitation.
      * 
-     * @param contactId
-     *            A contact id <code>Long</code>.
-     * @param email
-     *            An <code>EMail</code>.
+     * @param incoming
+     *            An incoming invitation.
      */
-    public void createEmail(final Long contactId, final EMail email);
+    public void createInvitation(final IncomingEMailInvitation invitation);
 
     /**
      * Create an incoming invitation.
@@ -47,8 +46,7 @@ public interface ContactIOHandler {
      * @param incoming
      *            An incoming invitation.
      */
-    public void createIncomingInvitation(final IncomingInvitation incoming,
-            final User user);
+    public void createInvitation(final IncomingUserInvitation invitation);
 
     /**
      * Create an outgoing invitation.
@@ -56,7 +54,7 @@ public interface ContactIOHandler {
      * @param outgoing
      *            An <code>OutgoingEMailInvitation</code>.
      */
-    public void createOutgoingInvitation(final OutgoingEMailInvitation outgoing);
+    public void createInvitation(final OutgoingEMailInvitation invitation);
 
     /**
      * Create an outgoing invitation.
@@ -64,57 +62,47 @@ public interface ContactIOHandler {
      * @param outgoing
      *            An <code>OutgoingUserInvitation</code>.
      */
-    public void createOutgoingInvitation(final OutgoingUserInvitation outgoing);
+    public void createInvitation(final OutgoingUserInvitation invitation);
 
     /**
      * Delete a contact.
      * 
-     * @param contactId
-     *            A contact id <code>JabberId</code>.
+     * @param contact
+     *            A <code>Contact</code>.
      */
-    public void delete(final Long contactId);
+    public void delete(final Contact contact);
 
     /**
-     * Delete an email.
+     * Delete an incoming e-mail invitation.
      * 
-     * @param contactId
-     *            A contact id <code>Long</code>.
-     * @param email
-     *            An <code>EMail</code>.
+     * @param invitation
+     *            An <code>IncomingEMailInvitation</code>.
      */
-    public void deleteEmail(final Long contactId, final EMail email);
+    public void deleteInvitation(final IncomingEMailInvitation invitation);
 
     /**
-     * Delete an email.
+     * Delete an incoming user invitation.
      * 
-     * @param email
-     *            An <code>EMail</code>.
+     * @param invitation
+     *            An <code>IncomingUserInvitation</code>.
      */
-    public void deleteEMail(final EMail email);
+    public void deleteInvitation(final IncomingUserInvitation invitation);
 
     /**
-     * Delete an incoming invitation.
+     * Delete an outgoing e-mail invitation.
      * 
-     * @param invitationId
-     *            An invitation id.
+     * @param invitation
+     *            An <code>OutgoingEMailInvitation</code>.
      */
-    public void deleteIncomingInvitation(final Long invitationId);
-
+    public void deleteInvitation(final OutgoingEMailInvitation invitation);
+    
     /**
-     * Delete an outgoing invitation.
+     * Delete an outgoing user invitation.
      * 
-     * @param invitationId
-     *            An invitation id.
+     * @param invitation
+     *            An <code>OutgoingUserInvitation</code>.
      */
-    public void deleteOutgoingEMailInvitation(final Long invitationId);
-
-    /**
-     * Delete an outgoing invitation.
-     * 
-     * @param invitationId
-     *            An invitation id.
-     */
-    public void deleteOutgoingUserInvitation(final Long invitationId);
+    public void deleteInvitation(final OutgoingUserInvitation invitation);
 
     /**
      * Determine whether or not a contact exists.
@@ -150,33 +138,71 @@ public interface ContactIOHandler {
      */
     public Contact read(final JabberId contactId);
 
-    // TODO-javadoc ContactIOHandler#readEmails()
-    public List<EMail> readEmails(final Long contactId);
+    /**
+     * Read an incoming e-mail invitation.
+     * 
+     * @param email
+     *            The <code>EMail</code> address the invitation was sent to.
+     * @param extendedBy
+     *            The <code>User</code> the invitation was extended by.
+     * @return An <code>IncomingEMailInvitation</code>.
+     */
+    public IncomingEMailInvitation readIncomingEMailInvitation(
+            final EMail email, final User extendedBy);
 
     /**
-     * Read an incoming invitation.
+     * Read a specific incoming e-mail invitation.
      * 
      * @param invitationId
-     *            An invitation id.
-     * @return An incoming invitation.
+     *            An invitation id <code>Long</code>.
+     * @return An <code>IncomingEMailInvitation</code>.
      */
-    public IncomingInvitation readIncomingInvitation(final JabberId invitedBy);
+    public IncomingEMailInvitation readIncomingEMailInvitation(
+            final Long invitationId);
 
     /**
-     * Read an incoming invitation.
+     * Read all incoming e-mail invitations.
+     * 
+     * @return A <code>List</code> of <code>IncomingEMailInvitation</code>s.
+     */
+    public List<IncomingEMailInvitation> readIncomingEMailInvitations();
+
+    /**
+     * Read a series of incoming e-mail invitations.
+     * 
+     * @param extendedBy
+     *            The extended by <code>User</code>.
+     * @return A <code>List</code> of <code>IncomingEMailInvitation</code>s.
+     */
+    public List<IncomingEMailInvitation> readIncomingEMailInvitations(
+            final User extendedBy);
+
+    /**
+     * Read a specific incoming user invitation.
      * 
      * @param invitationId
-     *            An invitation id.
-     * @return An incoming invitation.
+     *            An invitation id <code>Long</code>.
+     * @return An <code>IncomingUserInvitation</code>.
      */
-    public IncomingInvitation readIncomingInvitation(final Long invitationId);
+    public IncomingUserInvitation readIncomingUserInvitation(
+            final Long invitationId);
 
     /**
-     * Read incoming invitations.
+     * Read a specific incoming user invitation
      * 
-     * @return A list of incoming invitation.
+     * @param extendedBy
+     *            An extended by <code>User</code>.
+     * @return An <code>IncomingUserInvitation</code>.
      */
-    public List<IncomingInvitation> readIncomingInvitations();
+    public IncomingUserInvitation readIncomingUserInvitation(
+            final User extendedBy);
+
+    /**
+     * Read all incoming user invitations.
+     * 
+     * @return A <code>List</code> of <code>IncomingUserInvitation</code>s.
+     */
+    public List<IncomingUserInvitation> readIncomingUserInvitations();
 
     /**
      * Read an outgoing invitation.
@@ -205,17 +231,18 @@ public interface ContactIOHandler {
     public List<OutgoingEMailInvitation> readOutgoingEMailInvitations();
 
     /**
-     * Read an outgoing invitation.
+     * Read a series of outgoing e-mail invitations for a list of e-mail
+     * addresses.
      * 
-     * @param userId
-     *            A user id <code>Long</code>.
-     * @return An <code>OutgoingUserInvitation</code>.
+     * @param emails
+     *            A <code>List</code> of <code>EMail</code> addresses.
+     * @return A <code>List</code> of <code>OutgoingEMailInvitation</code>s.
      */
-    public OutgoingUserInvitation readOutgoingUserInvitation(
-            final JabberId userId);
+    public List<OutgoingEMailInvitation> readOutgoingEMailInvitations(
+            final List<EMail> emails);
 
     /**
-     * Read an outgoing invitation.
+     * Read a specific outgoing invitation.
      * 
      * @param invitationId
      *            An invitation id <code>Long</code>.
@@ -225,9 +252,19 @@ public interface ContactIOHandler {
             final Long invitationId);
 
     /**
-     * Read outgoing user invitations.
+     * Read outgoing user invitations for the invitation user.
      * 
-     * @return A list of outgoing invitation.
+     * @param invitationUser
+     *            A <code>User</code>.
+     * @return A <code>List</code> of <code>OutgoingUserInvitation</code>s.
+     */
+    public OutgoingUserInvitation readOutgoingUserInvitation(
+            final User invitationUser);
+
+    /**
+     * Read all outgoing user invitations.
+     * 
+     * @return A <code>List</code> of <code>OutgoingUserInvitation</code>s.
      */
     public List<OutgoingUserInvitation> readOutgoingUserInvitations();
 

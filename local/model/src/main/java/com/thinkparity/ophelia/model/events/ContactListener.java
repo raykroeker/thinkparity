@@ -13,12 +13,16 @@ import com.thinkparity.codebase.event.EventListener;
  * @version 1.1.2.1
  */
 public interface ContactListener extends EventListener {
+    public void contactCreated(final ContactEvent e);
     public void contactDeleted(final ContactEvent e);
     public void contactUpdated(final ContactEvent e);
-    public void incomingInvitationAccepted(final ContactEvent e);
-    public void incomingInvitationCreated(final ContactEvent e);
-    public void incomingInvitationDeclined(final ContactEvent e);
-    public void incomingInvitationDeleted(final ContactEvent e);
+    public void incomingEMailInvitationCreated(final ContactEvent e);
+    public void incomingEMailInvitationDeclined(final ContactEvent e);
+    public void incomingEMailInvitationDeleted(final ContactEvent e);
+    public void incomingUserInvitationAccepted(final ContactEvent e);
+    public void incomingUserInvitationCreated(final ContactEvent e);
+    public void incomingUserInvitationDeclined(final ContactEvent e);
+    public void incomingUserInvitationDeleted(final ContactEvent e);
     public void outgoingEMailInvitationAccepted(final ContactEvent e);
     public void outgoingEMailInvitationCreated(final ContactEvent e);
     public void outgoingEMailInvitationDeclined(final ContactEvent e);

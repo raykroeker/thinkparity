@@ -131,11 +131,11 @@ public final class OutgoingUserInvitationIndexImpl extends
     public void index(final OutgoingUserInvitation o) throws IOException {
         final DocumentBuilder builder = new DocumentBuilder(4)
             .append(IDX_INVITATION_ID.setValue(o.getId()).toField())
-            .append(IDX_USER_NAME.setValue(o.getUser().getName()).toField())
+            .append(IDX_USER_NAME.setValue(o.getInvitationUser().getName()).toField())
             .append(IDX_USER_NAME_REV.setValue(reverse(IDX_USER_NAME)).toField())
-            .append(IDX_USER_ORGANIZATION.setValue(o.getUser().getOrganization()).toField())
+            .append(IDX_USER_ORGANIZATION.setValue(o.getInvitationUser().getOrganization()).toField())
             .append(IDX_USER_ORGANIZATION_REV.setValue(reverse(IDX_USER_ORGANIZATION)).toField())
-            .append(IDX_USER_TITLE.setValue(o.getUser().getTitle()).toField())
+            .append(IDX_USER_TITLE.setValue(o.getInvitationUser().getTitle()).toField())
             .append(IDX_USER_TITLE_REV.setValue(reverse(IDX_USER_TITLE)).toField());
         index(builder.toDocument());
     }

@@ -120,11 +120,28 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      * @param remote
      *            Whether or not the the source is a remote event.
      */
-    public void syncIncomingInvitation(final Long invitationId,
+    public void syncIncomingEMailInvitation(final Long invitationId,
             final Boolean remote) {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
-                model.syncIncomingInvitation(invitationId, remote);
+                model.syncIncomingEMailInvitation(invitationId, remote);
+            }
+        });
+    }
+
+    /**
+     * Synchronize the incoming invitation in the list.
+     * 
+     * @param invitationId
+     *            An invitation id.
+     * @param remote
+     *            Whether or not the the source is a remote event.
+     */
+    public void syncIncomingUserInvitation(final Long invitationId,
+            final Boolean remote) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.syncIncomingUserInvitation(invitationId, remote);
             }
         });
     }

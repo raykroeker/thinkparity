@@ -19,9 +19,9 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.ContactVCard;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
-import com.thinkparity.codebase.model.contact.OutgoingInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
@@ -89,24 +89,21 @@ final class ContactModelImpl extends AbstractModelImpl {
      * @param acceptedOn
      *            When the acceptance was made.
      */
-	void acceptIncomingInvitation(final JabberId userId,
-            final IncomingInvitation invitation, final Calendar acceptedOn) {
+	void acceptInvitation(final JabberId userId,
+            final IncomingEMailInvitation invitation, final Calendar acceptedOn) {
 		try {
             assertIsAuthenticatedUser(userId);
             final InternalUserModel userModel = getUserModel();
             final User user = userModel.read(userId);
-            final User invitationUser = userModel.read(invitation.getInvitedBy().getId());
-            // delete incoming
-            invitationSql.deleteIncoming(user.getLocalId(), invitationUser.getLocalId());
-            // delete outgoing e-mail
-            invitationSql.deleteOutgoingEMail(user.getLocalId(), invitationUser.getLocalId());
-            // delete outgoing user
-            invitationSql.deleteOutgoingUser(user.getLocalId(), invitationUser.getLocalId());
+            final User invitationUser = userModel.read(invitation.getExtendedBy().getId());
+
+            // delete all invitations
+            deleteAllInvitations(userId, user, invitationUser);
+
             // create contact
-            contactSql.create(user.getLocalId(), invitationUser.getLocalId(),
-                    user.getLocalId(), acceptedOn);
-            contactSql.create(invitationUser.getLocalId(), user.getLocalId(),
-                    user.getLocalId(), acceptedOn);
+            contactSql.create(user, invitationUser, user, acceptedOn);
+            contactSql.create(invitationUser, user, user, acceptedOn);
+
             // fire event
             final ContactInvitationAcceptedEvent event = new ContactInvitationAcceptedEvent();
             event.setAcceptedBy(user.getId());
@@ -119,46 +116,68 @@ final class ContactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
-     * Extend an invitation to an e-mail address. If the e-mail address is
-     * known; then a standard invitation is created and sent; otherwise an
-     * e-mail is sent.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param extendedTo
-     *            An <code>EMail</code> to extend the invitation to.
-     * @param extendedOn
-     *            The date <code>Calendar</code>.
-     */
-    void createOutgoingEMailInvitation(final JabberId userId,
+    void acceptInvitation(final JabberId userId,
+            final IncomingUserInvitation invitation, final Calendar acceptedOn) {
+        try {
+            assertIsAuthenticatedUser(userId);
+            final InternalUserModel userModel = getUserModel();
+            final User user = userModel.read(userId);
+            final User extendedByUser = userModel.read(
+                    invitation.getExtendedBy().getId());
+
+            // delete incoming/outgoing/user/e-mail
+            deleteAllInvitations(userId, user, extendedByUser);
+
+            // create contact
+            contactSql.create(user, extendedByUser, user, acceptedOn);
+            contactSql.create(extendedByUser, user, user, acceptedOn);
+
+            // fire event
+            final ContactInvitationAcceptedEvent event = new ContactInvitationAcceptedEvent();
+            event.setAcceptedBy(user.getId());
+            event.setAcceptedOn(acceptedOn);
+            event.setDate(event.getAcceptedOn());
+            enqueueEvent(user.getId(), extendedByUser.getId(), event);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    void createInvitation(final JabberId userId,
             final OutgoingEMailInvitation invitation) {
         try {
             assertIsAuthenticatedUser(userId);
             final UserModel userModel = getUserModel();
+            final User createdBy = userModel.read(invitation.getCreatedBy().getId());
             final User user = userModel.read(userId);
-            // create outgoing
-            invitation.setCreatedBy(user.getLocalId());
-            invitationSql.createOutgoingEMail(invitation);
-            final User invitationUser = userModel.read(invitation.getEmail());
+
+            // create outgoing e-mail
+            final OutgoingEMailInvitation outgoingEMail = new OutgoingEMailInvitation();
+            outgoingEMail.setCreatedBy(createdBy);
+            outgoingEMail.setCreatedOn(invitation.getCreatedOn());
+            outgoingEMail.setInvitationEMail(invitation.getInvitationEMail());
+            invitationSql.create(user, invitation);
+
+            final User invitationUser = userModel.read(invitation.getInvitationEMail());
             if (null == invitationUser) {
                 // send e-mail
                 final MimeMessage mimeMessage = MessageFactory.createMimeMessage();
-                inject(mimeMessage, invitation.getEmail(), user);
-                addRecipient(mimeMessage, invitation.getEmail());
+                inject(mimeMessage, invitation.getInvitationEMail(), user);
+                addRecipient(mimeMessage, invitation.getInvitationEMail());
                 TransportManager.deliver(mimeMessage);
             } else {
                 // create incoming
-                final IncomingInvitation incoming = new IncomingInvitation();
-                incoming.setCreatedBy(user.getLocalId());
+                final IncomingEMailInvitation incoming = new IncomingEMailInvitation();
+                incoming.setCreatedBy(createdBy);
                 incoming.setCreatedOn(invitation.getCreatedOn());
-                incoming.setInvitedAs(invitation.getEmail());
-                incoming.setInvitedBy(user);
-                invitationSql.createIncoming(invitationUser.getLocalId(), incoming);
+                incoming.setInvitationEMail(invitation.getInvitationEMail());
+                incoming.setExtendedBy(user);
+                invitationSql.create(invitationUser, incoming);
+
                 // fire event
                 final ContactEMailInvitationExtendedEvent event = new ContactEMailInvitationExtendedEvent();
-                event.setInvitedAs(incoming.getInvitedAs());
-                event.setInvitedBy(incoming.getInvitedBy().getId());
+                event.setInvitedAs(incoming.getInvitationEMail());
+                event.setInvitedBy(incoming.getExtendedBy().getId());
                 event.setInvitedOn(incoming.getCreatedOn());
                 enqueueEvent(userId, invitationUser.getId(), event);
             }
@@ -177,30 +196,33 @@ final class ContactModelImpl extends AbstractModelImpl {
      * @param extendedOn
      *            An extended on <code>Calendar</code>.
      */
-    void createOutgoingUserInvitation(final JabberId userId,
+    void createInvitation(final JabberId userId,
             final OutgoingUserInvitation invitation) {
         try {
             assertIsAuthenticatedUser(userId);
             final UserModel userModel = getUserModel();
             final User user = userModel.read(userId);
-            final User invitationUser = userModel.read(invitation.getUser().getId());
-            // create outgoing user
+            final User invitationUser = userModel.read(invitation.getInvitationUser().getId());
+
+            // create outgoing user invitation
             final OutgoingUserInvitation outgoingUser = new OutgoingUserInvitation();
-            outgoingUser.setCreatedBy(user.getLocalId());
+            outgoingUser.setCreatedBy(user);
             outgoingUser.setCreatedOn(invitation.getCreatedOn());
-            outgoingUser.setUser(invitationUser);
-            invitationSql.createOutgoingUser(outgoingUser);
+            outgoingUser.setInvitationUser(invitationUser);
+            invitationSql.create(user, outgoingUser);
+
             // create incoming
-            final IncomingInvitation incoming = new IncomingInvitation();
-            incoming.setCreatedBy(user.getLocalId());
-            incoming.setCreatedOn(invitation.getCreatedOn());
-            incoming.setInvitedBy(user);
-            invitationSql.createIncoming(invitationUser.getLocalId(), incoming);
+            final IncomingUserInvitation incomingUser = new IncomingUserInvitation();
+            incomingUser.setCreatedBy(user);
+            incomingUser.setCreatedOn(invitation.getCreatedOn());
+            incomingUser.setExtendedBy(incomingUser.getCreatedBy());
+            invitationSql.create(invitationUser, incomingUser);
+
             // fire event
             final ContactUserInvitationExtendedEvent event = new ContactUserInvitationExtendedEvent();
             event.setDate(invitation.getCreatedOn());
-            event.setInvitedBy(incoming.getInvitedBy().getId());
-            event.setInvitedOn(incoming.getCreatedOn());
+            event.setInvitedBy(incomingUser.getExtendedBy().getId());
+            event.setInvitedOn(incomingUser.getCreatedOn());
             enqueueEvent(userId, invitationUser.getId(), event);
         } catch (final Throwable t) {
             throw panic(t);
@@ -220,48 +242,62 @@ final class ContactModelImpl extends AbstractModelImpl {
      * @param declinedOn
      *            When the invitation was declined.
      */
-    void declineIncomingInvitation(final JabberId userId,
-            final IncomingInvitation invitation, final Calendar declinedOn) {
+    void declineInvitation(final JabberId userId,
+            final IncomingEMailInvitation invitation, final Calendar declinedOn) {
         try {
             assertIsAuthenticatedUser(userId);
             final UserModel userModel = getUserModel();
             final User user = userModel.read(userId);
-            final User invitationUser = userModel.read(invitation.getInvitedBy().getId());
-            // delete incoming invitation
-            final IncomingInvitation incoming;
-            if (invitation.isSetInvitedAs()) {
-                incoming = invitationSql.readIncoming(user.getLocalId(),
-                        invitationUser.getLocalId(), invitation.getInvitedAs());
-            } else {
-                incoming = invitationSql.readIncoming(user.getLocalId(),
-                        invitationUser.getLocalId());
-            }
-            invitationSql.deleteIncoming(incoming.getId());
-            final OutgoingInvitation outgoing;
-            if (invitation.isSetInvitedAs()) {
-                // delete outgoing e-mail invitation
-                outgoing = invitationSql.readOutgoingEMail(
-                        invitationUser.getLocalId(), invitation.getInvitedAs());
-                invitationSql.deleteOutgoingEMail(outgoing.getId());
-                // fire event
-                final ContactEMailInvitationDeclinedEvent event = new ContactEMailInvitationDeclinedEvent();
-                event.setDate(declinedOn);
-                event.setDeclinedBy(user.getId());
-                event.setDeclinedOn(event.getDate());
-                event.setInvitedAs(invitation.getInvitedAs());
-                enqueueEvent(user.getId(), invitationUser.getId(), event);
-            } else {
-                // delete outgoing user invitation
-                outgoing = invitationSql.readOutgoingUser(
-                        invitationUser.getLocalId(), user.getLocalId());
-                invitationSql.deleteOutgoingUser(outgoing.getId());
-                // fire event
-                final ContactUserInvitationDeclinedEvent event = new ContactUserInvitationDeclinedEvent();
-                event.setDate(declinedOn);
-                event.setDeclinedBy(user.getId());
-                event.setDeclinedOn(event.getDate());
-                enqueueEvent(user.getId(), invitationUser.getId(), event);
-            }
+            final User invitationUser = userModel.read(invitation.getExtendedBy().getId());
+
+            // delete incoming e-mail invitation
+            final IncomingEMailInvitation incomingEMailInvitation =
+                invitationSql.readIncomingEMail(user,
+                        invitation.getInvitationEMail(), invitationUser);
+            invitationSql.delete(incomingEMailInvitation);
+
+            // delete outgoing e-mail invitation
+            final OutgoingEMailInvitation outgoingEMailInvitation =
+                invitationSql.readOutgoingEMail(invitationUser,
+                        invitation.getInvitationEMail());
+            invitationSql.delete(outgoingEMailInvitation);
+
+            // fire event
+            final ContactEMailInvitationDeclinedEvent event = new ContactEMailInvitationDeclinedEvent();
+            event.setDate(declinedOn);
+            event.setDeclinedBy(user.getId());
+            event.setDeclinedOn(event.getDate());
+            event.setInvitedAs(invitation.getInvitationEMail());
+            enqueueEvent(user.getId(), invitationUser.getId(), event);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    void declineInvitation(final JabberId userId,
+            final IncomingUserInvitation invitation, final Calendar declinedOn) {
+        try {
+            assertIsAuthenticatedUser(userId);
+            final UserModel userModel = getUserModel();
+            final User user = userModel.read(userId);
+            final User invitationUser = userModel.read(invitation.getExtendedBy().getId());
+
+            // delete incoming user invitation
+            final IncomingUserInvitation incomingUserInvitation =
+                invitationSql.readIncomingUser(user, invitationUser);
+            invitationSql.delete(incomingUserInvitation);
+
+            // delete outgoing user invitation
+            final OutgoingUserInvitation outgoingUserInvitation =
+                invitationSql.readOutgoingUser(invitationUser, user);
+            invitationSql.delete(outgoingUserInvitation);
+
+            // fire event
+            final ContactUserInvitationDeclinedEvent event = new ContactUserInvitationDeclinedEvent();
+            event.setDate(declinedOn);
+            event.setDeclinedBy(user.getId());
+            event.setDeclinedOn(event.getDate());
+            enqueueEvent(user.getId(), invitationUser.getId(), event);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -284,8 +320,10 @@ final class ContactModelImpl extends AbstractModelImpl {
             final UserModel userModel = getUserModel();
             final User user = userModel.read(userId);
             final User contact = userModel.read(contactId);
+
             // delete contact
             contactSql.delete(user.getLocalId(), contact.getLocalId());
+
             // fire event
             final ContactDeletedEvent deleted = new ContactDeletedEvent();
             deleted.setDeletedBy(userId);
@@ -306,29 +344,32 @@ final class ContactModelImpl extends AbstractModelImpl {
      * @param deletedOn
      *            The deletion date\time <code>Calendar<code>.
      */
-    void deleteOutgoingEMailInvitation(final JabberId userId,
+    void deleteInvitation(final JabberId userId,
             final OutgoingEMailInvitation invitation, final Calendar deletedOn) {
         try {
             assertIsAuthenticatedUser(userId);
             final UserModel userModel = getUserModel();
             final User user = userModel.read(userId);
-            final User invitationUser = userModel.read(invitation.getEmail());
-            // delete the incoming invitation
-            final IncomingInvitation incoming = invitationSql.readIncoming(
-                    invitationUser.getLocalId(), user.getLocalId(),
-                    invitation.getEmail());
-            invitationSql.deleteIncoming(incoming.getId());
-            // delete the outgoing invitation
-            final OutgoingEMailInvitation outgoing =
-                invitationSql.readOutgoingEMail(user.getLocalId(),
-                        invitation.getEmail());
-            invitationSql.deleteOutgoingEMail(outgoing.getId());
-            // fire e-mail invitation deleted event
+            final User invitationUser = userModel.read(invitation.getInvitationEMail());
+
+            // delete incoming e-mail invitation
+            final IncomingEMailInvitation incomingEMailInvitation =
+                invitationSql.readIncomingEMail(invitationUser,
+                        invitation.getInvitationEMail(), user);
+            invitationSql.delete(incomingEMailInvitation);
+
+            // delete outgoing e-mail invitation
+            final OutgoingEMailInvitation outgoingEMailInvitation =
+                invitationSql.readOutgoingEMail(user,
+                        invitation.getInvitationEMail());
+            invitationSql.delete(outgoingEMailInvitation);
+
+            // fire event
             final ContactEMailInvitationDeletedEvent event = new ContactEMailInvitationDeletedEvent();
             event.setDate(deletedOn);
             event.setDeletedBy(user.getId());
             event.setDeletedOn(event.getDate());
-            event.setInvitedAs(invitation.getEmail());
+            event.setInvitedAs(invitation.getInvitationEMail());
             enqueueEvent(user.getId(), invitationUser.getId(), event);
         } catch(final Throwable t) {
             throw translateError(t);
@@ -351,16 +392,18 @@ final class ContactModelImpl extends AbstractModelImpl {
             assertIsAuthenticatedUser(userId);
             final UserModel userModel = getUserModel();
             final User user = userModel.read(userId);
-            final User invitationUser = userModel.read(invitation.getUser().getId());
-            // delete the incoming invitation
-            final IncomingInvitation incoming = invitationSql.readIncoming(
-                    invitationUser.getLocalId(), user.getLocalId());
-            invitationSql.deleteIncoming(incoming.getId());
-            // delete the outgoing invitation
-            final OutgoingUserInvitation outgoingUser =
-                invitationSql.readOutgoingUser(user.getLocalId(),
-                        invitationUser.getLocalId());
-            invitationSql.deleteOutgoingUser(outgoingUser.getId());
+            final User invitationUser = userModel.read(invitation.getInvitationUser().getId());
+
+            // delete incoming user invitation
+            final IncomingUserInvitation incomingUserInvitation =
+                invitationSql.readIncomingUser(invitationUser, user);
+            invitationSql.delete(incomingUserInvitation);
+
+            // delete outgoing user invitation
+            final OutgoingUserInvitation outgoingUserInvitation =
+                invitationSql.readOutgoingUser(user, invitationUser);
+            invitationSql.delete(outgoingUserInvitation);
+
             // fire event
             final ContactUserInvitationDeletedEvent event = new ContactUserInvitationDeletedEvent();
             event.setDate(deletedOn);
@@ -388,7 +431,7 @@ final class ContactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	Contact read(final JabberId userId, final JabberId contactId) {
+    Contact read(final JabberId userId, final JabberId contactId) {
 		try {
 		    assertIsAuthenticatedUser(userId);
 
@@ -401,12 +444,25 @@ final class ContactModelImpl extends AbstractModelImpl {
         }
 	}
 
-    List<IncomingInvitation> readIncomingInvitations(final JabberId userId) {
+	List<IncomingEMailInvitation> readIncomingEMailInvitations(
+            final JabberId userId) {
         try {
             assertIsAuthenticatedUser(userId);
             final User user = getUserModel().read(userId);
 
-            return invitationSql.readIncomingInvitations(user.getLocalId());
+            return invitationSql.readIncomingEMail(user);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    List<IncomingUserInvitation> readIncomingUserInvitations(
+            final JabberId userId) {
+        try {
+            assertIsAuthenticatedUser(userId);
+            final User user = getUserModel().read(userId);
+
+            return invitationSql.readIncomingUser(user);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -418,7 +474,7 @@ final class ContactModelImpl extends AbstractModelImpl {
             assertIsAuthenticatedUser(userId);
             final User user = getUserModel().read(userId);
 
-            return invitationSql.readOutgoingEMailInvitations(user.getLocalId());
+            return invitationSql.readOutgoingEMail(user);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -430,10 +486,82 @@ final class ContactModelImpl extends AbstractModelImpl {
             assertIsAuthenticatedUser(userId);
             final User user = getUserModel().read(userId);
 
-            return invitationSql.readOutgoingUserInvitations(user.getLocalId());
+            return invitationSql.readOutgoingUser(user);
         } catch (final Throwable t) {
             throw panic(t);
         }
+    }
+
+    /**
+     * Delete all incoming and outgoing user and e-mail invitations between two
+     * users.
+     * 
+     * @param userId
+     *            The current user id <code>JabberId</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @param invitationUser
+     *            A <code>User</code>.
+     */
+    private void deleteAllInvitations(final JabberId userId, final User user,
+            final User invitationUser) {
+        final InternalUserModel userModel = getUserModel();
+        final List<EMail> userEMails = userModel.readEMails(userId,
+                user.getLocalId());
+        final List<EMail> invitationUserEMails = userModel.readEMails(userId,
+                invitationUser.getLocalId());
+
+        // delete incoming e-mail invitations
+        IncomingEMailInvitation incomingEMailInvitation;
+        for (final EMail email : userEMails) {
+            incomingEMailInvitation = invitationSql.readIncomingEMail(user,
+                    email, invitationUser);
+            if (null != incomingEMailInvitation)
+                invitationSql.delete(incomingEMailInvitation);
+        }
+        for (final EMail email : invitationUserEMails) {
+            incomingEMailInvitation = invitationSql.readIncomingEMail(
+                    invitationUser, email, user);
+            if (null != incomingEMailInvitation)
+                invitationSql.delete(incomingEMailInvitation);
+        }
+
+        // delete outgoing e-mail invitations
+        OutgoingEMailInvitation outgoingEMailInvitation;
+        for (final EMail email : invitationUserEMails) {
+            outgoingEMailInvitation = invitationSql.readOutgoingEMail(user,
+                    email);
+            if (null != outgoingEMailInvitation)
+                invitationSql.delete(outgoingEMailInvitation);
+        }
+        for (final EMail email : userEMails) {
+            outgoingEMailInvitation = invitationSql.readOutgoingEMail(
+                    invitationUser, email);
+            if (null != outgoingEMailInvitation)
+                invitationSql.delete(outgoingEMailInvitation);
+        }
+
+        // delete incoming user invitations
+        IncomingUserInvitation incomingUserInvitation;
+        incomingUserInvitation = invitationSql.readIncomingUser(user,
+                invitationUser);
+        if (null != incomingUserInvitation)
+            invitationSql.delete(incomingUserInvitation);
+        incomingUserInvitation = invitationSql.readIncomingUser(
+                invitationUser, user);
+        if (null != incomingUserInvitation)
+            invitationSql.delete(incomingUserInvitation);
+
+        // delete outgoing user invitations
+        OutgoingUserInvitation outgoingUserInvitation;
+        outgoingUserInvitation = invitationSql.readOutgoingUser(user,
+                invitationUser);
+        if (null != outgoingUserInvitation)
+            invitationSql.delete(outgoingUserInvitation);
+        outgoingUserInvitation = invitationSql.readOutgoingUser(
+                invitationUser, user);
+        if (null != outgoingUserInvitation)
+            invitationSql.delete(outgoingUserInvitation);
     }
 
     /**

@@ -16,7 +16,8 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
@@ -65,27 +66,38 @@ public final class SessionModelImpl extends Model<SessionListener>
 	}
 
     /**
-     * Accept the contact invitation.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param invitedBy
-     *            The invited by user id <code>JabberId</code>.
-     * @param acceptedOn
-     *            When the user accepted <code>Calendar</code>.
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#acceptIncomingEMailInvitation(com.thinkparity.codebase.model.contact.IncomingEMailInvitation, java.util.Calendar)
+     *
      */
-    public void acceptIncomingInvitation(final IncomingInvitation invitation,
+    public void acceptInvitation(final IncomingEMailInvitation invitation,
             final Calendar acceptedOn) {
-	    try {
+       try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
-	        synchronized (xmppSession) {
-                xmppSession.acceptIncomingInvitation(localUserId(), invitation,
+            synchronized (xmppSession) {
+                xmppSession.acceptInvitation(localUserId(), invitation,
                         acceptedOn);
-	        }
+            }
         } catch (final Throwable t) {
-            throw translateError(t);
-	    }
-	}
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#acceptIncomingUserInvitation(com.thinkparity.codebase.model.contact.IncomingUserInvitation, java.util.Calendar)
+     *
+     */
+    public void acceptInvitation(final IncomingUserInvitation invitation,
+            final Calendar acceptedOn) {
+       try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                xmppSession.acceptInvitation(localUserId(), invitation,
+                        acceptedOn);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
 
     /**
      * @see com.thinkparity.ophelia.model.Model#addListener(com.thinkparity.ophelia.model.util.EventListener)
@@ -178,7 +190,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
 	}
 
-	/**
+    /**
      * Send an artifact creation packet to the parity server.
      * 
      * @param uniqueId
@@ -202,11 +214,6 @@ public final class SessionModelImpl extends Model<SessionListener>
 
     public void createBackupStream(final JabberId userId, final String streamId,
             final UUID uniqueId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("streamId", streamId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -236,6 +243,36 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createInvitation(com.thinkparity.codebase.model.contact.OutgoingEMailInvitation)
+     * 
+     */
+    public void createInvitation(final OutgoingEMailInvitation invitation) {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                xmppSession.createInvitation(localUserId(), invitation);
+            }
+        } catch(final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createInvitation(com.thinkparity.codebase.model.contact.OutgoingUserInvitation)
+     * 
+     */
+    public void createInvitation(final OutgoingUserInvitation invitation) {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                xmppSession.createInvitation(localUserId(), invitation);
+            }
+        } catch(final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createMigratorStream(java.lang.String, java.util.List)
      *
      */
@@ -251,40 +288,6 @@ public final class SessionModelImpl extends Model<SessionListener>
                         streamId, resources);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createOutgoingEMailInvitation(com.thinkparity.ophelia.model.contact.OutgoingEMailInvitation)
-     * 
-     */
-    public void createOutgoingEMailInvitation(
-            final OutgoingEMailInvitation invitation) {
-        try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                xmppSession.createOutgoingEMailInvitation(localUserId(),
-                        invitation);
-            }
-        } catch(final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createOutgoingUserInvitation(com.thinkparity.ophelia.model.contact.OutgoingUserInvitation)
-     * 
-     */
-    public void createOutgoingUserInvitation(
-            final OutgoingUserInvitation invitation) {
-        try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                xmppSession.createOutgoingUserInvitation(localUserId(),
-                        invitation);
-            }
-        } catch(final Throwable t) {
             throw translateError(t);
         }
     }
@@ -319,36 +322,37 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#declineIncomingInvitation(com.thinkparity.ophelia.model.contact.IncomingInvitation,
-     *      java.util.Calendar)
-     * 
-     */
-    public void declineIncomingInvitation(final IncomingInvitation invitation,
-            final Calendar declinedOn) {
-		try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-		    synchronized(xmppSession) {
-		        xmppSession.declineIncomingInvitation(localUserId(), invitation,
-                        declinedOn);
-            }
-		} catch(final Throwable t) {
-            throw translateError(t);
-		}
-	}
-
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteArtifact(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
+	/**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#declineInvitation(com.thinkparity.codebase.model.contact.IncomingEMailInvitation, java.util.Calendar)
      *
      */
-    public void deleteArtifact(final JabberId userId, final UUID uniqueId) {
-        try {
+    public void declineInvitation(final IncomingEMailInvitation invitation,
+            final Calendar declinedOn) {
+       try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                xmppSession.deleteArtifact(userId, uniqueId);
+                xmppSession.declineInvitation(localUserId(), invitation,
+                        declinedOn);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#declineInvitation(com.thinkparity.codebase.model.contact.IncomingUserInvitation, java.util.Calendar)
+     *
+     */
+    public void declineInvitation(final IncomingUserInvitation invitation,
+            final Calendar declinedOn) {
+       try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                xmppSession.declineInvitation(localUserId(), invitation,
+                        declinedOn);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 
@@ -364,6 +368,21 @@ public final class SessionModelImpl extends Model<SessionListener>
             }
         } catch (final Throwable t) {
             throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteArtifact(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
+     *
+     */
+    public void deleteArtifact(final JabberId userId, final UUID uniqueId) {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                xmppSession.deleteArtifact(userId, uniqueId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -387,17 +406,17 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteOutgoingEMailInvitation(com.thinkparity.ophelia.model.contact.OutgoingEMailInvitation,
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteInvitation(com.thinkparity.codebase.model.contact.OutgoingEMailInvitation,
      *      java.util.Calendar)
      * 
      */
-    public void deleteOutgoingEMailInvitation(
-            final OutgoingEMailInvitation invitation, final Calendar deletedOn) {
+    public void deleteInvitation(final OutgoingEMailInvitation invitation,
+            final Calendar deletedOn) {
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                xmppSession.deleteOutgoingEMailInvitation(localUserId(),
-                        invitation, deletedOn);
+                xmppSession.deleteInvitation(localUserId(), invitation,
+                        deletedOn);
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -405,17 +424,17 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteOutgoingUserInvitation(com.thinkparity.ophelia.model.contact.OutgoingUserInvitation,
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteInvitation(com.thinkparity.codebase.model.contact.OutgoingUserInvitation,
      *      java.util.Calendar)
      * 
      */
-    public void deleteOutgoingUserInvitation(
-            final OutgoingUserInvitation invitation, final Calendar deletedOn) {
+    public void deleteInvitation(final OutgoingUserInvitation invitation,
+            final Calendar deletedOn) {
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                xmppSession.deleteOutgoingUserInvitation(localUserId(),
-                        invitation, deletedOn);
+                xmppSession.deleteInvitation(localUserId(), invitation,
+                        deletedOn);
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -460,7 +479,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * Handle the session established remote event.
      *
      */
@@ -477,7 +496,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * Handle the remote session terminated event.
      *
      */
@@ -514,7 +533,22 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isBackupOnline()
+     *
+     */
+    public Boolean isBackupOnline() {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.isBackupOnline(localUserId());
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isEmailAvailable(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.email.EMail)
      * 
@@ -547,7 +581,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isPublishRestricted(com.thinkparity.codebase.jabber.JabberId)
      *
      */
@@ -563,7 +597,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#login(com.thinkparity.codebase.model.session.Credentials)
      *
      */
@@ -648,7 +682,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
 	 * Terminate the current session.
 	 * 
 	 */
@@ -706,7 +740,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	public Container readArchiveContainer(final JabberId userId, final UUID uniqueId) {
+    public Container readArchiveContainer(final JabberId userId, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
@@ -719,7 +753,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw translateError(t);
         }
     }
-    
+
     /**
      * Read the archived containers.
      * 
@@ -739,7 +773,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw translateError(t);
         }
     }
-    
+
     /**
      * Read the archived containers.
      * 
@@ -812,7 +846,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(final JabberId userId,
+	public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(final JabberId userId,
             final UUID uniqueId, final Long compareVersionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -828,7 +862,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw translateError(t);
         }
     }
-
+    
     public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
             final JabberId userId, final UUID uniqueId,
             final Long compareVersionId, final Long compareToVersionId) {
@@ -847,7 +881,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw translateError(t);
         }
     }
-
+    
     /**
      * Read the archived document versions.
      * 
@@ -877,7 +911,6 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw translateError(t);
         }
     }
-
 
     public Map<User, ArtifactReceipt> readArchivePublishedTo(
             final JabberId userId, final UUID uniqueId, final Long versionId) {
@@ -967,6 +1000,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw translateError(t);
         }
     }
+
 
     /**
      * Read the backup containers.
@@ -1092,16 +1126,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Read the session user's contact info.
-     * 
-     * @return The user's contact info.
-     */
-    public Contact readContact() {
-        logger.logApiId();
-        throw Assert.createNotYetImplemented("SessionModelImpl#readContact()");
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readContact(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
@@ -1131,21 +1155,9 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    public List<Contact> readContactList(final JabberId userId) {
-		try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-		    synchronized(xmppSession) {
-		        return xmppSession.readContacts(userId);
-		    }
-        } catch (final Throwable t) {
-            throw translateError(t);
-		}
-	}
-
-	/**
-     * Return the remote date and time.
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readDateTime()
      * 
-     * @return A <code>Calendar</code>.
      */
     public Calendar readDateTime() {
         logger.logApiId();
@@ -1159,7 +1171,37 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readIncomingEMailInvitations()
+     *
+     */
+    public List<IncomingEMailInvitation> readIncomingEMailInvitations() {
+       try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readIncomingEMailInvitations(localUserId());
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readIncomingUserInvitations()
+     *
+     */
+    public List<IncomingUserInvitation> readIncomingUserInvitations() {
+       try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readIncomingUserInvitations(localUserId());
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Read the artifact key holder from the server.
      * 
      * @param artifactId
@@ -1181,8 +1223,7 @@ public final class SessionModelImpl extends Model<SessionListener>
 		}
 	}
 
-    
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorLatestRelease(java.util.UUID, com.thinkparity.codebase.OS)
      *
      */
@@ -1198,8 +1239,8 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-    
-    /**
+
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorProduct(java.lang.String)
      *
      */
@@ -1215,6 +1256,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
+    
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorRelease(java.lang.String)
      *
@@ -1232,7 +1274,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorResources(java.util.UUID, java.lang.String, com.thinkparity.codebase.OS)
      *
@@ -1245,6 +1287,36 @@ public final class SessionModelImpl extends Model<SessionListener>
             synchronized (xmppSession) {
                 return xmppSession.readMigratorResources(localUserId(),
                         productUniqueId, releaseName, os);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readOutgoingEMailInvitations()
+     *
+     */
+    public List<OutgoingEMailInvitation> readOutgoingEMailInvitations() {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readOutgoingEMailInvitations(localUserId());
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readOutgoingUserInvitations()
+     *
+     */
+    public List<OutgoingUserInvitation> readOutgoingUserInvitations() {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readOutgoingUserInvitations(localUserId());
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -1439,33 +1511,9 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-	 * Send the parity log file. To be used in order to troubleshoot remote
-	 * problems.
-	 * 
-	 * @throws ParityException
-	 */
-    public void sendLogFileArchive() {
-	    throw Assert
-                .createNotYetImplemented("SessionModelImpl#sendLogFileArchive");
-	}
-
-    /**
-     * Update the session user's contact info.
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#updateProfile(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.model.profile.Profile)
      * 
-     * @param contact
-     *            The user's contact info.
-     */
-    public void updateContact(final Contact contact) {
-        throw Assert.createNotYetImplemented("SessionModelImpl#updateContact(Contact)");
-    }
-
-    /**
-     * Update a user's profile.
-     * 
-     * @param userId
-     *            The user id <code>JabberId</code>.
-     * @param profile
-     *            The user's <code>Profile</code>.
      */
     public void updateProfile(final JabberId userId, final Profile profile) {
         logger.logApiId();
@@ -1482,12 +1530,9 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Update the profile's credentials.
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#updateProfilePassword(java.lang.String,
+     *      java.lang.String)
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param credentials
-     *            A user's <code>Credentials</code>.
      */
     public void updateProfilePassword(final String password,
             final String newPassword) {

@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -42,6 +43,12 @@ public class InternalBackupModel extends BackupModel {
             final JabberId userId) {
         synchronized (getImplLock()) {
             return getImpl().getContainerReader(userId);
+        }
+    }
+
+    public Statistics readStatistics(final JabberId userId) {
+        synchronized (getImplLock()) {
+            return getImpl().readStatisitcs(userId);
         }
     }
 

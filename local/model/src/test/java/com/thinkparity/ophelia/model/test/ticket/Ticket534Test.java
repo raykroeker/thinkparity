@@ -7,7 +7,7 @@ package com.thinkparity.ophelia.model.test.ticket;
 import java.util.List;
 
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingInvitation;
 
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
@@ -92,9 +92,9 @@ public class Ticket534Test extends TicketTestCase {
         getContactModel(datum.junit_x).createOutgoingEMailInvitation(datum.junit.getEmail());
         datum.waitForEvents();
         // accept the invitation from junit to junit_x
-        final List<IncomingInvitation> invitations = getContactModel(datum.junit).readIncomingInvitations();
+        final List<IncomingEMailInvitation> invitations = getContactModel(datum.junit).readIncomingEMailInvitations();
         assertEquals("Number of incoming invitations does not match expectation.", invitations.size(), 1);
-        getContactModel(datum.junit).acceptIncomingInvitation(invitations.get(0).getId());
+        getContactModel(datum.junit).acceptIncomingEMailInvitation(invitations.get(0).getId());
         datum.waitForEvents();
         final Contact c2 = getContactModel(datum.junit).read(datum.junit_x.getId());
         assertNotNull("Contact is null.", c2);

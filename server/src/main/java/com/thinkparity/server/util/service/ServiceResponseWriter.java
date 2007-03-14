@@ -12,7 +12,8 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
@@ -121,8 +122,11 @@ public interface ServiceResponseWriter {
      * @param values
      *            A list of contact invitations.
      */
-    public void writeIncomingInvitations(final String name,
-            final List<IncomingInvitation> values);
+    public void writeIncomingEMailInvitations(final String name,
+            final List<IncomingEMailInvitation> values);
+
+    public void writeIncomingUserInvitations(final String name,
+            final List<IncomingUserInvitation> values);
 
     /**
      * Write a jabber id value.

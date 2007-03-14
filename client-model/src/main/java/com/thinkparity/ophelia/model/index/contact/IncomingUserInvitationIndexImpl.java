@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.index.AbstractIndexImpl;
@@ -27,8 +27,8 @@ import org.apache.lucene.index.Term;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class IncomingInvitationIndexImpl extends
-        AbstractIndexImpl<IncomingInvitation, Long> {
+public final class IncomingUserInvitationIndexImpl extends
+        AbstractIndexImpl<IncomingUserInvitation, Long> {
 
     /** Invitation id index field. */
     private static final FieldBuilder IDX_INVITATION_ID;
@@ -69,55 +69,55 @@ public final class IncomingInvitationIndexImpl extends
 
         IDX_INVITATION_ID = new FieldBuilder()
                 .setIndex(Field.Index.UN_TOKENIZED)
-                .setName("CONTACT_INVITATION_INCOMING.CONTACT_INVITATION_ID")
+                .setName("CONTACT_INVITATION_INCOMING_USER.CONTACT_INVITATION_ID")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 
         IDX_INVITED_AS = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_INCOMING.INVITED_AS")
+                .setName("CONTACT_INVITATION_INCOMING_USER.EXTENDED_BY")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 
         IDX_INVITED_AS_REV = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_INCOMING.INVITED_AS_REV")
+                .setName("CONTACT_INVITATION_INCOMING_USER.EXTENDED_BY_REV")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 
         IDX_USER_NAME = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_INCOMING.PARITY_USER.NAME")
+                .setName("CONTACT_INVITATION_INCOMING_USER.PARITY_USER.NAME")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 
         IDX_USER_NAME_REV = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_INCOMING.PARITY_USER.NAME_REV")
+                .setName("CONTACT_INVITATION_INCOMING_USER.PARITY_USER.NAME_REV")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 
         IDX_USER_TITLE = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_INCOMING.PARITY_USER.TITLE")
+                .setName("CONTACT_INVITATION_INCOMING_USER.PARITY_USER.TITLE")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 
         IDX_USER_TITLE_REV = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_INCOMING.PARITY_USER.TITLE_REV")
+                .setName("CONTACT_INVITATION_INCOMING_USER.PARITY_USER.TITLE_REV")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 
         IDX_USER_ORGANIZATION = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_INCOMING.PARITY_USER.ORGANIZATION")
+                .setName("CONTACT_INVITATION_INCOMING_USER.PARITY_USER.ORGANIZATION")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 
         IDX_USER_ORGANIZATION_REV = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_INCOMING.PARITY_USER.ORGANIZATION_REV")
+                .setName("CONTACT_INVITATION_INCOMING_USER.PARITY_USER.ORGANIZATION_REV")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
     }
@@ -130,7 +130,7 @@ public final class IncomingInvitationIndexImpl extends
      * @param modelFactory
      *            A thinkParity <code>InternalModelFactory</code>.
      */
-    public IncomingInvitationIndexImpl(final Workspace workspace,
+    public IncomingUserInvitationIndexImpl(final Workspace workspace,
             final InternalModelFactory modelFactory) {
         super(workspace, modelFactory);
     }
@@ -147,18 +147,14 @@ public final class IncomingInvitationIndexImpl extends
     /**
      * @see com.thinkparity.ophelia.model.index.IndexImpl#index(java.lang.Object)
      */
-    public void index(final IncomingInvitation o) throws IOException {
-        final DocumentBuilder builder = new DocumentBuilder(4)
-            .append(IDX_INVITATION_ID.setValue(o.getId()).toField());
-        if (o.isSetInvitedAs()) {
-            builder.append(IDX_INVITED_AS.setValue(o.getInvitedAs()).toField())
-                .append(IDX_INVITED_AS_REV.setValue(reverse(IDX_INVITED_AS)).toField());
-        }
-        builder.append(IDX_USER_NAME.setValue(o.getInvitedBy().getName()).toField())
+    public void index(final IncomingUserInvitation o) throws IOException {
+        final DocumentBuilder builder = new DocumentBuilder(7)
+            .append(IDX_INVITATION_ID.setValue(o.getId()).toField())
+            .append(IDX_USER_NAME.setValue(o.getExtendedBy().getName()).toField())
             .append(IDX_USER_NAME_REV.setValue(reverse(IDX_USER_NAME)).toField())
-            .append(IDX_USER_ORGANIZATION.setValue(o.getInvitedBy().getOrganization()).toField())
+            .append(IDX_USER_ORGANIZATION.setValue(o.getExtendedBy().getOrganization()).toField())
             .append(IDX_USER_ORGANIZATION_REV.setValue(reverse(IDX_USER_ORGANIZATION)).toField())
-            .append(IDX_USER_TITLE.setValue(o.getInvitedBy().getTitle()).toField())
+            .append(IDX_USER_TITLE.setValue(o.getExtendedBy().getTitle()).toField())
             .append(IDX_USER_TITLE_REV.setValue(reverse(IDX_USER_TITLE)).toField());
         index(builder.toDocument());
     }

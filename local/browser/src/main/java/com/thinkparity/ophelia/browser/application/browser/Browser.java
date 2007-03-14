@@ -19,15 +19,14 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
+
+import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -54,16 +53,35 @@ import com.thinkparity.ophelia.browser.application.browser.window.WindowFactory;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowId;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
-import com.thinkparity.ophelia.browser.platform.action.*;
+import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
+import com.thinkparity.ophelia.browser.platform.action.ActionId;
+import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
+import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
+import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.LinkAction;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.artifact.RemoveFlagSeen;
-import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingEMailInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingEMailInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingEMailInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.DisplayContactInvitationInfo;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.*;
+import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.Create;
+import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.DisplayFlagSeenInfo;
+import com.thinkparity.ophelia.browser.platform.action.container.Publish;
+import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.Rename;
+import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
@@ -82,6 +100,8 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
+
+import org.apache.log4j.Logger;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -915,16 +935,28 @@ public class Browser extends AbstractApplication {
     }
     
     /**
-	 * Accept an invitation.
-	 * 
-	 * @param systemMessageId
-	 *            The system message id.
-	 */
-	public void runAcceptContactIncomingInvitation(final Long invitationId) {
-		final Data data = new Data(1);
-		data.set(AcceptIncomingInvitation.DataKey.INVITATION_ID, invitationId);
-		invoke(ActionId.CONTACT_ACCEPT_INCOMING_INVITATION, data);
-	}
+     * Accept an e-mail invitation.
+     * 
+     * @param systemMessageId
+     *            The system message id.
+     */
+    public void runAcceptContactIncomingEMailInvitation(final Long invitationId) {
+        final Data data = new Data(1);
+        data.set(AcceptIncomingEMailInvitation.DataKey.INVITATION_ID, invitationId);
+        invoke(ActionId.CONTACT_ACCEPT_INCOMING_EMAIL_INVITATION, data);
+    }
+    
+    /**
+     * Accept an e-mail invitation.
+     * 
+     * @param systemMessageId
+     *            The system message id.
+     */
+    public void runAcceptContactIncomingUserInvitation(final Long invitationId) {
+        final Data data = new Data(1);
+        data.set(AcceptIncomingUserInvitation.DataKey.INVITATION_ID, invitationId);
+        invoke(ActionId.CONTACT_ACCEPT_INCOMING_USER_INVITATION, data);
+    }
     
     /**
      * Run the add bookmark action.
@@ -1093,10 +1125,22 @@ public class Browser extends AbstractApplication {
      * @param systemMessageId
      *            The system message id.
      */
-    public void runDeclineContactIncomingInvitation(final Long invitationId) {
+    public void runDeclineContactIncomingEMailInvitation(final Long invitationId) {
         final Data data = new Data(1);
-        data.set(DeclineIncomingInvitation.DataKey.INVITATION_ID, invitationId);
-        invoke(ActionId.CONTACT_DECLINE_INCOMING_INVITATION, data);
+        data.set(DeclineIncomingEMailInvitation.DataKey.INVITATION_ID, invitationId);
+        invoke(ActionId.CONTACT_DECLINE_INCOMING_EMAIL_INVITATION, data);
+    }
+
+    /**
+     * Decline an invitation.
+     * 
+     * @param systemMessageId
+     *            The system message id.
+     */
+    public void runDeclineContactIncomingUserInvitation(final Long invitationId) {
+        final Data data = new Data(1);
+        data.set(DeclineIncomingUserInvitation.DataKey.INVITATION_ID, invitationId);
+        invoke(ActionId.CONTACT_DECLINE_INCOMING_USER_INVITATION, data);
     }
 
     /**
@@ -1622,16 +1666,29 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Synchronize an incoming invitation on the contact tab.
+     * Synchronize an incoming e-mail invitation on the contact tab.
      * 
      * @param invitationId
      *            An invitation id <code>Long</code>.
      * @param remote
      *            True if the synchronization is the result of a remote event.
      */
-    public void syncContactTabIncomingInvitation(final Long invitationId,
+    public void syncContactTabIncomingEMailInvitation(final Long invitationId,
             final Boolean remote) {
-        getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
+        getTabContactAvatar().syncIncomingEMailInvitation(invitationId, remote);
+    }
+
+    /**
+     * Synchronize an incoming user invitation on the contact tab.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     * @param remote
+     *            True if the synchronization is the result of a remote event.
+     */
+    public void syncContactTabIncomingUserInvitation(final Long invitationId,
+            final Boolean remote) {
+        getTabContactAvatar().syncIncomingUserInvitation(invitationId, remote);
     }
 
     /**
@@ -1758,7 +1815,7 @@ public class Browser extends AbstractApplication {
         open(WindowId.CONFIRM, AvatarId.DIALOG_CONFIRM, input);
         return getConfirmAvatar().didConfirm();
     }
-
+    
     /**
 	 * Display an avatar.
 	 * 

@@ -10,6 +10,8 @@ import java.util.List;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
+import com.thinkparity.codebase.model.user.User;
+
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 
@@ -53,20 +55,21 @@ public final class ContactSql extends AbstractSql {
         super();
 	}
 
-    public void create(final Long userId, final Long contactId,
-            final Long createdBy, final Calendar createdOn) {
+    public void create(final User user, final User contact,
+            final User createdBy, final Calendar createdOn) {
 		final HypersonicSession session = openSession();
 		try {
 			session.prepareStatement(SQL_CREATE);
-            session.setLong(1, userId);
-            session.setLong(2, contactId);
-            session.setLong(3, createdBy);
+            session.setLong(1, user.getLocalId());
+            session.setLong(2, contact.getLocalId());
+            session.setLong(3, createdBy.getLocalId());
             session.setCalendar(4, createdOn);
-            session.setLong(5, createdBy);
+            session.setLong(5, createdBy.getLocalId());
             session.setCalendar(6, createdOn);
 			if(1 != session.executeUpdate())
 				throw new HypersonicException(
-                        "Could not create contact {0} for user {1}.", contactId, userId);
+                        "Could not create contact {0} for user {1}.",
+                        contact, user);
 
             session.commit();
         } catch (final Throwable t) {

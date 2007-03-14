@@ -13,8 +13,8 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.ContactInvitation;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
@@ -32,12 +32,20 @@ import com.thinkparity.ophelia.model.events.ContactListener;
 public interface ContactModel {
 
     /**
-     * Accept the incoming invitation.
+     * Accept the incoming e-mail invitation.
      * 
      * @param invitationId
      *            An invitation id.
      */
-    public void acceptIncomingInvitation(final Long invitationId);
+    public void acceptIncomingEMailInvitation(final Long invitationId);
+
+    /**
+     * Accept the incoming user invitation.
+     * 
+     * @param invitationId
+     *            An invitation id.
+     */
+    public void acceptIncomingUserInvitation(final Long invitationId);
 
 	/**
      * Add a contact listener.
@@ -73,7 +81,8 @@ public interface ContactModel {
      * @param invitationId
      *            An invitation id.
      */
-    public void declineIncomingInvitation(final Long invitationId);
+    public void declineIncomingEMailInvitation(final Long invitationId);
+    public void declineIncomingUserInvitation(final Long invitationId);
 
 	/**
      * Delete a contact.
@@ -171,46 +180,12 @@ public interface ContactModel {
      */
     public List<Contact> readContainerPublishTo();
 
-    /**
-     * Read an outgoing invitation.
-     * 
-     * @param invitationId
-     *            An invitation id.
-     * @return An outgoing invitation.
-     */
-    public IncomingInvitation readIncomingInvitation(final Long invitationId);
-
-    /**
-     * Read a list of incoming invitations.
-     * 
-     * @return A list of incoming invitations.
-     */
-    public List<IncomingInvitation> readIncomingInvitations();
-
-    /**
-     * Read a list of incoming invitations.
-     * 
-     * @return A list of incoming invitations.
-     */
-    public List<IncomingInvitation> readIncomingInvitations(
-            final Comparator<ContactInvitation> comparator);
-
-    /**
-     * Read a list of incoming invitations.
-     * 
-     * @return A list of incoming invitations.
-     */
-    public List<IncomingInvitation> readIncomingInvitations(
-            final Comparator<ContactInvitation> comparator,
-            final Filter<? super ContactInvitation> filter);
-
-    /**
-     * Read a list of incoming invitations.
-     * 
-     * @return A list of incoming invitations.
-     */
-    public List<IncomingInvitation> readIncomingInvitations(
-            final Filter<? super ContactInvitation> filter);
+    public IncomingEMailInvitation readIncomingEMailInvitation(
+            final Long invitationId);
+    public List<IncomingEMailInvitation> readIncomingEMailInvitations();
+    public List<IncomingUserInvitation> readIncomingUserInvitations();
+    public IncomingUserInvitation readIncomingUserInvitation(
+            final Long invitationId);
 
     /**
      * Read an outgoing email invitation.
@@ -266,13 +241,22 @@ public interface ContactModel {
     public List<JabberId> search(final String expression);
 
     /**
-     * Search for incoming invitations.
+     * Search for incoming e-mail invitations.
      * 
      * @param expression
      *            A search expression.
      * @return A <code>List&lt;Long&gt;</code>.
      */
-    public List<Long> searchIncomingInvitations(final String expression);
+    public List<Long> searchIncomingEMailInvitations(final String expression);
+
+    /**
+     * Search for incoming e-mail invitations.
+     * 
+     * @param expression
+     *            A search expression.
+     * @return A <code>List&lt;Long&gt;</code>.
+     */
+    public List<Long> searchIncomingUserInvitations(final String expression);
 
     /**
      * Search for outgoing invitations.

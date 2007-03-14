@@ -8,52 +8,40 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JPopupMenu;
 
-import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
-import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 
-import com.thinkparity.ophelia.browser.Constants.DateFormats;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingEMailInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingEMailInvitation;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class IncomingInvitationCell extends DefaultInvitationCell {
+public class IncomingEMailInvitationCell extends DefaultInvitationCell {
 
-    /** A thinkParity fuzzy date format. */
-    private final FuzzyDateFormat fuzzyDateFormat;
+    /** An <code>IncomingEMailInvitation</code>. */
+    private IncomingEMailInvitation invitation;
 
-    /** The incoming invitation associated with this cell. */
-    private IncomingInvitation invitation;
-
-    /** The invited by user. */
-    private User invitedByUser;
-    
     /** The invitation cell localization. */
     private final MainCellL18n localization;
 
     /**
      * Create IncomingInvitationCell.
-     *
+     * 
      * @param invitation
-     * @param invitedByUser
+     *            An <code>IncomingEMailInvitation</code>.
      */
-    public IncomingInvitationCell(final IncomingInvitation invitation,
-            final User invitedByUser) {
+    public IncomingEMailInvitationCell(final IncomingEMailInvitation invitation) {
         super();
         this.invitation = invitation;
-        this.invitedByUser = invitedByUser;
-        this.fuzzyDateFormat = DateFormats.FUZZY;
         this.localization = new MainCellL18n("IncomingInvitation");
     }
     
@@ -68,7 +56,7 @@ public class IncomingInvitationCell extends DefaultInvitationCell {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        return ((IncomingInvitationCell) obj).invitation.equals(invitation);
+        return ((IncomingEMailInvitationCell) obj).invitation.equals(invitation);
     }
 
     /**
@@ -81,24 +69,19 @@ public class IncomingInvitationCell extends DefaultInvitationCell {
     }
 
     /**
-     * Obtain the invitedBy
-     *
-     * @return The User.
-     */
-    public User getInvitedByUser() {
-        return invitedByUser;
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextNoClipping(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      *
      */
-    public String getTextNoClipping(TextGroup textGroup) {
-        if (textGroup == TextGroup.WEST) {
-            return localization.getString("Text", new Object[] {
-                    invitedByUser.getName(), fuzzyDateFormat.format(invitation.getCreatedOn()) });
-        } else {
+    public String getTextNoClipping(final TextGroup textGroup) {
+        switch (textGroup) {
+        case EAST:
             return null;
+        case WEST:
+            return localization.getString("Text", new Object[] {
+                    invitation.getExtendedBy().getName(),
+                    FUZZY_DATE_FORMAT.format(invitation.getCreatedOn()) });
+        default:
+            throw Assert.createUnreachable("Unknown text group.");
         }
     }
     
@@ -109,14 +92,17 @@ public class IncomingInvitationCell extends DefaultInvitationCell {
     public int hashCode() {
         return invitation.hashCode();
     }
-    
+
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     * 
      */
     public void triggerDoubleClickAction(final Browser browser) {}
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection,
+     *      java.awt.Component, java.awt.event.MouseEvent)
+     * 
      */
     public void triggerPopup(final Connection connection,
             final Component invoker, final MouseEvent e) {
@@ -124,12 +110,12 @@ public class IncomingInvitationCell extends DefaultInvitationCell {
         switch(connection) {
         case ONLINE:
             final Data acceptData = new Data(1);
-            acceptData.set(AcceptIncomingInvitation.DataKey.INVITATION_ID, invitation.getId());
-            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_ACCEPT_INCOMING_INVITATION, acceptData));
+            acceptData.set(AcceptIncomingEMailInvitation.DataKey.INVITATION_ID, invitation.getId());
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_ACCEPT_INCOMING_EMAIL_INVITATION, acceptData));
 
             final Data declineData = new Data(1);
-            declineData.set(DeclineIncomingInvitation.DataKey.INVITATION_ID, invitation.getId());
-            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_DECLINE_INCOMING_INVITATION, declineData));
+            declineData.set(DeclineIncomingEMailInvitation.DataKey.INVITATION_ID, invitation.getId());
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_DECLINE_INCOMING_EMAIL_INVITATION, declineData));
             jPopupMenu.show(invoker, e.getX(), e.getY());
             break;
         case OFFLINE:

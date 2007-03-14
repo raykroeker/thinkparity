@@ -68,36 +68,45 @@ create table CONTACT_INVITATION(
     primary key(CONTACT_INVITATION_ID),
     foreign key(CREATED_BY) references PARITY_USER(USER_ID)
 );
-create table CONTACT_INVITATION_INCOMING(
+create table CONTACT_INVITATION_INCOMING_EMAIL(
     CONTACT_INVITATION_ID bigint not null,
     USER_ID bigint not null,
-    EMAIL_ID bigint,
-    FROM_USER_ID bigint not null,
+    EMAIL_ID bigint not null,
+    EXTENDED_BY_USER_ID bigint not null,
     primary key(CONTACT_INVITATION_ID),
-    unique(USER_ID,EMAIL_ID,FROM_USER_ID),
+    unique(USER_ID,EMAIL_ID,EXTENDED_BY_USER_ID),
     foreign key(EMAIL_ID) references EMAIL(EMAIL_ID),
     foreign key(USER_ID) references PARITY_USER(USER_ID),
-    foreign key(FROM_USER_ID) references PARITY_USER(USER_ID)
+    foreign key(EXTENDED_BY_USER_ID) references PARITY_USER(USER_ID)
+);
+create table CONTACT_INVITATION_INCOMING_USER(
+    CONTACT_INVITATION_ID bigint not null,
+    USER_ID bigint not null,
+    EXTENDED_BY_USER_ID bigint not null,
+    primary key(CONTACT_INVITATION_ID),
+    unique(USER_ID,EXTENDED_BY_USER_ID),
+    foreign key(USER_ID) references PARITY_USER(USER_ID),
+    foreign key(EXTENDED_BY_USER_ID) references PARITY_USER(USER_ID)
 );
 create table CONTACT_INVITATION_OUTGOING_EMAIL(
     CONTACT_INVITATION_ID bigint not null,
     USER_ID bigint not null,
-    TO_EMAIL_ID bigint not null,
+    INVITATION_EMAIL_ID bigint not null,
     primary key(CONTACT_INVITATION_ID),
-    unique(USER_ID,TO_EMAIL_ID),
+    unique(USER_ID,INVITATION_EMAIL_ID),
     foreign key(CONTACT_INVITATION_ID) references CONTACT_INVITATION(CONTACT_INVITATION_ID),
     foreign key(USER_ID) references PARITY_USER(USER_ID),
-    foreign key(TO_EMAIL_ID) references EMAIL(EMAIL_ID)
+    foreign key(INVITATION_EMAIL_ID) references EMAIL(EMAIL_ID)
 );
 create table CONTACT_INVITATION_OUTGOING_USER(
     CONTACT_INVITATION_ID bigint not null,
     USER_ID bigint not null,
-    TO_USER_ID bigint not null,
+    INVITATION_USER_ID bigint not null,
     primary key(CONTACT_INVITATION_ID),
-    unique(USER_ID,TO_USER_ID),
+    unique(USER_ID,INVITATION_USER_ID),
     foreign key(CONTACT_INVITATION_ID) references CONTACT_INVITATION(CONTACT_INVITATION_ID),
     foreign key(USER_ID) references PARITY_USER(USER_ID),
-    foreign key(TO_USER_ID) references PARITY_USER(USER_ID)
+    foreign key(INVITATION_USER_ID) references PARITY_USER(USER_ID)
 );
 
 create table ARTIFACT(

@@ -9,7 +9,8 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.profile.Profile;
@@ -75,12 +76,20 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
         return profileModel.readEmails();
     }
 
-    public IncomingInvitation readIncomingInvitation(final Long invitationId) {
-        return contactModel.readIncomingInvitation(invitationId);
+    public IncomingEMailInvitation readIncomingEMailInvitation(final Long invitationId) {
+        return contactModel.readIncomingEMailInvitation(invitationId);
     }
 
-    public List<IncomingInvitation> readIncomingInvitations() {
-        return contactModel.readIncomingInvitations();
+    public List<IncomingEMailInvitation> readIncomingEMailInvitations() {
+        return contactModel.readIncomingEMailInvitations();
+    }
+
+    public IncomingUserInvitation readIncomingUserInvitation(final Long invitationId) {
+        return contactModel.readIncomingUserInvitation(invitationId);
+    }
+
+    public List<IncomingUserInvitation> readIncomingUserInvitations() {
+        return contactModel.readIncomingUserInvitations();
     }
 
     public OutgoingEMailInvitation readOutgoingEMailInvitation(
@@ -109,8 +118,12 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
         return contactModel.search(expression);
     }
 
-    public List<Long> searchIncomingInvitations(final String expression) {
-        return contactModel.searchIncomingInvitations(expression);
+    public List<Long> searchIncomingEMailInvitations(final String expression) {
+        return contactModel.searchIncomingEMailInvitations(expression);
+    }
+
+    public List<Long> searchIncomingUserInvitations(final String expression) {
+        return contactModel.searchIncomingUserInvitations(expression);
     }
 
     public List<Long> searchOutgoingEMailInvitations(final String expression) {

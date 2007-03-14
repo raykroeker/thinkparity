@@ -10,7 +10,8 @@ import java.util.List;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 
@@ -37,7 +38,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
 	}
 
     /**
-     * Accept the contact invitation.
+     * Accept the e-mail invitation.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
@@ -46,14 +47,33 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      * @param acceptedOn
      *            When the user accepted <code>Calendar</code>.
      */
-	void acceptIncomingInvitation(final JabberId userId,
-            final IncomingInvitation invitation, final Calendar acceptedOn) {
-		final XMPPMethod accept = new XMPPMethod("contact:acceptincominginvitation");
+    void acceptInvitation(final JabberId userId,
+            final IncomingEMailInvitation invitation, final Calendar acceptedOn) {
+        final XMPPMethod accept = new XMPPMethod("contact:acceptincomingemailinvitation");
         accept.setParameter("userId", userId);
         accept.setParameter("invitation", invitation);
         accept.setParameter("acceptedOn", acceptedOn);
-		execute(accept);
-	}
+        execute(accept);
+    }
+
+    /**
+     * Accept the user invitation.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitedBy
+     *            The invited by user id <code>JabberId</code>.
+     * @param acceptedOn
+     *            When the user accepted <code>Calendar</code>.
+     */
+    void acceptInvitation(final JabberId userId,
+            final IncomingUserInvitation invitation, final Calendar acceptedOn) {
+        final XMPPMethod accept = new XMPPMethod("contact:acceptincominguserinvitation");
+        accept.setParameter("userId", userId);
+        accept.setParameter("invitation", invitation);
+        accept.setParameter("acceptedOn", acceptedOn);
+        execute(accept);
+    }
 
     /**
      * Create an outgoing e-mail invitation.
@@ -61,7 +81,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      * @param invitation
      *            An <code>OutgoingEMailInvitation</code>.
      */
-    void createOutgoingEMailInvitation(final JabberId userId,
+    void createInvitation(final JabberId userId,
             final OutgoingEMailInvitation invitation) {
         final XMPPMethod extendInvitation = new XMPPMethod("contact:createoutgoingemailinvitation");
         extendInvitation.setParameter("userId", userId);
@@ -75,7 +95,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      * @param invitation
      *            An <code>OutgoingUserInvitation</code>.
      */
-    void createOutgoingUserInvitation(final JabberId userId,
+    void createInvitation(final JabberId userId,
             final OutgoingUserInvitation invitation) {
         final XMPPMethod extendInvitation = new XMPPMethod("contact:createoutgoinguserinvitation");
         extendInvitation.setParameter("userId", userId);
@@ -84,7 +104,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
     }
 
     /**
-     * Decline an incoming invitation.
+     * Decline an incoming e-mail invitation.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
@@ -93,9 +113,28 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      * @param declinedOn
      *            A declined on <code>Calendar</code>.
      */
-    void declineIncomingInvitation(final JabberId userId,
-            final IncomingInvitation invitation, final Calendar declinedOn) {
-        final XMPPMethod decline = new XMPPMethod("contact:declineincominginvitation");
+    void declineInvitation(final JabberId userId,
+            final IncomingEMailInvitation invitation, final Calendar declinedOn) {
+        final XMPPMethod decline = new XMPPMethod("contact:declineincomingemailinvitation");
+        decline.setParameter("userId", userId);
+        decline.setParameter("invitation", invitation);
+        decline.setParameter("declinedOn", declinedOn);
+        execute(decline);
+    }
+
+    /**
+     * Decline an incoming user invitation.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitation
+     *            An <code>IncomingInvitation</code>.
+     * @param declinedOn
+     *            A declined on <code>Calendar</code>.
+     */
+    void declineInvitation(final JabberId userId,
+            final IncomingUserInvitation invitation, final Calendar declinedOn) {
+        final XMPPMethod decline = new XMPPMethod("contact:declineincominguserinvitation");
         decline.setParameter("userId", userId);
         decline.setParameter("invitation", invitation);
         decline.setParameter("declinedOn", declinedOn);
@@ -127,7 +166,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      * @param deletedOn
      *            The deletion <code>Calendar</code>.
      */
-    void deleteOutgoingEMailInvitation(final JabberId userId,
+    void deleteInvitation(final JabberId userId,
             final OutgoingEMailInvitation invitation, final Calendar deletedOn) {
         final XMPPMethod deleteInvitation = new XMPPMethod("contact:deleteoutgoingemailinvitation");
         deleteInvitation.setParameter("userId", userId);
@@ -146,7 +185,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      * @param deletedOn
      *            The deletion <code>Calendar</code>.
      */
-    void deleteOutgoingUserInvitation(final JabberId userId,
+    void deleteInvitation(final JabberId userId,
             final OutgoingUserInvitation invitation, final Calendar deletedOn) {
         final XMPPMethod deleteInvitation = new XMPPMethod("contact:deleteoutgoinguserinvitation");
         deleteInvitation.setParameter("userId", userId);
@@ -176,7 +215,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
         return contacts;
 	}
 
-	/**
+    /**
      * Read a user's contact.
      * 
      * @return A contact.
@@ -205,5 +244,31 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
         final XMPPMethod readIds = new XMPPMethod("contact:readids");
         readIds.setParameter("userId", userId);
         return execute(readIds, Boolean.TRUE).readResultJabberIds("contactIds");
+    }
+
+    List<IncomingEMailInvitation> readIncomingEMailInvitations(
+            final JabberId userId) {
+        final XMPPMethod readIncomingInvitations = new XMPPMethod("contact:readincomingemailinvitations");
+        readIncomingInvitations.setParameter("userId", userId);
+        return execute(readIncomingInvitations, Boolean.TRUE).readResultContactInvitations("invitations");
+    }
+
+    List<IncomingUserInvitation> readIncomingUserInvitations(
+            final JabberId userId) {
+        final XMPPMethod readIncomingInvitations = new XMPPMethod("contact:readincominguserinvitations");
+        readIncomingInvitations.setParameter("userId", userId);
+        return execute(readIncomingInvitations, Boolean.TRUE).readResultContactInvitations("invitations");
+    }
+
+	List<OutgoingEMailInvitation> readOutgoingEMailInvitations(final JabberId userId) {
+        final XMPPMethod readIncomingInvitations = new XMPPMethod("contact:readoutgoingemailinvitations");
+        readIncomingInvitations.setParameter("userId", userId);
+        return execute(readIncomingInvitations, Boolean.TRUE).readResultContactInvitations("invitations");
+    }
+
+    List<OutgoingUserInvitation> readOutgoingUserInvitations(final JabberId userId) {
+        final XMPPMethod readIncomingInvitations = new XMPPMethod("contact:readoutgoinguserinvitations");
+        readIncomingInvitations.setParameter("userId", userId);
+        return execute(readIncomingInvitations, Boolean.TRUE).readResultContactInvitations("invitations");
     }
 }

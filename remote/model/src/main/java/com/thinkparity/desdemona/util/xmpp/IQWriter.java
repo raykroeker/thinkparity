@@ -14,7 +14,8 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
@@ -239,11 +240,23 @@ public final class IQWriter implements ServiceResponseWriter {
     }
 
     /**
-     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeIncomingInvitations(java.lang.String, java.util.List)
-     *
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeIncomingEMailInvitations(java.lang.String,
+     *      java.util.List)
+     * 
      */
-    public void writeIncomingInvitations(final String name, final List<IncomingInvitation> values) {
-        ElementBuilder.addIncomingInvitationElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
+    public void writeIncomingEMailInvitations(final String name,
+            final List<IncomingEMailInvitation> values) {
+        ElementBuilder.addIncomingEMailInvitationElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeIncomingUserInvitations(java.lang.String,
+     *      java.util.List)
+     * 
+     */
+    public void writeIncomingUserInvitations(final String name,
+            final List<IncomingUserInvitation> values) {
+        ElementBuilder.addIncomingUserInvitationElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
     }
 
     /**

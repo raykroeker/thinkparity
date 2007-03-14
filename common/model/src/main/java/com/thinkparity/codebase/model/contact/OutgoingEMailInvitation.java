@@ -3,6 +3,7 @@
  */
 package com.thinkparity.codebase.model.contact;
 
+import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.email.EMail;
 
 /**
@@ -12,41 +13,35 @@ import com.thinkparity.codebase.email.EMail;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class OutgoingEMailInvitation extends OutgoingInvitation {
+public final class OutgoingEMailInvitation extends OutgoingInvitation {
 
-    /** An e-mail address. */
-    private EMail email;
+    /** An invitation <code>EMail</code> address. */
+    private EMail invitationEMail;
 
-    /** Create OutgoingInvitation. */
+    /**
+     * Create OutgoingEMailInvitation.
+     *
+     */
     public OutgoingEMailInvitation() {
         super();
     }
 
-    /**
-     * Obtain the email
-     *
-     * @return The String.
-     */
-    public EMail getEmail() {
-        return email;
+    public EMail getInvitationEMail() {
+        return invitationEMail;
     }
 
-    /**
-     * Set email.
-     *
-     * @param email The String.
-     */
-    public void setEmail(final EMail email) {
-        this.email = email;
+    public void setInvitationEMail(final EMail invitationEMail) {
+        this.invitationEMail = invitationEMail;
     }
 
     /**
      * @see com.thinkparity.ophelia.model.contact.ContactInvitation#toString()
+     * 
      */
     @Override
     public String toString() {
-        return new StringBuffer(getClass().getName()).append("//")
-                .append(id)
-                .toString();
+        return StringUtil.toString(getClass(), "createdBy", createdBy,
+                "createdOn", createdOn, "id", id, "invitationEMail",
+                invitationEMail);
     }
 }

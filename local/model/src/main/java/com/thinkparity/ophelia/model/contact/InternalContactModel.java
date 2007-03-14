@@ -83,7 +83,7 @@ public interface InternalContactModel extends ContactModel {
             final ContactEMailInvitationExtendedEvent event);
 
     /**
-     * Handle the invitation extended remote event.
+     * Handle the invitation accepted remote event.
      * 
      * @param event
      *            A <code>ContactInvitationAcceptedEvent</code>.

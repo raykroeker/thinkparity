@@ -15,10 +15,13 @@ import java.util.Locale;
 
 import javax.swing.SwingUtilities;
 
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.profile.Profile;
@@ -43,12 +46,6 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
  */
 public class ContactTabPanel extends DefaultTabPanel {
 
-    /** The contact tab's <code>DefaultActionDelegate</code>. */
-    private ActionDelegate actionDelegate;
-
-    /** The panel's animating state. */
-    private boolean animating;
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel collapsedAdditionalTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel collapsedContactJPanel = new javax.swing.JPanel();
@@ -56,8 +53,6 @@ public class ContactTabPanel extends DefaultTabPanel {
     private final javax.swing.JPanel collapsedIncomingInvitationJPanel = new javax.swing.JPanel();
     private final javax.swing.JPanel collapsedJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel collapsedTextJLabel = new javax.swing.JLabel();
-    /** A <code>Contact</code>. */
-    private Contact contact;
     private final javax.swing.JLabel contactAdditionalTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel contactAddressValueJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel contactEMailValueJLabel = new javax.swing.JLabel();
@@ -67,35 +62,41 @@ public class ContactTabPanel extends DefaultTabPanel {
     private final javax.swing.JLabel contactMobilePhoneValueJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel contactPhoneValueJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel contactTextJLabel = new javax.swing.JLabel();
-    /** The panel's expanded state. */
-    private boolean expanded;
     private final javax.swing.JPanel expandedContactJPanel = new javax.swing.JPanel();
     private final javax.swing.JPanel expandedDataValuesJPanel = new javax.swing.JPanel();
     private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
-    /** A contact <code>IncomingInvitation</code>. */
-    private IncomingInvitation incoming;
     private final javax.swing.JLabel incomingInvitationAcceptJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-
     private final javax.swing.JLabel incomingInvitationAdditionalTextJLabel = new javax.swing.JLabel();
-
     private final javax.swing.JLabel incomingInvitationDeclineJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-
     private final javax.swing.JLabel incomingInvitationIconJLabel = new javax.swing.JLabel();
-
     private final javax.swing.JLabel incomingInvitationTertiaryTextJLabel = new javax.swing.JLabel();
-
     private final javax.swing.JLabel incomingInvitationTextJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 
+    /** The contact tab's <code>DefaultActionDelegate</code>. */
+    private ActionDelegate actionDelegate;
+
+    /** The panel's animating state. */
+    private boolean animating;
+
+    /** A <code>Contact</code>. */
+    private Contact contact;
+
+    /** The panel's expanded state. */
+    private boolean expanded;
+
+    /** A contact <code>IncomingEMailInvitation</code>. */
+    private IncomingEMailInvitation incomingEMail;
+
+    /** A contact <code>IncomingUserInvitation</code>. */
+    private IncomingUserInvitation incomingUser;
+
     /** The inner <code>JPanel</code> <code>GridBagConstraints</code>. */
     private final GridBagConstraints innerJPanelConstraints;
-
-    /** The invited by <code>User</code> for incoming invitations. */
-    private User invitedBy;
-
+    
     /** The panel localization. */
     private final MainCellL18n localization;
-
+    
     /** A contact <code>OutgoingEMailInvitation</code>. */
     private OutgoingEMailInvitation outgoingEMail;
     
@@ -124,10 +125,14 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /**
-     * Apply connection status.
+     * Apply the current connection. If the connection is offline; the accept
+     * decline links for the invitations will be made invisible.
+     * 
+     * @param connection
+     *            The <code>Connection</code>.
      */
     public void applyConnection(final Connection connection) {
-        if (isSetIncoming()) {
+        if (isSetIncomingEMail() || isSetIncomingUser()) {
             switch(connection) {
             case OFFLINE:
                 incomingInvitationAcceptJLabel.setVisible(false);
@@ -187,8 +192,10 @@ public class ContactTabPanel extends DefaultTabPanel {
             .append("//");
         if (isSetContact())
             id.append(contact.getId());
-        else if (isSetIncoming())
-            id.append(incoming.getId());
+        else if (isSetIncomingEMail())
+            id.append(incomingEMail.getId());
+        else if (isSetIncomingUser())
+            id.append(incomingUser.getId());
         else if (isSetOutgoingEMail())
             id.append(outgoingEMail.getId());
         else if (isSetOutgoingUser())
@@ -201,23 +208,23 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /**
-     * Obtain the incoming invitation.
+     * Obtain the incoming e-mail invitation.
      * 
-     * @return An <code>IncomingInvitation</code>.
+     * @return An <code>IncomingEMailInvitation</code>.
      */
-    public IncomingInvitation getIncoming() {
-        return incoming;
-    }
-    
-    /**
-     * Obtain the invited-by user for an incoming invitation.
-     * 
-     * @return A <code>User</code>.
-     */
-    public User getInvitedBy() {
-        return invitedBy;
+    public IncomingEMailInvitation getIncomingEMail() {
+        return incomingEMail;
     }
 
+    /**
+     * Obtain the incoming user invitation.
+     * 
+     * @return An <code>IncomingUserInvitation</code>.
+     */
+    public IncomingUserInvitation getIncomingUser() {
+        return incomingUser;
+    }
+    
     /**
      * Obtain the outgoing e-mail invitation.
      * 
@@ -281,12 +288,21 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /**
-     * Determine if the incoming invitation is set.
+     * Determine if the incoming e-mail invitation is set.
      * 
      * @return True if the invitation is set.
      */
-    public Boolean isSetIncoming() {
-        return null != incoming;
+    public Boolean isSetIncomingEMail() {
+        return null != incomingEMail;
+    }
+
+    /**
+     * Determine if the incoming user invitation is set.
+     * 
+     * @return True if the invitation is set.
+     */
+    public Boolean isSetIncomingUser() {
+        return null != incomingUser;
     }
 
     /**
@@ -366,10 +382,12 @@ public class ContactTabPanel extends DefaultTabPanel {
                 getLocationText(contact.getCity(), contact.getProvince(),
                         contact.getCountry(), contact.getPostalCode(),
                         locale, availableLocales));
+        final EMail email;
         if (0 < contact.getEmailsSize())
-            reload(contactEMailValueJLabel, contact.getEmails().get(0).toString());
+            email = contact.getEmails().get(0);
         else
-            reload(contactEMailValueJLabel, null);
+            email = null;
+        reload(contactEMailValueJLabel, email);
         reload(contactMobilePhoneValueJLabel, contact.getMobilePhone());
         reload(contactPhoneValueJLabel, contact.getPhone());
     }
@@ -377,23 +395,37 @@ public class ContactTabPanel extends DefaultTabPanel {
     /**
      * Set the panel data.
      * 
-     * @param incomingInvitation
-     *            An <code>IncomingInvitation</code>.
-     * @param invitedBy
-     *            The invited by <code>User</code>.
+     * @param incomingEMail
+     *            An <code>IncomingEMailInvitation</code>.
      */
-    public void setPanelData(final IncomingInvitation incoming,
-            final User invitedBy) {
-        this.incoming = incoming;
-        this.invitedBy = invitedBy;
+    public void setPanelData(final IncomingEMailInvitation incomingEMail) {
+        this.incomingEMail = incomingEMail;
         initCollapsedPanel();
 
         incomingInvitationIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
-        reload(incomingInvitationAdditionalTextJLabel, getAdditionalText(invitedBy));
+        reload(incomingInvitationAdditionalTextJLabel, getAdditionalText(incomingEMail.getExtendedBy()));
         reload(incomingInvitationTertiaryTextJLabel, localization.getString("IncomingInvitationTertiaryText"));
         reload(incomingInvitationAcceptJLabel, localization.getString("IncomingInvitationAccept"));
         reload(incomingInvitationDeclineJLabel, localization.getString("IncomingInvitationDecline"));
-        reload(incomingInvitationTextJLabel, invitedBy.getName());
+        reload(incomingInvitationTextJLabel, incomingEMail.getExtendedBy().getName());
+    }
+
+    /**
+     * Set the panel data.
+     * 
+     * @param incomingUser
+     *            An <code>IncomingUserInvitation</code>.
+     */
+    public void setPanelData(final IncomingUserInvitation incomingUser) {
+        this.incomingUser = incomingUser;
+        initCollapsedPanel();
+
+        incomingInvitationIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
+        reload(incomingInvitationAdditionalTextJLabel, getAdditionalText(incomingUser.getExtendedBy()));
+        reload(incomingInvitationTertiaryTextJLabel, localization.getString("IncomingInvitationTertiaryText"));
+        reload(incomingInvitationAcceptJLabel, localization.getString("IncomingInvitationAccept"));
+        reload(incomingInvitationDeclineJLabel, localization.getString("IncomingInvitationDecline"));
+        reload(incomingInvitationTextJLabel, incomingUser.getExtendedBy().getName());
     }
 
     /**
@@ -407,8 +439,8 @@ public class ContactTabPanel extends DefaultTabPanel {
         initCollapsedPanel();
 
         collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
-        reload(collapsedAdditionalTextJLabel, null);
-        reload(collapsedTextJLabel, outgoingEMail.getEmail().toString());
+        reload(collapsedAdditionalTextJLabel, (String) null);
+        reload(collapsedTextJLabel, outgoingEMail.getInvitationEMail());
     }
 
     /**
@@ -422,8 +454,8 @@ public class ContactTabPanel extends DefaultTabPanel {
         initCollapsedPanel();
 
         collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
-        reload(collapsedAdditionalTextJLabel, getAdditionalText(outgoingUser.getUser()));
-        reload(collapsedTextJLabel, outgoingUser.getUser().getName());
+        reload(collapsedAdditionalTextJLabel, getAdditionalText(outgoingUser.getInvitationUser()));
+        reload(collapsedTextJLabel, outgoingUser.getInvitationUser().getName());
     }
 
     /**
@@ -456,10 +488,12 @@ public class ContactTabPanel extends DefaultTabPanel {
                 getLocationText(profile.getCity(), profile.getProvince(),
                         profile.getCountry(), profile.getPostalCode(),
                         locale, availableLocales));
+        final EMail email;
         if (0 < emails.size())
-            reload(contactEMailValueJLabel, emails.get(0).getEmail().toString());
+            email = emails.get(0).getEmail();
         else
-            reload(contactEMailValueJLabel, null);
+            email = null;
+        reload(contactEMailValueJLabel, email);
         reload(contactMobilePhoneValueJLabel, profile.getMobilePhone());
         reload(contactPhoneValueJLabel, profile.getPhone());
     }
@@ -522,7 +556,7 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     private void doCollapse(final boolean animate) {
         collapsedJPanel.removeAll();
-        if (isSetIncoming())
+        if (isSetIncomingEMail() || isSetIncomingUser())
             collapsedJPanel.add(collapsedIncomingInvitationJPanel, innerJPanelConstraints.clone());
         else 
             collapsedJPanel.add(collapsedContactJPanel, innerJPanelConstraints.clone());
@@ -696,15 +730,15 @@ public class ContactTabPanel extends DefaultTabPanel {
         if (null != postalCode) {
             locations.add(postalCode);
         }
-        if (locations.size()>0) {
-            final StringBuffer buffer = new StringBuffer();
+        if (locations.size() > 0) {
+            final StringBuilder builder = new StringBuilder();
             for (final String location : locations) {
-                if (buffer.length()>0) {
-                    buffer.append(", ");
+                if (builder.length() > 0) {
+                    builder.append(Separator.CommaSpace);
                 }
-                buffer.append(location);
+                builder.append(location);
             }
-            return buffer.toString();
+            return builder.toString();
         } else {
             return null;
         }
@@ -713,23 +747,34 @@ public class ContactTabPanel extends DefaultTabPanel {
     private void incomingInvitationAcceptJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_incomingInvitationAcceptJLabelMousePressed
         if (e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.selectPanel(this);
-            actionDelegate.invokeForInvitation(getIncoming(), ActionDelegate.Action.ACCEPT);
+            if (isSetIncomingEMail())
+                actionDelegate.invokeForInvitation(getIncomingEMail(), ActionDelegate.Action.ACCEPT);
+            else if (isSetIncomingUser())
+                actionDelegate.invokeForInvitation(getIncomingUser(), ActionDelegate.Action.ACCEPT);
+            else
+                Assert.assertUnreachable("Inconsistent contact tab panel state.");
         }
     }//GEN-LAST:event_incomingInvitationAcceptJLabelMousePressed
 
     private void incomingInvitationDeclineJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_incomingInvitationDeclineJLabelMousePressed
         if (e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.selectPanel(this);
-            actionDelegate.invokeForInvitation(getIncoming(), ActionDelegate.Action.DECLINE);
+            if (isSetIncomingEMail())
+                actionDelegate.invokeForInvitation(getIncomingEMail(), ActionDelegate.Action.DECLINE);
+            else if (isSetIncomingUser())
+                actionDelegate.invokeForInvitation(getIncomingUser(), ActionDelegate.Action.DECLINE);
+            else
+                Assert.assertUnreachable("Inconsistent contact tab panel state.");
         }
     }//GEN-LAST:event_incomingInvitationDeclineJLabelMousePressed
 
     /**
      * Initialize the collapsed panel.
+     * 
      */
     private void initCollapsedPanel() {
         collapsedJPanel.removeAll();
-        if (isSetIncoming()) {
+        if (isSetIncomingEMail() || isSetIncomingUser()) {
             collapsedJPanel.add(collapsedIncomingInvitationJPanel, innerJPanelConstraints.clone());
         } else {
             collapsedJPanel.add(collapsedContactJPanel, innerJPanelConstraints.clone());
@@ -1077,8 +1122,10 @@ public class ContactTabPanel extends DefaultTabPanel {
             popupDelegate.initialize(jPanel, e.getX(), e.getY());
             if (isSetContact())
                 popupDelegate.showForContact(contact, isExpanded());
-            else if (isSetIncoming())
-                popupDelegate.showForInvitation(incoming);
+            else if (isSetIncomingEMail())
+                popupDelegate.showForInvitation(incomingEMail);
+            else if (isSetIncomingUser())
+                popupDelegate.showForInvitation(incomingUser);
             else if (isSetOutgoingEMail())
                 popupDelegate.showForInvitation(outgoingEMail);
             else if (isSetOutgoingUser())
@@ -1113,8 +1160,10 @@ public class ContactTabPanel extends DefaultTabPanel {
             popupDelegate.initialize(jPanel, e.getX(), e.getY());
             if (isSetContact())
                 popupDelegate.showForContact(contact, isExpanded());
-            else if (isSetIncoming())
-                popupDelegate.showForInvitation(incoming);
+            else if (isSetIncomingEMail())
+                popupDelegate.showForInvitation(incomingEMail);
+            else if (isSetIncomingUser())
+                popupDelegate.showForInvitation(incomingUser);
             else if (isSetOutgoingEMail())
                 popupDelegate.showForInvitation(outgoingEMail);
             else if (isSetOutgoingUser())
@@ -1135,7 +1184,20 @@ public class ContactTabPanel extends DefaultTabPanel {
      *            The label value.
      */
     private void reload(final javax.swing.JLabel jLabel,
+            final EMail value) {
+        jLabel.setText(null == value ? Separator.Space.toString() : value.toString());
+    }
+
+    /**
+     * Reload a display label.
+     * 
+     * @param jLabel
+     *            A swing <code>JLabel</code>.
+     * @param value
+     *            The label value.
+     */
+    private void reload(final javax.swing.JLabel jLabel,
             final String value) {
-        jLabel.setText(null == value ? " " : value);
+        jLabel.setText(null == value ? Separator.Space.toString() : value);
     }
 }

@@ -6,7 +6,8 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.c
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingInvitation;
 import com.thinkparity.codebase.model.profile.Profile;
 
@@ -15,12 +16,15 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultActionDelegate;
-import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingEMailInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingUserInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingEMailInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingUserInvitation;
 
 /**
- * <b>Title:</b><br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity OpheliaUI Contact Tab Action Delegate<br>
+ * <b>Description:</b>Responsible for invoking various actions for the data
+ * types presented by the contact tab.<br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
@@ -31,11 +35,17 @@ final class ContactTabActionDelegate extends DefaultActionDelegate implements
     /** The <code>ContactTabModel</code>. */
     private final ContactTabModel model;
     
-    /** The accept invitation <code>AbstractAction</code>. */
-    private final ActionInvocation acceptIncomingInvitation;
+    /** The accept e-mail invitation <code>AbstractAction</code>. */
+    private final ActionInvocation acceptIncomingEMailInvitation;
+
+    /** The accept user invitation <code>AbstractAction</code>. */
+    private final ActionInvocation acceptIncomingUserInvitation;
     
-    /** The decline invitation <code>AbstractAction</code>. */
-    private final ActionInvocation declineIncomingInvitation;
+    /** The decline email invitation <code>AbstractAction</code>. */
+    private final ActionInvocation declineIncomingEMailInvitation;
+
+    /** The decline user invitation <code>AbstractAction</code>. */
+    private final ActionInvocation declineIncomingUserInvitation;
 
     /**
      * Create ContactTabActionDelegate.
@@ -46,8 +56,10 @@ final class ContactTabActionDelegate extends DefaultActionDelegate implements
     ContactTabActionDelegate(final ContactTabModel model) {
         super();
         this.model = model;
-        this.acceptIncomingInvitation = getInstance(ActionId.CONTACT_ACCEPT_INCOMING_INVITATION);
-        this.declineIncomingInvitation = getInstance(ActionId.CONTACT_DECLINE_INCOMING_INVITATION);
+        this.acceptIncomingEMailInvitation = getInstance(ActionId.CONTACT_ACCEPT_INCOMING_EMAIL_INVITATION);
+        this.acceptIncomingUserInvitation = getInstance(ActionId.CONTACT_ACCEPT_INCOMING_USER_INVITATION);
+        this.declineIncomingEMailInvitation = getInstance(ActionId.CONTACT_DECLINE_INCOMING_EMAIL_INVITATION);
+        this.declineIncomingUserInvitation = getInstance(ActionId.CONTACT_DECLINE_INCOMING_USER_INVITATION);
     }
 
     /**
@@ -61,26 +73,56 @@ final class ContactTabActionDelegate extends DefaultActionDelegate implements
     public void invokeForProfile(final Profile profile) {}
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ActionDelegate#invokeForInvitation(com.thinkparity.ophelia.model.contact.IncomingInvitation)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ActionDelegate#invokeForInvitation(com.thinkparity.codebase.model.contact.IncomingEMailInvitation,
+     *      com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ActionDelegate.Action)
+     * 
      */
-    public void invokeForInvitation(final IncomingInvitation invitation, final Action action) {
+    public void invokeForInvitation(final IncomingEMailInvitation invitation, final Action action) {
         if (isOnline()) {
-            if (Action.ACCEPT == action) {
+            switch (action) {
+            case ACCEPT:
                 final Data acceptData = new Data(1);
-                acceptData.set(AcceptIncomingInvitation.DataKey.INVITATION_ID, invitation.getId());
-                acceptIncomingInvitation.invokeAction(acceptData);
-            } else if (Action.DECLINE == action) {
+                acceptData.set(AcceptIncomingEMailInvitation.DataKey.INVITATION_ID, invitation.getId());
+                acceptIncomingEMailInvitation.invokeAction(acceptData);
+                break;
+            case DECLINE:
                 final Data declineData = new Data(1);
-                declineData.set(DeclineIncomingInvitation.DataKey.INVITATION_ID, invitation.getId());
-                declineIncomingInvitation.invokeAction(declineData);
-            } else {
+                declineData.set(DeclineIncomingEMailInvitation.DataKey.INVITATION_ID, invitation.getId());
+                declineIncomingEMailInvitation.invokeAction(declineData);
+                break;
+            default:
                 Assert.assertUnreachable("Unknown incoming invitation action.");
             }
         }
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ActionDelegate#invokeForInvitation(com.thinkparity.ophelia.model.contact.OutgoingInvitation)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ActionDelegate#invokeForInvitation(com.thinkparity.codebase.model.contact.IncomingUserInvitation,
+     *      com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ActionDelegate.Action)
+     * 
+     */
+    public void invokeForInvitation(final IncomingUserInvitation invitation, final Action action) {
+        if (isOnline()) {
+            switch (action) {
+            case ACCEPT:
+                final Data acceptData = new Data(1);
+                acceptData.set(AcceptIncomingUserInvitation.DataKey.INVITATION_ID, invitation.getId());
+                acceptIncomingUserInvitation.invokeAction(acceptData);
+                break;
+            case DECLINE:
+                final Data declineData = new Data(1);
+                declineData.set(DeclineIncomingUserInvitation.DataKey.INVITATION_ID, invitation.getId());
+                declineIncomingUserInvitation.invokeAction(declineData);
+                break;
+            default:
+                Assert.assertUnreachable("Unknown incoming invitation action.");
+            }
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ActionDelegate#invokeForInvitation(com.thinkparity.codebase.model.contact.OutgoingInvitation)
+     * 
      */
     public void invokeForInvitation(final OutgoingInvitation invitation) {}
     

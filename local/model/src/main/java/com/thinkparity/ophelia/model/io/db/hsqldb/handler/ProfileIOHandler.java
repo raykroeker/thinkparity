@@ -55,13 +55,13 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
             .append("where PROFILE_ID=? and EMAIL_ID=?")
             .toString();
 
-    /** Sql to read the profile by jabber id. */
+    /** Sql to read the profile. */
     private static final String SQL_READ =
             new StringBuffer("select P.PROFILE_ID,U.JABBER_ID,U.NAME,")
             .append("U.ORGANIZATION,U.TITLE,P.PROFILE_VCARD ")
             .append("from PROFILE P ")
             .append("inner join PARITY_USER U on P.PROFILE_ID=U.USER_ID ")
-            .append("where U.JABBER_ID=?")
+            .append("order by P.PROFILE_ID desc")
             .toString();
 
     /** Sql to read a profile email. */
@@ -91,6 +91,15 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
         .append("inner join PROFILE P on PF.PROFILE_ID=P.PROFILE_ID ")
         .append("where P.PROFILE_ID=?")
         .toString();
+
+    /** Sql to read the profile by its unique key. */
+    private static final String SQL_READ_UK =
+            new StringBuffer("select P.PROFILE_ID,U.JABBER_ID,U.NAME,")
+            .append("U.ORGANIZATION,U.TITLE,P.PROFILE_VCARD ")
+            .append("from PROFILE P ")
+            .append("inner join PARITY_USER U on P.PROFILE_ID=U.USER_ID ")
+            .append("where U.JABBER_ID=?")
+            .toString();
 
     /** Sql to update a profile. */
     private static final String SQL_UPDATE =
@@ -191,11 +200,12 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
 
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ProfileIOHandler#read()
+     * 
      */
     public Profile read(final JabberId jabberId) {
         final Session session = openSession();
         try {
-            session.prepareStatement(SQL_READ);
+            session.prepareStatement(SQL_READ_UK);
             session.setQualifiedUsername(1, jabberId);
             session.executeQuery();
             if(session.nextResult()) { return extractProfile(session); }
@@ -327,6 +337,26 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
         profile.setOrganization(session.getString("ORGANIZATION"));
         profile.setTitle(session.getString("TITLE"));
         return profile;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ProfileIOHandler#read()
+     * 
+     */
+    Profile read(final Session session) {
+        session.prepareStatement(SQL_READ);
+        session.executeQuery();
+        if (session.nextResult()) {
+            final Profile profile = extractProfile(session);
+            if (session.nextResult()) {
+                // cheap way to ensure only one row
+                throw new HypersonicException("Invalid profile state.");
+            } else {
+                return profile;
+            }
+        } else {
+            return null;
+        }
     }
 
     /**

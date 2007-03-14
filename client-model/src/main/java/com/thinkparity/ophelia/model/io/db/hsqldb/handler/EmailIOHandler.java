@@ -30,6 +30,13 @@ class EmailIOHandler extends AbstractIOHandler {
             .append("where EMAIL_ID=?")
             .toString();
 
+    /** Sql to read an e-mail count by its unique key. */
+    private static final String SQL_READ_COUNT_UK =
+        new StringBuilder("select COUNT(E.EMAIL_ID) \"EMAIL_COUNT\" ")
+        .append("from EMAIL E ")
+        .append("where E.EMAIL=?")
+        .toString();
+
     /** Sql to read an e-mail id from an e-mail address. */
     private static final String SQL_READ_ID =
             new StringBuffer("select EMAIL_ID ")
@@ -71,6 +78,20 @@ class EmailIOHandler extends AbstractIOHandler {
             throw new HypersonicException("Could not delete email.");
     }
 
+    Boolean doesExist(final Session session, final EMail email) {
+        session.prepareStatement(SQL_READ_COUNT_UK);
+        session.setEMail(1, email);
+        session.executeQuery();
+        session.nextResult();
+        if (1 == session.getInteger("EMAIL_COUNT")) {
+            return Boolean.TRUE;
+        } else if (0 == session.getInteger("EMAIL_COUNT")) {
+            return Boolean.FALSE;
+        } else {
+            throw new HypersonicException("Could not determine e-mail count.");
+        }
+    }
+
     /**
      * Extract an <code>EMail</code> from the <code>Session</code>.
      * 
@@ -90,6 +111,14 @@ class EmailIOHandler extends AbstractIOHandler {
             return session.getLong("EMAIL_ID");
         } else {
             return null;
+        }
+    }
+
+    Long readLazyCreate(final Session session, final EMail email ){
+        if (!doesExist(session, email)) {
+            return create(session, email);
+        } else {
+            return readId(session, email);
         }
     }
 }

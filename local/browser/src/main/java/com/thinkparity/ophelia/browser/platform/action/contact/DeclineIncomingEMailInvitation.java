@@ -13,20 +13,25 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity OpheliaUI Decline Incoming EMail Invitation Action<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class DeclineIncomingInvitation extends AbstractBrowserAction {
+public final class DeclineIncomingEMailInvitation extends AbstractBrowserAction {
 
-	/** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
-
-    /** The thinkParity browser application. */
+    /** The thinkParity <code>Browser</code> application. */
     private final Browser browser;
 
-	/** Create DeclineIncomingInvitation. */
-	public DeclineIncomingInvitation(final Browser browser) {
-		super(ActionId.CONTACT_DECLINE_INCOMING_INVITATION);
+    /**
+     * Create DeclineIncomingEMailInvitation.
+     * 
+     * @param browser
+     *            The thinkParity <code>Browser</code> application.
+     */
+	public DeclineIncomingEMailInvitation(final Browser browser) {
+		super(ActionId.CONTACT_DECLINE_INCOMING_EMAIL_INVITATION);
         this.browser = browser;
 	}
 
@@ -38,11 +43,10 @@ public class DeclineIncomingInvitation extends AbstractBrowserAction {
 	    final Long invitationId = (Long) data.get(DataKey.INVITATION_ID);
 
         final ContactModel contactModel = getContactModel();
-        final IncomingInvitation invitation = contactModel.readIncomingInvitation(invitationId);
-        if (browser.confirm(
-                "ContactIncomingInvitationDecline.ConfirmDeclineMessage",
-                new Object[] { invitation.getInvitedBy().getName() })) {
-            contactModel.declineIncomingInvitation(invitationId);
+        final IncomingInvitation invitation = contactModel.readIncomingEMailInvitation(invitationId);
+        if (browser.confirm("DeclineIncomingEMailInvitation.ConfirmDecline",
+                new Object[] { invitation.getExtendedBy().getName() })) {
+            contactModel.declineIncomingEMailInvitation(invitationId);
         }
 	}
 

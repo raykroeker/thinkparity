@@ -13,6 +13,12 @@ package com.thinkparity.ophelia.model.events;
 public class ContactAdapter implements ContactListener {
 
     /**
+     * @see com.thinkparity.ophelia.model.events.ContactListener#contactCreated(com.thinkparity.ophelia.model.events.ContactEvent)
+     *
+     */
+    public void contactCreated(final ContactEvent e) {}
+
+    /**
      * @see com.thinkparity.ophelia.model.events.ContactListener#contactDeleted(com.thinkparity.ophelia.model.events.ContactEvent)
      *
      */
@@ -25,28 +31,52 @@ public class ContactAdapter implements ContactListener {
     public void contactUpdated(final ContactEvent e) {}
 
     /**
-     * @see com.thinkparity.ophelia.model.events.ContactListener#incomingInvitationAccepted(com.thinkparity.ophelia.model.events.ContactEvent)
+     * @see com.thinkparity.ophelia.model.events.ContactListener#incomingEMailInvitationAccepted(com.thinkparity.ophelia.model.events.ContactEvent)
      *
      */
-    public void incomingInvitationAccepted(final ContactEvent e) {}
+    public void incomingEMailInvitationAccepted(final ContactEvent e) {}
 
     /**
-     * @see com.thinkparity.ophelia.model.events.ContactListener#incomingInvitationCreated(com.thinkparity.ophelia.model.events.ContactEvent)
+     * @see com.thinkparity.ophelia.model.events.ContactListener#incomingEMailInvitationCreated(com.thinkparity.ophelia.model.events.ContactEvent)
      *
      */
-    public void incomingInvitationCreated(final ContactEvent e) {}
+    public void incomingEMailInvitationCreated(final ContactEvent e) {}
 
     /**
-     * @see com.thinkparity.ophelia.model.events.ContactListener#incomingInvitationDeclined(com.thinkparity.ophelia.model.events.ContactEvent)
+     * @see com.thinkparity.ophelia.model.events.ContactListener#incomingEMailInvitationDeclined(com.thinkparity.ophelia.model.events.ContactEvent)
      *
      */
-    public void incomingInvitationDeclined(final ContactEvent e) {}
+    public void incomingEMailInvitationDeclined(final ContactEvent e) {}
 
     /**
-     * @see com.thinkparity.ophelia.model.events.ContactListener#incomingInvitationDeleted(com.thinkparity.ophelia.model.events.ContactEvent)
+     * @see com.thinkparity.ophelia.model.events.ContactListener#incomingEMailInvitationDeleted(com.thinkparity.ophelia.model.events.ContactEvent)
      *
      */
-    public void incomingInvitationDeleted(final ContactEvent e) {}
+    public void incomingEMailInvitationDeleted(final ContactEvent e) {}
+
+    /**
+     * @see com.thinkparity.ophelia.model.events.ContactListener#incomingUserInvitationAccepted(com.thinkparity.ophelia.model.events.ContactEvent)
+     *
+     */
+    public void incomingUserInvitationAccepted(final ContactEvent e) {}
+
+    /**
+     * @see com.thinkparity.ophelia.model.events.ContactListener#incomingUserInvitationCreated(com.thinkparity.ophelia.model.events.ContactEvent)
+     *
+     */
+    public void incomingUserInvitationCreated(final ContactEvent e) {}
+
+    /**
+     * @see com.thinkparity.ophelia.model.events.ContactListener#incomingUserInvitationDeclined(com.thinkparity.ophelia.model.events.ContactEvent)
+     *
+     */
+    public void incomingUserInvitationDeclined(final ContactEvent e) {}
+
+    /**
+     * @see com.thinkparity.ophelia.model.events.ContactListener#incomingUserInvitationDeleted(com.thinkparity.ophelia.model.events.ContactEvent)
+     *
+     */
+    public void incomingUserInvitationDeleted(final ContactEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContactListener#outgoingEMailInvitationAccepted(com.thinkparity.ophelia.model.events.ContactEvent)

@@ -8,12 +8,10 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JPopupMenu;
 
-import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 
-import com.thinkparity.ophelia.browser.Constants.DateFormats;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
@@ -31,9 +29,6 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
  */
 public class OutgoingEMailInvitationCell extends DefaultInvitationCell {
 
-    /** A thinkParity fuzzy date format. */
-    private final FuzzyDateFormat fuzzyDateFormat; 
-
     /** The outgoing invitation associated with this cell. */
     private OutgoingEMailInvitation invitation;
     
@@ -48,7 +43,6 @@ public class OutgoingEMailInvitationCell extends DefaultInvitationCell {
     public OutgoingEMailInvitationCell(final OutgoingEMailInvitation invitation) {
         super();
         this.invitation = invitation;
-        this.fuzzyDateFormat = DateFormats.FUZZY;
         this.localization = new MainCellL18n("OutgoingEMailInvitation");
     }
 
@@ -82,8 +76,8 @@ public class OutgoingEMailInvitationCell extends DefaultInvitationCell {
     public String getTextNoClipping(TextGroup textGroup) {
         if (textGroup == TextGroup.WEST) {
             return localization.getString("Text", new Object[] {
-                    invitation.getEmail(),
-                    fuzzyDateFormat.format(invitation.getCreatedOn()) });
+                    invitation.getInvitationEMail(),
+                    FUZZY_DATE_FORMAT.format(invitation.getCreatedOn()) });
         } else {
             return null;
         }

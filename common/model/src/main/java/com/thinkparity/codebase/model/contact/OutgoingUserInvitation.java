@@ -14,10 +14,10 @@ import com.thinkparity.codebase.model.user.User;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class OutgoingUserInvitation extends OutgoingInvitation {
+public final class OutgoingUserInvitation extends OutgoingInvitation {
 
-    /** A <code>User</code>. */
-    private User user;
+    /** An invitation <code>User</code>. */
+    private User invitationUser;
 
     /**
      * Create OutgoingInvitation.
@@ -27,23 +27,12 @@ public class OutgoingUserInvitation extends OutgoingInvitation {
         super();
     }
 
-    /**
-     * Obtain the user.
-     * 
-     * @return A <code>User</code>.
-     */
-    public User getUser() {
-        return user;
+    public User getInvitationUser() {
+        return invitationUser;
     }
 
-    /**
-     * Set the user id.
-     * 
-     * @param userId
-     *            The user id <code>JabberId</code>.
-     */
-    public void setUser(final User user) {
-        this.user = user;
+    public void setInvitationUser(final User invitationUser) {
+        this.invitationUser = invitationUser;
     }
 
     /**
@@ -52,6 +41,8 @@ public class OutgoingUserInvitation extends OutgoingInvitation {
      */
     @Override
     public String toString() {
-        return StringUtil.toString(getClass(), "id", id, "user", user);
+        return StringUtil.toString(getClass(), "createdBy", createdBy,
+                "createdOn", createdOn, "id", id, "invitationUser",
+                invitationUser);
     }
 }

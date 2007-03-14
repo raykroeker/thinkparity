@@ -145,9 +145,27 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * Determine if sign up is available.
+     * @see com.thinkparity.ophelia.model.profile.InternalProfileModel#isBackupAvailable()
+     *
+     */
+    public Boolean isBackupAvailable() {
+        try {
+            final Profile profile = read();
+            final List<Feature> features = profileIO.readFeatures(profile.getLocalId());
+            for (final Feature feature : features) {
+                if (Features.BACKUP.equals(feature.getName())) {
+                    return Boolean.TRUE;
+                }
+            }
+            return Boolean.FALSE;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#isSignUpAvailable()
      * 
-     * @return True if sign up is available.
      */
     public Boolean isSignUpAvailable() {
         try {

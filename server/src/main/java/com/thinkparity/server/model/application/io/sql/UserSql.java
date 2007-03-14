@@ -74,6 +74,13 @@ public class UserSql extends AbstractSql {
         .toString();
 
     /** Sql to read a user. */
+    private static final String SQL_READ_BY_ID =
+        new StringBuilder("select PU.USERNAME,PU.USER_ID ")
+        .append("from PARITY_USER PU ")
+        .append("where PU.USER_ID=?")
+        .toString();
+
+    /** Sql to read a user. */
     private static final String SQL_READ_BY_USERNAME =
         new StringBuilder("select PU.USERNAME,PU.USER_ID ")
         .append("from PARITY_USER PU ")
@@ -291,6 +298,29 @@ public class UserSql extends AbstractSql {
         try {
             session.prepareStatement(SQL_READ_BY_USERNAME);
             session.setString(1, userId.getUsername());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extract(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read a user id for an e-mail address.
+     * 
+     * @param email
+     *            An <code>EMail</code> address.
+     * @return A <code>User</code>.
+     */
+    public User read(final Long userId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_BY_ID);
+            session.setLong(1, userId);
             session.executeQuery();
             if (session.nextResult()) {
                 return extract(session);

@@ -157,6 +157,21 @@ class ArchiveModelImpl extends AbstractModelImpl {
         return lookupContext(archiveId).modelFactory;
     }
 
+    Boolean isArchiveOnline(final JabberId userId) {
+        try {
+            // grab the archive id
+            final JabberId archiveId = readArchiveId(userId);
+            if (null == archiveId) {
+                // no backup exists
+                return Boolean.FALSE;
+            } else {
+                return doesExistContext(archiveId);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
     List<TeamMember> readTeam(final JabberId userId, final UUID uniqueId) {
         logApiId();
         logVariable("userId", userId);
@@ -356,6 +371,19 @@ class ArchiveModelImpl extends AbstractModelImpl {
             Assert.assertTrue(ARCHIVE_CONTEXT_LOOKUP.containsKey(archiveId),
                     "Archive context for {0} does not exist.", archiveId);
             ARCHIVE_CONTEXT_LOOKUP.remove(archiveId);
+        }
+    }
+
+    /**
+     * Determine if the context exists for the archive id.
+     * 
+     * @param archiveId
+     *            An archive id <code>JabberId</code>.
+     * @return True if the archive context exists.
+     */
+    private Boolean doesExistContext(final JabberId archiveId) {
+        synchronized (ARCHIVE_CONTEXT_LOOKUP) {
+            return ARCHIVE_CONTEXT_LOOKUP.containsKey(archiveId);
         }
     }
 

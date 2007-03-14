@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
@@ -21,14 +21,14 @@ import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ReadIncomingInvitations extends AbstractHandler {
+public final class ReadIncomingUserInvitations extends AbstractHandler {
 
     /**
      * Create ReadIncomingInvitations.
      *
      */
-    public ReadIncomingInvitations() {
-        super("contact:readincominginvitations");
+    public ReadIncomingUserInvitations() {
+        super("contact:readincominguserinvitations");
     }
 
     /**
@@ -39,13 +39,13 @@ public final class ReadIncomingInvitations extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        final List<IncomingInvitation> invitations =
-            readIncomingInvitations(provider, reader.readJabberId("userId"));
-        writer.writeIncomingInvitations("invitations", invitations);
+        final List<IncomingUserInvitation> invitations =
+            readIncomingUserInvitations(provider, reader.readJabberId("userId"));
+        writer.writeIncomingUserInvitations("invitations", invitations);
     }
 
-    private List<IncomingInvitation> readIncomingInvitations(
+    private List<IncomingUserInvitation> readIncomingUserInvitations(
             final ServiceModelProvider provider, final JabberId userId) {
-        return provider.getContactModel().readIncomingInvitations(userId);
+        return provider.getContactModel().readIncomingUserInvitations(userId);
     }
 }

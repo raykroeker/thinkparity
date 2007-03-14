@@ -764,6 +764,12 @@ public class XMPPMethod extends IQ {
                     parser.next();
                     parser.next();
                     return user;
+                } else if (ContactInvitation.class.isAssignableFrom(javaType)) {
+                    ContactInvitation invitation = null;
+                    invitation = (ContactInvitation) xstreamUtil.unmarshal(new SmackXppReader(parser), invitation);
+                    parser.next();
+                    parser.next();
+                    return invitation;
                 } else if (UserVCard.class.isAssignableFrom(javaType)) {
                     UserVCard vcard = null;
                     vcard = (UserVCard) xstreamUtil.unmarshal(new SmackXppReader(parser), vcard);

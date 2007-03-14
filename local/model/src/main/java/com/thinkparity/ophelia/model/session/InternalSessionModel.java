@@ -15,7 +15,8 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
@@ -51,11 +52,22 @@ public interface InternalSessionModel extends SessionModel {
      * Accept the contact invitation.
      * 
      * @param invitation
-     *            An <code>IncomingInvitation<code>.
+     *            An <code>IncomingEMailInvitation<code>.
      * @param acceptedOn
      *            The accepted on <code>Calendar</code>.
      */
-    public void acceptIncomingInvitation(final IncomingInvitation invitation,
+    public void acceptInvitation(final IncomingEMailInvitation invitation,
+            final Calendar acceptedOn);
+
+    /**
+     * Accept the contact invitation.
+     * 
+     * @param invitation
+     *            An <code>IncomingUserInvitation<code>.
+     * @param acceptedOn
+     *            The accepted on <code>Calendar</code>.
+     */
+    public void acceptInvitation(final IncomingUserInvitation invitation,
             final Calendar acceptedOn);
 
     /**
@@ -114,6 +126,22 @@ public interface InternalSessionModel extends SessionModel {
             final Calendar createdOn);
 
     /**
+     * Create an outgoing e-mail invitation.
+     * 
+     * @param invitation
+     *            An <code>OutgoingEMailInvitation</code>.
+     */
+    public void createInvitation(final OutgoingEMailInvitation invitation);
+
+    /**
+     * Create an outgoing user invitation.
+     * 
+     * @param invitation
+     *            An <code>OutgoingUserInvitation</code>.
+     */
+    public void createInvitation(final OutgoingUserInvitation invitation);
+
+    /**
      * Create a migrator stream for a list of resources.
      * 
      * @param streamId
@@ -125,23 +153,12 @@ public interface InternalSessionModel extends SessionModel {
             final List<Resource> resources);
 
     /**
-     * Create an outgoing e-mail invitation.
+     * Create a stream.
      * 
-     * @param invitation
-     *            An <code>OutgoingEMailInvitation</code>.
+     * @param session
+     *            A <code>StreamSession</code>.
+     * @return A stream id <code>String</code>.
      */
-    public void createOutgoingEMailInvitation(
-            final OutgoingEMailInvitation invitation);
-
-    /**
-     * Create an outgoing user invitation.
-     * 
-     * @param invitation
-     *            An <code>OutgoingUserInvitation</code>.
-     */
-    public void createOutgoingUserInvitation(
-            final OutgoingUserInvitation invitation);
-
     public String createStream(final StreamSession session);
 
     /**
@@ -151,16 +168,35 @@ public interface InternalSessionModel extends SessionModel {
      */
     public StreamSession createStreamSession();
 
-	/**
-     * Decline an incoming invitation.
+    /**
+     * Decline an incoming e-mail invitation.
      * 
      * @param invitation
-     *            An <code>IncomingInvitation</code>.
+     *            An <code>IncomingEMailInvitation</code>.
      * @param declinedOn
      *            A declined on <code>Calendar</code>.
      */
-    public void declineIncomingInvitation(final IncomingInvitation invitation,
+    public void declineInvitation(final IncomingEMailInvitation invitation,
             final Calendar declinedOn);
+
+    /**
+     * Decline an incoming user invitation.
+     * 
+     * @param invitation
+     *            An <code>IncomingUserInvitation</code>.
+     * @param declinedOn
+     *            A declined on <code>Calendar</code>.
+     */
+    public void declineInvitation(final IncomingUserInvitation invitation,
+            final Calendar declinedOn);
+
+    /**
+     * Delete a contact.
+     * 
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
+     */
+    public void delete(final JabberId contactId);
 
     /**
      * Delete an artifact from the backup.
@@ -172,19 +208,10 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void deleteArtifact(final JabberId userId, final UUID uniqueId);
 
-    
-    /**
-     * Delete a contact.
-     * 
-     * @param contactId
-     *            A contact id <code>JabberId</code>.
-     */
-    public void delete(final JabberId contactId);
-
     // TODO-javadoc InternalSessionModel#deleteDraft()
     public void deleteDraft(final UUID uniqueId, final Calendar deletedOn);
 
-    /**
+	/**
      * Delete a contact invitation.
      * 
      * @param invitation
@@ -192,10 +219,10 @@ public interface InternalSessionModel extends SessionModel {
      * @param deletedOn
      *            The deletion <code>Calendar</code>.
      */
-    public void deleteOutgoingEMailInvitation(
-            final OutgoingEMailInvitation invitation, final Calendar deletedOn);
+    public void deleteInvitation(final OutgoingEMailInvitation invitation,
+            final Calendar deletedOn);
 
-	/**
+    /**
      * Delete a contact invitation.
      * 
      * @param invitation
@@ -203,9 +230,9 @@ public interface InternalSessionModel extends SessionModel {
      * @param deletedOn
      *            The deletion <code>Calendar</code>.
      */
-    public void deleteOutgoingUserInvitation(
-            final OutgoingUserInvitation invitation, final Calendar deletedOn);
-
+    public void deleteInvitation(final OutgoingUserInvitation invitation,
+            final Calendar deletedOn);
+    
     /**
      * Delete a stream session.
      * 
@@ -233,7 +260,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void handleSessionEstablished();
 
-    /**
+	/**
      * Handle the remote session terminated event.
      *
      */
@@ -247,6 +274,13 @@ public interface InternalSessionModel extends SessionModel {
      * 
      */
     public void handleSessionTerminated(final Exception cause);
+
+    /**
+     * Determine if the backup is online.
+     * 
+     * @return True if the backup server is online.
+     */
+    public Boolean isBackupOnline();
 
     /**
      * Determine the availability of an e-mail address.
@@ -473,6 +507,20 @@ public interface InternalSessionModel extends SessionModel {
     public Calendar readDateTime();
 
     /**
+     * Read all incoming e-mail invitations.
+     * 
+     * @return A <code>List</code> of <code>IncomingEMailInvitation</code>s.
+     */
+    public List<IncomingEMailInvitation> readIncomingEMailInvitations();
+
+    /**
+     * Read all incoming user invitations.
+     * 
+     * @return A <code>List</code> of <code>IncomingUserInvitation</code>s.
+     */
+    public List<IncomingUserInvitation> readIncomingUserInvitations();
+
+    /**
      * Read the artifact key holder.
      * 
      * @param artifactUniqueId
@@ -530,6 +578,20 @@ public interface InternalSessionModel extends SessionModel {
      */
     public List<Resource> readMigratorResources(final UUID productUniqueId,
             final String releaseName, final OS os);
+
+    /**
+     * Read all outgoing e-mail invitations.
+     * 
+     * @return A <code>List</code> of <code>OutgoingEMailInvitation</code>s.
+     */
+    public List<OutgoingEMailInvitation> readOutgoingEMailInvitations();
+
+    /**
+     * Read all outgoing user invitations.
+     * 
+     * @return A <code>List</code> of <code>OutgoingUserInvitation</code>s.
+     */
+    public List<OutgoingUserInvitation> readOutgoingUserInvitations();
 
     /**
      * Read the user's profile.

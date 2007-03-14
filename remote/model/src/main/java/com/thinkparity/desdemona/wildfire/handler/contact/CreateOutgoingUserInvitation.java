@@ -40,13 +40,12 @@ public final class CreateOutgoingUserInvitation extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        createOutgoingUserInvitation(provider, reader.readJabberId("userId"),
+        createInvitation(provider, reader.readJabberId("userId"),
                 reader.readOutgoingUserInvitation("invitation"));
     }
 
-    private void createOutgoingUserInvitation(final ServiceModelProvider context,
+    private void createInvitation(final ServiceModelProvider context,
             final JabberId userId, final OutgoingUserInvitation invitation) {
-        context.getContactModel().createOutgoingUserInvitation(userId,
-                invitation);
+        context.getContactModel().createInvitation(userId, invitation);
     }
 }

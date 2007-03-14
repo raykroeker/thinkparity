@@ -46,6 +46,38 @@ public interface InternalIndexModel extends IndexModel {
     public void deleteDocument(final Long documentId);
 
     /**
+     * Delete an incoming e-mail invitation index entry.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     */
+    public void deleteIncomingEMailInvitation(final Long invitationId);
+
+    /**
+     * Delete an incoming user invitation index entry.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     */
+    public void deleteIncomingUserInvitation(final Long invitationId);
+
+    /**
+     * Delete an outgoing e-mail invitation index entry.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     */
+    public void deleteOutgoingEMailInvitation(final Long invitationId);
+
+    /**
+     * Delete an outgoing user invitation index entry.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     */
+    public void deleteOutgoingUserInvitation(final Long invitationId);
+
+    /**
      * Delete the user profile index
      *
      */
@@ -92,7 +124,15 @@ public interface InternalIndexModel extends IndexModel {
      * @param invitationId
      *            An invitation id <code>Long</code>.
      */
-    public void indexIncomingInvitation(final Long invitationId);
+    public void indexIncomingEMailInvitation(final Long invitationId);
+
+    /**
+     * Index an incoming invitation.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     */
+    public void indexIncomingUserInvitation(final Long invitationId);
 
     /**
      * Index an outgoing e-mail invitation.
@@ -154,13 +194,22 @@ public interface InternalIndexModel extends IndexModel {
     public List<Long> searchDocuments(final String expression);
 
     /**
-     * Search the index for incoming invitations.
+     * Search the index for incoming e-mail invitations.
      * 
      * @param expression
      *            A search expression <code>String</code>..
      * @return A <code>List</code> of invitation id <code>Long</code>s.
      */
-    public List<Long> searchIncomingInvitations(final String expression);
+    public List<Long> searchIncomingEMailInvitations(final String expression);
+
+    /**
+     * Search the index for incoming user invitations.
+     * 
+     * @param expression
+     *            A search expression <code>String</code>..
+     * @return A <code>List</code> of invitation id <code>Long</code>s.
+     */
+    public List<Long> searchIncomingUserInvitations(final String expression);
 
     /**
      * Search the index for outgoing e-mail invitations.

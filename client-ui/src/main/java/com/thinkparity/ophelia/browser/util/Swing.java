@@ -54,6 +54,7 @@ public class Swing {
         defaults.put("PopupMenu.background", Colors.Swing.MENU_BG);
         defaults.put("PopupMenu.foreground", Colors.Swing.MENU_FG);
         defaults.put("PopupMenu.font", BrowserConstants.Fonts.DefaultFont);
+        defaults.put("FileChooser.readOnly", Boolean.TRUE);
 
         try {
         	final LookAndFeel laf;

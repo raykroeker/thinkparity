@@ -20,7 +20,6 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
-import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.document.CannotLockException;
@@ -402,7 +401,7 @@ public interface ContainerModel {
      *            A version id <code>Long</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
+    public List<ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId);
 
     /**
@@ -416,8 +415,8 @@ public interface ContainerModel {
      *            A <code>Comparator&lt;User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
-            final Long versionId, final Comparator<User> comparator);
+    public List<ArtifactReceipt> readPublishedTo(final Long containerId,
+            final Long versionId, final Comparator<ArtifactReceipt> comparator);
 
     /**
      * Read a list of team members the container version was published to.
@@ -432,9 +431,9 @@ public interface ContainerModel {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
-            final Long versionId, final Comparator<User> comparator,
-            final Filter<? super User> filter);
+    public List<ArtifactReceipt> readPublishedTo(final Long containerId,
+            final Long versionId, final Comparator<ArtifactReceipt> comparator,
+            final Filter<? super ArtifactReceipt> filter);
 
     /**
      * Read a list of team members the container version was published to.
@@ -447,8 +446,8 @@ public interface ContainerModel {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
-            final Long versionId, final Filter<? super User> filter);
+    public List<ArtifactReceipt> readPublishedTo(final Long containerId,
+            final Long versionId, final Filter<? super ArtifactReceipt> filter);
 
     /**
      * Read a list of team members that the user can publish to.

@@ -10,7 +10,6 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 
 import javax.swing.AbstractAction;
-import javax.swing.JFileChooser;
 
 import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
 
@@ -73,7 +72,6 @@ public class FileChooserAvatar extends Avatar {
             reloadCurrentDirectory();
             reloadFileSelectionMode();
             reloadMultiSelection();
-            getFileChooser().setState(JFileChooser.CANCEL_OPTION);
         }
     }
 

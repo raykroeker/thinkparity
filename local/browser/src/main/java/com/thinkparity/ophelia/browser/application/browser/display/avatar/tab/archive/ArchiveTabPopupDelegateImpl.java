@@ -11,8 +11,6 @@ import java.awt.event.ActionListener;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
@@ -21,8 +19,6 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
@@ -41,6 +37,7 @@ import com.thinkparity.ophelia.browser.platform.action.container.Restore;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b>thinkParity Archive Tab Popup Delegate Implementation<br>
@@ -169,14 +166,11 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForVersion(com.thinkparity.codebase.model.container.ContainerVersion,
-     *      java.util.Map, java.util.Map,
-     *      com.thinkparity.codebase.model.user.User)
-     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForVersion(com.thinkparity.codebase.model.container.ContainerVersion, java.util.List, java.util.List, com.thinkparity.codebase.model.user.User)
      */
     public void showForVersion(final ContainerVersion version,
             final List<DocumentView> documentViews,
-            final Map<User, ArtifactReceipt> publishedTo, final User publishedBy) {
+            final List<ArtifactReceipt> publishedTo, final User publishedBy) {
         // open document versions
         for (final DocumentView documentView : documentViews) {
             final Data openData = new Data(2);
@@ -199,15 +193,16 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
             add(ActionId.CONTACT_READ, publishedBy.getName(), data);
         }
         // update profile/read contacts
-        for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
-            if (isLocalUser(entry.getKey())) {
+        for (final ArtifactReceipt artifactReceipt : publishedTo) {
+            final User publishedToUser = artifactReceipt.getUser();
+            if (isLocalUser(publishedToUser)) {
                 final Data data = new Data(1);
                 data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-                add(ActionId.CONTACT_READ, entry.getKey().getName(), ActionId.PROFILE_UPDATE, data);
+                add(ActionId.CONTACT_READ, publishedToUser.getName(), ActionId.PROFILE_UPDATE, data);
             } else {
                 final Data data = new Data(1);
-                data.set(Read.DataKey.CONTACT_ID, entry.getKey().getId());
-                add(ActionId.CONTACT_READ, entry.getKey().getName(), data);
+                data.set(Read.DataKey.CONTACT_ID, publishedToUser.getId());
+                add(ActionId.CONTACT_READ, publishedToUser.getName(), data);
             }
         }
 

@@ -3,20 +3,12 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
@@ -24,8 +16,6 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -34,8 +24,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -45,16 +34,9 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.M
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCellRenderer;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellListModel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellRenderer;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.TopWestCellRenderer;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.*;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b>thinkParity Container Panel<br>
@@ -375,7 +357,7 @@ public class ContainerPanel extends DefaultTabPanel {
             final ContainerVersion latestVersion,
             final List<ContainerVersion> versions,
             final Map<ContainerVersion, List<DocumentView>> documentViews,
-            final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo,
+            final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo,
             final Map<ContainerVersion, User> publishedBy,
             final List<TeamMember> team) {
         this.container = container;
@@ -387,7 +369,7 @@ public class ContainerPanel extends DefaultTabPanel {
         
         // Build the west list
         westCells.add(new ContainerCell(draftView, latestVersion, versions,
-                documentViews, team));        
+                documentViews, team));
         if (container.isLocalDraft()) {
             westCells.add(new DraftCell());
         }
@@ -1462,8 +1444,8 @@ public class ContainerPanel extends DefaultTabPanel {
         private final List<DocumentView> documentViews;
         /** A published to <code>User</code>. */
         private final User publishedBy;
-        /** The <code>User</code>s and their <code>ArtifactReceipt</code>s. */
-        private final Map<User, ArtifactReceipt> publishedTo;
+        /** A list of <code>ArtifactReceipt</code>s. */
+        private final List<ArtifactReceipt> publishedTo;
         /** A <code>ContainerVersion</code>. */
         private final ContainerVersion version;
         /**
@@ -1481,7 +1463,7 @@ public class ContainerPanel extends DefaultTabPanel {
          */
         private VersionCell(final ContainerVersion version,
                 final List<DocumentView> documentViews,
-                final Map<User, ArtifactReceipt> publishedTo,
+                final List<ArtifactReceipt> publishedTo,
                 final User publishedBy) {
             super(Boolean.FALSE);
             this.documentViews = documentViews;
@@ -1492,8 +1474,8 @@ public class ContainerPanel extends DefaultTabPanel {
                 add(new VersionDocumentCell(this, documentView.getVersion(),
                         documentView.getDelta()));
             }
-            for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
-                add(new VersionUserCell(this, entry.getKey(), entry.getValue()));
+            for (final ArtifactReceipt artifactReceipt : publishedTo) {
+                add(new VersionUserCell(this, artifactReceipt));
             }
         }
         @Override
@@ -1574,15 +1556,13 @@ public class ContainerPanel extends DefaultTabPanel {
         /**
          * Create VersionUserCell.
          * 
-         * @param user
-         *            A <code>User</code>.
          * @param receipt
          *            An <code>ArtifactReceipt</code>.
          */
-        private VersionUserCell(final WestCell parent, final User user,
+        private VersionUserCell(final WestCell parent,
                 final ArtifactReceipt receipt) {
             super(parent);
-            this.user = user;
+            this.user = receipt.getUser();
             setIcon(receipt.isSetReceivedOn()
                     ? IMAGE_CACHE.read(TabPanelIcon.USER)
                     : IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));

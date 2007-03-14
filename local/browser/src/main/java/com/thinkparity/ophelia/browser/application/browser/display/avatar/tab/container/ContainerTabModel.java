@@ -432,8 +432,8 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         final List<ContainerVersion> versions = readVersions(container.getId());
         final Map<ContainerVersion, List<DocumentView>> documentViews =
             new HashMap<ContainerVersion, List<DocumentView>>(versions.size(), 1.0F);
-        final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo =
-            new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>(versions.size(), 1.0F);
+        final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo =
+            new HashMap<ContainerVersion, List<ArtifactReceipt>>(versions.size(), 1.0F);
         final Map<ContainerVersion, User> publishedBy = new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
         List<DocumentView> versionDocumentViews;
         for (final ContainerVersion version : versions) {
@@ -705,15 +705,15 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Read the list of users.
+     * Read the published to user list.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
      * @param versionId
      *            A container version id <code>Long</code>.
-     * @return A <code>Map&lt;User, ArtifactReceipt&gt;</code>.
+     * @return A <code>List&lt;ArtifactReceipt&gt;</code>.
      */
-    private Map<User, ArtifactReceipt> readUsers(final Long containerId,
+    private List<ArtifactReceipt> readUsers(final Long containerId,
             final Long versionId) {
         return ((ContainerProvider) contentProvider).readPublishedTo(
                 containerId, versionId);
@@ -846,7 +846,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
             final ContainerVersion latestVersion,
             final List<ContainerVersion> versions,
             final Map<ContainerVersion, List<DocumentView>> documentViews,
-            final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo,
+            final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo,
             final Map<ContainerVersion, User> publishedBy,
             final List<TeamMember> team) {
         final ContainerPanel panel = new ContainerPanel(session);

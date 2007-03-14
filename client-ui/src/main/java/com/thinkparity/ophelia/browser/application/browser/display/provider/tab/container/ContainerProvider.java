@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,7 +11,6 @@ import java.util.Map.Entry;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
@@ -24,6 +22,9 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 import com.thinkparity.ophelia.model.Constants.Versioning;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
@@ -31,10 +32,6 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 import com.thinkparity.ophelia.model.user.UserModel;
-
-import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 
 /**
  * <b>Title:</b>thinkParity Container Tab Provider<br>
@@ -302,18 +299,11 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
      *            A container id <code>Long</code>.
      * @param versionId
      *            A version id <code>Long</code>.
-     * @return A <code>Map&lt;User, ArtifactReceipt&gt;</code>.
+     * @return A list of <code>ArtifactReceipt</code>s.
      */
-    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
+    public List<ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId) {
-        final List<ArtifactReceipt> publishedTo = containerModel.readPublishedTo(
-                containerId, versionId);
-        // NOCOMMIT
-        final Map<User, ArtifactReceipt> map = new HashMap<User, ArtifactReceipt>(publishedTo.size());
-        for (final ArtifactReceipt ar : publishedTo)
-            map.put(ar.getUser(), ar);
-        return map;
-
+        return containerModel.readPublishedTo(containerId, versionId);
     }
 
     /**

@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
@@ -452,14 +451,16 @@ public final class PublishContainerAvatar extends Avatar implements
      * @param updatedBy
      *            The updated by <code>User</code> of the previous version.
      * @param publishedTo
-     *            The published to <code>Map</code> of the previous version.
+     *            The published to list of <code>ArtifactReceipt</code> of the previous version.
      * @return True if the user is a version recipient.
      */
     private boolean isVersionRecipient(final User user, final User updatedBy,
-            final Map<User, ArtifactReceipt> publishedTo) {
-        final List<User> versionRecipientUsers = new ArrayList<User>(publishedTo.size());
+            final List<ArtifactReceipt> publishedTo) {
+        final List<User> versionRecipientUsers = new ArrayList<User>(publishedTo.size()+1);
         versionRecipientUsers.add(updatedBy);
-        versionRecipientUsers.addAll(publishedTo.keySet());
+        for (final ArtifactReceipt artifactReceipt : publishedTo) {
+            versionRecipientUsers.add(artifactReceipt.getUser());
+        }
         return USER_UTIL.contains(versionRecipientUsers, user);
     }
 
@@ -523,15 +524,15 @@ public final class PublishContainerAvatar extends Avatar implements
     private Long readLatestVersionId(final Long containerId) {
         return ((PublishContainerProvider)contentProvider).readLatestVersionId(containerId);
     } 
-    
+
     /**
      * Read users that got this version.
      */
-    private Map<User, ArtifactReceipt> readLatestVersionPublishedTo() {
+    private List<ArtifactReceipt> readLatestVersionPublishedTo() {
         return ((PublishContainerProvider) contentProvider).readLatestVersionPublishedTo(
                 getInputContainerId());
-    }    
-    
+    }
+
     /**
      * Get the publisher of the most recent version.
      */
@@ -609,7 +610,7 @@ public final class PublishContainerAvatar extends Avatar implements
         // populate team members
         if (autoSelect) {
             final User updatedBy = readLatestVersionUpdatedBy();
-            final Map<User, ArtifactReceipt> publishedTo = readLatestVersionPublishedTo();
+            final List<ArtifactReceipt> publishedTo = readLatestVersionPublishedTo();
             for (final TeamMember teamMember : teamMembers) {
                 namesListModel.addElement(new PublishContainerAvatarUser(
                         teamMember, isVersionRecipient(teamMember, updatedBy,

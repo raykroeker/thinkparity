@@ -5,9 +5,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider.dia
 
 
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
@@ -16,12 +14,11 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.user.UserModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
-
-import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Publish Container Provider<br>
@@ -92,7 +89,7 @@ public class PublishContainerProvider extends ContentProvider {
                 containerId);
         return null == version ? null : version.getVersionId();
     }
-    
+
     /**
      * Get the users and receipt information associated with this version.
      * 
@@ -100,21 +97,15 @@ public class PublishContainerProvider extends ContentProvider {
      *            A container id <code>Long</code>.
      * @param versionId
      *            A version id <code>Long</code>.
-     * @return A Map<User, ArtifactReceipt>.
+     * @return A List of <code><ArtifactReceipt></code>.
      */
-    public Map<User, ArtifactReceipt> readLatestVersionPublishedTo(
+    public List<ArtifactReceipt> readLatestVersionPublishedTo(
             final Long containerId) {
         final ContainerVersion latestVersion = containerModel.readLatestVersion(
                 containerId);
-        final List<ArtifactReceipt> publishedTo = containerModel.readPublishedTo(containerId,
-                latestVersion.getVersionId());
-        // NOCOMMIT
-        final Map<User, ArtifactReceipt> map = new HashMap<User, ArtifactReceipt>(publishedTo.size());
-        for (final ArtifactReceipt ar : publishedTo)
-            map.put(ar.getUser(), ar);
-        return map;
+        return containerModel.readPublishedTo(containerId, latestVersion.getVersionId());
     }
-    
+
     /**
      * Read the updated by user of the latest version.
      * 

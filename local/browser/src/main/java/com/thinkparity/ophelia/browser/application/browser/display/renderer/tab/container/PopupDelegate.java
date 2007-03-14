@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
 import java.util.List;
-import java.util.Map;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
@@ -54,11 +53,11 @@ public interface PopupDelegate extends TabPanelPopupDelegate {
      * @param documentViews
      *            A list of <code>DocumentView</code>.
      * @param publishedTo
-     *            A map of <code>User</code> to <code>ArtifactReceipt</code>.
+     *            A list of <code>ArtifactReceipt</code>.
      * @param publishedBy
      *            A <code>User</code>.
      */
     public void showForVersion(final ContainerVersion version,
             final List<DocumentView> documentViews,
-            final Map<User, ArtifactReceipt> publishedTo, final User publishedBy);
+            final List<ArtifactReceipt> publishedTo, final User publishedBy);
 }

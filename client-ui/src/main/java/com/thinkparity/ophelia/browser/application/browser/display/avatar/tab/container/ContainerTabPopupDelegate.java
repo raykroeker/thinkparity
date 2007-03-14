@@ -13,7 +13,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
@@ -23,9 +22,6 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
@@ -37,26 +33,13 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Archive;
-import com.thinkparity.ophelia.browser.platform.action.container.Collapse;
-import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Delete;
-import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
-import com.thinkparity.ophelia.browser.platform.action.container.Expand;
-import com.thinkparity.ophelia.browser.platform.action.container.PrintDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
-import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Rename;
-import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.RevertDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.UndeleteDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
 /**
  * <b>Title:</b><br>
@@ -330,14 +313,11 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForVersion(com.thinkparity.codebase.model.container.ContainerVersion,
-     *      java.util.Map, java.util.Map,
-     *      com.thinkparity.codebase.model.user.User)
-     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForVersion(com.thinkparity.codebase.model.container.ContainerVersion, java.util.List, java.util.List, com.thinkparity.codebase.model.user.User)
      */
     public void showForVersion(final ContainerVersion version,
             final List<DocumentView> documentViews,
-            final Map<User, ArtifactReceipt> publishedTo, final User publishedBy) {
+            final List<ArtifactReceipt> publishedTo, final User publishedBy) {
         
         // Open submenu, documents
         for (final DocumentView documentView : documentViews) {
@@ -360,9 +340,10 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             data.set(Read.DataKey.CONTACT_ID, publishedBy.getId());
             add(ActionId.CONTACT_READ, publishedBy.getName(), data);
         }
-        
+
         // Open submenu, users
-        for (final User publishedToUser : publishedTo.keySet()) {
+        for (final ArtifactReceipt artifactReceipt : publishedTo) {
+            final User publishedToUser = artifactReceipt.getUser();
             if (isLocalUser(publishedToUser)) {
                 final Data data = new Data(1);
                 data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
@@ -383,7 +364,8 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
                 data.set(CreateOutgoingUserInvitation.DataKey.USER_ID, publishedBy.getLocalId());
                 add(ActionId.CONTACT_CREATE_OUTGOING_USER_INVITATION, publishedBy.getName(), data);
             }
-            for (final User publishedToUser : publishedTo.keySet()) {
+            for (final ArtifactReceipt artifactReceipt : publishedTo) {
+                final User publishedToUser = artifactReceipt.getUser();
                 if (!isLocalUser(publishedToUser) && !doesExistContact(publishedToUser) && !doesExistOutgoingUserInvitation(publishedToUser)) {
                     final Data data = new Data(1);
                     data.set(CreateOutgoingUserInvitation.DataKey.USER_ID, publishedToUser.getLocalId());

@@ -5,7 +5,7 @@ package com.thinkparity.codebase.model.artifact;
 
 import java.util.Calendar;
 
-import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.user.User;
 
 /**
  * @author raymond@thinkparity.com
@@ -19,7 +19,7 @@ public class ArtifactReceipt {
 
     private Calendar receivedOn;
 
-    private JabberId userId;
+    private User user;
 
     /**
      * Create ArtifactReceipt.
@@ -61,8 +61,8 @@ public class ArtifactReceipt {
      *
      * @return The JabberId.
      */
-    public JabberId getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
     public Boolean isSetReceivedOn() {
@@ -102,7 +102,7 @@ public class ArtifactReceipt {
      *
      * @param userId The JabberId.
      */
-    public void setUserId(final JabberId userId) {
-        this.userId = userId;
+    public void setUser(final User user) {
+        this.user = user;
     }
 }

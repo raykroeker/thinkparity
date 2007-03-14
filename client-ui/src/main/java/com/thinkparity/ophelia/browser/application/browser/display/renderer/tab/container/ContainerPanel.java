@@ -395,7 +395,7 @@ public class ContainerPanel extends DefaultTabPanel {
             westCells.add(new VersionCell(version, documentViews.get(version),
                     publishedTo.get(version), publishedBy.get(version)));
         }
-        
+
         // Initialize the list model
         westListModel.initialize(westCells);
         

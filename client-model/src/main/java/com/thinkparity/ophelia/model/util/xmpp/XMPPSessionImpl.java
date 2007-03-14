@@ -735,10 +735,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
             final JabberId userId, final UUID uniqueId, final Long versionId) {
         return xmppArchive.readDocumentVersions(userId, uniqueId, versionId);
     }
-    public Map<User, ArtifactReceipt> readArchivePublishedTo(
-            final JabberId userId, final UUID uniqueId, final Long versionId) {
-        return xmppArchive.readPublishedTo(userId, uniqueId, versionId);
-    }
+
     public List<TeamMember> readArchiveTeam(final JabberId userId,
             final UUID uniqueId) {
         return xmppArchive.readTeam(userId, uniqueId);
@@ -796,7 +793,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppBackup.readDocumentVersions(userId, uniqueId, versionId);
     }
 
-    public Map<User, ArtifactReceipt> readBackupPublishedTo(
+    public List<ArtifactReceipt> readBackupPublishedTo(
             final JabberId userId, final UUID uniqueId, final Long versionId) {
         return xmppBackup.readPublishedTo(userId, uniqueId, versionId);
     }

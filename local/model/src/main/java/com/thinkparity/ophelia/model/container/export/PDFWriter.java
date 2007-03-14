@@ -81,7 +81,7 @@ public final class PDFWriter  {
             final Map<ContainerVersion, User> versionsPublishedBy,
             final Map<ContainerVersion, List<DocumentVersion>> documents,
             final Map<DocumentVersion, Long> documentsSize,
-            final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo)
+            final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo)
             throws TransformerException, IOException {
         final String xmlPath = "pdfWriter.xml";
         xmlWriter.write(xmlPath, container, containerCreatedBy, versions,

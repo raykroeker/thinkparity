@@ -6,13 +6,9 @@ package com.thinkparity.ophelia.model.backup;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.UUID;
-import java.util.Map.Entry;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.filter.Filter;
@@ -29,14 +25,12 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent;
 
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
-import com.thinkparity.ophelia.model.util.sort.user.UserComparatorFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -55,11 +49,11 @@ public final class BackupModelImpl extends Model implements
     /** A default artifact filter. */
     private final Filter<? super Artifact> defaultFilter;
 
-    /** A default user comparator. */
-    private final Comparator<User> defaultUserComparator;
+    /** The default artifact receipt comparator. */
+    private final Comparator<ArtifactReceipt> defaultReceiptComparator;
 
-    /** A default user filter. */
-    private final Filter<? super User> defaultUserFilter;
+    /** The default artifact receipt filter. */
+    private final Filter<? super ArtifactReceipt> defaultReceiptFilter;
 
     /** A default artifact version comparator. */
     private final Comparator<ArtifactVersion> defaultVersionComparator;
@@ -75,8 +69,8 @@ public final class BackupModelImpl extends Model implements
         super();
         this.defaultComparator = new ComparatorBuilder().createByName();
         this.defaultFilter = FilterManager.createDefault();
-        this.defaultUserComparator = UserComparatorFactory.createOrganizationAndName(Boolean.TRUE);
-        this.defaultUserFilter = FilterManager.createDefault();
+        this.defaultReceiptComparator = new ComparatorBuilder().createArtifactReceiptByReceivedOnAscending();
+        this.defaultReceiptFilter = FilterManager.createDefault();
         this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.TRUE);
         this.defaultVersionFilter = FilterManager.createDefault();
     }
@@ -361,76 +355,54 @@ public final class BackupModelImpl extends Model implements
     }
 
     /**
-     * Read a list of team members the container version was published to.
+     * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#readPublishedTo(java.util.UUID,
+     *      java.lang.Long)
      * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @return A <code>List&lt;User&gt;</code>.
      */
-    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+    public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        return readPublishedTo(uniqueId, versionId, defaultUserComparator,
-                defaultUserFilter);
-    }
-
-    /**
-     * Read a list of team members the container version was published to.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param comparator
-     *            A <code>Comparator&lt;User&gt;</code>.
-     * @return A <code>List&lt;User&gt;</code>.
-     */
-    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
-            final Long versionId, final Comparator<User> comparator) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("comparator", comparator);
-        return readPublishedTo(uniqueId, versionId, comparator,
-                defaultUserFilter);
-    }
-
-    /**
-     * Read a list of team members the container version was published to.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param comparator
-     *            A <code>Comparator&lt;User&gt;</code>.
-     * @param filter
-     *            A <code>Filter&lt;? super User&gt;</code>.
-     * @return A <code>List&lt;User&gt;</code>.
-     */
-    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
-            final Long versionId, final Comparator<User> comparator,
-            final Filter<? super User> filter) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("comparator", comparator);
-        logger.logVariable("filter", filter);
-        final Map<User, ArtifactReceipt> publishedTo =
-            getSessionModel().readBackupPublishedTo(localUserId(), uniqueId, versionId);
-        final List<User> users = new ArrayList<User>(publishedTo.size());
-        for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
-            users.add(entry.getKey());
+        try {
+            return readPublishedTo(uniqueId, versionId, defaultReceiptComparator,
+                    defaultReceiptFilter);
+        } catch (final Throwable t) {
+            throw panic(t);
         }
-        FilterManager.filter(users, filter);
-        final Map<User, ArtifactReceipt> sortedFilteredPublishedTo =
-            new TreeMap<User, ArtifactReceipt>(comparator);
-        sortedFilteredPublishedTo.putAll(publishedTo);
-        return sortedFilteredPublishedTo;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#readPublishedTo(java.util.UUID,
+     *      java.lang.Long, java.util.Comparator)
+     * 
+     */
+    public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId, final Comparator<ArtifactReceipt> comparator) {
+        try {
+            return readPublishedTo(uniqueId, versionId, comparator,
+                    defaultReceiptFilter);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#readPublishedTo(java.util.UUID,
+     *      java.lang.Long, java.util.Comparator,
+     *      com.thinkparity.codebase.filter.Filter)
+     * 
+     */
+    public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId, final Comparator<ArtifactReceipt> comparator,
+            final Filter<? super ArtifactReceipt> filter) {
+        try {
+            final List<ArtifactReceipt> publishedTo =
+                getSessionModel().readBackupPublishedTo(localUserId(),
+                        uniqueId, versionId);
+            FilterManager.filter(publishedTo, filter);
+            ModelSorter.sortReceipts(publishedTo, comparator);
+            return publishedTo;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -444,14 +416,14 @@ public final class BackupModelImpl extends Model implements
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
-            final Long versionId, final Filter<? super User> filter) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("filter", filter);
-        return readPublishedTo(uniqueId, versionId, defaultUserComparator,
-                filter); 
+    public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId, final Filter<? super ArtifactReceipt> filter) {
+        try {
+            return readPublishedTo(uniqueId, versionId,
+                    defaultReceiptComparator, filter); 
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     public List<JabberId> readTeamIds(final UUID uniqueId) {

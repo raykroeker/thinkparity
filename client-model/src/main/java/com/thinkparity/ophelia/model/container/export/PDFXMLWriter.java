@@ -42,7 +42,7 @@ final class PDFXMLWriter {
 
     private final FileSystem exportFileSystem;
 
-    private final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo;
+    private final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo;
 
     private Statistics statistics;
 
@@ -58,7 +58,7 @@ final class PDFXMLWriter {
        super();
        this.documents = new HashMap<ContainerVersion, List<DocumentVersion>>();
        this.documentsSize = new HashMap<DocumentVersion, Long>();
-       this.publishedTo = new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>();
+       this.publishedTo = new HashMap<ContainerVersion, List<ArtifactReceipt>>();
        this.versions = new ArrayList<ContainerVersion>();
        this.versionsPublishedBy = new HashMap<ContainerVersion, User>();
        this.exportFileSystem = exportFileSystem;
@@ -86,7 +86,7 @@ final class PDFXMLWriter {
             final Map<ContainerVersion, User> versionsPublishedBy,
             final Map<ContainerVersion, List<DocumentVersion>> documents,
             final Map<DocumentVersion, Long> documentsSize,
-            final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo)
+            final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo)
             throws IOException, TransformerException {
         this.container = container;
         this.containerCreatedBy = containerCreatedBy;
@@ -146,9 +146,9 @@ final class PDFXMLWriter {
         return pdfXML;
     }
 
-    private PDFXMLUser createPDFXMLUser(final User user, final ArtifactReceipt receipt) {
+    private PDFXMLUser createPDFXMLUser(final ArtifactReceipt receipt) {
         final PDFXMLUser pdfXML = new PDFXMLUser();
-        pdfXML.name = user.getName();
+        pdfXML.name = receipt.getUser().getName();
         if (receipt.isSetReceivedOn())
             pdfXML.receivedOn = format(receipt.getReceivedOn());
         else
@@ -157,10 +157,10 @@ final class PDFXMLWriter {
     }
 
     private List<PDFXMLUser> createPDFXMLUsers(final ContainerVersion version) {
-        final Map<User, ArtifactReceipt> publishedTo = this.publishedTo.get(version);
+        final List<ArtifactReceipt> publishedTo = this.publishedTo.get(version);
         final List<PDFXMLUser> pdfXML = new ArrayList<PDFXMLUser>(publishedTo.size());
-        for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
-            pdfXML.add(createPDFXMLUser(entry.getKey(), entry.getValue()));
+        for (final ArtifactReceipt receipt : publishedTo) {
+            pdfXML.add(createPDFXMLUser(receipt));
         }
         return pdfXML;
     }

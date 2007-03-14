@@ -240,8 +240,8 @@ public class XMPPMethodResponse extends IQ {
         return (Token) readResult(name);
     }
 
-    public Map<User, ArtifactReceipt> readResultUserArtifactReceipts(final String name) {
-        return (Map<User, ArtifactReceipt>) readResult(name);
+    public List<ArtifactReceipt> readResultUserArtifactReceipts(final String name) {
+        return (List<ArtifactReceipt>) readResult(name);
     }
 
     public byte[] readSmallBytes(final String name) {

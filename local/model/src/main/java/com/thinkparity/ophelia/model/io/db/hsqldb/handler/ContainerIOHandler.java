@@ -6,9 +6,7 @@ package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -379,19 +377,18 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the container published to list. */
     private static final String SQL_READ_PUBLISHED_TO =
-            new StringBuffer("select U.JABBER_ID,U.USER_ID,U.NAME,")
-            .append("U.ORGANIZATION,U.TITLE,CVPT.CONTAINER_ID,")
-            .append("CVPT.PUBLISHED_ON,CVPT.RECEIVED_ON ")
-            .append("from CONTAINER C ")
-            .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
-            .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
-            .append("inner join CONTAINER_VERSION CV on AV.ARTIFACT_ID=CV.CONTAINER_ID ")
-            .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
-            .append("inner join CONTAINER_VERSION_PUBLISHED_TO CVPT on CV.CONTAINER_ID=CVPT.CONTAINER_ID ")
-            .append("and CV.CONTAINER_VERSION_ID=CVPT.CONTAINER_VERSION_ID ")
-            .append("inner join PARITY_USER U on CVPT.USER_ID=U.USER_ID ")
-            .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=?")
-            .toString();
+        new StringBuilder("select U.JABBER_ID,U.USER_ID,U.NAME,")
+        .append("U.ORGANIZATION,U.TITLE ")
+        .append("from CONTAINER C ")
+        .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
+        .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
+        .append("inner join CONTAINER_VERSION CV on AV.ARTIFACT_ID=CV.CONTAINER_ID ")
+        .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
+        .append("inner join CONTAINER_VERSION_PUBLISHED_TO CVPT on CV.CONTAINER_ID=CVPT.CONTAINER_ID ")
+        .append("and CV.CONTAINER_VERSION_ID=CVPT.CONTAINER_VERSION_ID ")
+        .append("inner join PARITY_USER U on CVPT.USER_ID=U.USER_ID ")
+        .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=?")
+        .toString();
 
     /** Sql to read the container published to list. */
     private static final String SQL_READ_PUBLISHED_TO_BY_USER =
@@ -415,6 +412,22 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             new StringBuffer("select COUNT(*) PUBLISHED_TO_COUNT ")
             .append("from CONTAINER_VERSION_PUBLISHED_TO CVPT ")
             .append("where CVPT.CONTAINER_ID=? and CVPT.CONTAINER_VERSION_ID=?")
+            .toString();
+
+    /** Sql to read the container published to list. */
+    private static final String SQL_READ_PUBLISHED_TO_RECEIPTS =
+            new StringBuffer("select U.JABBER_ID,U.USER_ID,U.NAME,")
+            .append("U.ORGANIZATION,U.TITLE,CVPT.CONTAINER_ID,")
+            .append("CVPT.PUBLISHED_ON,CVPT.RECEIVED_ON ")
+            .append("from CONTAINER C ")
+            .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
+            .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
+            .append("inner join CONTAINER_VERSION CV on AV.ARTIFACT_ID=CV.CONTAINER_ID ")
+            .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
+            .append("inner join CONTAINER_VERSION_PUBLISHED_TO CVPT on CV.CONTAINER_ID=CVPT.CONTAINER_ID ")
+            .append("and CV.CONTAINER_VERSION_ID=CVPT.CONTAINER_VERSION_ID ")
+            .append("inner join PARITY_USER U on CVPT.USER_ID=U.USER_ID ")
+            .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=?")
             .toString();
 
     /** Sql to read a container version. */
@@ -1100,9 +1113,11 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readPublishedTo(java.lang.Long, java.lang.Long)
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readPublishedTo(java.lang.Long,
+     *      java.lang.Long)
+     * 
      */
-    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
+    public List<User> readPublishedTo(final Long containerId,
             final Long versionId) {
         final Session session = openSession();
         try {
@@ -1110,9 +1125,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(1, containerId);
             session.setLong(2, versionId);
             session.executeQuery();
-            final Map<User, ArtifactReceipt> publishedTo = new HashMap<User, ArtifactReceipt>();
+            final List<User> publishedTo = new ArrayList<User>();
             while (session.nextResult()) {
-                publishedTo.put(userIO.extractUser(session), extractReceipt(session));
+                publishedTo.add(userIO.extractUser(session));
             }
             return publishedTo;
         } finally {
@@ -1121,10 +1136,12 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readPublishedTo(java.lang.Long, java.lang.Long, java.util.Calendar, com.thinkparity.codebase.model.user.User)
-     *
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readPublishedToReceipt(java.lang.Long,
+     *      java.lang.Long, java.util.Calendar,
+     *      com.thinkparity.codebase.model.user.User)
+     * 
      */
-    public ArtifactReceipt readPublishedTo(final Long containerId,
+    public ArtifactReceipt readPublishedToReceipt(final Long containerId,
             final Long versionId, final Calendar publishedOn, final User user) {
         final Session session = openSession();
         try {
@@ -1144,7 +1161,29 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         }
     }
 
-    
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readPublishedTo(java.lang.Long,
+     *      java.lang.Long)
+     * 
+     */
+    public List<ArtifactReceipt> readPublishedToReceipts(final Long containerId,
+            final Long versionId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_PUBLISHED_TO_RECEIPTS);
+            session.setLong(1, containerId);
+            session.setLong(2, versionId);
+            session.executeQuery();
+            final List<ArtifactReceipt> publishedTo = new ArrayList<ArtifactReceipt>();
+            while (session.nextResult()) {
+                publishedTo.add(extractReceipt(session));
+            }
+            return publishedTo;
+        } finally {
+            session.close();
+        }
+    }
+
     /**
      * Read a container version.
      * 
@@ -1410,7 +1449,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         receipt.setArtifactId(session.getLong("CONTAINER_ID"));
         receipt.setPublishedOn(session.getCalendar("PUBLISHED_ON"));
         receipt.setReceivedOn(session.getCalendar("RECEIVED_ON"));
-        receipt.setUserId(session.getQualifiedUsername("JABBER_ID"));
+        receipt.setUser(userIO.extractUser(session));
         return receipt;
     }
 

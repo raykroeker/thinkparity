@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.model.backup;
 import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.filter.Filter;
@@ -20,7 +19,6 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent;
 
@@ -34,14 +32,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEve
 public interface InternalBackupModel extends BackupModel {
 
     /**
-     * Handle the remote statistics updated event.
-     * 
-     * @param event
-     *            A <code>BackupStatisticsUpdatedEvent</code>.
-     */
-    public void handleStatisticsUpdated(final BackupStatisticsUpdatedEvent event);
-
-    /**
      * Archive an artifact. This will simply apply the archived flag within the
      * backup.
      * 
@@ -49,6 +39,14 @@ public interface InternalBackupModel extends BackupModel {
      *            An artifact id <code>Long</code>.
      */
     public void archive(final Long artifactId);
+
+    /**
+     * Handle the remote statistics updated event.
+     * 
+     * @param event
+     *            A <code>BackupStatisticsUpdatedEvent</code>.
+     */
+    public void handleStatisticsUpdated(final BackupStatisticsUpdatedEvent event);
 
     /**
      * Open a document version input stream.
@@ -157,7 +155,7 @@ public interface InternalBackupModel extends BackupModel {
      *            A version id <code>Long</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+    public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId);
 
     /**
@@ -171,8 +169,8 @@ public interface InternalBackupModel extends BackupModel {
      *            A <code>Comparator&lt;User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
-            final Long versionId, final Comparator<User> comparator);
+    public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId, final Comparator<ArtifactReceipt> comparator);
 
     /**
      * Read a list of team members the container version was published to.
@@ -187,9 +185,9 @@ public interface InternalBackupModel extends BackupModel {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
-            final Long versionId, final Comparator<User> comparator,
-            final Filter<? super User> filter);
+    public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId, final Comparator<ArtifactReceipt> comparator,
+            final Filter<? super ArtifactReceipt> filter);
 
     /**
      * Read a list of team members the container version was published to.
@@ -202,8 +200,8 @@ public interface InternalBackupModel extends BackupModel {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
-            final Long versionId, final Filter<? super User> filter);
+    public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId, final Filter<? super ArtifactReceipt> filter);
 
     /**
      * @see com.thinkparity.ophelia.model.archive.ArchiveReader#readTeamIds(java.util.UUID)

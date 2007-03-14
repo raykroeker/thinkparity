@@ -912,23 +912,6 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    public Map<User, ArtifactReceipt> readArchivePublishedTo(
-            final JabberId userId, final UUID uniqueId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                return xmppSession.readArchivePublishedTo(userId, uniqueId,
-                        versionId);
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
     public List<TeamMember> readArchiveTeam(final JabberId userId,
             final UUID uniqueId) {
         logger.logApiId();
@@ -1085,12 +1068,8 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    public Map<User, ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
+    public List<ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {

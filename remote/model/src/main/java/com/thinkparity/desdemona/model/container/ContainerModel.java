@@ -154,9 +154,8 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
-
-    public Map<User, ArtifactReceipt> readArchivePublishedTo(
-            final JabberId userId, final UUID uniqueId, final Long versionId) {
+    public List<ArtifactReceipt> readArchivePublishedTo(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
         synchronized (getImplLock()) {
             return getImpl().readArchivePublishedTo(userId, uniqueId, versionId);
         }
@@ -245,8 +244,8 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
-    public Map<User, ArtifactReceipt> readBackupPublishedTo(
-            final JabberId userId, final UUID uniqueId, final Long versionId) {
+    public List<ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
         synchronized (getImplLock()) {
             return getImpl().readBackupPublishedTo(userId, uniqueId, versionId);
         }

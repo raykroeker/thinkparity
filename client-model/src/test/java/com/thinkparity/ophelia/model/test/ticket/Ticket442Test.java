@@ -124,8 +124,8 @@ public class Ticket442Test extends TicketTestCase {
                             }
                         }
                         final List<ContainerVersion> cv_list_x = readContainerVersions(datum.junit_x, c_x.getId());
-                        final Map<ContainerVersion, Map<User, ArtifactReceipt>> cv_pt_map_x =
-                            new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>(cv_list_x.size(), 1.0F);
+                        final Map<ContainerVersion, List<ArtifactReceipt>> cv_pt_map_x =
+                            new HashMap<ContainerVersion, List<ArtifactReceipt>>(cv_list_x.size(), 1.0F);
                         final Map<ContainerVersion, User> cv_pb_map_x = new HashMap<ContainerVersion, User>(cv_list_x.size(), 1.0F);
                         for (final ContainerVersion cv_x : cv_list_x) {
                             final ContainerVersion cv_previous_x = readContainerPreviousVersion(datum.junit_x, c_x.getId(), cv_x.getVersionId());

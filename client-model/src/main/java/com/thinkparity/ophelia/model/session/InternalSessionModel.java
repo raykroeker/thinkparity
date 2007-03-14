@@ -394,9 +394,6 @@ public interface InternalSessionModel extends SessionModel {
     public List<DocumentVersion> readArchiveDocumentVersions(
             final JabberId userId, final UUID uniqueId, final Long versionId);
 
-    public Map<User, ArtifactReceipt> readArchivePublishedTo(
-            final JabberId userId, final UUID uniqueId, final Long versionId);
-
     public List<TeamMember> readArchiveTeam(final JabberId userId,
             final UUID uniqueId);
 
@@ -466,8 +463,8 @@ public interface InternalSessionModel extends SessionModel {
     public List<DocumentVersion> readBackupDocumentVersions(
             final JabberId userId, final UUID uniqueId, final Long versionId);
 
-    public Map<User, ArtifactReceipt> readBackupPublishedTo(
-            final JabberId userId, final UUID uniqueId, final Long versionId);
+    public List<ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
+            final UUID uniqueId, final Long versionId);
 
     /**
      * Read the backup team.

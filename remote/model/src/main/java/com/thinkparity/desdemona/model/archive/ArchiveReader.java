@@ -15,7 +15,6 @@ import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
-import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
@@ -47,9 +46,9 @@ public abstract class ArchiveReader<T extends Artifact, U extends ArtifactVersio
                 return null;
             }
             @Override
-            public Map<User, ArtifactReceipt> readPublishedTo(
+            public List<ArtifactReceipt> readPublishedTo(
                     final UUID uniqueId, final Long versionId) {
-                return Collections.emptyMap();
+                return Collections.emptyList();
             }
             @Override
             public Map<U, Delta> readVersionDeltas(final UUID uniqueId) {
@@ -129,8 +128,8 @@ public abstract class ArchiveReader<T extends Artifact, U extends ArtifactVersio
      * @return A list of <code>User</code>s and their
      *         <code>ArtifactReceipt</code>s.
      */
-    public abstract Map<User, ArtifactReceipt> readPublishedTo(
-            final UUID uniqueId, final Long versionId);
+    public abstract List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId);
 
     /**
      * Read an artifact version.

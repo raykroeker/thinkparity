@@ -361,7 +361,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(MessageFormat.format("{0}  Artifact receipt is null.", assertion), (Object) receipt);
         assertNotNull(MessageFormat.format("{0}  Artifact receipt artifact id is null.", assertion), receipt.getArtifactId());
         assertNotNull(MessageFormat.format("{0}  Artifact receipt published on is null.", assertion), receipt.getPublishedOn());
-        assertNotNull(MessageFormat.format("{0}  Artifact receipt user id.", assertion), receipt.getUserId());
+        assertNotNull(MessageFormat.format("{0}  Artifact receipt user id.", assertion), receipt.getUser());
     }
 
     /**
@@ -554,7 +554,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      */
     protected static void assertSimilar(final String assertion, final ArtifactReceipt expected, final ArtifactReceipt actual) {
         assertEquals(MessageFormat.format("{0}  Artifact receipt published on does not match expectation.", assertion), expected.getPublishedOn(), actual.getPublishedOn());
-        assertEquals(MessageFormat.format("{0}  Artifact receipt user id does not match expectation.", assertion), expected.getUserId(), actual.getUserId());
+        assertEquals(MessageFormat.format("{0}  Artifact receipt user id does not match expectation.", assertion), expected.getUser(), actual.getUser());
     }
 
     /**
@@ -1686,17 +1686,17 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return getDocumentModel(readAs).readVersion(localDocumentId, versionId);
     }
 
-    protected Map<User, ArtifactReceipt> readPublishedTo(
+    protected List<ArtifactReceipt> readPublishedTo(
             final OpheliaTestUser readAs, final Long localContainerId,
             final Long versionId) {
         return getContainerModel(readAs).readPublishedTo(localContainerId,
                 versionId);
     }
 
-    protected List<ArtifactReceipt> readPublishedTo2(
+    protected List<User> readPublishedToUsers(
             final OpheliaTestUser readAs, final Long localContainerId,
             final Long versionId) {
-        return getContainerModel(readAs).readPublishedTo2(localContainerId,
+        return getContainerModel(readAs).readPublishedToUsers(localContainerId,
                 versionId);
     }
 

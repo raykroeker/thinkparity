@@ -7,9 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
 
-import com.thinkparity.codebase.CollectionsUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -65,8 +63,7 @@ public final class BackupTest extends BackupTestCase {
         ContainerVersion cv_local;
         List<JabberId> t_id_list_local;
         JabberId t_id_local;
-        Map<User, ArtifactReceipt> pt_map_local;
-        List<User> pt_list_keys_local;
+        List<ArtifactReceipt> pt_list_local;
         User pt_user_local;
         ArtifactReceipt pt_receipt_local;
         List<Document> d_list_local;
@@ -82,8 +79,7 @@ public final class BackupTest extends BackupTestCase {
         ContainerVersion cv_backup;
         List<JabberId> t_id_list_backup;
         JabberId t_id_backup;
-        Map<User, ArtifactReceipt> pt_map_backup;
-        List<User> pt_list_keys_backup;
+        List<ArtifactReceipt> pt_list_backup;
         User pt_user_backup;
         ArtifactReceipt pt_receipt_backup;
         List<Document> d_list_backup;
@@ -112,21 +108,19 @@ public final class BackupTest extends BackupTestCase {
                 assertEquals("Team member id has not been properly backed up.", t_id_local, t_id_backup);
             }
             logger.logInfo("Validating container \"{0}\" version \"{1}\" published to.", c_backup.getName(), cv_backup.getVersionId());
-            pt_map_backup = getBackupModel(datum.junit_z).readPublishedTo(c.getUniqueId(), cv_backup.getVersionId());
-            assertNotNull("Published to list has not been properly backed up.", pt_map_backup);
-            pt_map_local = readPublishedTo(datum.junit_z, cv_local.getArtifactId(), cv_local.getVersionId());
-            assertEquals("Published to list has not been properly backed up.", pt_map_local.size(), pt_map_backup.size());
-            pt_list_keys_backup = CollectionsUtil.proxy(pt_map_backup.keySet());
-            pt_list_keys_local =  CollectionsUtil.proxy(pt_map_local.keySet());
-            for (int k = 0; k < pt_list_keys_backup.size(); k++) {
-                pt_user_backup = pt_list_keys_backup.get(k);
+            pt_list_backup = getBackupModel(datum.junit_z).readPublishedTo(c.getUniqueId(), cv_backup.getVersionId());
+            assertNotNull("Published to list has not been properly backed up.", pt_list_backup);
+            pt_list_local = readPublishedTo(datum.junit_z, cv_local.getArtifactId(), cv_local.getVersionId());
+            assertEquals("Published to list has not been properly backed up.", pt_list_local.size(), pt_list_backup.size());
+            for (int k = 0; k < pt_list_local.size(); k++) {
+                pt_user_backup = pt_list_backup.get(k).getUser();
                 assertNotNull("Published to user has not been properly backed up.", pt_user_backup);
                 logger.logInfo("Validating container \"{0}\" version \"{1}\" published to \"{2}\".", c_backup.getName(), cv_backup.getVersionId(), pt_user_backup);
-                pt_user_local = pt_list_keys_local.get(k);
+                pt_user_local = pt_list_local.get(k).getUser();
                 assertEquals("Published to user has not been properly backed up.", pt_user_local, pt_user_backup);
-                pt_receipt_backup = pt_map_backup.get(pt_user_backup);
+                pt_receipt_backup = pt_list_backup.get(k);
                 assertNotNull("Published to receipt has not been properly backed up.", pt_receipt_backup);
-                pt_receipt_local = pt_map_local.get(pt_user_local);
+                pt_receipt_local = pt_list_local.get(k);
                 assertEquals("Published to receipt has not been properly backed up.", pt_receipt_local, pt_receipt_backup);
             }
             d_list_backup = getBackupModel(datum.junit_z).readDocuments(c.getUniqueId(), cv_backup.getVersionId());

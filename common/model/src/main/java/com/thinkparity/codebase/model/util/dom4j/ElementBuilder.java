@@ -40,7 +40,6 @@ import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
-import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
@@ -86,6 +85,20 @@ public class ElementBuilder {
         UNIVERSAL_LOCALE = Locale.CANADA;
         UNIVERSAL_PATTERN = DateImage.ISO.toString();
         UNIVERSAL_TIME_ZONE = TimeZone.getTimeZone("Universal");
+    }
+
+    public static final Element addArtifactReceiptElements(
+            final XStreamUtil xstreamUtil, final Element parent,
+            final String name, final List<ArtifactReceipt> values) {
+        if (values.size() < 1) {
+            return addNullElement(parent, name, List.class);
+        } else {
+            final Element element = addElement(parent, name, List.class);
+            for (final ArtifactReceipt value : values) {
+                addElement(xstreamUtil, element, XmlRpc.LIST_ITEM, value);
+            }
+            return element;
+        }
     }
 
     public static final Element addContainerElements(
@@ -769,23 +782,6 @@ public class ElementBuilder {
         }
     }
 
-    public static final Element addUserReceiptElements(
-            final XStreamUtil xstreamUtil, final Element parent,
-            final String name, final Map<User, ArtifactReceipt> values) {
-        if (values.size() < 1) {
-            return addNullMapElement(parent, name);
-        } else {
-            final Element element = addMapElement(parent, name);
-            Element entryElement;
-            for (final Entry<User, ArtifactReceipt> entry : values.entrySet()) {
-                entryElement = addMapEntryElement(element);
-                addElement(xstreamUtil, entryElement, "key", entry.getKey());
-                addElement(xstreamUtil, entryElement, "value", entry.getValue());
-            }
-            return element;
-        }
-    }
-
     public static final Element addVCardElement(final XStreamUtil xstreamUtil,
             final Element parent, final String name, final UserVCard value) {
         if (null == value) {
@@ -1100,18 +1096,6 @@ public class ElementBuilder {
             final OutgoingUserInvitation value) {
         if (null == value) {
             return addNullElement(parent, name, OutgoingUserInvitation.class);
-        } else {
-            final Element element = addElement(parent, name, value.getClass());
-            final Dom4JWriter writer = new Dom4JWriter(element);
-            xstreamUtil.marshal(value, writer);
-            return element;
-        }
-    }
-
-    private static final Element addElement(final XStreamUtil xstreamUtil,
-            final Element parent, final String name, final User value) {
-        if (null == value) {
-            return addNullElement(parent, name, User.class);
         } else {
             final Element element = addElement(parent, name, value.getClass());
             final Dom4JWriter writer = new Dom4JWriter(element);

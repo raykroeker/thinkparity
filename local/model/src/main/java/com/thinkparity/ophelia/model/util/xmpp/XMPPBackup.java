@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.model.util.xmpp;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
@@ -14,7 +13,6 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.util.xmpp.event.BackupListener;
@@ -33,18 +31,6 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
      */
     XMPPBackup(final XMPPCore core) {
         super(core);
-    }
-
-    /**
-     * Determine if the backup is online.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return True if the backup is online.
-     */
-    Boolean isOnline(final JabberId userId) {
-        final XMPPMethod isOnline = new XMPPMethod("backup:isonline");
-        return execute(isOnline, Boolean.TRUE).readResultBoolean("online");
     }
 
     /**
@@ -97,6 +83,18 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         delete.setParameter("userId", userId);
         delete.setParameter("uniqueId", uniqueId);
         execute(delete);
+    }
+
+    /**
+     * Determine if the backup is online.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return True if the backup is online.
+     */
+    Boolean isOnline(final JabberId userId) {
+        final XMPPMethod isOnline = new XMPPMethod("backup:isonline");
+        return execute(isOnline, Boolean.TRUE).readResultBoolean("online");
     }
 
     Container readContainer(final JabberId userId, final UUID uniqueId) {
@@ -164,7 +162,7 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         return execute(readDocumentVersions, Boolean.TRUE).readResultDocumentVersions("documentVersions");
     }
 
-    Map<User, ArtifactReceipt> readPublishedTo(final JabberId userId,
+    List<ArtifactReceipt> readPublishedTo(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);

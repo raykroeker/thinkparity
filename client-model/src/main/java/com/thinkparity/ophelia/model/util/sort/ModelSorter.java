@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.ContactInvitation;
@@ -30,6 +31,11 @@ import com.thinkparity.ophelia.model.message.SystemMessage;
  * @version 1.1
  */
 public class ModelSorter {
+
+    public static void sortReceipts(final List<ArtifactReceipt> list,
+            final Comparator<ArtifactReceipt> comparator) {
+        Collections.sort(list, comparator);
+    }
 
     public static void sortContacts(final List<Contact> list,
             final Comparator<Contact> comparator) {

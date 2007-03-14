@@ -257,11 +257,8 @@ class ContainerModelImpl extends AbstractModelImpl {
         }
     }
 
-    Map<User, ArtifactReceipt> readArchivePublishedTo(final JabberId userId, final UUID uniqueId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
+    List<ArtifactReceipt> readArchivePublishedTo(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
         try {
             assertIsAuthenticatedUser(userId);
             return getArchiveModel().getContainerReader(userId)
@@ -385,12 +382,8 @@ class ContainerModelImpl extends AbstractModelImpl {
         }
     }
 
-    Map<User, ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
+    List<ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
         try {
             assertIsAuthenticatedUser(userId);
             return getBackupModel().getContainerReader(userId)

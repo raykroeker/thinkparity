@@ -3,9 +3,8 @@
  */
 package com.thinkparity.ophelia.model.container;
 
-import java.util.Map;
+import java.util.List;
 
-import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.User;
@@ -41,12 +40,12 @@ public class ReadPublishedToTest extends ContainerTestCase {
         datum.waitForEvents();
         final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
 
-        final Map<User, ArtifactReceipt> pt = readPublishedTo(datum.junit, c.getId(), cv_latest.getVersionId());
+        final List<User> pt = readPublishedToUsers(datum.junit, c.getId(), cv_latest.getVersionId());
         assertNotNull(NAME + " - Published to user list is null.", pt);
         assertTrue(NAME + " - Published to list does not contain " + datum.junit_x.getSimpleUsername(), 
-                USER_UTILS.containsKey(pt, datum.junit_x));
+                USER_UTILS.contains(pt, datum.junit_x));
         assertTrue(NAME + " - Published to list does not contain " + datum.junit_y.getSimpleUsername(), 
-                USER_UTILS.containsKey(pt, datum.junit_y));
+                USER_UTILS.contains(pt, datum.junit_y));
     }
 
     /**

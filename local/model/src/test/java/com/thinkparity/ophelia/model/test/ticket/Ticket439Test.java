@@ -61,7 +61,7 @@ public class Ticket439Test extends TicketTestCase {
         List<Document> cv_latest_d_list = readContainerVersionDocuments(datum.junit, c.getId(), cv_latest.getVersionId());
         List<DocumentVersion> cv_latest_dv_list = readContainerVersionDocumentVersions(datum.junit, c.getId(), cv_latest.getVersionId());
         Map<DocumentVersion, Delta> cv_latest_delta = readContainerVersionDeltas(datum.junit, c.getId(), cv_latest.getVersionId());
-        List<ArtifactReceipt> cv_latest_pt = readPublishedTo2(datum.junit, c.getId(), cv_latest.getVersionId());
+        List<ArtifactReceipt> cv_latest_pt = readPublishedTo(datum.junit, c.getId(), cv_latest.getVersionId());
         List<TeamMember> tm_list = readTeam(datum.junit, c.getId());
         DocumentVersion cv_latest_dv;
         InputStream is;
@@ -72,7 +72,7 @@ public class Ticket439Test extends TicketTestCase {
         List<Document> cv_latest_d_list_x = readContainerVersionDocuments(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
         List<DocumentVersion> cv_latest_dv_list_x = readContainerVersionDocumentVersions(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
         Map<DocumentVersion, Delta> cv_latest_delta_x = readContainerVersionDeltas(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
-        List<ArtifactReceipt> cv_latest_pt_x = readPublishedTo2(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
+        List<ArtifactReceipt> cv_latest_pt_x = readPublishedTo(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
         List<TeamMember> tm_list_x = readTeam(datum.junit_x, c_x.getId());
         InputStream is_x;
         DocumentVersion cv_latest_dv_x;
@@ -142,7 +142,7 @@ public class Ticket439Test extends TicketTestCase {
         cv_latest_d_list = readContainerVersionDocuments(datum.junit, c.getId(), cv_latest.getVersionId());
         cv_latest_dv_list = readContainerVersionDocumentVersions(datum.junit, c.getId(), cv_latest.getVersionId());
         cv_latest_delta = readContainerVersionDeltas(datum.junit, c.getId(), cv_latest.getVersionId(), cv_previous.getVersionId());
-        cv_latest_pt = readPublishedTo2(datum.junit, c.getId(), cv_latest.getVersionId());
+        cv_latest_pt = readPublishedTo(datum.junit, c.getId(), cv_latest.getVersionId());
         tm_list = readTeam(datum.junit, c.getId());
 
         c_x = readContainer(datum.junit_x, c_initial.getUniqueId());
@@ -151,7 +151,7 @@ public class Ticket439Test extends TicketTestCase {
         cv_latest_d_list_x = readContainerVersionDocuments(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
         cv_latest_dv_list_x = readContainerVersionDocumentVersions(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
         cv_latest_delta_x = readContainerVersionDeltas(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId(), cv_previous_x.getVersionId());
-        cv_latest_pt_x = readPublishedTo2(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
+        cv_latest_pt_x = readPublishedTo(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
         tm_list_x = readTeam(datum.junit_x, c_x.getId());
 
         assertSimilar("Container does not match expectation.", c, c_x);

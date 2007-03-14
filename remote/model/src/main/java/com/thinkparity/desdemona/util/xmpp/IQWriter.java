@@ -30,7 +30,6 @@ import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
-import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.dom4j.ElementBuilder;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
@@ -373,13 +372,13 @@ public final class IQWriter implements ServiceResponseWriter {
     }
 
     /**
-     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeUserReceipts(java.lang.String,
-     *      java.util.Map)
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeArtifactReceipts(java.lang.String,
+     *      java.util.List)
      * 
      */
-    public final void writeUserReceipts(final String name,
-            final Map<User, ArtifactReceipt> values) {
-        ElementBuilder.addUserReceiptElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
+    public final void writeArtifactReceipts(final String name,
+            final List<ArtifactReceipt> values) {
+        ElementBuilder.addArtifactReceiptElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
     }
 
     /**

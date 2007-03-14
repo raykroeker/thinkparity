@@ -3,13 +3,12 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.backup;
 
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
-import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
@@ -41,12 +40,12 @@ public final class ReadPublishedTo extends AbstractHandler {
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
         logger.logApiId();
-        writer.writeUserReceipts("publishedTo", readPublishedTo(provider,
+        writer.writeArtifactReceipts("publishedTo", readPublishedTo(provider,
                 reader.readJabberId("userId"), reader.readUUID("uniqueId"),
                 reader.readLong("versionId")));
     }
 
-    private Map<User, ArtifactReceipt> readPublishedTo(
+    private List<ArtifactReceipt> readPublishedTo(
             final ServiceModelProvider provider, final JabberId userId,
             final UUID uniqueId, final Long versionId) {
         return provider.getContainerModel().readBackupPublishedTo(userId,

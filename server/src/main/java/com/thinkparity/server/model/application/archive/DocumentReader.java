@@ -12,7 +12,6 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
@@ -96,8 +95,9 @@ public class DocumentReader extends ArchiveReader<Document, DocumentVersion> {
     }
 
     @Override
-    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId, final Long versionId) {
-        return Collections.emptyMap();
+    public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId) {
+        return Collections.emptyList();
     }
 
     /**

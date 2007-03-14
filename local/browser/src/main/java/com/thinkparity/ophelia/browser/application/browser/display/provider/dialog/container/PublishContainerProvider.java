@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider.dia
 
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -105,8 +106,13 @@ public class PublishContainerProvider extends ContentProvider {
             final Long containerId) {
         final ContainerVersion latestVersion = containerModel.readLatestVersion(
                 containerId);
-        return containerModel.readPublishedTo(containerId,
+        final List<ArtifactReceipt> publishedTo = containerModel.readPublishedTo(containerId,
                 latestVersion.getVersionId());
+        // NOCOMMIT
+        final Map<User, ArtifactReceipt> map = new HashMap<User, ArtifactReceipt>(publishedTo.size());
+        for (final ArtifactReceipt ar : publishedTo)
+            map.put(ar.getUser(), ar);
+        return map;
     }
     
     /**

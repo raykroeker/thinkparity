@@ -5,13 +5,11 @@ package com.thinkparity.desdemona.model.backup;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 
@@ -59,11 +57,11 @@ public class ContainerReader extends BackupReader<Container, ContainerVersion> {
      * 
      */
     @Override
-    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+    public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId) {
         final Long containerId = this.readBackupArtifactId(uniqueId);
         if (null == containerId) {
-            return Collections.emptyMap();
+            return Collections.emptyList();
         } else {
             return containerModel.readPublishedTo(containerId, versionId);
         }

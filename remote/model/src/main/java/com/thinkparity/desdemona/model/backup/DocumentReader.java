@@ -5,17 +5,16 @@ package com.thinkparity.desdemona.model.backup;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.desdemona.model.archive.ClientModelFactory;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
+
+import com.thinkparity.desdemona.model.archive.ClientModelFactory;
 
 /**
  * @author raymond@thinkparity.com
@@ -88,8 +87,8 @@ public class DocumentReader extends BackupReader<Document, DocumentVersion> {
     }
 
     @Override
-    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+    public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId) {
-        return Collections.emptyMap();
+        return Collections.emptyList();
     }
 }

@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.util.sort;
 import java.util.Comparator;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 
 import com.thinkparity.ophelia.model.audit.HistoryItem;
@@ -23,6 +24,10 @@ public class ComparatorBuilder {
 	 * Create a ComparatorBuilder.
 	 */
 	public ComparatorBuilder() { super(); }
+
+    public Comparator<ArtifactReceipt> createArtifactReceiptByReceivedOnAscending() {
+        return new ArtifactReceiptReceivedOn(Boolean.TRUE);
+    }
 
     /**
      * Create a name comparator in ascending order.

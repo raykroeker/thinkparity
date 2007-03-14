@@ -7,7 +7,6 @@ package com.thinkparity.ophelia.model.io.handler;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -302,34 +301,41 @@ public interface ContainerIOHandler {
     public ContainerVersion readLatestVersion(final Long containerId);
 
     /**
-     * Read the published to list for the container version.
-     * 
+     * Read the published to list of users.
      * @param containerId
-     *            A container id <code>Long</code>.
      * @param versionId
-     *            A version id <code>Long</code>.
-     * @return A <code>List&lt;User&gt;</code>.
+     * @return
      */
-    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
-            final Long versionId);
+    public List<User> readPublishedTo(final Long containerId, final Long versionId);
 
     /**
-     * Read the published to artifact receipt for a container version for a
-     * publish for a user.
+     * Read the published to receipt.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
      * @param versionId
      *            A version id <code>Long</code>.
      * @param publishedOn
-     *            A published on date <code>Calendar</code>.
+     *            The published on date.
      * @param user
      *            A <code>User</code>.
-     * @return The <code>ArtifactReceipt</code>.
+     * @return An <code>ArtifactReceipt</code>s.
      */
-    public ArtifactReceipt readPublishedTo(final Long containerId,
+    public ArtifactReceipt readPublishedToReceipt(final Long containerId,
             final Long versionId, final Calendar publishedOn,
             final User user);
+
+    /**
+     * Read the published to list of receipts.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>List</code> of <code>ArtifactReceipt</code>s.
+     */
+    public List<ArtifactReceipt> readPublishedToReceipts(final Long containerId,
+            final Long versionId);
 
     /**
      * Read a container version.

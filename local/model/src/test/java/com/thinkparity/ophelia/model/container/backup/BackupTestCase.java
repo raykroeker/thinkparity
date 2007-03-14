@@ -23,7 +23,7 @@ public abstract class BackupTestCase extends ContainerTestCase {
     protected static void assertEquals(final String assertion,
             final ArtifactReceipt expected, final ArtifactReceipt actual) {
         assertEquals(assertion + " [RECIEPT'S ARTIFACT TYPE DOES NOT MATCH EXPECTATION]", expected.getReceivedOn(), actual.getReceivedOn());
-        assertEquals(assertion + " [RECIEPT'S ARTIFACT TYPE DOES NOT MATCH EXPECTATION]", expected.getUserId(), actual.getUserId());
+        assertEquals(assertion + " [RECIEPT'S ARTIFACT TYPE DOES NOT MATCH EXPECTATION]", expected.getUser(), actual.getUser());
     }
 
     protected static void assertEquals(final String assertion,
@@ -61,7 +61,7 @@ public abstract class BackupTestCase extends ContainerTestCase {
 
     protected static void assertNotNull(final String assertion, final ArtifactReceipt receipt) {
         assertNotNull(assertion + " [RECEIPT IS NULL]", (Object) receipt);
-        assertNotNull(assertion + " [RECEIPT'S USER ID IS NULL]", receipt.getUserId());
+        assertNotNull(assertion + " [RECEIPT'S USER IS NULL]", receipt.getUser());
     }
 
     /**

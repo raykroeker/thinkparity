@@ -9,14 +9,12 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
-import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.util.xmpp.event.ArchiveListener;
@@ -132,19 +130,6 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         readDocumentVersions.setParameter("uniqueId", uniqueId);
         readDocumentVersions.setParameter("versionId", versionId);
         return execute(readDocumentVersions, Boolean.TRUE).readResultDocumentVersions("documentVersions");
-    }
-
-    Map<User, ArtifactReceipt> readPublishedTo(final JabberId userId,
-            final UUID uniqueId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        final XMPPMethod readDocumentVersions = new XMPPMethod("archive:readpublishedto");
-        readDocumentVersions.setParameter("userId", userId);
-        readDocumentVersions.setParameter("uniqueId", uniqueId);
-        readDocumentVersions.setParameter("versionId", versionId);
-        return execute(readDocumentVersions, Boolean.TRUE).readResultUserArtifactReceipts("publishedTo");
     }
 
     List<TeamMember> readTeam(final JabberId userId, final UUID uniqueId) {

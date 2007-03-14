@@ -9,9 +9,9 @@ import java.util.List;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
-import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
@@ -130,15 +130,15 @@ public interface InternalContainerModel extends ContainerModel {
     public List<Container> readForTeamMember(final Long teamMemberId);
 
     /**
-     * Read the list of published to artifact receipts.
+     * Read the published to list of users.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
      * @param versionId
      *            A container version id <code>Long</code>.
-     * @return A <code>List</code> of <code>ArtifactReceipt</code>s.
+     * @return A <code>List</code> of <code>User</code>s.
      */
-    public List<ArtifactReceipt> readPublishedTo2(final Long containerId,
+    public List<User> readPublishedToUsers(final Long containerId,
             final Long versionId);
 
     /**

@@ -162,11 +162,11 @@ public final class ContainerModelImpl extends
     /** A default history item filter. */
     private final Filter<? super HistoryItem> defaultHistoryFilter;
 
-    /** A default user comparator. */
-    private final Comparator<User> defaultUserComparator;
+    /** A default artifact receipt comparator. */
+    private final Comparator<ArtifactReceipt> defaultReceiptComparator;
 
-    /** A default user filter. */
-    private final Filter<? super User> defaultUserFilter;
+    /** A default artifact receipt filter. */
+    private final Filter<? super ArtifactReceipt> defaultReceiptFilter;
 
     /** The default container version comparator. */
     private final Comparator<ArtifactVersion> defaultVersionComparator;
@@ -198,8 +198,8 @@ public final class ContainerModelImpl extends
         this.defaultFilter = FilterManager.createDefault();
         this.defaultHistoryComparator = new ComparatorBuilder().createDateDescending();
         this.defaultHistoryFilter = FilterManager.createDefault();
-        this.defaultUserComparator = UserComparatorFactory.createOrganizationAndName(Boolean.TRUE);
-        this.defaultUserFilter = FilterManager.createDefault();
+        this.defaultReceiptComparator = new ComparatorBuilder().createArtifactReceiptByReceivedOnAscending();
+        this.defaultReceiptFilter = FilterManager.createDefault();
         this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.FALSE);
         this.defaultVersionFilter = FilterManager.createDefault();
         this.localEventGenerator = new ContainerEventGenerator(Source.LOCAL);
@@ -665,6 +665,54 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handlePublished(com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent)
+     *
+     */
+    public void handlePublished(final ArtifactPublishedEvent event) {
+        try {
+            final InternalArtifactModel artifactModel = getArtifactModel();
+            final Long containerId = artifactModel.readId(event.getUniqueId());
+            // restore
+            final boolean doRestore = artifactModel.isFlagApplied(
+                    containerId, ArtifactFlag.ARCHIVED);
+            final boolean doCreateDraft;
+            if (doRestore) {
+                // restore the draft
+                final JabberId draftOwner = getSessionModel().readKeyHolder(
+                        localUserId(), event.getUniqueId());
+                doCreateDraft = !draftOwner.equals(User.THINK_PARITY.getId());
+                if (doCreateDraft) {
+                    final List<TeamMember> team = readTeam(containerId);
+                    final ContainerDraft draft = new ContainerDraft();
+                    draft.setContainerId(containerId);
+                    draft.setOwner(team.get(indexOf(team, draftOwner)));
+                    containerIO.createDraft(draft);
+                }
+                // note that we do not update the local team - this has been
+                // done as part of the handling of the event within the artifact
+                // model
+                artifactModel.removeFlagArchived(containerId);
+                getBackupModel().restore(containerId);
+            } else {
+                doCreateDraft = false;
+            }
+
+            if (doesExistDraft(containerId))
+                deleteDraft(containerId);
+
+            if (doRestore) {
+                final Container container = read(containerId);
+                if (doCreateDraft)
+                    notifyDraftCreated(container, readDraft(containerId), remoteEventGenerator);
+                notifyContainerFlagged(container, remoteEventGenerator);
+                notifyContainerRestored(container, remoteEventGenerator);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Handle the container published event. The local team definition is built
      * from the publishedTo list. The published to list is also saved.
      * 
@@ -786,7 +834,7 @@ public final class ContainerModelImpl extends
         try {
             final Long containerId = artifactIO.readId(event.getUniqueId());
             final User receivedBy = getUserModel().readLazyCreate(event.getReceivedBy());
-            final ArtifactReceipt receipt = containerIO.readPublishedTo(
+            final ArtifactReceipt receipt = containerIO.readPublishedToReceipt(
                     containerId, event.getVersionId(), event.getPublishedOn(),
                     receivedBy);
             if (null == receipt) {
@@ -819,6 +867,40 @@ public final class ContainerModelImpl extends
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * Determine whether or not the local draft is different from the previous
+     * version. If an artifact has a state other than none, the artifact is
+     * modified.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if the local draft is modified.
+     */
+    public Boolean isLocalDraftModified(final Long containerId) {
+        final ContainerDraft draft = containerIO.readDraft(containerId);
+        boolean isLocalDraftModified = false;
+        for (final Document document : draft.getDocuments()) {
+            // if the draft document is added or removed the state will be
+            // recorded and the draft is modified
+            switch (draft.getState(document)) {
+            case ADDED:
+            case REMOVED:
+            case MODIFIED:
+                isLocalDraftModified = true;
+                break;
+            case NONE:
+                isLocalDraftModified = getDocumentModel().isDraftModified(
+                        document.getId());
+                break;
+            default:
+                Assert.assertUnreachable("Unknown draft document state.");
+            }
+            if (isLocalDraftModified)
+                return Boolean.TRUE;
+        }
+        return Boolean.valueOf(isLocalDraftModified);
     }
 
     /**
@@ -1019,10 +1101,10 @@ public final class ContainerModelImpl extends
             }
             // only create a published to reference if one for the user does not
             // already exist
-            final Map<User, ArtifactReceipt> publishedTo =
+            final List<User> publishedTo =
                 containerIO.readPublishedTo(containerId, versionId);
             for (final User publishToUser : publishToUsers) {
-                if (!publishedTo.containsKey(publishToUser))
+                if (!contains(publishedTo, publishToUser))
                     containerIO.createPublishedTo(containerId, versionId,
                             publishToUser, publishedOn);
             }
@@ -1434,109 +1516,80 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Read a list of team members the container version was published to.
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#readPublishedTo(java.lang.Long,
+     *      java.lang.Long)
      * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @return A <code>List&lt;User&gt;</code>.
      */
-    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
+    public List<ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        return readPublishedTo(containerId, versionId, defaultUserComparator,
-                defaultUserFilter);
-    }
-
-    /**
-     * Read a list of team members the container version was published to.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param comparator
-     *            A <code>Comparator&lt;User&gt;</code>.
-     * @return A <code>List&lt;User&gt;</code>.
-     */
-    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
-            final Long versionId, final Comparator<User> comparator) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("comparator", comparator);
-        return readPublishedTo(containerId, versionId, comparator,
-                defaultUserFilter);
-    }
-
-    /**
-     * Read a list of team members the container version was published to.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param comparator
-     *            A <code>Comparator&lt;User&gt;</code>.
-     * @param filter
-     *            A <code>Filter&lt;? super User&gt;</code>.
-     * @return A <code>List&lt;User&gt;</code>.
-     */
-    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
-            final Long versionId, final Comparator<User> comparator,
-            final Filter<? super User> filter) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("comparator", comparator);
-        logger.logVariable("filter", filter);
-        final Map<User, ArtifactReceipt> publishedTo =
-            containerIO.readPublishedTo(containerId, versionId);
-        final List<User> users = new ArrayList<User>(publishedTo.size());
-        for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
-            users.add(entry.getKey());
-        }
-        FilterManager.filter(users, filter);
-        final Map<User, ArtifactReceipt> filteredPublishedTo = new TreeMap<User, ArtifactReceipt>(comparator);
-        for (final User user : users) {
-            filteredPublishedTo.put(user, publishedTo.get(user));
-        }
-        return filteredPublishedTo;
-    }
-
-    /**
-     * Read a list of team members the container version was published to.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param filter
-     *            A <code>Filter&lt;? super User&gt;</code>.
-     * @return A <code>List&lt;User&gt;</code>.
-     */
-    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
-            final Long versionId, final Filter<? super User> filter) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("filter", filter);
-        return readPublishedTo(containerId, versionId, defaultUserComparator,
-                filter); 
-    }
-
-    public List<ArtifactReceipt> readPublishedTo2(final Long containerId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
         try {
-            return readPublishedTo2(containerId, versionId,
-                    defaultUserComparator, defaultUserFilter);
+            return readPublishedTo(containerId, versionId,
+                    defaultReceiptComparator, defaultReceiptFilter);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#readPublishedTo(java.lang.Long,
+     *      java.lang.Long, java.util.Comparator)
+     * 
+     */
+    public List<ArtifactReceipt> readPublishedTo(final Long containerId,
+            final Long versionId, final Comparator<ArtifactReceipt> comparator) {
+        try {
+            return readPublishedTo(containerId, versionId, comparator,
+                    defaultReceiptFilter);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#readPublishedTo(java.lang.Long,
+     *      java.lang.Long, java.util.Comparator,
+     *      com.thinkparity.codebase.filter.Filter)
+     * 
+     */
+    public List<ArtifactReceipt> readPublishedTo(final Long containerId,
+            final Long versionId, final Comparator<ArtifactReceipt> comparator,
+            final Filter<? super ArtifactReceipt> filter) {
+        try {
+            final List<ArtifactReceipt> publishedTo =
+                containerIO.readPublishedToReceipts(containerId, versionId);
+            FilterManager.filter(publishedTo, filter);
+            ModelSorter.sortReceipts(publishedTo, comparator);
+            return publishedTo;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#readPublishedTo(java.lang.Long,
+     *      java.lang.Long, com.thinkparity.codebase.filter.Filter)
+     * 
+     */
+    public List<ArtifactReceipt> readPublishedTo(final Long containerId,
+            final Long versionId, final Filter<? super ArtifactReceipt> filter) {
+        try {
+            return readPublishedTo(containerId, versionId,
+                    defaultReceiptComparator, filter); 
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#readPublishedToUsers(java.lang.Long, java.lang.Long)
+     *
+     */
+    public List<User> readPublishedToUsers(final Long containerId,
+            final Long versionId) {
+        try {
+            return containerIO.readPublishedTo(containerId, versionId);
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 
@@ -1723,6 +1776,7 @@ public final class ContainerModelImpl extends
         }
     }
 
+    
     /**
      * Remove a container listener.
      * 
@@ -1751,55 +1805,6 @@ public final class ContainerModelImpl extends
             containerIO.updateName(containerId, name);
             // fire event
             notifyContainerRenamed(read(containerId), localEventGenerator);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    
-    /**
-     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handlePublished(com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent)
-     *
-     */
-    public void handlePublished(final ArtifactPublishedEvent event) {
-        try {
-            final InternalArtifactModel artifactModel = getArtifactModel();
-            final Long containerId = artifactModel.readId(event.getUniqueId());
-            // restore
-            final boolean doRestore = artifactModel.isFlagApplied(
-                    containerId, ArtifactFlag.ARCHIVED);
-            final boolean doCreateDraft;
-            if (doRestore) {
-                // restore the draft
-                final JabberId draftOwner = getSessionModel().readKeyHolder(
-                        localUserId(), event.getUniqueId());
-                doCreateDraft = !draftOwner.equals(User.THINK_PARITY.getId());
-                if (doCreateDraft) {
-                    final List<TeamMember> team = readTeam(containerId);
-                    final ContainerDraft draft = new ContainerDraft();
-                    draft.setContainerId(containerId);
-                    draft.setOwner(team.get(indexOf(team, draftOwner)));
-                    containerIO.createDraft(draft);
-                }
-                // note that we do not update the local team - this has been
-                // done as part of the handling of the event within the artifact
-                // model
-                artifactModel.removeFlagArchived(containerId);
-                getBackupModel().restore(containerId);
-            } else {
-                doCreateDraft = false;
-            }
-
-            if (doesExistDraft(containerId))
-                deleteDraft(containerId);
-
-            if (doRestore) {
-                final Container container = read(containerId);
-                if (doCreateDraft)
-                    notifyDraftCreated(container, readDraft(containerId), remoteEventGenerator);
-                notifyContainerFlagged(container, remoteEventGenerator);
-                notifyContainerRestored(container, remoteEventGenerator);
-            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1890,7 +1895,7 @@ public final class ContainerModelImpl extends
                         return backupModel.readDocumentVersions(uniqueId,
                                 versionId);
                     }
-                    public Map<User, ArtifactReceipt> readPublishedTo(
+                    public List<ArtifactReceipt> readPublishedTo(
                             final UUID uniqueId, final Long versionId) {
                         return backupModel.readPublishedTo(uniqueId, versionId);
                     }
@@ -2560,8 +2565,8 @@ public final class ContainerModelImpl extends
             final Map<ContainerVersion, List<DocumentVersion>> documents =
                 new HashMap<ContainerVersion, List<DocumentVersion>>(versions.size(), 1.0F);
             final Map<DocumentVersion, Long> documentsSize = new HashMap<DocumentVersion, Long>();
-            final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo =
-                new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>(versions.size(), 1.0F);
+            final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo =
+                new HashMap<ContainerVersion, List<ArtifactReceipt>>(versions.size(), 1.0F);
             InputStream stream;
             File directory, file;
             for (final ContainerVersion version : versions) {
@@ -2709,40 +2714,6 @@ public final class ContainerModelImpl extends
      */
     private Boolean isFirstDraft(final Long containerId) {
         return 0 == readVersions(containerId).size();
-    }
-
-    /**
-     * Determine whether or not the local draft is different from the previous
-     * version. If an artifact has a state other than none, the artifact is
-     * modified.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @return True if the local draft is modified.
-     */
-    public Boolean isLocalDraftModified(final Long containerId) {
-        final ContainerDraft draft = containerIO.readDraft(containerId);
-        boolean isLocalDraftModified = false;
-        for (final Document document : draft.getDocuments()) {
-            // if the draft document is added or removed the state will be
-            // recorded and the draft is modified
-            switch (draft.getState(document)) {
-            case ADDED:
-            case REMOVED:
-            case MODIFIED:
-                isLocalDraftModified = true;
-                break;
-            case NONE:
-                isLocalDraftModified = getDocumentModel().isDraftModified(
-                        document.getId());
-                break;
-            default:
-                Assert.assertUnreachable("Unknown draft document state.");
-            }
-            if (isLocalDraftModified)
-                return Boolean.TRUE;
-        }
-        return Boolean.valueOf(isLocalDraftModified);
     }
 
     /**
@@ -3300,46 +3271,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Read a list of team members the container version was published to.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param comparator
-     *            A <code>User</code> <code>Comparator</code>.
-     * @param filter
-     *            A <code>User</code> <code>Filter</code>.
-     * @return A <code>List&lt;User&gt;</code>.
-     */
-    private List<ArtifactReceipt> readPublishedTo2(final Long containerId,
-            final Long versionId, final Comparator<User> comparator,
-            final Filter<? super User> filter) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("comparator", comparator);
-        logger.logVariable("filter", filter);
-        try {
-            final Map<User, ArtifactReceipt> publishedTo =
-                containerIO.readPublishedTo(containerId, versionId);
-            final List<User> users = new ArrayList<User>(publishedTo.size());
-            for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
-                users.add(entry.getKey());
-            }
-            FilterManager.filter(users, filter);
-            Collections.sort(users, comparator);
-            final List<ArtifactReceipt> filteredPublishedTo = new ArrayList<ArtifactReceipt>();
-            for (final User user : users) {
-                filteredPublishedTo.add(publishedTo.get(user));
-            }
-            return filteredPublishedTo;
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
      * Read a user.
      * 
      * @param userId
@@ -3409,7 +3340,7 @@ public final class ContainerModelImpl extends
         List<DocumentVersion> documentVersions;
         InputStream documentVersionStream;
         ContainerVersion previous;
-        Map<User, ArtifactReceipt> publishedTo;
+        List<ArtifactReceipt> publishedTo;
         for (final ContainerVersion version : versions) {
             logger.logTrace("Restoring container \"{0}\" version \"{1}.\"",
                     version.getName(), version.getVersionId());
@@ -3420,17 +3351,17 @@ public final class ContainerModelImpl extends
             artifactIO.updateFlags(container.getId(), container.getFlags());
             publishedTo = restoreModel.readPublishedTo(
                     version.getArtifactUniqueId(), version.getVersionId());
-            for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
+            for (final ArtifactReceipt receipt : publishedTo) {
                 containerIO.createPublishedTo(container.getId(),
                         version.getVersionId(),
-                        userModel.readLazyCreate(entry.getValue().getUserId()),
-                        entry.getValue().getPublishedOn());
-                if (entry.getValue().isSetReceivedOn()) {
+                        userModel.readLazyCreate(receipt.getUser().getId()),
+                        receipt.getPublishedOn());
+                if (receipt.isSetReceivedOn()) {
                     containerIO.updatePublishedTo(container.getId(),
                             version.getVersionId(),
-                            entry.getValue().getPublishedOn(),
-                            entry.getValue().getUserId(),
-                            entry.getValue().getReceivedOn());
+                            receipt.getPublishedOn(),
+                            receipt.getUser().getId(),
+                            receipt.getReceivedOn());
                 }
             }
             // restore version links
@@ -3563,7 +3494,7 @@ public final class ContainerModelImpl extends
          * @return A list of <code>User</code>s and the corresponding
          *         <code>ArtifactReceipt</code>.
          */
-        public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+        public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
                 final Long versionId);
 
         /**

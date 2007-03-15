@@ -15,7 +15,9 @@ import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJPanel;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -37,6 +39,9 @@ public final class NotifyPanel extends AbstractJPanel {
     /** Close label rollover icon. */
     private static final Icon CLOSE_ROLLOVER_ICON;
 
+    /** Maximum title width. */
+    private static final int MAX_TITLE_WIDTH;
+
     /** A singleton list of notifications. */
     private static final List<Notification> NOTIFICATIONS;
 
@@ -44,6 +49,7 @@ public final class NotifyPanel extends AbstractJPanel {
         BACKGROUND = ImageIOUtil.read("Dialog_Background.png");
         CLOSE_ICON = ImageIOUtil.readIcon("Dialog_CloseButton.png");
         CLOSE_ROLLOVER_ICON = ImageIOUtil.readIcon("Dialog_CloseButtonRollover.png");
+        MAX_TITLE_WIDTH = 185;
         NOTIFICATIONS = new Vector<Notification>();
     }
 
@@ -426,8 +432,13 @@ public final class NotifyPanel extends AbstractJPanel {
      *
      */
     private void reloadNotificationTitle() {
+        Assert.assertNotNull("Null graphics in notification panel.",
+                notificationTitleJLabel.getGraphics());
         if (notificationIndex >= 0 && notificationIndex < NOTIFICATIONS.size()) {
-            notificationTitleJLabel.setText(NOTIFICATIONS.get(notificationIndex).getTitle());
+            final String title = NOTIFICATIONS.get(notificationIndex).getTitle();
+            final String clippedTitle = SwingUtil.limitWidthWithEllipsis(title,
+                    MAX_TITLE_WIDTH, notificationTitleJLabel.getGraphics());
+            notificationTitleJLabel.setText(clippedTitle);
         } else {
             notificationTitleJLabel.setText(" ");
         }

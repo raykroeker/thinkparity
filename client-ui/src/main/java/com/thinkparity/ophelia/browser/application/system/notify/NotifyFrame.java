@@ -152,6 +152,9 @@ public class NotifyFrame extends AbstractJDialog {
      *
      */
     private void doDisplay(final Notification notification) {
+        // The call to pack() ensures that components in the
+        // panel are displayable. See NotifyPanel#reloadNotificationTitle.
+        pack();
         notifyPanel.display(notification);
     }
 

@@ -64,7 +64,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
-import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.container.export.PDFWriter;
@@ -156,12 +155,6 @@ public final class ContainerModelImpl extends
     /** A default container filter. */
     private final Filter<? super Artifact> defaultFilter;
 
-    /** A default history item comparator. */
-    private final Comparator<? super HistoryItem> defaultHistoryComparator;
-
-    /** A default history item filter. */
-    private final Filter<? super HistoryItem> defaultHistoryFilter;
-
     /** A default artifact receipt comparator. */
     private final Comparator<ArtifactReceipt> defaultReceiptComparator;
 
@@ -196,8 +189,6 @@ public final class ContainerModelImpl extends
         this.defaultDocumentFilter = FilterManager.createDefault();
         this.defaultDocumentVersionComparator = new ComparatorBuilder().createVersionByName();
         this.defaultFilter = FilterManager.createDefault();
-        this.defaultHistoryComparator = new ComparatorBuilder().createDateDescending();
-        this.defaultHistoryFilter = FilterManager.createDefault();
         this.defaultReceiptComparator = new ComparatorBuilder().createArtifactReceiptByReceivedOnAscending();
         this.defaultReceiptFilter = FilterManager.createDefault();
         this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.FALSE);
@@ -1427,19 +1418,6 @@ public final class ContainerModelImpl extends
         } catch (final Throwable t) {
             throw panic(t);
         }
-    }
-
-    /**
-     * Read the container history.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A list of history items.
-     */
-    public List<ContainerHistoryItem> readHistory(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        return readHistory(containerId, defaultHistoryComparator, defaultHistoryFilter);
     }
 
     /**
@@ -3245,32 +3223,6 @@ public final class ContainerModelImpl extends
         FilterManager.filter(documents, filter);
         ModelSorter.sortDocuments(documents, comparator);
         return documents;
-    }
-
-    /**
-     * Read the container history.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param comparator
-     *            A history item comparator
-     * @param filter
-     *            A history item filter.
-     * @return A list of history items.
-     */
-    private List<ContainerHistoryItem> readHistory(final Long containerId,
-            final Comparator<? super HistoryItem> comparator,
-            final Filter<? super HistoryItem> filter) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("comparator", comparator);
-        logger.logVariable("filter", filter);
-        final ContainerHistoryBuilder historyBuilder =
-            new ContainerHistoryBuilder(getContainerModel(), l18n);
-        final List<ContainerHistoryItem> history = historyBuilder.createHistory(containerId);
-        FilterManager.filter(history, filter);
-        ModelSorter.sortHistory(history, defaultHistoryComparator);
-        return history;
     }
 
     /**

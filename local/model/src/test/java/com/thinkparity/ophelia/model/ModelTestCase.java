@@ -48,7 +48,6 @@ import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerHistoryItem;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.document.CannotLockException;
@@ -118,16 +117,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         };
         PUBLISH_MONITOR = new ProcessAdapter() {
             @Override
-            public void determineSteps(final Integer stages) {
-                TEST_LOGGER.logTraceId();
-                TEST_LOGGER.logVariable("stages", stages);
-            }
-            @Override
             public void beginProcess() {
-                TEST_LOGGER.logTraceId();
-            }
-            @Override
-            public void endProcess() {
                 TEST_LOGGER.logTraceId();
             }
             @Override
@@ -135,6 +125,15 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 TEST_LOGGER.logTraceId();
                 TEST_LOGGER.logVariable("step", step);
                 TEST_LOGGER.logVariable("data", data);
+            }
+            @Override
+            public void determineSteps(final Integer stages) {
+                TEST_LOGGER.logTraceId();
+                TEST_LOGGER.logVariable("stages", stages);
+            }
+            @Override
+            public void endProcess() {
+                TEST_LOGGER.logTraceId();
             }
             @Override
             public void endStep(final Step step) {
@@ -387,20 +386,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [CONTAINER'S UNIQUE ID IS NULL]", container.getUniqueId());
         assertNotNull(assertion + " [CONTAINER'S UPDATED BY IS NULL]", container.getUpdatedBy());
         assertNotNull(assertion + " [CONTAINER'S UPDATED ON IS NULL]", container.getUpdatedOn());
-    }
-
-	/**
-     * Assert the history item and all of its required memebers are not null.
-     * 
-     * @param assertion
-     *            The assertion.
-     * @param historyItem
-     *            The history item.
-     */
-    protected static void assertNotNull(final String assertion,
-            final ContainerHistoryItem historyItem) {
-        assertNotNull(assertion, (HistoryItem) historyItem);
-        assertNotNull(assertion + " [CONTAINER HISTORY ITEM CONTAINER ID IS NULL]", historyItem.getContainerId());
     }
 
 	/**

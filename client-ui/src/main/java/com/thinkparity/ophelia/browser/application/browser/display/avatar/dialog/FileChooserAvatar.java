@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 
 import javax.swing.AbstractAction;
+import javax.swing.JFileChooser;
 
 import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
 
@@ -61,6 +62,11 @@ public class FileChooserAvatar extends Avatar {
     public AvatarId getId() { return AvatarId.DIALOG_FILE_CHOOSER; }
 
     public State getState() { return null; }
+
+    public Boolean isInputValid() {
+        final File file = jFileChooser.getSelectedFile();
+        return (null != file && file.exists());
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
@@ -141,7 +147,9 @@ public class FileChooserAvatar extends Avatar {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jFileChooserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jFileChooserActionPerformed
-        disposeWindow();
+        if (getFileChooser().getState()!=JFileChooser.APPROVE_OPTION || isInputValid()) {
+            disposeWindow();
+        }
     }//GEN-LAST:event_jFileChooserActionPerformed
 
     private void reloadApproveButtonText() {

@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.thinkparity.codebase.ErrorHelper;
-import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.stream.StreamMonitor;
@@ -123,12 +122,7 @@ public abstract class AbstractModelImpl {
     protected RuntimeException panic(final Throwable t) {
         if (ThinkParityException.class.isAssignableFrom(t.getClass())) {
             return (ThinkParityException) t;
-        } else if (Assertion.class.isAssignableFrom(t.getClass())) {
-            final String errorId = new ErrorHelper().getErrorId(t);
-            logger.logError(t, "{0}", errorId);
-            return (Assertion) t;
-        }
-        else {
+        } else {
             final String errorId = new ErrorHelper().getErrorId(t);
             logger.logError(t, "{0}", errorId);
             return new ThinkParityException(errorId.toString(), t);

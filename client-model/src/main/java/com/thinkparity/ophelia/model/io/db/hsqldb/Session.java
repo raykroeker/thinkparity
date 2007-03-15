@@ -42,13 +42,13 @@ import com.thinkparity.ophelia.model.io.md.MetaDataType;
 import com.thinkparity.ophelia.model.message.SystemMessageType;
 
 /**
- * <b>Title:</b>thinkParity Hypersonic Session<br>
- * <b>Description:</b>A thinkParity hypersonic database session. A wrapper
- * around establishing a connection; creation of cached query statements; as
- * well as statement variable injection and result parameter extraction.<br>
+ * <b>Title:</b>thinkParity SQL Session<br>
+ * <b>Description:</b>A thinkParity sql session. A wrapper around establishing
+ * a connection; creation of cached query statements; as well as statement
+ * variable injection and result parameter extraction.<br>
  * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.19
  */
 public final class Session {
 
@@ -389,26 +389,6 @@ public final class Session {
             close(statement, resultSet);
         }
     }
-
-    /**
-     * Obtain the input stream from the result.
-     * 
-     * @param columnName
-     *            The column name.
-     * @return An input stream.
-     * @see ResultSet#getBinaryStream(String)
-     */
-//    public InputStream getInputStream(final String columnName) {
-//        assertConnectionIsOpen();
-//        assertResultSetIsSet();
-//        try {
-//            final InputStream value = resultSet.getBinaryStream(columnName);
-//            logColumnExtraction(columnName, value);
-//            return resultSet.wasNull() ? null : value;
-//        } catch (final SQLException sqlx) {
-//            throw new HypersonicException(sqlx);
-//        }
-//    }
 
     public Integer getInteger(final String columnName) {
         assertConnectionIsOpen();
@@ -826,18 +806,6 @@ public final class Session {
         }
     }
 
-//    public void setStream(final Integer index, final InputStream value,
-//            final Long valueLength) {
-//        assertConnectionIsOpen();
-//        assertPreparedStatementIsSet();
-//        logColumnInjection(index, value, valueLength);
-//        try {
-//            preparedStatement.setBinaryStream(index, value, valueLength.intValue());
-//        } catch (final SQLException sqlx) {
-//            throw new HypersonicException(sqlx);
-//        }
-//    }
-
 	public void setString(final Integer index, final String value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
@@ -1107,21 +1075,6 @@ public final class Session {
     private void logColumnInjection(final Integer index, final Object columnValue) {
         LOGGER.logDebug("Inject {0}:{1}", index, columnValue);
     }
-
-    /**
-     * Log the column name, value and extra data.
-     * 
-     * @param index
-     *            The column index <code>Integer</code>.
-     * @param columnValue
-     *            The column value <code>Object</code>.
-     * @param columnValueData
-     *            The column value data <code>Object</code>.
-     */
-//    private void logColumnInjection(final Integer index,
-//            final Object columnValue, final Object columnValueData) {
-//        LOGGER.logDebug("Inject {0}:{1} - {2}", index, columnValue, columnValueData);
-//    }
 
     /**
      * Log an sql statement.

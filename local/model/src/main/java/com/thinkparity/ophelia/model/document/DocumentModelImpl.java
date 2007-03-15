@@ -138,7 +138,7 @@ public final class DocumentModelImpl extends
             }
             return readDraft(lock, documentId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -155,7 +155,7 @@ public final class DocumentModelImpl extends
             return createVersion(documentId, readNextVersionId(documentId),
                         stream, buffer, localUserId(), createdOn);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -173,7 +173,7 @@ public final class DocumentModelImpl extends
             return createVersion(documentId, readNextVersionId(documentId),
                         stream, buffer, localUserId(), createdOn);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -207,7 +207,7 @@ public final class DocumentModelImpl extends
             Assert.assertTrue(lock.getFile().delete(),
                     "Could not delete draft file {0}.", lock.getFile());
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -224,7 +224,7 @@ public final class DocumentModelImpl extends
         try {
             return getDraftFile(read(documentId)).exists();
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -246,7 +246,7 @@ public final class DocumentModelImpl extends
         try {
             return new DocumentNameGenerator();
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -313,7 +313,7 @@ public final class DocumentModelImpl extends
             }
             return localVersion;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -345,7 +345,7 @@ public final class DocumentModelImpl extends
                 return Boolean.FALSE;
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -379,7 +379,7 @@ public final class DocumentModelImpl extends
                 return Boolean.FALSE;
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }        
         
@@ -460,7 +460,7 @@ public final class DocumentModelImpl extends
             }
             opener.open(draftFile);
 		} catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
 		}
 	}
 
@@ -532,7 +532,7 @@ public final class DocumentModelImpl extends
             }
 			opener.open(versionFile);
 		} catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
 		}
 	}
 
@@ -562,7 +562,7 @@ public final class DocumentModelImpl extends
                         "Could not delete temporary file {0}.", copyTo);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -596,7 +596,7 @@ public final class DocumentModelImpl extends
                         "Could not delete temporary file {0}.", copyTo);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -638,7 +638,7 @@ public final class DocumentModelImpl extends
 		try {
             return documentIO.get(uniqueId);
 		} catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
 		}
 	}
 
@@ -705,7 +705,7 @@ public final class DocumentModelImpl extends
                 return readVersion(documentId, versionId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -726,7 +726,7 @@ public final class DocumentModelImpl extends
                 return null;
             }
 		} catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
 		}
 	}
 
@@ -746,7 +746,7 @@ public final class DocumentModelImpl extends
         try {
             return documentIO.getVersion(documentId, versionId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -794,7 +794,7 @@ public final class DocumentModelImpl extends
         try {
             return documentIO.readVersionSize(documentId, versionId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -856,7 +856,7 @@ public final class DocumentModelImpl extends
         } catch (final CannotLockException clx) {
             throw clx;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -869,7 +869,7 @@ public final class DocumentModelImpl extends
         try {
             revertDraft(lock, documentId, readLatestVersion(documentId).getVersionId());
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -891,7 +891,7 @@ public final class DocumentModelImpl extends
         } catch (final CannotLockException clx) {
             throw clx;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 

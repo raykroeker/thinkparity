@@ -219,7 +219,7 @@ public final class ContainerModelImpl extends
             getArtifactModel().applyFlagBookmark(containerId);
             notifyContainerFlagged(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -245,7 +245,7 @@ public final class ContainerModelImpl extends
             notifyDocumentAdded(postAdditionContainer, postAdditionDraft,
                     postAdditionDocument, localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -281,7 +281,7 @@ public final class ContainerModelImpl extends
 
             notifyContainerArchived(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -426,7 +426,7 @@ public final class ContainerModelImpl extends
             notifyDraftCreated(postCreation, postCreationDraft, localEventGenerator);
             return postCreationDraft;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -467,7 +467,7 @@ public final class ContainerModelImpl extends
         } catch (final CannotLockException clx) {
             throw clx;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -510,7 +510,7 @@ public final class ContainerModelImpl extends
         } catch (final CannotLockException clx) {
             throw clx;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -527,7 +527,7 @@ public final class ContainerModelImpl extends
         try {
             return null != readDraft(containerId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -545,7 +545,7 @@ public final class ContainerModelImpl extends
             final List<ContainerVersion> versions = readVersions(containerId);
             export(exportStream, container, versions);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -568,7 +568,7 @@ public final class ContainerModelImpl extends
             versions.add(version);
             export(exportStream, container, versions);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -591,7 +591,7 @@ public final class ContainerModelImpl extends
             return new ContainerDraftMonitor(modelFactory,
                     readDraft(containerId), localEventGenerator, listener);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -628,7 +628,7 @@ public final class ContainerModelImpl extends
             notifyDraftCreated(read(containerId), readDraft(containerId),
                     remoteEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -660,7 +660,7 @@ public final class ContainerModelImpl extends
                 notifyDraftDeleted(read(containerId), draft, remoteEventGenerator);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -824,7 +824,7 @@ public final class ContainerModelImpl extends
             notifyContainerPublished(postPublish, draft, previous,
                     postPublishVersion, publishedBy, remoteEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -846,7 +846,7 @@ public final class ContainerModelImpl extends
                     event.getReceivedOn());
             notifyContainerReceived(read(containerId), remoteEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -865,7 +865,7 @@ public final class ContainerModelImpl extends
         try {
             return getArtifactModel().doesVersionExist(containerId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -920,7 +920,7 @@ public final class ContainerModelImpl extends
                 printer.print(document, documentModel.openDraft(document.getId()));
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -944,7 +944,7 @@ public final class ContainerModelImpl extends
                 printer.print(documentVersion, documentModel.openVersion(documentVersion.getArtifactId(), documentVersion.getVersionId()));
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1058,7 +1058,7 @@ public final class ContainerModelImpl extends
         } catch (final CannotLockException clx) {
             throw clx;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         } finally {
             notifyProcessEnd(monitor);
         }
@@ -1119,7 +1119,7 @@ public final class ContainerModelImpl extends
                     postPublishVersion, localTeamMember(containerId),
                     localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         } finally {
             notifyProcessEnd(monitor);
         }
@@ -1249,7 +1249,7 @@ public final class ContainerModelImpl extends
             }
             return deltas;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1287,7 +1287,7 @@ public final class ContainerModelImpl extends
             }
             return deltas;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1358,7 +1358,7 @@ public final class ContainerModelImpl extends
             ModelSorter.sortDocumentVersions(documentVersions, comparator);
             return Collections.unmodifiableList(documentVersions);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1483,7 +1483,7 @@ public final class ContainerModelImpl extends
                 return null;
             }     
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1511,7 +1511,7 @@ public final class ContainerModelImpl extends
                 return null;
             }     
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1607,7 +1607,7 @@ public final class ContainerModelImpl extends
             return getArtifactModel().readTeam(containerId,
                     UserComparatorFactory.createName(Boolean.TRUE), filter);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1724,7 +1724,7 @@ public final class ContainerModelImpl extends
             getArtifactModel().removeFlagBookmark(containerId);
             notifyContainerFlagged(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1841,7 +1841,7 @@ public final class ContainerModelImpl extends
 
             notifyContainerRestored(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1911,7 +1911,7 @@ public final class ContainerModelImpl extends
                 notifyStepEnd(monitor, RestoreBackupStep.RESTORE_REMOTE_CONTAINER);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -2055,7 +2055,7 @@ public final class ContainerModelImpl extends
             containerIds.addAll(indexModel.searchDocuments(expression));
             return containerIds;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -2627,7 +2627,7 @@ public final class ContainerModelImpl extends
         try {
             return new ContainerNameGenerator(l18n);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 

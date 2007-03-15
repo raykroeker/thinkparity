@@ -136,7 +136,7 @@ public final class AuditModelImpl extends Model implements
             userModel.readLazyCreate(event.getPublishedBy());
             auditIO.audit(event);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 

@@ -80,7 +80,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             notifyEmailAdded(read(), readEmail(profileEMail.getEmailId()),
                     localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -118,7 +118,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             getIndexModel().indexProfile();
             return profileIO.read(localUserId());
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -206,7 +206,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         try {
             return profileIO.read(localUserId());
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -232,7 +232,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             final Profile profile = read();
             return profileIO.readEmail(profile.getLocalId(), emailId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -247,7 +247,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             final Profile profile = read();
             return profileIO.readEmails(profile.getLocalId());
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -262,7 +262,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             final Profile profile = read();
             return getSessionModel().readProfileSecurityQuestion(profile.getId());
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -286,7 +286,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             getSessionModel().removeProfileEmail(localUserId(), email);
             notifyEmailRemoved(read(), email, localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -316,7 +316,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             updateCredentials(credentials);
             notifyPasswordReset(read(), localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -350,7 +350,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             getSessionModel().updateProfile(localUserId(), profile);
             notifyProfileUpdated(read(), localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -374,7 +374,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         } catch (final InvalidCredentialsException icx) {
             throw icx;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -421,7 +421,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             notifyEmailVerified(read(), readEmail(email.getEmailId()),
                     localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 

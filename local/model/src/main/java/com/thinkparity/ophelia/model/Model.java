@@ -1140,14 +1140,6 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.Model#panic(Throwable)
-     * 
-     */
-    protected RuntimeException translateError(final Throwable t) {
-        return panic(t);
-    }
-
-    /**
      * Update the credentials from the configuration.
      * 
      * @param credentials

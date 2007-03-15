@@ -48,7 +48,7 @@ public final class ScriptModelImpl extends Model implements
                 factory.newEngine().execute(script);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 

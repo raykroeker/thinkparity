@@ -124,7 +124,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 xmppSession.addProfileEmail(userId, email.getEmail());
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -146,7 +146,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         teamMemberId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -162,7 +162,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 xmppSession.archiveArtifact(userId, uniqueId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -187,7 +187,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         receivedBy, receivedOn);
     	    }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
 	}
 
@@ -209,7 +209,7 @@ public final class SessionModelImpl extends Model<SessionListener>
 		        xmppSession.createArtifact(userId, uniqueId, createdOn);
 		    }
 		} catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
 	}
 
@@ -221,7 +221,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 xmppSession.createBackupStream(userId, streamId, uniqueId, versionId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -239,7 +239,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         createdOn);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -254,7 +254,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 xmppSession.createInvitation(localUserId(), invitation);
             }
         } catch(final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -269,7 +269,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 xmppSession.createInvitation(localUserId(), invitation);
             }
         } catch(final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -289,7 +289,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         streamId, resources);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -302,7 +302,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.createStream(localUserId(), session);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -319,7 +319,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.createStreamSession(localUserId());
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -383,7 +383,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 xmppSession.deleteArtifact(userId, uniqueId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -402,7 +402,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 xmppSession.deleteDraft(localUserId(), team, uniqueId, deletedOn);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -438,7 +438,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         deletedOn);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -457,7 +457,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 xmppSession.deleteStreamSession(localUserId(), session);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -493,7 +493,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 }
             });
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -510,7 +510,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 }
             });
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -530,7 +530,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 }
             });
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -578,7 +578,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.isLoggedIn();
     		}
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
 	}
 
@@ -594,7 +594,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         localUserId(), publishTo);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -677,7 +677,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         } catch (final InvalidLocationException ilx) {
             throw ilx;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         } finally {
             notifyProcessEnd(monitor);
         }
@@ -700,7 +700,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             }
             logger.logTraceId();
 		} catch (final Throwable t) {
-			throw translateError(t);
+			throw panic(t);
 		}
 	}
 
@@ -715,7 +715,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 xmppSession.processEventQueue(monitor, localUserId());
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -737,7 +737,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         teamMembers, publishedBy, publishedOn, publishedTo);
             }
         } catch(final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -751,7 +751,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.readArchiveContainer(userId, uniqueId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -771,7 +771,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.readArchiveContainers(userId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -796,7 +796,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         uniqueId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -824,7 +824,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         versionId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -843,7 +843,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         documentUniqueId, documentVersionId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -860,7 +860,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         uniqueId, compareVersionId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -879,7 +879,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         uniqueId, compareVersionId, compareToVersionId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
     
@@ -909,7 +909,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         uniqueId, versionId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
     
@@ -924,7 +924,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.readArchiveTeam(userId, uniqueId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -947,7 +947,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.readArchiveTeamIds(userId, uniqueId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -961,7 +961,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.readBackupContainer(userId, uniqueId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -981,7 +981,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.readBackupContainers(userId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1006,7 +1006,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         uniqueId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1035,7 +1035,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         versionId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1065,7 +1065,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         uniqueId, versionId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1078,7 +1078,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         versionId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1101,7 +1101,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.readBackupTeamIds(userId, uniqueId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1131,7 +1131,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.readContactIds(localUserId());
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1147,7 +1147,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.readDateTime(localUserId());
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1199,7 +1199,7 @@ public final class SessionModelImpl extends Model<SessionListener>
 		        return xmppSession.readKeyHolder(userId, uniqueId);
 		    }
 		} catch (final Throwable t) {
-			throw translateError(t);
+			throw panic(t);
 		}
 	}
 
@@ -1316,7 +1316,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.readProfile();
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1328,7 +1328,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.readProfileEMails();
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1348,7 +1348,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.readProfileSecurityQuestion(userId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1360,7 +1360,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.readEventQueueSize(localUserId());
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1375,7 +1375,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.readStatistics(localUserId());
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1395,7 +1395,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.readUser(userId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
 	}
 
@@ -1440,7 +1440,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 xmppSession.removeProfileEmail(userId, email.getEmail());
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1462,7 +1462,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         teamMemberId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1486,7 +1486,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return xmppSession.resetProfilePassword(userId, securityAnswer);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1501,7 +1501,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 xmppSession.restoreArtifact(userId, uniqueId);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1520,7 +1520,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 xmppSession.updateProfile(userId, profile);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1538,7 +1538,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                         newPassword);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -1564,7 +1564,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 xmppSession.verifyProfileEmail(userId, email.getEmail(), key);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 

@@ -103,7 +103,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
             final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
             getSessionModel().archiveArtifact(localUserId(), uniqueId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -158,7 +158,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
                 sessionModel.deleteStreamSession(session);
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -169,7 +169,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
             assertBackupOnline();
             return getSessionModel().readBackupContainer(localUserId(), uniqueId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -267,7 +267,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
             ModelSorter.sortContainerVersions(versions, comparator);
             return versions;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -314,7 +314,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
             ModelSorter.sortDocuments(documents, comparator);
             return documents;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -367,7 +367,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
             ModelSorter.sortDocumentVersions(versions, comparator);
             return versions;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -469,7 +469,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
             return getSessionModel().readBackupTeamIds(localUserId(),
                     uniqueId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -493,7 +493,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
             final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
             getSessionModel().restoreArtifact(localUserId(), uniqueId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 

@@ -87,7 +87,7 @@ public final class IndexModelImpl extends Model implements
         try {
             contactIndex.delete(contactId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -101,7 +101,7 @@ public final class IndexModelImpl extends Model implements
         try {
             containerIndex.delete(containerId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -117,7 +117,7 @@ public final class IndexModelImpl extends Model implements
             final Pair<Long, Long> containerVersionId = new Pair<Long, Long>(containerId, versionId);
             containerVersionIndex.delete(containerVersionId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -131,7 +131,7 @@ public final class IndexModelImpl extends Model implements
         try {
             documentIndex.delete(documentId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -208,7 +208,7 @@ public final class IndexModelImpl extends Model implements
             final Contact contact = getContactModel().read(contactId);
             contactIndex.index(contact);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -259,7 +259,7 @@ public final class IndexModelImpl extends Model implements
             final DocumentIndexEntry entry = new DocumentIndexEntry(containerId, document);
             documentIndex.index(entry);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
 	}
 
@@ -274,7 +274,7 @@ public final class IndexModelImpl extends Model implements
                 getContactModel().readIncomingEMailInvitation(invitationId);
             incomingEMailInvitationIndex.index(invitation);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -304,7 +304,7 @@ public final class IndexModelImpl extends Model implements
                 getContactModel().readOutgoingEMailInvitation(invitationId);
             outgoingEMailInvitationIndex.index(invitation);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -319,7 +319,7 @@ public final class IndexModelImpl extends Model implements
                 getContactModel().readOutgoingUserInvitation(invitationId);
             outgoingUserInvitationIndex.index(invitation);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -349,7 +349,7 @@ public final class IndexModelImpl extends Model implements
         try {
             return contactIndex.search(expression);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -364,7 +364,7 @@ public final class IndexModelImpl extends Model implements
         try {
             return containerIndex.search(expression);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -391,7 +391,7 @@ public final class IndexModelImpl extends Model implements
         try {
             return documentIndex.search(expression);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
 	}
 
@@ -403,7 +403,7 @@ public final class IndexModelImpl extends Model implements
         try {
             return incomingEMailInvitationIndex.search(expression);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -415,7 +415,7 @@ public final class IndexModelImpl extends Model implements
         try {
             return incomingUserInvitationIndex.search(expression);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -427,7 +427,7 @@ public final class IndexModelImpl extends Model implements
         try {
             return outgoingEMailInvitationIndex.search(expression);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -439,7 +439,7 @@ public final class IndexModelImpl extends Model implements
         try {
             return outgoingUserInvitationIndex.search(expression);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 

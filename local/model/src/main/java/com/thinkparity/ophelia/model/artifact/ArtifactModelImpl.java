@@ -92,7 +92,7 @@ public final class ArtifactModelImpl extends Model implements
         try {
             applyFlag(artifactId, ArtifactFlag.ARCHIVED);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -108,7 +108,7 @@ public final class ArtifactModelImpl extends Model implements
         try {
             applyFlag(artifactId, ArtifactFlag.BOOKMARK);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -220,7 +220,7 @@ public final class ArtifactModelImpl extends Model implements
         try {
             return artifactIO.doesExist(artifactId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -230,7 +230,7 @@ public final class ArtifactModelImpl extends Model implements
         try {
             return artifactIO.doesExist(uniqueId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -271,7 +271,7 @@ public final class ArtifactModelImpl extends Model implements
                 Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -298,7 +298,7 @@ public final class ArtifactModelImpl extends Model implements
                 Assert.assertUnreachable("Unsupported artifact type.");
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -339,7 +339,7 @@ public final class ArtifactModelImpl extends Model implements
                 Assert.assertUnreachable("Unexpected artifact type.");
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -361,7 +361,7 @@ public final class ArtifactModelImpl extends Model implements
                         event.getUniqueId(), event.getVersionId());
             }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -386,7 +386,7 @@ public final class ArtifactModelImpl extends Model implements
                 addTeamMember(artifactId, event.getJabberId());
             }
         } catch(final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -411,7 +411,7 @@ public final class ArtifactModelImpl extends Model implements
                 artifactIO.deleteTeamRel(artifactId, user.getLocalId());
             }
         } catch(final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -534,7 +534,7 @@ public final class ArtifactModelImpl extends Model implements
             ModelSorter.sortTeamMembers(team, comparator);
             return team;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -567,7 +567,7 @@ public final class ArtifactModelImpl extends Model implements
             }
             return teamIds;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -584,7 +584,7 @@ public final class ArtifactModelImpl extends Model implements
         try {
             return artifactIO.readType(artifactId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -613,7 +613,7 @@ public final class ArtifactModelImpl extends Model implements
         try {
             removeFlag(artifactId, ArtifactFlag.ARCHIVED);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -629,7 +629,7 @@ public final class ArtifactModelImpl extends Model implements
         try {
             removeFlag(artifactId, ArtifactFlag.BOOKMARK);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -823,7 +823,7 @@ public final class ArtifactModelImpl extends Model implements
         try {
             removeFlag(artifactId, ArtifactFlag.LATEST);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 

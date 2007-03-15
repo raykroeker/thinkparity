@@ -1000,7 +1000,7 @@ public final class Session {
             if (connection.isClosed())
                 throw new HypersonicException("Connection is closed.");
         } catch (final SQLException sqlx) {
-            panic(sqlx);
+            throw panic(sqlx);
         }
     }
 

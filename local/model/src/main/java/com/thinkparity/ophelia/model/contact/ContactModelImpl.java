@@ -153,7 +153,7 @@ public final class ContactModelImpl extends Model<ContactListener>
                         localEventGenerator);
             notifyContactCreated(localContact, localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -222,7 +222,7 @@ public final class ContactModelImpl extends Model<ContactListener>
                         localEventGenerator);
             notifyContactCreated(localContact, localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -296,7 +296,7 @@ public final class ContactModelImpl extends Model<ContactListener>
                     localEventGenerator);
             return outgoingUserInvitation;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -326,7 +326,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             notifyIncomingEMailInvitationDeclined(incomingEMailInvitation,
                     localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -378,7 +378,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             // fire event
             notifyContactDeleted(contact, localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -409,7 +409,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             notifyOutgoingEMailInvitationDeleted(outgoingEMailInvitation,
                     localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -439,7 +439,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             notifyOutgoingUserInvitationDeleted(outgoingUserInvitation,
                     localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -522,7 +522,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             // fire event
             notifyContactDeleted(contact, remoteEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -556,7 +556,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             notifyContactUpdated(read(event.getContactId()),
                     remoteEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -582,7 +582,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             notifyOutgoingEMailInvitationDeclined(outgoingEMailInvitation,
                     remoteEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -610,7 +610,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             notifyIncomingEMailInvitationDeleted(incomingEMailInvitation,
                     remoteEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -641,7 +641,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             notifyIncomingEMailInvitationCreated(incomingEMailInvitation,
                     remoteEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -720,7 +720,7 @@ public final class ContactModelImpl extends Model<ContactListener>
                        remoteEventGenerator);
            notifyContactCreated(localContact, remoteEventGenerator);
        } catch (final Throwable t) {
-           throw translateError(t);
+           throw panic(t);
        }
     }
 
@@ -747,7 +747,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             notifyOutgoingUserInvitationDeleted(outgoingUserInvitation,
                     remoteEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -802,7 +802,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             notifyIncomingUserInvitationCreated(incomingUserInvitation,
                     remoteEventGenerator);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -884,7 +884,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             filter.addFilter(UserFilterManager.createContainerPublishTo());
             return read(defaultComparator, filter);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 

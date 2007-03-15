@@ -10,9 +10,9 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.ResourceUtil;
+
+import org.apache.log4j.Logger;
 
 /**
  * ImageIO Utility
@@ -63,8 +63,11 @@ public class ImageIOUtil {
 	 * @return The buffered image.
 	 */
 	private static BufferedImage read(final URL imageURL) {
-		try { return ImageIO.read(imageURL); }
-		catch(final IOException iox) { throw new RuntimeException(iox); }
+		try {
+            return ImageIO.read(imageURL);
+		} catch (final IOException iox) {
+            throw new RuntimeException(iox);
+		}
 	}
 
 	/**

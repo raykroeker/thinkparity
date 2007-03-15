@@ -3,7 +3,13 @@
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.HeadlessException;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -15,8 +21,6 @@ import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JMenuBar;
 import javax.swing.SwingUtilities;
-
-import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.SwingUtil;
@@ -30,6 +34,8 @@ import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -243,9 +249,11 @@ public class BrowserWindow extends AbstractJFrame {
             SwingUtilities.invokeAndWait(new Runnable() {
                 public void run() { reOpen(); }
             });
+        } catch (final InterruptedException ix) {
+            throw new RuntimeException(ix);
+        } catch (final InvocationTargetException itx) {
+            throw new RuntimeException(itx);
         }
-        catch(final InterruptedException ix) { throw new RuntimeException(ix); }
-        catch(final InvocationTargetException itx) { throw new RuntimeException(itx); }
     }
 
     /** Persist any window state. */

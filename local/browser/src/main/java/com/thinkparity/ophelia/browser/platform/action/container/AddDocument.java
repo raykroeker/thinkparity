@@ -12,17 +12,19 @@ import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.document.CannotLockException;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.util.DocumentUtil;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.document.CannotLockException;
 
 /**
  * @author raymond@thinkparity.com
@@ -126,8 +128,9 @@ public class AddDocument extends AbstractBrowserAction {
             } finally {
                 inputStream.close();
             }
+        } catch (final IOException iox) {
+            throw translateError(iox);
         }
-        catch(final IOException iox) { throw translateError(iox); }
     }
 
     /**

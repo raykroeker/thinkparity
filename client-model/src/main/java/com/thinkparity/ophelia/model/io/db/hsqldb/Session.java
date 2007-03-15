@@ -167,9 +167,11 @@ public final class Session {
                 statement.addBatch(s);
             }
             statement.executeBatch();
+        } catch (final SQLException sqlx) {
+            throw panic(sqlx);
+        } finally {
+            close(statement);
         }
-        catch(final SQLException sqlx) { throw panic(sqlx); }
-        finally { close(statement); }
     }
 
     /**
@@ -260,8 +262,9 @@ public final class Session {
             final Boolean value = resultSet.getBoolean(columnName);
             logColumnExtraction(columnName, value);
             return resultSet.wasNull() ? null : value;
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
         }
-        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
     public byte[] getBytes(final String columnName) {

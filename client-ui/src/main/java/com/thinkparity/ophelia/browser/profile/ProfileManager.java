@@ -183,21 +183,27 @@ public class ProfileManager {
         window = new ProfileManagerWindow();
         window.addWindowListener(new WindowAdapter() {
             public void windowClosed(final WindowEvent e) {
-                synchronized(window) { window.notifyAll(); }
+                synchronized (window) {
+                    window.notifyAll();
+                }
             }
         });
         try {
             SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() { window.open(title, avatar); }
+                public void run() {
+                    window.open(title, avatar);
+                }
             });
+        } catch (final InterruptedException ix) {
+            throw new BrowserException("Cannot select user profile.", ix);
+        } catch (final InvocationTargetException itx) {
+            throw new BrowserException("Cannot select user profile.", itx);
         }
-        catch(final InterruptedException ix) { throw new BrowserException("", ix); }
-        catch(final InvocationTargetException itx) { throw new BrowserException("", itx); }
         synchronized (window) {
             try {
                 window.wait();
             } catch (final InterruptedException ix) {
-                throw new BrowserException("", ix);
+                throw new BrowserException("Cannot select user profile.", ix);
             }
         }
     }

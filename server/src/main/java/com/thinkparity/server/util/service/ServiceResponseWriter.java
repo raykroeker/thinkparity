@@ -12,6 +12,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
@@ -39,6 +40,8 @@ import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
  * @version 1.1.2.1
  */
 public interface ServiceResponseWriter {
+
+    public void write(final String name, final Statistics value);
 
     /**
      * Write the product to the service response.

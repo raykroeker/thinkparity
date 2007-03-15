@@ -94,17 +94,18 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.toString();
 
 	private static final String SQL_LIST =
-		new StringBuffer("select D.CONTAINER_ID,A.ARTIFACT_ID,A.ARTIFACT_NAME,")
-		.append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,A.ARTIFACT_UNIQUE_ID,")
-		.append("UC.JABBER_ID CREATED_BY,A.CREATED_ON,UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
-		.append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
-		.append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
-		.append("from DOCUMENT D ")
+        new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
+        .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,A.ARTIFACT_UNIQUE_ID,")
+        .append("UC.JABBER_ID CREATED_BY,A.CREATED_ON,UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
+        .append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
+        .append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
+        .append("from DOCUMENT D ")
         .append("inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
         .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
         .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
-        .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
-		.append("order by A.ARTIFACT_ID asc")
+        .append("left join ARTIFACT_REMOTE_INFO ARI ")
+        .append("on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
+        .append("order by A.ARTIFACT_ID asc")
 		.toString();
 
 	private static final String SQL_LIST_VERSIONS =

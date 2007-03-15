@@ -23,6 +23,7 @@ import com.thinkparity.codebase.log4j.Log4JContext;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
@@ -276,7 +277,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	    xmppArtifact.addTeamMember(userId, team, uniqueId, teamMemberId);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#archiveArtifact(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.UUID)
      * 
@@ -285,7 +286,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppBackup.archive(userId, uniqueId);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPCore#assertContainsResult(java.lang.Object,
      *      com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse)
      * 
@@ -331,7 +332,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	    xmppArtifact.create(userId, uniqueId, createdOn);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#openBackupDocumentVersion(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.UUID, java.lang.Long)
      * 
@@ -351,7 +352,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppArtifact.createDraft(userId, team, uniqueId, createdOn);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createInvitation(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.contact.OutgoingEMailInvitation)
      * 
@@ -414,7 +415,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppProfile.createToken(userId);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#declineInvitation(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.contact.IncomingEMailInvitation,
      *      java.util.Calendar)
@@ -425,7 +426,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppContact.declineInvitation(userId, invitation, declinedOn);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#declineInvitation(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.contact.IncomingUserInvitation,
      *      java.util.Calendar)
@@ -471,7 +472,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppArtifact.deleteDraft(userId, team, uniqueId, deletedOn);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteInvitation(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.contact.OutgoingEMailInvitation,
      *      java.util.Calendar)
@@ -482,7 +483,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppContact.deleteInvitation(userId, invitation, deletedOn);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteInvitation(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.contact.OutgoingUserInvitation,
      *      java.util.Calendar)
@@ -514,7 +515,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppStream.deleteSession(userId, session);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deployMigrator(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.model.migrator.Product, com.thinkparity.codebase.model.migrator.Release, java.util.List, java.lang.String)
      *
      */
@@ -524,7 +525,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppMigrator.deploy(userId, product, release, resources, streamId);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPCore#execute(com.thinkparity.ophelia.model.io.xmpp.XMPPMethod)
      * 
      */
@@ -542,7 +543,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return execute(method, xmppConnection, assertResponse);
     }
 
-	/**
+    /**
      * Obtain the connection's jabber id.
      * 
      * @return A jabber id.
@@ -552,7 +553,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return JabberIdBuilder.parse(xmppConnection.getUser());
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPCore#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent)
      *
 	 */
@@ -611,7 +612,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         login(1, environment, credentials);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#logout()
      * 
      */
@@ -652,7 +653,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#publish(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.container.ContainerVersion,
      *      java.util.Map, java.util.List,
@@ -687,7 +688,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppArchive.readContainers(userId);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readArchiveContainerVersions(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.UUID)
      * 
@@ -697,7 +698,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppArchive.readContainerVersions(userId, uniqueId);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readArchiveDocuments(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.UUID, java.lang.Long)
      * 
@@ -740,6 +741,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
             final UUID uniqueId) {
         return xmppArchive.readTeam(userId, uniqueId);
     }
+
     /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readArchiveTeamIds(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.UUID)
@@ -764,7 +766,6 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     public List<Container> readBackupContainers(final JabberId userId) {
         return xmppBackup.readContainers(userId);
     }
-
     /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readBackupContainerVersions(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.UUID)
@@ -783,7 +784,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppBackup.readDocuments(userId, uniqueId, versionId);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readBackupDocumentVersions(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.UUID, java.lang.Long, java.util.UUID)
      * 
@@ -793,7 +794,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppBackup.readDocumentVersions(userId, uniqueId, versionId);
     }
 
-    public List<ArtifactReceipt> readBackupPublishedTo(
+	public List<ArtifactReceipt> readBackupPublishedTo(
             final JabberId userId, final UUID uniqueId, final Long versionId) {
         return xmppBackup.readPublishedTo(userId, uniqueId, versionId);
     }
@@ -857,7 +858,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppContact.readIncomingEMailInvitations(userId);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readIncomingUserInvitations(com.thinkparity.codebase.jabber.JabberId)
      *
      */
@@ -892,7 +893,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppMigrator.readProduct(userId, name);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readMigratorRelease(com.thinkparity.codebase.jabber.JabberId, java.util.UUID, java.lang.String, com.thinkparity.codebase.OS)
      *
      */
@@ -920,7 +921,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppContact.readOutgoingEMailInvitations(userId);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readOutgoingUserInvitations(com.thinkparity.codebase.jabber.JabberId)
      *
      */
@@ -929,7 +930,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppContact.readOutgoingUserInvitations(userId);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readProfile()
      * 
      */
@@ -938,7 +939,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppProfile.read(getUserId());
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readProfileEMails()
      */
     public List<EMail> readProfileEMails() {
@@ -950,6 +951,14 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      */
     public String readProfileSecurityQuestion(final JabberId userId) {
         return xmppProfile.readSecurityQuestion(userId);
+    }
+
+	/**
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readStatistics(com.thinkparity.codebase.jabber.JabberId)
+     *
+     */
+    public Statistics readStatistics(final JabberId userId) {
+        return xmppBackup.readStatistics(userId);
     }
 
     public StreamSession readStreamSession(final JabberId userId,

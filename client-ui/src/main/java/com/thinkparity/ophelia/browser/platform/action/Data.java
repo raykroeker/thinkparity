@@ -70,6 +70,17 @@ public class Data implements Cloneable {
     }
 
 	/**
+     * Determine if the input contains the data item.
+     * 
+     * @param key
+     *            The data item key.
+     * @return True if the data contains the data item.
+     */
+    public Boolean isSet(final Enum<?> key) {
+        return data.containsKey(key);
+    }
+
+    /**
 	 * Obtain a data item.
 	 * 
 	 * @param key

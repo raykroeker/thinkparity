@@ -10,6 +10,8 @@ import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.artifact.ArtifactModelImpl;
+import com.thinkparity.ophelia.model.backup.BackupModel;
+import com.thinkparity.ophelia.model.backup.BackupModelImpl;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.contact.ContactModelImpl;
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -113,6 +115,16 @@ public final class ModelFactory {
     public final ArtifactModel getArtifactModel() {
         return (ArtifactModel) newModelProxy(
                 ArtifactModel.class, ArtifactModelImpl.class);
+    }
+
+    /**
+     * Obtain a backup model.
+     * 
+     * @return An instance of <code>BackupModel</code>.
+     */
+    public final BackupModel getBackupModel() {
+        return (BackupModel) newModelProxy(
+                BackupModel.class, BackupModelImpl.class);
     }
 
     /**

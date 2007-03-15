@@ -9,6 +9,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -94,7 +95,14 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
      */
     Boolean isOnline(final JabberId userId) {
         final XMPPMethod isOnline = new XMPPMethod("backup:isonline");
+        isOnline.setParameter("userId", userId);
         return execute(isOnline, Boolean.TRUE).readResultBoolean("online");
+    }
+
+    Statistics readStatistics(final JabberId userId) {
+        final XMPPMethod readStatistics = new XMPPMethod("backup:readstatistics");
+        readStatistics.setParameter("userId", userId);
+        return execute(readStatistics, Boolean.TRUE).readResultStatistics("statistics");
     }
 
     Container readContainer(final JabberId userId, final UUID uniqueId) {

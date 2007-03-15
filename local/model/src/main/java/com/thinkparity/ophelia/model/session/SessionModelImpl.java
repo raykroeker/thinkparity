@@ -15,6 +15,7 @@ import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
@@ -322,7 +323,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#declineInvitation(com.thinkparity.codebase.model.contact.IncomingEMailInvitation, java.util.Calendar)
      *
      */
@@ -339,7 +340,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#declineInvitation(com.thinkparity.codebase.model.contact.IncomingUserInvitation, java.util.Calendar)
      *
      */
@@ -581,7 +582,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isPublishRestricted(com.thinkparity.codebase.jabber.JabberId)
      *
      */
@@ -629,7 +630,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.SessionModel#login(com.thinkparity.ophelia.model.util.ProcessMonitor)
      * 
      */
@@ -682,7 +683,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
 	 * Terminate the current session.
 	 * 
 	 */
@@ -703,7 +704,7 @@ public final class SessionModelImpl extends Model<SessionListener>
 		}
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#processQueue(com.thinkparity.ophelia.model.util.ProcessMonitor)
      * 
      */
@@ -846,7 +847,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(final JabberId userId,
+    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(final JabberId userId,
             final UUID uniqueId, final Long compareVersionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -862,8 +863,8 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw translateError(t);
         }
     }
-    
-    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
+
+	public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
             final JabberId userId, final UUID uniqueId,
             final Long compareVersionId, final Long compareToVersionId) {
         logger.logApiId();
@@ -911,7 +912,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw translateError(t);
         }
     }
-
+    
     public List<TeamMember> readArchiveTeam(final JabberId userId,
             final UUID uniqueId) {
         logger.logApiId();
@@ -984,7 +985,6 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-
     /**
      * Read the backup containers.
      * 
@@ -1009,6 +1009,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw translateError(t);
         }
     }
+
 
     /**
      * Read the backup containers.
@@ -1202,7 +1203,7 @@ public final class SessionModelImpl extends Model<SessionListener>
 		}
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorLatestRelease(java.util.UUID, com.thinkparity.codebase.OS)
      *
      */
@@ -1235,8 +1236,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorRelease(java.lang.String)
      *
      */
@@ -1253,6 +1253,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
+
     
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorResources(java.util.UUID, java.lang.String, com.thinkparity.codebase.OS)
@@ -1271,7 +1272,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readOutgoingEMailInvitations()
      *
@@ -1302,7 +1303,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * Read the logged in user's profile.
      * 
      * @return A profile.
@@ -1319,7 +1320,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    public List<EMail> readProfileEMails() {
+	public List<EMail> readProfileEMails() {
         logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
@@ -1357,6 +1358,21 @@ public final class SessionModelImpl extends Model<SessionListener>
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 return xmppSession.readEventQueueSize(localUserId());
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readStatistics()
+     *
+     */
+    public Statistics readStatistics() {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readStatistics(localUserId());
             }
         } catch (final Throwable t) {
             throw translateError(t);

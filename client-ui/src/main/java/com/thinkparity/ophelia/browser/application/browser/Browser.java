@@ -26,6 +26,9 @@ import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
 
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
@@ -33,6 +36,7 @@ import com.thinkparity.ophelia.browser.application.AbstractApplication;
 import com.thinkparity.ophelia.browser.application.browser.display.DisplayId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatarLink;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ConfirmAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
@@ -59,7 +63,6 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
 import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.LinkAction;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.artifact.RemoveFlagSeen;
@@ -69,13 +72,11 @@ import com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingEMa
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingEMailInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
-import com.thinkparity.ophelia.browser.platform.action.contact.DisplayContactInvitationInfo;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
 import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
 import com.thinkparity.ophelia.browser.platform.action.container.Create;
 import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.DisplayFlagSeenInfo;
 import com.thinkparity.ophelia.browser.platform.action.container.Publish;
 import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
 import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
@@ -171,10 +172,8 @@ public class Browser extends AbstractApplication {
         case ARCHIVE:
             break;
         case CONTACT:
-            runDisplayContactInvitationInfo(expression);
             break;
         case CONTAINER:
-            runDisplayContainerSeenFlagInfo(expression);
             break;
         default:
             Assert.assertUnreachable("Unknown main title tab id.");
@@ -627,27 +626,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Notify the application that an actin has been invoked.
-     */
-    public void fireActionInvoked() {
-        clearStatus();
-    }
-
-    /**
-     * Notify the application that the "seen" flag has been updated.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     */
-    public void fireArtifactSeenFlagUpdated(final Long artifactId) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContainerAvatar().fireSeenFlagUpdated(artifactId);
-            }
-        });    
-    }
-
-    /**
      * Notify the browser that a document draft has been updated (ie. documents changed)
      * 
      * @param documentId
@@ -805,14 +783,6 @@ public class Browser extends AbstractApplication {
     }
 
 	/**
-     * Initialize the status message.
-     */
-    public void initializeStatus() {
-        runDisplayContainerSeenFlagInfo();
-        runDisplayContactInvitationInfo();
-    }
-
-	/**
      * Determine if the browser window is maximized.
      * 
      * @return true if the browser window is maximized; false otherwise.
@@ -884,6 +854,35 @@ public class Browser extends AbstractApplication {
     public void moveToFront() { mainWindow.toFront(); }
 
     /**
+     * Reload the status avatar.
+     *
+     */
+    public void reloadStatusAvatar() {
+        getStatusAvatar().reload();
+    }
+
+    /**
+     * Set a status link.
+     * 
+     * @param link
+     *            A <code>MainStatusAvatarLink</code>.
+     */
+    public void setStatusLink(final MainStatusAvatarLink link) {
+        final Data input = new Data(1);
+        input.set(MainStatusAvatar.DataKey.LINK, link);
+        setInput(AvatarId.MAIN_STATUS, input);
+    }
+
+    /**
+     * Clear all status links.
+     * 
+     */
+    public void clearStatusLink() {
+        final Data input = new Data(0);
+        setInput(AvatarId.MAIN_STATUS, input);
+    }
+
+    /**
      * Resize the browser window.
      * 
      * @param s
@@ -896,7 +895,7 @@ public class Browser extends AbstractApplication {
         mainWindow.setMainWindowSize(newS);
     }
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#restore(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -917,8 +916,8 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	public void restoreState(final State state) {}
-
-	/**
+    
+    /**
      * Confirm an attempt to retry an invocation of an action with the user and
      * if positive retry.
      * 
@@ -957,8 +956,8 @@ public class Browser extends AbstractApplication {
         data.set(AcceptIncomingUserInvitation.DataKey.INVITATION_ID, invitationId);
         invoke(ActionId.CONTACT_ACCEPT_INCOMING_USER_INVITATION, data);
     }
-    
-    /**
+
+	/**
      * Run the add bookmark action.
      * 
      * @param containerId
@@ -970,7 +969,7 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.CONTAINER_ADD_BOOKMARK, data);
     }
 
-	/**
+    /**
      * Run the create document action, browse to select the document.
      * 
      * @param containerId
@@ -1003,7 +1002,7 @@ public class Browser extends AbstractApplication {
         data.set(AddDocument.DataKey.FILES, files);
         invoke(ActionId.CONTAINER_ADD_DOCUMENT, data);
     }
-
+    
     /**
      * Run the profile's add email action.
      *
@@ -1025,8 +1024,8 @@ public class Browser extends AbstractApplication {
         data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, containerId);
         invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
     }
-    
-    /**
+  
+	/**
      * Run the apply flag seen action.
      * 
      * @param documentId
@@ -1037,8 +1036,8 @@ public class Browser extends AbstractApplication {
         data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, documentId);
         invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
     }
-  
-	/**
+
+    /**
      * Run the add contact action.
      *
      */
@@ -1157,49 +1156,8 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Run the display contact invitation info action.
-     */
-    public void runDisplayContactInvitationInfo() {
-        invoke(ActionId.CONTACT_DISPLAY_INVITATION_INFO, Data.emptyData());     
-    }
-    
-    /**
-     * Run the display contact invitation info action.
-     * 
-     * @param searchExpression
-     *            A search expression.
-     */
-    public void runDisplayContactInvitationInfo(final String searchExpression) {
-        final Data data = new Data(1);
-        if (null != searchExpression) {
-            data.set(DisplayContactInvitationInfo.DataKey.SEARCH_EXPRESSION, searchExpression);
-        }
-        invoke(ActionId.CONTACT_DISPLAY_INVITATION_INFO, data);     
-    }
-
-    /**
-     * Run the display container flag seen info action.
-     */
-    public void runDisplayContainerSeenFlagInfo() {
-        invoke(ActionId.CONTAINER_DISPLAY_FLAG_SEEN_INFO, Data.emptyData());   
-    }
-    
-    /**
-     * Run the display container flag seen info action.
-     * 
-     * @param searchExpression
-     *            A search expression.
-     */
-    public void runDisplayContainerSeenFlagInfo(final String searchExpression) {
-        final Data data = new Data(1);
-        if (null != searchExpression) {
-            data.set(DisplayFlagSeenInfo.DataKey.SEARCH_EXPRESSION, searchExpression);
-        }
-        invoke(ActionId.CONTAINER_DISPLAY_FLAG_SEEN_INFO, data);  
-    }
-
-    /**
      * Run the action associated with the F1 key.
+     * 
      */
     public void runF1Action() {
         runPlatformBrowserOpenHelp();
@@ -1572,13 +1530,35 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Set a custom status message with a link.
+     * Show the contact invitation.
      * 
-     * @param linkAction
-     *            A link action.    
+     * @param invitationId
+     *            The invitationId.
      */
-    public void setStatus(final LinkAction linkAction) {
-        setStatus("Empty", null, linkAction);
+    public void showContactIncomingEMailInvitation(
+            final IncomingEMailInvitation incomingEMailInvitation) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().showContactInvitation(
+                        incomingEMailInvitation.getId());
+            }
+        });   
+    }
+
+    /**
+     * Show the contact invitation.
+     * 
+     * @param invitationId
+     *            The invitationId.
+     */
+    public void showContactIncomingUserInvitation(
+            final IncomingUserInvitation incomingUserInvitation) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().showContactInvitation(
+                        incomingUserInvitation.getId());
+            }
+        });   
     }
 
     /**
@@ -1600,8 +1580,10 @@ public class Browser extends AbstractApplication {
     /**
      * Show the contact invitation.
      * 
-     * @param invitationId
-     *            The invitationId.
+     * @param invitationIds
+     *            The list of invitationIds.
+     * @param index
+     *            The index of the invitation to show (0 indicates the invitation displayed at top).   
      */
     public void showContactInvitation(final Long invitationId) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -1612,18 +1594,16 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Show the container.
-     * This expands the container without animation, and scrolls so it is visible.
+     * Show a container. This expands the container without animation, and
+     * scrolls so it is visible.
      * 
-     * @param containerIds
-     *            The list of containerIds.
-     * @param index
-     *            The index of the container to show (0 indicates the container displayed at top).         
+     * @param container
+     *            A <code>Container</code>.
      */
-    public void showContainer(final List<Long> containerIds, final int index) {
+    public void showContainer(final Container container) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                getTabContainerAvatar().showContainer(containerIds, index);
+                getTabContainerAvatar().showContainer(container);
             }
         });   
     }
@@ -1755,16 +1735,18 @@ public class Browser extends AbstractApplication {
         return super.getAvatar(tabPanelExtension);
     }
 
-    /** Display the main status avatar. */
+    /**
+     * Display the status avatar.
+     *
+     */
     void displayMainStatusAvatar() {
-        final Data input = new Data(2);
-        input.set(MainStatusAvatar.DataKey.PROFILE, getProfile());
-        input.set(MainStatusAvatar.DataKey.CONNECTION, getConnection());
-        setInput(AvatarId.MAIN_STATUS, input);
         displayStatus(AvatarId.MAIN_STATUS);
     }
 
-    /** Display the main title avatar. */
+    /**
+     * Display the title avatar.
+     *
+     */
 	void displayMainTitleAvatar() {
         final Data input = new Data(2);
         input.set(MainTitleAvatar.DataKey.PROFILE, getProfile());
@@ -1796,14 +1778,6 @@ public class Browser extends AbstractApplication {
 		return avatarInputMap.get(id);
 	}
     
-    /**
-     * Clear the custom status message.
-     * 
-     */
-    private void clearStatus() {
-        setStatus("Empty");
-    }
-
     /**
      * Open a confirmation dialogue.
      * 
@@ -1971,15 +1945,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Obtain the main status avatar.
-     * 
-     * @return The main status avatar.
-     */
-    private MainStatusAvatar getMainStatusAvatar() {
-        return (MainStatusAvatar) getAvatar(AvatarId.MAIN_STATUS);
-    }
-
-    /**
      * Obtain the main title avatar.
      * 
      * @return The main title avatar.
@@ -1995,6 +1960,15 @@ public class Browser extends AbstractApplication {
      */
     private MainTitleAvatar.TabId getMainTitleAvatarTab() {
         return (MainTitleAvatar.TabId) ((Data) getMainTitleAvatar().getInput()).get(MainTitleAvatar.DataKey.TAB_ID);
+    }
+
+    /**
+     * Obtain the status avatar.
+     * 
+     * @return A <code>MainStatusAvatar</code>.
+     */
+    private MainStatusAvatar getStatusAvatar() {
+        return (MainStatusAvatar) getAvatar(AvatarId.MAIN_STATUS);
     }
 
     /**
@@ -2106,7 +2080,6 @@ public class Browser extends AbstractApplication {
      *            A platform connection.
      */
     private void setStatus(final Connection connection) {
-        setStatus(connection, getMainStatusAvatar(), MainStatusAvatar.DataKey.CONNECTION);
         setStatus(connection, getTabContactAvatar(), TabAvatar.DataKey.CONNECTION);
     }
 
@@ -2128,49 +2101,6 @@ public class Browser extends AbstractApplication {
         }
         input.set(connectionKey, connection);
         avatar.setInput((Data) input.clone());
-    }
-
-    /**
-     * Set a custom status message.
-     * 
-     * @param customMessage
-     *            A status message.
-     */
-    private void setStatus(final String customMessage) {
-        setStatus(customMessage, null, null);
-    }
-
-    /**
-     * Set a custom status message.
-     * 
-     * @param message
-     *            A status message.
-     * @param arguments
-     *            Status message arguments.
-     * @param linkAction
-     *            A link action.                  
-     */
-    private void setStatus(final String customMessage,
-            final Object[] customMessageArguments,
-            final LinkAction linkAction) {
-        Data input = (Data) getMainStatusAvatar().getInput();
-        if (null == input) {
-            input = new Data(4);
-        }
-        input.set(MainStatusAvatar.DataKey.CUSTOM_MESSAGE, customMessage);
-        if (null != customMessageArguments) {
-            input.set(MainStatusAvatar.DataKey.CUSTOM_MESSAGE_ARGUMENTS, customMessageArguments);
-        }
-        else {
-            input.unset(MainStatusAvatar.DataKey.CUSTOM_MESSAGE_ARGUMENTS);
-        }
-        if (null != linkAction) {
-            input.set(MainStatusAvatar.DataKey.LINK_ACTION, linkAction);
-        }
-        else {
-            input.unset(MainStatusAvatar.DataKey.LINK_ACTION);
-        }
-        getMainStatusAvatar().setInput((Data) input.clone());
     }
 
     /**

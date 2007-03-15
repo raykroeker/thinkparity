@@ -24,6 +24,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactRemoteInfo;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
@@ -543,6 +544,18 @@ public class ElementBuilder {
             final Element parent, final String name, final Resource value) {
         if (null == value) {
             return addNullElement(parent, name, Resource.class);
+        } else {
+            final Element element = addElement(parent, name, value.getClass());
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
+            return element;
+        }
+    }
+
+    public static final Element addElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final Statistics value) {
+        if (null == value) {
+            return addNullElement(parent, name, Statistics.class);
         } else {
             final Element element = addElement(parent, name, value.getClass());
             final Dom4JWriter writer = new Dom4JWriter(element);

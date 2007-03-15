@@ -5,7 +5,11 @@ package com.thinkparity.ophelia.browser.application.browser.display.event;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.ophelia.model.backup.BackupModel;
+import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
+import com.thinkparity.ophelia.model.session.SessionModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.archive.ArchiveTabDispatcher;
@@ -40,8 +44,20 @@ public class EventDispatcherFactory {
         return SINGLETON.doGetDispatcher(avatarId);
     }
 
-    /** The <code>ContainerModel</code>. */
+    /** An instance of <code>BackupModel</code>. */
+    private final BackupModel backupModel;
+
+    /** An instance of <code>ContainerModel</code>. */
     private final ContainerModel containerModel;
+
+    /** An instance of <code>ContactModel</code>. */
+    private final ContactModel contactModel;
+
+    /** An instance of <code>ProfileModel</code>. */
+    private final ProfileModel profileModel;
+
+    /** An instance of <code>SessionModel</code>. */
+    private final SessionModel sessionModel;
 
     /**
      * Create EventDispatcherFactory.
@@ -50,7 +66,11 @@ public class EventDispatcherFactory {
     private EventDispatcherFactory() {
         super();
         final ModelFactory modelFactory = ModelFactory.getInstance();
+        this.backupModel = modelFactory.getBackupModel(getClass());
+        this.contactModel = modelFactory.getContactModel(getClass());
         this.containerModel = modelFactory.getContainerModel(getClass());
+        this.profileModel = modelFactory.getProfileModel(getClass());
+        this.sessionModel = modelFactory.getSessionModel(getClass());
     }
 
     /**
@@ -68,6 +88,10 @@ public class EventDispatcherFactory {
             break;
         case TAB_CONTAINER:
             eventDispatcher = new ContainerTabDispatcher(containerModel);
+            break;
+        case MAIN_STATUS:
+            eventDispatcher = new MainStatusDispatcher(backupModel,
+                    contactModel, containerModel, profileModel, sessionModel);
             break;
         default:
             throw Assert.createUnreachable("No dispatcher available for avatar:  {0}", avatarId);

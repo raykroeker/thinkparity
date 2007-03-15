@@ -8,17 +8,32 @@ import java.awt.Graphics;
 import java.awt.Window;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.BytesFormat;
+import com.thinkparity.codebase.BytesFormat.Unit;
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.TopBorder;
+
+import com.thinkparity.codebase.model.backup.Statistics;
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.profile.Profile;
+
+import com.thinkparity.ophelia.model.events.BackupEvent;
+import com.thinkparity.ophelia.model.events.ContactEvent;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.ophelia.model.events.ProfileEvent;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Images;
@@ -26,10 +41,10 @@ import com.thinkparity.ophelia.browser.Constants.Colors.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.MainStatusAvatarLinks;
+import com.thinkparity.ophelia.browser.application.browser.display.event.MainStatusDispatcher;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.MainStatusProvider;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.LinkAction;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
@@ -42,11 +57,15 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  */
 public class MainStatusAvatar extends Avatar {
 
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
+    /** A size format to use for the backup statistics. */
+    private static final BytesFormat BYTES_FORMAT;
 
-    /** The links */
-    private final MainStatusAvatarLinks links;
+    static {
+        BYTES_FORMAT = new BytesFormat();
+    }
+
+    /** The unit to use when displaying the backup information. */
+    private Unit backupUnit;
 
     /** The resize offset size in the x direction. */
     private int resizeOffsetX;    
@@ -54,18 +73,81 @@ public class MainStatusAvatar extends Avatar {
     /** The resize offset size in the y direction. */
     private int resizeOffsetY;
 
-    /** A thinkParity user's profile. */
-    private Profile profile;
+    private Runnable linkRunnable;
 
-    /** Creates new form MainStatusAvatar */
+    private Runnable optionalLinkRunnable;
+
+    /**
+     * Create MainStatusAvatar.
+     *
+     */
     MainStatusAvatar() {
-        super(AvatarId.MAIN_STATUS.toString());
+        super(AvatarId.MAIN_STATUS);
         initComponents();
         installResizer();
         installAncestorWindowStateListener();
-        this.links = new MainStatusAvatarLinks(
-                new javax.swing.JLabel[] {linkIntroJLabel, link2IntroJLabel},
-                new javax.swing.JLabel[] {linkJLabel, link2JLabel} );
+        addPropertyChangeListener("eventDispatcher", new PropertyChangeListener() {
+            public void propertyChange(final PropertyChangeEvent evt) {
+                if (null != evt.getOldValue())
+                    ((MainStatusDispatcher) evt.getOldValue()).removeListeners(
+                            MainStatusAvatar.this);
+                if (null != evt.getNewValue())
+                    ((MainStatusDispatcher) evt.getNewValue()).addListeners(
+                            MainStatusAvatar.this);
+            }
+        });
+        this.backupUnit = Unit.GB;
+    }
+
+    /**
+     * Fire a backup event.
+     * 
+     * @param e
+     *            A <code>BackupEvent</code>.
+     */
+    public void fireBackupEvent(final BackupEvent e) {
+        reloadBackupStatistics(e.getStatistics());
+    }
+
+    /**
+     * Fire a container event.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void fireContainerEvent(final ContainerEvent e) {
+        reloadLinks();
+    }
+
+    /**
+     * Fire a contact event.
+     * 
+     * @param e
+     *            A <code>ContactEvent</code>.
+     */
+    public void fireContactEvent(final ContactEvent e) {
+        reloadLinks();
+    }
+
+    /**
+     * Fire a profile event.
+     * 
+     * @param e
+     *            A <code>ProfileEvent</code>.
+     */
+    public void fireProfileEvent(final ProfileEvent e) {
+        userJLabel.setText("");
+        if ((isTestMode() || isDebugMode()))
+            reloadProfile(e.getProfile());
+    }
+
+    /**
+     * Fire a session event.
+     *
+     */
+    public void fireSessionEvent() {
+        reloadConnection();
+        reloadBackupStatistics();
     }
 
     /**
@@ -90,16 +172,14 @@ public class MainStatusAvatar extends Avatar {
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
+     * 
      */
     @Override
     public void reload() {
-        if (null != input) {
-            this.profile = getInputProfile();     
-            reloadCustom();
-            reloadLinkActions();  
-            reloadUser();
-            reloadConnection();
-        }
+        reloadBackupStatistics();
+        reloadLinks();
+        reloadProfile();
+        reloadConnection();
     }
 
     /**
@@ -153,107 +233,125 @@ public class MainStatusAvatar extends Avatar {
      */
     @Override
     public Boolean isAvatarBackgroundImage() {
-        // Default avatar background image is not required for this avatar.
         return Boolean.FALSE;
     }
 
     /**
-     * Obtain the input connection.
+     * Determine if the input link is set.
      * 
-     * @return A platform connection.
+     * @return True if the input link is set.
      */
-    private Connection getInputConnection() {
+    private boolean isSetInputLink() {
+        return null != input && ((Data) input).isSet(DataKey.LINK);
+    }
+
+    /**
+     * Obtain the input link.  The input is cleared after reading the link.
+     * 
+     * @return An input link.
+     */
+    private MainStatusAvatarLink getInputLink() {
         if (null == input) {
             return null;
         } else {
-            return (Connection) ((Data) input).get(DataKey.CONNECTION);
+            final MainStatusAvatarLink link =
+                (MainStatusAvatarLink) ((Data) input).get(DataKey.LINK);
+            ((Data) input).unset(DataKey.LINK);
+            return link;
         }
     }
 
     /**
-     * Obtain the input custom message.
-     * 
-     * @return A string.
-     */
-    private String getInputCustomMessage() {
-        if (null == input) {
-            return null;
-        } else {
-            return (String) ((Data) input).get(DataKey.CUSTOM_MESSAGE);
-        }
-    }
-
-    /**
-     * Obtain the custom message localization arguments.
-     * 
-     * @return An object array.
-     */
-    private Object[] getInputCustomMessageArguments() {
-        if (null == input) {
-            return null;
-        } else {
-            return (Object[]) ((Data) input).get(DataKey.CUSTOM_MESSAGE_ARGUMENTS);
-        }
-    }
-    
-    /**
-     * Obtain the input link action.
-     * 
-     * @return The input link action.
-     */
-    private LinkAction getInputLinkAction() {
-        if (null == input) {
-            return null;
-        } else {
-            return (LinkAction) ((Data) input).get(DataKey.LINK_ACTION);
-        }
-    }
-    
-    /**
-     * Obtain the input profile.
-     * 
-     * @return The input profile.
-     */
-    private Profile getInputProfile() {
-        if (null == input) {
-            return null;
-        } else {
-            return (Profile) ((Data) input).get(DataKey.PROFILE);
-        }
-    }
-
-
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         javax.swing.JLabel fillJLabel;
+        java.awt.GridBagConstraints gridBagConstraints;
 
         fillJLabel = new javax.swing.JLabel();
 
+        setLayout(new java.awt.GridBagLayout());
+
         setBorder(new TopBorder(Colors.Browser.MainStatus.TOP_BORDER));
-        customJLabel.setFont(Fonts.DefaultFont);
+        textJLabel.setText("You have ");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 7, 0, 0);
+        add(textJLabel, gridBagConstraints);
 
         linkJLabel.setFont(Fonts.DefaultFont);
+        linkJLabel.setText("1 new package");
         linkJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 linkJLabelMousePressed(evt);
             }
         });
 
-        link2JLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        add(linkJLabel, gridBagConstraints);
+
+        optionalTextJLabel.setText(" and ");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        add(optionalTextJLabel, gridBagConstraints);
+
+        optionalLinkJLabel.setText("1 contact invitation.");
+        optionalLinkJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
-                link2JLabelMousePressed(evt);
+                optionalLinkJLabelMousePressed(evt);
             }
         });
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        add(optionalLinkJLabel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        add(fillJLabel, gridBagConstraints);
+
+        backupStatisticsJLabel.setFont(Fonts.DefaultFont);
+        backupStatisticsJLabel.setText("1.0GB");
+        backupStatisticsJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                backupStatisticsJLabelMouseClicked(evt);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 2);
+        add(backupStatisticsJLabel, gridBagConstraints);
+
         userJLabel.setFont(Fonts.DefaultFont);
+        userJLabel.setText("Dr. Who");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 2);
+        add(userJLabel, gridBagConstraints);
 
         connectionJLabel.setFont(Fonts.DefaultFont);
         connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);
+        connectionJLabel.setText("Offline");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 7;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        add(connectionJLabel, gridBagConstraints);
 
         resizeJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserStatus_Resize.png")));
         resizeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -276,56 +374,32 @@ public class MainStatusAvatar extends Avatar {
             }
         });
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(layout.createSequentialGroup()
-                                .add(customJLabel)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(linkIntroJLabel)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(linkJLabel)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(link2IntroJLabel)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(link2JLabel)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(fillJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 280, Short.MAX_VALUE))
-                            .add(layout.createSequentialGroup()
-                                .add(userJLabel)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
-                        .add(connectionJLabel)
-                        .add(22, 22, 22))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, resizeJLabel)))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(connectionJLabel)
-                        .add(userJLabel))
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(customJLabel)
-                        .add(linkJLabel)
-                        .add(fillJLabel)
-                        .add(linkIntroJLabel)
-                        .add(link2IntroJLabel)
-                        .add(link2JLabel)))
-                .add(57, 57, 57))
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(53, Short.MAX_VALUE)
-                .add(resizeJLabel))
-        );
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 8;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
+        add(resizeJLabel, gridBagConstraints);
+
     }// </editor-fold>//GEN-END:initComponents
+
+    private void backupStatisticsJLabelMouseClicked(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_backupStatisticsJLabelMouseClicked
+        if (2 == evt.getClickCount()) {
+            /* on double click, cycle through the units */
+            int nextIndex = -1;
+            final Unit[] units = Unit.values();
+            for (int i = 0; i < units.length; i++) {
+                if (units[i] == backupUnit) {
+                    nextIndex = i + 1;
+                    break;
+                }
+            }
+            if (nextIndex < units.length)
+                backupUnit = units[nextIndex];
+            else
+                backupUnit = units[0];
+            reloadBackupStatistics();
+        }
+    }//GEN-LAST:event_backupStatisticsJLabelMouseClicked
 
     /**
      * Install a window state listener on the ancestor of the component.
@@ -363,6 +437,24 @@ public class MainStatusAvatar extends Avatar {
     }
 
     /**
+     * Determine if the backup feature is enabled.
+     * 
+     * @return True if the backup feature is enabled.
+     */
+    private boolean isBackupEnabled() {
+        return ((MainStatusProvider) contentProvider).isBackupEnabled().booleanValue();
+    }
+
+    /**
+     * Determine if the backup feature is online.
+     * 
+     * @return True if the backup feature is online.
+     */
+    private boolean isBackupOnline() {
+        return ((MainStatusProvider) contentProvider).isBackupOnline().booleanValue();
+    }
+
+    /**
      * Determine if the window event indicates a maximized JFrame window.
      * 
      * @param e
@@ -372,13 +464,93 @@ public class MainStatusAvatar extends Avatar {
         return (e.getNewState() & JFrame.MAXIMIZED_BOTH) > 0;
     }
 
-    private void link2JLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_link2JLabelMousePressed
-        links.linkJLabelMousePressed(e, 1);
-    }//GEN-LAST:event_link2JLabelMousePressed
+    private void optionalLinkJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_optionalLinkJLabelMousePressed
+        optionalLinkRunnable.run();
+    }//GEN-LAST:event_optionalLinkJLabelMousePressed
 
     private void linkJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_linkJLabelMousePressed
-        links.linkJLabelMousePressed(e, 0);
+        linkRunnable.run();
     }//GEN-LAST:event_linkJLabelMousePressed
+
+    /**
+     * Determine if the model is online.
+     * 
+     * @return True if the model is online.
+     */
+    private boolean isOnline() {
+        return ((MainStatusProvider) contentProvider).isOnline().booleanValue();
+    }
+    
+    /**
+     * Read the backup statistics.
+     * 
+     * @return An instance of <code>Statistics</code>.
+     */
+    private Statistics readBackupStatistics() {
+        return ((MainStatusProvider) contentProvider).readBackupStatistics();
+    }
+
+    /**
+     * Read the incoming e-mail invitations.
+     * 
+     * @return A <code>List</code> of <code>IncomingEMailInvitation</code>s.
+     */
+    private List<IncomingEMailInvitation> readIncomingEMailInvitations() {
+        return ((MainStatusProvider) contentProvider).readIncomingEMailInvitations();
+    }
+
+    /**
+     * Read the incoming e-mail invitations.
+     * 
+     * @return A <code>List</code> of <code>IncomingEMailInvitation</code>s.
+     */
+    private List<IncomingUserInvitation> readIncomingUserInvitations() {
+        return ((MainStatusProvider) contentProvider).readIncomingUserInvitations();
+    }
+
+    /**
+     * Read the user's profile.
+     * 
+     * @return The user's <code>Profile</code>.
+     */
+    private Profile readProfile() {
+        return ((MainStatusProvider) contentProvider).readProfile();
+    }
+
+    /**
+     * Read the unseen container count.
+     * 
+     * @return A count of the number of unseen containers.
+     */
+    private List<Container> readUnseenContainers() {
+        return ((MainStatusProvider) contentProvider).readUnseenContainers();
+    }
+
+    /**
+     * Reload the backup statistics.  If the backup is enabled and online, the
+     * backup statistics are displayed.
+     *
+     */
+    private void reloadBackupStatistics() {
+        backupStatisticsJLabel.setText("");
+        if (isOnline() && isBackupEnabled() && isBackupOnline()) {
+            reloadBackupStatistics(readBackupStatistics());
+        }
+    }
+
+    /**
+     * Reload the backup statistics.  If the backup is enabled and online, the
+     * backup statistics are displayed.
+     *
+     */
+    private void reloadBackupStatistics(final Statistics statistics) {
+        if (null == backupUnit)
+            backupStatisticsJLabel.setText(BYTES_FORMAT.format(
+                    statistics.getDiskUsage()));
+        else
+            backupStatisticsJLabel.setText(BYTES_FORMAT.format(backupUnit,
+                    statistics.getDiskUsage()));
+    }
 
     /**
      * Reload the connection status message.
@@ -387,55 +559,125 @@ public class MainStatusAvatar extends Avatar {
     private void reloadConnection() {
         connectionJLabel.setText("");
         final String connectionText;
-        switch(getInputConnection()) {
-        case ONLINE:
+        if (isOnline()) {
             connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_ONLINE);
             connectionText = getString(Connection.ONLINE);
-            break;
-        case OFFLINE:
+        } else {
             connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);
             connectionText = getString(Connection.OFFLINE);
-            break;
-        default:
-            throw Assert.createUnreachable("UNKNOWN CONNECTION");
         }
         connectionJLabel.setText(connectionText);
     }
 
     /**
-     * Reload the custom status message.
-     *
+     * Reload the link messages.
+     * 
      */
-    private void reloadCustom() {
-        customJLabel.setText("");
-        customJLabel.setForeground(Colors.Browser.MainStatus.CUSTOM_MESSAGE_FOREGROUND);
-        final String customMessage = getInputCustomMessage();
-        if (null != customMessage) {
-            final Object[] customMessageArguments = getInputCustomMessageArguments();
-            if (null == customMessageArguments) {
-                customJLabel.setText(getString(customMessage));
+    private void reloadLinks() {
+        textJLabel.setText(Separator.EmptyString.toString());
+        linkJLabel.setText(Separator.EmptyString.toString());
+        optionalTextJLabel.setText(Separator.EmptyString.toString());
+        optionalLinkJLabel.setText(Separator.EmptyString.toString());
+        if (isSetInputLink()) {
+            final MainStatusAvatarLink link = getInputLink();
+            textJLabel.setText(link.getText() + Separator.Space);
+            linkJLabel.setText(link.getLinkText());
+            linkRunnable = new Runnable() {
+                public void run() {
+                    link.getTarget().run();
+                    reloadLinks();
+                }
+            };
+        } else {
+            linkRunnable = optionalLinkRunnable = null;
+            final List<Container> unseenContainers = readUnseenContainers();
+            final List<IncomingEMailInvitation> incomingEMail = readIncomingEMailInvitations();
+            final List<IncomingUserInvitation> incomingUser = readIncomingUserInvitations();
+            if (0 < unseenContainers.size()) {
+                if (0 < incomingEMail.size() || 0 < incomingUser.size()) {
+                    // display container info/link
+                    textJLabel.setText(getString("Text") + Separator.Space);
+                    linkJLabel.setText(getString("ContainerLink", new Object[] {unseenContainers.size()}));
+                    linkRunnable = new Runnable() {
+                        public void run() {
+                            getController().selectTab(MainTitleAvatar.TabId.CONTAINER);
+                            getController().showContainer(unseenContainers.get(0));
+                        }
+                    };
+                    // display invitation info/link
+                    optionalTextJLabel.setText(Separator.Space + getString("OptionalText") + Separator.Space);
+                    optionalLinkJLabel.setText(getString("InvitationLink", new Object[] {incomingEMail.size() + incomingUser.size()}));
+                    if (0 < incomingEMail.size()) {
+                        optionalLinkRunnable = new Runnable() {
+                            public void run() {
+                                getController().selectTab(MainTitleAvatar.TabId.CONTACT);
+                                getController().showContactIncomingEMailInvitation(incomingEMail.get(0));
+                            }
+                        };
+                    }
+                    if (0 < incomingUser.size()) {
+                        optionalLinkRunnable = new Runnable() {
+                            public void run() {
+                                getController().selectTab(MainTitleAvatar.TabId.CONTACT);
+                                getController().showContactIncomingUserInvitation(incomingUser.get(0));
+                            }
+                        };
+                    }
+                } else {
+                    // display container info/link
+                    textJLabel.setText(getString("Text") + Separator.Space);
+                    linkJLabel.setText(getString("ContainerLink", new Object[] {unseenContainers.size()}));
+                    linkRunnable = new Runnable() {
+                        public void run() {
+                            getController().selectTab(MainTitleAvatar.TabId.CONTAINER);
+                            getController().showContainer(unseenContainers.get(0));
+                        }
+                    };
+                }
             } else {
-                customJLabel.setText(getString(customMessage, customMessageArguments));
+                if (0 < incomingEMail.size() || 0 < incomingUser.size()) {
+                    textJLabel.setText(getString("Text") + Separator.Space);
+                    linkJLabel.setText(getString("InvitationLink", new Object[] {incomingEMail.size() + incomingUser.size()}));
+                    if (0 < incomingEMail.size()) {
+                        linkRunnable = new Runnable() {
+                            public void run() {
+                                getController().selectTab(MainTitleAvatar.TabId.CONTACT);
+                                getController().showContactIncomingEMailInvitation(incomingEMail.get(0));
+                            }
+                        };
+                    }
+                    if (0 < incomingUser.size()) {
+                        linkRunnable = new Runnable() {
+                            public void run() {
+                                getController().selectTab(MainTitleAvatar.TabId.CONTACT);
+                                getController().showContactIncomingUserInvitation(incomingUser.get(0));
+                            }
+                        };
+                    }
+                }
             }
         }
     }
 
     /**
-     * Reload the link messages.
+     * Reload the user name label. The user's name will only display for testing
+     * and development purposes.
+     * 
      */
-    private void reloadLinkActions() {
-        links.reload(getInputLinkAction());
+    private void reloadProfile() {
+        userJLabel.setText("");
+        if ((isTestMode() || isDebugMode()))
+            reloadProfile(readProfile());
     }
 
     /**
-     * Reload the user name.
+     * Reload the profile.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
      */
-    private void reloadUser() {
-        userJLabel.setText("");
-        if ((isTestMode() || isDebugMode()) && (null != profile)) {
-            userJLabel.setForeground(Colors.Browser.MainStatus.USER_NAME_FOREGROUND);
-            userJLabel.setText(profile.getName());
-        }
+    private void reloadProfile(final Profile profile) {
+        userJLabel.setText(profile.getName());
     }
 
     private void resizeJLabelMouseDragged(java.awt.event.MouseEvent e) {                                          
@@ -467,15 +709,15 @@ public class MainStatusAvatar extends Avatar {
     }//GEN-LAST:event_resizeJLabelMouseReleased
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel backupStatisticsJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel connectionJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel customJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel link2IntroJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel link2JLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JLabel linkIntroJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel linkJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel optionalLinkJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel optionalTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel resizeJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel userJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 
-    public enum DataKey { PROFILE, CONNECTION, CUSTOM_MESSAGE, CUSTOM_MESSAGE_ARGUMENTS, LINK_ACTION }
+    public enum DataKey { LINK }
 }

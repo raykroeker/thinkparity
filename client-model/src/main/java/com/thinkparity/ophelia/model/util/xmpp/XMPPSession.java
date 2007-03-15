@@ -13,6 +13,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
@@ -52,7 +53,7 @@ import com.thinkparity.ophelia.model.util.xmpp.event.XMPPEventListener;
  * @version 1.2.1.37
  */
 public interface XMPPSession {
-
+    
     /**
      * Accept the e-mail invitation.
      * 
@@ -88,7 +89,6 @@ public interface XMPPSession {
     public <T extends XMPPEvent> void addListener(final Class<T> eventClass,
             final XMPPEventListener<T> listener);
 
-
     /**
      * Add an xmpp session event listener.
      * 
@@ -96,6 +96,7 @@ public interface XMPPSession {
      *            An xmpp session event listener.
      */
     public void addListener(final SessionListener listener);
+
 
     /**
      * Add an email to a user's profile.
@@ -315,7 +316,7 @@ public interface XMPPSession {
      */
     public void deleteInvitation(final JabberId userId,
             final OutgoingUserInvitation invitation, final Calendar deletedOn);
-    
+
     /**
      * Delete a stream.
      * 
@@ -328,7 +329,7 @@ public interface XMPPSession {
      */
     public void deleteStream(final JabberId userId,
             final StreamSession session, final String streamId);
-
+    
     /**
      * Delete a stream session.
      * 
@@ -492,7 +493,7 @@ public interface XMPPSession {
             final JabberId userId, final UUID uniqueId,
             final Long compareVersionId, final Long compareToVersionId);
 
-	/**
+    /**
      * Read the archived document versions.
      * 
      * @param userId
@@ -508,7 +509,7 @@ public interface XMPPSession {
     public List<DocumentVersion> readArchiveDocumentVersions(
             final JabberId userId, final UUID uniqueId, final Long versionId);
 
-    public List<TeamMember> readArchiveTeam(final JabberId userId,
+	public List<TeamMember> readArchiveTeam(final JabberId userId,
             final UUID uniqueId);
 
     /**
@@ -522,6 +523,7 @@ public interface XMPPSession {
      */
     public List<JabberId> readArchiveTeamIds(final JabberId userId,
             final UUID uniqueId);
+
     /**
      * Read the backup's containers.
      * 
@@ -564,7 +566,6 @@ public interface XMPPSession {
      */
     public List<Document> readBackupDocuments(final JabberId userId,
             final UUID uniqueId, final Long versionId);
-
     /**
      * Read the backup's document versions.
      * 
@@ -632,14 +633,14 @@ public interface XMPPSession {
      */
     public Calendar readDateTime(final JabberId userId);
 
-	/**
+    /**
      * Obtain the size of the event queue.
      * 
      * @return The size of the event queue.
      */
     public Integer readEventQueueSize(final JabberId userId);
 
-    /**
+	/**
      * Read all incoming e-mail invitations.
      * 
      * @return A <code>List</code> of <code>IncomingInvitation</code>s.
@@ -702,6 +703,7 @@ public interface XMPPSession {
      */
     public Release readMigratorRelease(final JabberId userId,
             final UUID productUniqueId, final String name, final OS os);
+
     /**
      * Read migrator release resources.
      * 
@@ -715,7 +717,6 @@ public interface XMPPSession {
      */
     public List<Resource> readMigratorResources(final JabberId userId,
             final UUID productUniqueId, final String releaseName, final OS os);
-
     /**
      * Read all outgoing e-mail invitations.
      * 
@@ -752,6 +753,13 @@ public interface XMPPSession {
      * @return A security question <code>String</code>.
      */
     public String readProfileSecurityQuestion(final JabberId userId);
+
+    /**
+     * Read the backup statistics.
+     * 
+     * @return The <code>Statistics</code>.
+     */
+    public Statistics readStatistics(final JabberId userId);
 
     /**
      * Read a stream session.

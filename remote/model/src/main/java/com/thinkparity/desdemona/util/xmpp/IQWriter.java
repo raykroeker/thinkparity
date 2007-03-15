@@ -14,6 +14,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
@@ -85,7 +86,6 @@ public final class IQWriter implements ServiceResponseWriter {
      */
     public final IQ getIQ() { return iq; }
 
-
     /**
      * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#write(java.lang.String,
      *      com.thinkparity.codebase.model.migrator.Product)
@@ -95,6 +95,7 @@ public final class IQWriter implements ServiceResponseWriter {
         ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
     }
 
+
     /**
      * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#write(java.lang.String,
      *      com.thinkparity.codebase.model.migrator.Release)
@@ -102,6 +103,24 @@ public final class IQWriter implements ServiceResponseWriter {
      */
     public final void write(final String name, final Release value) {
         ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#write(java.lang.String, com.thinkparity.codebase.model.backup.Statistics)
+     *
+     */
+    public void write(final String name, final Statistics value) {
+        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeArtifactReceipts(java.lang.String,
+     *      java.util.List)
+     * 
+     */
+    public final void writeArtifactReceipts(final String name,
+            final List<ArtifactReceipt> values) {
+        ElementBuilder.addArtifactReceiptElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
     }
 
     /**
@@ -369,16 +388,6 @@ public final class IQWriter implements ServiceResponseWriter {
      */
     public final void writeUniqueId(final String name, final UUID value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeArtifactReceipts(java.lang.String,
-     *      java.util.List)
-     * 
-     */
-    public final void writeArtifactReceipts(final String name,
-            final List<ArtifactReceipt> values) {
-        ElementBuilder.addArtifactReceiptElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
     }
 
     /**

@@ -3,11 +3,12 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.artifact;
 
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 
 /**
  * <b>Title:</b>thinkParity Browser Remove Flag Seen<br>
@@ -19,9 +20,6 @@ import com.thinkparity.ophelia.model.artifact.ArtifactModel;
  */
 public final class RemoveFlagSeen extends AbstractBrowserAction {
     
-    /** The browser application. */
-    private final Browser browser;
-    
 	/**
      * Create RemoveFlagSeen.
      * 
@@ -30,7 +28,6 @@ public final class RemoveFlagSeen extends AbstractBrowserAction {
      */
 	public RemoveFlagSeen(final Browser browser) {
 		super(ActionId.ARTIFACT_REMOVE_FLAG_SEEN);
-        this.browser = browser;
 	}
 
 	/**
@@ -42,7 +39,6 @@ public final class RemoveFlagSeen extends AbstractBrowserAction {
 		final ArtifactModel artifactModel = getArtifactModel();
         if (artifactModel.hasBeenSeen(artifactId)) {
 		    artifactModel.removeFlagSeen(artifactId);
-            browser.fireArtifactSeenFlagUpdated(artifactId);
         }
 	}
 

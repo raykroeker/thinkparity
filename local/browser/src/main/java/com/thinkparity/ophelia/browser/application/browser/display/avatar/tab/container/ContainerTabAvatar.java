@@ -5,14 +5,16 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.c
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.List;
 
 import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.codebase.model.container.Container;
+
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.container.ContainerTabDispatcher;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * <b>Title:</b>thinkParity Container Tab Avatar<br>
@@ -167,7 +169,6 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
         if (e.isRemote()) {
             removeFlagSeen(e);
         }
-        getController().runDisplayContainerSeenFlagInfo();
         sync(e); 
     }
 
@@ -216,16 +217,6 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     }
 
     /**
-     * Notify the avatar that a "seen" flag has been updated.
-     * 
-     * @param artifactId
-     *            An artifactId <code>Long</code>.
-     */
-    public void fireSeenFlagUpdated(final Long artifactId) {
-        getController().runDisplayContainerSeenFlagInfo();
-    }
-
-    /**
      * Notify the avatar that a team member has been added.
      *
      * @param e
@@ -264,10 +255,10 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      * @param displayIndex
      *            The index of the container to show (0 indicates the container displayed at top). 
      */
-    public void showContainer(final List<Long> containerIds, final int index) {
+    public void showContainer(final Container container) {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
-                showContainerImpl(containerIds, index);
+                showPanel(container.getId());
             }
         });
     }
@@ -368,22 +359,6 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
                 model.setDraftSelection(e.getContainer().getId());
             }
         });
-    }
-
-    /**
-     * Show the container (expand the panel and scroll so it
-     * is visible).
-     * 
-     * @param containerIds
-     *            A list of container id <code>Long</code>.
-     * @param displayIndex
-     *            The index of the container to show (0 indicates the container displayed at top). 
-     */
-    private void showContainerImpl(final List<Long> containerIds, final int index) {
-        final List<Long> sortedContainerIds = model.getCurrentVisibleOrder(containerIds);
-        if (index < sortedContainerIds.size()) {
-            showPanel(sortedContainerIds.get(index));
-        }
     }
 
     /**

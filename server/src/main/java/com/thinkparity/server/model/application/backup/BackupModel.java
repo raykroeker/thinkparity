@@ -9,6 +9,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.backup.Statistics;
 
 import com.thinkparity.desdemona.model.AbstractModel;
 import com.thinkparity.desdemona.model.session.Session;
@@ -100,6 +101,12 @@ public class BackupModel extends AbstractModel<BackupModelImpl> {
     public Boolean isBackupOnline(final JabberId userId) {
         synchronized (getImplLock()) {
             return getImpl().isBackupOnline(userId);
+        }
+    }
+
+    public Statistics readStatistics(final JabberId userId) {
+        synchronized (getImplLock()) {
+            return getImpl().readStatisitcs(userId);
         }
     }
 

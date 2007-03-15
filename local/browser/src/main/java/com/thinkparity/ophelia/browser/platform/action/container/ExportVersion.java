@@ -16,9 +16,13 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
 
 import com.thinkparity.ophelia.browser.Constants;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatarLink;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
+
+import org.jdesktop.jdic.desktop.DesktopException;
 
 /**
  * @author rob_masako@shaw.ca
@@ -41,9 +45,6 @@ public class ExportVersion extends AbstractBrowserAction  {
     /** The browser application. */
     private final Browser browser;
     
-    /** An instance of the link action. */
-    private final ExportFileLink exportFileLink;
-
     /**
      * Create ExportVersion.
      * 
@@ -53,7 +54,6 @@ public class ExportVersion extends AbstractBrowserAction  {
     public ExportVersion(final Browser browser) {
         super(ActionId.CONTAINER_EXPORT_VERSION);
         this.browser = browser;
-        this.exportFileLink = new ExportFileLink(localization.getString("ExportFileCreated"));
     }
     
     /**
@@ -104,13 +104,65 @@ public class ExportVersion extends AbstractBrowserAction  {
                     outputStream.close();
                 }
             }
-            exportFileLink.setFile(file);
-            browser.setStatus(exportFileLink);
+            browser.setStatusLink(new StatusLink(file));
         } catch (final IOException iox) {
             browser.displayErrorDialog("ExportVersion.CannotExport",
                         new Object[] {file.getName()});
         }
     } 
-    
+
     public enum DataKey { CONTAINER_ID, VERSION_ID }
+
+    /**
+     * <b>Title:</b>Export Status Link<br>
+     * <b>Description:</b><br>
+     */
+    private class StatusLink implements MainStatusAvatarLink {
+
+        /** The export <code>File</code>. */
+        private final File file;
+
+        /**
+         * Create StatusLink.
+         * 
+         * @param file
+         *            The export <code>File</code>.
+         */
+        private StatusLink(final File file) {
+            super();
+            this.file = file;
+        }
+
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatarLink#getLinkText()
+         *
+         */
+        public String getLinkText() {
+            return file.getName();
+        }
+
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatarLink#getTarget()
+         *
+         */
+        public Runnable getTarget() {
+            return new Runnable() {
+                public void run() {
+                    try {
+                        DesktopUtil.open(file);
+                    } catch (final DesktopException dx) {
+                        logger.logError(dx, "Cannot open file {0}.", file);
+                    }
+                }
+            };
+        }
+
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatarLink#getName()
+         *
+         */
+        public String getText() {
+            return getString("StatusLink");
+        }
+    }
 }

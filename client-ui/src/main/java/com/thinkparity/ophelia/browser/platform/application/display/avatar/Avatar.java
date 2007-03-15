@@ -27,6 +27,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
+import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
@@ -49,7 +50,7 @@ public abstract class Avatar extends AbstractJPanel {
     /** The avatar input. */
 	protected Object input;
 
-	/** Localization helper utility. */
+    /** Localization helper utility. */
     protected final JPanelLocalization localization;
 
 	/** The thinkParity <code>PluginRegistry</code>. */
@@ -58,15 +59,15 @@ public abstract class Avatar extends AbstractJPanel {
 	/** The Resizer */
     protected Resizer resizer;
 
-    /** The thinkparity application registry. */
+	/** The thinkparity application registry. */
     private final ApplicationRegistry applicationRegistry;
 
-	/** The clipped background image. */
+    /** The clipped background image. */
     private BufferedImage clippedBackgroundImage;
 
-    /** An avatar's <code>EventDispatcher</code>. */
+	/** An avatar's <code>EventDispatcher</code>. */
     private EventDispatcher eventDispatcher;
-    
+
     /** The F1 action. */
     private Action F1Action;
     
@@ -231,6 +232,17 @@ public abstract class Avatar extends AbstractJPanel {
 	public abstract State getState();
 
 	/**
+     * Initialize the avatar. This happens after creation but prior to any other
+     * method being called. This allows an opportunity for the avatar to
+     * initialize itself.
+     * 
+     * @param platform
+     *            The thinkParity <code>Platform</code>.
+     */
+    public void initialize(final Platform platform) {
+    }
+
+    /**
      * Install the move listener so the mouse can be used to
      * move the avatar.
      */
@@ -248,7 +260,7 @@ public abstract class Avatar extends AbstractJPanel {
         }
         resizer = new Resizer(getController(), this, Boolean.FALSE, getResizeEdges());
     }
-
+    
     /**
      * Determine if there is an avatar background image, used for dialogs.
      * With few exceptions (eg. title, main, and status areas of browser)
@@ -266,8 +278,8 @@ public abstract class Avatar extends AbstractJPanel {
     public Boolean isAvatarTitle() {
         return Boolean.TRUE;
     }
-    
-    /**
+
+	/**
 	 * Reload the avatar. This event is called when either the content provider
 	 * or the input has changed; or as a manual reload of the avatar.
 	 * 
@@ -311,7 +323,7 @@ public abstract class Avatar extends AbstractJPanel {
         firePropertyChange("eventDispatcher", oldEventDispatcher, eventDispatcher);
     }
 
-	/**
+    /**
 	 * Set the avatar's input.
 	 * 
 	 * @param input
@@ -346,7 +358,7 @@ public abstract class Avatar extends AbstractJPanel {
         inputErrors.add(inputError);
 	}
 
-	/**
+    /**
 	 * Clear all display errors.
 	 *
 	 */
@@ -401,7 +413,7 @@ public abstract class Avatar extends AbstractJPanel {
         return Resizer.ResizeEdges.BOTTOM;
     }
 
-    /**
+	/**
      * Obtain a browser session.
      * 
      * @return A <code>BrowserSession</code>.
@@ -409,7 +421,7 @@ public abstract class Avatar extends AbstractJPanel {
     protected BrowserSession getSession() {
         return getController().getSession(getId());
     }
-    
+
     /**
      * Obtain a browser session.
      * 
@@ -426,8 +438,8 @@ public abstract class Avatar extends AbstractJPanel {
     protected String getString(final String localKey) {
     	return localization.getString(localKey);
     }
-
-	/**
+    
+    /**
      * @see JPanelLocalization#getString(String, Object[])
      * 
      */
@@ -447,7 +459,7 @@ public abstract class Avatar extends AbstractJPanel {
         SwingUtilities.invokeLater(doRun);
     }
 
-    /**
+	/**
 	 * Determine whether or not the platform is running in test mode.
 	 * 
 	 * @return True if the platform is in test mode; false otherwise.
@@ -455,7 +467,7 @@ public abstract class Avatar extends AbstractJPanel {
 	protected final Boolean isDebugMode() {
 		return getController().getPlatform().isDevelopmentMode();
 	}
-    
+
     /**
      * Determine whether the user input for the frame is valid.
      * 
@@ -467,8 +479,9 @@ public abstract class Avatar extends AbstractJPanel {
     }
     
     /**
-     * These get and set methods are used by classes that intend to do their
-     * own mouse dragging. (For example, the bottom right resize control.)
+     * These get and set methods are used by classes that intend to do their own
+     * mouse dragging. (For example, the bottom right resize control.)
+     * 
      */
     protected Boolean isResizeDragging() {
         if (null == resizer) {

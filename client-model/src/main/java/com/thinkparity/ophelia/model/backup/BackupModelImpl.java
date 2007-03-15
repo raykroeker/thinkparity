@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -19,6 +20,7 @@ import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -28,6 +30,8 @@ import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent;
 
 import com.thinkparity.ophelia.model.Model;
+import com.thinkparity.ophelia.model.events.BackupEvent;
+import com.thinkparity.ophelia.model.events.BackupListener;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
@@ -40,7 +44,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author CreateModel.groovy
  * @version 1.1.2.1
  */
-public final class BackupModelImpl extends Model implements
+public final class BackupModelImpl extends Model<BackupListener> implements
         BackupModel, InternalBackupModel {
 
     /** A default artifact comparator. */
@@ -61,6 +65,9 @@ public final class BackupModelImpl extends Model implements
     /** A default artifact version filter. */
     private final Filter<ArtifactVersion> defaultVersionFilter;
 
+    /** A remote <code>BackupEventGenerator</code>. */
+    private final BackupEventGenerator remoteEventGenerator;
+
     /**
      * Create BackupModelImpl.
      *
@@ -73,6 +80,16 @@ public final class BackupModelImpl extends Model implements
         this.defaultReceiptFilter = FilterManager.createDefault();
         this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.TRUE);
         this.defaultVersionFilter = FilterManager.createDefault();
+        this.remoteEventGenerator = new BackupEventGenerator(BackupEvent.Source.REMOTE);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.Model#addListener(com.thinkparity.codebase.event.EventListener)
+     *
+     */
+    @Override
+    public void addListener(final BackupListener l) {
+        super.addListener(l);
     }
 
     /**
@@ -95,6 +112,16 @@ public final class BackupModelImpl extends Model implements
      *
      */
     public void handleStatisticsUpdated(final BackupStatisticsUpdatedEvent event) {
+        notifyStatisticsUpdated(event.getStatistics(), remoteEventGenerator);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.Model#isOnline()
+     *
+     */
+    @Override
+    public Boolean isOnline() {
+        return super.isOnline() && isBackupOnline();
     }
 
     /**
@@ -426,6 +453,14 @@ public final class BackupModelImpl extends Model implements
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.backup.BackupModel#readStatistics()
+     *
+     */
+    public Statistics readStatistics() {
+        return getSessionModel().readStatistics();
+    }
+
     public List<JabberId> readTeamIds(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -438,6 +473,14 @@ public final class BackupModelImpl extends Model implements
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.Model#removeListener(com.thinkparity.codebase.event.EventListener)
+     *
+     */
+    @Override
+    public void removeListener(final BackupListener l) {
+        super.removeListener(l);
+    }
 
     /**
      * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#restore(java.lang.Long)
@@ -453,6 +496,7 @@ public final class BackupModelImpl extends Model implements
             throw translateError(t);
         }
     }
+
 
     /**
      * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
@@ -477,6 +521,24 @@ public final class BackupModelImpl extends Model implements
      * @return True if the backup is online; false otherwise.
      */
     private Boolean isBackupOnline() {
-        return isOnline();
+        return getSessionModel().isBackupOnline();
+    }
+
+    /**
+     * Fire a backup statistics updated event.
+     * 
+     * @param statistics
+     *            A <code>Statistics</code>.
+     * @param beg
+     *            A <code>BackupEventGenerator</code>.
+     */
+    private void notifyStatisticsUpdated(final Statistics statistics,
+            final BackupEventGenerator beg) {
+        notifyListeners(new EventNotifier<BackupListener>() {
+            public void notifyListener(final BackupListener listener) {
+                listener.statisticsUpdated(beg.generate(statistics));
+            }
+        });
+
     }
 }

@@ -8,6 +8,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
@@ -53,38 +54,45 @@ public class ProviderFactory {
         return SINGLETON.doGetProvider(avatarId);
     }
 
-    /** A thinkParity artifact interface. */
+    /** An instance of <code>ArtifactModel</code>. */
 	protected final ArtifactModel artifactModel;
 
-    /** A thinkParity contact interface. */
+    /** An instance of <code>BackupModel</code>. */
+    protected final BackupModel backupModel;
+
+    /** An instance of <code>ContactModel</code>. */
     protected final ContactModel contactModel;
 
-    /** A thinkParity container interface. */
+    /** An instance of <code>ContainerModel</code>. */
     protected final ContainerModel containerModel;
 
-    /** The parity document interface. */
+    /** An instance of <code>DocumentModel</code>. */
 	protected final DocumentModel documentModel;
 
     /** An apache logger. */
 	protected final Logger logger;
     
-	/** A thinkParity session interface. */
+    /** An instance of <code>SessionModel</code>. */
 	protected final SessionModel sessionModel;
 
-    /** A thinkParity user interface. */
+    /** An instance of <code>UserModel</code>. */
     protected final UserModel userModel;
 
 	/** The local user's profile. */
     private final Profile profile;
 
-    /** A thinkParity profile interface. */
+    /** An instance of <code>ProfileModel</code>. */
     private final ProfileModel profileModel;
 
-	/** Create ProviderFactory. */
+    /**
+     * Create ProviderFactory.
+     * 
+     */
 	private ProviderFactory() {
 		super();
 		final ModelFactory modelFactory = ModelFactory.getInstance();
 		this.artifactModel = modelFactory.getArtifactModel(getClass());
+        this.backupModel = modelFactory.getBackupModel(getClass());
 		this.contactModel = modelFactory.getContactModel(getClass());
         this.containerModel = modelFactory.getContainerModel(getClass());
 		this.documentModel = modelFactory.getDocumentModel(getClass());
@@ -120,6 +128,9 @@ public class ProviderFactory {
             break;
         case DIALOG_PROFILE_UPDATE:
             provider = new UpdateProfileProvider(profile, profileModel);
+            break;
+        case MAIN_STATUS:
+            provider = new MainStatusProvider(profile, backupModel, contactModel, containerModel, profileModel, sessionModel);
             break;
         case DIALOG_PROFILE_UPDATE_PASSWORD:
             provider = new UpdatePasswordProvider(profile, profileModel);

@@ -9,6 +9,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
@@ -61,6 +62,17 @@ public class ModelFactory {
         return modelFactory.getArtifactModel();
     }
     /**
+     * Obtain a backup model.
+     * 
+     * @param clasz
+     *            The name of clasz will be used to obtain an appropriate model.
+     * @return An instance of <code>BackupModel</code>.
+     */
+    public final BackupModel getBackupModel(final Class clasz) {
+        return modelFactory.getBackupModel();
+    }
+
+    /**
      * Obtain a contact model.
      * 
      * @param clasz
@@ -70,6 +82,8 @@ public class ModelFactory {
     public final ContactModel getContactModel(final Class clasz) {
         return modelFactory.getContactModel();
     }
+
+
     /**
      * Obtain a container model.
      * 

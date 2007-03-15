@@ -122,9 +122,6 @@ public class ActionFactory extends AbstractFactory {
         case CONTACT_DELETE_OUTGOING_USER_INVITATION:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingUserInvitation(getBrowser());
             break;
-        case CONTACT_DISPLAY_INVITATION_INFO:
-            action = new com.thinkparity.ophelia.browser.platform.action.contact.DisplayContactInvitationInfo(getBrowser());
-            break;
         case CONTACT_EXPAND:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.Expand(getBrowser());
             break;
@@ -158,9 +155,6 @@ public class ActionFactory extends AbstractFactory {
 		    break;
         case CONTAINER_DELETE_DRAFT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft(getBrowser());
-            break;
-        case CONTAINER_DISPLAY_FLAG_SEEN_INFO:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.DisplayFlagSeenInfo(getBrowser());
             break;
         case CONTAINER_DISPLAY_VERSION_INFO:
             action = new com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo(getBrowser());

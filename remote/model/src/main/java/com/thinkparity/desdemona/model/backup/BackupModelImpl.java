@@ -253,8 +253,20 @@ final class BackupModelImpl extends AbstractModelImpl {
                 logger.logWarning("");
                 return emptyStatistics();
             } else {
+                final InternalDocumentModel documentModel = getModelFactory(backupId).getDocumentModel(getClass());
+                final List<Document> documents = documentModel.read();
+                final List<DocumentVersion> versions = new ArrayList<DocumentVersion>();
+                long diskUsage = 0;
+                for (final Document document : documents) {
+                    versions.clear();
+                    versions.addAll(documentModel.readVersions(document.getId()));
+                    for (final DocumentVersion version : versions) {
+                        diskUsage += version.getSize().longValue();
+                    }
+                }
+
                 final Statistics statistics = new Statistics();
-                statistics.setDiskUsage(0L);
+                statistics.setDiskUsage(Long.valueOf(diskUsage));
                 return statistics;
             }
         } catch (final Throwable t) {

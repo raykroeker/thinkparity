@@ -66,15 +66,15 @@ public final class DocumentModelImpl extends
     /** A document reader/writer. */
 	private DocumentIOHandler documentIO;
 
-	/** A document event generator for local events. */
+    /** A document event generator for local events. */
     private final DocumentModelEventGenerator localEventGen;
 
-    /** The directory beneath which all files are stored. */
+	/** The directory beneath which all files are stored. */
     private File localFilesDirectory;
 
-	private final DocumentNameGenerator nameGenerator;
+    private final DocumentNameGenerator nameGenerator;
 
-    /**
+	/**
 	 * Create a DocumentModelImpl
 	 * 
 	 * @param workspace
@@ -97,7 +97,7 @@ public final class DocumentModelImpl extends
         super.addListener(listener);
     }
 
-	/**
+    /**
      * Create a document.
      * 
      * @param name
@@ -120,7 +120,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#createDraft(com.thinkparity.codebase.model.document.DocumentLock,
      *      java.lang.Long)
      * 
@@ -347,8 +347,8 @@ public final class DocumentModelImpl extends
         } catch (final Throwable t) {
             throw translateError(t);
         }
-    }        
-        
+    }
+
     /**
      * Determine whether or not the draft of the document is different from the
      * latest version.
@@ -381,8 +381,8 @@ public final class DocumentModelImpl extends
         } catch (final Throwable t) {
             throw translateError(t);
         }
-    }
-
+    }        
+        
     /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#lock(com.thinkparity.codebase.model.document.Document)
      *
@@ -500,8 +500,6 @@ public final class DocumentModelImpl extends
         }
     }
 
-    
-
     /**
      * @see com.thinkparity.ophelia.model.document.DocumentModel#openVersion(java.lang.Long,
      *      java.lang.Long, com.thinkparity.ophelia.model.util.Opener)
@@ -537,6 +535,8 @@ public final class DocumentModelImpl extends
             throw translateError(t);
 		}
 	}
+
+    
 
     /**
      * Print a document draft.
@@ -597,6 +597,18 @@ public final class DocumentModelImpl extends
             }
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#read()
+     *
+     */
+    public List<Document> read() {
+        try {
+            return documentIO.list();
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 

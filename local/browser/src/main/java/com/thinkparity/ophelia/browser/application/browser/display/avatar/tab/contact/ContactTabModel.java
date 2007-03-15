@@ -1039,7 +1039,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             if (panel.isSetIncomingEMail()) {
                 return panel.getIncomingEMail().getExtendedBy();
             } else if (panel.isSetIncomingUser()) {
-                return panel.getIncomingEMail().getExtendedBy();
+                return panel.getIncomingUser().getExtendedBy();
             } else if (panel.isSetOutgoingEMail()) {
                 return null;
             } else if (panel.isSetOutgoingUser()) {

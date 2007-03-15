@@ -12,8 +12,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
-import java.text.DecimalFormat;
-import java.text.Format;
 import java.text.MessageFormat;
 
 import com.thinkparity.codebase.StringUtil.Separator;
@@ -26,13 +24,6 @@ import com.thinkparity.codebase.assertion.Assert;
  * @version 1.2.2.9
  */
 public abstract class FileUtil {
-
-	/** Format for file sizes. */
-    private static Format SIZE_FORMAT;
-
-    static {
-        SIZE_FORMAT =  new DecimalFormat("###.#");
-	}
 
     /**
 	 * Copy a file.
@@ -137,21 +128,7 @@ public abstract class FileUtil {
      * @return A formatted size <code>String</code>.
      */
     public static String formatSize(final Long bytes) {
-        if (bytes >= 1073741824) {
-            return new StringBuffer(SIZE_FORMAT.format(bytes / 1024F / 1024F / 1024F))
-                .append(" GB").toString();
-        } else if (bytes >= 1048576) {
-            return new StringBuffer(SIZE_FORMAT.format(bytes / 1024F / 1024F))
-                .append(" MB").toString();
-        } else if (bytes >= 1024) {
-            return new StringBuffer(SIZE_FORMAT.format(bytes / 1024F))
-                .append(" KB").toString();
-        } else if (bytes > 0 && bytes < 1024) {
-            return new StringBuffer(SIZE_FORMAT.format(bytes)).append(" B")
-                .toString();
-        } else {
-            return "0 B";
-        }
+        return new BytesFormat().format(bytes);
     }
     
 	/**

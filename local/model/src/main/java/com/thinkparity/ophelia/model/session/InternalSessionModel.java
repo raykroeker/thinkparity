@@ -14,6 +14,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
@@ -211,7 +212,7 @@ public interface InternalSessionModel extends SessionModel {
     // TODO-javadoc InternalSessionModel#deleteDraft()
     public void deleteDraft(final UUID uniqueId, final Calendar deletedOn);
 
-	/**
+    /**
      * Delete a contact invitation.
      * 
      * @param invitation
@@ -222,7 +223,7 @@ public interface InternalSessionModel extends SessionModel {
     public void deleteInvitation(final OutgoingEMailInvitation invitation,
             final Calendar deletedOn);
 
-    /**
+	/**
      * Delete a contact invitation.
      * 
      * @param invitation
@@ -232,7 +233,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void deleteInvitation(final OutgoingUserInvitation invitation,
             final Calendar deletedOn);
-    
+
     /**
      * Delete a stream session.
      * 
@@ -240,7 +241,7 @@ public interface InternalSessionModel extends SessionModel {
      *            A <code>StreamSession</code>.
      */
     public void deleteStreamSession(final StreamSession session);
-
+    
     /**
      * Deploy a migrator release.
      * 
@@ -260,13 +261,13 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void handleSessionEstablished();
 
-	/**
+    /**
      * Handle the remote session terminated event.
      *
      */
     public void handleSessionTerminated();
 
-    /**
+	/**
      * Handle the remote session terminated event.
      * 
      * @param cause
@@ -614,6 +615,13 @@ public interface InternalSessionModel extends SessionModel {
     public String readProfileSecurityQuestion(final JabberId userId);
 
     public Integer readQueueSize();
+
+    /**
+     * Read the backup statistics.
+     * 
+     * @return The <code>Statistics</code>.
+     */
+    public Statistics readStatistics();
 
 	/**
      * Read a thinkParity user from the server.

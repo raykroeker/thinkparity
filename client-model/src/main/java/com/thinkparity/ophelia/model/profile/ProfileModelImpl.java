@@ -148,7 +148,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      * @see com.thinkparity.ophelia.model.profile.InternalProfileModel#isBackupAvailable()
      *
      */
-    public Boolean isBackupAvailable() {
+    public Boolean isBackupEnabled() {
         try {
             final Profile profile = read();
             final List<Feature> features = profileIO.readFeatures(profile.getLocalId());
@@ -164,19 +164,31 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.profile.ProfileModel#isSignUpAvailable()
-     * 
+     * @see com.thinkparity.ophelia.model.profile.InternalProfileModel#isBackupAvailable()
+     *
      */
-    public Boolean isSignUpAvailable() {
+    public Boolean isCoreEnabled() {
         try {
             final Profile profile = read();
             final List<Feature> features = profileIO.readFeatures(profile.getLocalId());
             for (final Feature feature : features) {
                 if (Features.CORE.equals(feature.getName())) {
-                    return Boolean.FALSE;
+                    return Boolean.TRUE;
                 }
             }
-            return Boolean.TRUE;
+            return Boolean.FALSE;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#isSignUpAvailable()
+     * 
+     */
+    public Boolean isSignUpAvailable() {
+        try {
+            return Boolean.valueOf(!isCoreEnabled().booleanValue());
         } catch (final Throwable t) {
             throw panic(t);
         }

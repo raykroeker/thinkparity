@@ -26,7 +26,7 @@ import com.thinkparity.ophelia.model.events.ProfileListener;
 @ThinkParityTransaction(TransactionType.REQUIRED)
 public interface ProfileModel {
 
-	/**
+    /**
      * Add an email to the profile.
      * 
      * @param email
@@ -34,7 +34,7 @@ public interface ProfileModel {
      */
 	public void addEmail(final EMail email);
 
-    /**
+	/**
      * Add a profile event listener to the model.
      *
      * @param listener
@@ -51,6 +51,20 @@ public interface ProfileModel {
      * @return True if the address is not in use.
      */
     public Boolean isAvailable(final EMail email);
+
+    /**
+     * Determine if the backup feature is available.
+     * 
+     * @return True if backup is available for the profile.
+     */
+    public Boolean isBackupEnabled();
+
+    /**
+     * Determine if the core feature is available.
+     * 
+     * @return True if core is available for the profile.
+     */
+    public Boolean isCoreEnabled();
 
     /**
      * Determine if sign up is available.

@@ -1851,6 +1851,9 @@ public final class ContainerModelImpl extends
      */
     public void restoreBackup(final ProcessMonitor monitor) {
         try {
+            if (!getProfileModel().isBackupEnabled().booleanValue())
+                return;
+
             final List<Container> containers = read();
             notifyDetermine(monitor, containers.size());
             if (0 < containers.size()) {

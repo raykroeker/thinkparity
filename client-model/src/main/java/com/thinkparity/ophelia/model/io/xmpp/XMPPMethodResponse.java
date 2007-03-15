@@ -15,6 +15,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.ContactInvitation;
 import com.thinkparity.codebase.model.contact.ContactVCard;
 import com.thinkparity.codebase.model.container.Container;
@@ -31,7 +32,6 @@ import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
-import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import org.jivesoftware.smack.packet.IQ;
@@ -200,6 +200,10 @@ public class XMPPMethodResponse extends IQ {
 
     public List<Resource> readResultResources(final String name) {
         return (List<Resource>) readResult(name);
+    }
+
+    public Statistics readResultStatistics(final String name) {
+        return (Statistics) readResult(name);
     }
 
     public StreamSession readResultStreamSession(final String name) {

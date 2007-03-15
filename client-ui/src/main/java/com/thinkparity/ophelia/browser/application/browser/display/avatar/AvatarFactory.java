@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
+import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ConfirmAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.DisplayInfoAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
@@ -83,6 +84,9 @@ public class AvatarFactory {
 	/** The <code>AvatarRegistry</code>. */
 	private final AvatarRegistry avatarRegistry;
 
+    /** The thinkParity <code>Platform</code>. */
+    private final Platform platform;
+
 	/**
      * Create AvatarFactory.
      * 
@@ -90,6 +94,7 @@ public class AvatarFactory {
 	private AvatarFactory(final Platform platform) {
 		super();
 		this.avatarRegistry = new AvatarRegistry();
+        this.platform = platform;
 	}
 
 	/**
@@ -103,90 +108,91 @@ public class AvatarFactory {
 		final Avatar avatar;
 		switch (id) {
 		case MAIN_CONTENT:
-		    avatar = new MainContentAvatar();
+		    avatar = newAvatar(MainContentAvatar.class);
 		    break;
 		case MAIN_STATUS:
-		    avatar = new MainStatusAvatar();
+		    avatar = newAvatar(MainStatusAvatar.class);
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
+            avatar.setEventDispatcher(EventDispatcherFactory.getDispatcher(id));
 		    break;
 		case MAIN_TITLE:
-		    avatar = new MainTitleAvatar();
+		    avatar = newAvatar(MainTitleAvatar.class);
 		    break;
 
         case TAB_ARCHIVE:
-            avatar = new ArchiveTabAvatar();
+            avatar = newAvatar(ArchiveTabAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             avatar.setEventDispatcher(EventDispatcherFactory.getDispatcher(id));
             break;
         case TAB_CONTAINER:
-            avatar = new ContainerTabAvatar();
+            avatar = newAvatar(ContainerTabAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             avatar.setEventDispatcher(EventDispatcherFactory.getDispatcher(id));
             break;
         case TAB_CONTACT:
-            avatar = new ContactTabAvatar();
+            avatar = newAvatar(ContactTabAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
 			break;
 
         case DIALOG_CONFIRM:
-            avatar = new ConfirmAvatar();
+            avatar = newAvatar(ConfirmAvatar.class);
             break;
         case DIALOG_ERROR:
-            avatar = new ErrorAvatar();
+            avatar = newAvatar(ErrorAvatar.class);
             break;
         case DIALOG_ERROR_DETAILS:
-            avatar = new ErrorDetailsAvatar();
+            avatar = newAvatar(ErrorDetailsAvatar.class);
             break;
         case DIALOG_FILE_CHOOSER:
-            avatar = new FileChooserAvatar();
+            avatar = newAvatar(FileChooserAvatar.class);
             break;
 
         case DIALOG_CONTACT_CREATE_OUTGOING_INVITATION:
-            avatar = new CreateInvitationAvatar();
+            avatar = newAvatar(CreateInvitationAvatar.class);
             break;
         case DIALOG_CONTACT_READ:
-            avatar = new UserInfoAvatar();
+            avatar = newAvatar(UserInfoAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
 
         case DIALOG_CONTAINER_CREATE:
-            avatar = new CreateContainerAvatar();
+            avatar = newAvatar(CreateContainerAvatar.class);
             break;
         case DIALOG_CONTAINER_PUBLISH:
-            avatar = new PublishContainerAvatar();
+            avatar = newAvatar(PublishContainerAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_CONTAINER_RENAME:
-            avatar = new RenameContainerAvatar();
+            avatar = newAvatar(RenameContainerAvatar.class);
             break;
         case DIALOG_CONTAINER_RENAME_DOCUMENT:
-            avatar = new RenameDocumentAvatar();
+            avatar = newAvatar(RenameDocumentAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_CONTAINER_VERSION_COMMENT:
-            avatar = new ContainerVersionCommentAvatar();
+            avatar = newAvatar(ContainerVersionCommentAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
             
         case DIALOG_PLATFORM_DISPLAY_INFO:
-            avatar = new DisplayInfoAvatar();
+            avatar = newAvatar(DisplayInfoAvatar.class);
             break;
 
         case DIALOG_PROFILE_UPDATE:
-            avatar = new UpdateProfileAvatar();
+            avatar = newAvatar(UpdateProfileAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_PROFILE_UPDATE_PASSWORD:
-            avatar = new UpdatePasswordAvatar();
+            avatar = newAvatar(UpdatePasswordAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_PROFILE_VERIFY_EMAIL:
-            avatar = new VerifyEMailAvatar();
+            avatar = newAvatar(VerifyEMailAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
 		default:
             throw Assert.createUnreachable("UNKNOWN AVATAR");
 		}
-		register(avatar);
 		return avatar;
 	}
 
@@ -219,15 +225,24 @@ public class AvatarFactory {
     }
 
     /**
-     * Register an avatar in the registry.
+     * Create an avatar.
      * 
-     * @param avatar
-     *            The avatar to register.
+     * @param avatarImplementation
+     *            An avatar implementation <code>Class</code>.
+     * @return An instance of the avatar.
      */
-    private void register(final Avatar avatar) {
-        Assert.assertNotTrue(avatarRegistry.contains(avatar.getId()),
-                "Avatar {0} already registered.", avatar);
-        avatarRegistry.put(avatar.getId(), avatar);
+    private final <T extends Avatar> T newAvatar(
+            final Class<T> avatarImplementation) {
+        try {
+            final T avatarInstance = (T) avatarImplementation.newInstance();
+            avatarInstance.initialize(platform);
+            register(avatarInstance);
+            return avatarInstance;
+        } catch (final IllegalAccessException ix) {
+            throw new BrowserException("Could not create instance of " + avatarImplementation.getName() + ".", ix);
+        } catch (final InstantiationException ix) {
+            throw new BrowserException("Could not create instance of " + avatarImplementation.getName() + ".", ix);
+        }
     }
 
     /**
@@ -242,5 +257,17 @@ public class AvatarFactory {
         Assert.assertNotTrue(avatarRegistry.contains(extension),
                 "Avatar for tab extension {0} already registered.", extension);
         avatarRegistry.put(extension, avatar);
+    }
+
+    /**
+     * Register an avatar in the registry.
+     * 
+     * @param avatar
+     *            The avatar to register.
+     */
+    private void register(final Avatar avatar) {
+        Assert.assertNotTrue(avatarRegistry.contains(avatar.getId()),
+                "Avatar {0} already registered.", avatar);
+        avatarRegistry.put(avatar.getId(), avatar);
     }
 }

@@ -41,6 +41,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactRemoteInfo;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.ContactInvitation;
 import com.thinkparity.codebase.model.container.Container;
@@ -749,6 +750,12 @@ public class XMPPMethod extends IQ {
                 } else if (javaType.equals(Resource.class)) {
                     Resource javaValue = null;
                     javaValue = (Resource) xstreamUtil.unmarshal(new SmackXppReader(parser), javaValue);
+                    parser.next();
+                    parser.next();
+                    return javaValue;
+                } else if (Statistics.class.isAssignableFrom(javaType)) {
+                    Statistics javaValue = null;
+                    javaValue = (Statistics) xstreamUtil.unmarshal(new SmackXppReader(parser), javaValue);
                     parser.next();
                     parser.next();
                     return javaValue;

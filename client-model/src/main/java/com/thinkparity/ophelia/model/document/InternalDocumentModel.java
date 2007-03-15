@@ -169,6 +169,13 @@ public interface InternalDocumentModel extends DocumentModel {
 	public InputStream openVersion(final Long documentId, final Long versionId);
 
     /**
+     * Read a list of documents.
+     * 
+     * @return A <code>List</code> of <code>Document</code>s.
+     */
+    public List<Document> read();
+
+    /**
      * Read a document.
      * 
      * @param documentId

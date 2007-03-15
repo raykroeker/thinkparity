@@ -3,11 +3,12 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.artifact;
 
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 
 /**
  * <b>Title:</b>thinkParity Browser Apply Flag Seen<br>
@@ -41,7 +42,7 @@ public class ApplyFlagSeen extends AbstractBrowserAction {
 		final ArtifactModel artifactModel = getArtifactModel();
         if (!artifactModel.hasBeenSeen(artifactId)) {
 		    artifactModel.applyFlagSeen(artifactId);
-            browser.fireArtifactSeenFlagUpdated(artifactId);
+            browser.reloadStatusAvatar();
         }
 	}
 

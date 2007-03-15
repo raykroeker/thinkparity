@@ -356,13 +356,11 @@ public abstract class HistoryItemBuilder<T extends HistoryItem> {
     	        getName(event.getRequestedFrom())
     	};
     	final String localKey;
-    	if(event.getRequestedBy().getId().equals(localUser)) {
+    	if (event.getRequestedBy().getId().equals(localUser)) {
     		localKey = "eventText.REQUEST_KEY_BY";
-    	}
-    	else if(event.getRequestedFrom().getId().equals(localUser)) {
+    	} else if (event.getRequestedFrom().getId().equals(localUser)) {
     		localKey = "eventText.REQUEST_KEY_FROM";			
-    	}
-    	else {
+    	} else {
     		throw Assert.createUnreachable(
     				"[HISTORY ITEM BUILDER] [CUSTOMIZE] [REQUEST KEY EVENT CONTAINS NEITHER TO NOR FROM USER]");
     	}

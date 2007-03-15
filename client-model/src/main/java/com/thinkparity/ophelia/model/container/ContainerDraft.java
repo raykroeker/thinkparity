@@ -54,8 +54,11 @@ public class ContainerDraft {
      * @return True if the list of documents is modified.
      */
     public boolean addDocument(final Document document) {
-        if(artifacts.contains(document)) { return false; }
-        else { return artifacts.add(document); }
+        if (artifacts.contains(document)) {
+            return false;
+        } else {
+            return artifacts.add(document);
+        }
     }
 
     /**

@@ -336,11 +336,12 @@ public class HistoryItemBuilder {
                 getName(event.getSentTo()),
                 confirmEvent.getCreatedOn().getTime()
             };
-            if(DateUtil.isSameDay(
-                    event.getCreatedOn(), confirmEvent.getCreatedOn())) {
+            if (DateUtil.isSameDay(event.getCreatedOn(),
+                    confirmEvent.getCreatedOn())) {
                 localKey = "eventText.SEND_CONFIRMED_SAME_DAY";
+            } else {
+                localKey = "eventText.SEND_CONFIRMED";
             }
-            else { localKey = "eventText.SEND_CONFIRMED"; }
             pending = Boolean.FALSE;
         }
         item.setEvent(getString(localKey, arguments));

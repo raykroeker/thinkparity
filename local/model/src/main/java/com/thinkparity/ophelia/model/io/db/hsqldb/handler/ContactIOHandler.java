@@ -605,8 +605,9 @@ public final class ContactIOHandler extends AbstractIOHandler implements
                 contacts.add(extractContact(session));
             }
             return contacts;
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**
@@ -786,8 +787,9 @@ public final class ContactIOHandler extends AbstractIOHandler implements
             } else {
                 return null;
             }
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**
@@ -906,10 +908,10 @@ public final class ContactIOHandler extends AbstractIOHandler implements
             while(session.nextResult()) {
                 invitations.add(extractOutgoingUserInvitation(session));
             }
-
             return invitations;
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**

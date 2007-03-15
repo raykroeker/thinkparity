@@ -31,8 +31,11 @@ class PropertiesUtil {
      */
     static void load(final Properties properties, final File file) throws IOException {
         final FileInputStream fis = new FileInputStream(file);
-        try { properties.load(fis); }
-        finally { fis.close(); }
+        try {
+            properties.load(fis);
+        } finally {
+            fis.close();
+        }
     }
 
     /**

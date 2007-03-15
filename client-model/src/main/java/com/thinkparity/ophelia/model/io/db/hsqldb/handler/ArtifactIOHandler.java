@@ -526,8 +526,11 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 	public List<ArtifactFlag> getFlags(final Long artifactId)
 			throws HypersonicException {
 		final Session session = openSession();
-		try { return getFlags(session, artifactId); }
-		finally { session.close(); }
+		try {
+            return getFlags(session, artifactId);
+		} finally {
+            session.close();
+		}
 	}
 
     /**
@@ -577,10 +580,14 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_READ_LATEST_VERSION_ID);
             session.setLong(1, artifactId);
             session.executeQuery();
-            if(session.nextResult()) { return session.getLong("LATEST_VERSION_ID"); }
-            else { return null; }
+            if (session.nextResult()) {
+                return session.getLong("LATEST_VERSION_ID");
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**
@@ -638,10 +645,14 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_READ_STATE);
             session.setLong(1, artifactId);
             session.executeQuery();
-            if(session.nextResult()) { return session.getStateFromInteger("ARTIFACT_STATE_ID"); }
-            else { return null; }
+            if (session.nextResult()) {
+                return session.getStateFromInteger("ARTIFACT_STATE_ID");
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     
@@ -740,10 +751,14 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_READ_UNIQUE_ID);
             session.setLong(1, artifactId);
             session.executeQuery();
-            if(session.nextResult()) { return session.getUniqueId("ARTIFACT_UNIQUE_ID"); }
-            else { return null; }
+            if (session.nextResult()) {
+                return session.getUniqueId("ARTIFACT_UNIQUE_ID");
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
 	/**

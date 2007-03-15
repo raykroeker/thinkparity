@@ -952,10 +952,12 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
             if (session.nextResult()) {
                 return extractContainer(session, localUser);
+            } else {
+                return null;
             }
-            else { return null; }
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**
@@ -973,8 +975,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                 containers.add(extractContainer(session, localUser));
             }
             return containers;
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**
@@ -1015,8 +1018,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                 documents.add(documentIO.extractDocument(session));
             }
             return documents;
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**
@@ -1037,8 +1041,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                 versions.add(extractDocumentVersion(session));
             }
             return versions;
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**
@@ -1050,10 +1055,14 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_READ_DRAFT);
             session.setLong(1, containerId);
             session.executeQuery();
-            if(session.nextResult()) { return extractDraft(session); }
-            else { return null; }
+            if (session.nextResult()) {
+                return extractDraft(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**
@@ -1108,8 +1117,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         final Session session = openSession();
         try {
             return readVersion(containerId, artifactIO.getLatestVersionId(session, containerId));
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**
@@ -1203,10 +1213,12 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.executeQuery();
             if (session.nextResult()) {
                 return extractVersion(session);
+            } else {
+                return null;
             }
-            else { return null; }
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**
@@ -1224,8 +1236,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                 versions.add(extractVersion(session));
             }
             return versions;
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**
@@ -1494,8 +1507,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                 draft.addDocument(document);
                 draft.putState(document, session.getContainerStateFromString("DRAFT_ARTIFACT_STATE"));
             }
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**
@@ -1571,8 +1585,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         final Session session = openSession();
         try {
             return artifactIO.getVersionMetaData(session, containerId, versionId);
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**

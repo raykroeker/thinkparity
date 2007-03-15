@@ -108,10 +108,14 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_READ);
             session.setString(1, key);
             session.executeQuery();
-            if(session.nextResult()) { return extractMetaDataValue(session); }
-            else { return null; }
+            if (session.nextResult()) {
+                return extractMetaDataValue(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**

@@ -347,8 +347,9 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 				versions.add(extractVersion(session));
 			}
 			return versions;
+		} finally {
+            session.close();
 		}
-		finally { session.close(); }
 	}
 
     /**
@@ -520,7 +521,8 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		final Session session = openSession();
 		try {
 			return artifactIO.getVersionMetaData(session, artifactId, versionId);
+		} finally {
+            session.close();
 		}
-		finally { session.close(); }
 	}
 }

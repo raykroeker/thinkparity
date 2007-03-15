@@ -420,13 +420,12 @@ public class XMPPMethod extends IQ {
         xml.append("<").append(parameter.name).append(" javaType=\"")
                 .append(parameter.javaType.getName())
                 .append("\"");
-        if (null == parameter.javaValue) { xml.append("/>"); }
-        else {
-            xml.append(">")
-                    .append(getParameterXMLValue(parameter))
-                    .append("</").append(parameter.name).append(">");
+        if (null == parameter.javaValue) {
+            xml.append("/>");
+        } else {
+            xml.append(">").append(getParameterXMLValue(parameter))
+                .append("</").append(parameter.name).append(">");
         }
-
         return xml.toString();
     }
 

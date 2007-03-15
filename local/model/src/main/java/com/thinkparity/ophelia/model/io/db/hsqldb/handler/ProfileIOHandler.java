@@ -208,10 +208,14 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_READ_UK);
             session.setQualifiedUsername(1, jabberId);
             session.executeQuery();
-            if(session.nextResult()) { return extractProfile(session); }
-            else { return null; }
+            if (session.nextResult()) {
+                return extractProfile(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**
@@ -245,8 +249,9 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
                 emails.add(extractEMail(session));
             }
             return emails;
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**

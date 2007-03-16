@@ -833,7 +833,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             return getDocumentModel(testUser).create(filename,
                 new FileInputStream(getInputFile(filename)));
         } catch (final IOException iox) {
-            throw new RuntimeException(iox);
+            throw new TestException(iox);
         }
     }
 
@@ -1032,7 +1032,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             }
             return null;
         } catch (final IOException iox) {
-            throw new RuntimeException(iox);
+            throw new TestException(iox);
         }
 	}
 
@@ -1046,7 +1046,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             }
             return null;
         } catch (final IOException iox) {
-            throw new RuntimeException(iox);
+            throw new TestException(iox);
         }
     }
 
@@ -1243,7 +1243,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             }
             return tempFile;
         } catch (final IOException iox) {
-            throw new RuntimeException(iox);
+            throw new TestException(iox);
         }
     }
 

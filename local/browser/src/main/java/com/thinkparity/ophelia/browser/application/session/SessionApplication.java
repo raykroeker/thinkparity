@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.browser.application.session;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
@@ -32,11 +31,6 @@ import org.apache.log4j.Logger;
  * @version 1.1.2.6
  */
 public class SessionApplication extends AbstractApplication {
-
-    /** The connect timer name <code>String</code>. */
-    private static final String CONNECT_TIMER_NAME = new StringBuffer()
-            .append(Application.OPHELIA).append(" - ").append("Connect Timer")
-            .toString();
 
     /** The connect <code>Timer</code>. */
     private Timer connectTimer;
@@ -238,7 +232,7 @@ public class SessionApplication extends AbstractApplication {
      */
     private void connectLater(final Long delay) {
         logApiId();
-        connectTimer = new Timer(CONNECT_TIMER_NAME, Boolean.FALSE);
+        connectTimer = new Timer("TPS-OpheliaUI-SessionConnect", Boolean.FALSE);
         connectTimer.schedule(new TimerTask() {
             public void run() {
                 try {

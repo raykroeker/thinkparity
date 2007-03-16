@@ -83,7 +83,7 @@ public class ContainerDraftMonitor {
      *
      */
     public void start() {
-        timer = new Timer("ContainerDraftMonitor", true);
+        timer = new Timer("TPS-OpheliaModel-CDMonitor", true);
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {

@@ -96,7 +96,7 @@ public final class BrokenStreamWriterTest extends StreamTestCase {
                             fail(createFailMessage(x));
                         }
                     }
-                }, "[TPS-DesdemonaModel-BSWT-" + String.valueOf(i) + "]"));
+                }, "TPS-DesdemonaModel-BSWT-" + String.valueOf(i)));
         }
         
         datum = new Fixture(server, streamWriters);

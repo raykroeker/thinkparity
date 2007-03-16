@@ -70,7 +70,7 @@ public class PersistenceFactory {
             }
             @Override
             public String getName() {
-                return "[TPS-PersistenceSave]";
+                return "TPS-OpheliaUI-PersistenceSave";
             }
             @Override
             public Integer getPriority() {

@@ -39,7 +39,7 @@ class SystemApplicationImpl extends Thread {
 	private Tray sysTray;
 
 	SystemApplicationImpl(final SystemApplication sysApp) {
-		super("[BROWSER2] [APP] [SYS] [THREAD]");
+		super("TPS-OpheliaUI-SystemAppliction");
 		this.sysApp = sysApp;
         this.queue = new LinkedList<Notification>();
 	}

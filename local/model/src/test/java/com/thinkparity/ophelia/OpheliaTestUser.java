@@ -60,20 +60,17 @@ public class OpheliaTestUser extends User {
     private static final String PASSWORD;
 
 	static {
-        LOGGER = new Log4JWrapper("");
-        JUNIT = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit");
-        JUNIT_W = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.w");
-        JUNIT_X = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.x");
-        JUNIT_Y = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.y");
-        JUNIT_Z = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.z");
-        THINKPARITY = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "thinkparity");
         INITIALIZE_MONITOR = new ProcessMonitor() {
             public void beginProcess() {
                 LOGGER.logInfo("Begin workspace initialize process.");
             }
             public void beginStep(final Step step, final Object data) {
-                LOGGER.logInfo("Begin workspace initialize process step {0}:{1}.",
-                        step, data);
+                if (null == data)
+                    LOGGER.logInfo("Begin workspace initialize process step {0}.",
+                            step);
+                else
+                    LOGGER.logInfo("Begin workspace initialize process step {0}:{1}.",
+                            step, data);
             }
             public void determineSteps(final Integer steps) {
                 LOGGER.logInfo("Determine workspace initialize process steps {0}.", steps);
@@ -85,8 +82,16 @@ public class OpheliaTestUser extends User {
                 LOGGER.logInfo("End workspace initialize process step {0}.", step);
             }
         };
+        LOGGER = new Log4JWrapper("");
         PASSWORD = "parity";
-    }
+
+        JUNIT = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit");
+        JUNIT_W = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.w");
+        JUNIT_X = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.x");
+        JUNIT_Y = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.y");
+        JUNIT_Z = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.z");
+        THINKPARITY = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "thinkparity");
+	}
 
     /** The test user's <code>Context</code>. */
     private final Context context;
@@ -231,16 +236,13 @@ public class OpheliaTestUser extends User {
      */
     private void processOfflineQueue() throws InvalidCredentialsException {
         assertIsReachable(environment);
-        XMPPSession session = null;
-        try {
-            session = new XMPPSessionImpl();
-            session.login(environment, credentials);
-        } finally {
-            Assert.assertNotNull(session,
-                    "User {0}'s session is null.", credentials.getUsername());
-            Assert.assertTrue(session.isLoggedIn(),
-                    "User {0} not logged in.", credentials.getUsername());
-            session.logout();
-        }
+        final XMPPSession session = new XMPPSessionImpl();
+        session.login(environment, credentials);
+        session.registerQueueListener();
+        Assert.assertNotNull(session,
+                "User {0}'s session is null.", credentials.getUsername());
+        Assert.assertTrue(session.isLoggedIn(),
+                "User {0} not logged in.", credentials.getUsername());
+        session.logout();
     }
 }

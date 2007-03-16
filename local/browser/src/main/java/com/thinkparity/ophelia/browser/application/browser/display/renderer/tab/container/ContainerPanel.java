@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
@@ -60,6 +61,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel westCountJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel westFiller2JLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel westFirstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JPanel westJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel westLastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
@@ -409,9 +411,11 @@ public class ContainerPanel extends DefaultTabPanel {
             renderer.paintExpandedBackground(g, this);
             if (!westListModel.isSelectionEmpty()) {
                 final int selectionIndex = westListModel.getSelectedIndex();
-                renderer.paintExpandedBackgroundWest(g, westJPanel.getWidth(), getHeight(), selectionIndex, this);
-                renderer.paintExpandedBackgroundCenter(g, westJPanel.getWidth(), getHeight(), selectionIndex, this);
-                renderer.paintExpandedBackgroundEast(g, westJPanel.getWidth(), getHeight(), selectionIndex, this);
+                final int westWidth = westJPanel.getWidth()
+                        + SwingUtilities.convertPoint(westJPanel, new Point(0, 0), this).x;
+                renderer.paintExpandedBackgroundWest(g, westWidth, getHeight(), selectionIndex, this);
+                renderer.paintExpandedBackgroundCenter(g, westWidth, getHeight(), selectionIndex, this);
+                renderer.paintExpandedBackgroundEast(g, westWidth, getHeight(), selectionIndex, this);
             }
         } else {
             renderer.paintBackground(g, getWidth(), getHeight(), selected);
@@ -815,7 +819,7 @@ public class ContainerPanel extends DefaultTabPanel {
 
         westListJPanel.setOpaque(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = 6;
+        gridBagConstraints.gridwidth = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -863,6 +867,12 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         westJPanel.add(westLastJLabel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 2);
+        westJPanel.add(westFiller2JLabel, gridBagConstraints);
 
         fixedSizeJPanel.add(westJPanel);
 

@@ -24,6 +24,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -53,7 +54,7 @@ import com.thinkparity.ophelia.model.util.xmpp.event.XMPPEventListener;
  * @version 1.2.1.37
  */
 public interface XMPPSession {
-    
+
     /**
      * Accept the e-mail invitation.
      * 
@@ -97,7 +98,6 @@ public interface XMPPSession {
      */
     public void addListener(final SessionListener listener);
 
-
     /**
      * Add an email to a user's profile.
      * 
@@ -107,6 +107,7 @@ public interface XMPPSession {
      *            A <code>ProfileEmail</code>.
      */
     public void addProfileEmail(final JabberId userId, final EMail email);
+
 
     /**
      * Add a team member. This will create the team member relationship in the
@@ -329,7 +330,7 @@ public interface XMPPSession {
      */
     public void deleteStream(final JabberId userId,
             final StreamSession session, final String streamId);
-    
+
     /**
      * Delete a stream session.
      * 
@@ -340,7 +341,7 @@ public interface XMPPSession {
      */
     public void deleteStreamSession(final JabberId userId,
             final StreamSession session);
-
+    
     /**
      * Deploy a migrator release.
      * 
@@ -399,6 +400,21 @@ public interface XMPPSession {
      */
     public Boolean isPublishRestricted(final JabberId userId,
             final JabberId publishFrom, final JabberId publishTo);
+
+    /**
+     * Log an error.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param error
+     *            An <code>Error</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param occuredOn
+     *            The date/time the error occured.
+     */
+    public void logError(final JabberId userId, final Product product,
+            final Error error, final Calendar occuredOn);
 
     /**
      * Login.

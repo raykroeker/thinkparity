@@ -28,6 +28,7 @@ import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.junitx.TestException;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -821,7 +822,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             return getDocumentModel(testUser).create(inputFile.getName(),
                     new FileInputStream(inputFile));
         } catch (final IOException iox) {
-            throw new RuntimeException(iox);
+            throw new TestException(iox);
         }
     }
 

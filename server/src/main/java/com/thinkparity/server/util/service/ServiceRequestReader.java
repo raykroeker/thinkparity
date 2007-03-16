@@ -19,6 +19,7 @@ import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -98,6 +99,8 @@ public interface ServiceRequestReader {
      * @return A <code>List</code> of <code>EMail</code>s.
      */
     public List<EMail> readEMails(final String name);
+
+    public Error readError(final String name);
 
     /**
      * Read an incoming invitation.

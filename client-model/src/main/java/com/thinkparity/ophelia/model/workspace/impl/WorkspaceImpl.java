@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -56,6 +58,9 @@ public class WorkspaceImpl implements Workspace {
 
     /** The persistence manager. */
     private PersistenceManagerImpl persistenceManagerImpl;
+
+    /** The workspace session data. */
+    private Map<String, Object> sessionData;
 
     /** A list of shutdown hooks to execute upon jvm termination. */
     private List<ShutdownHook> shutdownHooks;
@@ -121,6 +126,9 @@ public class WorkspaceImpl implements Workspace {
 
         persistenceManagerImpl.stop();
         persistenceManagerImpl = null;
+
+        sessionData.clear();
+        sessionData = null;
 
         xmppSessionImpl = null;
 
@@ -209,11 +217,27 @@ public class WorkspaceImpl implements Workspace {
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getAttribute(java.lang.String)
+     *
+     */
+    public Object getAttribute(final String name) {
+        return sessionData.get(name);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getAttributeNames()
+     *
+     */
+    public Iterable<String> getAttributeNames() {
+        return Collections.unmodifiableSet(sessionData.keySet());
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getDataDirectory()
      */
     public File getDataDirectory() {
         return initChild(DirectoryNames.Workspace.DATA);
-    }
+    }            
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getDataSource()
@@ -237,9 +261,9 @@ public class WorkspaceImpl implements Workspace {
      */
     public File getIndexDirectory() {
         return initChild(DirectoryNames.Workspace.INDEX);
-    }            
+    }
 
-    /**
+	/**
      * Obtain the model's event listeners.
      * 
      * @param <T>
@@ -267,7 +291,7 @@ public class WorkspaceImpl implements Workspace {
         return new File(loggingDirectory, FileNames.Workspace.Logging.LOGFILE);
     }
 
-	/**
+    /**
      * Obtain the workspace name.
      * 
      * @return A name <code>String</code>.
@@ -335,11 +359,21 @@ public class WorkspaceImpl implements Workspace {
         persistenceManagerImpl = new PersistenceManagerImpl(this);
         persistenceManagerImpl.start();
 
+        sessionData = new Hashtable<String, Object>();
+
         xmppSessionImpl = new XMPPSessionImpl(XMPPSessionDebugger.class);
 
         shutdownHooks = new ArrayList<ShutdownHook>();
         
         FileUtil.deleteTree(initChild(DirectoryNames.Workspace.TEMP));
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#removeAttribute(java.lang.String)
+     *
+     */
+    public void removeAttribute(final String name) {
+        sessionData.remove(name);
     }
 
     /**
@@ -353,6 +387,14 @@ public class WorkspaceImpl implements Workspace {
     public <T extends EventListener> boolean removeListener(
             final Model impl, final T listener) {
         return listenersImpl.remove(impl, listener);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#setAttribute(java.lang.String, java.lang.Object)
+     *
+     */
+    public void setAttribute(final String name, final Object value) {
+        sessionData.put(name, value);
     }
 
     /**

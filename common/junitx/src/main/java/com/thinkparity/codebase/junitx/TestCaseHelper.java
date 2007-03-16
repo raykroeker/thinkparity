@@ -81,7 +81,7 @@ public class TestCaseHelper {
 		    TestInitializer.initialize(testSession);
             getInputFiles();
 		} catch (final IOException iox) {
-            throw new RuntimeException(iox);
+            throw new TestException(iox);
 		}
 		new Log4JWrapper("TEST_LOGGER").logInfo(JUnitX.MESSAGE_INIT);
 	}

@@ -5,15 +5,16 @@ package com.thinkparity.desdemona.model.io.sql;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.OS;
-import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
@@ -27,44 +28,51 @@ import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
  */
 public final class MigratorSql extends AbstractSql {
 
+    /** Sql to create an error. */
+    private static final String SQL_CREATE_ERROR =
+        new StringBuilder("insert into PRODUCT_ERROR ")
+        .append("(PRODUCT_ID,USER_ID,ERROR_DATE,ERROR_XML) ")
+        .append("values (?,?,?,?) ")
+        .toString();
+
     /** Sql to create a product. */
     private static final String SQL_CREATE_PRODUCT =
-        new StringBuffer("insert into PARITY_PRODUCT ")
+        new StringBuilder("insert into PRODUCT ")
         .append("(PRODUCT_ID,PRODUCT_NAME) ")
         .append("values (?,?)")
         .toString();
 
     /** Sql to create a release. */
     private static final String SQL_CREATE_RELEASE =
-        new StringBuffer("insert into PARITY_RELEASE ")
+        new StringBuilder("insert into PRODUCT_RELEASE ")
         .append("(PRODUCT_ID,RELEASE_NAME,RELEASE_OS,RELEASE_DATE) ")
         .append("values (?,?,?,?)")
         .toString();
 
     /** Sql to add a resource. */
     private static final String SQL_CREATE_RELEASE_RESOURCE_REL =
-        new StringBuffer("insert into PARITY_RELEASE_RESOURCE_REL ")
+        new StringBuilder("insert into PARITY_RELEASE_RESOURCE_REL ")
         .append("(RELEASE_ID,RESOURCE_ID,RESOURCE_PATH) ")
         .append("values (?,?,?)")
         .toString();
 
     /** Sql to add a resource. */
     private static final String SQL_CREATE_RESOURCE =
-        new StringBuffer("insert into PARITY_RESOURCE ")
+        new StringBuilder("insert into PARITY_RESOURCE ")
         .append("(RESOURCE_NAME,RESOURCE_VERSION,RESOURCE_CHECKSUM,RESOURCE_SIZE,RESOURCE) ")
         .append("values (?,?,?,?,?)")
         .toString();
 
     /** Sql to create a resource os relationship. */
     private static final String SQL_CREATE_RESOURCE_OS =
-        new StringBuffer("insert into PARITY_RESOURCE_OS ")
+        new StringBuilder("insert into PARITY_RESOURCE_OS ")
         .append("(RESOURCE_ID,RESOURCE_OS) ")
         .append("values (?,?)")
         .toString();
 
     /** Sql to determine product existence. */
     private static final String SQL_DOES_EXIST_PRODUCT_BY_NAME =
-        new StringBuffer("select COUNT(PRODUCT_ID) \"PRODUCT_COUNT\" ")
+        new StringBuilder("select COUNT(PRODUCT_ID) \"PRODUCT_COUNT\" ")
         .append("from PARITY_PRODUCT P ")
         .append("inner join ARTIFACT A on A.ARTIFACT_ID=P.PRODUCT_ID ")
         .append("where P.PRODUCT_NAME=? ")
@@ -72,7 +80,7 @@ public final class MigratorSql extends AbstractSql {
 
     /** Sql to determine product existence. */
     private static final String SQL_DOES_EXIST_PRODUCT_BY_UNIQUE_ID =
-        new StringBuffer("select COUNT(PRODUCT_ID) \"PRODUCT_COUNT\" ")
+        new StringBuilder("select COUNT(PRODUCT_ID) \"PRODUCT_COUNT\" ")
         .append("from PARITY_PRODUCT P ")
         .append("inner join ARTIFACT A on A.ARTIFACT_ID=P.PRODUCT_ID ")
         .append("where A.ARTIFACTUUID=? ")
@@ -80,14 +88,14 @@ public final class MigratorSql extends AbstractSql {
 
     /** Sql to determine release existence. */
     private static final String SQL_DOES_EXIST_RELEASE_BY_NAME =
-        new StringBuffer("select COUNT(RELEASE_ID) \"RELEASE_COUNT\" ")
+        new StringBuilder("select COUNT(RELEASE_ID) \"RELEASE_COUNT\" ")
         .append("from PARITY_RELEASE R ")
         .append("where R.PRODUCT_ID=? and R.RELEASE_NAME=? and R.RELEASE_OS=?")
         .toString();
 
     /** Sql to determine resource existence. */
     private static final String SQL_DOES_EXIST_RESOURCE_BY_ID_OS =
-        new StringBuffer("select COUNT(RESOURCE_ID) \"RESOURCE_COUNT\" ")
+        new StringBuilder("select COUNT(RESOURCE_ID) \"RESOURCE_COUNT\" ")
         .append("from PARITY_RESOURCE R ")
         .append("inner join PARITY_RESOURCE_OS RO on R.RESOURCE_ID=RO.RESOURCE_ID ")
         .append("where R.RESOURCE_ID=? and RO.RESOURCE_OS=? ")
@@ -95,7 +103,7 @@ public final class MigratorSql extends AbstractSql {
 
     /** Sql to determine resource existence. */
     private static final String SQL_DOES_EXIST_RESOURCE_BY_NAME_VERSION_CHECKSUM =
-        new StringBuffer("select COUNT(RESOURCE_ID) \"RESOURCE_COUNT\" ")
+        new StringBuilder("select COUNT(RESOURCE_ID) \"RESOURCE_COUNT\" ")
         .append("from PARITY_RESOURCE R ")
         .append("where R.RESOURCE_NAME=? and R.RESOURCE_VERSION=? ")
         .append("and R.RESOURCE_CHECKSUM=?")
@@ -103,7 +111,7 @@ public final class MigratorSql extends AbstractSql {
 
     /** Sql to open resource. */
     private static final String SQL_OPEN_RESOURCE =
-        new StringBuffer("select R.RESOURCE ")
+        new StringBuilder("select R.RESOURCE ")
         .append("from PARITY_RESOURCE R ")
         .append("where R.RESOURCE_NAME=? and R.RESOURCE_VERSION=? ")
         .append("and R.RESOURCE_CHECKSUM=?")
@@ -111,7 +119,7 @@ public final class MigratorSql extends AbstractSql {
 
     /** Sql to read a release. */
     private static final String SQL_READ_LATEST_RELEASE_NAME =
-        new StringBuffer("select RELEASE_NAME ")
+        new StringBuilder("select RELEASE_NAME ")
         .append("from PARITY_RELEASE R ")
         .append("inner join PARITY_PRODUCT P on R.PRODUCT_ID=P.PRODUCT_ID ")
         .append("inner join ARTIFACT A on P.PRODUCT_ID=A.ARTIFACT_ID ")
@@ -121,20 +129,14 @@ public final class MigratorSql extends AbstractSql {
 
     /** Sql to read a product. */
     private static final String SQL_READ_PRODUCT =
-        new StringBuffer("select PUC.USERNAME \"CREATED_BY\",A.CREATED_ON,")
-        .append("P.PRODUCT_ID,P.PRODUCT_NAME,A.ARTIFACT_ID,")
-        .append("A.ARTIFACT_UNIQUE_ID,PUU.USERNAME \"UPDATED_BY\",")
-        .append("A.UPDATED_ON ")
-        .append("from PARITY_PRODUCT P ")
-        .append("inner join ARTIFACT A on A.ARTIFACT_ID=P.PRODUCT_ID ")
-        .append("inner join PARITY_USER PUC on PUC.USER_ID=A.CREATED_BY ")
-        .append("inner join PARITY_USER PUU on PUU.USER_ID=A.UPDATED_BY ")
+        new StringBuilder("select P.PRODUCT_ID,P.PRODUCT_NAME ")
+        .append("from PRODUCT P ")
         .append("where P.PRODUCT_NAME=? ")
         .toString();
 
     /** Sql to read a release. */
     private static final String SQL_READ_RELEASE =
-        new StringBuffer("select R.RELEASE_ID,R.RELEASE_NAME,R.RELEASE_OS,")
+        new StringBuilder("select R.RELEASE_ID,R.RELEASE_NAME,R.RELEASE_OS,")
         .append("R.RELEASE_DATE,P.PRODUCT_NAME ")
         .append("from PARITY_RELEASE R ")
         .append("inner join PARITY_PRODUCT P on R.PRODUCT_ID=P.PRODUCT_ID ")
@@ -144,7 +146,7 @@ public final class MigratorSql extends AbstractSql {
 
     /** Sql to read a resource id. */
     private static final String SQL_READ_RESOURCE_ID =
-        new StringBuffer("select R.RESOURCE_ID ")
+        new StringBuilder("select R.RESOURCE_ID ")
         .append("from PARITY_RESOURCE R ")
         .append("where R.RESOURCE_NAME=? and R.RESOURCE_VERSION=? ")
         .append("and R.RESOURCE_CHECKSUM=?")
@@ -152,7 +154,7 @@ public final class MigratorSql extends AbstractSql {
 
     /** Sql to read resources. */
     private static final String SQL_READ_RESOURCES =
-        new StringBuffer("select RESOURCE_ID,RESOURCE_NAME,RESOURCE_VERSION,")
+        new StringBuilder("select RESOURCE_ID,RESOURCE_NAME,RESOURCE_VERSION,")
         .append("RESOURCE_CHECKSUM,RESOURCE_SIZE,RESOURCE_OS.RESOURCE_OS,")
         .append("RESOURCE_RELEASE_REL.RESOURCE_PATH ")
         .append("from PARITY_RESOURCE RESOURCE ")
@@ -214,7 +216,7 @@ public final class MigratorSql extends AbstractSql {
      *            The stream size <code>Long</code>.
      */
     public void addResource(final Release release, final Resource resource,
-            final InputStream stream) {
+            final InputStream stream, final Integer bufferSize) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_CREATE_RESOURCE);
@@ -222,8 +224,7 @@ public final class MigratorSql extends AbstractSql {
             session.setString(2, resource.getVersion());
             session.setString(3, resource.getChecksum());
             session.setLong(4, resource.getSize());
-            // NOTE possible loss of precision here storing resource size
-            session.setBinaryStream(5, stream, resource.getSize().intValue());
+            session.setBinaryStream(5, stream, resource.getSize(), bufferSize);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not create release.");
             resource.setId(session.getIdentity());
@@ -251,6 +252,26 @@ public final class MigratorSql extends AbstractSql {
         final HypersonicSession session = openSession();
         try {
             addResource(session, resource, os);
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    public void createError(final User user, final Product product,
+            final InputStream error, final Long errorLength,
+            final Integer bufferSize, final Calendar occuredOn) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_ERROR);
+            session.setLong(1, product.getId());
+            session.setLong(2, user.getLocalId());
+            session.setCalendar(3, occuredOn);
+            session.setBinaryStream(4, error, errorLength, bufferSize);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not create error.");
             session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);
@@ -683,13 +704,8 @@ public final class MigratorSql extends AbstractSql {
      */
     private Product extractProduct(final HypersonicSession session) {
         final Product product = new Product();
-        product.setCreatedBy(JabberIdBuilder.parseUsername(session.getString("CREATED_BY")));
-        product.setCreatedOn(session.getCalendar("CREATED_ON"));
         product.setId(session.getLong("PRODUCT_ID"));
         product.setName(session.getString("PRODUCT_NAME"));
-        product.setUniqueId(UUID.fromString(session.getString("ARTIFACT_UNIQUE_ID")));
-        product.setUpdatedBy(JabberIdBuilder.parseUsername(session.getString("UPDATED_BY")));
-        product.setUpdatedOn(session.getCalendar("UPDATED_ON"));
         return product;
     }
 

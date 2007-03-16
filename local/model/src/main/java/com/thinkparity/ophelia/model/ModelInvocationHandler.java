@@ -76,8 +76,9 @@ final class ModelInvocationHandler implements InvocationHandler {
     }
 
     /**
-     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
-     *
+     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object,
+     *      java.lang.reflect.Method, java.lang.Object[])
+     * 
      */
     public Object invoke(final Object proxy, final Method method,
             final Object[] args) throws Throwable {
@@ -91,6 +92,14 @@ final class ModelInvocationHandler implements InvocationHandler {
             try {
                 final Object result;
                 try {
+                    model.setInvocationContext(new ModelInvocationContext() {
+                        public Object[] getArguments() {
+                            return args;
+                        }
+                        public Method getMethod() {
+                            return method;
+                        }
+                    });
                     result = method.invoke(model, args);
                 } finally {
                     model.notifyListeners();

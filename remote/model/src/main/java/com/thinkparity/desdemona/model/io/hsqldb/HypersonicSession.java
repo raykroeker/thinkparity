@@ -463,13 +463,24 @@ public final class HypersonicSession {
             throw panic(sqlx);
 		}
 	}
+
+	/**
+     * Set a blob column value.
+     * 
+     * @param index
+     *            The column index.
+     * @param value
+     *            The column value.
+     * @param bufferSize
+     *            The size of the buffer to use when writing the value.
+     */
     public void setBinaryStream(final Integer index, final InputStream value,
-            final Integer valueLength) {
+            final Long length, final Integer bufferSize) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
-        logColumnInjection(index, value, valueLength);
+        logColumnInjection(index, value);
         try {
-            preparedStatement.setBinaryStream(index, value, valueLength);
+            preparedStatement.setBinaryStream(index, value, length.intValue());
         } catch (final SQLException sqlx) {
             throw panic(sqlx);
         }
@@ -745,21 +756,6 @@ public final class HypersonicSession {
      */
     private void logColumnInjection(final Integer index, final Object columnValue) {
         LOGGER.logDebug("Inject {0}:{1}", index, columnValue);
-    }
-
-    /**
-     * Log the column name, value and extra data.
-     * 
-     * @param index
-     *            The column index <code>Integer</code>.
-     * @param columnValue
-     *            The column value <code>Object</code>.
-     * @param columnValueData
-     *            The column value data <code>Object</code>.
-     */
-    private void logColumnInjection(final Integer index,
-            final Object columnValue, final Object columnValueData) {
-        LOGGER.logDebug("Inject {0}:{1} - {2}", index, columnValue, columnValueData);
     }
 
     /**

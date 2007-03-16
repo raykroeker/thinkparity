@@ -225,7 +225,6 @@ public final class ContainerModelImpl extends
     public void addDocument(final Long containerId, final Long documentId) {
         try {
             assertDraftExists("Draft does not exist.", containerId);
-
             containerIO.createDraftArtifactRel(containerId, documentId,
                     ContainerDraft.ArtifactState.ADDED);
             createDraftDocument(containerId, documentId);

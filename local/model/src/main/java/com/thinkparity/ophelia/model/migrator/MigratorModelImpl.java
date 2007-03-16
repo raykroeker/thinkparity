@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import com.thinkparity.codebase.event.EventNotifier;
 
 import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.UploadMonitor;
+import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -40,7 +42,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-// NOCOMMIT suppress warnings
+// NOCOMMIT MigratorModelImpl - Supress Warnings
 @SuppressWarnings("unused")
 public final class MigratorModelImpl extends Model<MigratorListener> implements
         MigratorModel, InternalMigratorModel {
@@ -110,11 +112,11 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      */
     public void initialize() {
 // TODO finish migrator implementation
-//        assertOnline();
-//        try {
-//            // create the product
-//            final Product product = readRemoteProduct(getProductName());
-//            migratorIO.createProduct(product);
+        assertOnline();
+        try {
+            // create the product
+            final Product product = readRemoteProduct(getProductName());
+            migratorIO.createProduct(product);
 //            // create the release
 //            final Release release = readRemoteRelease(product, getReleaseName());
 //            final List<Resource> resources = readRemoteResources(release);
@@ -123,9 +125,9 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
 //            final Release latestRelease = readRemoteLatestRelease(product);
 //            final List<Resource> latestResources = readRemoteResources(latestRelease);
 //            migratorIO.createLatestRelease(latestRelease, latestResources);
-//        } catch (final Throwable t) {
-//            throw panic(t);
-//        }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -142,6 +144,28 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
 //        } catch (final Throwable t) {
 //            throw panic(t);
 //        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.migrator.InternalMigratorModel#logError(java.lang.Throwable,
+     *      java.lang.reflect.Method, java.lang.Object[])
+     * 
+     */
+    public void logError(final Throwable cause, final Method method,
+            final Object[] arguments) {
+        try {
+            final InternalSessionModel sessionModel = getSessionModel();
+            if (sessionModel.isLoggedIn()) {
+                final Error error = new Error();
+                error.setCause(cause);
+                error.setMethod(method);
+                error.setArguments(arguments);
+                sessionModel.logError(readProduct(), error,
+                        sessionModel.readDateTime());
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -173,6 +197,14 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
 //        } catch (final Throwable t) {
 //            throw panic(t);
 //        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.migrator.InternalMigratorModel#readProduct()
+     *
+     */
+    public Product readProduct() {
+        return migratorIO.readProduct();
     }
 
     /**

@@ -30,6 +30,8 @@ import com.thinkparity.ophelia.model.io.md.MetaDataType;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
+// NOCOMMIT - MigratorIOHandler - Supress Warnings
+@SuppressWarnings("unused")
 public final class MigratorIOHandler extends AbstractIOHandler implements
         com.thinkparity.ophelia.model.io.handler.MigratorIOHandler {
 
@@ -122,12 +124,13 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
     public void createProduct(final Product product) {
         final Session session = openSession();
         try {
-            createMetaDataUserId(session, "Product.createdBy", product.getCreatedBy());
-            createMetaDataCalendar(session, "Product.createdOn", product.getCreatedOn());
+// NOCOMMIT - MigratorIOHandler#createProduct(Product)
+//            createMetaDataUserId(session, "Product.createdBy", product.getCreatedBy());
+//            createMetaDataCalendar(session, "Product.createdOn", product.getCreatedOn());
             createMetaDataString(session, "Product.name", product.getName());
-            createMetaDataUniqueId(session, "Product.uniqueId", product.getUniqueId());
-            createMetaDataUserId(session, "Product.updatedBy", product.getUpdatedBy());
-            createMetaDataCalendar(session, "Product.updatedOn", product.getUpdatedOn());
+//            createMetaDataUniqueId(session, "Product.uniqueId", product.getUniqueId());
+//            createMetaDataUserId(session, "Product.updatedBy", product.getUpdatedBy());
+//            createMetaDataCalendar(session, "Product.updatedOn", product.getUpdatedOn());
         } catch (final Throwable t) {
             throw translateError(session, t);
         } finally {
@@ -554,12 +557,13 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
      */
     private Product readProduct(final Session session) {
         final Product product = new Product();
-        product.setCreatedBy(readMetaDataUserId(session, "Product.createdBy"));
-        product.setCreatedOn(readMetaDataCalendar(session, "Product.createdOn"));
+// NOCOMMIT - MigratorIOHandler#readProduct(Session)
+//        product.setCreatedBy(readMetaDataUserId(session, "Product.createdBy"));
+//        product.setCreatedOn(readMetaDataCalendar(session, "Product.createdOn"));
         product.setName(readMetaDataString(session, "Product.name"));
-        product.setUniqueId(readMetaDataUniqueId(session, "Product.uniqueId"));
-        product.setUpdatedBy(readMetaDataUserId(session, "Product.updatedBy"));
-        product.setUpdatedOn(readMetaDataCalendar(session, "Product.updatedOn"));
+//        product.setUniqueId(readMetaDataUniqueId(session, "Product.uniqueId"));
+//        product.setUpdatedBy(readMetaDataUserId(session, "Product.updatedBy"));
+//        product.setUpdatedOn(readMetaDataCalendar(session, "Product.updatedOn"));
         return product;
     }
 

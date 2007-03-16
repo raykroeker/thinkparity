@@ -3,18 +3,17 @@
  */
 package com.thinkparity.desdemona.model.migrator;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
-
-import com.thinkparity.desdemona.model.AbstractModel;
-import com.thinkparity.desdemona.model.session.Session;
 
 /**
  * <b>Title:</b>thinkParity Migrator Model<br>
@@ -23,28 +22,7 @@ import com.thinkparity.desdemona.model.session.Session;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class MigratorModel extends AbstractModel<MigratorModelImpl> {
-
-    /**
-     * Obtain a migrator model.
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @return An instance of <code>MigratorModel</code>.
-     */
-    public static MigratorModel getModel(final Session session) {
-        return new MigratorModel(session);
-    }
-
-    /**
-     * Create MigratorModel.
-     * 
-     * @param session
-     *            An instance of <code>Session</code>.
-     */
-    private MigratorModel(final Session session) {
-        super(new MigratorModelImpl(session));
-    }
+public interface MigratorModel {
 
     /**
      * Create a stream of the resources.
@@ -57,11 +35,7 @@ public class MigratorModel extends AbstractModel<MigratorModelImpl> {
      *            A <code>List</code> of <code>Resource</code>s.
      */
     public void createStream(final JabberId userId, final String streamId,
-            final List<Resource> resources) {
-        synchronized (getImplLock()) {
-            getImpl().createStream(userId, streamId, resources);
-        }
-    }
+            final List<Resource> resources);
 
     /**
      * Deploy a release.
@@ -79,11 +53,22 @@ public class MigratorModel extends AbstractModel<MigratorModelImpl> {
      */
     public void deploy(final JabberId userId, final Product product,
             final Release release, final List<Resource> resources,
-            final String streamId) {
-        synchronized (getImplLock()) {
-            getImpl().deploy(userId, product, release, resources, streamId);
-        }
-    }
+            final String streamId);
+
+    /**
+     * Log an error.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param error
+     *            An <code>Error</code>.
+     * @param occuredOn
+     *            The <code>Calendar</code> the error occured.
+     */
+    public void logError(final JabberId userId, final Product product,
+            final Error error, final Calendar occuredOn);
 
     /**
      * Read the latest release.
@@ -95,11 +80,7 @@ public class MigratorModel extends AbstractModel<MigratorModelImpl> {
      * @return A <code>Release</code>.
      */
     public Release readLatestRelease(final JabberId userId,
-            final UUID productUniqueId, final OS os) {
-        synchronized (getImplLock()) {
-            return getImpl().readLatestRelease(userId, productUniqueId, os);
-        }
-    }
+            final UUID productUniqueId, final OS os);
 
     /**
      * Read a product.
@@ -110,11 +91,7 @@ public class MigratorModel extends AbstractModel<MigratorModelImpl> {
      *            A product name <code>String</code>.
      * @return A <code>Product</code>.
      */
-    public Product readProduct(final JabberId userId, final String name) {
-        synchronized (getImplLock()) {
-            return getImpl().readProduct(userId, name);
-        }
-    }
+    public Product readProduct(final JabberId userId, final String name);
 
     /**
      * Read a release.
@@ -128,11 +105,7 @@ public class MigratorModel extends AbstractModel<MigratorModelImpl> {
      * @return A <code>Release</code>.
      */
     public Release readRelease(final JabberId userId,
-            final UUID productUniqueId, final String name, final OS os) {
-        synchronized (getImplLock()) {
-            return getImpl().readRelease(userId, productUniqueId, name, os);
-        }
-    }
+            final UUID productUniqueId, final String name, final OS os);
 
     /**
      * Read a release.
@@ -146,9 +119,5 @@ public class MigratorModel extends AbstractModel<MigratorModelImpl> {
      * @return A <code>Release</code>.
      */
     public List<Resource> readResources(final JabberId userId,
-            final UUID productUniqueId, final String releaseName, final OS os) {
-        synchronized (getImplLock()) {
-            return getImpl().readResources(userId, productUniqueId, releaseName, os);
-        }
-    }
+            final UUID productUniqueId, final String releaseName, final OS os);
 }

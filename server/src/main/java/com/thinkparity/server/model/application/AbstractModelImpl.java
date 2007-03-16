@@ -86,7 +86,7 @@ public abstract class AbstractModelImpl
     /**
 	 * Handle to the user's session.
 	 */
-	protected final Session session;
+	protected Session session;
 
     /** A thinkParity configuration sql interface. */
     private final ConfigurationSql configurationSql;
@@ -95,14 +95,22 @@ public abstract class AbstractModelImpl
     private JiveProperties jiveProperties;
 
     /**
-	 * Create AbstractModelImpl.
+     * Create AbstractModelImpl.
      *
-	 */
+     */
+     protected AbstractModelImpl() {
+        this(null);
+     }
+
+    /**
+     * Create AbstractModelImpl.
+     *
+     */
      protected AbstractModelImpl(final Session session) {
-		super();
+        super();
         this.configurationSql = new ConfigurationSql();
-		this.session = session;
-	}
+        this.session = session;
+    }
 
     /**
      * Add a to email recipient to a mime message.
@@ -181,7 +189,7 @@ public abstract class AbstractModelImpl
                 session.getJabberId(), keyHolder);
 	}
 
-	/**
+    /**
      * Assert that the user id matches that of a system user.
      * 
      * @param userId
@@ -236,7 +244,7 @@ public abstract class AbstractModelImpl
        return MD5Util.md5Hex(hashString);
     }
 
-    /**
+	/**
      * Determine if a list contains a user.
      * 
      * @param <U>
@@ -385,6 +393,7 @@ public abstract class AbstractModelImpl
             backupEvent(userId, userId, event);
         }
     }
+
     /**
      * Enqueue a priority event for a user.
      * 
@@ -430,7 +439,6 @@ public abstract class AbstractModelImpl
             backupEvent(userId, userId, event);
         }
     }
-
     /**
      * Obtain a thinkParity archive interface.
      * 
@@ -473,7 +481,7 @@ public abstract class AbstractModelImpl
         return sessionList;
     }
 
-	/**
+    /**
      * Obtain the parity contact interface.
      * 
      * @return The parity contact interface.
@@ -488,17 +496,17 @@ public abstract class AbstractModelImpl
      * @return A buffer size <code>Integer</code>.
      */
     protected final Integer getDefaultBufferSize() {
-        return 1024 * 1024 * 8; // BUFFER 8MB
+        return 1024 * 1024 * 8; // BUFFER 8MB  - AbstractModelImpl#getDefaultBufferSize()
     }
 
-    /**
+	/**
      * Obtain the default buffer size.
      * 
      * @return A buffer size <code>Integer</code>.
      */
     protected final Integer getDefaultBufferSize(final String context) {
         if ("stream-session".equals(context)) {
-            return 1024 * 1024 * 2; // BUFFER 2MB
+            return 1024 * 1024 * 2; // BUFFER 2MB - AbstractModelImpl#getDefaultBufferSize(String)
         } else {
             return getDefaultBufferSize();
         }
@@ -526,15 +534,15 @@ public abstract class AbstractModelImpl
                     t.getMessage());
     }
 
-	protected InternalQueueModel getQueueModel() {
+    protected InternalQueueModel getQueueModel() {
         return QueueModel.getInternalModel(getContext(), session);
     }
 
-	protected InternalStreamModel getStreamModel() {
+    protected InternalStreamModel getStreamModel() {
         return StreamModel.getInternalModel(getContext(), session);
     }
 
-    protected InternalUserModel getUserModel() {
+	protected InternalUserModel getUserModel() {
 		return UserModel.getInternalModel(getContext(), session);
 	}
 
@@ -555,7 +563,7 @@ public abstract class AbstractModelImpl
         return indexOf(users, user.getId());
     }
 
-	/**
+    /**
      * Obtain the index of a user in the list with the given id.
      * 
      * @param <U>
@@ -575,6 +583,24 @@ public abstract class AbstractModelImpl
         }
         return -1;
     }
+
+	/**
+     * Initialize the model.
+     * 
+     * @param session
+     *            A user <code>Session</code>.
+     */
+    protected final void initialize(final Session session) {
+        this.session = session;
+    }
+
+	/**
+     * Intialize the model.
+     * 
+     * @param session
+     *            A user <code>Session</code>.
+     */
+    protected void initializeModel(final Session session) {}
 
 	/**
      * Inject the fields of a user into a user type object.

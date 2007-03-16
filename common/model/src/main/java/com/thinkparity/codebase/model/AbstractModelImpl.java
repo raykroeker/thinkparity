@@ -119,7 +119,7 @@ public abstract class AbstractModelImpl {
      *            A <code>Throwable</code>.
      * @return A <code>RuntimeException</code>.
      */
-    protected RuntimeException panic(final Throwable t) {
+    protected ThinkParityException panic(final Throwable t) {
         if (ThinkParityException.class.isAssignableFrom(t.getClass())) {
             return (ThinkParityException) t;
         } else {

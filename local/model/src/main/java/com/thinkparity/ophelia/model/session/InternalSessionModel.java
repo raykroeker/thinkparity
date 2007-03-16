@@ -25,6 +25,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -223,7 +224,7 @@ public interface InternalSessionModel extends SessionModel {
     public void deleteInvitation(final OutgoingEMailInvitation invitation,
             final Calendar deletedOn);
 
-	/**
+    /**
      * Delete a contact invitation.
      * 
      * @param invitation
@@ -234,14 +235,14 @@ public interface InternalSessionModel extends SessionModel {
     public void deleteInvitation(final OutgoingUserInvitation invitation,
             final Calendar deletedOn);
 
-    /**
+	/**
      * Delete a stream session.
      * 
      * @param session
      *            A <code>StreamSession</code>.
      */
     public void deleteStreamSession(final StreamSession session);
-    
+
     /**
      * Deploy a migrator release.
      * 
@@ -254,7 +255,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void deployMigrator(final Product product, final Release release,
             final List<Resource> resources, final String streamId);
-
+    
     /**
      * Handle the remote session established event.
      *
@@ -267,7 +268,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void handleSessionTerminated();
 
-	/**
+    /**
      * Handle the remote session terminated event.
      * 
      * @param cause
@@ -276,7 +277,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void handleSessionTerminated(final Exception cause);
 
-    /**
+	/**
      * Determine if the backup is online.
      * 
      * @return True if the backup server is online.
@@ -302,6 +303,19 @@ public interface InternalSessionModel extends SessionModel {
      * @return True if publish to the user is restricted.
      */
     public Boolean isPublishRestricted(final JabberId publishTo);
+
+    /**
+     * Log an error.
+     * 
+     * @param product
+     *            A <code>Product</code>.
+     * @param error
+     *            An <code>Error</code>.
+     * @param occuredOn
+     *            The date/time the error occured.
+     */
+    public void logError(final Product product, final Error error,
+            final Calendar occuredOn);
 
     /**
      * Login for the first time in this workspace.

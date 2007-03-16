@@ -3,12 +3,14 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -88,6 +90,28 @@ final class XMPPMigrator extends AbstractXMPP<MigratorListener> {
         deployRelease.setResourceParameters("resources", resources);
         deployRelease.setParameter("streamId", streamId);
         execute(deployRelease);
+    }
+
+    /**
+     * Log an error.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param error
+     *            An <code>Error</code>.
+     * @param occuredOn
+     *            The error's occured on <code>Calendar</code>.
+     */
+    void logError(final JabberId userId, final Product product,
+            final Error error, final Calendar occuredOn) {
+        final XMPPMethod xmppMethod = new XMPPMethod("migrator:logerror");
+        xmppMethod.setParameter("userId", userId);
+        xmppMethod.setParameter("product", product);
+        xmppMethod.setParameter("error", error);
+        xmppMethod.setParameter("occuredOn", occuredOn);
+        execute(xmppMethod);
     }
 
     /**

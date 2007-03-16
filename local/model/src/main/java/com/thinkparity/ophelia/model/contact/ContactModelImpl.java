@@ -812,7 +812,11 @@ public final class ContactModelImpl extends Model<ContactListener>
      * @return A list of contacts.
      */
     public List<Contact> read() {
-        return read(defaultComparator, defaultFilter);
+        try {
+            return read(defaultComparator, defaultFilter);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -823,7 +827,11 @@ public final class ContactModelImpl extends Model<ContactListener>
      * @return A list of contacts.
      */
     public List<Contact> read(final Comparator<Contact> comparator) {
-        return read(comparator, defaultFilter);
+        try {
+            return read(comparator, defaultFilter);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -855,7 +863,11 @@ public final class ContactModelImpl extends Model<ContactListener>
      * @return A list of contacts.
      */
     public List<Contact> read(final Filter<? super Contact> filter) {
-        return read(defaultComparator, filter);
+        try {
+            return read(defaultComparator, filter);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**

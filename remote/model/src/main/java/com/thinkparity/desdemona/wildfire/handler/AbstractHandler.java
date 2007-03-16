@@ -11,6 +11,7 @@ import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.desdemona.model.ModelFactory;
 import com.thinkparity.desdemona.model.archive.ArchiveModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.backup.BackupModel;
@@ -111,6 +112,7 @@ public abstract class AbstractHandler extends
         final IQ response = createResponse(iq);
         final ServiceResponseWriter writer = new IQWriter(response);
         final Session session = SESSION_UTIL.lookupSession(iq);
+        final ModelFactory modelFactory = ModelFactory.getInstance(session);
         try {
             synchronized (getServiceLock(session, reader)) {
                 IQ_LOGGER.logVariable("iq", iq);
@@ -132,7 +134,7 @@ public abstract class AbstractHandler extends
                         return ContainerModel.getModel(session);
                     }
                     public MigratorModel getMigratorModel() {
-                        return MigratorModel.getModel(session);
+                        return modelFactory.getMigratorModel();
                     }
                     public ProfileModel getProfileModel() {
                         return ProfileModel.getModel(session);

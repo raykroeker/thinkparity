@@ -16,11 +16,24 @@ public final class ThinkParityException extends RuntimeException {
 	/**
      * Create ParityException.
      * 
+     * @param message
+     *            An exception message <code>String</code>.
      * @param cause
-     *            The cause of the error.
+     *            The <code>Throwable</code> cause of the error.
      */
 	public ThinkParityException(final String message, final Throwable cause) {
 		super(message, cause);
 		fillInStackTrace();
 	}
+
+    /**
+     * Create ThinkParityException.
+     * 
+     * @param cause
+     *            The cause <code>Throwable</code> of the error.
+     */
+    public ThinkParityException(final Throwable cause) {
+        super(cause);
+        fillInStackTrace();
+    }
 }

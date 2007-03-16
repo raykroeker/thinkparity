@@ -233,13 +233,13 @@ class TestInitializer {
             System.setOut(new PrintStream(new FileOutputStream(new File(
                     testSession.getOutputDirectory(), "System.out"))));
         } catch (final Exception x) {
-            throw new RuntimeException(x);
+            throw new TestException(x);
         }
         try {
             System.setErr(new PrintStream(new FileOutputStream(new File(
                     testSession.getOutputDirectory(), "System.err"))));
         } catch (final Exception x) {
-            throw new RuntimeException(x);
+            throw new TestException(x);
         }
     }
 

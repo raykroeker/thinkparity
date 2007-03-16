@@ -76,6 +76,22 @@ public interface Workspace {
     public File createTempFile(final String suffix) throws IOException;
 
     /**
+     * Obtain a session attribute.
+     * 
+     * @param name
+     *            An attribute name <code>String</code>.
+     * @return An attribute value <code>Object</code>.
+     */
+    public Object getAttribute(final String name);
+
+    /**
+     * Obtain the attribute names.
+     * 
+     * @return An attibute name <code>Iterable</code>.
+     */
+    public Iterable<String> getAttributeNames();
+
+    /**
      * Obtain the data directory.
      * 
      * @return The data directory <code>File</code>.
@@ -103,7 +119,7 @@ public interface Workspace {
 	 */
 	public File getIndexDirectory();
 
-	/**
+    /**
      * Obtain the log directory.
      * 
      * @return A directory <code>File</code>.
@@ -117,7 +133,7 @@ public interface Workspace {
      */
     public File getLogFile();
 
-    /**
+	/**
      * Obtain a transaction.
      * 
      * @return A <code>Transaction</code>.
@@ -137,4 +153,22 @@ public interface Workspace {
      * @return An <code>XMPPSession</code>.
      */
     public XMPPSession getXMPPSession();
+
+    /**
+     * Remove an attribute.
+     * 
+     * @param name
+     *            An attribute name <code>String</code>.
+     */
+    public void removeAttribute(final String name);
+
+    /**
+     * Set a session attribute.
+     * 
+     * @param name
+     *            An attribute name <code>String</code>.
+     * @param value
+     *            An attribute value <code>Object</code>.
+     */
+    public void setAttribute(final String name, final Object value);
 }

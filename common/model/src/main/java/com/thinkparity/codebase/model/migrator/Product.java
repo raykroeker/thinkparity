@@ -12,7 +12,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactType;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  * 
- * NOCOMMIT - a product is no longer an artifact.
+ * NOCOMMIT - Product
  */
 public class Product extends Artifact {
 

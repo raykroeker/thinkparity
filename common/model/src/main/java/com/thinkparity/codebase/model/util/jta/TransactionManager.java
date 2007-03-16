@@ -5,6 +5,8 @@ package com.thinkparity.codebase.model.util.jta;
 
 import javax.naming.NamingException;
 
+import com.thinkparity.codebase.model.ThinkParityException;
+
 import org.enhydra.jdbc.standard.StandardXADataSource;
 import org.objectweb.carol.util.configuration.ConfigurationException;
 import org.objectweb.carol.util.configuration.ConfigurationRepository;
@@ -25,7 +27,7 @@ public class TransactionManager {
         try {
             ConfigurationRepository.init();
         } catch (final ConfigurationException cx) {
-            throw new RuntimeException("Could not configure transaction server.", cx);
+            throw new ThinkParityException("Could not configure transaction server.", cx);
         }
     }
 

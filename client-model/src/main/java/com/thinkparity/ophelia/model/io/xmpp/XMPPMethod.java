@@ -50,6 +50,7 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
+import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
@@ -258,6 +259,10 @@ public class XMPPMethod extends IQ {
 
     public final void setParameter(final String name, final EMail value) {
         parameters.add(new XMPPMethodParameter(name, EMail.class, value));
+    }
+
+    public final void setParameter(final String name, final Error value) {
+        parameters.add(new XMPPMethodParameter(name, Error.class, value));
     }
 
     public final void setParameter(final String name, final Integer value) {
@@ -505,6 +510,10 @@ public class XMPPMethod extends IQ {
             return parameter.javaValue.toString();
         } else if (parameter.javaType.equals(UUID.class)) {
             return parameter.javaValue.toString();
+        } else if (Error.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
         } else if (ContactInvitation.class.isAssignableFrom(parameter.javaType)) {
             final StringWriter xmlWriter = new StringWriter();
             XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
@@ -644,7 +653,7 @@ public class XMPPMethod extends IQ {
                 localCalendar.setTimeInMillis(localDate.getTime());
                 return localCalendar;
             } catch (final ParseException px) {
-                throw new RuntimeException(px);
+                throw new XMPPException(px);
             }
         }
 

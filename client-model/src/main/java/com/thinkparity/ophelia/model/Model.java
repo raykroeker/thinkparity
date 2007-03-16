@@ -33,6 +33,7 @@ import com.thinkparity.codebase.l10n.L18n;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.DownloadMonitor;
+import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -57,6 +58,7 @@ import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.index.InternalIndexModel;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ConfigurationIOHandler;
+import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
@@ -203,7 +205,10 @@ public abstract class Model<T extends EventListener> extends
     /** The encryption cipher. */
     private transient Cipher encryptionCipher;
 
-	/** A quick-lookup for the local user id. */
+    /** The <code>ModelInvocationContext</code>. */
+    private ModelInvocationContext invocationContext;
+
+    /** A quick-lookup for the local user id. */
     private JabberId localUserId;
 
     /** A list of all pending <code>EventNotifier</code>s of <code>T</code>. */
@@ -212,7 +217,7 @@ public abstract class Model<T extends EventListener> extends
     /** The secret key spec. */
     private transient SecretKeySpec secretKeySpec;
 
-    /**
+	/**
      * Create an Model
      * 
      */
@@ -252,7 +257,7 @@ public abstract class Model<T extends EventListener> extends
                 assertArguments);
     }
 
-    /**
+	/**
      * Assert a draft doesn't exist for the container.
      * 
      * @param containerId
@@ -263,7 +268,7 @@ public abstract class Model<T extends EventListener> extends
                 "Draft for container {0} already exists.", containerId);
     }
 
-	/**
+    /**
      * Assert a draft exists for the container.
      * 
      * @param assertion
@@ -289,7 +294,7 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertTrue(assertion, doesExistLatestVersion(artifactId));
     }
 
-    /**
+	/**
      * Assert that a version exists.
      * 
      * @param assertion
@@ -305,7 +310,7 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertTrue(assertion, doesExistVersion(artifactId, versionId));
     }
 
-	/**
+    /**
      * Assert that the list of team members does not contain the user.
      * 
      * 
@@ -349,7 +354,7 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertTrue(assertion, isKeyHolder(artifactId));
     }
 
-	/**
+    /**
      * Assert that the logged in user is not the key holder.
      * 
      * @param assertion
@@ -363,7 +368,7 @@ public abstract class Model<T extends EventListener> extends
 		Assert.assertNotTrue(assertion, isKeyHolder(artifactId));
 	}
 
-    /**
+	/**
      * Assert the user id does not match the local user id.
      * 
      * @param userId
@@ -407,7 +412,7 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertNotNull(assertion, reference);
     }
 
-	/**
+    /**
      * Assert that the user is not a team member.
      * 
      * @param assertion
@@ -432,7 +437,7 @@ public abstract class Model<T extends EventListener> extends
         assertOnline("USER NOT ONLINE");
     }
 
-    /**
+	/**
      * Assert the user is online.
      *
      * @param assertion
@@ -491,7 +496,7 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertNotTrue(assertion, contains(team, getUserModel().read(userId)));
     }
 
-	/**
+    /**
      * Assert that the xmpp service is online.
      * 
      * @param environment
@@ -762,7 +767,7 @@ public abstract class Model<T extends EventListener> extends
         return ChecksumAlgorithm.MD5.name();
     }
 
-    /**
+	/**
      * Obtain an internal contact model.
      * 
      * @return An instance of <code>InternalContactModel</code>.
@@ -780,7 +785,7 @@ public abstract class Model<T extends EventListener> extends
         return modelFactory.getContainerModel();
     }
 
-	/**
+    /**
      * Obtain the default buffer size.
      * 
      * @return An <code>Integer</code> default buffer size.
@@ -813,6 +818,15 @@ public abstract class Model<T extends EventListener> extends
 	 * @return The model's localization.
 	 */
 	protected L18n getL18n() { return l18n; }
+
+    /**
+     * Obtain an internal migrator model.
+     * 
+     * @return An <code>InternalMigratorModel</code>.
+     */
+    protected final InternalMigratorModel getMigratorModel() {
+        return modelFactory.getMigratorModel();
+    }
 
     /**
      * Obtain an internal profile model.
@@ -1038,8 +1052,25 @@ public abstract class Model<T extends EventListener> extends
      * 
      */
 	@Override
-    protected RuntimeException panic(final Throwable t) {
-        return super.panic(t);
+    protected ThinkParityException panic(final Throwable t) {
+        final ThinkParityException tpx = super.panic(t);
+        /* NOTE An attempt is made to log the error that has just occured on the
+         * server.  In order to prevent recursion; a check is made to determine
+         * if a remote error logging attempt is in progress before performing
+         * the operation. */
+        final Object workspaceLock = workspace.getAttribute("panicLock");
+        if (null == workspaceLock) {
+            workspace.setAttribute("panicLock", DateUtil.getInstance());
+            try {
+                getMigratorModel().logError(tpx, invocationContext.getMethod(),
+                        invocationContext.getArguments());
+            } catch (final Throwable t2) {
+                logger.logError(t2, "Could not log error.");
+            } finally {
+                workspace.removeAttribute("panicLock");
+            }
+        }
+        return tpx;
     }
 
     /**
@@ -1157,6 +1188,16 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
+     * Set the current execution.
+     * 
+     * @param invocationContext
+     *            A <code>ModelInvocationContext</code>.
+     */
+    void setInvocationContext(final ModelInvocationContext invocationContext) {
+        this.invocationContext = invocationContext;
+    }
+
+    /**
      * Build a local file to back a stream. Note that the file is transient in
      * nature and will be deleted when thinkParity is shutdown or the next time
      * it is started up.
@@ -1214,6 +1255,7 @@ public abstract class Model<T extends EventListener> extends
         final Cipher cipher = getEncryptionCipher();
         return Base64.encodeBytes(cipher.doFinal(clearText.getBytes()));
     }
+
     private String formatAssertion(final ArtifactState currentState,
 			final ArtifactState intendedState,
 			final ArtifactState[] allowedStates) {

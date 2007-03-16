@@ -26,6 +26,7 @@ import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
+import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
@@ -33,6 +34,7 @@ import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -110,7 +112,7 @@ public final class IQReader implements ServiceRequestReader {
                 return localCalendar;
             }
         } catch (final ParseException px) {
-            throw new RuntimeException(px);
+            throw new ThinkParityException(px);
         }
     }
 
@@ -221,6 +223,14 @@ public final class IQReader implements ServiceRequestReader {
             emails.add(EMailBuilder.parse((String) ((Element) iChildren.next()).getData()));
         }
         return emails;
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readError(java.lang.String)
+     *
+     */
+    public Error readError(String name) {
+        return (Error) readXStreamObject(name, new Error());
     }
 
     /**

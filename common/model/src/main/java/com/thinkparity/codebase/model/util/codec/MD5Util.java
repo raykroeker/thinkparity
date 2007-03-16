@@ -10,6 +10,8 @@ import java.nio.channels.ReadableByteChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import com.thinkparity.codebase.model.ThinkParityException;
+
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -100,7 +102,7 @@ public class MD5Util {
         try {
             return MessageDigest.getInstance("MD5");
         } catch (final NoSuchAlgorithmException nsax) {
-            throw new RuntimeException(nsax);
+            throw new ThinkParityException(nsax);
         }
     }
 

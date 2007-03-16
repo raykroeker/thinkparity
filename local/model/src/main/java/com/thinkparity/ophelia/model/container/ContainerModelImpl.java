@@ -574,10 +574,8 @@ public final class ContainerModelImpl extends
      */
     public ContainerDraftMonitor getDraftMonitor(final Long containerId,
             final ContainerDraftListener listener) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        assertDraftExists("Cannot monitor a null draft.", containerId);
         try {
+            assertDraftExists("Cannot monitor a null draft.", containerId);
             return new ContainerDraftMonitor(modelFactory,
                     readDraft(containerId), localEventGenerator, listener);
         } catch (final Throwable t) {

@@ -71,6 +71,13 @@ public interface Cell {
     public Boolean isSetAdditionalText();
 
     /**
+     * Determine whether or not text is set.
+     * 
+     * @return True if the text is set.
+     */
+    public Boolean isSetText();
+
+    /**
      * Show a popup menu for the cell.
      * 
      * @param invoker

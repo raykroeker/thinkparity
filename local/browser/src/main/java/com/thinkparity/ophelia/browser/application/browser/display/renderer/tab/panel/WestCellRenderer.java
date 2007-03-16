@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 
 
@@ -69,6 +70,7 @@ public class WestCellRenderer extends DefaultCellRenderer implements PanelCellRe
         gridBagConstraints.insets = new java.awt.Insets(0, 50, 0, 5);
         add(iconJLabel, gridBagConstraints);
 
+        textJLabel.setFont(Fonts.DefaultFont);
         textJLabel.setText("!West Cell Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -76,6 +78,7 @@ public class WestCellRenderer extends DefaultCellRenderer implements PanelCellRe
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
         add(textJLabel, gridBagConstraints);
 
+        additionalTextJLabel.setFont(Fonts.DefaultFont);
         additionalTextJLabel.setForeground(Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG);
         additionalTextJLabel.setText("!West Cell Additional Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();

@@ -3,7 +3,17 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+
+import javax.swing.SwingUtilities;
+
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 
 /**
@@ -22,6 +32,17 @@ public class EastCellRenderer extends DefaultCellRenderer implements PanelCellRe
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 
+    /** The space between text and additional text. */
+    private static final int TEXT_SPACE_BETWEEN;
+
+    /** The space to leave at the end of the text. */
+    private static final int TEXT_SPACE_END;
+
+    static {
+        TEXT_SPACE_BETWEEN = 5;
+        TEXT_SPACE_END = 15;
+    }
+
     /**
      * Create a EastCellRenderer
      */
@@ -39,13 +60,42 @@ public class EastCellRenderer extends DefaultCellRenderer implements PanelCellRe
         initComponents();
         installListeners(tabPanel, iconJLabel);
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCellRenderer#renderComponent(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, int)
      */
     @Override
     public void renderComponent(final Cell cell, final int index) {
+        // Override behavior of DefaultCellRenderer.
+        // The east cell text is painted (see paintComponent). This avoids
+        // layout problems when the textJLabel text is too long.
         renderComponent(cell, index, iconJLabel, textJLabel, additionalTextJLabel);
+        textJLabel.setText(" ");
+        additionalTextJLabel.setText("");
+    }
+
+    /**
+     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+     */
+    @Override
+    protected void paintComponent(final Graphics g) {
+        super.paintComponent(g);
+        final Graphics2D g2 = (Graphics2D)g.create();
+        try {
+            // Paint text manually. This avoids layout problems when the textJLabel text is too long.
+            g2.setFont(textJLabel.getFont());
+            final Point location = SwingUtilities.convertPoint(textJLabel,
+                    new Point(0, g2.getFontMetrics().getMaxAscent()), this);
+            if (cell.isSetText()) {
+                if (paintText(g2, location, textJLabel.getForeground(), cell.getText())) {
+                    if (cell.isSetAdditionalText()) {
+                        location.x = location.x + SwingUtil.getStringWidth(cell.getText(), g2) + TEXT_SPACE_BETWEEN;
+                        paintText(g2, location, additionalTextJLabel.getForeground(), cell.getAdditionalText());
+                    }
+                }
+            }
+        }
+        finally { g2.dispose(); }
     }
 
     /**
@@ -68,12 +118,14 @@ public class EastCellRenderer extends DefaultCellRenderer implements PanelCellRe
         gridBagConstraints.insets = new java.awt.Insets(0, 9, 0, 5);
         add(iconJLabel, gridBagConstraints);
 
+        textJLabel.setFont(Fonts.DefaultFont);
         textJLabel.setText("!East Cell Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
         add(textJLabel, gridBagConstraints);
 
+        additionalTextJLabel.setFont(Fonts.DefaultFont);
         additionalTextJLabel.setForeground(Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG);
         additionalTextJLabel.setText("!East Cell Additional Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -84,4 +136,31 @@ public class EastCellRenderer extends DefaultCellRenderer implements PanelCellRe
         add(additionalTextJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Paint text.
+     * 
+     * @param g
+     *            The <code>Graphics2D</code>.
+     * @param location
+     *            The text location <code>Point</code>.
+     * @param color
+     *            The text <code>Color</code>.
+     * @param text
+     *            The text <code>String</code>.
+     * @return true if the entire text is displayed; false if it is clipped.
+     */
+    private Boolean paintText(final Graphics2D g, final Point location, final Color color, final String text) {
+        final int availableWidth = getWidth() - location.x - TEXT_SPACE_END;
+        final String clippedText = SwingUtil.limitWidthWithEllipsis(text, availableWidth, g);
+        if (null != clippedText) {
+            g.setPaint(color);
+            g.drawString(clippedText, location.x, location.y);
+        }
+        if (null != clippedText && clippedText.equals(text)) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
 }

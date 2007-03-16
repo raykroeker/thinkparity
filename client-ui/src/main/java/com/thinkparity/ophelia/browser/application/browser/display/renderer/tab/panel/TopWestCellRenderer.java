@@ -6,6 +6,7 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 
 /**
@@ -42,10 +43,11 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
      */
     @Override
     public void renderComponent(final Cell cell, final int index) {
-        this.cell = cell;
-        iconJLabel.setIcon(cell.getIcon());
+        // Override behavior of DefaultCellRenderer.
         // The top west cell text is painted by the ContainerPanel.
         // This makes it possible to draw text all the way across the panel.
+        this.cell = cell;
+        iconJLabel.setIcon(cell.getIcon());
         textJLabel.setText(" ");
     }
 
@@ -72,6 +74,7 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
         gridBagConstraints.insets = new java.awt.Insets(0, 27, 0, 5);
         add(iconJLabel, gridBagConstraints);
 
+        textJLabel.setFont(Fonts.DefaultFont);
         textJLabel.setText("!Top West Cell Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;

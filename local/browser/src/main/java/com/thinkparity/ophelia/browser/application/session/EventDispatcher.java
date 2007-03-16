@@ -4,6 +4,7 @@
  */
 package com.thinkparity.ophelia.browser.application.session;
 
+import com.thinkparity.ophelia.model.events.SessionAdapter;
 import com.thinkparity.ophelia.model.events.SessionListener;
 
 /**
@@ -50,13 +51,16 @@ class EventDispatcher {
      * @return A thinkParity session listener.
      */
     private SessionListener createSessionListener() {
-        return new SessionListener() {
+        return new SessionAdapter() {
+            @Override
             public void sessionEstablished() {
                 application.fireConnectionOnline();
             }
+            @Override
             public void sessionTerminated() {
                 application.fireConnectionOffline();
             }
+            @Override
             public void sessionTerminated(final Throwable cause) {
                 application.fireConnectionOffline();
             }

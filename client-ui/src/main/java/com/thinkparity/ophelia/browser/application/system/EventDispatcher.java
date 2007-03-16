@@ -3,7 +3,16 @@
  */
 package com.thinkparity.ophelia.browser.application.system;
 
-import com.thinkparity.ophelia.model.events.*;
+import com.thinkparity.ophelia.model.events.ContactAdapter;
+import com.thinkparity.ophelia.model.events.ContactEvent;
+import com.thinkparity.ophelia.model.events.ContactListener;
+import com.thinkparity.ophelia.model.events.ContainerAdapter;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.ophelia.model.events.ContainerListener;
+import com.thinkparity.ophelia.model.events.DocumentAdapter;
+import com.thinkparity.ophelia.model.events.DocumentListener;
+import com.thinkparity.ophelia.model.events.SessionAdapter;
+import com.thinkparity.ophelia.model.events.SessionListener;
 
 /**
  * The system application's event dispatcher.  
@@ -125,13 +134,16 @@ class EventDispatcher {
      * @return A <code>SessionListener</code>.
      */
     private SessionListener createSessionListener() {
-        return new SessionListener() {
+        return new SessionAdapter() {
+            @Override
             public void sessionEstablished() {
                 systemApplication.fireConnectionOnline();
             }
+            @Override
             public void sessionTerminated() {
                 systemApplication.fireConnectionOffline();
             }
+            @Override
             public void sessionTerminated(final Throwable t) {
                 sessionTerminated();
             }

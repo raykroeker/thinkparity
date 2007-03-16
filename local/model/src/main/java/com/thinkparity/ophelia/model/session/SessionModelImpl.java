@@ -358,7 +358,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteContact(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
@@ -373,7 +373,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteArtifact(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
      *
      */
@@ -478,6 +478,22 @@ public final class SessionModelImpl extends Model<SessionListener>
             }
         } catch (final Throwable t) {
             throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#handleSessionError(java.lang.Throwable)
+     *
+     */
+    public void handleSessionError(final Throwable cause) {
+        try {
+            notifyListeners(new EventNotifier<SessionListener>() {
+                public void notifyListener(final SessionListener listener) {
+                    listener.sessionError(cause);
+                }
+            });
+        } catch (final Throwable t) {
+            panic(t);
         }
     }
 

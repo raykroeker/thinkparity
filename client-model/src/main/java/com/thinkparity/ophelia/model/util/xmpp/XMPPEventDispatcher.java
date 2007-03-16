@@ -31,6 +31,9 @@ final class XMPPEventDispatcher {
     /** An apache logger wrapper. */
     private final Log4JWrapper logger;
 
+    /** The <code>XMPPCore</code> interface. */
+    private final XMPPCore xmppCore;
+
     /**
      * Create XMPPEventDispatcher.
      * 
@@ -41,6 +44,7 @@ final class XMPPEventDispatcher {
         super();
         this.listeners = new HashMap<Class, List<? extends XMPPEventListener<? extends XMPPEvent>>>();
         this.logger = new Log4JWrapper(getClass());
+        this.xmppCore = xmppCore;
     }
 
     /**
@@ -90,7 +94,11 @@ final class XMPPEventDispatcher {
                 try {
                     listener.handleEvent(xmppEvent);
                 } catch (final Throwable t) {
-                    logger.logFatal(t, "Could not handle xmpp event {0}.", xmppEvent);
+                    try {
+                        xmppCore.handleError(t);
+                    } catch (final Throwable t2) {
+                        logger.logError(t2, "An error occured while handling error {0}.", t);
+                    }
                 }
             }
         }

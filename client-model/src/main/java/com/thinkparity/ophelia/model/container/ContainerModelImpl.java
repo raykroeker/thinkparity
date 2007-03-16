@@ -722,9 +722,9 @@ public final class ContainerModelImpl extends
      *            The published on date.
      */
     public void handlePublished(final ContainerPublishedEvent event) {
-        logger.logApiId();
-        logger.logVariable("event", event);
         try {
+if (true)
+    throw new RuntimeException("Test error handling remote events.");
             final Container container = handleResolution(event);
             final ContainerVersion version = handleVersionResolution(event);
             // handle the documents

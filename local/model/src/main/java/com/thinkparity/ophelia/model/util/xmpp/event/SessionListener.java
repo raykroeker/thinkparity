@@ -17,6 +17,14 @@ import com.thinkparity.codebase.event.EventListener;
 public interface SessionListener extends EventListener {
 
 	/**
+     * A session error has occured.
+     * 
+     * @param t
+     *            A <code>Throwable</code> error.
+     */
+    public void sessionError(final Throwable t);
+
+	/**
 	 * The session established event was fired.
 	 */
 	public void sessionEstablished();
@@ -26,9 +34,9 @@ public interface SessionListener extends EventListener {
 	 */
 	public void sessionTerminated();
 
-	/**
+    /**
 	 * The session terminated event was fired with an error.
 	 * @param x <code>Exception</code>
 	 */
-	public void sessionTerminated(Exception x);
+	public void sessionTerminated(final Exception x);
 }

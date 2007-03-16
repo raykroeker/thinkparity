@@ -10,6 +10,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
+import com.thinkparity.ophelia.model.io.xmpp.XMPPException;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
@@ -184,7 +185,7 @@ abstract class AbstractXMPP<T extends EventListener> {
      *            An error <code>Throwable</code>
      * @return A <code>RuntimeException</code>
      */
-    protected RuntimeException translateError(final Throwable t) {
-        return xmppCore.translateError(t);
+    protected XMPPException panic(final Throwable t) {
+        return xmppCore.panic(t);
     }
 }

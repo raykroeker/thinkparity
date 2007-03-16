@@ -257,6 +257,14 @@ public interface InternalSessionModel extends SessionModel {
             final List<Resource> resources, final String streamId);
     
     /**
+     * Handle a remote session error.
+     * 
+     * @param cause
+     *            The <code>Throwable</code> cause.
+     */
+    public void handleSessionError(final Throwable cause);
+
+    /**
      * Handle the remote session established event.
      *
      */

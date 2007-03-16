@@ -200,12 +200,20 @@ class EventDispatcher {
 	private SessionListener createSessionListener() {
         return new SessionAdapter() {
             @Override
-            public void sessionEstablished() { browser.fireConnectionOnline(); }
+            public void sessionEstablished() {
+                browser.fireConnectionOnline();
+            }
             @Override
-            public void sessionTerminated() { browser.fireConnectionOffline(); }
+            public void sessionTerminated() {
+                browser.fireConnectionOffline();
+            }
             @Override
             public void sessionTerminated(final Throwable cause) {
                 sessionTerminated();
+            }
+            @Override
+            public void sessionError(final Throwable cause) {
+                browser.displayErrorDialog("SessionError", new Object[] {}, cause);
             }
         };
     }

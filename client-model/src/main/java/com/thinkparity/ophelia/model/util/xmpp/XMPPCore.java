@@ -7,6 +7,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
+import com.thinkparity.ophelia.model.io.xmpp.XMPPException;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 
@@ -21,6 +22,7 @@ public interface XMPPCore {
     public XMPPMethodResponse execute(final XMPPMethod method,
             final Boolean assertResult);
     public JabberId getUserId();
+    public void handleError(final Throwable t);
     public <T extends XMPPEvent> void handleEvent(final T event);
-    public RuntimeException translateError(final Throwable t);
+    public XMPPException panic(final Throwable t);
 }

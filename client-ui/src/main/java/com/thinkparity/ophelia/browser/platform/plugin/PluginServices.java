@@ -7,10 +7,10 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.log4j.Log4JHelper;
+
+import com.thinkparity.ophelia.model.events.SessionAdapter;
 
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
@@ -18,7 +18,7 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 
-import com.thinkparity.ophelia.model.events.SessionListener;
+import org.apache.log4j.Logger;
 
 /**
  * <b>Title:</b>thinkParity Browser Platform Plugin Services<br>
@@ -55,13 +55,16 @@ public final class PluginServices {
         this.loader = new PluginRegistry().getLoader(wrapper);
         this.logger = Logger.getLogger(getClass());
         this.modelFactory = new PluginModelFactory(platform);
-        this.modelFactory.getSessionModel().addListener(new SessionListener() {
+        this.modelFactory.getSessionModel().addListener(new SessionAdapter() {
+            @Override
             public void sessionEstablished() {
                 connection = Connection.ONLINE;
             }
+            @Override
             public void sessionTerminated() {
                 connection = Connection.OFFLINE;
             }
+            @Override
             public void sessionTerminated(final Throwable cause) {
                 sessionTerminated();
             }

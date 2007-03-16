@@ -90,7 +90,7 @@ public abstract class TestCase extends junit.framework.TestCase {
         assertTrue(new MessageFormat(assertionPattern)
                 .format(assertionArguments), expression);
     }
-    
+
     /**
      * Fail a test.
      * 
@@ -103,7 +103,7 @@ public abstract class TestCase extends junit.framework.TestCase {
             final Object... arguments) {
         fail(MessageFormat.format(message, arguments));
     }
-
+    
     /**
      * Obtain the default buffer size for a test case.
      * 
@@ -112,6 +112,11 @@ public abstract class TestCase extends junit.framework.TestCase {
     protected static final Integer getDefaultBufferSize() {
         // BUFFER - 2MB - TestCase#getDefaultBufferSize()
         return 1024 * 1024 * 2;
+    }
+
+    protected static final File getSequenceFile(final Integer sequence,
+            final Integer index) {
+        return TestCaseHelper.getSequenceFile(sequence, index);
     }
 
 	/**

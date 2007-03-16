@@ -39,8 +39,8 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
-import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+import com.thinkparity.codebase.model.session.InvalidLocationException;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
@@ -81,6 +81,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     /** A set of <code>User</code> object utilities. */
     protected static final UserUtils USER_UTILS;
 
+    /** A login monitor. */
+    private static final ProcessMonitor LOGIN_MONITOR;
+
     /** Number of files to use from the total test input set. */
     private static final Integer NUMBER_OF_INPUT_FILES = 7;
 
@@ -91,6 +94,31 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     private static final ProcessMonitor PUBLISH_MONITOR;
 
     static {
+        LOGIN_MONITOR = new ProcessAdapter() {
+            @Override
+            public void beginProcess() {
+                TEST_LOGGER.logInfo("Begin login.");
+            }
+            @Override
+            public void beginStep(final Step step, final Object data) {
+                if (null == data)
+                    TEST_LOGGER.logInfo("Begin login step {0}.", step);
+                else
+                    TEST_LOGGER.logInfo("Begin login step {0}:{1}.", step, data);
+            }
+            @Override
+            public void determineSteps(final Integer steps) {
+                TEST_LOGGER.logInfo("Determine login steps {0}.", steps);
+            }
+            @Override
+            public void endProcess() {
+                TEST_LOGGER.logInfo("End login.");
+            }
+            @Override
+            public void endStep(final Step step) {
+                TEST_LOGGER.logInfo("End login step {0}.", step);
+            }
+        };
         PROCESS_QUEUE_MONITOR = new ProcessAdapter() {
             @Override
             public void beginProcess() {
@@ -681,13 +709,11 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *            The user to add the document as.
      * @param localContainerId
      *            A local container id <code>Long</code> relative to addAs.
-     * @param filename
-     *            A filename <code>String</code>.
+     * @param file
+     *            A <code>File</code>.
      * @return A <code>Document</code>.
      */
-    protected Document addDocument(final OpheliaTestUser addAs,
-            final Long localContainerId, final String filename) {
-        final File file = getInputFile(filename);
+    protected Document addDocument(final OpheliaTestUser addAs, final Long localContainerId, final File file) {
         final Container c = getContainerModel(addAs).read(localContainerId);
         logger.logInfo("Creating document from \"{0}\" for container \"{1}\" as \"{2}.\"",
                 file.getName(), c.getName(), addAs.getSimpleUsername());
@@ -698,6 +724,22 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 addAs.getSimpleUsername());
         getContainerModel(addAs).addDocument(c.getId(), document.getId());
         return logger.logVariable("document", document);
+    }
+
+    /**
+     * Add a document.
+     * 
+     * @param addAs
+     *            The user to add the document as.
+     * @param localContainerId
+     *            A local container id <code>Long</code> relative to addAs.
+     * @param filename
+     *            A filename <code>String</code>.
+     * @return A <code>Document</code>.
+     */
+    protected Document addDocument(final OpheliaTestUser addAs,
+            final Long localContainerId, final String filename) {
+        return addDocument(addAs, localContainerId, getInputFile(filename));
     }
 
     /**
@@ -718,6 +760,16 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return documents;
     }
 
+    protected List<Document> addDocuments(final OpheliaTestUser addAs,
+            final Long localContainerId, final Integer sequence,
+            final Integer count) {
+        final List<Document> documents = new ArrayList<Document>(count);
+        for (int i = 0; i < count.intValue(); i++) {
+            documents.add(addDocument(addAs, localContainerId,
+                    getSequenceFile(sequence, i)));
+        }
+        return documents;
+    }
 
     /**
      * Add documents.
@@ -1028,7 +1080,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	protected File getInputFile(final String name) {
         try {
             for(final File file : getInputFiles()) {
-                if(file.getName().equals(name)) { return file; }
+                if (file.getName().equals(name)) {
+                    return file;
+                }
             }
             return null;
         } catch (final IOException iox) {
@@ -1191,12 +1245,14 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             logout(testUser);
         }
         logger.logInfo("Logging in user \"{0}.\"", testUser.getSimpleUsername());
-        final Credentials credentials = testUser.getCredentials();
         try {
-            getSessionModel(testUser).login(credentials);
+            getSessionModel(testUser).login(LOGIN_MONITOR);
+        } catch (final InvalidLocationException ilx) {
+            fail("Cannot login as {0}.", testUser.getSimpleUsername());
+            TEST_LOGGER.logError(ilx, "Cannot login as {0}.", testUser.getSimpleUsername());
         } catch (final InvalidCredentialsException icx) {
-            fail("Cannot login as {0}/{1}.", credentials.getUsername(),
-                    credentials.getPassword());
+            fail("Cannot login as {0}.", testUser.getSimpleUsername());
+            TEST_LOGGER.logError(icx, "Cannot login as {0}.", testUser.getSimpleUsername());
         }
     }
 

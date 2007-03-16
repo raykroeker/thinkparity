@@ -15,6 +15,8 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 
+import com.thinkparity.codebase.FileSystem;
+import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
@@ -41,6 +43,8 @@ public class TestCaseHelper {
 	 * @see #getInputFilesDirectory()
 	 */
 	private static File inputFilesDirectory;
+
+	private static FileSystem inputFilesFileSystem;
 
 	/**
 	 * List of modified input files to use for testing.
@@ -86,7 +90,7 @@ public class TestCaseHelper {
 		new Log4JWrapper("TEST_LOGGER").logInfo(JUnitX.MESSAGE_INIT);
 	}
 
-	/**
+    /**
 	 * Create a failure message for the throwable.
 	 * 
 	 * @param t
@@ -114,8 +118,7 @@ public class TestCaseHelper {
         }
         return inputFileMD5Checksums.toArray(new String[] {});
     }
-
-    /**
+	/**
      * Obtain a list of the input file names.
      * 
      * @return A <code>String[]</code>.
@@ -137,16 +140,17 @@ public class TestCaseHelper {
         }
         return inputFileNames.toArray(new String[] {});
     }
-	/**
+
+    /**
      * Obtain a list of all of the input files.
      * 
      * @return A <code>File[]</code>.
      */
 	static File[] getInputFiles() throws IOException {
-		if(null == inputFiles) {
+		if (null == inputFiles) {
 			inputFiles = new LinkedList<File>();
             for (final String inputFileName : getInputFileNames()) {
-                inputFiles.add(copyInputFile(inputFileName));
+                inputFiles.add(copyFile(inputFileName));
             }
 		}
 		return inputFiles.toArray(new File[] {});
@@ -169,71 +173,90 @@ public class TestCaseHelper {
 	static File[] getModFiles() throws IOException {
 		if(null == modFiles) {
 			modFiles = new LinkedList<File>();
-            modFiles.add(copyInputFile("JUnitTestFrameworkMod"));
-			modFiles.add(copyInputFile("JUnitTestFrameworkMod.doc"));
-			modFiles.add(copyInputFile("JUnitTestFrameworkMod.odt"));
-            modFiles.add(copyInputFile("JUnitTestFrameworkMod.pdf"));
-			modFiles.add(copyInputFile("JUnitTestFrameworkMod.png"));
-			modFiles.add(copyInputFile("JUnitTestFrameworkMod.txt"));
-			modFiles.add(copyInputFile("JUnitTestFrameworkMod.unknown"));
-			modFiles.add(copyInputFile("JUnitTestFramework1MBMod.txt"));
-			modFiles.add(copyInputFile("JUnitTestFramework2MBMod.txt"));
-			modFiles.add(copyInputFile("JUnitTestFramework4MBMod.txt"));
+            modFiles.add(copyFile("JUnitTestFrameworkMod"));
+			modFiles.add(copyFile("JUnitTestFrameworkMod.doc"));
+			modFiles.add(copyFile("JUnitTestFrameworkMod.odt"));
+            modFiles.add(copyFile("JUnitTestFrameworkMod.pdf"));
+			modFiles.add(copyFile("JUnitTestFrameworkMod.png"));
+			modFiles.add(copyFile("JUnitTestFrameworkMod.txt"));
+			modFiles.add(copyFile("JUnitTestFrameworkMod.unknown"));
+			modFiles.add(copyFile("JUnitTestFramework1MBMod.txt"));
+			modFiles.add(copyFile("JUnitTestFramework2MBMod.txt"));
+			modFiles.add(copyFile("JUnitTestFramework4MBMod.txt"));
 		}
 		return modFiles.toArray(new File[] {});
 	}
 
-	/**
+	static final File getSequenceFile(final Integer sequence,
+            final Integer index) {
+        final FileSystem target = getInputFilesFileSystem();
+        final String path = new StringBuilder("sequence-")
+            .append(sequence).append("/gen-").append(index).toString();
+        File sequenceFile = target.findFile(path); 
+        if (null == sequenceFile) {
+            try {
+                sequenceFile = copyFile(path);
+            } catch (final IOException iox)  {
+                throw new TestException("Could not copy sequence file.", iox);
+            }
+        }
+        return sequenceFile;
+    }
+
+    /**
 	 * Obtain the test session.
 	 * 
 	 * @return The test session.
 	 */
 	static TestSession getTestSession() { return testSession; }
 
-	/**
-	 * Copy the input file of the given name to the input files directory. This
-	 * api will use the classloader to read the resource then copy the stream
-	 * directly to a file of the same name in the input directory.
-	 * 
-	 * @param inputName
-	 *            The input file name.
-	 * @param outputName
-	 *            The output file name.
-	 * @throws IOException
-	 */
-	private static File copyInputFile(final String inputName) throws IOException {
-		return copyInputFile(inputName, inputName);
+    /**
+     * Copy the input file of the given name to the input files directory. This
+     * api will use the classloader to read the resource then copy the stream
+     * directly to a file of the same name in the input directory.
+     * 
+     * @param path
+     *            The path of the resource beneath "junitx-files/".
+     * @throws IOException
+     */
+	private static File copyFile(final String path) throws IOException {
+        final FileSystem target = getInputFilesFileSystem();
+        if (null == target.findFile(path)) {
+            final File targetFile = target.createFile(path);
+            final OutputStream output = new FileOutputStream(targetFile);
+            try {
+                final String inputPath = "junitx-files/" + path;
+                final InputStream input = getInputStream(inputPath);
+                try {
+                    // BUFFER - 1KB - TestCaseHelper#copyInputFile(String, String)
+                    StreamUtil.copy(input, output, 1024);
+                } finally {
+                    input.close();
+                }
+            } finally {
+                output.close();
+            }
+        }
+		return target.findFile(path);
 	}
 
-	/**
-	 * Copy the input file of the given name to the input files directory. This
-	 * api will use the classloader to read the resource then copy the stream
-	 * directly to a file of the same name in the input directory.
-	 * 
-	 * @param inputName
-	 *            The input file name.
-	 * @param outputName
-	 *            The output file name.
-	 * @throws IOException
-	 */
-	private static File copyInputFile(final String inputName,
-			final String outputName) throws IOException {
-        final File outputFile = new File(getInputFilesDirectory(), outputName);
-        final OutputStream output = new FileOutputStream(outputFile);
-        try {
-            final InputStream input = TestCaseHelper.class.getClassLoader().getResourceAsStream(
-                    "junitx-files/" + inputName);
-            try {
-                // BUFFER - 1KB - TestCaseHelper#copyInputFile(String, String)
-                StreamUtil.copy(input, output, 1024);
-            } finally {
-                input.close();
-            }
-        } finally {
-            output.close();
+	private static FileSystem getInputFilesFileSystem() {
+        if (null == inputFilesFileSystem) {
+            inputFilesFileSystem = new FileSystem(getInputFilesDirectory());
         }
-		return outputFile;
-	}
+        return inputFilesFileSystem;
+    }
+
+    /**
+     * Obtain a resource as an input stream from the class.
+     * 
+     * @param name
+     *            A resource name <code>String</code>.
+     * @return An <code>InputStream</code>.
+     */
+    private static InputStream getInputStream(final String resourcePath) {
+        return ResourceUtil.getInputStream(resourcePath);
+    }
 
 	/**
 	 * Obtain a handle to the JUnit root directory.

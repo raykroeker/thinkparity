@@ -5,18 +5,20 @@ package com.thinkparity.ophelia.browser.application.system;
 
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
+import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.events.ContactEvent;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.codebase.model.util.http.Link;
+import com.thinkparity.codebase.model.util.http.LinkFactory;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
-import com.thinkparity.ophelia.browser.application.system.notify.Notification;
+import com.thinkparity.ophelia.browser.application.system.dialog.Notification;
+import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
@@ -30,8 +32,8 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
 import com.thinkparity.ophelia.browser.platform.util.State;
-
-import org.apache.log4j.Logger;
+import com.thinkparity.ophelia.model.events.ContactEvent;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * @author raykroeker@gmail.com
@@ -112,6 +114,15 @@ public class SystemApplication extends AbstractApplication {
 	}
 
     /**
+     * Get the web page.
+     * 
+     * @return The web page <code>Link</code>.
+     */
+    public Link getWebPage() {
+        return LinkFactory.getInstance(Application.OPHELIA, BrowserPlatform.getInstance().getEnvironment()).create();
+    }
+
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#hibernate(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -171,6 +182,11 @@ public class SystemApplication extends AbstractApplication {
         runLater(ActionId.PLATFORM_BROWSER_ICONIFY, data);
     }
 
+    /** Show the display info dialog. */
+    public void runDisplayInfo() {
+        impl.displayInfo();
+    }
+
     /** Run the exit platform action. */
     public void runExitPlatform() {
         runLater(ActionId.PLATFORM_QUIT, Data.emptyData());
@@ -184,6 +200,11 @@ public class SystemApplication extends AbstractApplication {
     /** Run the move to front action. */
     public void runMoveBrowserToFront() {
         runLater(ActionId.PLATFORM_BROWSER_MOVE_TO_FRONT, Data.emptyData());
+    }
+
+    /** Run the open website action. */
+    public void runOpenWebsite() {
+        run(ActionId.PLATFORM_OPEN_WEBSITE, Data.emptyData());
     }
 
     /** Run the restart platform action. */
@@ -289,15 +310,15 @@ public class SystemApplication extends AbstractApplication {
             fireNotification(ActionId.CONTAINER_SHOW,
                     data, e.getContainer().getName(),
                     "Notification.ContainerPublishedFirstTimeMessage",
-                    fuzzyDateFormat.format(e.getVersion().getUpdatedOn()),
-                    getName(e.getTeamMember()));
+                    getName(e.getTeamMember()),
+                    fuzzyDateFormat.format(e.getVersion().getUpdatedOn()));
         } else {
             // this is a subsequent publish event
             fireNotification(ActionId.CONTAINER_SHOW,
                     data, e.getContainer().getName(),
                     "Notification.ContainerPublishedNotFirstTimeMessage",
-                    fuzzyDateFormat.format(e.getVersion().getUpdatedOn()),
-                    getName(e.getTeamMember()));
+                    getName(e.getTeamMember()),
+                    fuzzyDateFormat.format(e.getVersion().getUpdatedOn()));
         }
     }
 

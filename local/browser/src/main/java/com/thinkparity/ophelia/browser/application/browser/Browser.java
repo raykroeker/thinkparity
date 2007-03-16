@@ -19,17 +19,18 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.swing.SwingUtil;
-import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
-
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -57,32 +58,12 @@ import com.thinkparity.ophelia.browser.application.browser.window.WindowFactory;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowId;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
-import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
-import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
-import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
+import com.thinkparity.ophelia.browser.platform.action.*;
 import com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.artifact.RemoveFlagSeen;
-import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingEMailInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingUserInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingEMailInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingEMailInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingUserInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.*;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
-import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Create;
-import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
-import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.Rename;
-import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
@@ -101,8 +82,6 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-
-import org.apache.log4j.Logger;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -448,13 +427,6 @@ public class Browser extends AbstractApplication {
             input.set(FileChooserAvatar.DataKey.SOURCE, source);
         }
         return displayFileChooser(input);
-    }
-
-    /**
-     * Display the info (or Help About) dialog.
-     */
-    public void displayInfoDialog() {
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PLATFORM_DISPLAY_INFO);
     }
 
     /**

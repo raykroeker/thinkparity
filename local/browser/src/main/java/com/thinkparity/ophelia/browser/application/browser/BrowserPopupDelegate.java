@@ -43,6 +43,5 @@ public class BrowserPopupDelegate extends DefaultPopupDelegate {
         addSeparator();
         
         add(ActionId.PLATFORM_BROWSER_OPEN_HELP, Data.emptyData());
-        add(ActionId.PLATFORM_BROWSER_DISPLAY_INFO, Data.emptyData());
     }
 }

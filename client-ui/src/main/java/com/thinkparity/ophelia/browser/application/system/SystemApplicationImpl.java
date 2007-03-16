@@ -7,8 +7,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.thinkparity.ophelia.browser.application.system.notify.Notification;
-import com.thinkparity.ophelia.browser.application.system.notify.NotifyFrame;
+import com.thinkparity.ophelia.browser.application.system.dialog.DisplayInfoFrame;
+import com.thinkparity.ophelia.browser.application.system.dialog.Notification;
+import com.thinkparity.ophelia.browser.application.system.dialog.NotifyFrame;
 import com.thinkparity.ophelia.browser.application.system.tray.Tray;
 import com.thinkparity.ophelia.browser.platform.Platform;
 
@@ -24,6 +25,9 @@ class SystemApplicationImpl extends Thread {
 	 * @see #run()
 	 */
 	Boolean running = Boolean.FALSE;
+    
+	/** Flag indicating the DisplayInfo dialog has been requested. */
+    private Boolean displayInfoRequested = Boolean.FALSE;
 
 	/** Queue of notifications not yet displayed. */
 	private final List<Notification> queue;
@@ -55,6 +59,7 @@ class SystemApplicationImpl extends Thread {
             // we are no longer running
             if (running) {
     			try {
+                    processDisplayInfo();
                     processQueue();
     			} catch (final RuntimeException rx) {
     				throw sysApp.translateError(rx);
@@ -75,6 +80,16 @@ class SystemApplicationImpl extends Thread {
 
 		super.start();
 	}
+
+    /**
+     * Display the "display info" dialog.
+     */
+    void displayInfo() {
+        synchronized (this) {
+            displayInfoRequested = Boolean.TRUE;
+            notifyAll();
+        }
+    }
 
 	/**
 	 * End the application.
@@ -136,6 +151,18 @@ class SystemApplicationImpl extends Thread {
 	 * @return The total number of queued artifacts and artifact versions.
 	 */
 	private Integer getQueueTotal() { return queue.size(); }
+
+    /**
+     * Process a request for the display info dialog.
+     */
+    private void processDisplayInfo() {
+        if (displayInfoRequested) {
+            synchronized (this) {
+                DisplayInfoFrame.display(sysApp);
+                displayInfoRequested = Boolean.FALSE;
+            }
+        }
+    }
 
 	/**
 	 * Process pending queue events.

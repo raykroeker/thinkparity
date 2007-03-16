@@ -24,6 +24,9 @@ class TrayMenuBuilder {
     /** The browser action. */
     final Action browser;
 
+    /** The display info action. */
+    final Action displayInfo;
+
     /** The exit action. */
     final Action exit;
 
@@ -43,6 +46,13 @@ class TrayMenuBuilder {
                 application.runRestoreBrowser();
             }};
         this.browser.putValue(Action.MNEMONIC_KEY, Integer.valueOf(getString("Menu.BrowserMnemonic").charAt(0)));
+
+        this.displayInfo = new AbstractAction(getString("Menu.DisplayInfo")) {
+            private static final long serialVersionUID = 1;
+            public void actionPerformed(final ActionEvent e) {
+                application.runDisplayInfo();
+            }};
+        this.displayInfo.putValue(Action.MNEMONIC_KEY, Integer.valueOf(getString("Menu.DisplayInfoMnemonic").charAt(0)));
 
         if(application.isDevelopmentMode()) {
             this.restart = new AbstractAction(getString("Menu.Restart")) {
@@ -71,10 +81,11 @@ class TrayMenuBuilder {
     JPopupMenu createPopup() {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
         jPopupMenu.add(browser);
-        jPopupMenu.addSeparator();
         if (application.isDevelopmentMode()) {
             jPopupMenu.add(restart);
         }
+        jPopupMenu.add(displayInfo);
+        jPopupMenu.addSeparator();
         jPopupMenu.add(exit);
         return jPopupMenu;
     }

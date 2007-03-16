@@ -1,7 +1,7 @@
 /*
  * Created On:  22-Nov-06 4:07:49 PM
  */
-package com.thinkparity.ophelia.browser.application.system.notify;
+package com.thinkparity.ophelia.browser.application.system.dialog;
 
 import com.thinkparity.ophelia.browser.util.Swing;
 

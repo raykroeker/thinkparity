@@ -1,0 +1,151 @@
+/**
+ * Created On: Mar 14, 2007 10:26:56 PM
+ * $Id$
+ */
+package com.thinkparity.ophelia.browser.application.system.dialog;
+
+import java.awt.AWTException;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+
+import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.ophelia.browser.application.system.SystemApplication;
+
+/**
+ * @author rob_masako@shaw.ca
+ * @version $Revision$
+ */
+public class DisplayInfoFrame extends SystemFrame {
+
+    /** The number of pixels to adjust the y location of the panel by when animating. */
+    private static final int ANIMATION_Y_LOCATION_ADJUSTMENT;
+
+    /** The <code>DisplayInfoFrame</code> singleton instance. */
+    private static DisplayInfoFrame frame;
+
+    static {
+        ANIMATION_Y_LOCATION_ADJUSTMENT = -5;
+    }
+
+    /** The <code>DisplayInfoPanel</code>. */
+    private DisplayInfoPanel panel;
+
+    /** The system application. */
+    private final SystemApplication systemApplication;
+
+    /**
+     * @throws AWTException
+     */
+    public DisplayInfoFrame(final SystemApplication systemApplication) throws AWTException {
+        super();
+        this.systemApplication = systemApplication;
+        initComponents();
+    }
+
+    /**
+     * Test the display info frame display.
+     * 
+     * @param systemApplication
+     *            The system application.
+     */
+    static void testDisplay(final SystemApplication systemApplication) {
+        if (null == frame) {
+            try {
+                frame = new DisplayInfoFrame(systemApplication);
+                frame.setLocation(frame.getFinalLocation());
+            } catch (final AWTException awtx) {
+                throw new BrowserException("Could not instantiate Display Info dialogue.", awtx);
+            }
+        }
+        frame.doDisplay();
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                if (frame.isVisible())
+                    frame.toFront();
+                else
+                    frame.show(Boolean.FALSE);
+            }
+        });
+    }
+
+    /**
+     * Display a display info frame.
+     * 
+     * @param systemApplication
+     *            The system application.
+     */
+    public static void display(final SystemApplication systemApplication) {
+        if (null == frame) {
+            try {
+                frame = new DisplayInfoFrame(systemApplication);
+                frame.setLocation(frame.getStartLocation());
+            } catch (final AWTException awtx) {
+                throw new BrowserException("Could not instantiate Display Info dialogue.", awtx);
+            }
+        }
+        frame.doDisplay();
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                if (frame.isVisible()) {
+                    frame.toFront();
+                } else {
+                    frame.show(Boolean.TRUE);
+                }
+            }
+        });
+    }
+
+    /**
+     * Close the frame.
+     *
+     */
+    public static void close() {
+        if (isDisplayed()) {
+            frame.dispose();
+            frame = null;
+        }
+    }
+
+    /**
+     * Determine whether or not the frame is being displayed.
+     * 
+     * @return True if the frame is currently being displayed.
+     */
+    public static Boolean isDisplayed() {
+        return null != frame && frame.isVisible();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.system.dialog.SystemFrame#getAnimationAdjustmentY()
+     */
+    @Override
+    protected int getAnimationAdjustmentY() {
+        return ANIMATION_Y_LOCATION_ADJUSTMENT;
+    }
+
+    /**
+     * Reload the panel.
+     */
+    private void doDisplay() {
+        panel.reload();
+    }
+
+    /**
+     * Initialize components.
+     */
+    private void initComponents() {
+        panel = new DisplayInfoPanel(systemApplication);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setAlwaysOnTop(true);
+        setUndecorated(true);
+        setLayout(new GridBagLayout());
+        final GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.weightx = 1.0F;
+        constraints.weighty = 1.0F;
+        constraints.gridx = GridBagConstraints.RELATIVE;
+        constraints.gridy = GridBagConstraints.RELATIVE;
+        add(panel, constraints);
+        pack();
+    }
+}

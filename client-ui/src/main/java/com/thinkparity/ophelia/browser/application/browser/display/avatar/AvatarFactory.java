@@ -8,7 +8,6 @@ import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ConfirmAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.DisplayInfoAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorDetailsAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.FileChooserAvatar;
@@ -172,10 +171,6 @@ public class AvatarFactory {
         case DIALOG_CONTAINER_VERSION_COMMENT:
             avatar = newAvatar(ContainerVersionCommentAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
-            break;
-            
-        case DIALOG_PLATFORM_DISPLAY_INFO:
-            avatar = newAvatar(DisplayInfoAvatar.class);
             break;
 
         case DIALOG_PROFILE_UPDATE:

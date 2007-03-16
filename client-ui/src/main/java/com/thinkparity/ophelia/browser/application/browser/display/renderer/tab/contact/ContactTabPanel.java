@@ -804,6 +804,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         final javax.swing.JLabel contactPhoneJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel contactMobilePhoneJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel contactFillerJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel expandedDataFillerJLabel = new javax.swing.JLabel();
 
         collapsedJPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -1076,6 +1077,13 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         expandedDataValuesJPanel.add(contactFillterValueJLabel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridheight = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 152);
+        expandedDataValuesJPanel.add(expandedDataFillerJLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 0;

@@ -29,6 +29,7 @@ import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.FileIconReader;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
@@ -49,22 +50,22 @@ public class ContainerPanel extends DefaultTabPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPanel collapsedJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel eastCountJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel eastFirstJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel eastFirstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JPanel eastJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel eastLastJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel eastLastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private javax.swing.JPanel eastListJPanel;
-    private final javax.swing.JLabel eastNextJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel eastPreviousJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel eastNextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel eastPreviousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel westCountJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel westFirstJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel westFirstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JPanel westJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel westLastJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel westLastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private javax.swing.JPanel westListJPanel;
-    private final javax.swing.JLabel westNextJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel westPreviousJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel westNextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel westPreviousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     // End of variables declaration//GEN-END:variables
 
     /** A <code>Container</code>. */

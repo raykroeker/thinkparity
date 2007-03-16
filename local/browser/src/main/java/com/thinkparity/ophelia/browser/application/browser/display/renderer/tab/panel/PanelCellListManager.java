@@ -7,8 +7,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import java.awt.event.MouseAdapter;
 import java.util.List;
 
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 
 /**
@@ -140,12 +138,6 @@ public class PanelCellListManager {
             public void mousePressed(final java.awt.event.MouseEvent e) {
                 iconJLabelMousePressed(e);
             }
-            public void mouseEntered(final java.awt.event.MouseEvent e) {
-                iconJLabelMouseEntered(e);
-            }
-            public void mouseExited(final java.awt.event.MouseEvent e) {
-                iconJLabelMouseExited(e);
-            }
         };
         this.firstJLabel.addMouseListener(mouseAdapter);
         this.previousJLabel.addMouseListener(mouseAdapter);
@@ -198,14 +190,6 @@ public class PanelCellListManager {
         }
         updateModel();
         reloadControls();
-    }
-    
-    private void iconJLabelMouseEntered(final java.awt.event.MouseEvent e) {
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
-    }
-
-    private void iconJLabelMouseExited(final java.awt.event.MouseEvent e) {
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
     }
     
     private void updateModel() {

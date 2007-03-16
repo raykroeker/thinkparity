@@ -146,7 +146,7 @@ create table PRODUCT_ERROR(
     PRODUCT_ID bigint not null,
     USER_ID bigint not null,
     ERROR_DATE timestamp not null,
-    ERROR_XML longvarbinary not null,\
+    ERROR_XML longvarbinary not null,
     primary key(ERROR_ID),
     foreign key(USER_ID) references PARITY_USER(USER_ID),
     foreign key(PRODUCT_ID) references PRODUCT(PRODUCT_ID)

@@ -18,6 +18,7 @@ insert into USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
     values(7000,5000,true);
 
 insert into PRODUCT(PRODUCT_NAME) values('OpheliaProduct');
+insert into PRODUCT(PRODUCT_NAME) values('DesdemonaProduct');
 insert into PRODUCT_FEATURE(PRODUCT_ID,FEATURE) values(1000,'CORE');
 insert into PRODUCT_FEATURE(PRODUCT_ID,FEATURE) values(1000,'BACKUP');
 

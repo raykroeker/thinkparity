@@ -37,11 +37,11 @@ public class ArtifactReceiptReceivedOn implements Comparator<ArtifactReceipt> {
             if (o2.isSetReceivedOn()) {
                 result = o1.getReceivedOn().compareTo(o2.getReceivedOn());
             } else {
-                result = 1;
+                result = -1;
             }
         } else {
             if (o2.isSetReceivedOn()) {
-                result = -1;
+                result = 1;
             } else {
                 result = 0;
             }

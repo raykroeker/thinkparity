@@ -285,6 +285,7 @@ public class DropShadowBorder extends AbstractBorder {
      * an infinite loop. Instead call it just before the popup will be visible.
      */
     public void paintUnderneathBorder(final Component c, final int x, final int y, final int width, final int height) {
+        initializeScreenCaptures();
         Component deepestComponent = null;
         
         // Get the deepest component
@@ -319,7 +320,18 @@ public class DropShadowBorder extends AbstractBorder {
         rect.height = SHADOW_BOTTOM;       
         paintUnderneathRectangle(deepestComponent, rect);
     }
-    
+
+    /**
+     * Initialize screen captures so they will be regenerated later.
+     */
+    private void initializeScreenCaptures() {
+        screenCaptureBottom = null;
+        screenCaptureLeft = null;
+        screenCaptureRight = null;
+        screenCaptureTopLeft = null;
+        screenCaptureTopRight = null;
+    }
+
     private void paintUnderneathRectangle(final Component component, final Rectangle rect) {
         final int deepestComponentWidth = component.getWidth();
         final int deepestComponentHeight = component.getHeight();

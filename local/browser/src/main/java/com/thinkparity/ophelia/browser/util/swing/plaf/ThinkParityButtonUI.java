@@ -242,6 +242,7 @@ public class ThinkParityButtonUI extends BasicButtonUI {
      * @see javax.swing.plaf.basic.BasicButtonUI#paintText(java.awt.Graphics, javax.swing.JComponent, java.awt.Rectangle, java.lang.String)
      * 
      * Disabled text is drawn gray without offset or shadow.
+     * NOCOMMIT The override of this api (BasicButtonUI#paintText(Graphics,JComponent,Rectangle,String) is no longer supported it should be removed.
      */
     @Override
     protected void paintText(final Graphics g, final JComponent c,

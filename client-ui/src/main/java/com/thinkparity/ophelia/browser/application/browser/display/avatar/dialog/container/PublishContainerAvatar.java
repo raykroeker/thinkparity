@@ -14,11 +14,14 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.ophelia.model.user.UserUtils;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -31,7 +34,6 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
-import com.thinkparity.ophelia.model.user.UserUtils;
 
 /**
  * <b>Title:</b><br>
@@ -79,10 +81,22 @@ public final class PublishContainerAvatar extends Avatar implements
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerSwingDisplay#dispose()
-     *
      */
     public void dispose() {
         disposeWindow();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getAvatarTitle()
+     */
+    @Override
+    public String getAvatarTitle() {
+        if (input==null) {
+            return getString("Title");
+        } else {
+            final String name = ((PublishContainerProvider) contentProvider).readContainerName(getInputContainerId());
+            return getString("TitlePublish", new Object[] {name});
+        }
     }
 
     /**
@@ -92,7 +106,7 @@ public final class PublishContainerAvatar extends Avatar implements
     public AvatarId getId() {
         return AvatarId.DIALOG_CONTAINER_PUBLISH;
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getState()
      */

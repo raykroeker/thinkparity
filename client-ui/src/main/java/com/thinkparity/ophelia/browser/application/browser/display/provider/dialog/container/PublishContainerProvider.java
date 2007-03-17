@@ -63,6 +63,17 @@ public class PublishContainerProvider extends ContentProvider {
     }
 
     /**
+     * Get the container name.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return The name <code>String</code>.             
+     */
+    public String readContainerName(final Long containerId) {
+        return containerModel.read(containerId).getName();
+    }
+
+    /**
      * Get the comment associated with a container version.
      * 
      * @param containerId

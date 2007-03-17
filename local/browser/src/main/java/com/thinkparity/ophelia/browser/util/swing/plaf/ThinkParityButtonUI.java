@@ -15,9 +15,9 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicButtonUI;
 import javax.swing.plaf.basic.BasicGraphicsUtils;
 
-import sun.swing.SwingUtilities2;
-
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
+
+import sun.swing.SwingUtilities2;
 
 /**
  * @author rob_masako@shaw.ca
@@ -239,16 +239,14 @@ public class ThinkParityButtonUI extends BasicButtonUI {
     }
 
     /**
-     * @see javax.swing.plaf.basic.BasicButtonUI#paintText(java.awt.Graphics, javax.swing.JComponent, java.awt.Rectangle, java.lang.String)
+     * @see javax.swing.plaf.basic.BasicButtonUI#paintText(java.awt.Graphics, javax.swing.AbstractButton, java.awt.Rectangle, java.lang.String)
      * 
      * Disabled text is drawn gray without offset or shadow.
-     * NOCOMMIT The override of this api (BasicButtonUI#paintText(Graphics,JComponent,Rectangle,String) is no longer supported it should be removed.
      */
     @Override
-    protected void paintText(final Graphics g, final JComponent c,
-            final Rectangle textRect, final String text) {
-        final AbstractButton button = (AbstractButton) c;                       
-        final FontMetrics fm = SwingUtilities2.getFontMetrics(c, g);
+    protected void paintText(final Graphics g, final AbstractButton button,
+            final Rectangle textRect, final String text) {                    
+        final FontMetrics fm = SwingUtilities2.getFontMetrics(button, g);
         final int mnemonicIndex = button.getDisplayedMnemonicIndex();
 
         if (isEnabled(button)) {
@@ -256,7 +254,7 @@ public class ThinkParityButtonUI extends BasicButtonUI {
         } else {
             g.setColor(COLOR_DISABLED_TEXT);
         }
-        SwingUtilities2.drawStringUnderlineCharAt(c, g, text, mnemonicIndex,
+        SwingUtilities2.drawStringUnderlineCharAt(button, g, text, mnemonicIndex,
                       textRect.x + getTextShiftOffset(),
                       textRect.y + fm.getAscent() + getTextShiftOffset());
     }

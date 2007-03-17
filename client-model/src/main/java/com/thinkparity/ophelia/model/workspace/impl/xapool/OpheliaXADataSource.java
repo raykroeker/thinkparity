@@ -40,10 +40,9 @@ public class OpheliaXADataSource extends StandardXADataSource {
     /**
      * Create OpheliaXADataSource.
      * 
-     * @param workspace
-     *            A <code>Workspace</code>.
      */
-    public OpheliaXADataSource(final File persistenceDirectory) throws SQLException {
+    public OpheliaXADataSource(final File persistenceDirectory)
+            throws SQLException {
         super();
         setDriverName(DS_DRIVER_NAME);
         setPassword(DS_PASSWORD);
@@ -59,23 +58,12 @@ public class OpheliaXADataSource extends StandardXADataSource {
     }
 
     /**
-     * @see org.enhydra.jdbc.standard.StandardDataSource#getConnection()
-     *
-     */
-    @Override
-    public synchronized Connection getConnection() throws SQLException {
-        final Connection cx = getXAConnection().getConnection();
-        cx.setAutoCommit(false);
-        return cx;
-    }
-
-    /**
      * Obtain a connection used to shutdown the database.
      * 
      * @return A <code>Connection</code>.
      * @throws SQLException
      */
-    public synchronized Connection getShutdownConnection() throws SQLException {
+    synchronized Connection getShutdownConnection() throws SQLException {
         final String url = new StringBuffer(baseUrl)
             .append(";shutdown=true").toString();
         return DriverManager.getConnection(url);

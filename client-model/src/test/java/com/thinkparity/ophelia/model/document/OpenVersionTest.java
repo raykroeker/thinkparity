@@ -81,7 +81,7 @@ public class OpenVersionTest extends DocumentTestCase {
                                 is.close();
                             }
                         } catch (final IOException iox) {
-                            fail(createFailMessage("Could not test open version.", iox));
+                            fail(iox, "Could not test open version.");
                         }
                     }
                 });
@@ -90,7 +90,7 @@ public class OpenVersionTest extends DocumentTestCase {
                     fail("Could not test open version.");
             }
         } catch (final IOException iox) {
-            fail(createFailMessage("Could not test open version.", iox));
+            fail(iox, "Could not test open version.");
         }
     }
 

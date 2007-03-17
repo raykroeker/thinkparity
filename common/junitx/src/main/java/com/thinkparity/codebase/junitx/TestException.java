@@ -3,6 +3,8 @@
  */
 package com.thinkparity.codebase.junitx;
 
+import java.text.MessageFormat;
+
 /**
  * <b>Title:</b>thinkParity JUnit eXtensions Test Exception<br>
  * <b>Description:</b><br>
@@ -50,5 +52,20 @@ public class TestException extends RuntimeException {
      */
     public TestException(final Throwable cause) {
         super(cause);
+    }
+
+    /**
+     * Create TestException.
+     * 
+     * @param cause
+     *            A <code>Throwable</code> cause.
+     * @param message
+     *            An exception message <code>String</code>.
+     * @param arguments
+     *            An exception message's <code>Object[]</code> arguments.
+     */
+    public TestException(final Throwable cause, final String message,
+            final Object... arguments) {
+        super(MessageFormat.format(message, arguments), cause);
     }
 }

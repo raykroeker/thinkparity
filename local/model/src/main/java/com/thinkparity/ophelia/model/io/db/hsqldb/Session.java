@@ -6,15 +6,7 @@ package com.thinkparity.ophelia.model.io.db.hsqldb;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.sql.Blob;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -111,7 +103,7 @@ public final class Session {
     public void close() {
         assertConnectionIsOpen();
         try {
-            close(preparedStatement, resultSet);
+            close(metaData, preparedStatement, resultSet);
         } finally {
             try {
                 connection.close();
@@ -371,27 +363,19 @@ public final class Session {
      * @return The identity value.
      */
     public Long getIdentity(final String table) {
-        assertConnectionIsOpen();
-        final String sql = new StringBuffer("select IDENTITY_VAL_LOCAL() from ")
-            .append(table)
-            .toString();
-        logStatement(sql);
-        ResultSet resultSet = null;
-        Statement statement = null;
+        final String sql = new StringBuffer(SQL_GET_IDENTITY_PRE)
+            .append(table).toString();
         try {
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(sql);
-            if (resultSet.next()) {
-                return resultSet.getLong(1);
-            } else {
-                return null;
-            }
-        } catch (final SQLException sqlx) {
-            throw panic(sqlx);
+            prepareStatement(sql);
+            executeQuery();
+            nextResult();
+            return getLong("ID");
         } finally {
-            close(statement, resultSet);
+            close(preparedStatement, resultSet);
         }
     }
+
+    private static final String SQL_GET_IDENTITY_PRE = "select IDENTITY_VAL_LOCAL() \"ID\" from ";
 
     public Integer getInteger(final String columnName) {
         assertConnectionIsOpen();
@@ -615,12 +599,11 @@ public final class Session {
 		}
 	}
 
-	public PreparedStatement prepareStatement(final String sql) {
+	public void prepareStatement(final String sql) {
 		assertConnectionIsOpen();
 		logStatement(sql);
 		try {
 			preparedStatement = connection.prepareStatement(sql);
-			return preparedStatement;
 		} catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
 		}
@@ -1040,6 +1023,18 @@ public final class Session {
     }
 
     /**
+     * Close datbase meta data.
+     * 
+     * @param statement
+     *            A <code>Statement</code>.
+     */
+    private void close(DatabaseMetaData databaseMetaData) {
+        if(null != databaseMetaData) {
+            databaseMetaData = null;
+        }
+    }
+
+    /**
      * Close a statement as well as a result set.
      * 
      * @param statement
@@ -1051,8 +1046,20 @@ public final class Session {
      * @see HypersonicSession#close(ResultSet)
      */
     private void close(final Statement statement, final ResultSet resultSet) {
-        close(statement);
-        close(resultSet);
+        try {
+            close(statement);
+        } finally {
+            close(resultSet);
+        }
+    }
+
+    private void close(final DatabaseMetaData databaseMetaData,
+            final Statement statement, final ResultSet resultSet) {
+        try {
+            close(databaseMetaData);
+        } finally {
+            close(statement, resultSet);
+        }
     }
 
     /**
@@ -1064,7 +1071,7 @@ public final class Session {
      *            The column value <code>Object</code>.
      */
     private void logColumnExtraction(final String columnName, final Object columnValue) {
-        LOGGER.logDebug("Extract {0}:{1}", columnName, columnValue);
+//        LOGGER.logDebug("Extract {0}:{1}", columnName, columnValue);
     }
 
     /**
@@ -1076,7 +1083,7 @@ public final class Session {
      *            The column value <code>Object</code>.
      */
     private void logColumnInjection(final Integer index, final Object columnValue) {
-        LOGGER.logDebug("Inject {0}:{1}", index, columnValue);
+//        LOGGER.logDebug("Inject {0}:{1}", index, columnValue);
     }
 
     /**
@@ -1086,7 +1093,7 @@ public final class Session {
      *            An sql statement <code>String</code>.
      */
     private void logStatement(final String sql) {
-        LOGGER.logDebug("Statement:{0}", sql);
+//        LOGGER.logDebug("Statement:{0}", sql);
     }
 
     /**

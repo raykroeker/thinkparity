@@ -13,7 +13,6 @@ import java.util.Calendar;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.DateUtil.DateImage;
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.util.codec.MD5Util;
@@ -92,6 +91,31 @@ public abstract class TestCase extends junit.framework.TestCase {
     }
 
     /**
+	 * Create a failure message for the throwable.
+	 * 
+	 * @param t
+	 *            The throwable.
+	 * @return The failure message.
+	 */
+	protected static String createFailMessage(final Throwable cause) {
+		return createFailMessage(cause, "Test failure.");
+	}
+    
+    /**
+     * Create a failure message.
+     * 
+     * @param message
+     *            A message.
+     * @param t
+     *            A throwable.
+     * @return A failure message.
+     */
+    protected static String createFailMessage(final Throwable cause,
+            final String message, final Object... arguments) {
+        return TestCaseHelper.createFailMessage(cause, message, arguments);
+    }
+    
+    /**
      * Fail a test.
      * 
      * @param message
@@ -103,8 +127,21 @@ public abstract class TestCase extends junit.framework.TestCase {
             final Object... arguments) {
         fail(MessageFormat.format(message, arguments));
     }
-    
+
     /**
+     * Fail a test.
+     * 
+     * @param message
+     *            A fail message <code>String</code>.
+     * @param arguments
+     *            The fail message arguments <code>Object[]</code>.
+     */
+    protected static final void fail(final Throwable cause,
+            final String message, final Object... arguments) {
+        fail(createFailMessage(cause, message, arguments));
+    }
+
+	/**
      * Obtain the default buffer size for a test case.
      * 
      * @return A buffer size <code>Integer</code>.
@@ -128,7 +165,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 		return TestCaseHelper.getTestSession();
 	}
 
-    /**
+	/**
      * Return the current date and time as a GMT ISO string.
      * 
      * @return The date time <code>String</code>.
@@ -171,7 +208,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 		this.logger = TEST_LOGGER;
 	}
 
-	/**
+    /**
 	 * Add a data item to the test session.
 	 * 
 	 * @param dataKey
@@ -228,7 +265,7 @@ public abstract class TestCase extends junit.framework.TestCase {
         }
     }
 
-    /**
+	/**
 	 * Create a test directory.
 	 * 
 	 * @param directoryName
@@ -237,32 +274,6 @@ public abstract class TestCase extends junit.framework.TestCase {
 	 */
 	protected File createDirectory(final String directoryName) {
 		return testCaseHelper.createDirectory(directoryName);
-	}
-
-	/**
-     * Create a failure message.
-     * 
-     * @param message
-     *            A message.
-     * @param t
-     *            A throwable.
-     * @return A failure message.
-     */
-    protected String createFailMessage(final Object message, final Throwable t) {
-        return new StringBuffer()
-                .append(message).append(Separator.SystemNewLine)
-                .append(TestCaseHelper.createFailMessage(t)).toString();
-    }
-
-	/**
-	 * Create a failure message for the throwable.
-	 * 
-	 * @param t
-	 *            The throwable.
-	 * @return The failure message.
-	 */
-	protected String createFailMessage(final Throwable t) {
-		return createFailMessage(getName(), t);
 	}
 
     protected String[] getInputFileMD5Checksums() {

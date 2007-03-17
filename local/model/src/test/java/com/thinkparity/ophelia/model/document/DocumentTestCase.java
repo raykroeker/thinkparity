@@ -62,7 +62,7 @@ abstract class DocumentTestCase extends ModelTestCase {
                     fail("Output file for test cannot be created.");
                 }
             } catch (final IOException iox) {
-                fail(createFailMessage("Output file for test cannot be created.", iox));
+                fail(iox, "Output file for test cannot be created.");
             }
         }
         return file;

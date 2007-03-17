@@ -155,6 +155,14 @@ public interface Workspace {
     public XMPPSession getXMPPSession();
 
     /**
+     * Determine whether or not an attribute is set.
+     * 
+     * @param name
+     *            An attribute name <code>String</code>.
+     */
+    public Boolean isSetAttribute(final String name);
+
+    /**
      * Remove an attribute.
      * 
      * @param name

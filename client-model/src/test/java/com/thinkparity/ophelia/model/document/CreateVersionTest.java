@@ -58,7 +58,7 @@ public class CreateVersionTest extends DocumentTestCase {
                 dv_is.close();
             }
         } catch (final IOException iox) {
-            fail(createFailMessage("Could not test create version.", iox));
+            fail(iox, "Could not test create version.");
         }
 
         assertNotNull("Document version is null.", dv);
@@ -92,7 +92,7 @@ public class CreateVersionTest extends DocumentTestCase {
                 Assert.assertTrue("Could not delete file {0}.", file.delete());
             }
         } catch (final IOException iox) {
-            fail(createFailMessage("Could not test create version.", iox));
+            fail(iox, "Could not test create version.");
         }
     }
 

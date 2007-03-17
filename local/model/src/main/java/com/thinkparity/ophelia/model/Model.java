@@ -208,9 +208,6 @@ public abstract class Model<T extends EventListener> extends
     /** The <code>ModelInvocationContext</code>. */
     private ModelInvocationContext invocationContext;
 
-    /** A quick-lookup for the local user id. */
-    private JabberId localUserId;
-
     /** A list of all pending <code>EventNotifier</code>s of <code>T</code>. */
     private final List<EventNotifier<T>> notifiers;
 
@@ -998,14 +995,15 @@ public abstract class Model<T extends EventListener> extends
 	 * @return The jabber id of the local user.
 	 */
 	protected JabberId localUserId() {
-        if (null == localUserId) {
+        if (workspace.isSetAttribute("localUserId")) {
+            return (JabberId) workspace.getAttribute("localUserId");
+        } else {
             final Credentials credentials = readCredentials();
-            if (null != credentials) {
-                localUserId = JabberIdBuilder.build(credentials.getUsername(),
-                        environment.getXMPPService(), credentials.getResource());
-            }
+            workspace.setAttribute("localUserId", JabberIdBuilder.build(
+                    credentials.getUsername(), environment.getXMPPService(),
+                    credentials.getResource()));
+            return (JabberId) workspace.getAttribute("localUserId");
         }
-        return localUserId;
 	}
 
     protected final File locateStreamFile(final String streamId)

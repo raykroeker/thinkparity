@@ -7,7 +7,7 @@ import javax.naming.NamingException;
 
 import com.thinkparity.codebase.model.ThinkParityException;
 
-import org.enhydra.jdbc.standard.StandardXADataSource;
+import org.enhydra.jdbc.pool.StandardXAPoolDataSource;
 import org.objectweb.carol.util.configuration.ConfigurationException;
 import org.objectweb.carol.util.configuration.ConfigurationRepository;
 import org.objectweb.jotm.Jotm;
@@ -54,12 +54,12 @@ public class TransactionManager {
     }
 
     /**
-     * Bind the transaction manager to the data source.
+     * Bind the transaction manager to the pool data source.
      * 
      * @param dataSource
-     *            An xapool <code>StandardXADataSource</code>.
+     *            An xapool <code>StandardXAPoolDataSource</code>.
      */
-    public void bind(final StandardXADataSource dataSource) {
+    public void bind(final StandardXAPoolDataSource dataSource) {
         dataSource.setTransactionManager(jotm.getTransactionManager());
     }
 

@@ -868,25 +868,25 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @throws IOException
      * @throws ParityException
      */
-    protected Document createDocument(final OpheliaTestUser testUser,
+    protected Document createDocument(final OpheliaTestUser createAs,
             final File inputFile) {
         try {
-            return getDocumentModel(testUser).create(inputFile.getName(),
-                    new FileInputStream(inputFile));
+            final InputStream inputStream = new FileInputStream(inputFile);
+            try {
+                TEST_LOGGER.logInfo("Creating document \"{0}\".", inputFile.getName());
+                return getDocumentModel(createAs).create(inputFile.getName(),
+                        inputStream);
+            } finally {
+                inputStream.close();
+            }
         } catch (final IOException iox) {
-            throw new TestException(iox);
+            throw new TestException(iox, "Could not create document \"{0}\".", inputFile.getName());
         }
     }
 
-    protected Document createDocument(final OpheliaTestUser testUser, 
+    protected Document createDocument(final OpheliaTestUser createAs,
             final String filename) {
-        logger.logInfo("Creating document \"{0}\".", filename);
-        try {
-            return getDocumentModel(testUser).create(filename,
-                new FileInputStream(getInputFile(filename)));
-        } catch (final IOException iox) {
-            throw new TestException(iox);
-        }
+        return createDocument(createAs, getInputFile(filename));
     }
 
     protected List<Document> createDocuments(final OpheliaTestUser createAs,
@@ -915,15 +915,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 c.getName(), createAs.getSimpleUsername());
         return getContainerModel(createAs).createDraft(localContainerId);
     }
-
-    /**
-     * @see com.thinkparity.codebase.junitx.TestCase#createFailMessage(java.lang.Throwable)
-     * 
-     */
-	protected String createFailMessage(final Throwable t) {
-		logger.logFatal(t, "Test {0} failed.", getName());
-		return super.createFailMessage(t);
-	}
 
     /**
      * Delete a container.
@@ -1261,7 +1252,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *
      */
     protected void logout(final OpheliaTestUser testUser) {
-        logger.logInfo("Logging out user \"{0}.\"", testUser.getSimpleUsername());
+        logger.logInfo("Logging out user \"{0}\".", testUser.getSimpleUsername());
         getSessionModel(testUser).logout();
     }
 

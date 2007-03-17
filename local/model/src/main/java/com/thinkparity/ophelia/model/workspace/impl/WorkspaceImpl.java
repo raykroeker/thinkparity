@@ -349,6 +349,14 @@ public class WorkspaceImpl implements Workspace {
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#isSetAttribute(java.lang.String)
+     *
+     */
+    public Boolean isSetAttribute(final String name) {
+        return sessionData.containsKey(name);
+    }
+
+    /**
      * Open the workspace.
      * 
      */

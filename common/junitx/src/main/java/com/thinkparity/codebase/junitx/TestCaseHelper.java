@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,6 +20,7 @@ import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -91,14 +93,22 @@ public class TestCaseHelper {
 	}
 
     /**
-	 * Create a failure message for the throwable.
-	 * 
-	 * @param t
-	 *            The throwable.
-	 * @return The failure message.
-	 */
-	static String createFailMessage(final Throwable t) {
-		return StringUtil.printStackTrace(t);
+     * Create a formatted failure message.
+     * 
+     * @param cause
+     *            The <code>Throwable</code> cause of the failure.
+     * @param The
+     *            message <code>String</code>. The message
+     *            <code>Object[]</code> arguments.
+     * @return The failure message.
+     */
+	static String createFailMessage(final Throwable cause, final String message,
+            final Object... arguments) {
+        final StringBuilder failMessageBuilder = new StringBuilder(
+                MessageFormat.format(message, arguments))
+            .append(Separator.SystemNewLine);
+		failMessageBuilder.append(StringUtil.printStackTrace(cause));
+        return failMessageBuilder.toString();
 	}
 
     static String[] getInputFileMD5Checksums() {
@@ -190,12 +200,16 @@ public class TestCaseHelper {
 	static final File getSequenceFile(final Integer sequence,
             final Integer index) {
         final FileSystem target = getInputFilesFileSystem();
-        final String path = new StringBuilder("sequence-")
-            .append(sequence).append("/gen-").append(index).toString();
-        File sequenceFile = target.findFile(path); 
+        final String pathPrefix = new StringBuilder("sequence-")
+            .append(sequence).append("/gen-").toString();
+        final String targetPath = new StringBuilder(pathPrefix)
+            .append(index).toString();
+        File sequenceFile = target.findFile(targetPath); 
         if (null == sequenceFile) {
             try {
-                sequenceFile = copyFile(path);
+                final String sourcePath = new StringBuilder(pathPrefix)
+                    .append("0").toString();
+                sequenceFile = copyFile(sourcePath, targetPath);
             } catch (final IOException iox)  {
                 throw new TestException("Could not copy sequence file.", iox);
             }
@@ -220,12 +234,17 @@ public class TestCaseHelper {
      * @throws IOException
      */
 	private static File copyFile(final String path) throws IOException {
+        return copyFile(path, path);
+    }
+
+    private static File copyFile(final String sourcePath,
+            final String targetPath) throws IOException {
         final FileSystem target = getInputFilesFileSystem();
-        if (null == target.findFile(path)) {
-            final File targetFile = target.createFile(path);
+        if (null == target.findFile(targetPath)) {
+            final File targetFile = target.createFile(targetPath);
             final OutputStream output = new FileOutputStream(targetFile);
             try {
-                final String inputPath = "junitx-files/" + path;
+                final String inputPath = "junitx-files/" + sourcePath;
                 final InputStream input = getInputStream(inputPath);
                 try {
                     // BUFFER - 1KB - TestCaseHelper#copyInputFile(String, String)
@@ -237,7 +256,7 @@ public class TestCaseHelper {
                 output.close();
             }
         }
-		return target.findFile(path);
+		return target.findFile(targetPath);
 	}
 
 	private static FileSystem getInputFilesFileSystem() {

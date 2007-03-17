@@ -22,6 +22,7 @@ import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.md.MetaDataType;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
 import com.thinkparity.ophelia.model.workspace.impl.xapool.OpheliaXADataSource;
+import com.thinkparity.ophelia.model.workspace.impl.xapool.OpheliaXADataSourcePool;
 
 /**
  * <b>Title:</b>thinkParity OpheliaModel Persistence Manager Implementation<br>
@@ -41,8 +42,8 @@ class PersistenceManagerImpl {
         XA_TIMEOUT = 60 * 60 * 2;
     }
 
-    /** An <code>OpheliaXADataSource</code>. */
-    private OpheliaXADataSource dataSource;
+    /** A <code>DataSource</code>. */
+    private DataSource dataSource;
 
     /** An apache logger. */
     private final Log4JWrapper logger;
@@ -212,9 +213,9 @@ class PersistenceManagerImpl {
             transactionManager = TransactionManager.getInstance();
             transactionManager.start();
             // create datasource
-            dataSource = new OpheliaXADataSource(persistenceRoot); 
+            dataSource = new OpheliaXADataSourcePool(new OpheliaXADataSource(persistenceRoot));
             // bind the transaction manager to the data source
-            transactionManager.bind(dataSource);
+            transactionManager.bind((OpheliaXADataSourcePool) dataSource);
             sessionManager = new SessionManager(dataSource);
         } catch (final Throwable t) {
             throw new WorkspaceException("Cannot start persistence manager.", t);
@@ -235,7 +236,7 @@ class PersistenceManagerImpl {
         }
 
         try {
-            dataSource.getShutdownConnection();
+            ((OpheliaXADataSourcePool) dataSource).getShutdownConnection();
         } catch (final SQLException sqlx) {
         } catch (final Throwable t) {
             throw new WorkspaceException("Cannot stop persistence manager.", t);

@@ -8,6 +8,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.sql.*;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -50,20 +52,22 @@ public final class Session {
     /** An <code>XStreamUtil</code> instance. */
     protected static final XStreamUtil XSTREAM_UTIL;
 
+    private static final String SQL_GET_IDENTITY_PRE = "select IDENTITY_VAL_LOCAL() \"ID\" from ";
+
     /** The local <code>TimeZone</code>. */
     private static final TimeZone TIME_ZONE;
 
     /** The universal <code>TimeZone</code>. */
     private static final TimeZone UNIVERSAL_TIME_ZONE;
 
-    static {
+	static {
         LOGGER = new Log4JWrapper("SQL_DEBUGGER");
         TIME_ZONE = TimeZone.getDefault();
         UNIVERSAL_TIME_ZONE = TimeZone.getTimeZone("Universal");
         XSTREAM_UTIL = XStreamUtil.getInstance();
     }
 
-	/** The sql connection. */
+    /** The sql connection. */
 	private Connection connection;
 
     /** The session id. */
@@ -75,7 +79,10 @@ public final class Session {
     /** The session's prepared statement. */
 	private PreparedStatement preparedStatement;
 
-	/** The prepared statement's result set. */
+	/** The session's query. */
+    private String query;
+
+    /** The prepared statement's result set. */
 	private ResultSet resultSet;
 
     /** The <code>SessionManager</code>. */
@@ -166,7 +173,7 @@ public final class Session {
         }
     }
 
-    /**
+	/**
      * Execute the SQL query in the session's prepared statement and set the
      * result set.
      * 
@@ -181,7 +188,7 @@ public final class Session {
         }
     }
 
-	/**
+    /**
      * Execute the SQL query in the session's prepared statement and set the
      * result set. Return the number of rows updated.
      * 
@@ -213,6 +220,25 @@ public final class Session {
             return resultSet.wasNull() ? null : value;
         } catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
+        }
+    }
+
+    public List<ArtifactFlag> getArtifactFlags(final String columnName) {
+        assertConnectionIsOpen();
+        assertResultSetIsSet();
+        try {
+            final Integer value = resultSet.getInt(columnName);
+            if (resultSet.wasNull()) {
+                logColumnExtraction(columnName, null);
+                return Collections.emptyList();
+            } else {
+                logColumnExtraction(columnName, value);
+                return ArtifactFlag.fromIdSum(value);
+            }
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        } catch (final IllegalArgumentException iax) {
+            throw new HypersonicException(iax);
         }
     }
 
@@ -375,8 +401,6 @@ public final class Session {
         }
     }
 
-    private static final String SQL_GET_IDENTITY_PRE = "select IDENTITY_VAL_LOCAL() \"ID\" from ";
-
     public Integer getInteger(final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
@@ -459,7 +483,7 @@ public final class Session {
 		}
 	}
 
-	public ArtifactState getStateFromString(final String columnName) {
+    public ArtifactState getStateFromString(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -471,7 +495,7 @@ public final class Session {
 		}
 	}
 
-	public String getString(final String columnName) {
+    public String getString(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -483,7 +507,7 @@ public final class Session {
 		}
 	}
 
-	public SystemMessageType getSystemMessageTypeFromInteger(
+    public SystemMessageType getSystemMessageTypeFromInteger(
 			final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
@@ -544,6 +568,25 @@ public final class Session {
         }
     }
 
+	public List<UserFlag> getUserFlags(final String columnName) {
+        assertConnectionIsOpen();
+        assertResultSetIsSet();
+        try {
+            final Integer value = resultSet.getInt(columnName);
+            if (resultSet.wasNull()) {
+                logColumnExtraction(columnName, null);
+                return Collections.emptyList();
+            } else {
+                logColumnExtraction(columnName, value);
+                return UserFlag.fromIdSum(value);
+            }
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        } catch (final IllegalArgumentException iax) {
+            throw new HypersonicException(iax);
+        }
+    }
+
 	public <T extends UserVCard> T getVCard(final String columnName,
             final T vcard) {
         assertConnectionIsOpen();
@@ -574,7 +617,7 @@ public final class Session {
 		return id.hashCode();
 	}
 
-    public boolean nextResult() {
+	public boolean nextResult() {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -599,17 +642,29 @@ public final class Session {
 		}
 	}
 
-	public void prepareStatement(final String sql) {
+    public void prepareStatement(final String query) {
 		assertConnectionIsOpen();
-		logStatement(sql);
+		logStatement(query);
 		try {
-			preparedStatement = connection.prepareStatement(sql);
+            this.query = query;
+			preparedStatement = connection.prepareStatement(query);
 		} catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
 		}
 	}
 
-    /**
+	public void setArtifactFlags(final Integer index, final List<ArtifactFlag> value) {
+        assertConnectionIsOpen();
+        assertPreparedStatementIsSet();
+        logColumnInjection(index, value);
+        try {
+            preparedStatement.setInt(index, ArtifactFlag.toIdSum(value));
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
+
+	/**
      * Set a blob column value.
      * 
      * @param index
@@ -642,7 +697,7 @@ public final class Session {
         }
     }
 
-	public void setBytes(final Integer index, final byte[] value) {
+    public void setBytes(final Integer index, final byte[] value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -653,7 +708,7 @@ public final class Session {
 		}
 	}
 
-    public void setCalendar(final Integer index, final Calendar value) {
+	public void setCalendar(final Integer index, final Calendar value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -678,7 +733,7 @@ public final class Session {
         }
     }
 
-	public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
+    public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -722,7 +777,7 @@ public final class Session {
 		}
 	}
 
-    public void setLong(final Integer index, final Long value) {
+	public void setLong(final Integer index, final Long value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -737,7 +792,7 @@ public final class Session {
 		}
 	}
 
-	public void setMetaDataAsString(final Integer index, final MetaData value) {
+    public void setMetaDataAsString(final Integer index, final MetaData value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -759,7 +814,7 @@ public final class Session {
 		}
 	}
 
-    public void setStateAsInteger(final Integer index, final ArtifactState value) {
+	public void setStateAsInteger(final Integer index, final ArtifactState value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -792,7 +847,7 @@ public final class Session {
         }
     }
 
-	public void setString(final Integer index, final String value) {
+    public void setString(final Integer index, final String value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -807,7 +862,7 @@ public final class Session {
 		}
 	}
 
-    public void setTypeAsInteger(final Integer index, final ArtifactType value) {
+	public void setTypeAsInteger(final Integer index, final ArtifactType value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -862,7 +917,7 @@ public final class Session {
         }
     }
 
-	public void setTypeAsString(final Integer index, final ArtifactType value) {
+    public void setTypeAsString(final Integer index, final ArtifactType value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -873,7 +928,7 @@ public final class Session {
         }
 	}
 
-    public void setTypeAsString(final Integer index, final AuditEventType value) {
+	public void setTypeAsString(final Integer index, final AuditEventType value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -895,8 +950,7 @@ public final class Session {
 		}
 	}
 
-
-	public void setTypeAsString(final Integer index, final MetaDataType value) {
+    public void setTypeAsString(final Integer index, final MetaDataType value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -906,6 +960,7 @@ public final class Session {
             throw new HypersonicException(sqlx);
 		}
 	}
+
 
 	public void setTypeAsString(final Integer index, final SystemMessageType value) {
 		assertConnectionIsOpen();
@@ -918,7 +973,7 @@ public final class Session {
 		}
 	}
 
-    public void setUniqueId(final Integer index, final UUID value) {
+	public void setUniqueId(final Integer index, final UUID value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -928,6 +983,17 @@ public final class Session {
             throw new HypersonicException(sqlx);
 		}
 	}
+
+    public void setUserFlags(final Integer index, final List<UserFlag> value) {
+        assertConnectionIsOpen();
+        assertPreparedStatementIsSet();
+        logColumnInjection(index, value);
+        try {
+            preparedStatement.setInt(index, UserFlag.toIdSum(value));
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
 
     public <T extends UserVCard> void setVCard(final Integer index,
             final T value) {
@@ -972,8 +1038,10 @@ public final class Session {
      *
      */
     private void assertPreparedStatementIsSet() {
+        if (null == query)
+            throw new HypersonicException("Query is not set.");
         if (null == preparedStatement)
-            throw new HypersonicException("Prepared statement is null.");
+            throw new HypersonicException("Prepared statement is not set.");
     }
 
     /**
@@ -985,6 +1053,27 @@ public final class Session {
             throw new HypersonicException("Result set is null.");
     }
 
+
+    /**
+     * Close datbase meta data.
+     * 
+     * @param statement
+     *            A <code>Statement</code>.
+     */
+    private void close(DatabaseMetaData databaseMetaData) {
+        if(null != databaseMetaData) {
+            databaseMetaData = null;
+        }
+    }
+
+    private void close(final DatabaseMetaData databaseMetaData,
+            final Statement statement, final ResultSet resultSet) {
+        try {
+            close(databaseMetaData);
+        } finally {
+            close(statement, resultSet);
+        }
+    }
 
     /**
      * Close a result set.
@@ -1023,18 +1112,6 @@ public final class Session {
     }
 
     /**
-     * Close datbase meta data.
-     * 
-     * @param statement
-     *            A <code>Statement</code>.
-     */
-    private void close(DatabaseMetaData databaseMetaData) {
-        if(null != databaseMetaData) {
-            databaseMetaData = null;
-        }
-    }
-
-    /**
      * Close a statement as well as a result set.
      * 
      * @param statement
@@ -1050,15 +1127,6 @@ public final class Session {
             close(statement);
         } finally {
             close(resultSet);
-        }
-    }
-
-    private void close(final DatabaseMetaData databaseMetaData,
-            final Statement statement, final ResultSet resultSet) {
-        try {
-            close(databaseMetaData);
-        } finally {
-            close(statement, resultSet);
         }
     }
 

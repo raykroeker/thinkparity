@@ -3,14 +3,8 @@
  */
 package com.thinkparity.desdemona.model.migrator;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -87,8 +81,11 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                                     resource.getName(), resource.getVersion(),
                                     resource.getChecksum());
                             try {
-                                StreamUtil.copy(resourceStream, fileStream,
-                                        getDefaultBufferSize());
+                                final ByteBuffer buffer = getDefaultBuffer();
+                                synchronized (buffer) {
+                                    StreamUtil.copy(resourceStream, fileStream,
+                                            buffer);
+                                }
                             } finally {
                                 resourceStream.close();
                             }
@@ -97,8 +94,11 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                         }
                     }
                     // archive the resources
-                    ZipUtil.createZipFile(streamFile, streamFileSystem.getRoot(),
-                            getDefaultBufferSize());
+                    final ByteBuffer buffer = getDefaultBuffer();
+                    synchronized (buffer) {
+                        ZipUtil.createZipFile(streamFile,
+                                streamFileSystem.getRoot(), buffer);
+                    }
                     // upload the stream
                     final Long streamSize = streamFile.length();
                     final InputStream stream = new BufferedInputStream(
@@ -159,8 +159,11 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                 final FileSystem tempFileSystem = new FileSystem(session.createTempDirectory());
                 try {
                     // extract the release
-                    ZipUtil.extractZipFile(releaseFile, tempFileSystem.getRoot(),
-                            getDefaultBufferSize());
+                    final ByteBuffer buffer = getDefaultBuffer();
+                    synchronized (buffer) {
+                        ZipUtil.extractZipFile(releaseFile,
+                                tempFileSystem.getRoot(), buffer);
+                    }
                     // validate
                     validateRelease(release, resources, releaseFile, tempFileSystem);
                     // create
@@ -269,6 +272,16 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.AbstractModelImpl#initializeModel(com.thinkparity.desdemona.model.session.Session)
+     *
+     */
+    @Override
+    protected void initializeModel(final Session session) {
+        this.artifactSql = new ArtifactSql();
+        this.migratorSql = new MigratorSql();
     }
 
     /**
@@ -412,22 +425,15 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
         final InputStream stream = new FileInputStream(releaseFile);
         final String checksum;
         try {
-            checksum = MD5Util.md5Hex(stream, getDefaultBufferSize());
+            final ByteBuffer buffer = getDefaultBuffer();
+            synchronized (buffer) {
+                checksum = MD5Util.md5Hex(stream, buffer);
+            }
         } finally {
             stream.close();
         }
         Assert.assertTrue(release.getChecksum().equals(checksum),
                 "Checksum for release {0} does not match calculation.  {1} <> {2}",
                 release.getName());
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.AbstractModelImpl#initializeModel(com.thinkparity.desdemona.model.session.Session)
-     *
-     */
-    @Override
-    protected void initializeModel(final Session session) {
-        this.artifactSql = new ArtifactSql();
-        this.migratorSql = new MigratorSql();
     }
 }

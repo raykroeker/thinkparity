@@ -15,6 +15,9 @@ import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.sort.DefaultComparator;
+import com.thinkparity.codebase.sort.StringComparator;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -22,8 +25,11 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.sort.DefaultComparator;
-import com.thinkparity.codebase.sort.StringComparator;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
+import com.thinkparity.ophelia.model.events.ContainerDraftListener;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
@@ -38,10 +44,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 import com.thinkparity.ophelia.browser.platform.application.Application;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
-import com.thinkparity.ophelia.model.events.ContainerDraftListener;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * <b>Title:</b>thinkParity Archive Tab Model<br>
@@ -319,7 +321,7 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
             final Container container) {
         final DraftView draftView = readDraftView(container.getId());
         final ContainerVersion latestVersion = readLatestVersion(container.getId());
-        if ((null != draftView) && container.isLocalDraft()) {
+        if (draftView.isLocal().booleanValue()) {
             for (final Document document : draftView.getDocuments()) {
                 containerIdLookup.put(document.getId(), container.getId());
             }
@@ -761,7 +763,7 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
             browser.runApplyContainerFlagSeen(panel.getContainer().getId());
         }
         // the session will maintain the single draft monitor for the tab
-        if (container.isLocalDraft()) {
+        if (draftView.isLocal().booleanValue()) {
             if (isExpanded(panel)) {
                 startSessionDraftMonitor(panel.getContainer().getId());
             }
@@ -851,9 +853,9 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
                             p2.getContainer().getName());
             case OWNER:
                 // Sort by local draft first
-                if (p1.getContainer().isLocalDraft() && !p2.getContainer().isLocalDraft()) {
+                if (p1.isLocalDraft() && !p2.isLocalDraft()) {
                     return multiplier * -1;
-                } else if (!p1.getContainer().isLocalDraft() && p2.getContainer().isLocalDraft()) {
+                } else if (!p1.isLocalDraft() && p2.isLocalDraft()) {
                     return multiplier * 1;            
                 }
                 
@@ -904,7 +906,7 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
          * Determine if there is a visible draft.
          */
         private boolean isVisibleDraft(final ArchiveTabPanel panel) {
-            return (panel.getContainer().isDraft() && panel.getContainer().isLatest());
+            return panel.isSetDraft();
         }
     }
 }

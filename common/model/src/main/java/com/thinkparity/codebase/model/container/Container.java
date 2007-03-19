@@ -15,54 +15,19 @@ import com.thinkparity.codebase.model.artifact.ArtifactType;
  */
 public class Container extends Artifact {
 
-    /** A flag indicating whether or not there exists a draft. */
-    private Boolean draft;
-
-    /** A flag indicating whether or not the draft is local. */
-    private Boolean localDraft;
-
-    /** Create Container. */
-	public Container() { super(); }
+    /**
+     * Create Container.
+     *
+     */
+	public Container() {
+        super();
+	}
 
     /**
      * @see com.thinkparity.codebase.model.artifact.Artifact#getType()
      * 
      */
-    public ArtifactType getType() { return ArtifactType.CONTAINER; }
-
-    /**
-     * Determine whether or not there exists a draft.
-     * 
-     * @return True if there exists a draft; false otherwise.
-     */
-    public Boolean isDraft() { return draft; }
-
-    /**
-     * Determine whether or not the draft is local.
-     * 
-     * @return True if the draft is local; false otherwise.
-     */
-    public Boolean isLocalDraft() {
-        return localDraft;
-    }
-
-    /**
-     * Set the draft flag.
-     * 
-     * @param draft
-     *            The draft flag.
-     */
-    public void setDraft(final Boolean draft) {
-        this.draft = draft;
-    }
-
-    /**
-     * Set the draft local flag.
-     * 
-     * @param localDraft
-     *            The local draft flag.
-     */
-    public void setLocalDraft(final Boolean localDraft) {
-        this.localDraft = localDraft;
+    public ArtifactType getType() {
+        return ArtifactType.CONTAINER;
     }
 }

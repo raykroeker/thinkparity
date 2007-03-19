@@ -36,6 +36,12 @@ public class ContainerDraft {
     /** The container the draft belongs to. */
     private Long containerId;
 
+    /**
+     * A <code>Boolean</code> indicator as to whether or not the draft is
+     * local.
+     */ 
+    private Boolean local;
+
     /** The <code>TeamMember</code> the draft belongs to. */
     private TeamMember owner;
 
@@ -179,6 +185,15 @@ public class ContainerDraft {
     public int hashCode() { return containerId.hashCode(); }
 
     /**
+     * Determine whether or not the draft is local.
+     * 
+     * @return True if the draft is local.
+     */
+    public Boolean isLocal() {
+        return local;
+    }
+
+    /**
      * Set the state of an artifact.
      * 
      * @param artifact
@@ -240,6 +255,16 @@ public class ContainerDraft {
     public void setDocuments(final List<Document> documents) {
         artifacts.clear();
         artifacts.addAll(documents);
+    }
+
+    /**
+     * Set local.
+     *
+     * @param local
+     *		A <code>Boolean</code> local indicator.
+     */
+    public void setLocal(final Boolean local) {
+        this.local = local;
     }
 
     /**

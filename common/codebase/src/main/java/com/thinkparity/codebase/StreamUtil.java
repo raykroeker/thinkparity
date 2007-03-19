@@ -29,14 +29,12 @@ public abstract class StreamUtil {
      * @throws IOException
      */
     public static void copy(final InputStream is, final ByteChannel bc,
-            final Integer bufferSize) throws IOException {
-        final byte[] bytes = new byte[bufferSize];
-        final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+            final ByteBuffer buffer) throws IOException {
         int bytesRead;
-        while (-1 != (bytesRead = is.read(bytes))) {
-            byteBuffer.position(0);
-            byteBuffer.limit(bytesRead);
-            bc.write(byteBuffer);
+        while (-1 != (bytesRead = is.read(buffer.array()))) {
+            buffer.position(0);
+            buffer.limit(bytesRead);
+            bc.write(buffer);
         }
     }
 
@@ -53,7 +51,7 @@ public abstract class StreamUtil {
 	public static void copy(final InputStream is, final OutputStream os)
 			throws IOException {
 	    // BUFFER - 512B - StreamUtil#copy(InputStream, OutputStream)
-		copy(is, os, 512);
+		copy(is, os, new byte[512]);
 	}
 
 	/**
@@ -64,20 +62,37 @@ public abstract class StreamUtil {
 	 *            The input to copy from.
 	 * @param os
 	 *            The output to copy to.
-	 * @param bufferSize
-	 *            The size of the buffer to use when transferring.
+	 * @param buffer
+	 *            A <code>ByteBuffer</code> to use.
 	 * @throws IOException
 	 */
 	public static void copy(final InputStream is, final OutputStream os,
-			final Integer bufferSize) throws IOException {
-		int len;
-		final byte[] b = new byte[bufferSize];
-		while((len = is.read(b)) > 0) {
-			os.write(b, 0, len);
-            os.flush();
-		}
-		os.flush();
+            final ByteBuffer buffer) throws IOException {
+		if (!buffer.hasArray())
+            throw new IllegalArgumentException("Buffer needs to be array based.");
+        copy(is, os, buffer.array());
 	}
+
+    /**
+     * Copy a stream from an input to an output using a pre-allocated buffer.
+     * 
+     * @param is
+     *            An <code>InputStream</code>.
+     * @param os
+     *            An <code>OutputStream</code>.
+     * @param buffer
+     *            A buffer <code>byte[]</code>.
+     * @throws IOException
+     */
+    private static void copy(final InputStream is, final OutputStream os,
+            final byte[] buffer) throws IOException {
+        int len;
+        while((len = is.read(buffer)) > 0) {
+            os.write(buffer, 0, len);
+            os.flush();
+        }
+        os.flush();
+    }
 
 	/**
 	 * Create a new StreamUtil [Singleton]

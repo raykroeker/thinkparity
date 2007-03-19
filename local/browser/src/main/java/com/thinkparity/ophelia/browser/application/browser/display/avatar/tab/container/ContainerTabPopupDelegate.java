@@ -23,6 +23,9 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
+
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
@@ -38,8 +41,6 @@ import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
 /**
  * <b>Title:</b><br>
@@ -73,10 +74,12 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForContainer(com.thinkparity.codebase.model.container.Container, boolean)
-     *
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForContainer(com.thinkparity.codebase.model.container.Container,
+     *      com.thinkparity.ophelia.model.container.ContainerDraft, boolean)
+     * 
      */
-    public void showForContainer(final Container container, final boolean expanded) {
+    public void showForContainer(final Container container,
+            final ContainerDraft draft, final boolean expanded) {
         boolean needSeparator = false;
         
         if (!expanded) {
@@ -85,7 +88,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         }
 
         if (isOnline()) {
-            if (container.isLocalDraft() && isLocalDraftModified(container.getId())) {
+            if (isLocalDraft(draft) && isLocalDraftModified(container.getId())) {
                 final Data publishData = new Data(3);
                 publishData.set(Publish.DataKey.CONTAINER_ID, container.getId());
                 publishData.set(Publish.DataKey.CONTACTS, Collections.emptyList());
@@ -93,13 +96,13 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
                 addWithExpand(ActionId.CONTAINER_PUBLISH, publishData, container);
                 needSeparator = true;
             }
-            if (!container.isDraft() && container.isLatest()) {
+            if (null == draft && container.isLatest()) {
                 final Data createDraftData = new Data(1);
                 createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
                 addWithExpand(ActionId.CONTAINER_CREATE_DRAFT, createDraftData, container);  
                 needSeparator = true;
             }
-            if (container.isLocalDraft()) {
+            if (isLocalDraft(draft)) {
                 final Data deleteDraftData = new Data(2);
                 deleteDraftData.set(DeleteDraft.DataKey.CONTAINER_ID, container.getId());
                 addWithExpand(ActionId.CONTAINER_DELETE_DRAFT, deleteDraftData, container);
@@ -108,7 +111,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         }
 
         // Add document
-        if (container.isLocalDraft()) {
+        if (isLocalDraft(draft)) {
             final Data addDocumentData = new Data(1);
             addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, container.getId());
             addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
@@ -130,7 +133,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             needSeparator = true;
         }
 
-        if (isDistributed(container.getId()) && !container.isLocalDraft()) {
+        if (isDistributed(container.getId()) && !isLocalDraft(draft)) {
             final Data archiveData = new Data(1);
             archiveData.set(Archive.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_ARCHIVE, archiveData, container);
@@ -148,7 +151,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
 
         // export
         // This menu is not shown if there is a new package with no draft and no versions.
-        if (container.isLocalDraft() || isDistributed(container.getId())) {
+        if (isLocalDraft(draft) || isDistributed(container.getId())) {
             if (needSeparator) {
                 addSeparator();
             }
@@ -188,9 +191,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             add(idJMenuItem);
             add(uidJMenuItem);
             add(MessageFormat.format("isBookmarked:{0}", container.isBookmarked()));
-            add(MessageFormat.format("isDraft:{0}", container.isDraft()));
             add(MessageFormat.format("isLatest:{0}", container.isLatest()));
-            add(MessageFormat.format("isLocalDraft:{0}", container.isLocalDraft()));
             add(MessageFormat.format("isSeen:{0}", container.isSeen()));
         }
         show();
@@ -309,7 +310,9 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      *
      */
     public void showForPanel(final TabPanel tabPanel) {
-        showForContainer(((ContainerPanel) tabPanel).getContainer(), false);
+        final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
+        showForContainer(containerPanel.getContainer(),
+                containerPanel.getDraft(), false);
     }
 
     /**
@@ -422,7 +425,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
 
         show();
     }
-    
+
     /**
      * Add the "collapse" menu.
      * 
@@ -435,7 +438,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         collapseData.set(Collapse.DataKey.ARCHIVE_TAB, Boolean.FALSE);
         add(ActionId.CONTAINER_COLLAPSE, collapseData);
     }
-
+    
     /**
      * Add the "expand" menu.
      * 
@@ -507,6 +510,17 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      */
     private boolean isDistributed(final Long containerId) {
         return model.readIsDistributed(containerId);
+    }
+
+    /**
+     * Determine if the draft is a local draft.
+     * 
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @return True if the draft is not null and the draft is local.
+     */
+    private boolean isLocalDraft(final ContainerDraft draft) {
+        return null != draft && draft.isLocal().booleanValue();
     }
 
     /**

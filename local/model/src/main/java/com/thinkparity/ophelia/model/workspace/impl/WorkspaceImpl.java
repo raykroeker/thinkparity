@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.workspace.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,6 +47,9 @@ import org.apache.log4j.PropertyConfigurator;
  * @version 1.1.2.2
  */
 public class WorkspaceImpl implements Workspace {
+
+    /** The workspace default <code>ByteBuffer</code>. */
+    private ByteBuffer defaultBuffer;
 
     /** A list of event listeners for each of the implementation classes. */
     private ListenersImpl listenersImpl;
@@ -230,14 +234,14 @@ public class WorkspaceImpl implements Workspace {
      */
     public Iterable<String> getAttributeNames() {
         return Collections.unmodifiableSet(sessionData.keySet());
-    }
+    }            
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getDataDirectory()
      */
     public File getDataDirectory() {
         return initChild(DirectoryNames.Workspace.DATA);
-    }            
+    }
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getDataSource()
@@ -248,12 +252,23 @@ public class WorkspaceImpl implements Workspace {
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getDefaultBuffer()
+     *
+     */
+    public ByteBuffer getDefaultBuffer() {
+        if (null == defaultBuffer) {
+            defaultBuffer = ByteBuffer.allocate(getDefaultBufferSize());
+        }
+        return defaultBuffer;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getDefaultBufferSize()
      *
      */
     public Integer getDefaultBufferSize() {
-        // BUFFER - 512KB - PreferencesImpl#getDefaultBufferSize()
-        return 1024 * 512;
+        // BUFFER - 2MB - WorkspaceImpl#getDefaultBufferSize()
+        return 1024 * 1024 * 2;
     }
 
     /**

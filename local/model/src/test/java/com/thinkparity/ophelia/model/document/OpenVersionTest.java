@@ -5,14 +5,18 @@ package com.thinkparity.ophelia.model.document;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.StreamUtil;
 
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamOpener;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.ophelia.model.util.Opener;
@@ -53,18 +57,30 @@ public class OpenVersionTest extends DocumentTestCase {
 
         final DocumentVersion dv = getDocumentModel(datum.junit).readLatestVersion(d.getId());
         final File file = getOutputFile(d.getName(), Boolean.TRUE);
+        InputStream is;
         try {
             try {
                 // test open using the stream
-                InputStream is = getDocumentModel(datum.junit).openVersion(dv.getArtifactId(), dv.getVersionId());
+                getDocumentModel(datum.junit).openVersion(dv.getArtifactId(), dv.getVersionId(), new StreamOpener() {
+                    public void open(final InputStream stream) throws IOException {
+                        final File file = getOutputFile(dv);
+                        final OutputStream outputStream = new FileOutputStream(file);
+                        try {
+                            StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                        } finally {
+                            outputStream.close();
+                        }
+                    }
+                });
+                is = new FileInputStream(getOutputFile(dv));
                 try {
                     FileUtil.write(is, file);
                 } finally {
                     is.close();
                 }
-                is = new FileInputStream(file);
+                is = new FileInputStream(getOutputFile(dv));
                 try {
-                    final String checksum = MD5Util.md5Hex(is, getDefaultBufferSize());
+                    final String checksum = MD5Util.md5Hex(is, getDefaultBuffer());
                     assertEquals("Open version checksum does not match expectation.", getInputFileMD5Checksum("JUnitTestFramework.doc"), checksum);
                 } finally {
                     is.close();
@@ -75,7 +91,7 @@ public class OpenVersionTest extends DocumentTestCase {
                         try {
                             final InputStream is = new FileInputStream(file);
                             try {
-                                final String checksum = MD5Util.md5Hex(is, getDefaultBufferSize());
+                                final String checksum = MD5Util.md5Hex(is, getDefaultBuffer());
                                 assertEquals("Open version checksum does not match expectation.", getInputFileMD5Checksum("JUnitTestFramework.doc"), checksum);
                             } finally {
                                 is.close();

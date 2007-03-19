@@ -3,15 +3,7 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.sql.DataSource;
 
@@ -19,7 +11,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
-import com.thinkparity.codebase.model.artifact.ArtifactRemoteInfo;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
@@ -39,15 +30,6 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
     /** Sql query to delete the artifact. */
 	private static final String DELETE_FROM_ARTIFACT =
 		new StringBuffer("delete from ARTIFACT ")
-		.append("where ARTIFACT_ID=?")
-		.toString();
-
-    /**
-	 * Sql query to delete artifact flags for an artifact.
-	 * 
-	 */
-	private static final String DELETE_FROM_ARTIFACT_FLAG_REL =
-		new StringBuffer("delete from ARTIFACT_FLAG_REL ")
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
@@ -75,16 +57,6 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
-	/**
-	 * Sql to insert an artifact flag relationship.
-	 * 
-	 */
-	private static final String INSERT_ARTIFACT_FLAG_REL =
-		new StringBuffer("insert into ARTIFACT_FLAG_REL ")
-		.append("(ARTIFACT_ID,ARTIFACT_FLAG_ID) ")
-		.append("values (?,?)")
-		.toString();
-
     /**
 	 * Sql query used to create an artifact version.
 	 * 
@@ -97,23 +69,13 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("values (?,?,?,?,?,?,?,?,?,?)")
 		.toString();
 
-    private static final String INSERT_ARTIFACT_VERSION_META_DATA =
+	private static final String INSERT_ARTIFACT_VERSION_META_DATA =
 		new StringBuffer("insert into ARTIFACT_VERSION_META_DATA ")
 		.append("(ARTIFACT_ID,ARTIFACT_VERSION_ID,META_DATA_KEY,META_DATA_VALUE) ")
 		.append("values (?,?,?,?)")
 		.toString();
 
     /**
-	 * Sql to get the artifact's flag.
-	 * 
-	 */
-	private static final String SELECT_ARTIFACT_FLAG_REL_BY_ARTIFACT_ID =
-		new StringBuffer("select ARTIFACT_ID,ARTIFACT_FLAG_ID ")
-		.append("from ARTIFACT_FLAG_REL ")
-		.append("where ARTIFACT_ID=?")
-		.toString();
-
-	/**
 	 * Sql to extract the artifact version meta data.
 	 * 
 	 */
@@ -123,24 +85,14 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
 		.toString();
 
-	/** Sql to create an artifact. */
+    /** Sql to create an artifact. */
     private static final String SQL_CREATE =
         new StringBuffer("insert into ARTIFACT ")
         .append("(ARTIFACT_NAME,ARTIFACT_STATE_ID,ARTIFACT_TYPE_ID,")
         .append("ARTIFACT_UNIQUE_ID,CREATED_BY,CREATED_ON,UPDATED_BY,")
-        .append("UPDATED_ON) ")
-        .append("values (?,?,?,?,?,?,?,?)")
+        .append("UPDATED_ON,FLAGS) ")
+        .append("values (?,?,?,?,?,?,?,?,?)")
         .toString();
-
-	/**
-	 * Sql to create the remote info.
-	 * 
-	 */
-	private static final String SQL_CREATE_REMOTE_INFO =
-		new StringBuffer("insert into ARTIFACT_REMOTE_INFO ")
-		.append("(ARTIFACT_ID,UPDATED_BY,UPDATED_ON) ")
-		.append("values (?,?,?)")
-		.toString();
 
 	/** Sql to create a team member relationship. */
     private static final String SQL_CREATE_TEAM_REL =
@@ -148,15 +100,6 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         .append("(ARTIFACT_ID,USER_ID) ")
         .append("values (?,?)")
         .toString();
-
-	/**
-	 * Sql to delete the remote info.
-	 * 
-	 */
-	private static final String SQL_DELETE_REMOTE_INFO =
-		new StringBuffer("delete from ARTIFACT_REMOTE_INFO ")
-		.append("where ARTIFACT_ID=?")
-		.toString();
 
 	/** Sql to delete a team member relationship. */
     private static final String SQL_DELETE_TEAM_REL_BY_ARTIFACT =
@@ -170,7 +113,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         .append("where ARTIFACT_ID=? and USER_ID=?")
         .toString();
 
-    /** Sql to determine if any artifact version exists. */
+	/** Sql to determine if any artifact version exists. */
     private static final String SQL_DOES_ANY_VERSION_EXIST =
             new StringBuffer("select COUNT(*) \"COUNT\" ")
             .append("from ARTIFACT A ")
@@ -200,13 +143,20 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             .append("where AV.ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
             .toString();
 
-	/** Sql to read the earliest version id. */
+    /** Sql to read the earliest version id. */
     private static final String SQL_READ_EARLIEST_VERSION_ID =
             new StringBuffer("select min(ARTIFACT_VERSION_ID) EARLIEST_VERSION_ID ")
             .append("from ARTIFACT A ")
             .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
             .append("where A.ARTIFACT_ID=?")
             .toString();
+
+	/** Sql to read flags. */
+	private static final String SQL_READ_FLAGS =
+		new StringBuilder("select A.FLAGS ")
+		.append("from ARTIFACT A ")
+		.append("where A.ARTIFACT_ID=?")
+		.toString();
 
     private static final String SQL_READ_ID =
         new StringBuffer("select A.ARTIFACT_ID ")
@@ -254,7 +204,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
      */
     private static final String SQL_READ_TEAM_REL =
         new StringBuffer("select U.NAME,U.JABBER_ID,")
-        .append("U.USER_ID,U.ORGANIZATION,U.TITLE,ATR.ARTIFACT_ID ")
+        .append("U.USER_ID,U.ORGANIZATION,U.TITLE,U.FLAGS,ATR.ARTIFACT_ID ")
         .append("from ARTIFACT_TEAM_REL ATR ")
         .append("inner join PARITY_USER U on ATR.USER_ID = U.USER_ID ")
         .append("where ATR.ARTIFACT_ID=? ")
@@ -268,7 +218,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
      */
     private static final String SQL_READ_TEAM_REL_BY_ARTIFACT_BY_USER =
 		new StringBuffer("select U.NAME,U.JABBER_ID,")
-        .append("U.USER_ID,U.ORGANIZATION,U.TITLE,ATR.ARTIFACT_ID ")
+        .append("U.USER_ID,U.ORGANIZATION,U.TITLE,U.FLAGS,ATR.ARTIFACT_ID ")
         .append("from ARTIFACT_TEAM_REL ATR ")
         .append("inner join PARITY_USER U on ATR.USER_ID = U.USER_ID ")
         .append("where ATR.ARTIFACT_ID=? ")
@@ -306,12 +256,11 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         .append("values (?,?,?,?,?,?,?,?)")
         .toString();
 
-    /** Sql to update the remote info of an artifact. */
-	private static final String SQL_UPDATE_REMOTE_INFO =
-		new StringBuffer("update ARTIFACT_REMOTE_INFO ")
-		.append("set UPDATED_BY=?,UPDATED_ON=? ")
-		.append("where ARTIFACT_ID=?")
-		.toString();
+	/** Update the artifact flags. */
+    private static final String SQL_UPDATE_FLAGS =
+        new StringBuilder("update ARTIFACT ")
+        .append("set FLAGS=? where ARTIFACT_ID=?")
+        .toString();
 
 	private static final String SQL_UPDATE_STATE =
 		new StringBuffer("update ARTIFACT set ARTIFACT_STATE_ID=?,")
@@ -334,27 +283,6 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 	}
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#createRemoteInfo(java.lang.Long,
-     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
-     * 
-     */
-	public void createRemoteInfo(final Long artifactId,
-			final JabberId updatedBy, final Calendar updatedOn)
-			throws HypersonicException {
-		final Session session = openSession();
-		try {
-			session.prepareStatement(SQL_CREATE_REMOTE_INFO);
-			session.setLong(1, artifactId);
-			session.setQualifiedUsername(2, updatedBy);
-			session.setCalendar(3, updatedOn);
-			if(1 != session.executeUpdate())
-				throw new HypersonicException("Could not create remote info.");
-		} finally {
-            session.close();
-        }
-	}
-
-	/**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#createTeamRel(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -371,19 +299,6 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             session.close();
         }
     }
-
-    /**
-     * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#deleteRemoteInfo(java.lang.Long)
-     * 
-     */
-	public void deleteRemoteInfo(final Long artifactId) throws HypersonicException {
-		final Session session = openSession();
-		try {
-            deleteRemoteInfo(session, artifactId);
-		} finally {
-            session.close();
-		}
-	}
 
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#deleteTeamRel(java.lang.Long)
@@ -403,7 +318,8 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-    /**
+    
+	/**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#deleteTeamRel(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -422,8 +338,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-    
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#doesExist(java.lang.Long)
      *
      */
@@ -515,24 +430,6 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-	/**
-	 * Obtain the artifact's flags.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @return The artifact's flags.
-	 * @throws HypersonicException
-	 */
-	public List<ArtifactFlag> getFlags(final Long artifactId)
-			throws HypersonicException {
-		final Session session = openSession();
-		try {
-            return getFlags(session, artifactId);
-		} finally {
-            session.close();
-		}
-	}
-
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readLatestVersionId(java.lang.Long)
      */
@@ -551,6 +448,19 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             session.close();
         }
     }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readFlags(java.lang.Long)
+     * 
+     */
+	public List<ArtifactFlag> readFlags(final Long artifactId) {
+		final Session session = openSession();
+		try {
+            return readFlags(session, artifactId);
+		} finally {
+            session.close();
+		}
+	}
 
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readId(java.util.UUID)
@@ -613,7 +523,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readPreviousVersionId(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -635,7 +545,8 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-	/**
+    
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readState(java.lang.Long)
      * 
      */
@@ -655,7 +566,6 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readTeamIds(java.lang.Long)
      * 
@@ -742,7 +652,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readUniqueId(java.lang.Long)
      */
     public UUID readUniqueId(final Long artifactId) {
@@ -761,7 +671,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#setFlags(java.lang.Long,
 	 *      java.util.List)
 	 * 
@@ -770,31 +680,14 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 			final List<ArtifactFlag> flags) throws HypersonicException {
 		final Session session = openSession();
 		try {
-			setFlags(session, artifactId, flags);
+            session.prepareStatement(SQL_UPDATE_FLAGS);
+		    session.setArtifactFlags(1, flags);
+            session.setLong(2, artifactId);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Cannot update artifact flags.");
 		} finally {
             session.close();
         }
-	}
-
-	/**
-     * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#updateRemoteInfo(java.lang.Long,
-     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
-     * 
-     */
-	public void updateRemoteInfo(final Long artifactId,
-			final JabberId updatedBy, final Calendar updatedOn)
-			throws HypersonicException {
-		final Session session = openSession();
-		try {
-			session.prepareStatement(SQL_UPDATE_REMOTE_INFO);
-			session.setQualifiedUsername(1, updatedBy);
-			session.setCalendar(2, updatedOn);
-			session.setLong(3, artifactId);
-			if(1 != session.executeUpdate())
-				throw new HypersonicException("Could not update remote info.");
-		} finally {
-            session.close();
-		}
 	}
 
 	/**
@@ -851,13 +744,11 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		session.setCalendar(6, artifact.getCreatedOn());
 		session.setLong(7, readLocalId(artifact.getUpdatedBy()));
 		session.setCalendar(8, artifact.getUpdatedOn());
+        session.setArtifactFlags(9, artifact.getFlags());
 		if(1 != session.executeUpdate())
-			throw new HypersonicException("Could not create.");
+			throw new HypersonicException("Could not create artifact.");
 
 		artifact.setId(session.getIdentity("ARTIFACT"));
-
-		deleteFlags(session, artifact.getId());
-		insertFlags(session, artifact.getId(), artifact.getFlags());
 	}
 
 	/**
@@ -899,28 +790,11 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 	 */
 	void delete(final Session session, final Long artifactId)
 			throws HypersonicException {
-		deleteFlags(session, artifactId);
-
 		session.prepareStatement(DELETE_FROM_ARTIFACT);
 		session.setLong(1, artifactId);
 		if(1 != session.executeUpdate())
 			throw new HypersonicException("Could not delete.");
 	}
-
-	/**
-     * Delete the artifact remote info.
-     * 
-     * @param session
-     *            A database session.
-     * @param artifactId
-     *            The artifact id.
-     */
-    void deleteRemoteInfo(final Session session, final Long artifactId) {
-        session.prepareStatement(SQL_DELETE_REMOTE_INFO);
-        session.setLong(1, artifactId);
-        if(1 != session.executeUpdate())
-            throw new HypersonicException("Could not delete remote info.");
-    }
 
 	/**
 	 * Delete an artifact version.
@@ -947,24 +821,6 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 			throw new HypersonicException("Could not delete version.");
 	}
 
-	/**
-     * Extract the artifact remote info from the session. The required column
-     * names are:
-     * <ul>
-     * <li>REMOTE_UPDATED_BY
-     * <li>REMOTE_UPDATED_ON
-     * 
-     * @param session
-     *            The database session.
-     * @return The artifact remote info.
-     */
-	ArtifactRemoteInfo extractRemoteInfo(final Session session) {
-        final ArtifactRemoteInfo remoteInfo = new ArtifactRemoteInfo();
-        remoteInfo.setUpdatedBy(session.getQualifiedUsername("REMOTE_UPDATED_BY"));
-        remoteInfo.setUpdatedOn(session.getCalendar("REMOTE_UPDATED_ON"));
-        return remoteInfo;
-    }
-
     /**
      * Extract a team member from the session.
      * 
@@ -975,13 +831,12 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
     TeamMember extractTeamMember(final Session session) {
         final TeamMember teamMember = new TeamMember();
         teamMember.setArtifactId(session.getLong("ARTIFACT_ID"));
+        teamMember.setFlags(session.getUserFlags("FLAGS"));
         teamMember.setId(session.getQualifiedUsername("JABBER_ID"));
         teamMember.setLocalId(session.getLong("USER_ID"));
         teamMember.setName(session.getString("NAME"));
         teamMember.setOrganization(session.getString("ORGANIZATION"));
         teamMember.setTitle(session.getString("TITLE"));
-
-        teamMember.setFlags(userIO.readFlags(teamMember.getLocalId()));
         return teamMember;
     }
 
@@ -1027,41 +882,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             throw new HypersonicException("Could not restore.");
 
         artifact.setId(session.getIdentity("ARTIFACT"));
-
-        deleteFlags(session, artifact.getId());
-        insertFlags(session, artifact.getId(), artifact.getFlags());
     }
-
-    /**
-	 * Set the flags for the artifact.
-	 * 
-	 * @param session
-	 *            The database session.
-	 * @param artifactId
-	 *            The artifact id.
-	 * @param flags
-	 *            The flags.
-	 * @throws HypersonicException
-	 */
-	void setFlags(final Session session, final Long artifactId,
-			final Collection<ArtifactFlag> flags) throws HypersonicException {
-		deleteFlags(session, artifactId);
-		insertFlags(session, artifactId, flags);
-	}
-
-    /**
-	 * Delete all artifact flags for an artifact.
-	 * 
-	 * @param session
-	 *            The databse session.
-	 * @param artifactId
-	 *            The artifact id.
-	 */
-	private void deleteFlags(final Session session, final Long artifactId) {
-		session.prepareStatement(DELETE_FROM_ARTIFACT_FLAG_REL);
-		session.setLong(1, artifactId);
-		session.executeUpdate();
-	}
 
     /**
 	 * Obtain the artifact's flags.
@@ -1073,38 +894,16 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 	 * @return The artifact's flags.
 	 * @throws HypersonicException
 	 */
-	private List<ArtifactFlag> getFlags(final Session session,
+	private List<ArtifactFlag> readFlags(final Session session,
 			final Long artifactId) {
-		session.prepareStatement(SELECT_ARTIFACT_FLAG_REL_BY_ARTIFACT_ID);
+		session.prepareStatement(SQL_READ_FLAGS);
 		session.setLong(1, artifactId);
 		session.executeQuery();
-
-		final List<ArtifactFlag> flags = new LinkedList<ArtifactFlag>();
-		while(session.nextResult()) {
-			flags.add(session.getFlagFromInteger("ARTIFACT_FLAG_ID"));
-		}
-		return flags;
-	}
-
-    /**
-	 * Insert the artifact flag relationships for all of the flags.
-	 * 
-	 * @param session
-	 *            The datbase session.
-	 * @param artifactId
-	 *            The artifact id.
-	 * @param flags
-	 *            The artifact flags.
-	 */
-	private void insertFlags(final Session session, final Long artifactId,
-			final Collection<ArtifactFlag> flags) {
-		session.prepareStatement(INSERT_ARTIFACT_FLAG_REL);
-		for(final ArtifactFlag flag : flags) {
-			session.setLong(1, artifactId);
-			session.setFlagAsInteger(2, flag);
-			if(1 != session.executeUpdate())
-				throw new HypersonicException("Could not insert flag.");
-		}
+		if (session.nextResult()) {
+            return session.getArtifactFlags("FLAGS");
+        } else {
+            return Collections.emptyList();
+        }
 	}
 
     /**

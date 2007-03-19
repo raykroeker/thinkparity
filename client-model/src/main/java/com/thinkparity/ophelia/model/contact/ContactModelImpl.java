@@ -1097,6 +1097,7 @@ public final class ContactModelImpl extends Model<ContactListener>
         // create contact
         final Contact local = new Contact();
         local.setEMails(remote.getEmails());
+        local.setFlags(remote.getFlags());
         local.setId(remote.getId());
         local.setLocalId(user.getLocalId());
         local.setVCard(remote.getVCard());

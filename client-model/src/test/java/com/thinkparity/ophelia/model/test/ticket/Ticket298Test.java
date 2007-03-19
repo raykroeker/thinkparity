@@ -5,12 +5,17 @@ package com.thinkparity.ophelia.model.test.ticket;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+
+import com.thinkparity.codebase.StreamUtil;
 
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamOpener;
 
 import com.thinkparity.ophelia.model.util.Opener;
 
@@ -57,15 +62,23 @@ public final class Ticket298Test extends TicketTestCase {
 
         // ensure the contents are equal
         final DocumentVersion dv_odt_latest = readDocumentLatestVersion(datum.junit, d_odt.getId());
-        final InputStream dv_odt_latest_stream =
-            getDocumentModel(datum.junit).openVersion(d_odt.getId(),
-                    dv_odt_latest.getVersionId());
+        getDocumentModel(datum.junit).openVersion(d_odt.getId(), dv_odt_latest.getVersionId(), new StreamOpener() {
+            public void open(final InputStream stream) throws IOException {
+                final File file = getOutputFile(dv_odt_latest);
+                final OutputStream outputStream = new FileOutputStream(file);
+                try {
+                    StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                } finally {
+                    outputStream.close();
+                }
+            }
+        });
         getDocumentModel(datum.junit).open(d_odt.getId(), new Opener() {
             public void open(final File file) {
                 try {
                     final InputStream d_odt_stream = new FileInputStream(file);
                     assertEquals("Reverted document's content does not match expectation.",
-                            d_odt_stream, dv_odt_latest_stream);
+                            d_odt_stream, getOutputFile(dv_odt_latest));
                 } catch (final IOException iox) {
                     fail(createFailMessage(iox));
                 }

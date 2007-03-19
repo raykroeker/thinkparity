@@ -10,9 +10,10 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b>thinkParity Container Tab Popup Delegate<br>
@@ -29,10 +30,13 @@ public interface PopupDelegate extends TabPanelPopupDelegate {
      * 
      * @param container
      *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
      * @param expanded
-     *            A <code>boolean</code>.       
+     *            A <code>boolean</code>.
      */
-    public void showForContainer(final Container container, final boolean expanded);
+    public void showForContainer(final Container container,
+            final ContainerDraft draft, final boolean expanded);
 
     /**
      * Display a popup menu for a draft.

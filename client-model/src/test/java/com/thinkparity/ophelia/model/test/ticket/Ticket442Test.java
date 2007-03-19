@@ -118,7 +118,7 @@ public class Ticket442Test extends TicketTestCase {
                                     assertNotNull("Starting document version is null.", dv_start_x);
                             }
                         }
-                        if (null != cd_x && c_x.isLocalDraft()) {
+                        if (null != cd_x && cd_x.isLocal()) {
                             for (final Document d_cd_x : cd_x.getDocuments()) {
                                 assertNotNull("Draft document is null.", d_cd_x);
                             }

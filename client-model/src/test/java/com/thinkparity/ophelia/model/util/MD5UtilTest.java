@@ -69,7 +69,7 @@ public final class MD5UtilTest extends ModelTestCase {
             try {
                 inputFileStream = new FileInputStream(datum.inputFiles[i]);
                 try {
-                    md5Checksum = MD5Util.md5Hex(inputFileStream, getDefaultBufferSize());
+                    md5Checksum = MD5Util.md5Hex(inputFileStream, getDefaultBuffer());
                 } catch (final Throwable t) {
                     md5Checksum = null;
                 } finally {

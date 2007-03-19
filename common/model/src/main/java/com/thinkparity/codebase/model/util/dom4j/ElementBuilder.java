@@ -21,7 +21,6 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
-import com.thinkparity.codebase.model.artifact.ArtifactRemoteInfo;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.backup.Statistics;
@@ -42,21 +41,7 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.UserVCard;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationExtendedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationExtendedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.*;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import org.dom4j.DocumentFactory;
@@ -284,7 +269,6 @@ public class ElementBuilder {
             addElement(element, "createdBy", value.getCreatedBy());
             addElement(element, "createdOn", value.getCreatedOn());
             addElement(element, "name", value.getName());
-            addElement(element, "remoteInfo", value.getRemoteInfo());
             addElement(element, "state", value.getState());
             addElement(element, "type", value.getType());
             addElement(element, "uniqueId", value.getUniqueId());
@@ -994,14 +978,6 @@ public class ElementBuilder {
             addElement(element, "invitedOn", value.getInvitedOn());
             return element;
         }
-    }
-
-    private static final Element addElement(final Element parent,
-            final String name, final ArtifactRemoteInfo value) {
-        final Element element = addElement(parent, name, ArtifactRemoteInfo.class);
-        addElement(element, "updatedBy", value.getUpdatedBy());
-        addElement(element, "updatedOn", value.getUpdatedOn());
-        return element;
     }
 
     private static final Element addElement(final Element parent,

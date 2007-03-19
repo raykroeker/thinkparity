@@ -7,13 +7,10 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
 
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
-import com.thinkparity.codebase.model.user.UserFlag;
 
 import com.thinkparity.ophelia.model.Constants;
-import com.thinkparity.ophelia.model.audit.AuditEventType;
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
@@ -36,10 +33,6 @@ public class PersistenceMigrator {
 
     private static final String[] CREATE_SCHEMA_SQL;
 
-    private static final String INSERT_SEED_ARTIFACT_AUDIT_TYPE;
-
-    private static final String INSERT_SEED_ARTIFACT_FLAG;
-
     private static final String INSERT_SEED_ARTIFACT_STATE;
 
     private static final String INSERT_SEED_ARTIFACT_TYPE;
@@ -47,8 +40,6 @@ public class PersistenceMigrator {
     private static final String INSERT_SEED_META_DATA_TYPE;
 
     private static final String INSERT_SEED_SYSTEM_MESSAGE_TYPE;
-
-    private static final String INSERT_SEED_USER_FLAG;
 
     private static final String INSERT_SEED_VERSION;
 
@@ -63,8 +54,6 @@ public class PersistenceMigrator {
                 CONFIG.getProperty("CreateMetaData"),
                 CONFIG.getProperty("CreateEmail"),
                 CONFIG.getProperty("CreateUser"),
-                CONFIG.getProperty("CreateUserFlag"),
-                CONFIG.getProperty("CreateUserFlagRel"),
                 CONFIG.getProperty("CreateProfile"),
                 CONFIG.getProperty("CreateProfileEmailRel"),
                 CONFIG.getProperty("CreateProfileFeature"),
@@ -78,16 +67,10 @@ public class PersistenceMigrator {
                 CONFIG.getProperty("CreateArtifactState"),
                 CONFIG.getProperty("CreateArtifactType"),
                 CONFIG.getProperty("CreateArtifact"),
-                CONFIG.getProperty("CreateArtifactFlag"),
-                CONFIG.getProperty("CreateArtifactFlagRel"),
                 CONFIG.getProperty("CreateArtifactTeamRel"),
                 CONFIG.getProperty("CreateArtifactRemoteInfo"),
                 CONFIG.getProperty("CreateArtifactVersion"),
                 CONFIG.getProperty("CreateArtifactVersionMetaData"),
-                CONFIG.getProperty("CreateArtifactAuditType"),
-                CONFIG.getProperty("CreateArtifactAudit"),
-                CONFIG.getProperty("CreateArtifactAuditMetaData"),
-                CONFIG.getProperty("CreateArtifactAuditVersion"),
                 CONFIG.getProperty("CreateConfiguration"),
                 CONFIG.getProperty("CreateMigratorMetaData"),
                 CONFIG.getProperty("CreateSystemMessageType"),
@@ -113,15 +96,9 @@ public class PersistenceMigrator {
         
         INSERT_SEED_VERSION = CONFIG.getProperty("InsertSeedVersion");
 
-        INSERT_SEED_ARTIFACT_FLAG = CONFIG.getProperty("InsertSeedArtifactFlag");
-
         INSERT_SEED_ARTIFACT_STATE = CONFIG.getProperty("InsertSeedArtifactState");
 
         INSERT_SEED_ARTIFACT_TYPE = CONFIG.getProperty("InsertSeedArtifactType");
-
-        INSERT_SEED_ARTIFACT_AUDIT_TYPE = CONFIG.getProperty("InsertSeedArtifactAuditType");
-
-        INSERT_SEED_USER_FLAG = CONFIG.getProperty("InsertSeedUserFlag");
 
         INSERT_SEED_SYSTEM_MESSAGE_TYPE = CONFIG.getProperty("InsertSeedSystemMessageType");
 
@@ -224,15 +201,6 @@ public class PersistenceMigrator {
             throw new HypersonicException(
                     "Could not insert version seed.");
 
-        session.prepareStatement(INSERT_SEED_ARTIFACT_FLAG);
-        for(final ArtifactFlag af : ArtifactFlag.values()) {
-            session.setInt(1, af.getId());
-            session.setString(2, af.toString());
-            if(1 != session.executeUpdate())
-                throw new HypersonicException(
-                        "Could not insert artifact flag seed data:  " + af);
-        }
-
         session.prepareStatement(INSERT_SEED_ARTIFACT_STATE);
         for(final ArtifactState as : ArtifactState.values()) {
             session.setInt(1, as.getId());
@@ -251,15 +219,6 @@ public class PersistenceMigrator {
                         "Could not insert artifact type seed data:  " + at);
         }
 
-        session.prepareStatement(INSERT_SEED_ARTIFACT_AUDIT_TYPE);
-        for(final AuditEventType aat : AuditEventType.values()) {
-            session.setTypeAsInteger(1, aat);
-            session.setTypeAsString(2, aat);
-            if(1 != session.executeUpdate())
-                throw new HypersonicException(
-                        "Could not insert artifact audit type seed data:  " + aat);
-        }
-
         session.prepareStatement(INSERT_SEED_SYSTEM_MESSAGE_TYPE);
         for(final SystemMessageType smt : SystemMessageType.values()) {
             session.setTypeAsInteger(1, smt);
@@ -267,15 +226,6 @@ public class PersistenceMigrator {
             if(1 != session.executeUpdate())
                 throw new HypersonicException(
                         "Could not insert system message type seed data:  " + smt);
-        }
-
-        session.prepareStatement(INSERT_SEED_USER_FLAG);
-        for(final UserFlag userFlag : UserFlag.values()) {
-            session.setTypeAsInteger(1, userFlag);
-            session.setTypeAsString(2, userFlag);
-            if(1 != session.executeUpdate())
-                throw new HypersonicException(
-                        "Could not insert user flag seed data:  " + userFlag);
         }
     }
 

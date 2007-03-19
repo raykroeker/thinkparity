@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.model.artifact;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -17,7 +16,6 @@ import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
-import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -48,9 +46,6 @@ public final class ArtifactModelImpl extends Model implements
     /** Artifact persistance io. */
 	private ArtifactIOHandler artifactIO;
 
-	/** The artifact model's auditor. */
-    private final ArtifactModelAuditor auditor;
-
 	/**
 	 * Create a ArtifactModelImpl.
 	 * 
@@ -59,7 +54,6 @@ public final class ArtifactModelImpl extends Model implements
 	 */
 	public ArtifactModelImpl() {
         super();
-		this.auditor = new ArtifactModelAuditor(modelFactory);
 	}
 
     /**
@@ -80,15 +74,11 @@ public final class ArtifactModelImpl extends Model implements
         }
     }
 
-    /**
-     * Apply the archived flag.
+	/**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#applyFlagArchived(java.lang.Long)
      * 
-     * @param artifactId
-     *            An artifact id.
      */
     public void applyFlagArchived(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
         try {
             applyFlag(artifactId, ArtifactFlag.ARCHIVED);
         } catch (final Throwable t) {
@@ -96,15 +86,11 @@ public final class ArtifactModelImpl extends Model implements
         }
     }
 
-	/**
-     * Apply the bookmark flag.
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#applyFlagBookmark(java.lang.Long)
      * 
-     * @param artifactId
-     *            An artifact id.
      */
     public void applyFlagBookmark(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
         try {
             applyFlag(artifactId, ArtifactFlag.BOOKMARK);
         } catch (final Throwable t) {
@@ -113,13 +99,10 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-	 * Apply the key flag.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 */
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#applyFlagKey(java.lang.Long)
+     * 
+     */
     public void applyFlagKey(final Long artifactId) {
-		logger.logApiId();
         try {
             applyFlag(artifactId, ArtifactFlag.KEY);
         } catch (final Throwable t) {
@@ -128,14 +111,10 @@ public final class ArtifactModelImpl extends Model implements
 	}
 
     /**
-     * Apply the archived flag.
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#applyFlagLatest(java.lang.Long)
      * 
-     * @param artifactId
-     *            An artifact id.
      */
     public void applyFlagLatest(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
         try {
             applyFlag(artifactId, ArtifactFlag.LATEST);
         } catch (final Throwable t) {
@@ -144,49 +123,22 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-	 * Apply the seen flag.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 */
-    public void applyFlagSeen(final Long artifactId) {
-		logger.logApiId();
-		applyFlag(artifactId, ArtifactFlag.SEEN);
-	}
-
-    /**
-     * Create the artifact's remote info.
+     * @see com.thinkparity.ophelia.model.artifact.ArtifactModel#applyFlagSeen(java.lang.Long)
      * 
-     * @param artifactId
-     *            The artifact id.
-     * @param updatedBy
-     *            The remote user to update the artifact.
-     * @param updatedOn
-     *            The last time the artifact was updated.
      */
-    public void createRemoteInfo(final Long artifactId, final JabberId updatedBy,
-			final Calendar updatedOn) {
-		logger.logApiId();
-		logger.logVariable("variable", artifactId);
-		logger.logVariable("variable", updatedBy);
-		logger.logVariable("variable", updatedOn);
+    public void applyFlagSeen(final Long artifactId) {
         try {
-            artifactIO.createRemoteInfo(artifactId, updatedBy, updatedOn);
+            applyFlag(artifactId, ArtifactFlag.SEEN);
         } catch (final Throwable t) {
             throw panic(t);
         }
 	}
 
     /**
-     * Create the team for an artifact.
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#createTeam(java.lang.Long)
      * 
-     * @param artifactId
-     *            An artifact id.
-     * @return The single team member.
      */
     public List<TeamMember> createTeam(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
         try {
             // note that we are calling the "offline" version of the api
             addTeamMember(artifactId, localUser().getLocalId());
@@ -197,26 +149,22 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-     * Delete the artifact's remote info.
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#deleteTeam(java.lang.Long)
      * 
-     * @param artifactId
-     *            The artifact id.
      */
-    public void deleteRemoteInfo(final Long artifactId) {
-		logger.logApiId();
-		logger.logVariable("variable", artifactId);
-		artifactIO.deleteRemoteInfo(artifactId);
-	}
-
     public void deleteTeam(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("variable", artifactId);
-        artifactIO.deleteTeamRel(artifactId);
+        try {
+            artifactIO.deleteTeamRel(artifactId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#doesExist(java.lang.Long)
+     * 
+     */
     public Boolean doesExist(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
         try {
             return artifactIO.doesExist(artifactId);
         } catch (final Throwable t) {
@@ -224,9 +172,11 @@ public final class ArtifactModelImpl extends Model implements
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#doesExist(java.util.UUID)
+     * 
+     */
     public Boolean doesExist(final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
         try {
             return artifactIO.doesExist(uniqueId);
         } catch (final Throwable t) {
@@ -234,32 +184,36 @@ public final class ArtifactModelImpl extends Model implements
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#doesVersionExist(java.lang.Long)
+     *
+     */
     public Boolean doesVersionExist(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
-        return artifactIO.doesVersionExist(artifactId);
-    }
-
-    public Boolean doesVersionExist(final Long artifactId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
-        logger.logVariable("versionId", versionId);
-        return artifactIO.doesVersionExist(artifactId, versionId);
+        try {
+            return artifactIO.doesVersionExist(artifactId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
-     * Handle the remote event generated when a draft is created.
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#doesVersionExist(java.lang.Long,
+     *      java.lang.Long)
      * 
-     * @param uniqueId
-     *            An artifact unique id.
-     * @param createdBy
-     *            Who created the draft.
-     * @param createdOn
-     *            When the draft was created.
+     */
+    public Boolean doesVersionExist(final Long artifactId, final Long versionId) {
+        try {
+            return artifactIO.doesVersionExist(artifactId, versionId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#handleDraftCreated(com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent)
+     * 
      */
     public void handleDraftCreated(final ArtifactDraftCreatedEvent event) {
-        logger.logApiId();
-        logger.logVariable("event", event);
         try {
             final Long artifactId = artifactIO.readId(event.getUniqueId());
             switch (artifactIO.readType(artifactId)) {
@@ -276,18 +230,10 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-     * Handle the remote event generated when a draft is deleted.
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#handleDraftDeleted(com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent)
      * 
-     * @param uniqueId
-     *            An artifact unique id.
-     * @param createdBy
-     *            Who deleted the draft.
-     * @param createdOn
-     *            When the draft was deleted.
      */
     public void handleDraftDeleted(final ArtifactDraftDeletedEvent event) {
-        logger.logApiId();
-        logger.logVariable("event", event);
         try {
             final Long artifactId = artifactIO.readId(event.getUniqueId());
             switch (artifactIO.readType(artifactId)) {
@@ -307,8 +253,6 @@ public final class ArtifactModelImpl extends Model implements
      * 
      */
     public void handlePublished(final ArtifactPublishedEvent event) {
-        logger.logApiId();
-        logger.logVariable("event", event);
         try {
             // update latest flag
             final Long artifactId = readId(event.getUniqueId());
@@ -343,6 +287,10 @@ public final class ArtifactModelImpl extends Model implements
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#handleReceived(com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent)
+     * 
+     */
     public void handleReceived(final ArtifactReceivedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
@@ -366,17 +314,10 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-     * Handle the remote event generated when a team member is added. This will
-     * download the user's info if required and create the team data locally.
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#handleTeamMemberAdded(com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent)
      * 
-     * @param uniqueId
-     *            The artifact unique id.
-     * @param jabberId
-     *            The user's jabber id.
      */
     public void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event) {
-        logger.logApiId();
-        logger.logVariable("event", event);
         try {
             final Long artifactId = readId(event.getUniqueId());
             if (null == artifactId) {
@@ -391,16 +332,10 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-     * Handle the remote event generated when a team member is removed.
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#handleTeamMemberRemoved(com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent)
      * 
-     * @param uniqueId
-     *            The artifact unique id.
-     * @param jabberId
-     *            The user's jabber id.
      */
     public void handleTeamMemberRemoved(final ArtifactTeamMemberRemovedEvent event) {
-        logger.logApiId();
-        logger.logVariable("event", event);
         try {
             final Long artifactId = readId(event.getUniqueId());
             if (null == artifactId) {
@@ -416,118 +351,101 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-	 * Determine whether or not the artifact has been seen.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @return True if the artifact has been seen.
-	 */
+     * @see com.thinkparity.ophelia.model.artifact.ArtifactModel#hasBeenSeen(java.lang.Long)
+     *
+     */
     public Boolean hasBeenSeen(final Long artifactId) {
-		logger.logApiId();
-		return isFlagApplied(artifactId, ArtifactFlag.SEEN);
+        try {
+            return isFlagApplied(artifactId, ArtifactFlag.SEEN);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
 	}
 
     /**
-	 * Determine whether or not an artifact has a flag applied.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @param flag
-	 *            The artifact flag.
-	 * @return True if the flag is applied; false otherwise.
-	 */
-    public Boolean isFlagApplied(final Long artifactId, final ArtifactFlag flag) {
-		logger.logApiId();
-		logger.logVariable("variable", artifactId);
-		logger.logVariable("variable", flag);
-		final List<ArtifactFlag> flags = artifactIO.getFlags(artifactId);
-		return flags.contains(flag);
-	}
-
-    /**
-     * Read the earliest version id for an artifact.
+     * @see com.thinkparity.ophelia.model.artifact.ArtifactModel#isFlagApplied(java.lang.Long,
+     *      com.thinkparity.codebase.model.artifact.ArtifactFlag)
      * 
-     * @param artifactId
-     *            An artifact id.
-     * @return A version id.
+     */
+    public Boolean isFlagApplied(final Long artifactId, final ArtifactFlag flag) {
+        try {
+            final List<ArtifactFlag> flags = artifactIO.readFlags(artifactId);
+            return flags.contains(flag);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+	}
+
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#readEarliestVersionId(java.lang.Long)
+     * 
      */
     public Long readEarliestVersionId(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
-        return artifactIO.readEarliestVersionId(artifactId);
+        try {
+            return artifactIO.readEarliestVersionId(artifactId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
-	/**
-     * Read the artifact id.
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#readId(java.util.UUID)
      * 
-     * @param uniqueId
-     *            The artifact unique id.
-     * @return The artifact id.
      */
     public Long readId(final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        return artifactIO.readId(uniqueId);
+        try {
+            return artifactIO.readId(uniqueId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
-	/**
-     * Read the artifact key holder.
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.ArtifactModel#readKeyHolder(java.lang.Long)
      * 
-     * @param artifactId
-     *            The artifact id.
-     * @return The artifact key holder.
      */
     public JabberId readKeyHolder(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
-        assertOnline();
-        return getSessionModel().readKeyHolder(
-                localUserId(), readUniqueId(artifactId));
+        try {
+            assertOnline();
+            return getSessionModel().readKeyHolder(localUserId(),
+                    readUniqueId(artifactId));
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
-     * Read the latest version id for an artifact.
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#readLatestVersionId(java.lang.Long)
      * 
-     * @param artifactId
-     *            An artifact id.
-     * @return A version id.
      */
     public Long readLatestVersionId(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
-        return artifactIO.readLatestVersionId(artifactId);
+        try {
+            return artifactIO.readLatestVersionId(artifactId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
-     * Read the artifact team.
+     * @see com.thinkparity.ophelia.model.artifact.ArtifactModel#readTeam(java.lang.Long)
      * 
-     * @param artifactId
-     *            An artifact id.
-     * @return The artifact team.
      */
     public Set<User> readTeam(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
-        return artifactIO.readTeamRel(artifactId);
+        try {
+            return artifactIO.readTeamRel(artifactId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
-     * Read the team for an artifact.
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#readTeam(java.lang.Long,
+     *      java.util.Comparator, com.thinkparity.codebase.filter.Filter)
      * 
-     * @param artifactId
-     *            An artifact id <code>Long</code>.
-     * @param comparator
-     *            An artifact sort <code>Comparator</code>.
-     * @param filter
-     *            An artifact <code>Filter</code>.
-     * @return A <code>TeamMember</code> <code>List</code>.
      */
     public List<TeamMember> readTeam(final Long artifactId,
             final Comparator<? super User> comparator,
             final Filter<? super User> filter) {
-        logger.logVariable("artifactId", artifactId);
-        logger.logVariable("comparator", comparator);
-        logger.logVariable("filter", filter);
         try {
             final List<TeamMember> team = artifactIO.readTeamRel2(artifactId);
             FilterManager.filter(team, filter);
@@ -539,26 +457,22 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-     * Read the artifact team.
-     * 
-     * @param artifactId
-     *            An artifact id.
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#readTeam2(java.lang.Long)
+     *
      */
     public List<TeamMember> readTeam2(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
-        return artifactIO.readTeamRel2(artifactId);
+        try {
+            return artifactIO.readTeamRel2(artifactId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
-     * Read the artifact team.
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#readTeamIds(java.lang.Long)
      * 
-     * @param artifactId
-     *            An artifact id.
      */
     public List<JabberId> readTeamIds(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
         try {
             final List<TeamMember> teamMembers = artifactIO.readTeamRel2(artifactId);
             final List<JabberId> teamIds = new ArrayList<JabberId>(teamMembers.size());
@@ -572,15 +486,10 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-     * Read the artifact's type.
-     * 
-     * @param artifactId
-     *            An artifact id.
-     * @return An <code>ArtifactType</code>.
+     * @see com.thinkparity.ophelia.model.artifact.ArtifactModel#readType(java.lang.Long)
+     *
      */
     public ArtifactType readType(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
         try {
             return artifactIO.readType(artifactId);
         } catch (final Throwable t) {
@@ -589,27 +498,22 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-     * Read the artifact unique id.
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#readUniqueId(java.lang.Long)
      * 
-     * @param artifactId
-     *            An artifact id.
-     * @return An artifact unique id.
      */
     public UUID readUniqueId(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("variable", artifactId);
-        return artifactIO.readUniqueId(artifactId);
+        try {
+            return artifactIO.readUniqueId(artifactId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
-     * Remove the archived flag.
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#removeFlagArchived(java.lang.Long)
      * 
-     * @param artifactId
-     *            An artifact id.
      */
     public void removeFlagArchived(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
         try {
             removeFlag(artifactId, ArtifactFlag.ARCHIVED);
         } catch (final Throwable t) {
@@ -618,14 +522,10 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-     * Remove the bookmark flag.
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#removeFlagBookmark(java.lang.Long)
      * 
-     * @param artifactId
-     *            An artifact id.
      */
     public void removeFlagBookmark(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
         try {
             removeFlag(artifactId, ArtifactFlag.BOOKMARK);
         } catch (final Throwable t) {
@@ -634,85 +534,48 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-	 * Remove the key flag.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 */
-    public void removeFlagKey(final Long artifactId) {
-		logger.logApiId();
-		removeFlag(artifactId, ArtifactFlag.KEY);
-	}
-
-    /**
-	 * Remove the seen flag.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 */
-    public void removeFlagSeen(final Long artifactId) {
-		logger.logApiId();
-		removeFlag(artifactId, ArtifactFlag.SEEN);
-	}
-
-    /**
-     * Remove a team member. Update the local team data in a locally removed
-     * state. If the user has been locally added (ie no publish has yet occured)
-     * that row will be deleted.
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#removeFlagKey(java.lang.Long)
      * 
-     * @param artifactId
-     *            The artifact id.
-     * @param user
-     *            The user.
+     */
+    public void removeFlagKey(final Long artifactId) {
+		try {
+		    removeFlag(artifactId, ArtifactFlag.KEY);   
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+	}
+
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.ArtifactModel#removeFlagSeen(java.lang.Long)
+     * 
+     */
+    public void removeFlagSeen(final Long artifactId) {
+		try {
+		    removeFlag(artifactId, ArtifactFlag.SEEN);   
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+	}
+
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#removeTeamMember(java.lang.Long,
+     *      com.thinkparity.codebase.jabber.JabberId)
+     * 
      */
     public void removeTeamMember(final Long artifactId, final JabberId userId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
-        logger.logVariable("userId", userId);
-        assertTeamMember("USER IS NOT A TEAM MEMBER", artifactId, userId);
-        final User user = getUserModel().read(userId);
-        artifactIO.deleteTeamRel(artifactId, user.getLocalId());
+        try {
+            assertTeamMember("USER IS NOT A TEAM MEMBER", artifactId, userId);
+            final User user = getUserModel().read(userId);
+            artifactIO.deleteTeamRel(artifactId, user.getLocalId());
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
-     * Update the artifact's remote info.
+     * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment,
+     *      com.thinkparity.ophelia.model.workspace.Workspace)
      * 
-     * @param artifactId
-     *            The artifact id.
-     * @param updatedBy
-     *            The last remote user to update the artifact.
-     * @param updatedOn
-     *            The last time the artifact was remotely updated.
-     */
-    public void updateRemoteInfo(final Long artifactId, final JabberId updatedBy,
-			final Calendar updatedOn) {
-		logger.logApiId();
-		logger.logVariable("variable", artifactId);
-		logger.logVariable("variable", updatedBy);
-		logger.logVariable("variable", updatedOn);
-		artifactIO.updateRemoteInfo(artifactId, updatedBy, updatedOn);
-	}
-
-    /**
-     * Update an artifact's state.
-     * 
-     * @param artifactId
-     *            An artifact id.
-     * @param state
-     *            The artifact state.
-     */
-    public void updateState(final Long artifactId, final ArtifactState state) {
-        logger.logApiId();
-        logger.logVariable("variable", artifactId);
-        logger.logVariable("variable", state);
-        final ArtifactState currentState = artifactIO.readState(artifactId);
-        assertStateTransition(currentState, state);
-        artifactIO.updateState(artifactId, state);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
-     *
      */
     @Override
     protected void initializeModel(final Environment environment,
@@ -731,37 +594,12 @@ public final class ArtifactModelImpl extends Model implements
      *            A local user id.
      * @return A team member.
      */
-    TeamMember addTeamMember(final Long artifactId, final Long userId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
-        logger.logVariable("userId", userId);
-        try {
-            artifactIO.createTeamRel(artifactId, userId);
-            // reindex NOTE no practical assurance that this is a container id
-            getIndexModel().indexContainer(artifactId);
-            return artifactIO.readTeamRel(artifactId, userId);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
+    private TeamMember addTeamMember(final Long artifactId, final Long userId) {
+        artifactIO.createTeamRel(artifactId, userId);
+        // reindex NOTE no practical assurance that this is a container id
+        getIndexModel().indexContainer(artifactId);
+        return artifactIO.readTeamRel(artifactId, userId);
     }
-    
-    /**
-	 * Audit the denial of a key request for an artifact.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @param createdBy
-	 *            The creator.
-	 * @param creatdOn
-	 *            The creation date.
-	 * @param deniedBy
-	 *            The user denying the request.
-	 */
-	void auditKeyRequestDenied(final Long artifactId,
-			final JabberId createdBy, final Calendar createdOn,
-			final JabberId deniedBy) {
-		auditor.keyRequestDenied(artifactId, createdBy, createdOn, deniedBy);
-	}
 
     /**
 	 * Apply a flag to an artifact.
@@ -772,10 +610,7 @@ public final class ArtifactModelImpl extends Model implements
 	 *            The flag.
 	 */
 	private void applyFlag(final Long artifactId, final ArtifactFlag flag) {
-		logger.logApiId();
-		logger.logVariable("variable", artifactId);
-		logger.logVariable("variable", flag);
-		final List<ArtifactFlag> flags = artifactIO.getFlags(artifactId);
+		final List<ArtifactFlag> flags = artifactIO.readFlags(artifactId);
 		if(flags.contains(flag)) {
 			logger.logWarning("Artifact {0} is already flagged as {1}.",
                     artifactId, flag);
@@ -799,8 +634,7 @@ public final class ArtifactModelImpl extends Model implements
 	 *             </ul>
 	 */
 	private void removeFlag(final Long artifactId, final ArtifactFlag flag) {
-		logger.logApiId();
-		final List<ArtifactFlag> flags = artifactIO.getFlags(artifactId);
+		final List<ArtifactFlag> flags = artifactIO.readFlags(artifactId);
 		if(flags.contains(flag)) {
 			flags.remove(flag);
 			artifactIO.updateFlags(artifactId, flags);
@@ -818,14 +652,10 @@ public final class ArtifactModelImpl extends Model implements
      *            An artifact id.
      */
     private void removeFlagLatest(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
         try {
             removeFlag(artifactId, ArtifactFlag.LATEST);
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
-
-
 }

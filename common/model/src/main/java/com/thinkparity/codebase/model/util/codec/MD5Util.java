@@ -68,9 +68,9 @@ public class MD5Util {
      * @throws IOException
      */
     public static String md5Hex(final InputStream inputStream,
-            final Integer bufferSize) throws IOException {
+            final ByteBuffer buffer) throws IOException {
         final MessageDigest messageDigest = getDigest();
-        final byte[] bytes = new byte[bufferSize];
+        final byte[] bytes = buffer.array();
         int bytesRead;
         while (-1 != (bytesRead = inputStream.read(bytes))) {
             messageDigest.update(bytes, 0, bytesRead);

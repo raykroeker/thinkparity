@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -24,6 +25,8 @@ import com.thinkparity.codebase.model.container.ContainerVersionDelta;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamOpener;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
@@ -39,29 +42,29 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to insert a version relationship. */
     private static final String SQL_ADD_VERSION_REL =
-            new StringBuffer("insert into CONTAINER_VERSION_ARTIFACT_VERSION_REL ")
-            .append("(CONTAINER_ID,CONTAINER_VERSION_ID,ARTIFACT_ID,")
-            .append("ARTIFACT_VERSION_ID,ARTIFACT_TYPE_ID) ")
-            .append("values (?,?,?,?,?)")
-            .toString();
+        new StringBuilder("insert into CONTAINER_VERSION_ARTIFACT_VERSION_REL ")
+        .append("(CONTAINER_ID,CONTAINER_VERSION_ID,ARTIFACT_ID,")
+        .append("ARTIFACT_VERSION_ID,ARTIFACT_TYPE_ID) ")
+        .append("values (?,?,?,?,?)")
+        .toString();
 
     /** Sql to create a container. */
     private static final String SQL_CREATE =
-            new StringBuffer("insert into CONTAINER ")
-            .append("(CONTAINER_ID) ")
-            .append("values (?)")
-            .toString();
+        new StringBuilder("insert into CONTAINER ")
+        .append("(CONTAINER_ID) ")
+        .append("values (?)")
+        .toString();
 
     /** Sql to create a container version delta. */
     private static final String SQL_CREATE_ARTIFACT_DELTA =
-        new StringBuffer("insert into CONTAINER_VERSION_ARTIFACT_VERSION_DELTA ")
+        new StringBuilder("insert into CONTAINER_VERSION_ARTIFACT_VERSION_DELTA ")
         .append("(CONTAINER_VERSION_DELTA_ID,DELTA,DELTA_ARTIFACT_ID,DELTA_ARTIFACT_VERSION_ID) ")
         .append("values (?,?,?,?)")
         .toString();
 
     /** Sql to create a container version delta. */
     private static final String SQL_CREATE_DELTA =
-        new StringBuffer("insert into CONTAINER_VERSION_DELTA ")
+        new StringBuilder("insert into CONTAINER_VERSION_DELTA ")
         .append("(CONTAINER_ID,COMPARE_CONTAINER_VERSION_ID,")
         .append("COMPARE_TO_CONTAINER_VERSION_ID) ")
         .append("values (?,?,?)")
@@ -69,49 +72,49 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to create a draft. */
     private static final String SQL_CREATE_DRAFT =
-            new StringBuffer("insert into CONTAINER_DRAFT ")
-            .append("(CONTAINER_DRAFT_ID,CONTAINER_DRAFT_USER_ID) ")
-            .append("values (?,?)")
-            .toString();
+        new StringBuilder("insert into CONTAINER_DRAFT ")
+        .append("(CONTAINER_ID,OWNER,LOCAL) ")
+        .append("values (?,?,?)")
+        .toString();
 
     /** Sql to create a draft artifact relationship. */
     private static final String SQL_CREATE_DRAFT_ARTIFACT_REL =
-            new StringBuffer("insert into CONTAINER_DRAFT_ARTIFACT_REL ")
-            .append("(CONTAINER_DRAFT_ID,ARTIFACT_ID,ARTIFACT_STATE) ")
-            .append("values (?,?,?)")
-            .toString();
+        new StringBuilder("insert into CONTAINER_DRAFT_ARTIFACT_REL ")
+        .append("(CONTAINER_ID,ARTIFACT_ID,ARTIFACT_STATE) ")
+        .append("values (?,?,?)")
+        .toString();
 
     /** Sql to create a draft document. */
     private static final String SQL_CREATE_DRAFT_DOCUMENT =
-        new StringBuffer("insert into CONTAINER_DRAFT_DOCUMENT ")
-        .append("(CONTAINER_DRAFT_ID,DOCUMENT_ID,CONTENT,CONTENT_SIZE,")
+        new StringBuilder("insert into CONTAINER_DRAFT_DOCUMENT ")
+        .append("(CONTAINER_ID,DOCUMENT_ID,CONTENT,CONTENT_SIZE,")
         .append("CONTENT_CHECKSUM,CHECKSUM_ALGORITHM) ")
         .append("values(?,?,?,?,?,?)")
         .toString();
 
     /** Sql to read the container published to list. */
     private static final String SQL_CREATE_PUBLISHED_TO =
-            new StringBuffer("insert into CONTAINER_VERSION_PUBLISHED_TO ")
-            .append("(CONTAINER_ID,CONTAINER_VERSION_ID,USER_ID,PUBLISHED_ON) ")
-            .append("values (?,?,?,?)")
-            .toString();
+        new StringBuilder("insert into CONTAINER_VERSION_PUBLISHED_TO ")
+        .append("(CONTAINER_ID,CONTAINER_VERSION_ID,USER_ID,PUBLISHED_ON) ")
+        .append("values (?,?,?,?)")
+        .toString();
 
     /** Sql to create a container version. */
     private static final String SQL_CREATE_VERSION =
-            new StringBuffer("insert into CONTAINER_VERSION ")
-            .append("(CONTAINER_ID,CONTAINER_VERSION_ID) ")
-            .append("values (?,?)")
-            .toString();
-    
+        new StringBuilder("insert into CONTAINER_VERSION ")
+        .append("(CONTAINER_ID,CONTAINER_VERSION_ID) ")
+        .append("values (?,?)")
+        .toString();
+
     /** Sql to delete a container. */
     private static final String SQL_DELETE =
-            new StringBuffer("delete from CONTAINER ")
-            .append("where CONTAINER_ID=?")
-            .toString();
-
+        new StringBuilder("delete from CONTAINER ")
+        .append("where CONTAINER_ID=?")
+        .toString();
+    
     /** Sql to delete a container version delta. */
     private static final String SQL_DELETE_ARTIFACT_DELTA =
-        new StringBuffer("delete from CONTAINER_VERSION_ARTIFACT_VERSION_DELTA ")
+        new StringBuilder("delete from CONTAINER_VERSION_ARTIFACT_VERSION_DELTA ")
         .append("where CONTAINER_VERSION_DELTA_ID=(")
         .append("select CONTAINER_VERSION_DELTA_ID ")
         .append("from CONTAINER_VERSION_DELTA ")
@@ -122,7 +125,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to delete all container version deltas. */
     private static final String SQL_DELETE_ARTIFACT_DELTAS =
-        new StringBuffer("delete from CONTAINER_VERSION_ARTIFACT_VERSION_DELTA ")
+        new StringBuilder("delete from CONTAINER_VERSION_ARTIFACT_VERSION_DELTA ")
         .append("where CONTAINER_VERSION_DELTA_ID=(")
         .append("select CONTAINER_VERSION_DELTA_ID ")
         .append("from CONTAINER_VERSION_DELTA ")
@@ -133,7 +136,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to delete a container version delta. */
     private static final String SQL_DELETE_DELTA =
-        new StringBuffer("delete from CONTAINER_VERSION_DELTA ")
+        new StringBuilder("delete from CONTAINER_VERSION_DELTA ")
         .append("where CONTAINER_ID=? and ")
         .append("COMPARE_CONTAINER_VERSION_ID=? and ")
         .append("COMPARE_TO_CONTAINER_VERSION_ID=?")
@@ -141,7 +144,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to delete all container version delta. */
     private static final String SQL_DELETE_DELTAS =
-        new StringBuffer("delete from CONTAINER_VERSION_DELTA ")
+        new StringBuilder("delete from CONTAINER_VERSION_DELTA ")
         .append("where CONTAINER_ID=? and ")
         .append("(COMPARE_CONTAINER_VERSION_ID=? or ")
         .append("COMPARE_TO_CONTAINER_VERSION_ID=?)")
@@ -149,44 +152,44 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to delete a draft. */
     private static final String SQL_DELETE_DRAFT =
-            new StringBuffer("delete from CONTAINER_DRAFT ")
-            .append("where CONTAINER_DRAFT_ID=?")
-            .toString();
+        new StringBuilder("delete from CONTAINER_DRAFT ")
+        .append("where CONTAINER_ID=?")
+        .toString();
 
     /** Sql to delete a draft artifact relationship. */
     private static final String SQL_DELETE_DRAFT_ARTIFACT_REL =
-            new StringBuffer("delete from CONTAINER_DRAFT_ARTIFACT_REL ")
-            .append("where CONTAINER_DRAFT_ID=? ")
-            .append("and ARTIFACT_ID=?")
-            .toString();
+        new StringBuilder("delete from CONTAINER_DRAFT_ARTIFACT_REL ")
+        .append("where CONTAINER_ID=? ")
+        .append("and ARTIFACT_ID=?")
+        .toString();
 
     /** Sql to delete the draft document. */
     private static final String SQL_DELETE_DRAFT_DOCUMENT =
-        new StringBuffer("delete from CONTAINER_DRAFT_DOCUMENT ")
-        .append("where CONTAINER_DRAFT_ID=? and DOCUMENT_ID=?")
+        new StringBuilder("delete from CONTAINER_DRAFT_DOCUMENT ")
+        .append("where CONTAINER_ID=? and DOCUMENT_ID=?")
         .toString();
 
     /** Sql to delete the draft document. */
     private static final String SQL_DELETE_DRAFT_DOCUMENTS =
-        new StringBuffer("delete from CONTAINER_DRAFT_DOCUMENT ")
-        .append("where CONTAINER_DRAFT_ID=?")
+        new StringBuilder("delete from CONTAINER_DRAFT_DOCUMENT ")
+        .append("where CONTAINER_ID=?")
         .toString();
 
     /** Sql to delete the published to user list. */
     private static final String SQL_DELETE_PUBLISHED_TO =
-            new StringBuffer("delete from CONTAINER_VERSION_PUBLISHED_TO ")
-            .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=?")
-            .toString();
+        new StringBuilder("delete from CONTAINER_VERSION_PUBLISHED_TO ")
+        .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=?")
+        .toString();
 
     /** Sql to delete a container version. */
     private static final String SQL_DELETE_VERSION =
-            new StringBuffer("delete from CONTAINER_VERSION ")
-            .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=?")
-            .toString();
+        new StringBuilder("delete from CONTAINER_VERSION ")
+        .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=?")
+        .toString();
 
     /** Sql to determine if the container version to artifact version exists. */
     private static final String SQL_DOES_EXIST_VERSION =
-        new StringBuffer("select COUNT(ARTIFACT_ID) \"COUNT\" ")
+        new StringBuilder("select COUNT(ARTIFACT_ID) \"COUNT\" ")
         .append("from CONTAINER_VERSION_ARTIFACT_VERSION_REL CVAVR ")
         .append("where CVAVR.CONTAINER_ID=? ")
         .append("and CVAVR.CONTAINER_VERSION_ID=? ")
@@ -196,38 +199,34 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to extract the artifact version delta. */
     private static final String SQL_EXTRACT_DELTA =
-        new StringBuffer("select CONTAINER_VERSION_DELTA_ID,DELTA,DELTA_ARTIFACT_ID,DELTA_ARTIFACT_VERSION_ID ")
+        new StringBuilder("select CONTAINER_VERSION_DELTA_ID,DELTA,DELTA_ARTIFACT_ID,DELTA_ARTIFACT_VERSION_ID ")
         .append("from CONTAINER_VERSION_ARTIFACT_VERSION_DELTA CVAVD ")
         .append("where CVAVD.CONTAINER_VERSION_DELTA_ID=?")
         .toString();
 
     /** Sql to open a draft document input stream. */
     private static final String SQL_OPEN_DRAFT_DOCUMENT =
-        new StringBuffer("select CONTENT ")
+        new StringBuilder("select CONTENT ")
         .append("from CONTAINER_DRAFT_DOCUMENT ")
-        .append("where CONTAINER_DRAFT_ID=? and DOCUMENT_ID=?")
+        .append("where CONTAINER_ID=? and DOCUMENT_ID=?")
         .toString();
 
     /** Sql to read a container. */
     private static final String SQL_READ =
-            new StringBuffer("select C.CONTAINER_ID,A.ARTIFACT_NAME,")
-            .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,ARTIFACT_UNIQUE_ID,")
-            .append("UC.JABBER_ID CREATED_BY,A.CREATED_ON,")
-            .append("UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
-            .append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
-            .append("ARI.UPDATED_ON REMOTE_UPDATED_ON, ")
-            .append("CD.CONTAINER_DRAFT_USER_ID ")
-            .append("from CONTAINER C ")
-            .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
-            .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
-            .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
-            .append("left join CONTAINER_DRAFT CD on C.CONTAINER_ID=CD.CONTAINER_DRAFT_ID ")
-            .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID")
-            .toString();
+        new StringBuilder("select C.CONTAINER_ID,A.ARTIFACT_NAME,")
+        .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,ARTIFACT_UNIQUE_ID,")
+        .append("UC.JABBER_ID CREATED_BY,A.CREATED_ON,")
+        .append("UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
+        .append("A.FLAGS ")
+        .append("from CONTAINER C ")
+        .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
+        .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
+        .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
+        .toString();
 
     /** Sql to read the artifact delta count. */
     private static final String SQL_READ_ARTIFACT_DELTA_COUNT =
-        new StringBuffer("select COUNT(CVD.CONTAINER_VERSION_DELTA_ID) as \"COUNT\" ")
+        new StringBuilder("select COUNT(CVD.CONTAINER_VERSION_DELTA_ID) as \"COUNT\" ")
         .append("from CONTAINER_VERSION_DELTA CVD ")
         .append("inner join CONTAINER_VERSION_ARTIFACT_VERSION_DELTA CVAVD ")
         .append("on CVD.CONTAINER_VERSION_DELTA_ID=CVAVD.CONTAINER_VERSION_DELTA_ID ")
@@ -238,7 +237,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the artifact delta count. */
     private static final String SQL_READ_ARTIFACT_DELTA_COUNT_2 =
-        new StringBuffer("select COUNT(CVD.CONTAINER_VERSION_DELTA_ID) as \"COUNT\" ")
+        new StringBuilder("select COUNT(CVD.CONTAINER_VERSION_DELTA_ID) as \"COUNT\" ")
         .append("from CONTAINER_VERSION_DELTA CVD ")
         .append("inner join CONTAINER_VERSION_ARTIFACT_VERSION_DELTA CVAVD ")
         .append("on CVD.CONTAINER_VERSION_DELTA_ID=CVAVD.CONTAINER_VERSION_DELTA_ID ")
@@ -249,23 +248,23 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to read a container. */
     private static final String SQL_READ_BY_CONTAINER_ID =
-            new StringBuffer(SQL_READ).append(" ")
-            .append("where C.CONTAINER_ID=?")
-            .toString();
+        new StringBuilder(SQL_READ)
+        .append(" where C.CONTAINER_ID=?")
+        .toString();
 
     /** Sql to read a container. */
     private static final String SQL_READ_BY_TEAM_MEMBER_ID =
-            new StringBuffer(SQL_READ).append(" ")
-            .append("inner join ARTIFACT_TEAM_REL ATR ")
-            .append("on ATR.ARTIFACT_ID=A.ARTIFACT_ID ")
-            .append("inner join PARITY_USER TU on ATR.USER_ID=TU.USER_ID ")
-            .append("where TU.USER_ID=? ")
-            .append("order by C.CONTAINER_ID asc")
-            .toString();
+        new StringBuilder(SQL_READ)
+        .append(" inner join ARTIFACT_TEAM_REL ATR ")
+        .append("on ATR.ARTIFACT_ID=A.ARTIFACT_ID ")
+        .append("inner join PARITY_USER TU on ATR.USER_ID=TU.USER_ID ")
+        .append("where TU.USER_ID=? ")
+        .append("order by C.CONTAINER_ID asc")
+        .toString();
 
     /** Sql to read a version delta. */
     private static final String SQL_READ_DELTA =
-        new StringBuffer("select CONTAINER_VERSION_DELTA_ID,CONTAINER_ID,")
+        new StringBuilder("select CONTAINER_VERSION_DELTA_ID,CONTAINER_ID,")
         .append("COMPARE_CONTAINER_VERSION_ID,COMPARE_TO_CONTAINER_VERSION_ID ")
         .append("from CONTAINER_VERSION_DELTA CVD ")
         .append("where CVD.CONTAINER_ID=? and ")
@@ -275,7 +274,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the delta count. */
     private static final String SQL_READ_DELTA_COUNT =
-        new StringBuffer("select COUNT(CONTAINER_VERSION_DELTA_ID) as \"COUNT\" ")
+        new StringBuilder("select COUNT(CONTAINER_VERSION_DELTA_ID) as \"COUNT\" ")
         .append("from CONTAINER_VERSION_DELTA ")
         .append("where CONTAINER_ID=? and ")
         .append("COMPARE_CONTAINER_VERSION_ID=? and ")
@@ -284,7 +283,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the delta count. */
     private static final String SQL_READ_DELTA_COUNT_2 =
-        new StringBuffer("select COUNT(CONTAINER_VERSION_DELTA_ID) as \"COUNT\" ")
+        new StringBuilder("select COUNT(CONTAINER_VERSION_DELTA_ID) as \"COUNT\" ")
         .append("from CONTAINER_VERSION_DELTA ")
         .append("where CONTAINER_ID=? and ")
         .append("(COMPARE_CONTAINER_VERSION_ID=? or ")
@@ -293,92 +292,107 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to read document versions from the artifact version attachments. */
     private static final String SQL_READ_DOCUMENT_VERSIONS =
-            new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
-            .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,")
-            .append("A.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,AV.CREATED_ON,")
-            .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON,D.DOCUMENT_ID,")
-            .append("DV.CONTENT_CHECKSUM,DV.CHECKSUM_ALGORITHM,")
-            .append("DV.CONTENT_SIZE,DV.DOCUMENT_VERSION_ID,")
-            .append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
-            .append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
-            .append("from CONTAINER_VERSION_ARTIFACT_VERSION_REL CVAVR ")
-            .append("inner join ARTIFACT A on CVAVR.ARTIFACT_ID=A.ARTIFACT_ID ")
-            .append("inner join DOCUMENT D on A.ARTIFACT_ID=D.DOCUMENT_ID ")
-            .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
-            .append("inner join DOCUMENT_VERSION DV on CVAVR.ARTIFACT_ID=DV.DOCUMENT_ID ")
-            .append("and CVAVR.ARTIFACT_VERSION_ID=DV.DOCUMENT_VERSION_ID ")
-            .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID=AV.ARTIFACT_ID ")
-            .append("and DV.DOCUMENT_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
-            .append("inner join PARITY_USER UC on AV.CREATED_BY=UC.USER_ID ")
-            .append("inner join PARITY_USER UU on AV.UPDATED_BY=UU.USER_ID ")
-            .append("where CVAVR.CONTAINER_ID=? and CVAVR.CONTAINER_VERSION_ID=?")
-            .toString();
+        new StringBuilder("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
+        .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,")
+        .append("A.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,AV.CREATED_ON,")
+        .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON,D.DOCUMENT_ID,")
+        .append("DV.CONTENT_CHECKSUM,DV.CHECKSUM_ALGORITHM,")
+        .append("DV.CONTENT_SIZE,DV.DOCUMENT_VERSION_ID ")
+        .append("from CONTAINER_VERSION_ARTIFACT_VERSION_REL CVAVR ")
+        .append("inner join ARTIFACT A on CVAVR.ARTIFACT_ID=A.ARTIFACT_ID ")
+        .append("inner join DOCUMENT D on A.ARTIFACT_ID=D.DOCUMENT_ID ")
+        .append("inner join DOCUMENT_VERSION DV on CVAVR.ARTIFACT_ID=DV.DOCUMENT_ID ")
+        .append("and CVAVR.ARTIFACT_VERSION_ID=DV.DOCUMENT_VERSION_ID ")
+        .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID=AV.ARTIFACT_ID ")
+        .append("and DV.DOCUMENT_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
+        .append("inner join PARITY_USER UC on AV.CREATED_BY=UC.USER_ID ")
+        .append("inner join PARITY_USER UU on AV.UPDATED_BY=UU.USER_ID ")
+        .append("where CVAVR.CONTAINER_ID=? and CVAVR.CONTAINER_VERSION_ID=?")
+        .toString();
 
     /** Sql to read documents from the artifact version attachments. */
     private static final String SQL_READ_DOCUMENTS =
-            new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
-            .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,")
-            .append("A.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,A.CREATED_ON,")
-            .append("UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
-            .append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
-            .append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
-            .append("from CONTAINER_VERSION_ARTIFACT_VERSION_REL CVAVR ")
-            .append("inner join ARTIFACT A on CVAVR.ARTIFACT_ID=A.ARTIFACT_ID ")
-            .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
-            .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
-            .append("inner join DOCUMENT D on A.ARTIFACT_ID=D.DOCUMENT_ID ")
-            .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
-            .append("where CVAVR.CONTAINER_ID=? and CVAVR.CONTAINER_VERSION_ID=?")
-            .toString();
+        new StringBuilder("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
+        .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,")
+        .append("A.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,A.CREATED_ON,")
+        .append("A.FLAGS,UU.JABBER_ID UPDATED_BY,A.UPDATED_ON ")
+        .append("from CONTAINER_VERSION_ARTIFACT_VERSION_REL CVAVR ")
+        .append("inner join ARTIFACT A on CVAVR.ARTIFACT_ID=A.ARTIFACT_ID ")
+        .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
+        .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
+        .append("inner join DOCUMENT D on A.ARTIFACT_ID=D.DOCUMENT_ID ")
+        .append("where CVAVR.CONTAINER_ID=? and CVAVR.CONTAINER_VERSION_ID=?")
+        .toString();
 
-    /** Sql to read a draft. */
-    private static final String SQL_READ_DRAFT =
-            new StringBuffer("select ATR.ARTIFACT_ID,ATR.USER_ID,")
-            .append("U.JABBER_ID,U.NAME,U.ORGANIZATION,U.TITLE,")
-            .append("CD.CONTAINER_DRAFT_ID ")
-            .append("from ARTIFACT_TEAM_REL ATR inner join PARITY_USER U on ATR.USER_ID=U.USER_ID ")
-            .append("inner join CONTAINER_DRAFT CD on ATR.ARTIFACT_ID=CD.CONTAINER_DRAFT_ID ")
-            .append("and CD.CONTAINER_DRAFT_USER_ID=ATR.USER_ID ")
-            .append("where CD.CONTAINER_DRAFT_ID=?")
-            .toString();
+    /** Sql to read a draft count by its pk. */
+    private static final String SQL_READ_DRAFT_COUNT_PK =
+        new StringBuilder("select COUNT(CD.CONTAINER_ID) \"DRAFT_COUNT\" ")
+        .append("from CONTAINER_DRAFT CD ")
+        .append("inner join CONTAINER C ")
+        .append("on C.CONTAINER_ID=CD.CONTAINER_ID ")
+        .append("where C.CONTAINER_ID=?")
+        .toString();
+
+    /** Sql to read a draft count by its pk and the owner. */
+    private static final String SQL_READ_DRAFT_COUNT_PK_OWNER =
+        new StringBuilder("select COUNT(CD.CONTAINER_ID) \"DRAFT_COUNT\" ")
+        .append("from CONTAINER_DRAFT CD ")
+        .append("inner join CONTAINER C ")
+        .append("on C.CONTAINER_ID=CD.CONTAINER_ID ")
+        .append("where C.CONTAINER_ID=? and CD.OWNER=?")
+        .toString();
 
     /** Sql to read a container draft document. */
     private static final String SQL_READ_DRAFT_DOCUMENT =
-        new StringBuffer("select CONTAINER_DRAFT_ID,DOCUMENT_ID,CONTENT_SIZE,")
+        new StringBuilder("select CONTAINER_ID,DOCUMENT_ID,CONTENT_SIZE,")
         .append("CONTENT_CHECKSUM,CHECKSUM_ALGORITHM ")
         .append("from CONTAINER_DRAFT_DOCUMENT ")
-        .append("where CONTAINER_DRAFT_ID=? and DOCUMENT_ID=?")
+        .append("where CONTAINER_ID=? and DOCUMENT_ID=?")
         .toString();
 
     /** Sql to count the draft documents. */
     private static final String SQL_READ_DRAFT_DOCUMENT_COUNT =
-        new StringBuffer("select COUNT(CONTAINER_DRAFT_ID) \"DOCUMENT_COUNT\" ")
+        new StringBuilder("select COUNT(CONTAINER_ID) \"DOCUMENT_COUNT\" ")
         .append("from CONTAINER_DRAFT_DOCUMENT ")
-        .append("where CONTAINER_DRAFT_ID=?")
+        .append("where CONTAINER_ID=?")
         .toString();
 
     /** Sql to read draft documents. */
     private static final String SQL_READ_DRAFT_DOCUMENTS =
-        new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
+        new StringBuilder("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
         .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,")
         .append("A.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,A.CREATED_ON,")
-        .append("UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
-        .append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
-        .append("ARI.UPDATED_ON REMOTE_UPDATED_ON, ")
+        .append("A.FLAGS,UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
         .append("CDAVR.ARTIFACT_STATE DRAFT_ARTIFACT_STATE ")
         .append("from CONTAINER_DRAFT_ARTIFACT_REL CDAVR ")
         .append("inner join ARTIFACT A on CDAVR.ARTIFACT_ID=A.ARTIFACT_ID ")
         .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
         .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
         .append("inner join DOCUMENT D on A.ARTIFACT_ID=D.DOCUMENT_ID ")
-        .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
-        .append("where CDAVR.CONTAINER_DRAFT_ID=?")
+        .append("where CDAVR.CONTAINER_ID=?")
+        .toString();
+
+    /** Sql to read a draft by its primary key. */
+    private static final String SQL_READ_DRAFT_PK =
+        new StringBuilder("select CD.CONTAINER_ID,CD.LOCAL,")
+        .append("OWNER.JABBER_ID \"OWNER_JABBER_ID\",")
+        .append("OWNER.USER_ID \"OWNER_USER_ID\",")
+        .append("OWNER.NAME \"OWNER_NAME\",")
+        .append("OWNER.ORGANIZATION \"OWNER_ORGANIZATION\",")
+        .append("OWNER.TITLE \"OWNER_TITLE\",")
+        .append("OWNER.FLAGS \"OWNER_FLAGS\" ")
+        .append("from CONTAINER_DRAFT CD ")
+        .append("inner join ARTIFACT_TEAM_REL ATR ")
+        .append("on ATR.ARTIFACT_ID=CD.CONTAINER_ID and ")
+        .append("ATR.USER_ID=CD.OWNER ")
+        .append("inner join PARITY_USER OWNER on OWNER.USER_ID=ATR.USER_ID ")
+        .append("where CD.CONTAINER_ID=?")
         .toString();
 
     /** Sql to read the container published to list. */
     private static final String SQL_READ_PUBLISHED_TO =
         new StringBuilder("select U.JABBER_ID,U.USER_ID,U.NAME,")
-        .append("U.ORGANIZATION,U.TITLE ")
+        .append("U.ORGANIZATION,U.TITLE,U.FLAGS ")
         .append("from CONTAINER C ")
         .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
         .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
@@ -392,117 +406,117 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the container published to list. */
     private static final String SQL_READ_PUBLISHED_TO_BY_USER =
-            new StringBuffer("select U.JABBER_ID,U.USER_ID,U.NAME,")
-            .append("U.ORGANIZATION,U.TITLE,CVPT.CONTAINER_ID,")
-            .append("CVPT.PUBLISHED_ON,CVPT.RECEIVED_ON ")
-            .append("from CONTAINER C ")
-            .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
-            .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
-            .append("inner join CONTAINER_VERSION CV on AV.ARTIFACT_ID=CV.CONTAINER_ID ")
-            .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
-            .append("inner join CONTAINER_VERSION_PUBLISHED_TO CVPT on CV.CONTAINER_ID=CVPT.CONTAINER_ID ")
-            .append("and CV.CONTAINER_VERSION_ID=CVPT.CONTAINER_VERSION_ID ")
-            .append("inner join PARITY_USER U on CVPT.USER_ID=U.USER_ID ")
-            .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=? ")
-            .append("and CVPT.PUBLISHED_ON=? and CVPT.USER_ID=?")
-            .toString();
+        new StringBuilder("select U.JABBER_ID,U.USER_ID,U.NAME,")
+        .append("U.ORGANIZATION,U.TITLE,U.FLAGS,CVPT.CONTAINER_ID,")
+        .append("CVPT.PUBLISHED_ON,CVPT.RECEIVED_ON ")
+        .append("from CONTAINER C ")
+        .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
+        .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
+        .append("inner join CONTAINER_VERSION CV on AV.ARTIFACT_ID=CV.CONTAINER_ID ")
+        .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
+        .append("inner join CONTAINER_VERSION_PUBLISHED_TO CVPT on CV.CONTAINER_ID=CVPT.CONTAINER_ID ")
+        .append("and CV.CONTAINER_VERSION_ID=CVPT.CONTAINER_VERSION_ID ")
+        .append("inner join PARITY_USER U on CVPT.USER_ID=U.USER_ID ")
+        .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=? ")
+        .append("and CVPT.PUBLISHED_ON=? and CVPT.USER_ID=?")
+        .toString();
 
     /** Sql to read the published to count. */
     private static final String SQL_READ_PUBLISHED_TO_COUNT =
-            new StringBuffer("select COUNT(*) PUBLISHED_TO_COUNT ")
-            .append("from CONTAINER_VERSION_PUBLISHED_TO CVPT ")
-            .append("where CVPT.CONTAINER_ID=? and CVPT.CONTAINER_VERSION_ID=?")
-            .toString();
+        new StringBuilder("select COUNT(*) PUBLISHED_TO_COUNT ")
+        .append("from CONTAINER_VERSION_PUBLISHED_TO CVPT ")
+        .append("where CVPT.CONTAINER_ID=? and CVPT.CONTAINER_VERSION_ID=?")
+        .toString();
 
     /** Sql to read the container published to list. */
     private static final String SQL_READ_PUBLISHED_TO_RECEIPTS =
-            new StringBuffer("select U.JABBER_ID,U.USER_ID,U.NAME,")
-            .append("U.ORGANIZATION,U.TITLE,CVPT.CONTAINER_ID,")
-            .append("CVPT.PUBLISHED_ON,CVPT.RECEIVED_ON ")
-            .append("from CONTAINER C ")
-            .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
-            .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
-            .append("inner join CONTAINER_VERSION CV on AV.ARTIFACT_ID=CV.CONTAINER_ID ")
-            .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
-            .append("inner join CONTAINER_VERSION_PUBLISHED_TO CVPT on CV.CONTAINER_ID=CVPT.CONTAINER_ID ")
-            .append("and CV.CONTAINER_VERSION_ID=CVPT.CONTAINER_VERSION_ID ")
-            .append("inner join PARITY_USER U on CVPT.USER_ID=U.USER_ID ")
-            .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=?")
-            .toString();
+        new StringBuilder("select U.JABBER_ID,U.USER_ID,U.NAME,")
+        .append("U.ORGANIZATION,U.TITLE,U.FLAGS,CVPT.CONTAINER_ID,")
+        .append("CVPT.PUBLISHED_ON,CVPT.RECEIVED_ON ")
+        .append("from CONTAINER C ")
+        .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
+        .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
+        .append("inner join CONTAINER_VERSION CV on AV.ARTIFACT_ID=CV.CONTAINER_ID ")
+        .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
+        .append("inner join CONTAINER_VERSION_PUBLISHED_TO CVPT on CV.CONTAINER_ID=CVPT.CONTAINER_ID ")
+        .append("and CV.CONTAINER_VERSION_ID=CVPT.CONTAINER_VERSION_ID ")
+        .append("inner join PARITY_USER U on CVPT.USER_ID=U.USER_ID ")
+        .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=?")
+        .toString();
 
     /** Sql to read a container version. */
     private static final String SQL_READ_VERSION =
-            new StringBuffer("select CV.CONTAINER_ID,CV.CONTAINER_VERSION_ID,")
-            .append("A.ARTIFACT_TYPE_ID,AV.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,")
-            .append("AV.CREATED_ON,AV.ARTIFACT_NAME,AV.COMMENT,")
-            .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
-            .append("from CONTAINER_VERSION CV ")
-            .append("inner join ARTIFACT_VERSION AV on CV.CONTAINER_ID=AV.ARTIFACT_ID ")
-            .append("inner join PARITY_USER UC on AV.CREATED_BY=UC.USER_ID ")
-            .append("inner join PARITY_USER UU on AV.UPDATED_BY=UU.USER_ID ")
-            .append("and CV.CONTAINER_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
-            .append("inner join ARTIFACT A on CV.CONTAINER_ID=A.ARTIFACT_ID ")
-            .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=?")
-            .toString();
+        new StringBuilder("select CV.CONTAINER_ID,CV.CONTAINER_VERSION_ID,")
+        .append("A.ARTIFACT_TYPE_ID,AV.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,")
+        .append("AV.CREATED_ON,AV.ARTIFACT_NAME,AV.COMMENT,")
+        .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
+        .append("from CONTAINER_VERSION CV ")
+        .append("inner join ARTIFACT_VERSION AV on CV.CONTAINER_ID=AV.ARTIFACT_ID ")
+        .append("inner join PARITY_USER UC on AV.CREATED_BY=UC.USER_ID ")
+        .append("inner join PARITY_USER UU on AV.UPDATED_BY=UU.USER_ID ")
+        .append("and CV.CONTAINER_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
+        .append("inner join ARTIFACT A on CV.CONTAINER_ID=A.ARTIFACT_ID ")
+        .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=?")
+        .toString();
 
     /** Sql to read container versions. */
     private static final String SQL_READ_VERSIONS =
-            new StringBuffer("select CV.CONTAINER_ID,CV.CONTAINER_VERSION_ID,")
-            .append("A.ARTIFACT_TYPE_ID,AV.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,")
-            .append("AV.CREATED_ON,AV.ARTIFACT_NAME,AV.COMMENT,")
-            .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
-            .append("from CONTAINER_VERSION CV ")
-            .append("inner join ARTIFACT_VERSION AV on CV.CONTAINER_ID=AV.ARTIFACT_ID ")
-            .append("inner join PARITY_USER UC on AV.CREATED_BY=UC.USER_ID ")
-            .append("inner join PARITY_USER UU on AV.UPDATED_BY=UU.USER_ID ")
-            .append("and CV.CONTAINER_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
-            .append("inner join ARTIFACT A on CV.CONTAINER_ID=A.ARTIFACT_ID ")
-            .append("where CV.CONTAINER_ID=?")
-            .toString();
+        new StringBuilder("select CV.CONTAINER_ID,CV.CONTAINER_VERSION_ID,")
+        .append("A.ARTIFACT_TYPE_ID,AV.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,")
+        .append("AV.CREATED_ON,AV.ARTIFACT_NAME,AV.COMMENT,")
+        .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
+        .append("from CONTAINER_VERSION CV ")
+        .append("inner join ARTIFACT_VERSION AV on CV.CONTAINER_ID=AV.ARTIFACT_ID ")
+        .append("inner join PARITY_USER UC on AV.CREATED_BY=UC.USER_ID ")
+        .append("inner join PARITY_USER UU on AV.UPDATED_BY=UU.USER_ID ")
+        .append("and CV.CONTAINER_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
+        .append("inner join ARTIFACT A on CV.CONTAINER_ID=A.ARTIFACT_ID ")
+        .append("where CV.CONTAINER_ID=?")
+        .toString();
 
     /** Sql to remove a version relationship. */
     private static final String SQL_REMOVE_VERSION_REL =
-            new StringBuffer("delete from CONTAINER_VERSION_ARTIFACT_VERSION_REL ")
-            .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=? ")
-            .append("and ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
-            .toString();
+        new StringBuilder("delete from CONTAINER_VERSION_ARTIFACT_VERSION_REL ")
+        .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=? ")
+        .append("and ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
+        .toString();
 
     /** Sql to remove all version relationships. */
     private static final String SQL_REMOVE_VERSIONS_REL =
-            new StringBuffer("delete from CONTAINER_VERSION_ARTIFACT_VERSION_REL ")
-            .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=? ")
-            .toString();
+        new StringBuilder("delete from CONTAINER_VERSION_ARTIFACT_VERSION_REL ")
+        .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=? ")
+        .toString();
 
     /** Sql to restore a container. */
     private static final String SQL_RESTORE =
-            new StringBuffer("insert into CONTAINER ")
-            .append("(CONTAINER_ID) ")
-            .append("values (?)")
-            .toString();
+        new StringBuilder("insert into CONTAINER ")
+        .append("(CONTAINER_ID) ")
+        .append("values (?)")
+        .toString();
 
     /** Sql to update a container version comment. */
     private static final String SQL_UPDATE_COMMENT =
-        new StringBuffer("update ARTIFACT_VERSION ")
+        new StringBuilder("update ARTIFACT_VERSION ")
         .append("set COMMENT=? ")
         .append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
         .toString();
 
     /** Sql to update a draft document. */
     private static final String SQL_UPDATE_DRAFT_DOCUMENT =
-        new StringBuffer("update CONTAINER_DRAFT_DOCUMENT ")
+        new StringBuilder("update CONTAINER_DRAFT_DOCUMENT ")
         .append("set CONTENT=?,CONTENT_SIZE=?,CONTENT_CHECKSUM=? ")
-        .append("where CONTAINER_DRAFT_ID=? and DOCUMENT_ID=?")
+        .append("where CONTAINER_ID=? and DOCUMENT_ID=?")
         .toString();
 
     /** Sql to update the container name. */
     private static final String SQL_UPDATE_NAME =
-            new StringBuffer("update ARTIFACT ")
-            .append("set ARTIFACT_NAME=? ")
-            .append("where ARTIFACT_ID=?")
-            .toString();
+        new StringBuilder("update ARTIFACT ")
+        .append("set ARTIFACT_NAME=? ")
+        .append("where ARTIFACT_ID=?")
+        .toString();
 
     private static final String SQL_UPDATE_PUBLISHED_TO =
-        new StringBuffer("update CONTAINER_VERSION_PUBLISHED_TO ")
+        new StringBuilder("update CONTAINER_VERSION_PUBLISHED_TO ")
         .append("set RECEIVED_ON=? ")
         .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=? and USER_ID=? ")
         .append("and PUBLISHED_ON=?")
@@ -610,6 +624,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_CREATE_DRAFT);
             session.setLong(1, draft.getContainerId());
             session.setLong(2, draft.getOwner().getLocalId());
+            session.setBoolean(3, draft.isLocal());
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not create draft.");
             
@@ -889,6 +904,62 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#doesExistDraft(java.lang.Long)
+     *
+     */
+    public Boolean doesExistDraft(final Long containerId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_DRAFT_COUNT_PK);
+            session.setLong(1, containerId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int draftCount = session.getInteger("DRAFT_COUNT");
+                if (0 == draftCount) {
+                    return Boolean.FALSE;
+                } else if (1 == draftCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine draft existence.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine draft existence.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#doesExistLocalDraft(java.lang.Long, java.lang.Long)
+     *
+     */
+    public Boolean doesExistLocalDraft(final Long containerId,
+            final Long localUserId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_DRAFT_COUNT_PK_OWNER);
+            session.setLong(1, containerId);
+            session.setLong(2, localUserId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int draftCount = session.getInteger("DRAFT_COUNT");
+                if (0 == draftCount) {
+                    return Boolean.FALSE;
+                } else if (1 == draftCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine local draft existence.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine local draft existence.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#doesExistVersion(java.lang.Long,
      *      java.lang.Long, java.lang.Long, java.lang.Long)
      * 
@@ -904,11 +975,15 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(3, artifactId);
             session.setLong(4, artifactVersionId);
             session.executeQuery();
-            session.nextResult();
-            if (0 == session.getInteger("COUNT")) {
-                return Boolean.FALSE;
-            } else if (1 == session.getInteger("COUNT")) {
-                return Boolean.TRUE;
+            if (session.nextResult()) {
+                final int count = session.getInteger("COUNT");
+                if (0 == count) {
+                    return Boolean.FALSE;
+                } else if (1 == count) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine artifact existance.");
+                }
             } else {
                 throw new HypersonicException("Could not determine artifact existance.");
             }
@@ -918,11 +993,12 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#openDraftDocument(java.lang.Long, java.lang.Long)
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#openDraftDocument(java.lang.Long, java.lang.Long, com.thinkparity.codebase.model.stream.StreamOpener)
      *
      */
-    public InputStream openDraftDocument(final Long containerDraftId,
-            final Long documentId) {
+    public void openDraftDocument(final Long containerDraftId,
+            final Long documentId, final StreamOpener opener)
+            throws IOException {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_OPEN_DRAFT_DOCUMENT);
@@ -930,30 +1006,14 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(2, documentId);
             session.executeQuery();
             if (session.nextResult()) {
-                return session.getBlob("CONTENT");
+                final InputStream stream = session.getBlob("CONTENT");
+                try {
+                    opener.open(stream);
+                } finally {
+                    stream.close();
+                }
             } else {
-                return null;
-            }
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#read(java.lang.Long)
-     * 
-     */
-    public Container read(final Long containerId, final User localUser) {
-        final Session session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_BY_CONTAINER_ID);
-            session.setLong(1, containerId);
-            session.executeQuery();
-
-            if (session.nextResult()) {
-                return extractContainer(session, localUser);
-            } else {
-                return null;
+                opener.open(null);
             }
         } finally {
             session.close();
@@ -964,17 +1024,37 @@ public class ContainerIOHandler extends AbstractIOHandler implements
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#read()
      * 
      */
-    public List<Container> read(final User localUser) {
+    public List<Container> read() {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_READ);
             session.executeQuery();
-
             final List<Container> containers = new ArrayList<Container>();
             while (session.nextResult()) {
-                containers.add(extractContainer(session, localUser));
+                containers.add(extractContainer(session));
             }
             return containers;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#read(java.lang.Long)
+     * 
+     */
+    public Container read(final Long containerId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_BY_CONTAINER_ID);
+            session.setLong(1, containerId);
+            session.executeQuery();
+
+            if (session.nextResult()) {
+                return extractContainer(session);
+            } else {
+                return null;
+            }
         } finally {
             session.close();
         }
@@ -1052,7 +1132,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     public ContainerDraft readDraft(final Long containerId) {
         final Session session = openSession();
         try {
-            session.prepareStatement(SQL_READ_DRAFT);
+            session.prepareStatement(SQL_READ_DRAFT_PK);
             session.setLong(1, containerId);
             session.executeQuery();
             if (session.nextResult()) {
@@ -1091,16 +1171,15 @@ public class ContainerIOHandler extends AbstractIOHandler implements
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readForTeamMember(com.thinkparity.codebase.model.user.User)
      * 
      */
-    public List<Container> readForTeamMember(final Long teamMemberId, final User localUser) {
+    public List<Container> readForTeamMember(final Long teamMemberId) {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_READ_BY_TEAM_MEMBER_ID);
             session.setLong(1, teamMemberId);
             session.executeQuery();
-
             final List<Container> containers = new ArrayList<Container>();
             while (session.nextResult()) {
-                containers.add(extractContainer(session, localUser));
+                containers.add(extractContainer(session));
             }
             return containers;
         } finally {
@@ -1383,23 +1462,18 @@ public class ContainerIOHandler extends AbstractIOHandler implements
      *            A database session.
      * @return A container.
      */
-    Container extractContainer(final Session session, final User localUser) {
+    Container extractContainer(final Session session) {
         final Container container = new Container();
         container.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
         container.setCreatedOn(session.getCalendar("CREATED_ON"));
+        container.setFlags(session.getArtifactFlags("FLAGS"));
         container.setId(session.getLong("CONTAINER_ID"));
-        final Long draftOwnerId = session.getLong("CONTAINER_DRAFT_USER_ID");
-        container.setDraft(null != draftOwnerId);
-        container.setLocalDraft(null != draftOwnerId && localUser.getLocalId().equals(draftOwnerId));
         container.setName(session.getString("ARTIFACT_NAME"));
-        container.setRemoteInfo(artifactIO.extractRemoteInfo(session));
         container.setState(session.getStateFromInteger("ARTIFACT_STATE_ID"));
         container.setType(session.getTypeFromInteger("ARTIFACT_TYPE_ID"));
         container.setUniqueId(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
         container.setUpdatedBy(session.getQualifiedUsername("UPDATED_BY"));
         container.setUpdatedOn(session.getCalendar("UPDATED_ON"));
-
-        container.setFlags(artifactIO.getFlags(container.getId()));
         return container;
     }
 
@@ -1434,27 +1508,43 @@ public class ContainerIOHandler extends AbstractIOHandler implements
      */
     ContainerDraft extractDraft(final Session session) {
         final ContainerDraft draft = new ContainerDraft();
-        draft.setContainerId(session.getLong("CONTAINER_DRAFT_ID"));
-        draft.setOwner(artifactIO.extractTeamMember(session));
-        addAllDraftDocuments(draft);
+        draft.setContainerId(session.getLong("CONTAINER_ID"));
+        draft.setLocal(session.getBoolean("LOCAL"));
+        final TeamMember owner = new TeamMember();
+        owner.setArtifactId(draft.getContainerId());
+        owner.setFlags(session.getUserFlags("OWNER_FLAGS"));
+        owner.setId(session.getQualifiedUsername("OWNER_JABBER_ID"));
+        owner.setLocalId(session.getLong("OWNER_USER_ID"));
+        owner.setName(session.getString("OWNER_NAME"));
+        owner.setOrganization(session.getString("OWNER_ORGANIZATION"));
+        owner.setTitle(session.getString("OWNER_TITLE"));
+        draft.setOwner(owner);
+        addDocuments(draft);
         return draft;
     }
 
-    // TODO-javadoc ContainerIOHandler#extractDraftDocument
+    /**
+     * Extract a container draft document from the database session.
+     * 
+     * @param session
+     *            A <code>Session</code>.
+     * @return A <code>ContainerDraftDocument</code>.
+     */
     ContainerDraftDocument extractDraftDocument(final Session session) {
         final ContainerDraftDocument draftDocument = new ContainerDraftDocument();
         draftDocument.setChecksum(session.getString("CONTENT_CHECKSUM"));
         draftDocument.setChecksumAlgorithm(session.getString("CHECKSUM_ALGORITHM"));
         draftDocument.setDocumentId(session.getLong("DOCUMENT_ID"));
-        draftDocument.setContainerDraftId(session.getLong("CONTAINER_DRAFT_ID"));
+        draftDocument.setContainerDraftId(session.getLong("CONTAINER_ID"));
         draftDocument.setSize(session.getLong("CONTENT_SIZE"));
         return draftDocument;
     }
 
     /**
      * Extract an artifact receipt from the published to table.
-     * @param session A <code>Session</code>.
-     * @param user
+     * 
+     * @param session
+     *            A <code>Session</code>.
      * @return An <code>ArtifactReceipt</code>.
      */
     ArtifactReceipt extractReceipt(final Session session) {
@@ -1470,8 +1560,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
      * Extract a container version from the database session.
      * 
      * @param session
-     *            A databsae session.
-     * @return A container version.
+     *            A <code>Session</code>.
+     * @return A <code>ContainerVersion</code>.
      */
     ContainerVersion extractVersion(final Session session) {
        final ContainerVersion version = new ContainerVersion();
@@ -1490,12 +1580,12 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * Add all draft documents to the draft.
+     * Add documents to the draft.
      * 
      * @param draft
-     *            A draft.
+     *            A <code>ContainerDraft</code>.
      */
-    private void addAllDraftDocuments(final ContainerDraft draft) {
+    private void addDocuments(final ContainerDraft draft) {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_READ_DRAFT_DOCUMENTS);
@@ -1553,6 +1643,13 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         return delta;
     }
 
+    /**
+     * Extract a document version from a database session.
+     * 
+     * @param session
+     *            A <code>Session</code>.
+     * @return A <code>DocumentVersion</code>.
+     */
     private DocumentVersion extractDocumentVersion(final Session session) {
         final DocumentVersion dv = new DocumentVersion();
         dv.setArtifactId(session.getLong("DOCUMENT_ID"));

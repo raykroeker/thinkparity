@@ -48,6 +48,19 @@ class TestInitializer {
     }
 
     /**
+     * Bootstrap the derby log file.
+     * 
+     * @param sessionOutput
+     *            The session output directory <code>File</code>.
+     */
+    private void bootstrapDerby(final File sessionOutputDirectory) {
+        System.setProperty("derby.stream.error.file",
+                new File(sessionOutputDirectory,
+                        "thinkParity Derby.log").getAbsolutePath());
+        System.setProperty("derby.infolog.append", "false");
+    }
+
+    /**
      * Initialize logging. Check the operating mode. If in development or
      * testing mode; enable the sql and xmpp debuggers.
      * 
@@ -75,14 +88,25 @@ class TestInitializer {
         // ophelia file default appender
         logging.setProperty("log4j.appender.DEFAULT", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.DEFAULT.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
+        logging.setProperty("log4j.appender.DEFAULT.MaxBackupIndex", Constants.Log4J.MAX_BACKUP_INDEX);
         logging.setProperty("log4j.appender.DEFAULT.layout", "org.apache.log4j.PatternLayout");
         logging.setProperty("log4j.appender.DEFAULT.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
         logging.setProperty("log4j.appender.DEFAULT.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity.log"));
+        // ophelia metrics appender
+        logging.setProperty("log4j.appender.METRIX_DEBUGGER", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.METRIX_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
+        logging.setProperty("log4j.appender.METRIX_DEBUGGER.MaxBackupIndex", Constants.Log4J.MAX_BACKUP_INDEX);
+        logging.setProperty("log4j.appender.METRIX_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.METRIX_DEBUGGER.layout.ConversionPattern", Constants.Log4J.METRICS_LAYOUT_CONVERSION_PATTERN);
+        logging.setProperty("log4j.appender.METRIX_DEBUGGER.File",
+                MessageFormat.format("{0}{1}{2}", loggingRoot,
+                        File.separatorChar, "thinkParity Metrics.log"));
         // ophelia sql appender
         logging.setProperty("log4j.appender.SQL_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.SQL_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
+        logging.setProperty("log4j.appender.SQL_DEBUGGER.MaxBackupIndex", Constants.Log4J.MAX_BACKUP_INDEX);
         logging.setProperty("log4j.appender.SQL_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
         logging.setProperty("log4j.appender.SQL_DEBUGGER.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
         logging.setProperty("log4j.appender.SQL_DEBUGGER.File",
@@ -91,6 +115,7 @@ class TestInitializer {
         // ophelia xa appender
         logging.setProperty("log4j.appender.XA_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.XA_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
+        logging.setProperty("log4j.appender.XA_DEBUGGER.MaxBackupIndex", Constants.Log4J.MAX_BACKUP_INDEX);
         logging.setProperty("log4j.appender.XA_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
         logging.setProperty("log4j.appender.XA_DEBUGGER.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
         logging.setProperty("log4j.appender.XA_DEBUGGER.File",
@@ -99,6 +124,7 @@ class TestInitializer {
         // ophelia xmpp appender
         logging.setProperty("log4j.appender.XMPP_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER.MaxBackupIndex", Constants.Log4J.MAX_BACKUP_INDEX);
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.File",
@@ -116,6 +142,9 @@ class TestInitializer {
             logging.setProperty("log4j.logger.com.thinkparity.ophelia", "WARN, DEFAULT");
             logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
 
+            logging.setProperty("log4j.logger.METRIX_DEBUGGER", "NONE");
+            logging.setProperty("log4j.additivity.METRIX_DEBUGGER", "false");
+
             logging.setProperty("log4j.logger.SQL_DEBUGGER", "NONE");
             logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
 
@@ -131,6 +160,9 @@ class TestInitializer {
             logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, CONSOLE, DEFAULT");
             logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
 
+            logging.setProperty("log4j.logger.METRIX_DEBUGGER", "TRACE, METRIX_DEBUGGER");
+            logging.setProperty("log4j.additivity.METRIX_DEBUGGER", "false");
+
             logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
             logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
 
@@ -145,6 +177,9 @@ class TestInitializer {
 
             logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, DEFAULT");
             logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
+
+            logging.setProperty("log4j.logger.METRIX_DEBUGGER", "DEBUG, METRIX_DEBUGGER");
+            logging.setProperty("log4j.additivity.METRIX_DEBUGGER", "false");
 
             logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
             logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
@@ -219,6 +254,7 @@ class TestInitializer {
      */
     private void doInitialize(final TestSession testSession) {
         bootstrapLog4J(testSession.getOutputDirectory());
+        bootstrapDerby(testSession.getOutputDirectory());
         redirectStreams(testSession);
     }
 

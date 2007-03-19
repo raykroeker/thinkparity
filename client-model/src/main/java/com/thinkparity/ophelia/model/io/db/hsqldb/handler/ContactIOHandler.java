@@ -143,7 +143,7 @@ public final class ContactIOHandler extends AbstractIOHandler implements
     /** Sql to read contacts. */
     private static final String SQL_READ =
         new StringBuilder("select C.CONTACT_ID,C.CONTACT_VCARD,U.USER_ID,")
-        .append("U.JABBER_ID,U.NAME,U.ORGANIZATION,U.TITLE ")
+        .append("U.JABBER_ID,U.NAME,U.ORGANIZATION,U.TITLE,U.FLAGS ")
         .append("from CONTACT C ")
         .append("inner join PARITY_USER U on C.CONTACT_ID=U.USER_ID ")
         .toString();
@@ -167,7 +167,7 @@ public final class ContactIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_IEI =
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
         .append("CIIE.CONTACT_INVITATION_ID,PUEB.JABBER_ID,PUEB.USER_ID,")
-        .append("PUEB.NAME,PUEB.ORGANIZATION,PUEB.TITLE,E.EMAIL ")
+        .append("PUEB.NAME,PUEB.ORGANIZATION,PUEB.TITLE,PUEB.FLAGS,E.EMAIL ")
         .append("from CONTACT_INVITATION_INCOMING_EMAIL CIIE ")
         .append("inner join CONTACT_INVITATION CI ")
         .append("on CI.CONTACT_INVITATION_ID=CIIE.CONTACT_INVITATION_ID ")
@@ -180,7 +180,7 @@ public final class ContactIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_IEI_EXTENDED_BY =
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
         .append("CIIE.CONTACT_INVITATION_ID,PUEB.JABBER_ID,PUEB.USER_ID,")
-        .append("PUEB.NAME,PUEB.ORGANIZATION,PUEB.TITLE,E.EMAIL ")
+        .append("PUEB.NAME,PUEB.ORGANIZATION,PUEB.TITLE,PUEB.FLAGS,E.EMAIL ")
         .append("from CONTACT_INVITATION_INCOMING_EMAIL CIIE ")
         .append("inner join CONTACT_INVITATION CI ")
         .append("on CI.CONTACT_INVITATION_ID=CIIE.CONTACT_INVITATION_ID ")
@@ -194,7 +194,7 @@ public final class ContactIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_IEI_EXTENDED_UK =
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
         .append("CIIE.CONTACT_INVITATION_ID,PUEB.JABBER_ID,PUEB.USER_ID,")
-        .append("PUEB.NAME,PUEB.ORGANIZATION,PUEB.TITLE,E.EMAIL ")
+        .append("PUEB.NAME,PUEB.ORGANIZATION,PUEB.TITLE,PUEB.FLAGS,E.EMAIL ")
         .append("from CONTACT_INVITATION_INCOMING_EMAIL CIIE ")
         .append("inner join CONTACT_INVITATION CI ")
         .append("on CI.CONTACT_INVITATION_ID=CIIE.CONTACT_INVITATION_ID ")
@@ -208,7 +208,7 @@ public final class ContactIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_IEI_ID =
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
         .append("CIIE.CONTACT_INVITATION_ID,PUEB.JABBER_ID,PUEB.USER_ID,")
-        .append("PUEB.NAME,PUEB.ORGANIZATION,PUEB.TITLE,E.EMAIL ")
+        .append("PUEB.NAME,PUEB.ORGANIZATION,PUEB.TITLE,PUEB.FLAGS,E.EMAIL ")
         .append("from CONTACT_INVITATION_INCOMING_EMAIL CIIE ")
         .append("inner join CONTACT_INVITATION CI ")
         .append("on CI.CONTACT_INVITATION_ID=CIIE.CONTACT_INVITATION_ID ")
@@ -222,7 +222,7 @@ public final class ContactIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_IUI =
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
         .append("CIIU.CONTACT_INVITATION_ID,PUEB.JABBER_ID,PUEB.USER_ID,")
-        .append("PUEB.NAME,PUEB.ORGANIZATION,PUEB.TITLE ")
+        .append("PUEB.NAME,PUEB.ORGANIZATION,PUEB.TITLE,PUEB.FLAGS ")
         .append("from CONTACT_INVITATION_INCOMING_USER CIIU ")
         .append("inner join CONTACT_INVITATION CI ")
         .append("on CI.CONTACT_INVITATION_ID=CIIU.CONTACT_INVITATION_ID ")
@@ -233,7 +233,7 @@ public final class ContactIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_IUI_EXTENDED_BY =
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
         .append("CIIU.CONTACT_INVITATION_ID,PUEB.JABBER_ID,PUEB.USER_ID,")
-        .append("PUEB.NAME,PUEB.ORGANIZATION,PUEB.TITLE ")
+        .append("PUEB.NAME,PUEB.ORGANIZATION,PUEB.TITLE,PUEB.FLAGS ")
         .append("from CONTACT_INVITATION_INCOMING_USER CIIU ")
         .append("inner join CONTACT_INVITATION CI ")
         .append("on CI.CONTACT_INVITATION_ID=CIIU.CONTACT_INVITATION_ID ")
@@ -245,7 +245,7 @@ public final class ContactIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_IUI_PK =
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
         .append("CIIU.CONTACT_INVITATION_ID,PUEB.JABBER_ID,PUEB.USER_ID,")
-        .append("PUEB.NAME,PUEB.ORGANIZATION,PUEB.TITLE ")
+        .append("PUEB.NAME,PUEB.ORGANIZATION,PUEB.TITLE,PUEB.FLAGS ")
         .append("from CONTACT_INVITATION_INCOMING_USER CIIU ")
         .append("inner join CONTACT_INVITATION CI ")
         .append("on CI.CONTACT_INVITATION_ID=CIIU.CONTACT_INVITATION_ID ")
@@ -333,11 +333,11 @@ public final class ContactIOHandler extends AbstractIOHandler implements
     /** The email db io. */
     private final EmailIOHandler emailIO;
 
-    /** A user db io. */
-    private final UserIOHandler userIO;
-
     /** A profile db io. */
     private final ProfileIOHandler profileIO;
+
+    /** A user db io. */
+    private final UserIOHandler userIO;
 
     /**
      * Create ContactIOHandler.
@@ -956,8 +956,7 @@ public final class ContactIOHandler extends AbstractIOHandler implements
         contact.setOrganization(session.getString("ORGANIZATION"));
         contact.setTitle(session.getString("TITLE"));
         contact.addAllEmails(readEMails(contact));
-
-        contact.setFlags(userIO.readFlags(contact.getLocalId()));
+        contact.setFlags(session.getUserFlags("FLAGS"));
         return contact;
     }
 

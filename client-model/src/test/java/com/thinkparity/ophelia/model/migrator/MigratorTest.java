@@ -106,10 +106,10 @@ public final class MigratorTest extends MigratorTestCase {
             seedProduct.setUpdatedBy(seedProduct.getCreatedBy());
             seedProduct.setUpdatedOn(seedProduct.getCreatedOn());
 
-            ZipUtil.createZipFile(seedFile, getTestCaseDirectory(), getDefaultBufferSize());
+            ZipUtil.createZipFile(seedFile, getTestCaseDirectory(), getDefaultBuffer());
 
             seedRelease = new Release();
-            seedRelease.setChecksum(checksum(seedFile, getDefaultBufferSize()));
+            seedRelease.setChecksum(checksum(seedFile, getDefaultBuffer()));
             seedRelease.setName("Version 1.0.0");
 
             seedResources = new ArrayList<Resource>();

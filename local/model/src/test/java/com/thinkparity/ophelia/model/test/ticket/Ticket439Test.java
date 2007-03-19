@@ -4,10 +4,16 @@
  */
 package com.thinkparity.ophelia.model.test.ticket;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+
+import com.thinkparity.codebase.StreamUtil;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
@@ -15,6 +21,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamOpener;
 import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
@@ -44,6 +51,18 @@ public class Ticket439Test extends TicketTestCase {
     }
 
     /**
+     * @see com.thinkparity.ophelia.OpheliaTestCase#getOutputDirectory()
+     *
+     */
+    @Override
+    public File getOutputDirectory() {
+        final File outputDirectory = new File(super.getOutputDirectory(), getName());
+        if (!outputDirectory.exists())
+            assertTrue(outputDirectory.mkdirs());
+        return outputDirectory;
+    }
+
+    /**
      * {@link http://thinkparity.dyndns.org/trac/parity/ticket/439 Ticket 439}
      * 
      */
@@ -63,8 +82,6 @@ public class Ticket439Test extends TicketTestCase {
         Map<DocumentVersion, Delta> cv_latest_delta = readContainerVersionDeltas(datum.junit, c.getId(), cv_latest.getVersionId());
         List<ArtifactReceipt> cv_latest_pt = readPublishedTo(datum.junit, c.getId(), cv_latest.getVersionId());
         List<TeamMember> tm_list = readTeam(datum.junit, c.getId());
-        DocumentVersion cv_latest_dv;
-        InputStream is;
 
         Container c_x = readContainer(datum.junit_x, c_initial.getUniqueId());
         ContainerVersion cv_latest_x = readContainerLatestVersion(datum.junit_x, c_x.getId());
@@ -74,8 +91,6 @@ public class Ticket439Test extends TicketTestCase {
         Map<DocumentVersion, Delta> cv_latest_delta_x = readContainerVersionDeltas(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
         List<ArtifactReceipt> cv_latest_pt_x = readPublishedTo(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
         List<TeamMember> tm_list_x = readTeam(datum.junit_x, c_x.getId());
-        InputStream is_x;
-        DocumentVersion cv_latest_dv_x;
 
         assertSimilar("Container does not match expectation.", c, c_x);
         assertSimilar("Latest container version does not match expectation.", cv_latest, cv_latest_x);
@@ -87,33 +102,41 @@ public class Ticket439Test extends TicketTestCase {
         }
         assertEquals("Document version list size does not match expectation.", cv_latest_d_list.size(), cv_latest_d_list_x.size());
         for (int i = 0; i < cv_latest_dv_list.size(); i++) {
-            cv_latest_dv = cv_latest_dv_list.get(i);
-            cv_latest_dv_x = cv_latest_dv_list_x.get(i);
+            final DocumentVersion cv_latest_dv = cv_latest_dv_list.get(i);
+            final DocumentVersion cv_latest_dv_x = cv_latest_dv_list_x.get(i);
             assertSimilar("Document version does not match expectation.", cv_latest_dv, cv_latest_dv_x);
-            is = getDocumentModel(datum.junit).openVersion(cv_latest_dv.getArtifactId(), cv_latest_dv.getVersionId());
-            is_x = getDocumentModel(datum.junit_x).openVersion(cv_latest_dv_x.getArtifactId(), cv_latest_dv_x.getVersionId());
-            try {
-                assertEquals("Document version content does not match expectation.", is, is_x);
-            } catch (final IOException iox) {
-                fail(createFailMessage(iox));
-            } finally {
-                try {
-                    is.close();
-                } catch (final IOException iox) {
-                    fail(createFailMessage(iox));
-                } finally {
+            getDocumentModel(datum.junit).openVersion(cv_latest_dv.getArtifactId(), cv_latest_dv.getVersionId(), new StreamOpener() {
+                public void open(final InputStream stream) throws IOException {
+                    final File file = getOutputFile(cv_latest_dv);
+                    final OutputStream outputStream = new FileOutputStream(file);
                     try {
-                        is_x.close();
-                    } catch (final IOException iox2) {
-                        fail(createFailMessage(iox2));
+                        StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                    } finally {
+                        outputStream.close();
                     }
                 }
+            });
+            getDocumentModel(datum.junit_x).openVersion(cv_latest_dv_x.getArtifactId(), cv_latest_dv_x.getVersionId(), new StreamOpener() {
+                public void open(final InputStream stream) throws IOException {
+                    final File file = getOutputFile(cv_latest_dv_x);
+                    final OutputStream outputStream = new FileOutputStream(file);
+                    try {
+                        StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                    } finally {
+                        outputStream.close();
+                    }
+                }
+            });
+            try {
+                assertEquals("Document version content does not match expectation.", getOutputFile(cv_latest_dv), getOutputFile(cv_latest_dv_x));
+            } catch (final IOException iox) {
+                fail(iox, "Could not compare input stream is with is_x.");
             }
         }
         assertEquals("Document version delta list does not match expectation.", cv_latest_delta.size(), cv_latest_delta_x.size());
         for (int i = 0; i < cv_latest_dv_list.size(); i++) {
-            cv_latest_dv = cv_latest_dv_list.get(i);
-            cv_latest_dv_x = cv_latest_dv_list_x.get(i);
+            final DocumentVersion cv_latest_dv = cv_latest_dv_list.get(i);
+            final DocumentVersion cv_latest_dv_x = cv_latest_dv_list_x.get(i);
             assertEquals("Document version delta does not match expectation.", Delta.ADDED, cv_latest_delta.get(cv_latest_dv));
             assertEquals("Document version delta does not match expectation.", cv_latest_delta.get(cv_latest_dv), cv_latest_delta_x.get(cv_latest_dv_x));
         }
@@ -163,33 +186,61 @@ public class Ticket439Test extends TicketTestCase {
         }
         assertEquals("Document version list size does not match expectation.", cv_latest_d_list.size(), cv_latest_d_list_x.size());
         for (int i = 0; i < cv_latest_dv_list.size(); i++) {
-            cv_latest_dv = cv_latest_dv_list.get(i);
-            cv_latest_dv_x = cv_latest_dv_list_x.get(i);
+            final DocumentVersion cv_latest_dv = cv_latest_dv_list.get(i);
+            final DocumentVersion cv_latest_dv_x = cv_latest_dv_list_x.get(i);
             assertSimilar("Document version does not match expectation.", cv_latest_dv, cv_latest_dv_x);
-            is = getDocumentModel(datum.junit).openVersion(cv_latest_dv.getArtifactId(), cv_latest_dv.getVersionId());
-            is_x = getDocumentModel(datum.junit_x).openVersion(cv_latest_dv_x.getArtifactId(), cv_latest_dv_x.getVersionId());
-            try {
-                assertEquals("Document version content does not match expectation.", is, is_x);
-            } catch (final IOException iox) {
-                fail(createFailMessage(iox));
-            } finally {
-                try {
-                    is.close();
-                } catch (final IOException iox) {
-                    fail(createFailMessage(iox));
-                } finally {
+            getDocumentModel(datum.junit).openVersion(cv_latest_dv.getArtifactId(), cv_latest_dv.getVersionId(), new StreamOpener() {
+                public void open(final InputStream stream) throws IOException {
+                    final File file = getOutputFile(cv_latest_dv);
+                    final OutputStream outputStream = new FileOutputStream(file);
                     try {
-                        is_x.close();
-                    } catch (final IOException iox2) {
-                        fail(createFailMessage(iox2));
+                        StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                    } finally {
+                        outputStream.close();
                     }
                 }
+            });
+            getDocumentModel(datum.junit_x).openVersion(cv_latest_dv_x.getArtifactId(), cv_latest_dv_x.getVersionId(), new StreamOpener() {
+                public void open(final InputStream stream) throws IOException {
+                    final File file = getOutputFile(cv_latest_dv_x);
+                    final OutputStream outputStream = new FileOutputStream(file);
+                    try {
+                        StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                    } finally {
+                        outputStream.close();
+                    }
+                }
+            });
+            final InputStream is;
+            final InputStream is_x;
+            try {
+                is = new FileInputStream(getOutputFile(cv_latest_dv));
+                try {
+                    is_x = new FileInputStream(getOutputFile(cv_latest_dv_x));
+                    try {
+                        assertEquals("Document version content does not match expectation.", is, is_x);
+                    } finally {
+                        try {
+                            is_x.close();
+                        } catch (final IOException iox) {
+                            fail(iox, "Could not close input stream is_x.");
+                        }
+                    }
+                } finally {
+                    try {
+                        is.close();
+                    } catch (final IOException iox) {
+                        fail(iox, "Could not close input stream is.");
+                    }
+                }
+            } catch (final IOException iox) {
+                fail(iox, "Could not compare input stream is with is_x.");
             }
         }
         assertEquals("Document version delta list does not match expectation.", cv_latest_delta.size(), cv_latest_delta_x.size());
         for (int i = 0; i < cv_latest_dv_list.size(); i++) {
-            cv_latest_dv = cv_latest_dv_list.get(i);
-            cv_latest_dv_x = cv_latest_dv_list_x.get(i);
+            final DocumentVersion cv_latest_dv = cv_latest_dv_list.get(i);
+            final DocumentVersion cv_latest_dv_x = cv_latest_dv_list_x.get(i);
             assertEquals("Document version delta does not match expectation.", Delta.MODIFIED, cv_latest_delta.get(cv_latest_dv));
             assertEquals("Document version delta does not match expectation.", cv_latest_delta.get(cv_latest_dv), cv_latest_delta_x.get(cv_latest_dv_x));
         }

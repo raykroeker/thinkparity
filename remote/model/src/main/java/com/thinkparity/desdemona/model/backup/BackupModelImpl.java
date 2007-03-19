@@ -186,13 +186,13 @@ final class BackupModelImpl extends AbstractModelImpl {
                     final InternalContainerModel containerModel =
                         getModelFactory(archiveId).getContainerModel(getClass());
                     containerModel.delete(artifactId);
+                    // remove user from the team
+                    final com.thinkparity.desdemona.model.artifact.InternalArtifactModel
+                    desdemonaArtifactModel = getArtifactModel();
+                    final Artifact artifact = getArtifactModel().read(uniqueId);
+                    final User user = getUserModel().read(userId);
+                    desdemonaArtifactModel.removeTeamMember(userId, artifact.getId(), user.getLocalId());
                 }
-                // remove user from the team
-                final com.thinkparity.desdemona.model.artifact.InternalArtifactModel
-                        artifactModel = getArtifactModel();
-                final Artifact artifact = getArtifactModel().read(uniqueId);
-                final User user = getUserModel().read(userId);
-                artifactModel.removeTeamMember(userId, artifact.getId(), user.getLocalId());
             }
         } catch (final Throwable t) {
             throw translateError(t);

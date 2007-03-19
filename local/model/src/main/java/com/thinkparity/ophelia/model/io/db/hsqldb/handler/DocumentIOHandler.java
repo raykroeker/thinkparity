@@ -14,16 +14,20 @@ import javax.sql.DataSource;
 
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamOpener;
 import com.thinkparity.codebase.model.stream.StreamUploader;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity OpheliaModel Document IO Handler Implementation<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.16
  */
-public class DocumentIOHandler extends AbstractIOHandler implements
+public final class DocumentIOHandler extends AbstractIOHandler implements
 		com.thinkparity.ophelia.model.io.handler.DocumentIOHandler {
 
     /** Sql to create a document. */
@@ -50,36 +54,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("where DOCUMENT_ID=? and DOCUMENT_VERSION_ID=?")
 		.toString();
 
-    private static final String SQL_GET =
-		new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
-		.append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,A.ARTIFACT_UNIQUE_ID,")
-		.append("UC.JABBER_ID CREATED_BY,A.CREATED_ON,UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
-		.append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
-		.append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
-		.append("from DOCUMENT D ")
-        .append("inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
-        .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
-        .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
-        .append("left join ARTIFACT_REMOTE_INFO ARI ")
-		.append("on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
-		.append("where A.ARTIFACT_ID=?")
-		.toString();
-
-    private static final String SQL_GET_BY_UNIQUE_ID =
-		new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
-		.append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,A.ARTIFACT_UNIQUE_ID,")
-		.append("UC.JABBER_ID CREATED_BY,A.CREATED_ON,UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
-		.append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
-		.append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
-		.append("from DOCUMENT D ")
-        .append("inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
-        .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
-        .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
-        .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
-		.append("where A.ARTIFACT_UNIQUE_ID=?")
-		.toString();
-
-	/** Sql to read a document version. */
+    /** Sql to read a document version. */
     private static final String SQL_GET_VERSION =
 		new StringBuffer("select DOCUMENT_ID,DOCUMENT_VERSION_ID,")
 		.append("ARTIFACT_NAME,ARTIFACT_TYPE,ARTIFACT_UNIQUE_ID,")
@@ -93,22 +68,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
 		.toString();
 
-	private static final String SQL_LIST =
-        new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
-        .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,A.ARTIFACT_UNIQUE_ID,")
-        .append("UC.JABBER_ID CREATED_BY,A.CREATED_ON,UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
-        .append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
-        .append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
-        .append("from DOCUMENT D ")
-        .append("inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
-        .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
-        .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
-        .append("left join ARTIFACT_REMOTE_INFO ARI ")
-        .append("on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
-        .append("order by A.ARTIFACT_ID asc")
-		.toString();
-
-	private static final String SQL_LIST_VERSIONS =
+    private static final String SQL_LIST_VERSIONS =
 		new StringBuffer("select DOCUMENT_ID,DOCUMENT_VERSION_ID,")
 		.append("ARTIFACT_NAME,ARTIFACT_TYPE,ARTIFACT_UNIQUE_ID,")
 		.append("CONTENT_CHECKSUM,CHECKSUM_ALGORITHM,CONTENT_SIZE,")
@@ -122,19 +82,51 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("order by DV.DOCUMENT_VERSION_ID asc")
 		.toString();
 
-    /** Sql to open a stream to the document version's content. */
+	/** Sql to open a stream to the document version's content. */
     private static final String SQL_OPEN_STREAM =
             new StringBuffer("select DV.CONTENT ")
             .append("from DOCUMENT_VERSION DV ")
             .append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
             .toString();
 
-    /** Sql to open a stream to upload the document version's content. */
-    private static final String SQL_UPLOAD_VERSION =
-            new StringBuffer("select DV.CONTENT ")
-            .append("from DOCUMENT_VERSION DV ")
-            .append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
-            .toString();
+    /** Sql to read documents. */
+	private static final String SQL_READ =
+        new StringBuilder("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
+        .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,A.ARTIFACT_UNIQUE_ID,")
+        .append("UC.JABBER_ID CREATED_BY,A.CREATED_ON,UU.JABBER_ID UPDATED_BY,")
+        .append("A.FLAGS,A.UPDATED_ON ")
+        .append("from DOCUMENT D ")
+        .append("inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
+        .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
+        .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
+        .append("order by A.ARTIFACT_ID asc")
+		.toString();
+
+	/** Sql to read a document by its primary key. */
+    private static final String SQL_READ_PK =
+		new StringBuilder("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
+		.append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,A.ARTIFACT_UNIQUE_ID,")
+		.append("UC.JABBER_ID CREATED_BY,A.CREATED_ON,UU.JABBER_ID UPDATED_BY,")
+        .append("A.FLAGS,A.UPDATED_ON ")
+		.append("from DOCUMENT D ")
+        .append("inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
+        .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
+        .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
+		.append("where A.ARTIFACT_ID=?")
+		.toString();
+
+    /** Sql to read a document by its unique index. */
+    private static final String SQL_READ_UK =
+        new StringBuilder("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
+        .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,A.ARTIFACT_UNIQUE_ID,")
+        .append("UC.JABBER_ID CREATED_BY,A.CREATED_ON,UU.JABBER_ID UPDATED_BY,")
+        .append("A.FLAGS,A.UPDATED_ON ")
+        .append("from DOCUMENT D ")
+        .append("inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
+        .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
+        .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
+		.append("where A.ARTIFACT_UNIQUE_ID=?")
+		.toString();
 
     /** Sql to read the version's size. */
     private static final String SQL_READ_VERSION_SIZE =
@@ -145,11 +137,18 @@ public class DocumentIOHandler extends AbstractIOHandler implements
         .append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
         .toString();
 
-	private static final String SQL_UPDATE =
+    private static final String SQL_UPDATE =
 		new StringBuffer("update ARTIFACT ")
 		.append("set UPDATED_ON=?,ARTIFACT_NAME=?,ARTIFACT_STATE_ID=? ")
 		.append("where ARTIFACT_ID=?")
 		.toString();
+
+	/** Sql to open a stream to upload the document version's content. */
+    private static final String SQL_UPLOAD_VERSION =
+            new StringBuffer("select DV.CONTENT ")
+            .append("from DOCUMENT_VERSION DV ")
+            .append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
+            .toString();
 
 	/** Generic artifact io. */
 	private final ArtifactIOHandler artifactIO;
@@ -221,7 +220,6 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			session.setLong(1, documentId);
 			if(1 != session.executeUpdate())
 				throw new HypersonicException("Could not delete document.");
-			artifactIO.deleteRemoteInfo(session, documentId);
 			artifactIO.delete(session, documentId);
 		} finally {
             session.close();
@@ -250,48 +248,6 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
-	 * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#get(java.lang.Long)
-	 * 
-	 */
-	public Document get(final Long documentId) {
-		final Session session = openSession();
-		try {
-			session.prepareStatement(SQL_GET);
-			session.setLong(1, documentId);
-			session.executeQuery();
-
-			if (session.nextResult()) {
-                return extractDocument(session);
-			} else {
-                return null;
-			}
-		} finally {
-            session.close();
-		}
-	}
-
-	/**
-	 * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#get(java.util.UUID)
-	 */
-	public Document get(final UUID documentUniqueId) {
-		final Session session = openSession();
-		try {
-			session.prepareStatement(SQL_GET_BY_UNIQUE_ID);
-			session.setUniqueId(1, documentUniqueId);
-			session.executeQuery();
-
-			if (session.nextResult()) {
-                return extractDocument(session);
-			} else {
-                return null;
-			}
-		} finally {
-            session.close();
-		}
-			
-	}
-
-	/**
      * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#getVersion(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -308,25 +264,6 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			} else {
                 return null;
 			}
-		} finally {
-            session.close();
-		}
-	}
-
-	/**
-	 * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#list()
-	 */
-	public List<Document> list() {
-		final Session session = openSession();
-		try {
-			session.prepareStatement(SQL_LIST);
-			session.executeQuery();
-			
-			final List<Document> documents = new LinkedList<Document>();
-			while(session.nextResult()) {
-				documents.add(extractDocument(session));
-			}
-			return documents;
 		} finally {
             session.close();
 		}
@@ -352,10 +289,13 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		}
 	}
 
-    /**
-     * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#openStream(java.lang.Long, java.lang.Long)
+	/**
+     * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#openStream(java.lang.Long,
+     *      java.lang.Long, com.thinkparity.codebase.model.stream.StreamOpener)
+     * 
      */
-    public InputStream openStream(final Long documentId, final Long versionId) {
+    public void openStream(final Long documentId, final Long versionId,
+            final StreamOpener opener) throws IOException {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_OPEN_STREAM);
@@ -363,15 +303,77 @@ public class DocumentIOHandler extends AbstractIOHandler implements
             session.setLong(2, versionId);
             session.executeQuery();
             if (session.nextResult()) {
-                return session.getBlob("CONTENT");
-            }
-            else {
-                return null;
+                final InputStream stream = session.getBlob("CONTENT");
+                try {
+                    opener.open(stream);
+                } finally {
+                    stream.close();
+                }
+            } else {
+                opener.open(null);
             }
         } finally {
             session.close();
         }
     }
+
+	/**
+	 * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#read()
+	 */
+	public List<Document> read() {
+		final Session session = openSession();
+		try {
+			session.prepareStatement(SQL_READ);
+			session.executeQuery();
+			final List<Document> documents = new LinkedList<Document>();
+			while(session.nextResult()) {
+				documents.add(extractDocument(session));
+			}
+			return documents;
+		} finally {
+            session.close();
+		}
+	}
+
+	/**
+	 * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#read(java.lang.Long)
+	 * 
+	 */
+	public Document read(final Long documentId) {
+		final Session session = openSession();
+		try {
+			session.prepareStatement(SQL_READ_PK);
+			session.setLong(1, documentId);
+			session.executeQuery();
+			if (session.nextResult()) {
+                return extractDocument(session);
+			} else {
+                return null;
+			}
+		} finally {
+            session.close();
+		}
+	}
+
+    /**
+	 * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#read(java.util.UUID)
+	 */
+	public Document read(final UUID uniqueId) {
+		final Session session = openSession();
+		try {
+			session.prepareStatement(SQL_READ_UK);
+			session.setUniqueId(1, uniqueId);
+			session.executeQuery();
+			if (session.nextResult()) {
+                return extractDocument(session);
+			} else {
+                return null;
+			}
+		} finally {
+            session.close();
+		}
+			
+	}
 
     /**
      * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#readLatestVersion(java.lang.Long)
@@ -418,8 +420,6 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		logger.logWarning("Update is misleading.  Only updated on, name, state, and flag information is being set.");
 		final Session session = openSession();
 		try {
-			artifactIO.setFlags(session, document.getId(), document.getFlags());
-
 			session.prepareStatement(SQL_UPDATE);
 			session.setCalendar(1, document.getUpdatedOn());
             session.setString(2, document.getName());
@@ -445,13 +445,15 @@ public class DocumentIOHandler extends AbstractIOHandler implements
             session.setLong(1, documentId);
             session.setLong(2, versionId);
             session.executeQuery();
-            session.nextResult();
-
-            final InputStream stream = session.getBlob("CONTENT"); 
-            try {
-                uploader.upload(stream);
-            } finally {
-                stream.close();
+            if (session.nextResult()) {
+                final InputStream stream = session.getBlob("CONTENT"); 
+                try {
+                    uploader.upload(stream);
+                } finally {
+                    stream.close();
+                }
+            } else {
+                uploader.upload(null);
             }
         } finally {
             session.close();
@@ -469,16 +471,14 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		final Document d = new Document();
 		d.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		d.setCreatedOn(session.getCalendar("CREATED_ON"));
+		d.setFlags(session.getArtifactFlags("FLAGS"));
 		d.setId(session.getLong("ARTIFACT_ID"));
 		d.setName(session.getString("ARTIFACT_NAME"));
-		d.setRemoteInfo(artifactIO.extractRemoteInfo(session));
 		d.setState(session.getStateFromInteger("ARTIFACT_STATE_ID"));
 		d.setType(session.getTypeFromInteger("ARTIFACT_TYPE_ID"));
 		d.setUniqueId(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
 		d.setUpdatedBy(session.getQualifiedUsername("UPDATED_BY"));
 		d.setUpdatedOn(session.getCalendar("UPDATED_ON"));
-
-		d.setFlags(artifactIO.getFlags(d.getId()));
 		return d;
 	}
 

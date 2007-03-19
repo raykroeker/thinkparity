@@ -17,6 +17,8 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -25,7 +27,8 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -38,7 +41,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.*;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b>thinkParity Container Panel<br>
@@ -48,48 +50,46 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
  */
 public class ContainerPanel extends DefaultTabPanel {
 
+    /** The space between container text and additional text. */
+    private static final int CONTAINER_TEXT_SPACE_BETWEEN;
+    /** The space to leave at the end of the container text. */
+    private static final int CONTAINER_TEXT_SPACE_END;
+    /** The X location of the container text. */
+    private static final int CONTAINER_TEXT_X;
+    /** The Y location of the container text. */
+    private static final int CONTAINER_TEXT_Y;
+    static {
+        CONTAINER_TEXT_SPACE_BETWEEN = 5;
+        CONTAINER_TEXT_SPACE_END = 20;
+        CONTAINER_TEXT_X = 56;
+        CONTAINER_TEXT_Y = 16;
+    }
+    /** The container tab's <code>DefaultActionDelegate</code>. */
+    private ActionDelegate actionDelegate;
+    /** The panel's animating indicator. */
+    private boolean animating;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPanel collapsedJPanel = new javax.swing.JPanel();
+    /** A <code>Container</code>. */
+    private Container container;
+    /** A <code>ContainerDraft</code>. */
+    private ContainerDraft draft;
+    /** The east list of <code>PanelCellRenderer</code>.*/
+    private final List<PanelCellRenderer> eastCellPanels;
     private final javax.swing.JLabel eastCountJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel eastFirstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JPanel eastJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel eastLastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private javax.swing.JPanel eastListJPanel;
+    /** The visible east list model. */
+    private final PanelCellListModel eastListModel;
     private final javax.swing.JLabel eastNextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JLabel eastPreviousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel westCountJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel westFiller2JLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel westFirstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JPanel westJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel westLastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private javax.swing.JPanel westListJPanel;
-    private final javax.swing.JLabel westNextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JLabel westPreviousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    // End of variables declaration//GEN-END:variables
-
-    /** A <code>Container</code>. */
-    private Container container;
-
-    /** A <code>ContainerDraft</code>. */
-    private ContainerDraft draft;
 
     /** The expanded <code>Boolean</code> state. */
     private boolean expanded;
 
-    /** The container tab's <code>DefaultActionDelegate</code>. */
-    private ActionDelegate actionDelegate;
-
-    /** The panel's animating indicator. */
-    private boolean animating;
-
-    /** The east list of <code>PanelCellRenderer</code>.*/
-    private final List<PanelCellRenderer> eastCellPanels;
-        
-    /** The visible east list model. */
-    private final PanelCellListModel eastListModel;
+    private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
 
     /** A  <code>FileIconReader</code>. */
     private final FileIconReader fileIconReader;
@@ -97,42 +97,44 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The first <code>ContainerVersion</code>. */
     private ContainerVersion firstVersion;
 
+    private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
+
     /** The most recent <code>ContainerVersion</code>. */
     private ContainerVersion latestVersion;
-
+        
     /** The panel localization. */
     private final MainCellL18n localization;
 
     /** The container tab's <code>PopupDelegate</code>. */
     private PopupDelegate popupDelegate;
 
+    private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
+
     /** The west list of <code>PanelCellRenderer</code>.*/
     private final List<PanelCellRenderer> westCellPanels;
-    
+
     /** The west list of <code>Cell</code>. */
     private final List<Cell> westCells;
+
+    private final javax.swing.JLabel westCountJLabel = new javax.swing.JLabel();
+
+    private final javax.swing.JLabel westFiller2JLabel = new javax.swing.JLabel();
     
+    private final javax.swing.JLabel westFirstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    
+    private final javax.swing.JPanel westJPanel = new javax.swing.JPanel();
+
+    private final javax.swing.JLabel westLastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+
+    private javax.swing.JPanel westListJPanel;
+
     /** The visible west list model. */
     private final PanelCellListModel westListModel;
 
-    /** The space between container text and additional text. */
-    private static final int CONTAINER_TEXT_SPACE_BETWEEN;
+    private final javax.swing.JLabel westNextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
 
-    /** The space to leave at the end of the container text. */
-    private static final int CONTAINER_TEXT_SPACE_END;
-
-    /** The X location of the container text. */
-    private static final int CONTAINER_TEXT_X;
-
-    /** The Y location of the container text. */
-    private static final int CONTAINER_TEXT_Y;
-
-    static {
-        CONTAINER_TEXT_SPACE_BETWEEN = 5;
-        CONTAINER_TEXT_SPACE_END = 20;
-        CONTAINER_TEXT_X = 56;
-        CONTAINER_TEXT_Y = 16;
-    }
+    private final javax.swing.JLabel westPreviousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    // End of variables declaration//GEN-END:variables
 
     /**
      * Create ContainerPanel.
@@ -268,7 +270,7 @@ public class ContainerPanel extends DefaultTabPanel {
      * @return True if the container has been distributed, false otherwise.
      */
     public Boolean isDistributed() {
-        return (null != latestVersion);
+        return null != latestVersion;
     }
 
     /**
@@ -281,6 +283,24 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * Determine whether or not there is a local draft set.
+     * 
+     * @return True if there is a local draft.
+     */
+    public Boolean isLocalDraft() {
+        return isSetDraft() && draft.isLocal();
+    }
+    
+    /**
+     * Determine whether or not the draft is set.
+     * 
+     * @return True if the draft is set.
+     */
+    public Boolean isSetDraft() {
+        return null != draft;
+    }
+    
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellMousePressed(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, java.lang.Boolean, java.awt.event.MouseEvent)
      */
     @Override
@@ -292,7 +312,7 @@ public class ContainerPanel extends DefaultTabPanel {
             tabDelegate.toggleExpansion(this);
         }
     }
-    
+       
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellSelectionChanged()
      */
@@ -307,7 +327,7 @@ public class ContainerPanel extends DefaultTabPanel {
             repaint();
         }
     }
-    
+
     /**
      * Set actionDelegate.
      *
@@ -317,13 +337,13 @@ public class ContainerPanel extends DefaultTabPanel {
     public void setActionDelegate(final ActionDelegate actionDelegate) {
         this.actionDelegate = actionDelegate;
     }
-       
+
     /**
      * Set the selection to be the draft.
      *
      */
     public void setDraftSelection() {
-        Assert.assertTrue(container.isDraft(),
+        Assert.assertNotNull(draft,
                 "Cannot set draft selection for container:  {0}",
                 container.getId());
         westListModel.showFirstPage();
@@ -373,7 +393,7 @@ public class ContainerPanel extends DefaultTabPanel {
         // Build the west list
         westCells.add(new ContainerCell(draftView, latestVersion, versions,
                 documentViews, team));
-        if (container.isLocalDraft()) {
+        if (isLocalDraft()) {
             westCells.add(new DraftCell());
         }
         for (final ContainerVersion version : versions) {
@@ -431,48 +451,6 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * Paint text on the panel.
-     * 
-     * @param g
-     *            The <code>Graphics2D</code>.
-     */
-    private void paintText(final Graphics2D g) {
-        g.setFont(getContainerTextFont());
-        final Point location = new Point(CONTAINER_TEXT_X, CONTAINER_TEXT_Y);
-        if (paintText(g, location, getContainerTextColor(), getContainerText(container))) {
-            location.x = location.x + SwingUtil.getStringWidth(getContainerText(container), g) + CONTAINER_TEXT_SPACE_BETWEEN;
-            paintText(g, location, getContainerAdditionalTextColor(), getContainerAdditionalText(container));
-        }
-    }
-
-    /**
-     * Paint text on the panel.
-     * 
-     * @param g
-     *            The <code>Graphics2D</code>.
-     * @param location
-     *            The text location <code>Point</code>.
-     * @param color
-     *            The text <code>Color</code>.
-     * @param text
-     *            The text <code>String</code>.
-     * @return true if the entire text is displayed; false if it is clipped.
-     */
-    private Boolean paintText(final Graphics2D g, final Point location, final Color color, final String text) {
-        final int availableWidth = getWidth() - location.x - CONTAINER_TEXT_SPACE_END;
-        final String clippedText = SwingUtil.limitWidthWithEllipsis(text, availableWidth, g);
-        if (null != clippedText) {
-            g.setPaint(color);
-            g.drawString(clippedText, location.x, location.y);
-        }
-        if (null != clippedText && clippedText.equals(text)) {
-            return Boolean.TRUE;
-        } else {
-            return Boolean.FALSE;
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#repaintLists()
      *
      */
@@ -488,7 +466,7 @@ public class ContainerPanel extends DefaultTabPanel {
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
             tabDelegate.selectPanel(this);
             popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
-            popupDelegate.showForContainer(container, false);
+            popupDelegate.showForContainer(container, draft, false);
         } else if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.selectPanel(this);
         } else if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
@@ -502,7 +480,7 @@ public class ContainerPanel extends DefaultTabPanel {
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
             tabDelegate.selectPanel(this);
             popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
-            popupDelegate.showForContainer(container, false);
+            popupDelegate.showForContainer(container, draft, false);
         }
     }//GEN-LAST:event_collapsedJPanelMouseReleased
 
@@ -595,15 +573,6 @@ public class ContainerPanel extends DefaultTabPanel {
         }
     }
 
-    private void eastJPanelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJPanelMouseReleased
-        if (e.isPopupTrigger()) {
-            if (!westListModel.isSelectionEmpty()) {
-                getPopupDelegate().initialize((Component) e.getSource(), e.getX(), e.getY());
-                westListModel.getSelectedCell().showPopup();
-            }
-        }
-    }//GEN-LAST:event_eastJPanelMouseReleased
-
     private void eastJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJPanelMousePressed
         tabDelegate.selectPanel(this);
         if (e.isPopupTrigger()) {
@@ -616,6 +585,15 @@ public class ContainerPanel extends DefaultTabPanel {
             tabDelegate.toggleExpansion(this);
         }
     }//GEN-LAST:event_eastJPanelMousePressed
+
+    private void eastJPanelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJPanelMouseReleased
+        if (e.isPopupTrigger()) {
+            if (!westListModel.isSelectionEmpty()) {
+                getPopupDelegate().initialize((Component) e.getSource(), e.getX(), e.getY());
+                westListModel.getSelectedCell().showPopup();
+            }
+        }
+    }//GEN-LAST:event_eastJPanelMouseReleased
 
     private void expandedJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMousePressed
         logger.logApiId();
@@ -639,9 +617,9 @@ public class ContainerPanel extends DefaultTabPanel {
     private String getContainerAdditionalText(final Container container) {
         if (!container.isLatest()) {
             return localization.getString("ContainerMessageNotLatest");    
-        } else if (container.isLocalDraft()) {
+        } else if (isLocalDraft()) {
             return localization.getString("ContainerMessageLocalDraftOwner");    
-        } else if (container.isDraft()) {
+        } else if (isSetDraft()) {
             return localization.getString("ContainerMessageDraftOwner",
                     draft.getOwner().getName()); 
         } else if (null != latestVersion) {
@@ -975,7 +953,49 @@ public class ContainerPanel extends DefaultTabPanel {
      * @return True if the version is the latest.
      */
     private boolean isLatest() {
-        return container.isLocalDraft() || container.isLatest();
+        return container.isLatest();
+    }
+
+    /**
+     * Paint text on the panel.
+     * 
+     * @param g
+     *            The <code>Graphics2D</code>.
+     */
+    private void paintText(final Graphics2D g) {
+        g.setFont(getContainerTextFont());
+        final Point location = new Point(CONTAINER_TEXT_X, CONTAINER_TEXT_Y);
+        if (paintText(g, location, getContainerTextColor(), getContainerText(container))) {
+            location.x = location.x + SwingUtil.getStringWidth(getContainerText(container), g) + CONTAINER_TEXT_SPACE_BETWEEN;
+            paintText(g, location, getContainerAdditionalTextColor(), getContainerAdditionalText(container));
+        }
+    }
+
+    /**
+     * Paint text on the panel.
+     * 
+     * @param g
+     *            The <code>Graphics2D</code>.
+     * @param location
+     *            The text location <code>Point</code>.
+     * @param color
+     *            The text <code>Color</code>.
+     * @param text
+     *            The text <code>String</code>.
+     * @return true if the entire text is displayed; false if it is clipped.
+     */
+    private Boolean paintText(final Graphics2D g, final Point location, final Color color, final String text) {
+        final int availableWidth = getWidth() - location.x - CONTAINER_TEXT_SPACE_END;
+        final String clippedText = SwingUtil.limitWidthWithEllipsis(text, availableWidth, g);
+        if (null != clippedText) {
+            g.setPaint(color);
+            g.drawString(clippedText, location.x, location.y);
+        }
+        if (null != clippedText && clippedText.equals(text)) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
     }
 
     /**
@@ -1041,7 +1061,7 @@ public class ContainerPanel extends DefaultTabPanel {
                 final Map<ContainerVersion, List<DocumentView>> documentViews,
                 final List<TeamMember> team) {
             super(Boolean.TRUE);
-            if (container.isLocalDraft()) {
+            if (isLocalDraft()) {
                 addDraftDocumentCells(draftView);
             } else if (null != latestVersion) {
                 addActiveVersionDocumentCells(latestVersion, documentViews.get(latestVersion));
@@ -1072,7 +1092,7 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public void showPopup() {
-            popupDelegate.showForContainer(container, true);
+            popupDelegate.showForContainer(container, draft, true);
         }
         private void addActiveVersionDocumentCells(
                 final ContainerVersion containerVersion,
@@ -1152,6 +1172,33 @@ public class ContainerPanel extends DefaultTabPanel {
         }
     }
     
+    /** A container team member cell. */
+    private final class ContainerTeamMemberCell extends AbstractEastCell {
+        /** A <code>User</code>. */
+        private final User user;
+        /**
+         * Create ContainerVersionUserCell.
+         * 
+         * @param parent
+         *            A <code>WestCell</code>.
+         * @param user
+         *            A <code>User</code>.
+         */
+        private ContainerTeamMemberCell(final WestCell parent, final User user) {
+            super(parent);
+            this.user = user;
+            setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
+            setText(user.getName());
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#invokeAction()
+         */
+        @Override
+        public void invokeAction() {
+            actionDelegate.invokeForUser(user);
+        }
+    }
+    
     /** A container version document cell. */
     private final class ContainerVersionDocumentCell extends AbstractEastCell {
         /** A <code>Delta</code>. */
@@ -1198,33 +1245,6 @@ public class ContainerPanel extends DefaultTabPanel {
             actionDelegate.invokeForDocument(version, delta);
         }
     }
-    
-    /** A container team member cell. */
-    private final class ContainerTeamMemberCell extends AbstractEastCell {
-        /** A <code>User</code>. */
-        private final User user;
-        /**
-         * Create ContainerVersionUserCell.
-         * 
-         * @param parent
-         *            A <code>WestCell</code>.
-         * @param user
-         *            A <code>User</code>.
-         */
-        private ContainerTeamMemberCell(final WestCell parent, final User user) {
-            super(parent);
-            this.user = user;
-            setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
-            setText(user.getName());
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#invokeAction()
-         */
-        @Override
-        public void invokeAction() {
-            actionDelegate.invokeForUser(user);
-        }
-    }
 
     /** A draft cell. */
     private final class DraftCell extends AbstractWestCell {
@@ -1244,7 +1264,7 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public String getText() {
-            if (container.isLocalDraft()) {
+            if (isLocalDraft()) {
                 return localization.getString("Draft");
             } else {
                 return localization.getString("DraftNotLocal", draft.getOwner().getName());

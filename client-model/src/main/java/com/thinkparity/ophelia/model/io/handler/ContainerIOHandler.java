@@ -4,6 +4,7 @@
  */
 package com.thinkparity.ophelia.model.io.handler;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
@@ -18,6 +19,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionDelta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamOpener;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
@@ -189,6 +191,27 @@ public interface ContainerIOHandler {
     public void deleteVersion(final Long containerId, final Long versionId);
 
     /**
+     * Determine the existence of a draft.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if a draft exists for the container.
+     */
+    public Boolean doesExistDraft(final Long containerId);
+
+    /**
+     * Determine the existence of a draft.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param localUserId
+     *            The user id <code>Long</code> of the local user.
+     * @return True if a draft exists for the container.
+     */
+    public Boolean doesExistLocalDraft(final Long containerId,
+            final Long localUserId);
+
+    /**
      * Determine if an container version to artifact version relationship
      * exists.
      * 
@@ -207,28 +230,25 @@ public interface ContainerIOHandler {
             final Long artifactVersionId);
 
     // TODO-javadoc ContainerIOHandler#openDraftDocument
-    public InputStream openDraftDocument(final Long containerDraftId,
-            final Long documentId);
+    public void openDraftDocument(final Long containerDraftId,
+            final Long documentId, final StreamOpener opener)
+            throws IOException;
+
+    /**
+     * Read a list of containers.
+     * 
+     * @return A <code>List</code> of <code>Container</code>s.
+     */
+    public List<Container> read();
 
     /**
      * Read a container.
      * 
      * @param containerId
-     *            A container id.
-     * @param localUser
-     *            The local user.
-     * @return A container.
+     *            A container id <code>Long</code>.
+     * @return A <code>Container</code>.
      */
-    public Container read(final Long containerId, final User localUser);
-
-    /**
-     * Read a list of containers.
-     * 
-     * @param localUser
-     *            The local user.
-     * @return A list of containers.
-     */
-    public List<Container> read(final User localUser);
+    public Container read(final Long containerId);
 
     /**
      * Read the container version delta.
@@ -288,8 +308,7 @@ public interface ContainerIOHandler {
      *            The local <code>User</code>.
      * @return A <code>List</code> of <code>Container</code>s.
      */
-    public List<Container> readForTeamMember(final Long teamMemberId,
-            final User localUser);
+    public List<Container> readForTeamMember(final Long teamMemberId);
 
     /**
      * Read the latest container version.

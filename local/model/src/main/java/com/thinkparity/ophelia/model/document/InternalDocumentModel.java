@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamOpener;
 import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
@@ -53,7 +54,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public DocumentVersion createVersion(final DocumentFileLock lock,
             final Long documentId, final InputStream stream,
-            final Integer buffer, final Calendar createdOn);
+            final Calendar createdOn);
 
     /**
      * Create a new document version based upon an existing document. This will
@@ -67,8 +68,7 @@ public interface InternalDocumentModel extends DocumentModel {
      * @return The newly created version.
      */
     public DocumentVersion createVersion(final Long documentId,
-            final InputStream stream, final Integer buffer,
-            final Calendar createdOn);
+            final InputStream stream, final Calendar createdOn);
 
     /**
      * Delete a document.
@@ -157,16 +157,17 @@ public interface InternalDocumentModel extends DocumentModel {
     public InputStream openDraft(final Long documentId);
 
     /**
-     * Open an input stream to read a document version. Note: It is a good idea
-     * to buffer the input stream.
+     * Open an input stream to read a document version.
      * 
      * @param documentId
-     *      A document id <code>Long</code>.
+     *            A document id <code>Long</code>.
      * @param versionId
-     *      A document version id <code>Long</code>.
-     * @return A document version content <code>InputStream</code>.
+     *            A document version id <code>Long</code>.
+     * @param opener
+     *            A <code>StreamOpener</code>.
      */
-	public InputStream openVersion(final Long documentId, final Long versionId);
+	public void openVersion(final Long documentId, final Long versionId,
+            final StreamOpener opener);
 
     /**
      * Read a list of documents.
@@ -184,7 +185,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public Document read(final Long documentId);
 
-	/**
+    /**
      * Obtain the document draft.
      * 
      * @param lock
@@ -194,7 +195,7 @@ public interface InternalDocumentModel extends DocumentModel {
     public DocumentDraft readDraft(final DocumentFileLock lock,
             final Long documentId);
 
-    /**
+	/**
      * Obtain the document draft.
      * 
      * @param documentId
@@ -212,7 +213,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public List<DocumentVersion> readVersions(final Long documentId);
 
-	/**
+    /**
      * Read a list of document versions.
      * 
      * @param documentId
@@ -222,7 +223,7 @@ public interface InternalDocumentModel extends DocumentModel {
     public List<DocumentVersion> readVersions(final Long documentId,
             final Comparator<? super ArtifactVersion> comparator);
 
-    /**
+	/**
      * Read the version size.
      * 
      * @param documentId
@@ -250,6 +251,19 @@ public interface InternalDocumentModel extends DocumentModel {
      *            A document id <code>Long</code>.
      */
     public void revertDraft(final DocumentFileLock lock, final Long documentId);
+
+    /**
+     * Update the draft of a document.
+     * 
+     * @param lock
+     *            A <code>DocumentFileLock</code>.
+     * @param documentId
+     *            The document id.
+     * @param content
+     *            The new content.
+     */
+    public void updateDraft(final DocumentFileLock lock, final Long documentId,
+            final InputStream content);
 
     /**
      * Save a version to an output stream.

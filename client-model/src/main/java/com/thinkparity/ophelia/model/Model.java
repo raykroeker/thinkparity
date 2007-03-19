@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -254,27 +255,36 @@ public abstract class Model<T extends EventListener> extends
                 assertArguments);
     }
 
-	/**
-     * Assert a draft doesn't exist for the container.
+    /**
+     * Assert that a container draft does not exist.
      * 
      * @param containerId
-     *            A container id.
+     *            A container draft id <code>Long</code>.
+     * @param assertion
+     *            An assertion message <code>String</code>.
+     * @param assertionArguments
+     *            The assertion message arguments <code>Object[]</code>.
      */
-    protected void assertContainerDraftDoesNotExist(final Long containerId) {
-        Assert.assertIsNull(getContainerModel().readDraft(containerId),
-                "Draft for container {0} already exists.", containerId);
+    protected void assertContainerDraftDoesNotExist(final Long containerId,
+            final String assertion, final Object... assertionArguments) {
+        Assert.assertNotTrue(getContainerModel().doesExistDraft(containerId),
+                assertion, assertionArguments);
     }
 
     /**
-     * Assert a draft exists for the container.
+     * Assert that a container draft exists.
      * 
-     * @param assertion
-     *            An assertion.
      * @param containerId
-     *            A container id.
+     *            A container draft id <code>Long</code>.
+     * @param assertion
+     *            An assertion message <code>String</code>.
+     * @param assertionArguments
+     *            The assertion message arguments <code>Object[]</code>.
      */
-    protected void assertContainerDraftExists(final Object assertion, final Long containerId) {
-        Assert.assertNotNull(assertion, getContainerModel().readDraft(containerId));
+    protected void assertContainerDraftExists(final Long containerId,
+            final String assertion, final Object... assertionArguments) {
+        Assert.assertTrue(getContainerModel().doesExistDraft(containerId),
+                assertion, assertionArguments);
     }
 
     /**
@@ -528,7 +538,7 @@ public abstract class Model<T extends EventListener> extends
      *            The <code>Integer</code> size of a buffer to use.
      * @return An MD5 checksum <code>String</code>.
      */
-    protected final String checksum(final File file, final Integer buffer)
+    protected final String checksum(final File file, final ByteBuffer buffer)
             throws IOException {
         final InputStream stream = new FileInputStream(file);
         try {

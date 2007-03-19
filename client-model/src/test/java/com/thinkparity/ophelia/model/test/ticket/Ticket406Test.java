@@ -4,16 +4,22 @@
  */
 package com.thinkparity.ophelia.model.test.ticket;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+
+import com.thinkparity.codebase.StreamUtil;
 
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamOpener;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 
@@ -81,8 +87,6 @@ public class Ticket406Test extends TicketTestCase {
         assertEquals("Document list size does not match expectation.", d_list.size(), d_list_y.size());
 
         Document d, d_x, d_y;
-        DocumentVersion dv_latest, dv_latest_x, dv_latest_y;
-        InputStream is, is_x, is_y;
         for (int i = 0; i < d_list.size(); i++) {
             d = d_list.get(i);
             d_x = d_list_x.get(i);
@@ -91,25 +95,65 @@ public class Ticket406Test extends TicketTestCase {
             assertSimilar("Document does not match expectation.", d, d_x);
             assertSimilar("Document does not match expectation.", d, d_y);
 
-            dv_latest = getDocumentModel(datum.junit).readLatestVersion(d.getId());
-            dv_latest_x = getDocumentModel(datum.junit_x).readLatestVersion(d_x.getId());
-            dv_latest_y = getDocumentModel(datum.junit_y).readLatestVersion(d_y.getId());
+            final DocumentVersion dv_latest = getDocumentModel(datum.junit).readLatestVersion(d.getId());
+            final DocumentVersion dv_latest_x = getDocumentModel(datum.junit_x).readLatestVersion(d_x.getId());
+            final DocumentVersion dv_latest_y = getDocumentModel(datum.junit_y).readLatestVersion(d_y.getId());
 
             assertSimilar("Document version does not match expectation.", dv_latest, dv_latest_x);
             assertSimilar("Document version does not match expectation.", dv_latest, dv_latest_y);
 
-            is = getDocumentModel(datum.junit).openVersion(d.getId(), dv_latest.getVersionId());
-            is_x = getDocumentModel(datum.junit_x).openVersion(d_x.getId(), dv_latest_x.getVersionId());
+            getDocumentModel(datum.junit).openVersion(d.getId(), dv_latest.getVersionId(), new StreamOpener() {
+                public void open(final InputStream stream) throws IOException {
+                    final File file = getOutputFile(dv_latest);
+                    final OutputStream outputStream = new FileOutputStream(file);
+                    try {
+                        StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                    } finally {
+                        outputStream.close();
+                    }
+                }
+            });
+            getDocumentModel(datum.junit_x).openVersion(d_x.getId(), dv_latest_x.getVersionId(), new StreamOpener() {
+                public void open(final InputStream stream) throws IOException {
+                    final File file = getOutputFile(dv_latest_x);
+                    final OutputStream outputStream = new FileOutputStream(file);
+                    try {
+                        StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                    } finally {
+                        outputStream.close();
+                    }
+                }
+            });
             try {
-                assertEquals("Document version content does not match expectation.", is, is_x);
+                assertEquals("Document version content does not match expectation.", getOutputFile(dv_latest), getOutputFile(dv_latest_x));
             } catch (final IOException iox) {
                 fail(createFailMessage(iox));
             }
 
-            is = getDocumentModel(datum.junit).openVersion(d.getId(), dv_latest.getVersionId());
-            is_y = getDocumentModel(datum.junit_y).openVersion(d_y.getId(), dv_latest_y.getVersionId());
+            getDocumentModel(datum.junit).openVersion(d.getId(), dv_latest.getVersionId(), new StreamOpener() {
+                public void open(final InputStream stream) throws IOException {
+                    final File file = getOutputFile(dv_latest);
+                    final OutputStream outputStream = new FileOutputStream(file);
+                    try {
+                        StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                    } finally {
+                        outputStream.close();
+                    }
+                }
+            });
+            getDocumentModel(datum.junit_y).openVersion(d_y.getId(), dv_latest_y.getVersionId(), new StreamOpener() {
+                public void open(final InputStream stream) throws IOException {
+                    final File file = getOutputFile(dv_latest_y);
+                    final OutputStream outputStream = new FileOutputStream(file);
+                    try {
+                        StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                    } finally {
+                        outputStream.close();
+                    }
+                }
+            });
             try {
-                assertEquals("Document version content does not match expectation.", is, is_y);
+                assertEquals("Document version content does not match expectation.", getOutputFile(dv_latest), getOutputFile(dv_latest_y));
             } catch (final IOException iox) {
                 fail(createFailMessage(iox));
             }

@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.workspace;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import javax.sql.DataSource;
 
@@ -111,6 +112,13 @@ public interface Workspace {
      * @return A buffer size <code>Integer</code>.
      */
     public Integer getDefaultBufferSize();
+
+    /**
+     * Obtain the default buffer.
+     * 
+     * @return A <code>ByteBuffer</code>.
+     */
+    public ByteBuffer getDefaultBuffer();
 
     /**
 	 * Obtain the index directory.

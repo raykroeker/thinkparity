@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.test.ticket;
 
+import java.io.File;
+
 import com.thinkparity.ophelia.model.ModelTestCase;
 
 /**
@@ -20,6 +22,18 @@ abstract class TicketTestCase extends ModelTestCase {
      */
     public TicketTestCase(final String name) {
         super(name);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.ModelTestCase#getOutputDirectory()
+     *
+     */
+    @Override
+    public File getOutputDirectory() {
+        final File outputDirectory = new File(super.getOutputDirectory(), "Ticket");
+        if (!outputDirectory.exists())
+            assertTrue(outputDirectory.mkdirs());
+        return outputDirectory;
     }
 
     /**

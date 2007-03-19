@@ -63,7 +63,7 @@ public class ContainerTabImportHelper {
     protected boolean canImportData(final TabPanel tabPanel,
             final DataFlavor[] transferFlavors) {
         if (TxUtils.containsJavaFileList(transferFlavors)) {
-            return (((ContainerPanel) tabPanel).getContainer().isLocalDraft());
+            return ((ContainerPanel) tabPanel).isLocalDraft().booleanValue();
         }
         return false;
     }

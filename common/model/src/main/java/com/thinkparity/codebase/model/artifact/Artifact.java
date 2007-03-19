@@ -3,13 +3,7 @@
  */
 package com.thinkparity.codebase.model.artifact;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -53,9 +47,6 @@ public abstract class Artifact {
 
 	/** The list of notes. */
 	private final List<Note> notes;
-
-	/** The <code>ArtifactRemoteInfo</code>. */
-	private ArtifactRemoteInfo remoteInfo;
 
 	/** The <code>ArtifactState</code>. */
 	private ArtifactState state;
@@ -192,13 +183,6 @@ public abstract class Artifact {
 	public Collection<Note> getNotes() {
 		return Collections.unmodifiableCollection(notes);
 	}
-
-	/**
-     * Obtain the artifact's remote info.
-     * 
-     * @return The remote info.
-     */
-	public ArtifactRemoteInfo getRemoteInfo() { return remoteInfo; }
 
 	/**
 	 * Obtain the artifact state.
@@ -397,16 +381,6 @@ public abstract class Artifact {
 	 *            The name.
 	 */
 	public void setName(final String name) { this.name = name; }
-
-	/**
-     * Set the artifact's remote info.
-     * 
-     * @param remoteInfo
-     *            The remote info.
-     */
-	public void setRemoteInfo(final ArtifactRemoteInfo remoteInfo) {
-		this.remoteInfo = remoteInfo;
-	}
 
 	/**
 	 * Set the artifact state.

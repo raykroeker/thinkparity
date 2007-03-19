@@ -17,6 +17,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamOpener;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
@@ -48,48 +49,63 @@ public class CreateVersionTest extends DocumentTestCase {
         final Document d = addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
 
         final Calendar createdOn = currentDateTime();
-        DocumentVersion dv = null;
+        final DocumentVersion dv;
         try {
             final InputStream dv_is = new FileInputStream(
                     getInputFile("JUnitTestFrameworkMod.doc"));
             try {
-                 dv = getDocumentModel(datum.junit).createVersion(d.getId(), dv_is, getDefaultBufferSize(), createdOn);
+                 dv = getDocumentModel(datum.junit).createVersion(d.getId(), dv_is, createdOn);
+                 
+                 assertNotNull("Document version is null.", dv);
+                 assertEquals("Document version artifact id does not match expectation.", d.getId(), dv.getArtifactId());
+                 assertEquals("Document version artifact type does not match expectation.", d.getType(), dv.getArtifactType());
+                 assertEquals("Document version unique id does not match expectation.", d.getUniqueId(), dv.getArtifactUniqueId());
+                 assertEquals("Document version created by does not match expectation.", d.getCreatedBy(), dv.getCreatedBy());
+                 assertEquals("Document version name does not match expectation.", d.getName(), dv.getName());
+                 assertEquals("Document version version id does not match expectation.", d.getUpdatedBy(), dv.getUpdatedBy());
+                 assertEquals("Document version checksum does not match expectation.", getInputFileMD5Checksum("JUnitTestFramework.doc"), dv.getChecksum());
+                 
+                getDocumentModel(datum.junit).openVersion(dv.getArtifactId(), dv.getVersionId(), new StreamOpener() {
+                    public void open(final InputStream stream) throws IOException {
+                        final File file = getOutputFile(dv);
+                        final OutputStream outputStream = new FileOutputStream(file);
+                        try {
+                            StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                        } finally {
+                            outputStream.close();
+                        }
+                    }
+                });
+                final File file = new File(getOutputDirectory(), d.getName());
+                try {
+                    try {
+                        final OutputStream os = new FileOutputStream(file);
+                        try {
+                            final InputStream is = new FileInputStream(getOutputFile(dv));
+                            try {
+                                StreamUtil.copy(is, os, getDefaultBuffer());
+                            } finally {
+                                is.close();
+                            }
+                        } finally {
+                            os.close();
+                        }
+            
+                        final InputStream is = new FileInputStream(file);
+                        try {
+                            final String checksum = MD5Util.md5Hex(is, getDefaultBuffer());
+                            assertEquals("Open version calculated checksum does not match expectation.", dv.getChecksum(), checksum);
+                        } finally {
+                            is.close();
+                        }
+                    } finally {
+                        Assert.assertTrue("Could not delete file {0}.", file.delete());
+                    }
+                } catch (final IOException iox) {
+                    fail(iox, "Could not test create version.");
+                }
             } finally {
                 dv_is.close();
-            }
-        } catch (final IOException iox) {
-            fail(iox, "Could not test create version.");
-        }
-
-        assertNotNull("Document version is null.", dv);
-		assertEquals("Document version artifact id does not match expectation.", d.getId(), dv.getArtifactId());
-		assertEquals("Document version artifact type does not match expectation.", d.getType(), dv.getArtifactType());
-		assertEquals("Document version unique id does not match expectation.", d.getUniqueId(), dv.getArtifactUniqueId());
-		assertEquals("Document version created by does not match expectation.", d.getCreatedBy(), dv.getCreatedBy());
-		assertEquals("Document version name does not match expectation.", d.getName(), dv.getName());
-		assertEquals("Document version version id does not match expectation.", d.getUpdatedBy(), dv.getUpdatedBy());
-        assertEquals("Document version checksum does not match expectation.", getInputFileMD5Checksum("JUnitTestFramework.doc"), dv.getChecksum());
-
-        final InputStream stream = getDocumentModel(datum.junit).openVersion(dv.getArtifactId(), dv.getVersionId());
-        final File file = new File(getOutputDirectory(), d.getName());
-        try {
-            try {
-                final OutputStream os = new FileOutputStream(file);
-                try {
-                    StreamUtil.copy(stream, os, getDefaultBufferSize());
-                } finally {
-                    os.close();
-                }
-    
-                final InputStream is = new FileInputStream(file);
-                try {
-                    final String checksum = MD5Util.md5Hex(is, getDefaultBufferSize());
-                    assertEquals("Open version calculated checksum does not match expectation.", dv.getChecksum(), checksum);
-                } finally {
-                    is.close();
-                }
-            } finally {
-                Assert.assertTrue("Could not delete file {0}.", file.delete());
             }
         } catch (final IOException iox) {
             fail(iox, "Could not test create version.");

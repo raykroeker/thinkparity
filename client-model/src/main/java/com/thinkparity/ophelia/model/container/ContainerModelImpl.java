@@ -3,22 +3,10 @@
  */
 package com.thinkparity.ophelia.model.container;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.Map.Entry;
 
 import javax.xml.transform.TransformerException;
@@ -53,6 +41,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamOpener;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -64,7 +53,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
-import com.thinkparity.ophelia.model.audit.event.AuditEvent;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.container.export.PDFWriter;
 import com.thinkparity.ophelia.model.container.monitor.PublishStep;
@@ -133,9 +121,6 @@ public final class ContainerModelImpl extends
 
     /** The artifact io layer. */
     private ArtifactIOHandler artifactIO;
-
-    /** A container audit generator. */
-    private ContainerAuditor auditor;
 
     /** The container io layer. */
     private ContainerIOHandler containerIO;
@@ -224,16 +209,21 @@ public final class ContainerModelImpl extends
      */
     public void addDocument(final Long containerId, final Long documentId) {
         try {
-            assertDraftExists("Draft does not exist.", containerId);
+            assertContainerDraftExists(containerId,
+                    "Draft for {0} does not exist.", containerId);
+            // create draft artifact relationship
             containerIO.createDraftArtifactRel(containerId, documentId,
                     ContainerDraft.ArtifactState.ADDED);
+            // create draft document
             createDraftDocument(containerId, documentId);
+            // index
             getIndexModel().indexDocument(containerId, documentId);
-            final Container postAdditionContainer = read(containerId);        
-            final ContainerDraft postAdditionDraft = readDraft(containerId);
-            final Document postAdditionDocument = getDocumentModel().read(documentId);
-            notifyDocumentAdded(postAdditionContainer, postAdditionDraft,
-                    postAdditionDocument, localEventGenerator);
+            // fire event
+            final Container eventContainer = read(containerId);        
+            final ContainerDraft eventDraft = readDraft(containerId);
+            final Document eventDocument = getDocumentModel().read(documentId);
+            notifyDocumentAdded(eventContainer, eventDraft, eventDocument,
+                    localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -303,10 +293,6 @@ public final class ContainerModelImpl extends
             artifactModel.applyFlagKey(container.getId());
             artifactModel.applyFlagLatest(container.getId());
     
-            // create remote info
-            artifactModel.createRemoteInfo(container.getId(),
-                    container.getCreatedBy(), container.getCreatedOn());
-    
             // index
             getIndexModel().indexContainer(container.getId());
     
@@ -319,7 +305,6 @@ public final class ContainerModelImpl extends
     
             // audit\fire event
             final Container postCreation = read(container.getId());
-            auditContainerCreated(postCreation);
             notifyContainerCreated(postCreation, localEventGenerator);
             return postCreation;
         } catch (final Throwable t) {
@@ -350,7 +335,8 @@ public final class ContainerModelImpl extends
      */
     public ContainerDraft createDraft(final Long containerId) {
         try {
-            assertContainerDraftDoesNotExist(containerId);
+            assertContainerDraftDoesNotExist(containerId,
+                    "Draft for {0} already exists.", containerId);
             if (isFirstDraft(containerId)) {
                 createFirstDraft(containerId, localTeamMember(containerId));
             } else {
@@ -370,35 +356,39 @@ public final class ContainerModelImpl extends
                 try {
                     // create
                     final ContainerDraft draft = new ContainerDraft();
-                    draft.setOwner(localTeamMember(containerId));
                     draft.setContainerId(containerId);
+                    draft.setLocal(Boolean.TRUE);
+                    draft.setOwner(localTeamMember(containerId));
 
                     final InternalDocumentModel documentModel = getDocumentModel();
                     Long versionId;
-                    InputStream stream;
                     for (final Document document : documents) {
                         draft.addDocument(document);
                         draft.putState(document, ContainerDraft.ArtifactState.NONE);
                     }
                     containerIO.createDraft(draft);
-                    ContainerDraftDocument draftDocument;
                     DocumentDraft documentDraft;
                     for (final Document document : documents) {
                         documentDraft = documentModel.createDraft(
                                 documentLocks.get(document), document.getId());
                         versionId = artifactModel.readLatestVersionId(document.getId());
-                        draftDocument = new ContainerDraftDocument();
+                        final ContainerDraftDocument draftDocument = new ContainerDraftDocument();
                         draftDocument.setChecksum(documentDraft.getChecksum());
                         draftDocument.setChecksumAlgorithm(documentDraft.getChecksumAlgorithm());
                         draftDocument.setContainerDraftId(containerId);
                         draftDocument.setDocumentId(document.getId());
                         draftDocument.setSize(documentDraft.getSize());
-                        stream = documentModel.openVersion(document.getId(), versionId);
-                        try {
-                            containerIO.createDraftDocument(draftDocument, stream, getDefaultBufferSize());
-                        } finally {
-                            stream.close();
-                        }
+                        documentModel.openVersion(document.getId(), versionId, new StreamOpener() {
+                            public void open(final InputStream stream) throws IOException {
+                                try {
+                                    containerIO.createDraftDocument(
+                                            draftDocument, stream,
+                                            getDefaultBufferSize());
+                                } finally {
+                                    stream.close();
+                                }
+                            }
+                        });
                     }
                     artifactModel.applyFlagKey(container.getId());
                     // remote create
@@ -425,9 +415,8 @@ public final class ContainerModelImpl extends
      * 
      */
     public void delete(final Long containerId) throws CannotLockException {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
         try {
+            final User localUser = localUser();
             final Container container = read(containerId);
             final List<Document> allDocuments = readAllDocuments(containerId);
             final Map<Document, DocumentFileLock> allDocumentsLocks = lockDocuments(allDocuments);
@@ -436,10 +425,10 @@ public final class ContainerModelImpl extends
                 final InternalSessionModel sessionModel = getSessionModel();
                 final Calendar deletedOn = sessionModel.readDateTime();
                 // delete the draft
-                if (container.isLocalDraft()) {
+                if (containerIO.doesExistLocalDraft(containerId, localUser.getLocalId())) {
                     sessionModel.deleteDraft(container.getUniqueId(), deletedOn);
                 }
-                /* the archive user is not part of the team */
+                // the archive user is not part of the team
                 if (isLocalTeamMember(container.getId())) {
                     final TeamMember localTeamMember = localTeamMember(container.getId());
                     final List<JabberId> team = getArtifactModel().readTeamIds(container.getId());
@@ -505,17 +494,26 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Determine whether or not a draft exists.
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#doesExistDraft(java.lang.Long)
      * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @return True if a draft exists.
      */
     public Boolean doesExistDraft(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
         try {
-            return null != readDraft(containerId);
+            return containerIO.doesExistDraft(containerId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#doesExistLocalDraft(java.lang.Long)
+     *
+     */
+    public Boolean doesExistLocalDraft(Long containerId) {
+        try {
+            final User localUser = localUser();
+            return containerIO.doesExistLocalDraft(containerId,
+                    localUser.getLocalId());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -575,7 +573,8 @@ public final class ContainerModelImpl extends
     public ContainerDraftMonitor getDraftMonitor(final Long containerId,
             final ContainerDraftListener listener) {
         try {
-            assertDraftExists("Cannot monitor a null draft.", containerId);
+            assertContainerDraftExists(containerId,
+                    "Draft for {0} does not exist.", containerId);
             return new ContainerDraftMonitor(modelFactory,
                     readDraft(containerId), localEventGenerator, listener);
         } catch (final Throwable t) {
@@ -601,15 +600,11 @@ public final class ContainerModelImpl extends
      */
     public void handleDraftCreated(final Long containerId,
             final JabberId createdBy, final Calendar createdOn) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("createdBy", createdBy);
-        logger.logVariable("createdOn", createdOn);
         try {
             final ContainerDraft draft = new ContainerDraft();
             draft.setContainerId(containerId);
+            draft.setLocal(Boolean.FALSE);
             final List<TeamMember> team = readTeam(containerId);
-            logger.logVariable("team", team);
             draft.setOwner(team.get(indexOf(team, createdBy)));
             containerIO.createDraft(draft);
             // fire event
@@ -804,9 +799,6 @@ public final class ContainerModelImpl extends
             final Container postPublish = read(container.getId());
             final ContainerVersion postPublishVersion = readVersion(
                     container.getId(), version.getVersionId());
-            auditContainerPublished(postPublish, draft,
-                    postPublishVersion, event.getPublishedBy(),
-                    publishedToIds, event.getPublishedOn());
             notifyContainerPublished(postPublish, draft, previous,
                     postPublishVersion, publishedBy, remoteEventGenerator);
         } catch (final Throwable t) {
@@ -927,7 +919,13 @@ public final class ContainerModelImpl extends
             final List<DocumentVersion> documentVersions =
                 containerIO.readDocumentVersions(containerId, versionId);
             for (final DocumentVersion documentVersion : documentVersions) {
-                printer.print(documentVersion, documentModel.openVersion(documentVersion.getArtifactId(), documentVersion.getVersionId()));
+                documentModel.openVersion(documentVersion.getArtifactId(),
+                        documentVersion.getVersionId(), new StreamOpener() {
+                    public void open(final InputStream stream)
+                                    throws IOException {
+                        printer.print(documentVersion, stream);
+                    }
+                });
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -979,21 +977,13 @@ public final class ContainerModelImpl extends
                 // attach artifacts to the version
                 final InternalDocumentModel documentModel = getDocumentModel();
                 DocumentVersion draftDocumentLatestVersion;
-                InputStream stream;
                 for (final Document document : documents) {
                     if(ContainerDraft.ArtifactState.REMOVED !=
                             draft.getState(document)) {
                         if (documentModel.isDraftModified(locks.get(document), document.getId())) {
-                            stream = openDraftDocument(containerId, document.getId());
-                            try {
-                                draftDocumentLatestVersion =
-                                    documentModel.createVersion(
-                                            locks.get(document),
-                                            document.getId(), stream,
-                                            getDefaultBufferSize(), publishedOn);
-                            } finally {
-                                stream.close();
-                            }
+                            draftDocumentLatestVersion =
+                                createDocumentVersion(container, document,
+                                        locks.get(document), publishedOn);
                         } else {
                             draftDocumentLatestVersion =
                                 documentModel.readLatestVersion(document.getId());
@@ -1145,13 +1135,14 @@ public final class ContainerModelImpl extends
      */
     public List<Container> read(final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter) {
-        logger.logApiId();
-        logger.logVariable("comparator", comparator);
-        logger.logVariable("filter", filter);
-        final List<Container> containers = containerIO.read(localUser());
-        FilterManager.filter(containers, filter);
-        ModelSorter.sortContainers(containers, comparator);
-        return containers;        
+        try {
+            final List<Container> containers = containerIO.read();
+            FilterManager.filter(containers, filter);
+            ModelSorter.sortContainers(containers, comparator);
+            return containers;        
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -1175,22 +1166,11 @@ public final class ContainerModelImpl extends
      * @return A container.
      */
     public Container read(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        return containerIO.read(containerId, localUser());
-    }
-
-    /**
-     * Read the list of audit events for a container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A list of audit events.
-     */
-    public List<AuditEvent> readAuditEvents(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        return getAuditModel().read(containerId);
+        try {
+            return containerIO.read(containerId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -1370,37 +1350,36 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Read a container draft.
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#readDraft(java.lang.Long)
      * 
-     * @param containerId
-     *            A container id.
-     * @return A container draft.
      */
     public ContainerDraft readDraft(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        final InternalDocumentModel documentModel = getDocumentModel();
-        final ContainerDraft draft = containerIO.readDraft(containerId);
-
-        // NOTE-Begin:this should be a parameterized comparator
-        if (null != draft) {
-            final List<Document> documents = new ArrayList<Document>();
-            documents.addAll(draft.getDocuments());
-            ModelSorter.sortDocuments(documents, defaultComparator);
-            draft.setDocuments(documents);
-        }
-        // NOTE-End:this should be a parameterized comparator
-
-        if (null != draft) {
-            for (final Document document : draft.getDocuments()) {
-                if (ContainerDraft.ArtifactState.NONE == draft.getState(document)) {
-                    if (documentModel.isDraftModified(document.getId())) {
-                        draft.putState(document, ContainerDraft.ArtifactState.MODIFIED);
+        try {
+            final InternalDocumentModel documentModel = getDocumentModel();
+            final ContainerDraft draft = containerIO.readDraft(containerId);
+    
+            // NOTE-Begin:this should be a parameterized comparator
+            if (null != draft) {
+                final List<Document> documents = new ArrayList<Document>();
+                documents.addAll(draft.getDocuments());
+                ModelSorter.sortDocuments(documents, defaultComparator);
+                draft.setDocuments(documents);
+            }
+            // NOTE-End:this should be a parameterized comparator
+    
+            if (null != draft) {
+                for (final Document document : draft.getDocuments()) {
+                    if (ContainerDraft.ArtifactState.NONE == draft.getState(document)) {
+                        if (documentModel.isDraftModified(document.getId())) {
+                            draft.putState(document, ContainerDraft.ArtifactState.MODIFIED);
+                        }
                     }
                 }
             }
+            return draft;
+        } catch (final Throwable t) {
+            throw panic(t);
         }
-        return draft;
     }
 
     /**
@@ -1409,7 +1388,7 @@ public final class ContainerModelImpl extends
      */
     public List<Container> readForTeamMember(final Long teamMemberId) {
         try {
-            return containerIO.readForTeamMember(teamMemberId, localUser());
+            return containerIO.readForTeamMember(teamMemberId);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1709,7 +1688,8 @@ public final class ContainerModelImpl extends
     public void removeDocument(final Long containerId, final Long documentId)
             throws CannotLockException {
         try {
-            assertDraftExists("DRAFT DOES NOT EXIST", containerId);
+            assertContainerDraftExists(containerId,
+                    "Draft for {0} does not exist.", containerId);
             assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
                     containerId, documentId, ContainerDraft.ArtifactState.REMOVED);
             final ContainerDraft draft = readDraft(containerId);
@@ -1749,7 +1729,6 @@ public final class ContainerModelImpl extends
         }
     }
 
-    
     /**
      * Remove a container listener.
      * 
@@ -1761,6 +1740,7 @@ public final class ContainerModelImpl extends
         super.removeListener(listener);
     }
 
+    
     /**
      * Rename the container.
      * 
@@ -1901,12 +1881,16 @@ public final class ContainerModelImpl extends
             final Map<Document, DocumentFileLock> locks = lockDocuments(draft.getDocuments());
             try {
                 for (final Document document : draft.getDocuments()) {
-                    final InputStream stream = containerIO.openDraftDocument(containerId, document.getId());
-                    try {
-                        documentModel.updateDraft(document.getId(), stream);
-                    } finally {
-                        stream.close();
-                    }
+                    containerIO.openDraftDocument(containerId, document.getId(), new StreamOpener() {
+                        public void open(InputStream stream) throws IOException {
+                            try {
+                                documentModel.updateDraft(locks.get(document),
+                                        document.getId(), stream);
+                            } finally {
+                                stream.close();
+                            }
+                        }
+                    });
                 }
             } finally {
                 releaseLocks(locks.values());
@@ -1930,7 +1914,8 @@ public final class ContainerModelImpl extends
     public void revertDocument(final Long containerId, final Long documentId)
             throws CannotLockException {
         try {
-            assertDraftExists("DRAFT DOES NOT EXIST", containerId);
+            assertContainerDraftExists(containerId,
+                    "Draft for {0} does not exist.", containerId);
             assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
                     containerId, documentId, ContainerDraft.ArtifactState.NONE);
             assertDoesExistLatestVersion("LATEST VERSION DOES NOT EXIST", containerId);
@@ -2040,7 +2025,6 @@ public final class ContainerModelImpl extends
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
         this.artifactIO = IOFactory.getDefault(workspace).createArtifactHandler();
-        this.auditor = new ContainerAuditor(modelFactory);
         this.containerIO = IOFactory.getDefault(workspace).createContainerHandler();
         this.documentIO = IOFactory.getDefault(workspace).createDocumentHandler();
     }
@@ -2161,20 +2145,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Assert a draft exists for the container.
-     * 
-     * @param assertion
-     *            An assertion.
-     * @param containerId
-     *            A container id.
-     * @see #assertContainerDraftExists(Object, Long)
-     */
-    private void assertDraftExists(final Object assertion,
-            final Long containerId) {
-        assertContainerDraftExists(assertion, containerId);
-    }
-
-    /**
      * Assert that the container has been distributed.
      * 
      * @param assertion
@@ -2224,40 +2194,6 @@ public final class ContainerModelImpl extends
     private void assertLocalDraftIsSaved(final String message,
             final Long containerId) {
         Assert.assertTrue(isLocalDraftSaved(containerId), message);
-    }
-
-    /**
-     * Audit a container created event.
-     * 
-     * @param container
-     *            An container.
-     */
-    private void auditContainerCreated(final Container container) {
-        auditor.create(container);
-    }
-
-    /**
-     * Audit a container created event.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     * @param draft
-     *            A <code>ContainerDraft</code>.
-     * @param version
-     *            A <code>ContainerVersion</code>.
-     * @param publishedBy
-     *            The publish user.
-     * @param publishedTo
-     *            The publish to users.
-     * @param publishedOn
-     *            The publish date.
-     */
-    private void auditContainerPublished(final Container container,
-            final ContainerDraft draft, final ContainerVersion version,
-            final JabberId publishedBy, final List<JabberId> publishedTo,
-            final Calendar publishedOn) {
-        auditor.publish(container, draft, version, publishedBy, publishedTo,
-                publishedOn);
     }
 
     /**
@@ -2357,6 +2293,40 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Create a document version. Read the document content from the container
+     * draft document in the database and create a document version.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param document
+     *            A <code>Document</code>.
+     * @param lock
+     *            A <code>DocumentFileLock</code>.
+     * @param publishedOn
+     *            A published on <code>Calendar</code>.
+     * @return The new <code>DocumentVersion</code>.
+     */
+    private DocumentVersion createDocumentVersion(final Container container,
+            final Document document, final DocumentFileLock lock,
+            final Calendar publishedOn) throws IOException {
+        openDraftDocument(container.getId(), document.getId(),
+                new StreamOpener() {
+                    public void open(final InputStream stream)
+                            throws IOException {
+                        try {
+                            getDocumentModel().createVersion(lock,
+                                    document.getId(), stream, publishedOn);
+                        } finally {
+                            stream.close();
+                        }
+                    }
+                });
+        /* HACK a potential synchronization issue; however as long as we
+         * synchronize on the workspace this will return the correct result */
+        return getDocumentModel().readLatestVersion(document.getId());
+    }
+
+    /**
      * Create a container draft.
      * 
      * @param containerDraftId
@@ -2366,7 +2336,6 @@ public final class ContainerModelImpl extends
      */
     private void createDraftDocument(final Long containerDraftId,
             final Long documentId) throws IOException {
-
         final DocumentDraft documentDraft = getDocumentModel().readDraft(documentId);
         final ContainerDraftDocument draftDocument = new ContainerDraftDocument();
         draftDocument.setChecksum(documentDraft.getChecksum());
@@ -2384,7 +2353,7 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Create the first draft for a cotnainer.
+     * Create the first draft for a container.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
@@ -2401,6 +2370,7 @@ public final class ContainerModelImpl extends
             final TeamMember owner) {
         final ContainerDraft draft = new ContainerDraft();
         draft.setContainerId(containerId);
+        draft.setLocal(Boolean.TRUE);
         draft.setOwner(owner);
         containerIO.createDraft(draft);
         // fire draft event
@@ -2471,10 +2441,6 @@ public final class ContainerModelImpl extends
         // delete the team
         final InternalArtifactModel artifactModel = getArtifactModel();
         artifactModel.deleteTeam(containerId);
-        // delete the remote info
-        artifactModel.deleteRemoteInfo(containerId);
-        // delete the audit events
-        getAuditModel().delete(containerId);
         // delete versions
         final InternalDocumentModel documentModel = getDocumentModel();
         final List<ContainerVersion> versions = readVersions(containerId);
@@ -2495,22 +2461,6 @@ public final class ContainerModelImpl extends
         getIndexModel().deleteContainer(containerId);
         // delete the container
         containerIO.delete(containerId);
-    }
-
-    /**
-     * Determine whether or not a local draft exists.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return True if a draft exists; and the draft owner is the current user.
-     */
-    private Boolean doesExistLocalDraft(final Long containerId) {
-        final ContainerDraft draft = readDraft(containerId);
-        if (null != draft) {
-            return draft.getOwner().getId().equals(localUserId());
-        } else {
-            return Boolean.FALSE;
-        }
     }
 
     /**
@@ -2543,7 +2493,6 @@ public final class ContainerModelImpl extends
             final Map<DocumentVersion, Long> documentsSize = new HashMap<DocumentVersion, Long>();
             final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo =
                 new HashMap<ContainerVersion, List<ArtifactReceipt>>(versions.size(), 1.0F);
-            InputStream stream;
             File directory, file;
             for (final ContainerVersion version : versions) {
                 versionsPublishedBy.put(version, readUser(version.getUpdatedBy()));
@@ -2556,18 +2505,23 @@ public final class ContainerModelImpl extends
                         nameGenerator.exportDirectoryName(version));
                 for (final DocumentVersion documentVersion : documents.get(version)) {
                     documentsSize.put(documentVersion, documentVersion.getSize());
-
                     file = new File(directory,
                             documentNameGenerator.exportFileName(documentVersion));
-                    Assert.assertTrue(file.createNewFile(),
-                            "Cannot create file {0}.", file);
-                    stream = documentModel.openVersion(
-                            documentVersion.getArtifactId(),
-                            documentVersion.getVersionId());
+                    final OutputStream outputStream = new FileOutputStream(file);
                     try {
-                        FileUtil.write(stream, file);
+                        documentModel.openVersion(
+                                documentVersion.getArtifactId(),
+                                documentVersion.getVersionId(), new StreamOpener() {
+                                    public void open(final InputStream stream)
+                                    throws IOException {
+                                        final ByteBuffer buffer = workspace.getDefaultBuffer();
+                                        synchronized (buffer) {
+                                            StreamUtil.copy(stream, outputStream, buffer);
+                                        }
+                                    }
+                                });
                     } finally {
-                        stream.close();
+                        outputStream.close();
                     }
                 }
             }
@@ -2578,10 +2532,15 @@ public final class ContainerModelImpl extends
                     versionsPublishedBy, documents, documentsSize, publishedTo);
 
             final File zipFile = new File(exportFileSystem.getRoot(), container.getName());
-            ZipUtil.createZipFile(zipFile, exportFileSystem.getRoot(), getDefaultBufferSize());
+            final ByteBuffer buffer = workspace.getDefaultBuffer();
+            synchronized (buffer) {
+                ZipUtil.createZipFile(zipFile, exportFileSystem.getRoot(), buffer);
+            }
             final InputStream inputStream = new FileInputStream(zipFile);
             try {
-                StreamUtil.copy(inputStream, exportStream, getDefaultBufferSize());
+                synchronized (buffer) {
+                    StreamUtil.copy(inputStream, exportStream, buffer);
+                }
             } finally {
                 inputStream.close();
             }
@@ -2639,9 +2598,6 @@ public final class ContainerModelImpl extends
             // create
             containerIO.create(container);
 
-            // create remote info
-            artifactModel.createRemoteInfo(container.getId(),
-                    publishedBy, container.getCreatedOn());
             // index
             getIndexModel().indexContainer(container.getId());
         }
@@ -3062,17 +3018,20 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Open a container draft document stream.
+     * Open a container document draft stream.
      * 
-     * @param containerDraftId
-     *            A container draft id <code>Long</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
      * @param documentId
      *            A document id <code>Long</code>.
+     * @param opener
+     *            A <code>StreamOpener</code>.
      * @return A container draft document <code>InputStream</code>.
      */
-    private InputStream openDraftDocument(final Long containerDraftId,
-            final Long documentId) {
-        return containerIO.openDraftDocument(containerDraftId, documentId);
+    private void openDraftDocument(final Long containerId,
+            final Long documentId, final StreamOpener opener)
+            throws IOException {
+        containerIO.openDraftDocument(containerId, documentId, opener);
     }
 
     /**
@@ -3272,8 +3231,6 @@ public final class ContainerModelImpl extends
         userModel.readLazyCreate(container.getCreatedBy());
         userModel.readLazyCreate(container.getUpdatedBy());
         containerIO.create(container);
-        artifactIO.createRemoteInfo(container.getId(),
-                container.getUpdatedBy(), container.getUpdatedOn());
         // restore team info
         final List<JabberId> teamIds = restoreModel.readTeamIds(container.getUniqueId());
         for (final JabberId teamId : teamIds) {
@@ -3325,12 +3282,8 @@ public final class ContainerModelImpl extends
                 userModel.readLazyCreate(document.getUpdatedBy());
                 if (artifactIO.doesExist(document.getUniqueId())) {
                     document.setId(artifactIO.readId(document.getUniqueId()));
-                    artifactIO.updateRemoteInfo(document.getId(), document
-                            .getUpdatedBy(), document.getUpdatedOn());
                 } else {
                     documentIO.create(document);
-                    artifactIO.createRemoteInfo(document.getId(),
-                            document.getUpdatedBy(), document.getUpdatedOn());
                 }
                 for (final DocumentVersion documentVersion : documentVersions) {
                     if (documentVersion.getArtifactUniqueId().equals(document.getUniqueId())) {
@@ -3375,7 +3328,6 @@ public final class ContainerModelImpl extends
             getIndexModel().indexContainerVersion(new Pair<Long, Long>(
                     version.getArtifactId(), version.getVersionId()));
             logger.logTrace("Container version has been restored.");
-
         }
         getIndexModel().indexContainer(container.getId());
     }

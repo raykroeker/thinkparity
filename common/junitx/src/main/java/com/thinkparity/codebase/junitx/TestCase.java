@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.Calendar;
 
@@ -31,6 +32,8 @@ public abstract class TestCase extends junit.framework.TestCase {
     /** An apache <code>Log4JWrapper</code> that outputs to the test log.*/
     protected static final Log4JWrapper TEST_LOGGER;
 
+    private static ByteBuffer defaultBuffer;
+
     static {
         TEST_LOGGER = new Log4JWrapper("TEST_LOGGER");
     }
@@ -50,6 +53,74 @@ public abstract class TestCase extends junit.framework.TestCase {
         final String e = DateUtil.format(expected, DateImage.ISO);
         final String a = DateUtil.format(actual, DateImage.ISO);
         assertEquals(assertion, e, a);
+    }
+
+    /**
+     * Assert the contents of the two files are equal.
+     * 
+     * @param assertion
+     *            An assertion message.
+     * @param expected
+     *            The expected <code>File</code>.
+     * @param actual
+     *            The actual <code>File</code>.
+     * @throws IOException
+     */
+    protected static void assertEquals(final String assertion,
+            final File expected, final File actual) throws IOException {
+        final InputStream expectedStream = new FileInputStream(expected);
+        try {
+            final InputStream actualStream = new FileInputStream(actual);
+            try {
+                assertEquals(assertion, expectedStream, actualStream);
+            } finally {
+                actualStream.close();
+            }
+        } finally {
+            expectedStream.close();
+        }
+    }
+
+    /**
+     * Assert the contents of the a file and an input stream are equal.
+     * 
+     * @param assertion
+     *            An assertion message.
+     * @param expected
+     *            The expected <code>File</code>.
+     * @param actual
+     *            The actual <code>InputStream</code>.
+     * @throws IOException
+     */
+    protected static void assertEquals(final String assertion,
+            final File expected, final InputStream actual) throws IOException {
+        final InputStream expectedStream = new FileInputStream(expected);
+        try {
+            assertEquals(assertion, expectedStream, actual);
+        } finally {
+            expectedStream.close();
+        }
+    }
+
+    /**
+     * Assert the contents of the a file and an input stream are equal.
+     * 
+     * @param assertion
+     *            An assertion message.
+     * @param expected
+     *            The expected <code>InputStream</code>.
+     * @param actual
+     *            The actual <code>File</code>.
+     * @throws IOException
+     */
+    protected static void assertEquals(final String assertion,
+            final InputStream expected, final File actual) throws IOException {
+        final InputStream actualStream = new FileInputStream(actual);
+        try {
+            assertEquals(assertion, expected, actualStream);
+        } finally {
+            actualStream.close();
+        }
     }
 
     /**
@@ -89,7 +160,7 @@ public abstract class TestCase extends junit.framework.TestCase {
         assertTrue(new MessageFormat(assertionPattern)
                 .format(assertionArguments), expression);
     }
-
+    
     /**
 	 * Create a failure message for the throwable.
 	 * 
@@ -114,7 +185,7 @@ public abstract class TestCase extends junit.framework.TestCase {
             final String message, final Object... arguments) {
         return TestCaseHelper.createFailMessage(cause, message, arguments);
     }
-    
+
     /**
      * Fail a test.
      * 
@@ -141,7 +212,19 @@ public abstract class TestCase extends junit.framework.TestCase {
         fail(createFailMessage(cause, message, arguments));
     }
 
-	/**
+    /**
+     * Obtain the default buffer size for a test case.
+     * 
+     * @return A buffer size <code>Integer</code>.
+     */
+    protected static final ByteBuffer getDefaultBuffer() {
+        if (null == defaultBuffer) {
+            defaultBuffer = ByteBuffer.allocate(getDefaultBufferSize());
+        }
+        return defaultBuffer;
+    }
+
+    /**
      * Obtain the default buffer size for a test case.
      * 
      * @return A buffer size <code>Integer</code>.
@@ -229,7 +312,7 @@ public abstract class TestCase extends junit.framework.TestCase {
      *            The <code>Integer</code> size of a buffer to use.
      * @return An MD5 checksum <code>String</code>.
      */
-    protected String checksum(final File file, final Integer buffer)
+    protected String checksum(final File file, final ByteBuffer buffer)
             throws IOException {
         final InputStream stream = new FileInputStream(file);
         try {
@@ -261,7 +344,7 @@ public abstract class TestCase extends junit.framework.TestCase {
         final File[] inputFiles = getInputFiles();
         for (final File inputFile : inputFiles) {
             FileUtil.copy(inputFile, new File(target, inputFile.getName()),
-                    getDefaultBufferSize());
+                    getDefaultBuffer());
         }
     }
 

@@ -3,12 +3,9 @@
  */
 package com.thinkparity.ophelia.model.io.handler;
 
-import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
-import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -24,21 +21,6 @@ import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
  */
 public interface ArtifactIOHandler {
 
-	/**
-     * Create the remote info for the artifact.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @param updatedBy
-     *            The last person to remotely update this artifact.
-     * @param updatedOn
-     *            The last time this artifact was remotely updated.
-     * @throws HypersonicException
-     */
-	public void createRemoteInfo(final Long artifactId,
-			final JabberId updatedBy, final Calendar updatedOn)
-			throws HypersonicException;
-
     /**
      * Create an artifact team member relationship.
      * 
@@ -48,16 +30,6 @@ public interface ArtifactIOHandler {
      *            The user id.
      */
     public void createTeamRel(final Long artifactId, final Long userId);
-
-    /**
-     * Delete the remote info for the artifact.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @throws HypersonicException
-     */
-	public void deleteRemoteInfo(final Long artifactId)
-			throws HypersonicException;
 
     /**
      * Delete an artifact team relationship in its entirety.
@@ -124,10 +96,8 @@ public interface ArtifactIOHandler {
 	 * @param artifactId
 	 *            The artifact id.
 	 * @return A list of all flags for the artifact.
-	 * @throws HypersonicException
 	 */
-	public List<ArtifactFlag> getFlags(final Long artifactId)
-			throws HypersonicException;
+	public List<ArtifactFlag> readFlags(final Long artifactId);
 
     /**
      * Read the earliest version id.
@@ -251,21 +221,6 @@ public interface ArtifactIOHandler {
 	 * @throws HypersonicException
 	 */
 	public void updateFlags(final Long artifactId, final List<ArtifactFlag> flags)
-			throws HypersonicException;
-
-	/**
-     * Update the remote info for the artifact.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @param updatedBy
-     *            The last person to remotely update this artifact.
-     * @param updatedOn
-     *            The last time this artifact was remotely updated.
-     * @throws HypersonicException
-     */
-	public void updateRemoteInfo(final Long artifactId,
-			final JabberId updatedBy, final Calendar updatedOn)
 			throws HypersonicException;
 
     /**

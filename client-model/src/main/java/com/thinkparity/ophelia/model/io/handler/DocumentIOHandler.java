@@ -10,13 +10,17 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamOpener;
 import com.thinkparity.codebase.model.stream.StreamUploader;
 
 import com.thinkparity.ophelia.model.io.IOHandler;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity OpheliaModel Document IO Handler<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.16
  */
 public interface DocumentIOHandler extends IOHandler {
 
@@ -36,27 +40,29 @@ public interface DocumentIOHandler extends IOHandler {
 
 	public void deleteVersion(final Long documentId, final Long versionId);
 
-	public Document get(final Long documentId);
-
-	public Document get(final UUID documentUniqueId);
-
 	public DocumentVersion getVersion(final Long documentId,
 			final Long versionId);
 
-	public List<Document> list();
-	
-    public List<DocumentVersion> listVersions(final Long documentId);
+	public List<DocumentVersion> listVersions(final Long documentId);
 
-    /**
+	/**
      * Open an input stream to the document's content.
      * 
      * @param documentId
-     *            A document id.
+     *            A document id <code>Long</code>.
      * @param versionId
-     *            A version id.
-     * @return An input stream.
+     *            A version id <code>Long</code>.
+     * @param opener
+     *            A <code>StreamOpener</code>.
      */
-    public InputStream openStream(final Long documentId, final Long versionId);
+    public void openStream(final Long documentId, final Long versionId,
+            final StreamOpener opener) throws IOException;
+
+	public List<Document> read();
+	
+    public Document read(final Long documentId);
+
+    public Document read(final UUID documentUniqueId);
 
 	/**
      * Read the latest version for a document.

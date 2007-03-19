@@ -8,24 +8,29 @@ import java.sql.SQLException;
 
 import org.enhydra.jdbc.pool.StandardXAPoolDataSource;
 
-
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity OpheliaModel Transaction Data Source Pool<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 public class OpheliaXADataSourcePool extends StandardXAPoolDataSource {
 
+    /** The underlying <code>OpheliaXADataSource</code>. */
     private final OpheliaXADataSource xaDataSource;
 
     /**
      * Create OpheliaXADataSourcePool.
-     *
+     * 
+     * @param xaDataSource
+     *            An <code>OpheliaXADataSource</code>.
      */
     public OpheliaXADataSourcePool(final OpheliaXADataSource xaDataSource) {
-        super(xaDataSource, 3);
+        super(xaDataSource, 5);
         this.xaDataSource = xaDataSource;
+        setUser(xaDataSource.getUser());
+        setPassword(xaDataSource.getPassword());
     }
 
     /**

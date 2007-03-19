@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.artifact;
 
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -12,7 +11,6 @@ import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
-import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
@@ -77,19 +75,6 @@ public interface InternalArtifactModel extends ArtifactModel {
     public void applyFlagLatest(final Long artifactId);
 
     /**
-     * Create the artifact's remote info.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @param updatedBy
-     *            The remote user to update the artifact.
-     * @param updatedOn
-     *            The last time the artifact was updated.
-     */
-	public void createRemoteInfo(final Long artifactId,
-			final JabberId updatedBy, final Calendar updatedOn);
-
-    /**
      * Create the team. This will add the current user to the team.
      * 
      * @param artifactId
@@ -97,14 +82,6 @@ public interface InternalArtifactModel extends ArtifactModel {
      * @return The new team.
      */
     public List<TeamMember> createTeam(final Long artifactId);
-
-	/**
-     * Delete the artifact's remote info.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     */
-	public void deleteRemoteInfo(final Long artifactId);
 
 	/**
      * Delete the team in its entirety.
@@ -306,27 +283,4 @@ public interface InternalArtifactModel extends ArtifactModel {
      *            The team member.
      */
     public void removeTeamMember(final Long artifactId, final JabberId userId);
-
-    /**
-     * Update the artifact's remote info.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @param updatedBy
-     *            The last user to update the artifact.
-     * @param updatedOn
-     *            The last time the artifact was updated.
-     */
-	public void updateRemoteInfo(final Long artifactId,
-			final JabberId updatedBy, final Calendar updatedOn);
-
-    /**
-     * Update an artifact's state.
-     * 
-     * @param artifactId
-     *            An artifact id.
-     * @param state
-     *            The artifact state.
-     */
-	public void updateState(final Long artifactId, final ArtifactState state);
 }

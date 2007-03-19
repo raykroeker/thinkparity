@@ -111,6 +111,15 @@ public interface ContainerModel {
     public void deleteDraft(final Long containerId) throws CannotLockException;
 
     /**
+     * Determine whether or not a local draft exists.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if a local draft exists.
+     */
+    public Boolean doesExistLocalDraft(final Long containerId);
+
+    /**
      * Export a container version to a directory. The 
      * 
      * @param exportStream

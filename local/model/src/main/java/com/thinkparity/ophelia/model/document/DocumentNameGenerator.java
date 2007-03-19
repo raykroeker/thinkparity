@@ -25,7 +25,7 @@ public final class DocumentNameGenerator {
      * Create DocumentName.
      *
      */
-    DocumentNameGenerator() {
+    public DocumentNameGenerator() {
         super();
     }
 

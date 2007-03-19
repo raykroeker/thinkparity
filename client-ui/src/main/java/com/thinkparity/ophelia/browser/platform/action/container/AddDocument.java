@@ -58,10 +58,12 @@ public class AddDocument extends AbstractBrowserAction {
             // prompt for files
             browser.runAddContainerDocuments(containerId);
         } else {
+            final ContainerModel containerModel = getContainerModel();
             // Ensure the container has a local draft.
-            final Container container = getContainerModel().read(containerId);
-            Assert.assertTrue(getContainerModel().read(containerId).isLocalDraft(),
-                    "Cannot add documents to container {0}, no local draft.", container.getName());
+            final Container container = containerModel.read(containerId);
+            Assert.assertTrue(containerModel.doesExistLocalDraft(containerId),
+                    "Cannot add documents to container {0}, no local draft.",
+                    container.getName());
 
             // get the list of existing draft documents in this container.
             final List<Document> draftDocuments = readDraftDocuments(containerId);;
@@ -142,8 +144,7 @@ public class AddDocument extends AbstractBrowserAction {
      */
     private List<Document> readDraftDocuments(final Long containerId) {
         final ContainerModel containerModel = getContainerModel();
-        final Container container = containerModel.read(containerId);
-        if (container.isLocalDraft()) {
+        if (containerModel.doesExistLocalDraft(containerId)) {
             return containerModel.readDraft(containerId).getDocuments();
         } else {
             return Collections.emptyList();

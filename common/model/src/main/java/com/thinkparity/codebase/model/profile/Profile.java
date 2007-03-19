@@ -40,26 +40,6 @@ public class Profile extends User {
     }
 
     /**
-     * Set the features for the profile.
-     * 
-     * @param features
-     *            A <code>List</code> of <code>Feature</code>s.
-     */
-    public void setFeatures(final List<Feature> features) {
-        this.features.clear();
-        this.features.addAll(features);
-    }
-
-    /**
-     * Obtain the features for the profile.
-     * 
-     * @return A <code>List</code> of <code>Feature</code>s.
-     */
-    public List<Feature> getFeatures() {
-        return Collections.unmodifiableList(features);
-    }
-
-    /**
      * Add a feature.
      * 
      * @param feature
@@ -68,17 +48,6 @@ public class Profile extends User {
      */
     public boolean add(final Feature feature) {
         return this.features.add(feature);
-    }
-
-    /**
-     * Remove a feature.
-     * 
-     * @param feature
-     *            A <code>Feature</code>.
-     * @return True if the list of features is modified.
-     */
-    public boolean remove(final Feature feature) {
-        return this.features.remove(feature);
     }
 
     /**
@@ -106,6 +75,15 @@ public class Profile extends User {
      */
     public String getCountry() {
         return vcard.getCountry();
+    }
+
+    /**
+     * Obtain the features for the profile.
+     * 
+     * @return A <code>List</code> of <code>Feature</code>s.
+     */
+    public List<Feature> getFeatures() {
+        return Collections.unmodifiableList(features);
     }
 
     /**
@@ -191,6 +169,17 @@ public class Profile extends User {
     }
 
     /**
+     * Remove a feature.
+     * 
+     * @param feature
+     *            A <code>Feature</code>.
+     * @return True if the list of features is modified.
+     */
+    public boolean remove(final Feature feature) {
+        return this.features.remove(feature);
+    }
+
+    /**
      * Set address.
      * 
      * @param address
@@ -209,7 +198,7 @@ public class Profile extends User {
     public void setCity(final String city) {
         vcard.setCity(city);
     }
-   
+
     /**
      * Set the country.
      * 
@@ -218,6 +207,17 @@ public class Profile extends User {
      */
     public void setCountry(final String country) {
         vcard.setCountry(country);
+    }
+   
+    /**
+     * Set the features for the profile.
+     * 
+     * @param features
+     *            A <code>List</code> of <code>Feature</code>s.
+     */
+    public void setFeatures(final List<Feature> features) {
+        this.features.clear();
+        this.features.addAll(features);
     }
 
     /**

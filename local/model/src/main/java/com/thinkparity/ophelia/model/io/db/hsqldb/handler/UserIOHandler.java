@@ -3,7 +3,7 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -28,73 +28,59 @@ public final class UserIOHandler extends AbstractIOHandler implements
 
     /** Sql to create a user. */
     private static final String SQL_CREATE =
-        new StringBuffer("insert into PARITY_USER ")
-        .append("(JABBER_ID,NAME,ORGANIZATION,TITLE) ")
-        .append("values (?,?,?,?)")
-        .toString();
-
-    /** Sql to create a user flag. */
-    private static final String SQL_CREATE_FLAG =
-        new StringBuffer("insert into USER_FLAG_REL")
-        .append("(USER_ID,USER_FLAG_ID) ")
-        .append("values(?,?)")
-        .toString();
-
-    /** Sql to delete all user flags. */
-    private static final String SQL_DELETE_FLAGS =
-        new StringBuffer("delete from USER_FLAG_REL ")
-        .append("where USER_ID=?")
+        new StringBuilder("insert into PARITY_USER ")
+        .append("(JABBER_ID,NAME,ORGANIZATION,TITLE,FLAGS) ")
+        .append("values (?,?,?,?,?)")
         .toString();
 
     /** Sql to read a user by their jabber id. */
     private static final String SQL_READ_BY_JABBER_ID =
-        new StringBuffer("select U.USER_ID,U.JABBER_ID,U.NAME,")
-        .append("U.ORGANIZATION,U.TITLE ")
+        new StringBuilder("select U.USER_ID,U.JABBER_ID,U.NAME,")
+        .append("U.ORGANIZATION,U.TITLE,U.FLAGS ")
         .append("from PARITY_USER U ")
         .append("where U.JABBER_ID=?")
         .toString();
 
     private static final String SQL_READ_BY_USER_ID =
-        new StringBuffer("select U.USER_ID,U.JABBER_ID,U.NAME,")
-        .append("U.ORGANIZATION,U.TITLE ")
+        new StringBuilder("select U.USER_ID,U.JABBER_ID,U.NAME,")
+        .append("U.ORGANIZATION,U.TITLE,U.FLAGS ")
         .append("from PARITY_USER U ")
         .append("where U.USER_ID=?")
         .toString();
 
-    /** Sql to read the user flag count. */
-    private static final String SQL_READ_FLAG_COUNT =
-        new StringBuffer("select COUNT(USER_FLAG_ID) \"USER_FLAG_COUNT\" ")
-        .append("from USER_FLAG_REL UFR ")
-        .append("where UFR.USER_ID=?")
-        .toString();
-
     /** Sql to read the user flags. */
     private static final String SQL_READ_FLAGS =
-        new StringBuffer("select UFR.USER_FLAG_ID ")
-        .append("from USER_FLAG_REL UFR ")
-        .append("where UFR.USER_ID=?")
+        new StringBuilder("select U.FLAGS ")
+        .append("from USER U ")
+        .append("where U.USER_ID=?")
         .toString();
 
     /** Sql to read a user's local user id. */
     private static final String SQL_READ_LOCAL_ID =
-        new StringBuffer("select U.USER_ID ")
+        new StringBuilder("select U.USER_ID ")
         .append("from PARITY_USER U ")
         .append("where U.JABBER_ID=?")
         .toString();
 
     /** Sql to read a user's user id. */
     private static final String SQL_READ_USER_ID =
-        new StringBuffer("select U.JABBER_ID ")
+        new StringBuilder("select U.JABBER_ID ")
         .append("from PARITY_USER U ")
         .append("where U.USER_ID=?")
         .toString();
 
     /** Sql to update a user. */
     private static final String SQL_UPDATE =
-            new StringBuffer("update PARITY_USER ")
-            .append("set NAME=?,ORGANIZATION=?,TITLE=? ")
-            .append("where USER_ID=?")
-            .toString();
+        new StringBuilder("update PARITY_USER ")
+        .append("set NAME=?,ORGANIZATION=?,TITLE=?,FLAGS=? ")
+        .append("where USER_ID=?")
+        .toString();
+
+    /** Sql to update the user flags. */
+    private static final String SQL_UPDATE_FLAGS =
+        new StringBuilder("update USER ")
+        .append("set FLAGS=? where USER_ID=?")
+        .toString();
 
     /**
      * Create a UserIOHandler.
@@ -113,8 +99,11 @@ public final class UserIOHandler extends AbstractIOHandler implements
     public void applyFlags(final Long userId, final List<UserFlag> flags) {
         final Session session = openSession();
         try {
-            deleteFlags(session, userId);
-            createFlags(session, userId, flags);
+            session.prepareStatement(SQL_UPDATE_FLAGS);
+            session.setUserFlags(1, flags);
+            session.setLong(2, userId);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not update user flags.");
         } finally {
             session.close();
         }
@@ -183,11 +172,11 @@ public final class UserIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_READ_FLAGS);
             session.setLong(1, userId);
             session.executeQuery();
-            final List<UserFlag> flags = new ArrayList<UserFlag>();
-            while (session.nextResult()) {
-                flags.add(session.getUserFlagFromInteger("USER_FLAG_ID"));
+            if (session.nextResult()) {
+                return session.getUserFlags("FLAGS");
+            } else {
+                return Collections.emptyList();
             }
-            return flags;
         } finally {
             session.close();
         }
@@ -209,6 +198,7 @@ public final class UserIOHandler extends AbstractIOHandler implements
         session.setString(2, user.getName());
         session.setString(3, user.getOrganization());
         session.setString(4, user.getTitle());
+        session.setUserFlags(5, user.getFlags());
         if(1 != session.executeUpdate())
             throw translateError("Could not create user {0}.", user);
 
@@ -229,13 +219,12 @@ public final class UserIOHandler extends AbstractIOHandler implements
      */
     User extractUser(final Session session) {
         final User u = new User();
+        u.setFlags(session.getUserFlags("FLAGS"));
         u.setId(session.getQualifiedUsername("JABBER_ID"));
         u.setLocalId(session.getLong("USER_ID"));
         u.setName(session.getString("NAME"));
         u.setOrganization(session.getString("ORGANIZATION"));
         u.setTitle(session.getString("TITLE"));
-
-        u.setFlags(readFlags(u.getLocalId()));
         return u;
     }
 
@@ -289,55 +278,8 @@ public final class UserIOHandler extends AbstractIOHandler implements
         session.setString(2, user.getOrganization());
         session.setString(3, user.getTitle());
         session.setLong(4, user.getLocalId());
+        session.setUserFlags(5, user.getFlags());
         if (1 != session.executeUpdate())
             throw new HypersonicException("Could not update user.");
-    }
-
-    private void createFlags(final Session session, final Long userId,
-            final List<UserFlag> flags) {
-        session.prepareStatement(SQL_CREATE_FLAG);
-        session.setLong(1, userId);
-        for (final UserFlag flag : flags) {
-            session.setTypeAsInteger(2, flag);
-            if (1 != session.executeUpdate())
-                throw translateError("Could not create flag {0} for user {1}.",
-                        flag, userId);
-        }
-    }
-
-    /**
-     * Delete all flags for a user.
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param userId
-     *            A user id <code>Long</code>.
-     */
-    private void deleteFlags(final Session session, final Long userId) {
-        final Integer flagCount = readFlagCount(session, userId);
-        session.prepareStatement(SQL_DELETE_FLAGS);
-        session.setLong(1, userId);
-        if (flagCount.intValue() != session.executeUpdate())
-            throw translateError("Could not delete flags for user {0}", userId);
-    }
-
-    /**
-     * Read the flag count for a user.
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param userId
-     *            A user id <code>Long</code>.
-     * @return A count <code>Integer</code> of all flags for the user.
-     */
-    private Integer readFlagCount(final Session session, final Long userId) {
-        session.prepareStatement(SQL_READ_FLAG_COUNT);
-        session.setLong(1, userId);
-        session.executeQuery();
-        if (session.nextResult()) {
-            return session.getInteger("USER_FLAG_COUNT");
-        } else {
-            return null;
-        }
     }
 }

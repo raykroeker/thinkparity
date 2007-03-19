@@ -15,15 +15,6 @@ import java.util.Vector;
  */
 public class FileUtilTest extends CodebaseTestCase {
 
-	private class CopyData {
-		private final File file;
-		private final File target;
-		private CopyData(final File file, final File target) {
-			this.file = file;
-			this.target = target;
-		}
-	}
-
 	private Vector<CopyData> copyData;
 
 	/**
@@ -34,7 +25,7 @@ public class FileUtilTest extends CodebaseTestCase {
 	public void testCopy() {
 		try {
 			for(final CopyData data : copyData) {
-				FileUtil.copy(data.file, data.target, getDefaultBufferSize());
+				FileUtil.copy(data.file, data.target, getDefaultBuffer());
 				FileUtilTest.assertTrue(data.target.exists());
                 final InputStream expected = new FileInputStream(data.file);
                 try {
@@ -86,5 +77,14 @@ public class FileUtilTest extends CodebaseTestCase {
 	}
 
 	protected void tearDownCopy() throws Exception {}
+
+	private class CopyData {
+		private final File file;
+		private final File target;
+		private CopyData(final File file, final File target) {
+			this.file = file;
+			this.target = target;
+		}
+	}
 }
 

@@ -57,12 +57,12 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the profile. */
     private static final String SQL_READ =
-            new StringBuffer("select P.PROFILE_ID,U.JABBER_ID,U.NAME,")
-            .append("U.ORGANIZATION,U.TITLE,P.PROFILE_VCARD ")
-            .append("from PROFILE P ")
-            .append("inner join PARITY_USER U on P.PROFILE_ID=U.USER_ID ")
-            .append("order by P.PROFILE_ID desc")
-            .toString();
+        new StringBuilder("select P.PROFILE_ID,U.JABBER_ID,U.NAME,")
+        .append("U.ORGANIZATION,U.TITLE,U.FLAGS,P.PROFILE_VCARD ")
+        .append("from PROFILE P ")
+        .append("inner join PARITY_USER U on P.PROFILE_ID=U.USER_ID ")
+        .append("order by P.PROFILE_ID desc")
+        .toString();
 
     /** Sql to read a profile email. */
     private static final String SQL_READ_EMAIL =
@@ -95,7 +95,7 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
     /** Sql to read the profile by its unique key. */
     private static final String SQL_READ_UK =
             new StringBuffer("select P.PROFILE_ID,U.JABBER_ID,U.NAME,")
-            .append("U.ORGANIZATION,U.TITLE,P.PROFILE_VCARD ")
+            .append("U.ORGANIZATION,U.TITLE,U.FLAGS,P.PROFILE_VCARD ")
             .append("from PROFILE P ")
             .append("inner join PARITY_USER U on P.PROFILE_ID=U.USER_ID ")
             .append("where U.JABBER_ID=?")
@@ -336,6 +336,7 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
     Profile extractProfile(final Session session) {
         final Profile profile = new Profile();
         profile.setVCard(session.getVCard("PROFILE_VCARD", new ProfileVCard()));
+        profile.setFlags(session.getUserFlags("FLAGS"));
         profile.setId(session.getQualifiedUsername("JABBER_ID"));
         profile.setLocalId(session.getLong("PROFILE_ID"));
         profile.setName(session.getString("NAME"));

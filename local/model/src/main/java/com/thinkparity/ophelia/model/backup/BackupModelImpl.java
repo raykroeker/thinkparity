@@ -98,10 +98,11 @@ public final class BackupModelImpl extends Model<BackupListener> implements
      */
     public void archive(final Long artifactId) {
         try {
-            assertBackupOnline();
-
-            final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
-            getSessionModel().archiveArtifact(localUserId(), uniqueId);
+            if (isBackupEnabled()) {
+                assertBackupOnline();
+                final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
+                getSessionModel().archiveArtifact(localUserId(), uniqueId);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -135,9 +136,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
      */
     public InputStream openDocumentVersion(final UUID uniqueId,
             final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
         try {
             assertBackupOnline();
             final InternalSessionModel sessionModel = getSessionModel();
@@ -163,8 +161,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     }
 
     public Container readContainer(final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
         try {
             assertBackupOnline();
             return getSessionModel().readBackupContainer(localUserId(), uniqueId);
@@ -488,15 +484,16 @@ public final class BackupModelImpl extends Model<BackupListener> implements
      */
     public void restore(final Long artifactId) {
         try {
-            assertBackupOnline();
-
-            final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
-            getSessionModel().restoreArtifact(localUserId(), uniqueId);
+            if (isBackupEnabled()) {
+                assertBackupOnline();
+    
+                final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
+                getSessionModel().restoreArtifact(localUserId(), uniqueId);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
-
 
     /**
      * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
@@ -513,6 +510,15 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     private void assertBackupOnline() {
         Assert.assertTrue(isBackupOnline(),
                 "The backup server is not online.");
+    }
+
+    /**
+     * Determine if backup is enabled for the user.
+     * 
+     * @return True if backup is enabled.
+     */
+    private boolean isBackupEnabled() {
+        return getProfileModel().isBackupEnabled().booleanValue();
     }
 
     /**

@@ -18,7 +18,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
-import com.thinkparity.ophelia.model.audit.event.AuditEvent;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
 /**
@@ -90,15 +89,6 @@ public interface InternalContainerModel extends ContainerModel {
      *            An <code>ArtifactReceivedEvent</code>.
      */
     public void handleReceived(final ArtifactReceivedEvent event);
-
-    /**
-     * Read the list of audit events for a container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A list of audit events.
-     */
-    public List<AuditEvent> readAuditEvents(final Long containerId);
 
     /**
      * Read a list of of documents for a container version.

@@ -5,6 +5,7 @@ package com.thinkparity.desdemona.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -489,6 +490,15 @@ public abstract class AbstractModelImpl
 	protected ContactModel getContactModel() {
 		return ContactModel.getModel(session);
 	}
+
+    /**
+     * Obtain the default buffer size.
+     * 
+     * @return A buffer size <code>Integer</code>.
+     */
+    protected final ByteBuffer getDefaultBuffer() {
+        return ByteBuffer.allocate(getDefaultBufferSize());
+    }
 
     /**
      * Obtain the default buffer size.

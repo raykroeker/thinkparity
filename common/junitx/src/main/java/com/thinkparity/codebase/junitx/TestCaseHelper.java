@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -248,7 +249,7 @@ public class TestCaseHelper {
                 final InputStream input = getInputStream(inputPath);
                 try {
                     // BUFFER - 1KB - TestCaseHelper#copyInputFile(String, String)
-                    StreamUtil.copy(input, output, 1024);
+                    StreamUtil.copy(input, output, ByteBuffer.allocate(1024));
                 } finally {
                     input.close();
                 }

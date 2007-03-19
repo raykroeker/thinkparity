@@ -20,6 +20,8 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.archive.ArchiveTabPanel;
@@ -37,7 +39,6 @@ import com.thinkparity.ophelia.browser.platform.action.container.Restore;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b>thinkParity Archive Tab Popup Delegate Implementation<br>
@@ -49,14 +50,14 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
         TabPanelPopupDelegate, ArchiveTabPopupDelegate {
 
-    /** A <code>ArchiveTabModel</code>. */
-    private final ArchiveTabModel model;
-    
     /** A list of action ids, used for the container popup. */
     private final List<ActionId> actionIds;
     
     /** A list of data, used for the container popup. */
     private final List<Data> dataList;
+    
+    /** A <code>ArchiveTabModel</code>. */
+    private final ArchiveTabModel model;
 
     /**
      * Create ArchiveTabPopupDelegateImpl.
@@ -72,10 +73,12 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForContainer(com.thinkparity.codebase.model.container.Container)
-     *
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForContainer(com.thinkparity.codebase.model.container.Container,
+     *      com.thinkparity.ophelia.model.container.ContainerDraft, boolean)
+     * 
      */
-    public void showForContainer(final Container container, final boolean expanded) {
+    public void showForContainer(final Container container,
+            final ContainerDraft draft, final boolean expanded) {
         boolean needSeparator = false;
 
         if (!expanded) {
@@ -84,12 +87,10 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
         }
 
         // restore
-        if (isDistributed(container.getId()) && !container.isLocalDraft()) {
-            final Data archiveData = new Data(1);
-            archiveData.set(Restore.DataKey.CONTAINER_ID, container.getId());
-            addWithExpand(ActionId.CONTAINER_RESTORE, archiveData, container);
-            needSeparator = true;
-        }
+        final Data archiveData = new Data(1);
+        archiveData.set(Restore.DataKey.CONTAINER_ID, container.getId());
+        addWithExpand(ActionId.CONTAINER_RESTORE, archiveData, container);
+        needSeparator = true;
 
         // delete
         // This menu is shown if online, or if it has never been published.
@@ -101,15 +102,13 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
         }
 
         // export
-        if (container.isLocalDraft() || isDistributed(container.getId())) {
-            addSeparator();
-            final Data exportData = new Data(1);
-            exportData.set(com.thinkparity.ophelia.browser.platform.action.container.Export.DataKey.CONTAINER_ID, container.getId());
-            addWithExpand(ActionId.CONTAINER_EXPORT, exportData, container);
-            needSeparator = true;
-        }
+        addSeparator();
+        final Data exportData = new Data(1);
+        exportData.set(com.thinkparity.ophelia.browser.platform.action.container.Export.DataKey.CONTAINER_ID, container.getId());
+        addWithExpand(ActionId.CONTAINER_EXPORT, exportData, container);
+        needSeparator = true;
 
-        // Collapse
+        // collapse
         if (expanded) {
             if (needSeparator) {
                 addSeparator();
@@ -140,9 +139,7 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
             add(idJMenuItem);
             add(uidJMenuItem);
             add(MessageFormat.format("isBookmarked:{0}", container.isBookmarked()));
-            add(MessageFormat.format("isDraft:{0}", container.isDraft()));
             add(MessageFormat.format("isLatest:{0}", container.isLatest()));
-            add(MessageFormat.format("isLocalDraft:{0}", container.isLocalDraft()));
             add(MessageFormat.format("isSeen:{0}", container.isSeen()));
         }
         show();
@@ -162,7 +159,9 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
      *
      */
     public void showForPanel(final TabPanel tabPanel) {
-        showForContainer(((ArchiveTabPanel) tabPanel).getContainer(), false);
+        final ArchiveTabPanel archivePanel = (ArchiveTabPanel) tabPanel;
+        showForContainer(archivePanel.getContainer(), archivePanel.getDraft(),
+                false);
     }
 
     /**

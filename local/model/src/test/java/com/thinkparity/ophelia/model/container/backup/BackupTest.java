@@ -4,10 +4,13 @@
 package com.thinkparity.ophelia.model.container.backup;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
+import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -15,6 +18,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamOpener;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerTestCase;
@@ -46,6 +50,19 @@ public final class BackupTest extends BackupTestCase {
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.ContainerTestCase#getOutputDirectory()
+     *
+     */
+    @Override
+    public File getOutputDirectory() {
+        final File parentFile = new File(super.getOutputDirectory(), "BackupTest");
+        final File outputDirectory = new File(parentFile, getName());
+        if (!outputDirectory.exists())
+            assertTrue(outputDirectory.mkdirs());
+        return outputDirectory; 
+    }
+
+    /**
      * Test the restore api.
      *
      */
@@ -69,8 +86,6 @@ public final class BackupTest extends BackupTestCase {
         List<Document> d_list_local;
         Document d_local;
         List<DocumentVersion> dv_list_local;
-        DocumentVersion dv_local;
-        InputStream dv_stream_local;
         // ensure backed up
         logger.logInfo("Validating container \"{0}\"", c.getName());
         final Container c_backup = getBackupModel(datum.junit_z).readContainer(c.getUniqueId());
@@ -144,32 +159,29 @@ public final class BackupTest extends BackupTestCase {
                 dv_backup = dv_list_backup.get(n);
                 assertNotNull("Document version has not been properly backed up.", dv_backup);
                 logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\".", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getName(), dv_backup.getVersionId());
-                dv_local = dv_list_local.get(n);
+                final DocumentVersion dv_local = dv_list_local.get(n);
                 assertEquals("Document version has not been properly backed up.", dv_local, dv_backup);
-                
+
                 logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\" stream.", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getName(), dv_backup.getVersionId());
                 dv_stream_backup = getBackupModel(datum.junit_z).openDocumentVersion(dv_backup.getArtifactUniqueId(), dv_backup.getVersionId());
-                dv_stream_local = getDocumentModel(datum.junit_z).openVersion(dv_local.getArtifactId(), dv_local.getVersionId());
+                getDocumentModel(datum.junit_z).openVersion(dv_local.getArtifactId(), dv_local.getVersionId(), new StreamOpener() {
+                    public void open(final InputStream stream) throws IOException {
+                        final File file = getOutputFile(dv_local);
+                        final OutputStream outputStream = new FileOutputStream(file);
+                        try {
+                            StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                        } finally {
+                            outputStream.close();
+                        }
+                    }
+                });
                 try {
-                    assertEquals("Document version content has not been properly backed up.", dv_stream_local, dv_stream_backup);
+                    assertEquals("Document version's content does not match expectation.", getOutputFile(dv_local), dv_stream_backup);
                 } catch (final IOException iox) {
-                    fail(createFailMessage(iox));
+                    fail(iox, "Could not compare input stream is with is_x.");
                 }
             }
         }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.container.ContainerTestCase#getOutputDirectory()
-     *
-     */
-    @Override
-    public File getOutputDirectory() {
-        final File parentFile = new File(super.getOutputDirectory(), "BackupTest");
-        final File outputDirectory = new File(parentFile, getName());
-        if (!outputDirectory.exists())
-            assertTrue(outputDirectory.mkdirs());
-        return outputDirectory; 
     }
 
     /**

@@ -235,6 +235,7 @@ class PersistenceManagerImpl {
             session.close();
         }
 
+        ((OpheliaXADataSourcePool) dataSource).shutdown(true);
         try {
             ((OpheliaXADataSourcePool) dataSource).getShutdownConnection();
         } catch (final SQLException sqlx) {

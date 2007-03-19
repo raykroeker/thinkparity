@@ -3,13 +3,7 @@
  */
 package com.thinkparity.codebase;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.text.MessageFormat;
@@ -34,14 +28,13 @@ public abstract class FileUtil {
 	 *            The target to copy the file to.
 	 */
 	public static void copy(final File file, final File target,
-            final Integer bufferSize) throws FileNotFoundException, IOException {
+            final ByteBuffer buffer) throws FileNotFoundException, IOException {
 		final InputStream input = new FileInputStream(file);
 		Assert.assertTrue("copy(File,File)", target.createNewFile());
 		final OutputStream output = new FileOutputStream(target);
 		try {
-            StreamUtil.copy(input, output, bufferSize);
-		}
-		finally {
+            StreamUtil.copy(input, output, buffer);
+		} finally {
 			try {
                 input.close();
             } finally {
@@ -69,7 +62,7 @@ public abstract class FileUtil {
      *            </ol>
      */
     public static void copy(final File source, final File target,
-            final Integer bufferSize, final Boolean nice,
+            final ByteBuffer buffer, final Boolean nice,
             final String niceMessage) throws FileNotFoundException, IOException {
         final File realTarget;
         if (Boolean.TRUE == nice) {
@@ -86,7 +79,7 @@ public abstract class FileUtil {
         } else {
             realTarget = target;
         }
-        copy(source, realTarget, bufferSize);
+        copy(source, realTarget, buffer);
     }
 	/**
 	 * Delete a filesystem tree.

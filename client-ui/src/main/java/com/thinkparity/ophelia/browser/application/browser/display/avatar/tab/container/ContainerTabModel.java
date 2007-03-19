@@ -17,6 +17,9 @@ import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.sort.DefaultComparator;
+import com.thinkparity.codebase.sort.StringComparator;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -24,8 +27,11 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.sort.DefaultComparator;
-import com.thinkparity.codebase.sort.StringComparator;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
+import com.thinkparity.ophelia.model.events.ContainerDraftListener;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
@@ -38,10 +44,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 import com.thinkparity.ophelia.browser.platform.application.Application;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
-import com.thinkparity.ophelia.model.events.ContainerDraftListener;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
@@ -280,6 +282,30 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
     
     /**
+     * Determine if the specified user is the local user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if this is the local user; false otherwise.
+     */
+    Boolean readDoesExistContact(final User user) {
+        return ((ContainerProvider) contentProvider).doesExistContact(
+                user.getLocalId());
+    }
+
+    /**
+     * Determine if the specified user is the local user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if this is the local user; false otherwise.
+     */
+    Boolean readDoesExistOutgoingUserInvitation(final User user) {
+        return ((ContainerProvider) contentProvider).doesExistOutgoingUserInvitationForUser(
+                user.getLocalId());
+    }
+
+    /**
      * Determine if the container has been distributed.
      * 
      * @param containerId
@@ -313,30 +339,6 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         checkThread();
         final Profile profile = readProfile();
         return user.getId().equals(profile.getId());
-    }
-
-    /**
-     * Determine if the specified user is the local user.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @return True if this is the local user; false otherwise.
-     */
-    Boolean readDoesExistContact(final User user) {
-        return ((ContainerProvider) contentProvider).doesExistContact(
-                user.getLocalId());
-    }
-
-    /**
-     * Determine if the specified user is the local user.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @return True if this is the local user; false otherwise.
-     */
-    Boolean readDoesExistOutgoingUserInvitation(final User user) {
-        return ((ContainerProvider) contentProvider).doesExistOutgoingUserInvitationForUser(
-                user.getLocalId());
     }
 
     /**
@@ -424,7 +426,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
             final Container container) {
         final DraftView draftView = readDraftView(container.getId());
         final ContainerVersion latestVersion = readLatestVersion(container.getId());
-        if ((null != draftView) && container.isLocalDraft()) {
+        if (draftView.isLocal()) {
             for (final Document document : draftView.getDocuments()) {
                 containerIdLookup.put(document.getId(), container.getId());
             }
@@ -862,7 +864,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
             browser.runApplyContainerFlagSeen(panel.getContainer().getId());
         }
         // the session will maintain the single draft monitor for the tab
-        if (container.isLocalDraft()) {
+        if (draftView.isSetDraft() && draftView.isLocal()) {
             if (isExpanded(panel)) {
                 startSessionDraftMonitor(panel.getContainer().getId());
             }
@@ -950,12 +952,12 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
                             p2.getContainer().getName());
             case DRAFT_OWNER:
                 // Sort by local draft first
-                if (p1.getContainer().isLocalDraft() && !p2.getContainer().isLocalDraft()) {
+                if (p1.isLocalDraft() && !p2.isLocalDraft()) {
                     return multiplier * -1;
-                } else if (!p1.getContainer().isLocalDraft() && p2.getContainer().isLocalDraft()) {
+                } else if (!p1.isLocalDraft() && p2.isLocalDraft()) {
                     return multiplier * 1;            
                 }
-                
+
                 // Sort by draft, and within drafts, by draft owner
                 if (isVisibleDraft(p1)) {
                     if(isVisibleDraft(p2)) {
@@ -1003,7 +1005,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
          * Determine if there is a visible draft.
          */
         private boolean isVisibleDraft(final ContainerPanel panel) {
-            return (panel.getContainer().isDraft() && panel.getContainer().isLatest());
+            return panel.isSetDraft();
         }
     }
 }

@@ -67,6 +67,15 @@ public class DraftView {
     }
 
     /**
+     * Determine if the draft is local.
+     * 
+     * @return True if the draft is local.
+     */
+    public Boolean isLocal() {
+        return isSetDraft() && draft.isLocal();
+    }
+
+    /**
      * Determine whether or not the draft is set.
      * 
      * @return True if the draft is set.

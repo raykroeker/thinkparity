@@ -78,7 +78,7 @@ abstract class StreamTestCase extends ModelTestCase {
         try {
             final InputStream input = new FileInputStream(file);
             try {
-                StreamUtil.copy(input, output, getDefaultBufferSize());
+                StreamUtil.copy(input, output, getDefaultBuffer());
             } finally {
                 input.close();
             }

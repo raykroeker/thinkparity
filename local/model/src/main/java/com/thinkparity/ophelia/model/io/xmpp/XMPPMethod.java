@@ -11,17 +11,7 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.*;
 import java.util.Map.Entry;
 
 import com.thinkparity.codebase.DateUtil;
@@ -37,7 +27,6 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
-import com.thinkparity.codebase.model.artifact.ArtifactRemoteInfo;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
@@ -803,10 +792,6 @@ public class XMPPMethod extends IQ {
                     if (javaType.equals(String.class)) {
                         javaValue = parser.getText();
                         parser.next();
-                    } else if (javaType.equals(ArtifactRemoteInfo.class)) {
-                        javaValue = new ArtifactRemoteInfo();
-                        ((ArtifactRemoteInfo) javaValue).setUpdatedBy((JabberId) parseJavaValue(parser, JabberId.class));
-                        ((ArtifactRemoteInfo) javaValue).setUpdatedOn((Calendar) parseJavaValue(parser, Calendar.class));
                     } else if (javaType.equals(ArtifactState.class)) {
                         javaValue = ArtifactState.valueOf(parser.getText());
                         parser.next();
@@ -844,7 +829,6 @@ public class XMPPMethod extends IQ {
                         ((Document) javaValue).setCreatedBy((JabberId) parseJavaValue(parser, JabberId.class));
                         ((Document) javaValue).setCreatedOn((Calendar) parseJavaValue(parser, Calendar.class));
                         ((Document) javaValue).setName((String) parseJavaValue(parser, String.class));
-                        ((Document) javaValue).setRemoteInfo((ArtifactRemoteInfo) parseJavaValue(parser, ArtifactRemoteInfo.class));
                         ((Document) javaValue).setState((ArtifactState) parseJavaValue(parser, ArtifactState.class));
                         ((Document) javaValue).setType((ArtifactType) parseJavaValue(parser, ArtifactType.class));
                         ((Document) javaValue).setUniqueId((UUID) parseJavaValue(parser, UUID.class));

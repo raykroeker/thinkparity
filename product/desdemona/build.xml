@@ -33,7 +33,9 @@ http://ant.apache.org
             </not>
         </condition>
 Local configuration ${localconfig} does not exist.  Please create:
+    antx.vendor-dir             Ant eXtensions Vendor Directory   
     scm.credentials             Source control credentials.     username:password
+    wildfire.home               Wildfire Runtime
     thinkparity.environment     Environment                     com.thinkparity.codebase.model.session.Environment
     thinkparity.mode            Mode                            com.thinkparity.codebase.Mode
     thinkparity.os              Operating System                com.thinkparity.codebase.OS
@@ -46,6 +48,7 @@ Local configuration ${localconfig} does not exist.  Please create:
             <not>
                 <and>
                     <isset property="scm.credentials"/>
+                    <isset property="wildfire.home"/>   
                     <isset property="thinkparity.environment"/>
                     <isset property="thinkparity.os"/>
                     <isset property="thinkparity.os-platform"/>
@@ -55,32 +58,35 @@ Local configuration ${localconfig} does not exist.  Please create:
             </not>
         </condition>
 Local configuration ${localconfig} is incomplete.  Please specify:
-    scm.credentials             XXXXXXXXXXXXXXXXXXXXXXXXXX
-    thinkparity.environment     ${thinkparity.environment}
-    thinkparity.mode            ${thinkparity.mode}
-    thinkparity.os              ${thinkparity.os}
-    thinkparity.os-platform     ${thinkparity.os-platform}
-    thinkparity.product-name    ${thinkparity.product-name}
-    thinkparity.release-name    ${thinkparity.release-name}
+    antx.vendor-dir                 ${antx.vendor-dir}
+    scm.credentials                 XXXXXXXXXXXXXXXXXXXXXXXXXX
+    wildfire.home                   ${wildfire.home}   
+    thinkparity.environment         ${thinkparity.environment}
+    thinkparity.mode                ${thinkparity.mode}
+    thinkparity.os                  ${thinkparity.os}
+    thinkparity.os-platform         ${thinkparity.os-platform}
+    thinkparity.product-name        ${thinkparity.product-name}
+    thinkparity.release-name        ${thinkparity.release-name}
     </fail>
     <echo>
 Environment Configuration:
-    Groovy Home:                ${env.GROOVY_HOME}
-    Launch4J Home:              ${env.LAUNCH4J_HOME}
-    NSIS Home:                  ${env.NSIS_HOME}
+    Groovy Home:                    ${env.GROOVY_HOME}
+    Launch4J Home:                  ${env.LAUNCH4J_HOME}
+    NSIS Home:                      ${env.NSIS_HOME}
 Build Configuration:
-    Build Id:                   ${thinkparity.build-id}
-    Compiler Arguments:         ${javac.compilerargs}
-    Compiler Debugging:         ${javac.debug} ${javac.debug-level}
-    Java JVM Debug:             ${java.jvmarg-debug}
-Local Configuration:            ${localconfig}
-    Source Control Credentials: XXXXXXXXXXXXXXXXXXXXXXXXXX
-    Environment:                ${thinkparity.environment}
-    Mode:                       ${thinkparity.mode}
-    Operating System:           ${thinkparity.os}
-    Operating System Platform:  ${thinkparity.os-platform}
-    Product Name:               ${thinkparity.product-name}
-    Release Name:               ${thinkparity.release-name}
+    Build Id:                       ${thinkparity.build-id}
+    Compiler Arguments:             ${javac.compilerargs}
+    Compiler Debugging:             ${javac.debug} ${javac.debug-level}
+    Java JVM Debug:                 ${java.jvmarg-debug}
+Local Configuration:                ${localconfig}
+    Ant eXtensions Vendor Directory ${antx.vendor-dir}   
+    Source Control Credentials:     XXXXXXXXXXXXXXXXXXXXXXXXXX
+    Environment:                    ${thinkparity.environment}
+    Mode:                           ${thinkparity.mode}
+    Operating System:               ${thinkparity.os}
+    Operating System Platform:      ${thinkparity.os-platform}
+    Product Name:                   ${thinkparity.product-name}
+    Release Name:                   ${thinkparity.release-name}
     </echo>
 
     <!-- cvs configuration -->
@@ -475,6 +481,8 @@ Examples:
         <property name="thinkparity.target.generate-classes-dir" value="${target.generate-classes.dir}"/>
         <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
         <property name="thinkparity.plugin-name" value="${thinkparity.product-name}-${thinkparity.release-name}.jar"/>
+        <delete file="${target.package.dir}/${thinkparity.plugin-name}.MD5"/>
+        <delete file="${target.package.dir}/${thinkparity.plugin-name}.SHA"/>   
         <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy"
             classpathref="groovy.classpath"/>
         <groovy src="${basedir}/remote/model/src/main/groovy/PackageTask.groovy"/>   
@@ -482,14 +490,15 @@ Examples:
         <checksum file="${target.package.dir}/${thinkparity.plugin-name}" algorithm="SHA"/>
     </target>
 
-    <!-- install the plugin into the wildfire environment -->
-    <target name="install-package-plugin" depends="package">
+    <!-- install the package into the wildfire environment -->
+    <target name="install-package" depends="package">
+        <property name="thinkparity.plugin-name" value="${thinkparity.product-name}-${thinkparity.release-name}.jar"/>
         <delete includeemptydirs="true">
             <fileset dir="${wildfire.home}/plugins">
-                <include name="${release.name}*/**"/>
+                <include name="${thinkparity.product-name}-${thinkparity.release-name}*/**"/>
             </fileset>
         </delete>
-        <copy file="${target.package.dir}/${release.name}-${release.version}-plugin.jar"
+        <copy file="${target.package.dir}/${thinkparity.plugin-name}"
             todir="${wildfire.home}/plugins"/>
     </target>
 

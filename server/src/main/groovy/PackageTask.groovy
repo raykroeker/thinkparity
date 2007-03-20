@@ -87,7 +87,9 @@ class PackageTask {
                 fileset(dir:classesDir) {
                     include(name:"com/thinkparity/desdemona/")
                     include(name:"com/thinkparity/ophelia/")
-                    include(name:"carol.properties")
+                    include(name:"localization/")
+                    include(name:"security/")
+                    include(name:"xml/")
                 }
             }
 

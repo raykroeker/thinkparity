@@ -37,12 +37,15 @@ public class DependencyTask extends AntXTask {
 
     private static final String PROPERTY_NAME_TARGET_TEST_CLASSES_DIR;
 
+    private static final String PROPERTY_NAME_VENDOR_DIR;
+
     static {
         PROPERTY_NAME_CVS_BRANCH = "cvs.branch";
         PROPERTY_NAME_CVS_COMPRESSION_LEVEL = "cvs.compressionlevel";
         PROPERTY_NAME_CVS_ROOT = "cvs.cvsroot";
         PROPERTY_NAME_TARGET_CLASSES_DIR = "target.classes.dir";
         PROPERTY_NAME_TARGET_TEST_CLASSES_DIR = "target.test-classes.dir";
+        PROPERTY_NAME_VENDOR_DIR = "antx.vendor-dir";
     }
 
     /**
@@ -251,12 +254,13 @@ public class DependencyTask extends AntXTask {
         // validate scope/type combination
         if (Type.NATIVE == type && Scope.COMPILE == scope)
             throw panic("Dependency type/scope combination is invalid.", path, provider, scope, type, version, null);
+        validateFileProperty(getProject(), PROPERTY_NAME_VENDOR_DIR);
         dependencies.clear();
         final File location;
         Dependency dependency;
         switch (type) {
         case JAVA:
-            location = new File(getVendorRootDirectory(), path);
+            location = new File(getVendorDirectory(), path);
             if (!location.exists())
                 locate(path);
             if (!location.exists())
@@ -273,7 +277,7 @@ public class DependencyTask extends AntXTask {
             dependencies.add(dependency);
             break;
         case NATIVE:
-            location = new File(getVendorRootDirectory(), path);
+            location = new File(getVendorDirectory(), path);
             if (!location.exists())
                 locate(path);
             if (!location.exists())
@@ -347,7 +351,7 @@ public class DependencyTask extends AntXTask {
         if (null == fileSet) {
             fileSet = new FileSet();
             fileSet.setProject(getProject());
-            fileSet.setDir(getVendorRootDirectory());
+            fileSet.setDir(getVendorDirectory());
         }
         fileSet.appendIncludes(new String[] {dependency.getPath()});
         getProject().addReference(fileSetId, fileSet);
@@ -516,8 +520,16 @@ public class DependencyTask extends AntXTask {
      * 
      * @return A directory <code>File</code>.
      */
-    private File getVendorRootDirectory() {
-        return new File(getProject().getBaseDir(), "vendor");
+    private File getVendorDirectory() {
+        final String vendorDirname = getProperty(getProject(), PROPERTY_NAME_VENDOR_DIR);
+        File vendorDir = new File(vendorDirname);
+        if (vendorDir.exists() && vendorDir.isDirectory() && vendorDir.canRead())
+            return vendorDir;
+        vendorDir = new File(getProject().getBaseDir(), vendorDirname);
+        if (vendorDir.exists() && vendorDir.isDirectory() && vendorDir.canRead())
+            return vendorDir;
+        else
+            throw panic("Cannot resolve vendor directory {0}.", vendorDirname);
     }
 
     /**

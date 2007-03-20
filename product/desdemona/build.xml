@@ -7,24 +7,96 @@
     <!-- build configuration -->
     <property environment="env"/>
     <tstamp>
-        <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="PST"/>
+        <format property="thinkparity.build-id" pattern="yyyyMMddHHmmssZ" timezone="PST"/>
     </tstamp>
-    <!-- local configuration  -->
-    <property name="localconfig" value="${basedir}/local.properties"/>
-    <property file="${localconfig}"/>
+    <property name="javac.compilerargs" value="-Xlint:deprecation -Xlint:unchecked"/>
+    <property name="javac.debug" value="true"/>
+    <property name="javac.debug-level" value="lines,vars,source"/>
+    <property name="java.jvmarg-debug" value="-Xdebug -Xint -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"/>
 
-    <!-- release configuration -->
-    <property name="release.name" value="${ant.project.name}"/>
+    <!-- local configuration  -->
+    <property name="localconfig" value="local.properties"/>
+    <property file="${localconfig}"/>
+    <fail>
+        <condition>
+            <not>
+                <contains string="${ant.version}" substring="1.7.0"/>
+            </not>
+        </condition>
+Please install version 1.7.0 of ant.
+http://ant.apache.org
+    </fail>
+    <fail>
+        <condition>
+            <not>
+                <available file="${localconfig}"/>
+            </not>
+        </condition>
+Local configuration ${localconfig} does not exist.  Please create:
+    scm.credentials             Source control credentials.     username:password
+    thinkparity.environment     Environment                     com.thinkparity.codebase.model.session.Environment
+    thinkparity.mode            Mode                            com.thinkparity.codebase.Mode
+    thinkparity.os              Operating System                com.thinkparity.codebase.OS
+    thinkparity.os-platform     Operating System Platform       com.thinkparity.codebase.Platform
+    thinkparity.product-name    Product Name
+    thinkparity.release-name    Release Name
+    </fail>
+    <fail>
+        <condition>
+            <not>
+                <and>
+                    <isset property="scm.credentials"/>
+                    <isset property="thinkparity.environment"/>
+                    <isset property="thinkparity.os"/>
+                    <isset property="thinkparity.os-platform"/>
+                    <isset property="thinkparity.product-name"/>
+                    <isset property="thinkparity.release-name"/>
+                </and>
+            </not>
+        </condition>
+Local configuration ${localconfig} is incomplete.  Please specify:
+    scm.credentials             XXXXXXXXXXXXXXXXXXXXXXXXXX
+    thinkparity.environment     ${thinkparity.environment}
+    thinkparity.mode            ${thinkparity.mode}
+    thinkparity.os              ${thinkparity.os}
+    thinkparity.os-platform     ${thinkparity.os-platform}
+    thinkparity.product-name    ${thinkparity.product-name}
+    thinkparity.release-name    ${thinkparity.release-name}
+    </fail>
+    <echo>
+Environment Configuration:
+    Groovy Home:                ${env.GROOVY_HOME}
+    Launch4J Home:              ${env.LAUNCH4J_HOME}
+    NSIS Home:                  ${env.NSIS_HOME}
+Build Configuration:
+    Build Id:                   ${thinkparity.build-id}
+    Compiler Arguments:         ${javac.compilerargs}
+    Compiler Debugging:         ${javac.debug} ${javac.debug-level}
+    Java JVM Debug:             ${java.jvmarg-debug}
+Local Configuration:            ${localconfig}
+    Source Control Credentials: XXXXXXXXXXXXXXXXXXXXXXXXXX
+    Environment:                ${thinkparity.environment}
+    Mode:                       ${thinkparity.mode}
+    Operating System:           ${thinkparity.os}
+    Operating System Platform:  ${thinkparity.os-platform}
+    Product Name:               ${thinkparity.product-name}
+    Release Name:               ${thinkparity.release-name}
+    </echo>
 
     <!-- cvs configuration -->
     <property name="cvs.compressionlevel" value="9"/>
     <property name="cvs.cvsroot" value=":pserver:${scm.credentials}@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
     <property name="cvs.modules" value="remote/codebase remote/model vendor/apache.org/derby/10.2.2.0 vendor/fop/0.20.5 vendor/groovy/1.0 vendor/xstream/1.2.1 lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/lucene lib/smack lib/smackx lib/swing-layout lib/wildfire lib/xdoclet vendor/jotm/2.0.10"/>
-    <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
 
-    <!-- javac configuration -->
-    <property name="javac.compilerarg" value="-Xlint:deprecation -Xlint:unchecked"/>
+    <!-- groovy configuration -->
+    <path id="groovy.classpath">
+        <pathelement location="${env.GROOVY_HOME}/lib/groovy-1.0.jar"/>
+        <pathelement location="${env.GROOVY_HOME}/lib/antlr-2.7.5.jar"/>
+        <pathelement location="${env.GROOVY_HOME}/lib/asm-2.2.jar"/>
+        <pathelement location="${basedir}/remote/model/src/main/groovy"/>
+        <path refid="runtime.classpath"/>
+    </path>
 
     <!-- input directories -->
     <property name="thinkparity.common.home" value="${basedir}/../common"/>
@@ -34,91 +106,65 @@
     <property name="target.dir" value="${basedir}/target"/>
     <property name="target.analyze-report.dir" value="${basedir}/target/analyze-report"/>
     <property name="target.classes.dir" value="${target.dir}/classes"/>
+    <property name="target.generate-classes.dir" value="${target.dir}/generate-classes"/>
     <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
-    <property name="target.release.dir" value="${target.dir}/release"/>
+    <property name="target.package.dir" value="${target.dir}/package"/>   
     <property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
+    <property name="target.test-javadoc.dir" value="${target.dir}/test-docs/api"/>   
     <property name="target.test-report.dir" value="${target.dir}/test-report"/>
     <property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
 
-    <!-- input directories/files/paths -->
-    <property name="vendor.dir" value="${basedir}/vendor"/>
-    <property name="vendor.derby.lib" value="${vendor.dir}/apache.org/derby/10.2.2.0/derby.jar"/>
-    <property name="vendor.fop.avalon.lib" value="${vendor.dir}/fop/0.20.5/avalon-framework-cvs-200200806.jar"/>
-    <property name="vendor.fop.batik.lib" value="${vendor.dir}/fop/0.20.5/batik.jar"/>
-    <property name="vendor.fop.lib" value="${vendor.dir}/fop/0.20.5/fop.jar"/>
-    <property name="vendor.groovy.lib" value="${vendor.dir}/groovy/1.0/groovy.jar"/>
-    <property name="vendor.log4j.lib" value="${vendor.dir}/log4j/1.2.13/log4j.jar"/>
-    <property name="vendor.commons-codec.lib" value="${vendor.dir}/commons-codec/1.3/commons-codec.jar"/>
-    <property name="vendor.lucene.lib" value="${vendor.dir}/lucene/1.9.1/lucene.jar"/>
-    <property name="vendor.smack.lib" value="${vendor.dir}/smack/2.2.1/smack.jar"/>
-    <property name="vendor.smackx.lib" value="${vendor.dir}/smackx/2.2.1/smackx.jar"/>
-    <property name="vendor.xstream.lib" value="${vendor.dir}/xstream/1.2.1/xstream.jar"/>
+    <!-- compile dependencies -->
+    <antx:dependency type="java" scope="compile" provider="apache.org"
+        version="0.20.5" path="fop/0.20.5/avalon-framework-cvs-20020806.jar"/>
+    <antx:dependency type="java" scope="compile" provider="apache.org"
+        version="0.20.5" path="fop/0.20.5/fop.jar"/>
+    <antx:dependency type="java" scope="compile" provider="apache.org"
+        version="1.9.1" path="lucene/1.9.1/lucene.jar"/>
+    <antx:dependency type="java" scope="compile" provider="apache.org"
+        version="1.2.13" path="log4j/1.2.13/log4j.jar"/>
+    <antx:dependency type="java" scope="compile" provider="codehaus.org"
+        version="1.0" path="groovy/1.0/groovy.jar"/>
+    <antx:dependency type="java" scope="compile" provider="codehaus.org"
+        version="1.2.1" path="xstream/1.2.1/xstream.jar"/>
+    <antx:dependency type="java" scope="compile" provider="jivesoftware.org"
+        version="2.2.1" path="smack/2.2.1/smack.jar"/>
+    <antx:dependency type="java" scope="compile" provider="jivesoftware.org"
+        version="3.0.1" path="wildfire/3.0.1/wildfire.jar"/>
+    <antx:dependency type="java" scope="compile" provider="jivesoftware.org"
+        version="3.0.1" path="wildfire/3.0.1/mail.jar"/>
+    <antx:dependency type="java" scope="compile" provider="objectweb.org"
+        version="2.0.10" path="jotm/2.0.10/jta-spec1_0_1.jar"/>
+    <antx:dependency type="java" scope="compile" provider="objectweb.org"
+        version="2.0.10" path="jotm/2.0.10/jotm.jar"/>
+    <antx:dependency type="java" scope="compile" provider="objectweb.org"
+        version="2.0.10" path="jotm/2.0.10/xapool.jar"/>
+    <antx:dependency type="java" scope="compile" provider="objectweb.org"
+        version="2.0.10" path="jotm/2.0.10/ow_carol.jar"/>
 
-    <!-- jotm libs -->
-    <property name="vendor.jotm.commons-cli.lib" value="${vendor.dir}/jotm/2.0.10/commons-cli-1.0.jar"/>
-    <property name="vendor.jotm.commons-logging.lib" value="${vendor.dir}/jotm/2.0.10/commons-logging.jar"/>
-    <property name="vendor.jotm.connector.lib" value="${vendor.dir}/jotm/2.0.10/connector-1_5.jar"/>
-    <property name="vendor.jotm.howl.lib" value="${vendor.dir}/jotm/2.0.10/howl.jar"/>
-    <property name="vendor.jotm.lib" value="${vendor.dir}/jotm/2.0.10/jotm.jar"/>
-    <property name="vendor.jotm_iiop_stubs.lib" value="${vendor.dir}/jotm/2.0.10/jotm_iiop_stubs.jar"/>
-    <property name="vendor.jotm_jrmp_stubs.lib" value="${vendor.dir}/jotm/2.0.10/jotm_jrmp_stubs.jar"/>
-    <property name="vendor.jotm.jta.lib" value="${vendor.dir}/jotm/2.0.10/jta-spec1_0_1.jar"/>
-    <property name="vendor.jotm.jts.lib" value="${vendor.dir}/jotm/2.0.10/jts1_0.jar"/>
-    <property name="vendor.jotm.datasource.lib" value="${vendor.dir}/jotm/2.0.10/objectweb-datasource.jar"/>
-    <property name="vendor.jotm.carol.lib" value="${vendor.dir}/jotm/2.0.10/ow_carol.jar"/>
-    <property name="vendor.jotm.xapool.lib" value="${vendor.dir}/jotm/2.0.10/xapool.jar"/>
+    <!-- runtime dependencies -->
+    <antx:dependency type="java" scope="runtime" provider="apache.org" version="10.2.2.0"
+        path="apache.org/derby/10.2.2.0/derby.jar"/>
+    <antx:dependency type="java" scope="runtime" provider="apache.org"
+        version="0.20.5" path="fop/0.20.5/batik.jar"/>
+    <antx:dependency type="java" scope="compile" provider="jivesoftware.org"
+        version="2.2.1" path="smackx/2.2.1/smackx.jar"/>
+    <antx:dependency type="java" scope="runtime" provider="objectweb.org" version="2.0.10"
+        path="jotm/2.0.10/jotm_jrmp_stubs.jar"/>
+    <antx:dependency type="java" scope="runtime" provider="objectweb.org" version="2.0.10"
+        path="jotm/2.0.10/commons-logging.jar"/>
+    <antx:dependency type="java" scope="runtime" provider="objectweb.org" version="2.0.10"
+        path="jotm/2.0.10/connector-1_5.jar"/>
+    <antx:dependency type="java" scope="runtime" provider="objectweb.org" version="2.0.10"
+        path="jotm/2.0.10/howl.jar"/>
 
-    <!-- classpath -->
-    <path id="project.classpath">
-        <pathelement location="${target.classes.dir}/common/codebase"/>
-        <pathelement location="${target.classes.dir}/common/model"/>
-        <pathelement location="${target.classes.dir}/local/model"/>
-        <pathelement location="${target.classes.dir}/remote/codebase"/>
-        <pathelement location="${target.classes.dir}/remote/model"/>
+    <!-- test dependencies -->
+    <antx:dependency type="java" scope="test" provider="junit.org" version="3.8.1"
+        path="junit/3.8.1/junit.jar"/>
 
-        <pathelement location="${basedir}/vendor/fop/0.20.5/avalon-framework-cvs-20020806.jar"/>
-        <pathelement location="${basedir}/vendor/fop/0.20.5/batik.jar"/>
-        <pathelement location="${basedir}/vendor/fop/0.20.5/fop.jar"/>
-        <pathelement location="${basedir}/vendor/groovy/1.0/groovy.jar"/>
-        <pathelement location="${basedir}/vendor/log4j/1.2.13/log4j.jar"/>
-        <pathelement location="${basedir}/vendor/commons-codec/1.3/commons-codec.jar"/>
-        <pathelement location="${basedir}/vendor/lucene/1.9.1/lucene.jar"/>
-        <pathelement location="${basedir}/vendor/smack/2.2.1/smack.jar"/>
-        <pathelement location="${basedir}/vendor/smackx/2.2.1/smackx.jar"/>
-        <pathelement location="${basedir}/vendor/xstream/1.2.1/xstream.jar"/>
-
-        <!-- jotm libraries -->
-        <pathelement location="${basedir}/vendor/jotm/2.0.10/commons-cli-1.0.jar"/>
-        <pathelement location="${basedir}/vendor/jotm/2.0.10/commons-logging.jar"/>
-        <pathelement location="${basedir}/vendor/jotm/2.0.10/connector-1_5.jar"/>
-        <pathelement location="${basedir}/vendor/jotm/2.0.10/howl.jar"/>
-        <pathelement location="${basedir}/vendor/jotm/2.0.10/jotm.jar"/>
-        <pathelement location="${basedir}/vendor/jotm/2.0.10/jotm_iiop_stubs.jar"/>
-        <pathelement location="${basedir}/vendor/jotm/2.0.10/jotm_jrmp_stubs.jar"/>
-        <pathelement location="${basedir}/vendor/jotm/2.0.10/jta-spec1_0_1.jar"/>
-        <pathelement location="${basedir}/vendor/jotm/2.0.10/jts1_0.jar"/>
-        <pathelement location="${basedir}/vendor/jotm/2.0.10/objectweb-datasource.jar"/>
-        <pathelement location="${basedir}/vendor/jotm/2.0.10/ow_carol.jar"/>
-        <pathelement location="${basedir}/vendor/jotm/2.0.10/xapool.jar"/>
-
-        <pathelement location="${basedir}/vendor/wildfire/3.0.1/wildfire.jar"/>
-        <pathelement location="${basedir}/vendor/wildfire/3.0.1/mail.jar"/>
-    </path>
-    <!-- test-classpath -->
-    <path id="project.test-classpath">
-        <path refid="project.classpath"/>
-
-        <pathelement location="${target.test-classes.dir}/common/codebase"/>
-        <pathelement location="${target.test-classes.dir}/common/junitx"/>
-        <pathelement location="${target.test-classes.dir}/local/model"/>
-        <pathelement location="${target.test-classes.dir}/remote/model"/>
-
-        <pathelement location="${basedir}/vendor/junit/3.8.1/junit.jar"/>
-        <pathelement location="${basedir}/vendor/hsqldb/1.8.0.2/hsqldb.jar"/>
-    </path>
-    <!-- xdoclet classpath -->
+    <!-- xdoclet configuration -->
     <path id="xdoclet.classpath">
-        <pathelement location="${target.classes.dir}/common/xdoclet"/>
+        <pathelement location="${target.generate-classes.dir}"/>
 
         <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-beanutils-1.7.0.jar"/>
         <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-collections-3.1.jar"/>
@@ -166,7 +212,6 @@
         <echo message="${cvs.cvsroot}"/>
         <echo message="${cvs.branch}"/>
         <echo message="${cvs.modules}"/>
-        <echo message="${cvs.modules.ide}"/>
         <sleep seconds="3"/>
         <!-- source trees -->
         <cvs cvsroot="${cvs.cvsroot}" dest="${basedir}"
@@ -174,127 +219,63 @@
                 tag="${cvs.branch}" package="${cvs.modules}"/>
     </target>
 
-    <!-- checkout ide files -->
-    <target name="checkout-ide">
-        <echo message="${cvs.cvsroot}"/>
-        <echo message="${cvs.branch}"/>
-        <echo message="${cvs.modules.ide}"/>
-        <sleep seconds="3"/>
-        <!-- ide files -->
-        <cvs cvsroot="${cvs.cvsroot}" dest="${basedir}"
-                command="checkout" compressionlevel="${cvs.compressionlevel}"
-                tag="${cvs.branch}" package="${cvs.modules.ide}"/>
-    </target>
-
-    <!-- analyze the source -->
-    <target name="analyze" depends="init">
-        <cs:checkstyle config="checkstyle-rules.xml"
-            failureProperty="checkstyle.didFail" failOnViolation="false">
-            <formatter type="xml" tofile="target/analyze-report/checkstyle.xml"/>
-            <!-- common/codebase -->   
-            <fileset dir="${thinkparity.common.home}/codebase/src/main/java">
-                <include name="**/*.java"/>
-            </fileset>
-            <!-- common/junitx -->   
-            <fileset dir="${thinkparity.common.home}/junitx/src/main/java">
-                <include name="**/*.java"/>
-            </fileset>
-            <!-- common/model -->   
-            <fileset dir="${thinkparity.common.home}/model/src/main/java">
-                <include name="**/*.java"/>
-            </fileset>
-            <!-- common/xdoclet -->   
-            <fileset dir="${thinkparity.common.home}/xdoclet/src/main/java">
-                <include name="**/*.java"/>
-            </fileset>
-            <!-- local/model -->   
-            <fileset dir="${thinkparity.ophelia.home}/model/src/main/java">
-                <include name="**/*.java"/>
-            </fileset>
-            <!-- remote/codebase -->   
-            <fileset dir="remote/codebase/src/main/java">
-                <include name="**/*.java"/>
-            </fileset>
-            <!-- remote/model -->   
-            <fileset dir="remote/model/src/main/java">
-                <include name="**/*.java"/>
-            </fileset>
-        </cs:checkstyle>
-        <style in="target/analyze-report/checkstyle.xml"
-                out="target/analyze-report/index.html"
-                style="checkstyle-format.xsl"/>
-    </target>
-
-    <!-- update -->
-    <target name="update">
-        <echo message="${cvs.cvsroot}"/>
-        <cvs cvsroot="${cvs.cvsroot}"
-            command="update -P" tag="${cvs.branch}" package="${cvs.modules}"/>
-    </target>
-
     <!-- delete output -->
-	<target name="clean">
-		<delete dir="${target.dir}"/>
-	</target>
+    <target name="clean">
+        <delete dir="${target.dir}"/>
+    </target>
 
     <!-- compile -->
-	<target name="compile" depends="init,process-resources,generate">
-        <!-- if the compile.debug is not set; use true as a default otherwise
-             use the value itself -->
-        <condition property="compile.innerDebug" value="${compile.debug}" else="true">
-            <isset property="compile.debug"/>
-        </condition>
-
+    <target name="compile" depends="init,process-resources,generate">
         <!-- common/codebase -->
         <javac srcdir="${thinkparity.common.home}/codebase/src/main/java"
-                destdir="${target.classes.dir}/common/codebase" debug="${compile.innerDebug}">
-            <classpath refid="project.classpath"/>
-	    <compilerarg line="${javac.compilerarg}"/>
+                destdir="${target.classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="compile.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <!-- common/model -->
         <javac srcdir="${thinkparity.common.home}/model/src/main/java"
-                destdir="${target.classes.dir}/common/model" debug="${compile.innerDebug}">
-            <classpath refid="project.classpath"/>
-	    <compilerarg line="${javac.compilerarg}"/>
+                destdir="${target.classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="compile.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <!-- local/model -->
         <javac srcdir="${thinkparity.ophelia.home}/model/src/main/java"
-                destdir="${target.classes.dir}/local/model" debug="${compile.innerDebug}">
-            <classpath refid="project.classpath"/>
-	    <compilerarg line="${javac.compilerarg}"/>
+                destdir="${target.classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="compile.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <!-- remote/codebase -->
         <javac srcdir="remote/codebase/src/main/java"
-                destdir="${target.classes.dir}/remote/codebase" debug="${compile.innerDebug}">
-            <classpath refid="project.classpath"/>
-	    <compilerarg line="${javac.compilerarg}"/>
+                destdir="${target.classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="compile.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <!-- remote/model -->
         <javac srcdir="remote/model/src/main/java"
-                destdir="${target.classes.dir}/remote/model" debug="${compile.innerDebug}">
-            <classpath refid="project.classpath"/>
-	    <compilerarg line="${javac.compilerarg}"/>
+                destdir="${target.classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="compile.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
     </target>
 
     <target name="generate-compile">
-        <!-- if the compile.debug is not set; use true as a default otherwise
-             use the value itself -->
-        <condition property="compile.innerDebug" value="${compile.debug}" else="true">
-            <isset property="compile.debug"/>
-        </condition>
-
         <!-- common/xdoclet -->
         <javac srcdir="${thinkparity.common.home}/xdoclet/src/main/java"
-                destdir="${target.classes.dir}/common/xdoclet" debug="${compile.innerDebug}">
+                destdir="${target.generate-classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
             <classpath refid="xdoclet.classpath"/>
-            <compilerarg line="${javac.compilerarg}"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
     </target>
 
     <target name="generate-process-resources">
         <!-- common/xdoclet -->
-        <copy todir="${target.classes.dir}/common/xdoclet">
+        <copy todir="${target.generate-classes.dir}">
             <fileset dir="${thinkparity.common.home}/xdoclet/src/main/resources"/>
         </copy>
     </target>
@@ -303,7 +284,7 @@
         <taskdef name="xdoclet" classname="org.xdoclet.ant.XDocletTask"
                 classpathref="xdoclet.classpath"/>
         <xdoclet>
-            <fileset dir="remote/model/src/main/java">
+            <fileset dir="${basedir}/remote/model/src/main/java">
                 <include name="**/*.java"/>
                 <!--
                     note that qdox does not support enums with constructors and
@@ -317,28 +298,36 @@
                 <exclude name="com/thinkparity/desdemona/util/dom4j/NamespaceName.java"/>
             </fileset>
             <component classname="org.xdoclet.plugin.jivehandler.JiveHandlerPlugin"
-                destdir="target/generated/remote/model"/>
+                destdir="${target.classes.dir}"/>
         </xdoclet>
     </target>
 
     <!-- print help -->
     <target name="help">
         <echo>
-Options:
-    -Dcompile.debug=true,false  Generate compiler debug info.
-                                Default:true
+Build Configuration:
+    Build Id:                   ${thinkparity.build-id}
+    Compiler Arguments:         ${javac.compilerargs}
+    Compiler Debugging:         ${javac.debug} ${javac.debug-level}
+    Java JVM Debug:             ${java.jvmarg-debug}
+Local Configuration:            ${localconfig}
+    Source Control Credentials: XXXXXXXXXXXXXXXXXXXXXXXXXX
+    Environment:                ${thinkparity.environment}
+    Mode:                       ${thinkparity.mode}
+    Operating System:           ${thinkparity.os}
+    Operating System Platform:  ${thinkparity.os-platform}
+    Product Name:               ${thinkparity.product-name}
+    Release Name:               ${thinkparity.release-name}
 Targets:
-    checkout                    Checkout all source from ${cvs.branch}.
+    analyze                     Analyze the source.   
+    checkout                    Checkout the source.
     clean                       Delete output.
     compile                     Compile source.
-    generate                    Generate source.
     javadoc                     Generate javadoc (html) documentation.
     process-resources           Process resources.
-    release                     Create a release package.
     test                        Run tests.
-    test-compile                Compile test source.
+    test-compile                Compile the test source.
     test-process-resources      Process test resources.
-    update                      Update sources from ${cvs.branch}.
 Examples:
     First Run:
     ant checkout test           Will grab all source from cvs; process all
@@ -347,96 +336,33 @@ Examples:
     Subsequent Runs:
     ant test                    Will process all resources; compile all code; run
                                 all tests.
-
-    Checkout IDE Files:
-    ant checkout.ide
         </echo>
     </target>
 
-    <!-- initialize output -->
+    <!-- initialize -->
     <target name="init">
-    	<fail message="Please create local configuration.  Run ant help more information.">
-            <condition>
-                <not>
-                    <and>
-                        <available file="${localconfig}"/>
-                        <isset property="platform"/>
-                        <isset property="release.version"/>
-                        <isset property="scm.credentials"/>
-                    </and>
-                </not>
-            </condition>
-        </fail>
-        <echo>
-Local Configuration:
-    platform:           ${platform}
-    release.version:    ${release.version}
-    scm.credentials:    XXXXXXXXXXXX
-        </echo>
-
-        <!-- target/classes/* -->
-        <mkdir dir="${target.classes.dir}/common/codebase"/>
-        <mkdir dir="${target.classes.dir}/common/model"/>
-        <mkdir dir="${target.classes.dir}/common/xdoclet"/>
-        <mkdir dir="${target.classes.dir}/local/model"/>
-        <mkdir dir="${target.classes.dir}/remote/codebase"/>
-        <mkdir dir="${target.classes.dir}/remote/model"/>
-
-        <mkdir dir="${target.test-classes.dir}/common/codebase"/>
-        <mkdir dir="${target.test-classes.dir}/common/junitx"/>
-        <mkdir dir="${target.test-classes.dir}/remote/model"/>
-
-        <mkdir dir="${target.test-sessions.dir}"/>
         <mkdir dir="${target.analyze-report.dir}"/>
-    </target>
-
-    <!-- document the source -->
-    <target name="javadoc">
-        <!-- common/codebase -->
-        <javadoc access="private" classpathref="project.classpath"
-                destdir="${target.javadoc.dir}/common/codebase"
-                doctitle="thinkParity Common Codebase"
-                packagenames="com.thinkparity.*"
-                sourcepath="${thinkparity.common.home}/codebase/src/main/java"/>
-        <!-- local/model -->
-        <javadoc access="private" classpathref="project.classpath"
-                destdir="${target.javadoc.dir}/local/model"
-                doctitle="thinkParity Local Model"
-                packagenames="com.thinkparity.*"
-                sourcepath="${thinkparity.ophelia.home}/model/src/main/java"/>
-        <!-- remote/codebase -->
-        <javadoc access="private" classpathref="project.classpath"
-                destdir="${target.javadoc.dir}/remote/codebase"
-                doctitle="thinkParity Remote Codebase"
-                packagenames="com.thinkparity.*"
-                sourcepath="${basedir}/remote/codebase//src/main/java"/>
-        <!-- remote/model -->
-        <javadoc access="private" classpathref="project.classpath"
-                destdir="${target.javadoc.dir}/remote/model"
-                doctitle="thinkParity Remote Model"
-                packagenames="com.thinkparity.*"
-                sourcepath="${thinkparity.common.home}/model/src/main/java:${basedir}/remote/model/src/main/java"/>
+        <mkdir dir="${target.classes.dir}"/>
+        <mkdir dir="${target.generate-classes.dir}"/>
+        <mkdir dir="${target.javadoc.dir}"/>
+        <mkdir dir="${target.package.dir}"/>
+        <mkdir dir="${target.test-classes.dir}"/>
+        <mkdir dir="${target.test-javadoc.dir}"/>
+        <mkdir dir="${target.test-report.dir}"/>
+        <mkdir dir="${target.test-sessions.dir}"/>
+        <sleep seconds="1"/>
     </target>
 
     <!-- process resources -->
     <target name="process-resources">
         <!-- common/codebase -->
-        <copy todir="${target.classes.dir}/common/codebase">
+        <copy todir="${target.classes.dir}">
             <fileset dir="${thinkparity.common.home}/codebase/src/main/resources"/>
-        </copy>
-        <!-- common/model -->
-        <copy todir="${target.classes.dir}/common/model">
             <fileset dir="${thinkparity.common.home}/model/src/main/resources"/>
-        </copy>
-        <!-- local/model -->
-        <copy todir="${target.classes.dir}/local/model">
             <fileset dir="${thinkparity.ophelia.home}/model/src/main/resources"/>
-        </copy>
-        <!-- remote/model -->
-        <copy todir="${target.classes.dir}/remote/model">
             <fileset dir="${basedir}/remote/model/src/main/resources"/>
         </copy>
-        <copy todir="${target.classes.dir}/remote/model" overwrite="true">
+        <copy todir="${target.classes.dir}">
             <fileset dir="${basedir}/remote/model/src/main/filters"/>
             <filterset begintoken="$${" endtoken="}">
                 <filter token="pom.version" value="${release.version}"/>
@@ -444,106 +370,6 @@ Local Configuration:
                 <filtersfile file="${basedir}/build.filters"/>
             </filterset>
         </copy>
-    </target>
-
-    <!-- release -->
-    <target name="release">
-        <antcall target="clean" inheritAll="true" inheritRefs="true"/>
-        <antcall target="test" inheritAll="true" inheritRefs="true"/>
-        <antcall target="clean" inheritAll="true" inheritRefs="true"/>
-        <antcall target="compile" inheritAll="true" inheritRefs="true"/>
-        <antcall target="release-impl" inheritAll="true" inheritRefs="true"/>
-    </target>
-
-    <!-- release-impl -->   
-    <target name="release-impl">
-        <property name="target.release.plugin.dir"
-                value="${target.release.dir}/plugin"/>
-        <!-- ${target.release.plugin.dir} -->
-        <copy todir="${target.release.plugin.dir}">
-            <fileset dir="${basedir}">
-                <include name="README.txt"/>
-                <include name="LICENSE.txt"/>
-            </fileset>
-            <fileset dir="${target.classes.dir}/remote/model">
-                <include name="changelog.html"/>
-                <include name="icon_large.gif"/>
-                <include name="icon_small.gif"/>
-                <include name="plugin.xml"/>
-                <include name="readme.html"/>
-            </fileset>
-            <fileset dir="${basedir}/target/generated/remote/model">
-                <include name="wildfire-handlers.xml"/>   
-            </fileset>   
-        </copy>
-        <!-- ${target.release.plugin.dir}/classes -->
-        <copy todir="${target.release.plugin.dir}/classes">
-            <fileset dir="${target.classes.dir}/remote/model">
-                <include name="log4j.properties"/>
-                <include name="localization/*"/>
-            </fileset>
-	    <fileset dir="${target.classes.dir}/common/model">
-	    	<include name="carol.properties"/>
-	    </fileset>
-        </copy>
-        <!-- ${target.release.plugin.dir}/lib -->
-        <mkdir dir="${target.release.plugin.dir}/lib"/>
-        <copy todir="${target.release.plugin.dir}/lib">
-            <fileset file="${vendor.log4j.lib}"/>
-            <fileset file="${vendor.fop.avalon.lib}"/>
-            <fileset file="${vendor.fop.batik.lib}"/>
-            <fileset file="${vendor.fop.lib}"/>
-            <fileset file="${vendor.groovy.lib}"/>
-            <fileset file="${vendor.commons-codec.lib}"/>
-            <fileset file="${vendor.derby.lib}"/>
-            <fileset file="${vendor.lucene.lib}"/>
-            <fileset file="${vendor.smack.lib}"/>
-            <fileset file="${vendor.smackx.lib}"/>
-            <fileset file="${vendor.xstream.lib}"/>
-
-            <fileset file="${vendor.jotm.commons-cli.lib}"/>
-            <fileset file="${vendor.jotm.commons-logging.lib}"/>
-            <fileset file="${vendor.jotm.connector.lib}"/>
-            <fileset file="${vendor.jotm.howl.lib}"/>
-            <fileset file="${vendor.jotm.lib}"/>
-            <fileset file="${vendor.jotm_iiop_stubs.lib}"/>
-            <fileset file="${vendor.jotm_jrmp_stubs.lib}"/>
-            <fileset file="${vendor.jotm.jta.lib}"/>
-            <fileset file="${vendor.jotm.jts.lib}"/>
-            <fileset file="${vendor.jotm.datasource.lib}"/>
-            <fileset file="${vendor.jotm.carol.lib}"/>
-            <fileset file="${vendor.jotm.xapool.lib}"/>
-        </copy>
-        <!-- local/model -->
-        <jar destfile="${target.release.plugin.dir}/lib/model-ophelia.jar">
-            <manifest>
-            </manifest>
-            <fileset dir="${target.classes.dir}/local/model"/>
-        </jar>
-        <!-- remote/model -->
-        <jar destfile="${target.release.plugin.dir}/lib/model-desdemona.jar">
-            <manifest>
-            </manifest>
-            <fileset dir="${target.classes.dir}/remote/model"/>
-        </jar>
-        <!-- common/codebase:common/model:remote/codebase -->
-        <jar destfile="${target.release.plugin.dir}/lib/codebase.jar">
-            <manifest>
-            </manifest>
-            <fileset dir="${target.classes.dir}/common/codebase"/>
-            <fileset dir="${target.classes.dir}/common/model"/>
-            <fileset dir="${target.classes.dir}/remote/codebase"/>
-        </jar>
-        <!-- release jar -->
-        <jar destfile="${target.release.dir}/${release.name}-${release.version}-plugin.jar">
-            <manifest>
-            </manifest>
-            <fileset dir="${target.release.plugin.dir}"/>
-        </jar>
-        <checksum file="${target.release.dir}/${release.name}-${release.version}-plugin.jar"
-            algorithm="MD5"/>
-        <checksum file="${target.release.dir}/${release.name}-${release.version}-plugin.jar"
-            algorithm="SHA"/>
     </target>
 
     <!-- unit test -->
@@ -604,76 +430,95 @@ Local Configuration:
     </target>
 
     <!-- compile tests -->
-	<target name="test-compile" depends="compile,test-process-resources">
-        <!-- if the compile.debug is not set; use true as a default otherwise
-             use the value itself -->
-        <condition property="compile.innerDebug" value="${compile.debug}" else="true">
-            <isset property="compile.debug"/>
-        </condition>
-
+    <target name="test-compile" depends="compile,test-process-resources">
         <!-- common/junitx -->
         <javac srcdir="${thinkparity.common.home}/junitx/src/main/java"
-                destdir="${target.test-classes.dir}/common/junitx" debug="${compile.innerDebug}">
-            <classpath refid="project.test-classpath"/>
-            <compilerarg line="${javac.compilerarg}"/>
+                destdir="${target.test-classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="test.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <!-- common/codebase -->
         <javac srcdir="${thinkparity.common.home}/codebase/src/test/java"
-                destdir="${target.test-classes.dir}/common/codebase" debug="${compile.innerDebug}">
-            <classpath refid="project.test-classpath"/>
-            <compilerarg line="${javac.compilerarg}"/>
+                destdir="${target.test-classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="test.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <!-- local/model -->
         <javac srcdir="${thinkparity.ophelia.home}/model/src/test/java"
-                destdir="${target.test-classes.dir}/local/model" debug="${compile.innerDebug}">
-            <classpath refid="project.test-classpath"/>
-            <compilerarg line="${javac.compilerarg}"/>
-	</javac>
+                destdir="${target.test-classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="test.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
+        </javac>
         <!-- remote/model -->
         <javac srcdir="remote/model/src/test/java"
-                destdir="${target.test-classes.dir}/remote/model" debug="${compile.innerDebug}">
-            <classpath refid="project.test-classpath"/>
-            <compilerarg line="${javac.compilerarg}"/>
-	</javac>
+                destdir="${target.test-classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="test.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
+        </javac>
     </target>
 
     <!-- process test resources -->
     <target name="test-process-resources">
-        <copy todir="${target.test-classes.dir}/local/model/">
+        <copy todir="${target.test-classes.dir}">
+            <fileset dir="${thinkparity.common.home}/junitx/src/main/resources"/>
             <fileset dir="${thinkparity.ophelia.home}/model/src/test/resources"/>
         </copy>
-        <copy todir="${target.test-classes.dir}/common/junitx/">
-            <fileset dir="${thinkparity.common.home}/junitx/src/main/resources"/>
-        </copy>
     </target>
 
-    <!-- quick release -->
-    <target name="quick-release">
-        <antcall target="clean" inheritAll="true" inheritRefs="true"/>
-        <antcall target="compile" inheritAll="true" inheritRefs="true"/>
-        <antcall target="release-impl" inheritAll="true" inheritRefs="true"/>
+    <!-- package -->
+    <target name="package" depends="compile">
+        <property name="thinkparity.target.classes-dir" value="${target.classes.dir}"/>
+        <property name="thinkparity.target.generate-classes-dir" value="${target.generate-classes.dir}"/>
+        <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
+        <property name="thinkparity.plugin-name" value="${thinkparity.product-name}-${thinkparity.release-name}.jar"/>
+        <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy"
+            classpathref="groovy.classpath"/>
+        <groovy src="${basedir}/remote/model/src/main/groovy/PackageTask.groovy"/>   
+        <checksum file="${target.package.dir}/${thinkparity.plugin-name}" algorithm="MD5"/>
+        <checksum file="${target.package.dir}/${thinkparity.plugin-name}" algorithm="SHA"/>
     </target>
 
-    <!-- install the plugin into the wildfire development environment -->
-    <target name="quick-release-install-development">
-        <antcall target="quick-release" inheritAll="true" inheritRefs="true"/>
+    <!-- install the plugin into the wildfire environment -->
+    <target name="install-package-plugin" depends="package">
         <delete includeemptydirs="true">
-            <fileset dir="${wildfire.development.home}/plugins">
+            <fileset dir="${wildfire.home}/plugins">
                 <include name="${release.name}*/**"/>
             </fileset>
         </delete>
-        <copy file="${target.release.dir}/${release.name}-${release.version}-plugin.jar"
-            todir="${wildfire.development.home}/plugins"/>
+        <copy file="${target.package.dir}/${release.name}-${release.version}-plugin.jar"
+            todir="${wildfire.home}/plugins"/>
     </target>
-    <!-- install the plugin the wildfire test environment -->
-    <target name="quick-release-install-testing">
-        <antcall target="quick-release" inheritAll="true" inheritRefs="true"/>
-        <delete includeemptydirs="true">
-            <fileset dir="${wildfire.testing.home}/plugins">
-                <include name="${release.name}*/**"/>
-            </fileset>
-        </delete>
-        <copy file="${target.release.dir}/${release.name}-${release.version}-plugin.jar"
-            todir="${wildfire.testing.home}/plugins"/>
+
+    <!-- pathinfo -->
+    <target name="pathinfo">
+        <pathconvert refid="compile.classpath" property="tmp.cc"/>
+        <echo>
+Compile Classpath:
+${tmp.cc}
+        </echo>
+        <pathconvert refid="test.classpath" property="tmp.tc"/>
+        <echo>
+Test Classpath:
+${tmp.tc}
+        </echo>
+        <pathconvert refid="runtime.classpath" property="tmp.rc"/>
+        <echo>
+Runtime Classpath:
+${tmp.rc}
+        </echo>
+        <pathconvert refid="runtime.dependencies-java" property="tmp.rdj"/>
+        <echo>
+Runtime Dependencies (Java):
+${tmp.rdj}
+        </echo>
+        <pathconvert refid="test.dependencies-java" property="tmp.tdj"/>
+        <echo>
+Test Dependencies (Java):
+${tmp.tdj}
+        </echo>
     </target>
 </project>

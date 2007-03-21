@@ -279,17 +279,28 @@ public abstract class TabModel implements TabDelegate {
     }
 
     /**
+     * Determine if the input connection is set.
+     * 
+     * @return true if the input connection is set, false otherwise.
+     */
+    private boolean isSetInputConnection() {
+        return (null != getInputConnection());
+    }
+
+    /**
      * Reload connection. If connection status has changed then alert the tab.
      */
     private void reloadConnection() {
-        final Connection connection = getInputConnection();
-        if (null==this.connection || !connection.equals(this.connection)) {
-            this.connection = connection;
-            SwingUtil.ensureDispatchThread(new Runnable() {
-                public void run() {
-                    applyConnection(connection);    
-                }
-            });
+        if (isSetInputConnection()) {
+            final Connection connection = getInputConnection();
+            if (null==this.connection || !connection.equals(this.connection)) {
+                this.connection = connection;
+                SwingUtil.ensureDispatchThread(new Runnable() {
+                    public void run() {
+                        applyConnection(connection);    
+                    }
+                });
+        }
         }
     }
 

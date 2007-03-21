@@ -410,11 +410,9 @@ public interface XMPPSession {
      *            An <code>Error</code>.
      * @param product
      *            A <code>Product</code>.
-     * @param occuredOn
-     *            The date/time the error occured.
      */
     public void logError(final JabberId userId, final Product product,
-            final Error error, final Calendar occuredOn);
+            final Error error);
 
     /**
      * Login.

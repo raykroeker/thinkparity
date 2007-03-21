@@ -335,6 +335,9 @@ public final class ContainerModelImpl extends
      */
     public ContainerDraft createDraft(final Long containerId) {
         try {
+//NOCOMMIT
+if(true)
+    throw new RuntimeException("Test error report notification.");
             assertContainerDraftDoesNotExist(containerId,
                     "Draft for {0} already exists.", containerId);
             if (isFirstDraft(containerId)) {

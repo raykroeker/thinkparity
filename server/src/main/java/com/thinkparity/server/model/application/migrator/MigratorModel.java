@@ -3,7 +3,6 @@
  */
 package com.thinkparity.desdemona.model.migrator;
 
-import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,13 +61,11 @@ public interface MigratorModel {
      *            A user id <code>JabberId</code>.
      * @param product
      *            A <code>Product</code>.
-     * @param error
-     *            An <code>Error</code>.
      * @param occuredOn
      *            The <code>Calendar</code> the error occured.
      */
     public void logError(final JabberId userId, final Product product,
-            final Error error, final Calendar occuredOn);
+            final Error error);
 
     /**
      * Read the latest release.

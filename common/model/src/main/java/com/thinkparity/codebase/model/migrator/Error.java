@@ -4,6 +4,7 @@
 package com.thinkparity.codebase.model.migrator;
 
 import java.lang.reflect.Method;
+import java.util.Calendar;
 
 /**
  * <b>Title:</b>thinkParity Error<br>
@@ -20,8 +21,14 @@ public class Error {
     /** The cause <code>Throwable</code>. */
     private Throwable cause;
 
+    /** An error id <code>String</code>. */
+    private Long id;
+
     /** The <code>Method</code>. */
     private Method method;
+
+    /** The occured on <code>Calendar</code>. */
+    private Calendar occuredOn;
 
     /**
      * Create Error.
@@ -50,12 +57,30 @@ public class Error {
     }
 
     /**
+     * Obtain id.
+     *
+     * @return A Long.
+     */
+    public Long getId() {
+        return id;
+    }
+
+    /**
      * Obtain method.
      *
      * @return A Method.
      */
     public Method getMethod() {
         return method;
+    }
+
+    /**
+     * Obtain occuredOn.
+     *
+     * @return A Calendar.
+     */
+    public Calendar getOccuredOn() {
+        return occuredOn;
     }
 
     /**
@@ -79,6 +104,16 @@ public class Error {
     }
 
     /**
+     * Set id.
+     *
+     * @param id
+     *		A Long.
+     */
+    public void setId(final Long id) {
+        this.id = id;
+    }
+
+    /**
      * Set method.
      *
      * @param method
@@ -86,5 +121,15 @@ public class Error {
      */
     public void setMethod(final Method method) {
         this.method = method;
+    }
+
+    /**
+     * Set occuredOn.
+     *
+     * @param occuredOn
+     *		A Calendar.
+     */
+    public void setOccuredOn(final Calendar occuredOn) {
+        this.occuredOn = occuredOn;
     }
 }

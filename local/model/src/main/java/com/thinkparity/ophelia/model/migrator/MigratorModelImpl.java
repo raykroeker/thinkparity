@@ -157,11 +157,11 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             final InternalSessionModel sessionModel = getSessionModel();
             if (sessionModel.isLoggedIn()) {
                 final Error error = new Error();
+                error.setArguments(arguments);
                 error.setCause(cause);
                 error.setMethod(method);
-                error.setArguments(arguments);
-                sessionModel.logError(readProduct(), error,
-                        sessionModel.readDateTime());
+                error.setOccuredOn(sessionModel.readDateTime());
+                sessionModel.logError(readProduct(), error);
             }
         } catch (final Throwable t) {
             throw panic(t);

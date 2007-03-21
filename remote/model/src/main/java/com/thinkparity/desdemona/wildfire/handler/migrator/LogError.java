@@ -3,8 +3,6 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.migrator;
 
-import java.util.Calendar;
-
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.migrator.Error;
@@ -43,13 +41,11 @@ public final class LogError extends AbstractHandler {
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
         logError(provider, reader.readJabberId("userId"),
-                reader.readProduct("product"), reader.readError("error"),
-                reader.readCalendar("occuredOn"));
+                reader.readProduct("product"), reader.readError("error"));
     }
 
     private void logError(final ServiceModelProvider provider,
-            final JabberId userId, final Product product, final Error error,
-            final Calendar occuredOn) {
-        provider.getMigratorModel().logError(userId, product, error, occuredOn);
+            final JabberId userId, final Product product, final Error error) {
+        provider.getMigratorModel().logError(userId, product, error);
     }
 }

@@ -7,6 +7,7 @@ import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.ApplicationNature;
 import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.session.Environment;
 
 /**
@@ -34,33 +35,45 @@ public class LinkFactory {
      */
     public static LinkFactory getInstance(final Application application,
             final Environment environment) {
-        Assert.assertTrue(
-                "[CANNOT GENERATE LINKS FOR] [" + application + "]",
-                application.isNatured(ApplicationNature.HTTP));
+        Assert.assertTrue(application.isNatured(ApplicationNature.HTTP),
+                "Cannot generate links for {0}.", application);
         return new LinkFactory(environment);
     }
 
-    /** The link prefix. */
-    private final String prefix;
+    /** The link protocol. */
+    private final String protocol;
 
-    /** The link url. */
-    private final String url;
+    /** The link web host. */
+    private final String webHost;
 
-    /** Create LinkFactory. */
+    /** The link web port. */
+    private final Integer webPort;
+
+    /**
+     * Create LinkFactory.
+     * 
+     * @param environment
+     *            An <code>Environment</code>.
+     */
     private LinkFactory(final Environment environment) {
         super();
-        prefix = environment.isWebTLSEnabled() ? "https://" : "http://";
-        url = environment.getWebHost();
+        this.protocol = environment.isWebTLSEnabled() ? "https://" : "http://";
+        this.webHost = environment.getWebHost();
+        this.webPort = environment.getWebPort();
     }
 
     /**
-     * Create a root link.
+     * Create a link.
      * 
      * @return A <code>Link</code>.
      */
     public Link create() {
-        final String linkRoot = new StringBuffer(prefix).append(url).toString();
-        return new Link(linkRoot);
+        final StringBuilder linkRoot = new StringBuilder(protocol)
+            .append(webHost);
+        // if we are not on 80 or 443 we need to specify the port
+        if (80 != webPort && 443 != webPort)
+            linkRoot.append(":").append(webPort);
+        return new Link(linkRoot.toString());
     }
 
     /**
@@ -68,7 +81,7 @@ public class LinkFactory {
      * 
      * @param action
      *            A thinkParity action <code>String</code>.
-     * @return A link.
+     * @return A <code>Link</code>.
      */
     public Link create(final String action) { 
         final Link link = create();

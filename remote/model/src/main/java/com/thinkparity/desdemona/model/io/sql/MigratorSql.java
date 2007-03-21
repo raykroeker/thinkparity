@@ -5,12 +5,12 @@ package com.thinkparity.desdemona.model.io.sql;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.OS;
 
+import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -261,17 +261,18 @@ public final class MigratorSql extends AbstractSql {
     }
 
     public void createError(final User user, final Product product,
-            final InputStream error, final Long errorLength,
-            final Integer bufferSize, final Calendar occuredOn) {
+            final InputStream errorStream, final Long errorLength,
+            final Integer bufferSize, final Error error) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_CREATE_ERROR);
             session.setLong(1, product.getId());
             session.setLong(2, user.getLocalId());
-            session.setCalendar(3, occuredOn);
-            session.setBinaryStream(4, error, errorLength, bufferSize);
+            session.setCalendar(3, error.getOccuredOn());
+            session.setBinaryStream(4, errorStream, errorLength, bufferSize);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not create error.");
+            error.setId(session.getIdentity());
             session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);

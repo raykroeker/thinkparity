@@ -28,7 +28,9 @@ public class TransportManager {
      *            An internet message.
      */
     public static void deliver(final MimeMessage mimeMessage) {
-        synchronized(SINGLETON) { SINGLETON.doDeliver(mimeMessage); }
+        synchronized (SINGLETON) {
+            SINGLETON.doDeliver(mimeMessage);
+        }
     }
 
     /** The jive messenger e-mail service. */

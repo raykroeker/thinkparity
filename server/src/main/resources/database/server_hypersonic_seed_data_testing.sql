@@ -9,6 +9,7 @@ insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.environment','TESTI
 insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.mode','TESTING');
 insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.product-name','DesdemonaProduct');
 insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.release-name','20070308');
+insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.migrator.logerror.notify','false');
 
 insert into PARITY_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('thinkparity','parity','What is my username?','thinkparity',false,'<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>thinkParity Services Inc.</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');

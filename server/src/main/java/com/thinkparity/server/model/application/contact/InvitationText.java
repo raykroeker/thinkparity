@@ -50,7 +50,7 @@ public class InvitationText {
         this.invitedBy = invitedBy;
         this.resourceBundle = ResourceBundle.getBundle(
                 "localization.Invitation_Messages", locale);
-        this.linkFactory = LinkFactory.getInstance(Application.ROSALINE, environment);
+        this.linkFactory = LinkFactory.getInstance(Application.DESDEMONA, environment);
     }
 
     /**
@@ -61,8 +61,8 @@ public class InvitationText {
      * @return The invitation body.
      */
     public String getBody() {
-        final Link acceptInvitation = linkFactory.create("invitation/accept");
-        acceptInvitation.addParameter("JabberId", invitedBy.getId().getQualifiedJabberId());
+        final Link acceptContactInvitation = linkFactory.create("contact/invitation/accept");
+        acceptContactInvitation.addParameter("JabberId", invitedBy.getId().getQualifiedJabberId());
 
         final Link createAccount = linkFactory.create("user/create");
         createAccount.addParameter("Email", invitee.toString());
@@ -71,7 +71,7 @@ public class InvitationText {
 
         return MessageFormat.format(
                 resourceBundle.getString("body"),
-                getSubject(), acceptInvitation, createAccount);
+                getSubject(), acceptContactInvitation, createAccount);
     }
 
     /**

@@ -5,12 +5,7 @@ package com.thinkparity.codebase;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import com.thinkparity.codebase.SystemUtil.SystemProperty;
 
@@ -69,113 +64,6 @@ public abstract class StringUtil {
 			null == first ? null : first.toString(),
 			null == second ? null : second.toString(),
 			separator);
-	}
-
-	public static String convertFrom(final byte[] bytes)
-			throws UnsupportedEncodingException {
-		return new String(bytes, Charset.ISO_8859_1.getCharsetName());
-	}
-
-	/**
-	 * Convert a list of objects into a separated list.
-	 * @param list <code>java.util.Collection</code> of
-	 * <code>java.lang.Object</code>s
-	 * @param separator <code>StringUtil$Separator</code>
-	 * @return <code>java.lang.StringBuffer</code> or null if list is null
-	 * @throws NullPointerException if separator is null
-	 */
-	public static synchronized StringBuffer convertFromList(Collection<Object> list, Separator separator) {
-		if(null == list)
-			return null;
-		if(null == separator)
-			throw new NullPointerException();
-		StringBuffer convertedList = null;
-		int listIndex = 0;
-		for(Iterator<Object> iList = list.iterator(); iList.hasNext(); listIndex++) {
-			if(0 == listIndex) { convertedList = new StringBuffer(); }
-			else { convertedList.append(separator); }
-			convertedList.append(iList.next());
-		}
-		return convertedList;
-	}
-
-	public static synchronized StringBuffer[] convertToArrayList(String list, Separator separator) {
-		return StringUtil.convertToArrayList(list,  null == separator ? null : separator.toString());
-	}
-
-	public static synchronized StringBuffer[] convertToArrayList(String list, String separator) {
-		final Collection<StringBuffer> convertedList =
-		    StringUtil.convertToList(list, separator);
-		return null == convertedList
-			? null
-			: (StringBuffer[]) convertedList.toArray(new StringBuffer[0]);
-	}
-
-	public static synchronized StringBuffer[] convertToArrayList(String list, StringBuffer separator) {
-		return StringUtil.convertToArrayList(list,  null == separator ? null : separator.toString());
-	}
-	
-	public static StringBuffer[] convertToArrayList(StringBuffer list, Separator separator) {
-		return StringUtil.convertToArrayList(list,  null == separator ? null : separator.toString());
-	}
-
-	public static StringBuffer[] convertToArrayList(StringBuffer list, String separator) {
-		return StringUtil.convertToArrayList(null == list ? null : list.toString(),  null == separator ? null : separator.toString());
-	}
-
-	public static StringBuffer[] convertToArrayList(StringBuffer list, StringBuffer separator) {
-		return StringUtil.convertToArrayList(list,  null == separator ? null : separator.toString());
-	}
-	
-	public static byte[] convertToBytes(final String string)
-			throws UnsupportedEncodingException {
-		return string.getBytes(Charset.ISO_8859_1.getCharsetName());
-	}
-
-    public static synchronized Collection<StringBuffer> convertToList(String list, Separator separator) {
-		return StringUtil.convertToList(list, null == separator ? null : separator.toString());
-	}
-
-	public static synchronized Collection<StringBuffer> convertToList(String list, String separator) {
-		if(null == separator)
-			throw new NullPointerException();
-		if(null == list || 0 == list.length())
-			return null;
-		Collection<StringBuffer> convertedList = null;
-		int currentIndex = 0;
-		int nextIndex = list.indexOf(separator.toString());
-		if(-1 == nextIndex) {	// The separator doesn't exist in the list at all
-			convertedList = new Vector<StringBuffer>(1);
-			convertedList.add(new StringBuffer().append(list));
-		}
-		else {
-			while(-1 != nextIndex) {
-				if(null == convertedList)
-					convertedList = new Vector<StringBuffer>();
-				convertedList.add(
-					new StringBuffer().append(
-						list.substring(currentIndex, nextIndex)));
-				currentIndex = nextIndex + 1;
-				nextIndex = list.indexOf(separator.toString(), currentIndex);
-			}
-		}
-		return convertedList;
-	}
-
-	public static synchronized Collection<StringBuffer> convertToList(String list, StringBuffer separator) {
-		return StringUtil.convertToList(list, null == separator ? null : separator.toString());
-	}
-	
-	public static Collection<StringBuffer> convertToList(StringBuffer list, Separator separator) {
-		return StringUtil.convertToList(null == list ? null : list.toString(),  null == separator ? null : separator.toString());
-	}
-
-	public static Collection<StringBuffer> convertToList(StringBuffer list, String separator) {
-		return StringUtil.convertToList(null == list ? null : list.toString(), separator);
-	}
-
-	public static Collection<StringBuffer> convertToList(StringBuffer list, StringBuffer separator) {
-		return StringUtil.convertToList(null == list ? null : list.toString(),  null == separator ? null : separator.toString());
 	}
 
 	/**
@@ -429,30 +317,34 @@ public abstract class StringUtil {
         return toString.toString();
     }
 
-	public static List<String> tokenize(final String str, final String delim) {
-        if (null == delim)
+    public static List<String> tokenize(final String string,
+            final Separator delimiter, final List<String> list) {
+        return tokenize(string,
+                null == delimiter ? null : delimiter.toString(), list);
+    }
+
+	public static List<String> tokenize(final String string,
+            final String delimiter, final List<String> list) {
+	    if (null == string)
+	        throw new NullPointerException();
+        if (null == delimiter)
             throw new NullPointerException();
-        if (null == str || 0 == str.length())
-            return null;
-        final List<String> tokenized;
         int currentIndex = 0;
-        int nextIndex = str.indexOf(delim);
-        if (-1 == nextIndex) {   // The separator doesn't exist in the list at all
-            tokenized = new ArrayList<String>(1);
-            tokenized.add(str);
+        int nextIndex = string.indexOf(delimiter);
+        if (-1 == nextIndex) { // the delimiter doesn't exist
+            list.add(string);
         }
         else {
-            tokenized = new ArrayList<String>();
             while (-1 != nextIndex) {
-                tokenized.add(str.substring(currentIndex, nextIndex));
+                list.add(string.substring(currentIndex, nextIndex));
                 currentIndex = nextIndex + 1;
-                nextIndex = str.indexOf(delim, currentIndex);
+                nextIndex = string.indexOf(delimiter, currentIndex);
             }
-            if (currentIndex < str.length()) {
-                tokenized.add(str.substring(currentIndex));
+            if (currentIndex < string.length()) {
+                list.add(string.substring(currentIndex));
             }
         }
-        return tokenized;
+        return list;
     }
 
 	/**

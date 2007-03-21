@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
-import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -105,12 +104,11 @@ final class XMPPMigrator extends AbstractXMPP<MigratorListener> {
      *            The error's occured on <code>Calendar</code>.
      */
     void logError(final JabberId userId, final Product product,
-            final Error error, final Calendar occuredOn) {
+            final Error error) {
         final XMPPMethod xmppMethod = new XMPPMethod("migrator:logerror");
         xmppMethod.setParameter("userId", userId);
         xmppMethod.setParameter("product", product);
         xmppMethod.setParameter("error", error);
-        xmppMethod.setParameter("occuredOn", occuredOn);
         execute(xmppMethod);
     }
 

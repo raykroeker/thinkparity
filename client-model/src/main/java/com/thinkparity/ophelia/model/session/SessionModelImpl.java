@@ -597,15 +597,14 @@ public final class SessionModelImpl extends Model<SessionListener>
 
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#logError(com.thinkparity.codebase.model.migrator.Product,
-     *      com.thinkparity.codebase.model.migrator.Error, java.util.Calendar)
+     *      com.thinkparity.codebase.model.migrator.Error)
      * 
      */
-    public void logError(final Product product, final Error error,
-            final Calendar occuredOn) {
+    public void logError(final Product product, final Error error) {
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                xmppSession.logError(localUserId(), product, error, occuredOn);
+                xmppSession.logError(localUserId(), product, error);
             }
         } catch (final Throwable t) {
             throw panic(t);

@@ -6,15 +6,25 @@ package com.thinkparity.desdemona.model.migrator;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
+
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.StreamUtil;
+import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.ZipUtil;
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.DownloadMonitor;
@@ -33,6 +43,8 @@ import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.io.sql.MigratorSql;
 import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.desdemona.util.smtp.MessageFactory;
+import com.thinkparity.desdemona.util.smtp.TransportManager;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Migrator Model Implementation<br>
@@ -57,7 +69,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
     public MigratorModelImpl() {
         super();
     }
-
+   
     /**
      * @see com.thinkparity.desdemona.model.migrator.MigratorModel#createStream(com.thinkparity.codebase.jabber.JabberId,
      *      java.lang.String, java.util.List)
@@ -120,7 +132,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
             throw translateError(t);
         }
     }
-   
+
     /**
      * @see com.thinkparity.desdemona.model.migrator.MigratorModel#deploy(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.migrator.Product,
@@ -188,7 +200,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
      * 
      */
     public void logError(final JabberId userId, final Product product,
-            final Error error, final Calendar occuredOn) {
+            final Error error) {
         try {
             final User user = getUserModel().read(userId);
             final Product localProduct = migratorSql.readProduct(product.getName());
@@ -205,9 +217,26 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                 try {
                     migratorSql.createError(user, localProduct, inputStream,
                             tempErrorFile.length(), getDefaultBufferSize(),
-                            occuredOn);
+                            error);
                 } finally {
                     inputStream.close();
+                }
+                // send e-mail
+                final Boolean notify =
+                    Boolean.valueOf(getConfiguration("logerror.notify"));
+                if (notify.booleanValue()) {
+                    final MimeMessage mimeMessage = MessageFactory.createMimeMessage();
+                    inject(mimeMessage, error);
+                    final EMail toRecipient =
+                        EMailBuilder.parse(getConfiguration("logerror.notify.to"));
+                    final List<String> ccRecipients = StringUtil.tokenize(
+                                getConfiguration("logerror.notify.cc"),
+                                Separator.Comma, new ArrayList<String>(2));
+                    addRecipient(mimeMessage, toRecipient);
+                    for (final String ccRecipient : ccRecipients)
+                        addRecipient(mimeMessage, MimeMessage.RecipientType.CC,
+                                EMailBuilder.parse(ccRecipient));
+                    TransportManager.deliver(mimeMessage);
                 }
             } finally {
                 tempErrorFile.delete();
@@ -373,6 +402,28 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
     private boolean doesExistRelease(final Long productId, final String name,
             final OS os) {
         return migratorSql.doesExistRelease(productId, name, os); 
+    }
+
+    /**
+     * Inject the error into the mime message. We create an html message
+     * displaying an error notification.
+     * 
+     * @param mimeMessage
+     *            A <code>MimeMessage</code>.
+     * @param error
+     *            An <code>Error</code>.
+     */
+    private void inject(final MimeMessage mimeMessage, final Error error)
+            throws MessagingException {
+        final ErrorText errorText = new ErrorText(getEnvironment(), Locale.getDefault(), error);
+        mimeMessage.setSubject(errorText.getSubject());
+
+        final MimeBodyPart errorBody = new MimeBodyPart();
+        errorBody.setContent(errorText.getBody(), errorText.getBodyType());
+
+        final Multipart errorContent = new MimeMultipart();
+        errorContent.addBodyPart(errorBody);
+        mimeMessage.setContent(errorContent);
     }
 
     /**

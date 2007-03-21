@@ -56,9 +56,23 @@ public class Link {
      *            The parameter value.
      * @return The previous value of the parameter.
      */
+    public String addParameter(final String name, final Long value) {
+        return addParameter(name, String.valueOf(value));
+    }
+
+    /**
+     * Set the link parameter.
+     * 
+     * @param name
+     *            The parameter name.
+     * @param value
+     *            The parameter value.
+     * @return The previous value of the parameter.
+     */
     public String addParameter(final String name, final String value) {
         return parameters.put(name, value);
     }
+
 
     /** @see java.lang.Object#equals(java.lang.Object) */
     @Override

@@ -313,8 +313,7 @@ public interface InternalSessionModel extends SessionModel {
      * @param occuredOn
      *            The date/time the error occured.
      */
-    public void logError(final Product product, final Error error,
-            final Calendar occuredOn);
+    public void logError(final Product product, final Error error);
 
     /**
      * Login for the first time in this workspace.

@@ -622,12 +622,12 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#logError(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.migrator.Product,
-     *      com.thinkparity.codebase.model.migrator.Error, java.util.Calendar)
+     *      com.thinkparity.codebase.model.migrator.Error)
      * 
      */
     public void logError(final JabberId userId, final Product product,
-            final Error error, final Calendar occuredOn) {
-        xmppMigrator.logError(userId, product, error, occuredOn);
+            final Error error) {
+        xmppMigrator.logError(userId, product, error);
     }
 
     /**

@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.platform.plugin;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -93,7 +94,8 @@ public final class PluginMetaInfo {
      */
     List<String> getPlatformExtensions() {
         return StringUtil.tokenize(
-                getMetaInfo(InfoKey.PLATFORM_EXTENSIONS), ",");
+                getMetaInfo(InfoKey.PLATFORM_EXTENSIONS), ",",
+                new ArrayList<String>(7));
     }
 
     /**

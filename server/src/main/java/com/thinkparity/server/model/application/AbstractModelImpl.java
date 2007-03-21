@@ -95,6 +95,9 @@ public abstract class AbstractModelImpl
     /** An instance of the jive properties. */
     private JiveProperties jiveProperties;
 
+    /** A <code>ModelConfiguration</code>. */
+    private ModelConfiguration modelConfiguration;
+
     /**
      * Create AbstractModelImpl.
      *
@@ -124,9 +127,23 @@ public abstract class AbstractModelImpl
      */
     protected void addRecipient(final MimeMessage mimeMessage, final EMail email)
             throws MessagingException {
-        mimeMessage.addRecipient(
-                Message.RecipientType.TO,
-                new InternetAddress(email.toString(), Boolean.TRUE));
+        addRecipient(mimeMessage, Message.RecipientType.TO, email);
+    }
+
+    /**
+     * Add a to email recipient to a mime message.
+     * 
+     * @param mimeMessage
+     *            A <code>MimeMessage</code>.
+     * @param email
+     *            An <code>EMail</code>.
+     * @throws MessagingException
+     */
+    protected void addRecipient(final MimeMessage mimeMessage,
+            final Message.RecipientType recipientType, final EMail email)
+            throws MessagingException {
+        mimeMessage.addRecipient(recipientType, new InternetAddress(
+                email.toString(), Boolean.TRUE));
     }
 
     /**
@@ -202,7 +219,7 @@ public abstract class AbstractModelImpl
                 "User {0} is not a system user.", userId);
     }
 
-    /**
+	/**
      * Assert that the thinkParity system is the current key holder.
      * 
      * @param assertion
@@ -216,7 +233,7 @@ public abstract class AbstractModelImpl
                 uniqueId);
     }
 
-	/**
+    /**
 	 * Create a jabber id for the username.
 	 * 
 	 * @param username
@@ -227,7 +244,7 @@ public abstract class AbstractModelImpl
 		return JIDBuilder.build(username);
 	}
 
-    /**
+	/**
      * Build a unique id for a user in time. Use the user id plus the current
      * timestamp to generate a unique id.
      * 
@@ -245,7 +262,7 @@ public abstract class AbstractModelImpl
        return MD5Util.md5Hex(hashString);
     }
 
-	/**
+    /**
      * Determine if a list contains a user.
      * 
      * @param <U>
@@ -411,7 +428,6 @@ public abstract class AbstractModelImpl
         eventUserIds.add(eventUserId);
         enqueuePriorityEvent(userId, eventUserIds, event);
     }
-
     /**
      * Enqueue a priority event for a user.
      * 
@@ -440,6 +456,7 @@ public abstract class AbstractModelImpl
             backupEvent(userId, userId, event);
         }
     }
+
     /**
      * Obtain a thinkParity archive interface.
      * 
@@ -483,6 +500,17 @@ public abstract class AbstractModelImpl
     }
 
     /**
+     * Obtain configuration.
+     * 
+     * @param key
+     *            A configuration key <code>String</code>.
+     * @return A configuration value <code>String</code>.
+     */
+    protected final String getConfiguration(final String key) {
+        return modelConfiguration.getConfiguration(key);
+    }
+
+    /**
      * Obtain the parity contact interface.
      * 
      * @return The parity contact interface.
@@ -491,7 +519,7 @@ public abstract class AbstractModelImpl
 		return ContactModel.getModel(session);
 	}
 
-    /**
+	/**
      * Obtain the default buffer size.
      * 
      * @return A buffer size <code>Integer</code>.
@@ -509,7 +537,7 @@ public abstract class AbstractModelImpl
         return 1024 * 1024 * 8; // BUFFER 8MB  - AbstractModelImpl#getDefaultBufferSize()
     }
 
-	/**
+    /**
      * Obtain the default buffer size.
      * 
      * @return A buffer size <code>Integer</code>.
@@ -544,15 +572,15 @@ public abstract class AbstractModelImpl
                     t.getMessage());
     }
 
-    protected InternalQueueModel getQueueModel() {
+	protected InternalQueueModel getQueueModel() {
         return QueueModel.getInternalModel(getContext(), session);
     }
 
-    protected InternalStreamModel getStreamModel() {
+	protected InternalStreamModel getStreamModel() {
         return StreamModel.getInternalModel(getContext(), session);
     }
 
-	protected InternalUserModel getUserModel() {
+    protected InternalUserModel getUserModel() {
 		return UserModel.getInternalModel(getContext(), session);
 	}
 
@@ -594,7 +622,7 @@ public abstract class AbstractModelImpl
         return -1;
     }
 
-	/**
+    /**
      * Initialize the model.
      * 
      * @param session
@@ -602,6 +630,7 @@ public abstract class AbstractModelImpl
      */
     protected final void initialize(final Session session) {
         this.session = session;
+        this.modelConfiguration = ModelConfiguration.getInstance(getClass());
     }
 
 	/**

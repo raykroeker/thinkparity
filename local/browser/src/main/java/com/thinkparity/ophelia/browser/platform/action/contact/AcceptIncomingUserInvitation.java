@@ -3,8 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.contact;
 
-import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
-
 import com.thinkparity.ophelia.model.contact.ContactModel;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -21,9 +19,6 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  */
 public class AcceptIncomingUserInvitation extends AbstractBrowserAction {
 
-    /** The thinkParity <code>Browser</code> application. */
-    private final Browser browser;
-
     /**
      * Create AcceptIncomingUserInvitation.
      * 
@@ -32,7 +27,6 @@ public class AcceptIncomingUserInvitation extends AbstractBrowserAction {
      */
 	public AcceptIncomingUserInvitation(final Browser browser) {
 		super(ActionId.CONTACT_ACCEPT_INCOMING_EMAIL_INVITATION);
-        this.browser = browser;
 	}
 
     /**
@@ -43,12 +37,7 @@ public class AcceptIncomingUserInvitation extends AbstractBrowserAction {
 	    final Long invitationId = (Long) data.get(DataKey.INVITATION_ID);
 
         final ContactModel contactModel = getContactModel();
-        final IncomingUserInvitation invitation =
-            contactModel.readIncomingUserInvitation(invitationId);
-        if (browser.confirm("AcceptIncomingUserInvitation.ConfirmAccept",
-                new Object[] { invitation.getExtendedBy().getName() })) {
-            contactModel.acceptIncomingUserInvitation(invitationId);
-        }
+        contactModel.acceptIncomingUserInvitation(invitationId);
 	}
 
 	public enum DataKey { INVITATION_ID }

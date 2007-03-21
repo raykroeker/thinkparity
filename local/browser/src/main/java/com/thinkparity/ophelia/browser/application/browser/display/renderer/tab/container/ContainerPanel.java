@@ -669,7 +669,7 @@ public class ContainerPanel extends DefaultTabPanel {
      * @return A <code>Font</code>.
      */
     private Font getContainerTextFont() {
-        if (!container.isSeen().booleanValue()) {
+        if (!expanded && !container.isSeen().booleanValue()) {
             return Fonts.DefaultFontBold;
         } else {
             return Fonts.DefaultFont;

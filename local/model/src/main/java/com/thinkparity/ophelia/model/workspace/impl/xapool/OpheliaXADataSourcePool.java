@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.model.workspace.impl.xapool;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import javax.transaction.TransactionManager;
+
 import org.enhydra.jdbc.pool.StandardXAPoolDataSource;
 
 /**
@@ -41,5 +43,15 @@ public class OpheliaXADataSourcePool extends StandardXAPoolDataSource {
      */
     public synchronized Connection getShutdownConnection() throws SQLException {
         return xaDataSource.getShutdownConnection();
+    }
+
+    /**
+     * @see org.enhydra.jdbc.pool.StandardXAPoolDataSource#setTransactionManager(javax.transaction.TransactionManager)
+     *
+     */
+    @Override
+    public void setTransactionManager(final TransactionManager tm) {
+        xaDataSource.setTransactionManager(tm);
+        super.setTransactionManager(tm);
     }
 }

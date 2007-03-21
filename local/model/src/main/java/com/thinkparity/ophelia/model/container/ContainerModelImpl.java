@@ -1021,7 +1021,8 @@ public final class ContainerModelImpl extends
                 containerIO.createPublishedTo(version.getArtifactId(),
                         version.getVersionId(), publishToUsers, publishedOn);
                 // publish container contents
-                publish(monitor, version, localUserId(), publishedOn, publishToUsers);
+                publish(monitor, version, version, localUserId(), publishedOn,
+                        publishToUsers);
                 // fire event
                 final Container postPublish = read(container.getId());
                 final ContainerVersion postPublishVersion = readVersion(
@@ -1085,8 +1086,15 @@ public final class ContainerModelImpl extends
                     containerIO.createPublishedTo(containerId, versionId,
                             publishToUser, publishedOn);
             }
-            // publish
-            publish(monitor, version, version.getCreatedBy(), publishedOn, publishToUsers);
+            // HACK the client code should not be able to dictate the latest
+            // version which is essentially happening here.
+            final Container container = read(containerId);
+            if (container.isLatest())
+                publish(monitor, version, readLatestVersion(containerId),
+                        version.getCreatedBy(), publishedOn, publishToUsers);
+            else
+                publish(monitor, version, null, version.getCreatedBy(),
+                        publishedOn, publishToUsers);
             // fire event
             final Container postPublish = read(containerId);
             final ContainerVersion postPublishVersion =
@@ -3042,6 +3050,8 @@ public final class ContainerModelImpl extends
      *            A <code>PublishMonitor</code>.
      * @param version
      *            A <code>ContainerVersion</code>.
+     * @param latestVersion
+     *            The latest <code>ContainerVersion</code>.
      * @param contacts
      *            A <code>List</code> of <code>Contact</code>s.
      * @param teamMembers
@@ -3055,7 +3065,8 @@ public final class ContainerModelImpl extends
      * @throws IOException
      */
     private void publish(final ProcessMonitor monitor,
-            final ContainerVersion version, final JabberId publishedBy,
+            final ContainerVersion version,
+            final ContainerVersion latestVersion, final JabberId publishedBy,
             final Calendar publishedOn, final List<User> publishedTo)
             throws IOException {
         // grab the document versions
@@ -3101,9 +3112,9 @@ public final class ContainerModelImpl extends
         getSessionModel().deleteStreamSession(streamSession);
         // publish
         notifyStepBegin(monitor, PublishStep.PUBLISH);
-        getSessionModel().publish(version, documentVersionStreamIds,
-                readTeam(version.getArtifactId()), publishedBy, publishedOn,
-                publishedTo);
+        getSessionModel().publish(version, latestVersion,
+                documentVersionStreamIds, readTeam(version.getArtifactId()),
+                publishedBy, publishedOn, publishedTo);
         notifyStepEnd(monitor, PublishStep.PUBLISH);
     }
 

@@ -15,22 +15,7 @@ import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationExtendedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationExtendedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.*;
 
 import org.dom4j.Element;
 
@@ -149,6 +134,7 @@ public final class XStreamXMPPEventTest extends XStreamTestCase {
 
     private Fixture setUp(final ArtifactPublishedEvent event,
             final ArtifactPublishedEvent event2) {
+        event.setLatestVersion(Boolean.FALSE);
         event.setPublishedBy(jabberId);
         event.setPublishedOn(DateUtil.getInstance());
         event.setUniqueId(UUID.randomUUID());

@@ -259,12 +259,15 @@ public final class ArtifactModelImpl extends Model implements
      */
     public void handlePublished(final ArtifactPublishedEvent event) {
         try {
-            // update latest flag
+            /* update the latest flag only if the event pertains to the latest
+             * version */
             final Long artifactId = readId(event.getUniqueId());
-            if (doesVersionExist(artifactId, event.getVersionId())) {
-                applyFlagLatest(artifactId);
-            } else {
-                removeFlagLatest(artifactId);
+            if (event.isLatestVersion()) {
+                if (doesVersionExist(artifactId, event.getVersionId())) {
+                    applyFlagLatest(artifactId);
+                } else {
+                    removeFlagLatest(artifactId);
+                }
             }
             // update local team definition
             final List<JabberId> localTeamIds = readTeamIds(artifactId);

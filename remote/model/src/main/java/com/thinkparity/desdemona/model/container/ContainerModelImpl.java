@@ -61,12 +61,14 @@ class ContainerModelImpl extends AbstractModelImpl {
 
     // TODO-javadoc ContainerModelImpl#publish
     void publish(final JabberId userId, final ContainerVersion version,
+            final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documentVersions,
             final List<TeamMember> teamMembers, final JabberId publishedBy,
             final Calendar publishedOn, final List<User> publishedTo) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("version", version);
+        logger.logVariable("latestVersion", latestVersion);
         logger.logVariable("documentVersions", documentVersions);
         logger.logVariable("teamMembers", teamMembers);
         logger.logVariable("publishedBy", publishedBy);
@@ -89,6 +91,7 @@ class ContainerModelImpl extends AbstractModelImpl {
             enqueueEvent(session.getJabberId(), publishedToIds, publishedEvent);
 
             final ArtifactPublishedEvent artifactPublishedEvent = new ArtifactPublishedEvent();
+            artifactPublishedEvent.setLatestVersion(version.equals(latestVersion));
             artifactPublishedEvent.setPublishedBy(publishedBy);
             artifactPublishedEvent.setPublishedOn(publishedOn);
             artifactPublishedEvent.setUniqueId(version.getArtifactUniqueId());

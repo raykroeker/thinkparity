@@ -734,20 +734,23 @@ public final class SessionModelImpl extends Model<SessionListener>
 
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#publish(com.thinkparity.codebase.model.container.ContainerVersion,
+     *      com.thinkparity.codebase.model.container.ContainerVersion,
      *      java.util.Map, java.util.List,
      *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
      *      java.util.List)
      * 
      */
-    public void publish(final ContainerVersion container,
+    public void publish(final ContainerVersion version,
+            final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documents,
             final List<TeamMember> teamMembers, final JabberId publishedBy,
             final Calendar publishedOn, final List<User> publishedTo) {
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                xmppSession.publish(localUserId(), container, documents,
-                        teamMembers, publishedBy, publishedOn, publishedTo);
+                xmppSession.publish(localUserId(), version, latestVersion,
+                        documents, teamMembers, publishedBy, publishedOn,
+                        publishedTo);
             }
         } catch(final Throwable t) {
             throw panic(t);

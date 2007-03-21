@@ -19,6 +19,9 @@ import com.thinkparity.codebase.jabber.JabberId;
  */
 public final class ArtifactPublishedEvent extends XMPPEvent {
 
+    /** The latest version flag <code>Boolean</code>. */
+    private Boolean latestVersion;
+
     /** The published by user id <code>JabberId</code>. */
     private JabberId publishedBy;
 
@@ -63,6 +66,15 @@ public final class ArtifactPublishedEvent extends XMPPEvent {
         this.teamUserIds.clear();
     }
 
+
+    /**
+     * Obtain latestVersion.
+     *
+     * @return A Boolean.
+     */
+    public Boolean getLatestVersion() {
+        return isLatestVersion();
+    }
 
     /**
      * Obtain publishedBy.
@@ -110,6 +122,15 @@ public final class ArtifactPublishedEvent extends XMPPEvent {
     }
 
     /**
+     * Obtain latestVersionId.
+     *
+     * @return A Long.
+     */
+    public Boolean isLatestVersion() {
+        return latestVersion;
+    }
+
+    /**
      * Remove a team id.
      * 
      * @param teamId
@@ -118,6 +139,16 @@ public final class ArtifactPublishedEvent extends XMPPEvent {
      */
     public boolean removeTeamUserId(final JabberId teamId) {
         return teamUserIds.remove(teamId);
+    }
+
+    /**
+     * Set latestVersionId.
+     *
+     * @param latestVersionId
+     *		A Long.
+     */
+    public void setLatestVersion(final Boolean latestVersion) {
+        this.latestVersion = latestVersion;
     }
 
     /**

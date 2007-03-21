@@ -325,12 +325,12 @@ public class XMPPMethod extends IQ {
         this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
     }
 
-    public final <T extends ContactInvitation> void setParameter(
+    public final <T extends ArtifactVersion> void setParameter(
             final String name, final T value) {
         parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
     }
 
-    public final <T extends ArtifactVersion> void setParameter(
+    public final <T extends ContactInvitation> void setParameter(
             final String name, final T value) {
         parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
     }

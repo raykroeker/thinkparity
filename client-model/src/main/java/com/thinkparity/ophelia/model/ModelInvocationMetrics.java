@@ -36,8 +36,6 @@ class ModelInvocationMetrics {
      *            A <code>Method</code> context.
      */
     static void begin(final Method context) {
-        if (MEASURES.containsKey(context))
-            MEASURES.remove(context);
         MEASURES.put(context, captureMeasure());
     }
 
@@ -48,7 +46,7 @@ class ModelInvocationMetrics {
      *            A <code>Method</code> context.
      */
     static void end(final Method context) {
-        final Measure begin = MEASURES.get(context);
+        final Measure begin = MEASURES.remove(context);
         final Measure end = captureMeasure();
         final StringBuffer id = new StringBuffer(context.getDeclaringClass().getSimpleName())
             .append("#")

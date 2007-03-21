@@ -71,7 +71,7 @@ public abstract class ArtifactVersion {
     public boolean equals(final Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
+        if (null == obj)
             return false;
         if (getClass() != obj.getClass())
             return false;

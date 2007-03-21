@@ -444,8 +444,8 @@ public interface XMPPSession {
             final JabberId userId);
 
     // TODO-javadoc XMPPSession#publish
-    public void publish(final JabberId userId,
-            final ContainerVersion container,
+    public void publish(final JabberId userId, final ContainerVersion version,
+            final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documents,
             final List<TeamMember> teamMembers, final JabberId publishedBy,
             final Calendar publishedOn, final List<User> publishedTo);

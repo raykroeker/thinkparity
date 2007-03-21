@@ -700,18 +700,20 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#publish(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.container.ContainerVersion,
+     *      com.thinkparity.codebase.model.container.ContainerVersion,
      *      java.util.Map, java.util.List,
      *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
      *      java.util.List)
      * 
      */
     public void publish(final JabberId userId,
-            final ContainerVersion container,
+            final ContainerVersion version,
+            final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documents,
             final List<TeamMember> teamMembers, final JabberId publishedBy,
             final Calendar publishedOn, final List<User> publishedTo) {
-        xmppContainer.publish(userId, container, documents, teamMembers,
-                publishedBy, publishedOn, publishedTo);
+        xmppContainer.publish(userId, version, latestVersion, documents,
+                teamMembers, publishedBy, publishedOn, publishedTo);
     }
 
     /**

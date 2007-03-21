@@ -23,14 +23,14 @@ import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class Publish extends AbstractHandler {
+public final class PublishVersion extends AbstractHandler {
 
     /**
      * Create Publish.
      *
      */
-    public Publish() {
-        super("container:publish");
+    public PublishVersion() {
+        super("container:publishversion");
     }
 
     /**
@@ -43,10 +43,8 @@ public final class Publish extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        logger.logApiId();
         publish(provider, reader.readJabberId("userId"),
                 reader.readContainerVersion("version"),
-                reader.readContainerVersion("latestVersion"),
                 reader.readDocumentVersionsStreamIds("documentVersions"),
                 reader.readTeamMembers("teamMembers"),
                 reader.readJabberId("publishedBy"),
@@ -56,11 +54,10 @@ public final class Publish extends AbstractHandler {
 
     private void publish(final ServiceModelProvider provider,
             final JabberId userId, final ContainerVersion version,
-            final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documentVersions,
             final List<TeamMember> teamMembers, final JabberId publishedBy,
             final Calendar publishedOn, final List<User> publishedTo) {
-        provider.getContainerModel().publish(userId, version, latestVersion,
+        provider.getContainerModel().publish(userId, version, null,
                 documentVersions, teamMembers, publishedBy, publishedOn,
                 publishedTo);
     }

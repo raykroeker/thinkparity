@@ -53,12 +53,13 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
 
     // TODO-javadoc ContainerModel#publish
     public void publish(final JabberId userId, final ContainerVersion version,
+            final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documentVersions,
             final List<TeamMember> teamMembers, final JabberId publishedBy,
             final Calendar publishedOn, final List<User> publishedTo) {
         synchronized (getImplLock()) {
-            getImpl().publish(userId, version, documentVersions, teamMembers,
-                    publishedBy, publishedOn, publishedTo);
+            getImpl().publish(userId, version, latestVersion, documentVersions,
+                    teamMembers, publishedBy, publishedOn, publishedTo);
         }
     }
 

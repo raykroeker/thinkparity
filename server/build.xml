@@ -494,7 +494,7 @@ Examples:
     <target name="install-package" depends="package">
         <property name="thinkparity.plugin-name" value="${thinkparity.product-name}-${thinkparity.release-name}.jar"/>
         <delete includeemptydirs="true">
-            <fileset dir="${wildfire.home}/plugins">
+            <fileset dir="${wildfire.home}/plugins" casesensitive="false">
                 <include name="${thinkparity.product-name}-${thinkparity.release-name}*/**"/>
             </fileset>
         </delete>

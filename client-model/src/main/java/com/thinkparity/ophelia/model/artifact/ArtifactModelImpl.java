@@ -236,12 +236,17 @@ public final class ArtifactModelImpl extends Model implements
     public void handleDraftDeleted(final ArtifactDraftDeletedEvent event) {
         try {
             final Long artifactId = artifactIO.readId(event.getUniqueId());
-            switch (artifactIO.readType(artifactId)) {
-            case CONTAINER:
-                getContainerModel().handleDraftDeleted(event);
-                break;
-            default:
-                Assert.assertUnreachable("Unsupported artifact type.");
+            if (null == artifactId) {
+                logger.logWarning("Artifact {0} no longer exists locally.",
+                        event.getUniqueId());
+            } else {
+                switch (artifactIO.readType(artifactId)) {
+                case CONTAINER:
+                    getContainerModel().handleDraftDeleted(event);
+                    break;
+                default:
+                    Assert.assertUnreachable("Unsupported artifact type.");
+                }
             }
         } catch (final Throwable t) {
             throw panic(t);

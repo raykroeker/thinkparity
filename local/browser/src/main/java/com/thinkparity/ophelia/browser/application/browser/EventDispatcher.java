@@ -208,10 +208,6 @@ class EventDispatcher {
                 browser.fireConnectionOffline();
             }
             @Override
-            public void sessionTerminated(final Throwable cause) {
-                sessionTerminated();
-            }
-            @Override
             public void sessionError(final Throwable cause) {
                 browser.displayErrorDialog("SessionError", new Object[] {}, cause);
             }

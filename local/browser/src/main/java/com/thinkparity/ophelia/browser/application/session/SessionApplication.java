@@ -163,7 +163,6 @@ public class SessionApplication extends AbstractApplication {
      *
      */
     void fireConnectionOffline() {
-        logApiId();
         connectLater();
     }
 
@@ -172,7 +171,6 @@ public class SessionApplication extends AbstractApplication {
      *
      */
     void fireConnectionOnline() {
-        logApiId();
         connectTimer.cancel();
         connectTimer = null;
     }

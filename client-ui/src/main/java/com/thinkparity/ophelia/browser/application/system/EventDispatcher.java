@@ -143,10 +143,6 @@ class EventDispatcher {
             public void sessionTerminated() {
                 systemApplication.fireConnectionOffline();
             }
-            @Override
-            public void sessionTerminated(final Throwable t) {
-                sessionTerminated();
-            }
         };
     }
 }

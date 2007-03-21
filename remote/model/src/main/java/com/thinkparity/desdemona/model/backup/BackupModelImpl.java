@@ -15,7 +15,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.UploadMonitor;
-import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -24,7 +23,6 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.user.TeamMember;
-import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
@@ -186,12 +184,6 @@ final class BackupModelImpl extends AbstractModelImpl {
                     final InternalContainerModel containerModel =
                         getModelFactory(archiveId).getContainerModel(getClass());
                     containerModel.delete(artifactId);
-                    // remove user from the team
-                    final com.thinkparity.desdemona.model.artifact.InternalArtifactModel
-                    desdemonaArtifactModel = getArtifactModel();
-                    final Artifact artifact = getArtifactModel().read(uniqueId);
-                    final User user = getUserModel().read(userId);
-                    desdemonaArtifactModel.removeTeamMember(userId, artifact.getId(), user.getLocalId());
                 }
             }
         } catch (final Throwable t) {

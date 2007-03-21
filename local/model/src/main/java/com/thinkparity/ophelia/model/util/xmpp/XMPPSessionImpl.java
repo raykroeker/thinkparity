@@ -100,6 +100,8 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
             @Override
             public void endStep(final Step step) {}
         };
+        // TIMEOUT - XMPPSessionImpl#<cinit> - 7s
+        SmackConfiguration.setKeepAliveInterval(7000);
         logger.logInfo("Smack v{0}", SmackConfiguration.getVersion());
         // register a custom packet creator for remote events.
         ProviderManager.addIQProvider("query",
@@ -300,7 +302,11 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * 
      */
     public void clearListeners() {
-        logger.logApiId();
+        // clear remote queue listener
+        if (null != queueListener)
+            xmppConnection.removePacketListener(queueListener.listener);
+        queueListener = null;
+        // clear event listeners
         synchronized (listeners) {
             listeners.clear();
         }
@@ -639,11 +645,10 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * 
      */
 	public void logout() {
-		logger.logApiId();
-        eradicateQueueListener();
         clearListeners();
         xmppAnonymousConnection.close();
         xmppAnonymousConnection = null;
+
         xmppConnection.close();
         xmppConnection = null;
 	}
@@ -1154,16 +1159,6 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
                 xmppConnection.isAuthenticated());
 	}
 
-	/**
-     * Remove the queue listener from the connection.
-     *
-     */
-    private void eradicateQueueListener() {
-        Assert.assertNotNull("Queue listener is not registered.", queueListener);
-        xmppConnection.removePacketListener(queueListener.listener);
-        queueListener = null;
-    }
-
     /**
      * Execute a method using the connection.
      * 
@@ -1209,6 +1204,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
                 listener.sessionTerminated();
             }
         });
+	    clearListeners();
 	}
 
     /**
@@ -1222,9 +1218,11 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	private void handleConnectionClosed(final Exception x) {
 	    notifyListeners(new EventNotifier<SessionListener>() {
             public void notifyListener(final SessionListener listener) {
-                listener.sessionTerminated(x);
+                listener.sessionError(x);
+                listener.sessionTerminated();
             }
         });
+        clearListeners();
 	}
 
     /**

@@ -19,18 +19,17 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
+
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.user.TeamMember;
-import com.thinkparity.codebase.swing.SwingUtil;
-import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -82,6 +81,8 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
+
+import org.apache.log4j.Logger;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -158,6 +159,15 @@ public class Browser extends AbstractApplication {
             Assert.assertUnreachable("Unknown main title tab id.");
         }
 	}
+
+    /**
+     * Clear all status links.
+     * 
+     */
+    public void clearStatusLink() {
+        final Data input = new Data(0);
+        setInput(AvatarId.MAIN_STATUS, input);
+    }
 
     /** Close the main window. */
     public void closeBrowserWindow() {
@@ -274,7 +284,7 @@ public class Browser extends AbstractApplication {
     public void displayContactCreateInvitation() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTACT_CREATE_OUTGOING_INVITATION);
     }
-
+    
     /**
      * Display the contact tab avatar.
      *
@@ -282,7 +292,7 @@ public class Browser extends AbstractApplication {
     public void displayContactTabAvatar() {
         displayTab(AvatarId.TAB_CONTACT);
     }
-    
+
     /**
      * Display the container tab avatar.
      *
@@ -290,7 +300,7 @@ public class Browser extends AbstractApplication {
     public void displayContainerTabAvatar() {
         displayTab(AvatarId.TAB_CONTAINER);
     }
-
+        
     /**
      * Display the container version comment dialog.
      * 
@@ -306,7 +316,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_VERSION_COMMENT, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_VERSION_COMMENT);
     }
-        
+    
     /**
      * Display the "new container" dialog (to create new packages).
      * If the user presses OK, runCreateContainer() is called and
@@ -339,7 +349,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_CREATE);
     }
-    
+
     /**
      * Handle a user error (show an error dialog).
      * 
@@ -443,7 +453,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
-
+    
     /**
      * Display the "publish container" dialog for a version.
      * If the user presses OK, the CONTAINER_PUBLISH_VERSION action is invoked.
@@ -475,7 +485,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTACT_READ, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTACT_READ);        
     }
-    
+
     /**
      * Display a container rename dialog.
      * 
@@ -522,14 +532,14 @@ public class Browser extends AbstractApplication {
     public void displayTabExtension(final TabPanelExtension tabPanelExtension) {
         displayTab(tabPanelExtension);
     }
-
+    
     /**
      * Display the update password dialog.
      */
     public void displayUpdatePasswordDialog() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_UPDATE_PASSWORD);
     }
-    
+
     /**
      * Display the update profile dialog.
      *
@@ -639,8 +649,11 @@ public class Browser extends AbstractApplication {
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#getConnection()
+     * 
      */
-    public Connection getConnection() { return connection; }
+    public Connection getConnection() {
+        return connection;
+    }
 
     /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#getId()
@@ -723,7 +736,7 @@ public class Browser extends AbstractApplication {
 	 */
 	public void hibernate() { getPlatform().hibernate(getId()); }
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#hibernate()
 	 * 
 	 */
@@ -768,7 +781,7 @@ public class Browser extends AbstractApplication {
         return getPlatform().isDevelopmentMode();
     }
 
-	/**
+    /**
      * Maximize (or unmaximize) the browser application.
      * 
      * @param maximize
@@ -834,27 +847,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Set a status link.
-     * 
-     * @param link
-     *            A <code>MainStatusAvatarLink</code>.
-     */
-    public void setStatusLink(final MainStatusAvatarLink link) {
-        final Data input = new Data(1);
-        input.set(MainStatusAvatar.DataKey.LINK, link);
-        setInput(AvatarId.MAIN_STATUS, input);
-    }
-
-    /**
-     * Clear all status links.
-     * 
-     */
-    public void clearStatusLink() {
-        final Data input = new Data(0);
-        setInput(AvatarId.MAIN_STATUS, input);
-    }
-
-    /**
      * Resize the browser window.
      * 
      * @param s
@@ -867,7 +859,7 @@ public class Browser extends AbstractApplication {
         mainWindow.setMainWindowSize(newS);
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#restore(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -888,8 +880,8 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	public void restoreState(final State state) {}
-    
-    /**
+
+	/**
      * Confirm an attempt to retry an invocation of an action with the user and
      * if positive retry.
      * 
@@ -928,8 +920,8 @@ public class Browser extends AbstractApplication {
         data.set(AcceptIncomingUserInvitation.DataKey.INVITATION_ID, invitationId);
         invoke(ActionId.CONTACT_ACCEPT_INCOMING_USER_INVITATION, data);
     }
-
-	/**
+    
+    /**
      * Run the add bookmark action.
      * 
      * @param containerId
@@ -941,7 +933,7 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.CONTAINER_ADD_BOOKMARK, data);
     }
 
-    /**
+	/**
      * Run the create document action, browse to select the document.
      * 
      * @param containerId
@@ -974,7 +966,7 @@ public class Browser extends AbstractApplication {
         data.set(AddDocument.DataKey.FILES, files);
         invoke(ActionId.CONTAINER_ADD_DOCUMENT, data);
     }
-    
+
     /**
      * Run the profile's add email action.
      *
@@ -996,8 +988,8 @@ public class Browser extends AbstractApplication {
         data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, containerId);
         invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
     }
-  
-	/**
+    
+    /**
      * Run the apply flag seen action.
      * 
      * @param documentId
@@ -1008,8 +1000,8 @@ public class Browser extends AbstractApplication {
         data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, documentId);
         invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
     }
-
-    /**
+  
+	/**
      * Run the add contact action.
      *
      */
@@ -1147,8 +1139,8 @@ public class Browser extends AbstractApplication {
 		final Data data = new Data(1);
 		data.set(Open.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_OPEN, data);
-	}    
-    
+	}
+
     /**
 	 * Run the open document version action.
 	 *
@@ -1165,7 +1157,7 @@ public class Browser extends AbstractApplication {
 		data.set(OpenVersion.DataKey.DOCUMENT_ID, documentId);
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
-	}
+	}    
     
     /**
      * Run the platform browser open help action.
@@ -1251,7 +1243,7 @@ public class Browser extends AbstractApplication {
             public void run() { invoke(ActionId.CONTAINER_PUBLISH_VERSION, data); }
         });
     }
-
+    
     /**
      * Run the open contact action.
      * 
@@ -1292,7 +1284,7 @@ public class Browser extends AbstractApplication {
         data.set(RemoveBookmark.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_REMOVE_BOOKMARK, data);
     }
-    
+
     /**
      * Run the remove flag seen action.
      * 
@@ -1356,7 +1348,7 @@ public class Browser extends AbstractApplication {
     public void runResetPassword() {
         getPlatform().runResetPassword();
     }
-
+    
     /**
      * Update a document draft.
      * 
@@ -1372,7 +1364,7 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);
     }
 
-	/**
+    /**
      * Update the user's profile.
      *
      * @param name
@@ -1426,7 +1418,7 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.PROFILE_UPDATE, data);
     }
 
-    /**
+	/**
      * Update the user's profile.
      * 
      * @param oldPassword
@@ -1445,7 +1437,7 @@ public class Browser extends AbstractApplication {
         data.set(UpdatePassword.DataKey.NEW_PASSWORD_CONFIRM, confirmNewPassword);
         invoke(ActionId.PROFILE_UPDATE_PASSWORD, data);
     }
-    
+
     /**
      * Run the profile's verify email action.  Since no key is specified; this
      * will display a dialog.
@@ -1454,7 +1446,7 @@ public class Browser extends AbstractApplication {
     public void runVerifyProfileEmail(final Long emailId) {
         runVerifyProfileEmail(emailId, null);
     }
-
+    
     /**
      * Run the profile's verify email action.
      * 
@@ -1499,6 +1491,18 @@ public class Browser extends AbstractApplication {
      */
     public void setCursor(Cursor cursor) {
         SwingUtil.setCursor(mainWindow.getContentPane(), cursor);
+    }
+
+    /**
+     * Set a status link.
+     * 
+     * @param link
+     *            A <code>MainStatusAvatarLink</code>.
+     */
+    public void setStatusLink(final MainStatusAvatarLink link) {
+        final Data input = new Data(1);
+        input.set(MainStatusAvatar.DataKey.LINK, link);
+        setInput(AvatarId.MAIN_STATUS, input);
     }
 
     /**
@@ -1592,7 +1596,6 @@ public class Browser extends AbstractApplication {
 
         connection = getSessionModel().isLoggedIn() ?
                 Connection.ONLINE : Connection.OFFLINE;
-        setStatus(connection);
 
 		ed = new EventDispatcher(this);
 		ed.start();
@@ -1727,16 +1730,20 @@ public class Browser extends AbstractApplication {
         displayTitle(AvatarId.MAIN_TITLE);
 	}
 
-    /** Notify the session has been terminated. */
+    /**
+     * Fire a connection offline event.
+     *
+     */
     void fireConnectionOffline() {
         connection = Connection.OFFLINE;
-        setStatus(connection);
     }
 
-    /** Notify the session has been established. */
+    /**
+     * Fire a connection online event.
+     *
+     */
     void fireConnectionOnline() {
         connection = Connection.ONLINE;
-        setStatus(connection);
     }
 
     /**
@@ -2044,36 +2051,6 @@ public class Browser extends AbstractApplication {
 			avatar.setInput(input);
 		}
 	}
-
-    /**
-     * Set the connection status.
-     * 
-     * @param connection
-     *            A platform connection.
-     */
-    private void setStatus(final Connection connection) {
-        setStatus(connection, getTabContactAvatar(), TabAvatar.DataKey.CONNECTION);
-    }
-
-    /**
-     * Set the connection status for an avatar.
-     * 
-     * @param connection
-     *            A platform connection.
-     * @param avatar
-     *            An Avatar.
-     * @param connectionKey
-     *            The connection data key.
-     */
-    private void setStatus(final Connection connection, final Avatar avatar,
-            final Enum<?> connectionKey) {
-        Data input = (Data) avatar.getInput();
-        if (null == input) {
-            input = new Data();
-        }
-        input.set(connectionKey, connection);
-        avatar.setInput((Data) input.clone());
-    }
 
     /**
      * Set up the semi-transparent layer on the browser window.

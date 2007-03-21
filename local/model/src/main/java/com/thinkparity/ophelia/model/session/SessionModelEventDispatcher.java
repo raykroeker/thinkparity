@@ -170,10 +170,6 @@ class SessionModelEventDispatcher {
                 logger.logApiId();
                 getSessionModel().handleSessionTerminated();
             }
-            public void sessionTerminated(final Exception x) {
-                logger.logApiId();
-                getSessionModel().handleSessionTerminated(x);
-            }
             public void sessionError(final Throwable t) {
                 logger.logApiId();
                 getSessionModel().handleSessionError(t);

@@ -41,6 +41,14 @@ public interface InternalBackupModel extends BackupModel {
     public void archive(final Long artifactId);
 
     /**
+     * Delete an artifact from the backup.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     */
+    public void delete(final Long artifactId);
+
+    /**
      * Handle the remote statistics updated event.
      * 
      * @param event

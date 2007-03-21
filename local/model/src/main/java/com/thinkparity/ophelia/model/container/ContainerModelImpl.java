@@ -436,7 +436,8 @@ public final class ContainerModelImpl extends
                     sessionModel.removeTeamMember(
                             container.getUniqueId(), team, localTeamMember.getId());
                 }
-                sessionModel.deleteArtifact(localUserId(), container.getUniqueId());
+                // delete from the backup
+                getBackupModel().delete(containerId);
                 deleteLocal(container.getId(), allDocuments, allDocumentsLocks, allDocumentVersionsLocks);
             } else {
                 deleteLocal(container.getId(), allDocuments, allDocumentsLocks, allDocumentVersionsLocks);

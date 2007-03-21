@@ -64,10 +64,6 @@ public final class PluginServices {
             public void sessionTerminated() {
                 connection = Connection.OFFLINE;
             }
-            @Override
-            public void sessionTerminated(final Throwable cause) {
-                sessionTerminated();
-            }
         });
         this.wrapper = wrapper;
     }

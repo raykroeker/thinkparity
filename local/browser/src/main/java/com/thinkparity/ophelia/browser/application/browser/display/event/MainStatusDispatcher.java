@@ -173,10 +173,6 @@ public final class MainStatusDispatcher implements
             public void sessionTerminated() {
                 avatar.fireSessionEvent();
             }
-            @Override
-            public void sessionTerminated(final Throwable cause) {
-                sessionTerminated();
-            }
         };
         sessionModel.addListener(sessionListener);
     }

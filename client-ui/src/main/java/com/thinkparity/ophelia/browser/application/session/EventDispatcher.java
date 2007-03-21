@@ -60,10 +60,6 @@ class EventDispatcher {
             public void sessionTerminated() {
                 application.fireConnectionOffline();
             }
-            @Override
-            public void sessionTerminated(final Throwable cause) {
-                application.fireConnectionOffline();
-            }
         };
     }
 }

@@ -20,11 +20,6 @@ public class SessionAdapter implements SessionListener {
     public void sessionTerminated() {}
 
     /**
-     * @see com.thinkparity.ophelia.model.events.SessionListener#sessionTerminated(java.lang.Throwable)
-     */
-    public void sessionTerminated(final Throwable cause) {}
-
-    /**
      * @see com.thinkparity.ophelia.model.events.SessionListener#sessionError(java.lang.Throwable)
      * 
      */

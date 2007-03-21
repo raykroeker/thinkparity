@@ -13,8 +13,24 @@ import com.thinkparity.codebase.event.EventListener;
  * @version 1.1.2.1
  */
 public interface SessionListener extends EventListener {
-	public void sessionEstablished();
-	public void sessionTerminated();
-	public void sessionTerminated(final Throwable cause);
+
+    /**
+     * A session error has occured.
+     * 
+     * @param cause
+     *            The cause <code>Throwable</code>.
+     */
     public void sessionError(final Throwable cause);
+
+    /**
+     * A session has been established.
+     *
+     */
+	public void sessionEstablished();
+
+    /**
+     * The session has been terminated.
+     *
+     */
+	public void sessionTerminated();
 }

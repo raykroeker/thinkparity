@@ -37,7 +37,7 @@ class PersistenceManagerImpl {
     private static final int XA_TIMEOUT;
 
     static {
-        // TIMEOUT 2H
+        // TIMEOUT - PersistenceManagerImpl#<cinit> - 2H
         // TODO change the timeout of the transaction back to the default
         XA_TIMEOUT = 60 * 60 * 2;
     }

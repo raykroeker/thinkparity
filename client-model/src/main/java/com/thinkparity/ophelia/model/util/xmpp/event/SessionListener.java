@@ -25,18 +25,14 @@ public interface SessionListener extends EventListener {
     public void sessionError(final Throwable t);
 
 	/**
-	 * The session established event was fired.
+	 * A session has been established.
+     * 
 	 */
 	public void sessionEstablished();
 
 	/**
-	 * The session terminated event was fired.
+	 * The session has been terminated.
+     * 
 	 */
 	public void sessionTerminated();
-
-    /**
-	 * The session terminated event was fired with an error.
-	 * @param x <code>Exception</code>
-	 */
-	public void sessionTerminated(final Exception x);
 }

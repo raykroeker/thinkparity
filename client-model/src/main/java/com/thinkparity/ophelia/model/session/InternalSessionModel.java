@@ -276,15 +276,6 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void handleSessionTerminated();
 
-    /**
-     * Handle the remote session terminated event.
-     * 
-     * @param cause
-     *            The cause of the termination.
-     * 
-     */
-    public void handleSessionTerminated(final Exception cause);
-
 	/**
      * Determine if the backup is online.
      * 

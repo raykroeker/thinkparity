@@ -532,26 +532,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Handle the remote session terminated event.
-     * 
-     * @param cause
-     *            The cause of the termination.
-     * 
-     */
-    public void handleSessionTerminated(final Exception cause) {
-        logger.logApiId();
-        try {
-            notifyListeners(new EventNotifier<SessionListener>() {
-                public void notifyListener(final SessionListener listener) {
-                    listener.sessionTerminated(cause);
-                }
-            });
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isBackupOnline()
      *
      */

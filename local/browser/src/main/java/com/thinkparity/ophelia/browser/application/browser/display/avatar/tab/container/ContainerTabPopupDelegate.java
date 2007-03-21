@@ -87,27 +87,30 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             addSeparator();
         }
 
-        if (isOnline()) {
-            if (isLocalDraft(draft) && isLocalDraftModified(container.getId())) {
-                final Data publishData = new Data(3);
-                publishData.set(Publish.DataKey.CONTAINER_ID, container.getId());
-                publishData.set(Publish.DataKey.CONTACTS, Collections.emptyList());
-                publishData.set(Publish.DataKey.TEAM_MEMBERS, Collections.emptyList());
-                addWithExpand(ActionId.CONTAINER_PUBLISH, publishData, container);
-                needSeparator = true;
-            }
-            if (null == draft && container.isLatest()) {
-                final Data createDraftData = new Data(1);
-                createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
-                addWithExpand(ActionId.CONTAINER_CREATE_DRAFT, createDraftData, container);  
-                needSeparator = true;
-            }
-            if (isLocalDraft(draft)) {
-                final Data deleteDraftData = new Data(2);
-                deleteDraftData.set(DeleteDraft.DataKey.CONTAINER_ID, container.getId());
-                addWithExpand(ActionId.CONTAINER_DELETE_DRAFT, deleteDraftData, container);
-                needSeparator = true;
-            }
+        if (isOnline() && isLocalDraft(draft) && isLocalDraftModified(container.getId())) {
+            final Data publishData = new Data(3);
+            publishData.set(Publish.DataKey.CONTAINER_ID, container.getId());
+            publishData.set(Publish.DataKey.CONTACTS, Collections.emptyList());
+            publishData.set(Publish.DataKey.TEAM_MEMBERS, Collections.emptyList());
+            addWithExpand(ActionId.CONTAINER_PUBLISH, publishData, container);
+            needSeparator = true;
+        }
+
+        // create draft
+        if (null == draft
+                && ((isOnline() && container.isLatest()) || !isDistributed(container.getId()))) {
+            final Data createDraftData = new Data(1);
+            createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
+            addWithExpand(ActionId.CONTAINER_CREATE_DRAFT, createDraftData, container);  
+            needSeparator = true;
+        }
+
+        // delete draft
+        if (isLocalDraft(draft) && (isOnline() || !isDistributed(container.getId()))) {
+            final Data deleteDraftData = new Data(2);
+            deleteDraftData.set(DeleteDraft.DataKey.CONTAINER_ID, container.getId());
+            addWithExpand(ActionId.CONTAINER_DELETE_DRAFT, deleteDraftData, container);
+            needSeparator = true;
         }
 
         // Add document
@@ -216,22 +219,31 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         }
         
         // Publish, delete draft
-        if (isOnline()) {
-            if (isLocalDraftModified(container.getId())) {
-                final Data publishData = new Data(1);
-                publishData.set(Publish.DataKey.CONTAINER_ID, draft.getContainerId());
-                publishData.set(Publish.DataKey.CONTACTS, Collections.emptyList());
-                publishData.set(Publish.DataKey.TEAM_MEMBERS, Collections.emptyList());
-                add(ActionId.CONTAINER_PUBLISH, publishData);
-            }
+        boolean needSeparator = false;
+        if (isOnline() && isLocalDraftModified(container.getId())) {
+            final Data publishData = new Data(1);
+            publishData.set(Publish.DataKey.CONTAINER_ID, draft.getContainerId());
+            publishData.set(Publish.DataKey.CONTACTS, Collections.emptyList());
+            publishData.set(Publish.DataKey.TEAM_MEMBERS, Collections.emptyList());
+            add(ActionId.CONTAINER_PUBLISH, publishData);
+            needSeparator = true;
+        }
 
+        // delete draft
+        // This menu is shown if online, or if it has never been published.
+        if (isOnline() || !isDistributed(container.getId())) {
             final Data deleteData = new Data(2);
             deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, draft.getContainerId());
             add(ActionId.CONTAINER_DELETE_DRAFT, deleteData);
-
-            addSeparator();
+            needSeparator = true;
         }
-        
+
+        // Separator, maybe
+        if (needSeparator) {
+            addSeparator();
+            needSeparator = false;
+        }
+
         // Add document
         final Data addDocumentData = new Data(2);
         addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, draft.getContainerId());

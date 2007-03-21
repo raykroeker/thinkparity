@@ -1784,6 +1784,7 @@ public final class ContainerModelImpl extends
             } else {
                 final List<TeamMember> team = readTeam(containerId);
                 final ContainerDraft draft = new ContainerDraft();
+                draft.setLocal(Boolean.FALSE);
                 draft.setContainerId(containerId);
                 draft.setOwner(team.get(indexOf(team, draftOwner)));
                 containerIO.createDraft(draft);

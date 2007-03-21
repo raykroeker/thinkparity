@@ -59,7 +59,7 @@ public class LinkFactory {
      * @return A <code>Link</code>.
      */
     public Link create() {
-        final String linkRoot = new StringBuffer(prefix).append("www.").append(url).toString();
+        final String linkRoot = new StringBuffer(prefix).append(url).toString();
         return new Link(linkRoot);
     }
 

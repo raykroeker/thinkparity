@@ -435,6 +435,16 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         }
         addCollapse(version.getArtifactId());
 
+        // include the version's created on/updated on
+        if(model.isDevelopmentMode()) {
+            addSeparator();
+            add(MessageFormat.format(
+                    "createdOn():{0,date,yyyy-MM-dd HH:mm:ss.SSS Z}",
+                    version.getCreatedOn().getTime()));
+            add(MessageFormat.format(
+                    "updatedOn():{0,date,yyyy-MM-dd HH:mm:ss.SSS Z}",
+                    version.getCreatedOn().getTime()));
+        }
         show();
     }
 

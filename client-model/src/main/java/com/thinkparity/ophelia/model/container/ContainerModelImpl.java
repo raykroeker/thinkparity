@@ -2627,14 +2627,13 @@ public final class ContainerModelImpl extends
         final Long containerId = artifactModel.readId(uniqueId);
         final Long versionId = event.getVersion().getVersionId();
         final JabberId publishedBy = event.getPublishedBy();
-        final Calendar publishedOn = event.getPublishedOn();
         final String comment = event.getVersion().getComment();
         final ContainerVersion version;
         if (artifactModel.doesVersionExist(containerId, versionId).booleanValue()) {
             version = readVersion(containerId, versionId);
         } else {
             version = createVersion(containerId, versionId, comment,
-                    publishedBy, publishedOn);
+                    publishedBy, event.getVersion().getCreatedOn());
         }
         return version;
     }

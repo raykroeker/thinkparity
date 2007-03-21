@@ -84,7 +84,6 @@ final class ModelInvocationHandler implements InvocationHandler {
             final Object[] args) throws Throwable {
         LOGGER.logTrace("Invoking method {0} on {1} in workspace {2}.", method,
                 model, workspace);
-        ModelInvocationMetrics.begin(method);
         synchronized (workspace) {
             final Transaction transaction = workspace.getTransaction();
             final TransactionContext transactionContext = newXAContext(method);
@@ -112,7 +111,6 @@ final class ModelInvocationHandler implements InvocationHandler {
                 rollbackXA(transaction, transactionContext);
                 throw t;
             } finally {
-                ModelInvocationMetrics.end(method);
                 completeXA(transaction, transactionContext);
             }
         }

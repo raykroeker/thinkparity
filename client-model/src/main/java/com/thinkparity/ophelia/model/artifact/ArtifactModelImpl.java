@@ -210,6 +210,19 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#doesVersionExist(java.util.UUID, java.lang.Long)
+     *
+     */
+    public Boolean doesVersionExist(final UUID uniqueId, final Long versionId) {
+        try {
+            return doesExist(uniqueId)
+                    && doesVersionExist(readId(uniqueId), versionId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#handleDraftCreated(com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent)
      * 
      */

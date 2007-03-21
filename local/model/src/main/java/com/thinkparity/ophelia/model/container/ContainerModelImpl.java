@@ -717,6 +717,10 @@ public final class ContainerModelImpl extends
      */
     public void handlePublished(final ContainerPublishedEvent event) {
         try {
+            final InternalArtifactModel artifactModel = getArtifactModel();
+            final boolean didExist = artifactModel.doesVersionExist(
+                    event.getVersion().getArtifactUniqueId(),
+                    event.getVersion().getVersionId()).booleanValue();
             final Container container = handleResolution(event);
             final ContainerVersion version = handleVersionResolution(event);
             // handle the documents
@@ -739,7 +743,6 @@ public final class ContainerModelImpl extends
                             artifactVersion.getArtifactType());
                 }
             }
-            final InternalArtifactModel artifactModel = getArtifactModel();
             // build published to list
             final InternalUserModel userModel = getUserModel();
             final List<JabberId> publishedToIds = new ArrayList<JabberId>(event.getPublishedTo().size());
@@ -759,7 +762,7 @@ public final class ContainerModelImpl extends
             // delete draft
             final ContainerDraft draft = readDraft(container.getId());
             if (null == draft) {
-                logger.logWarning("Draft did not previously exist for {0}.",
+                logger.logInfo("Draft did not previously exist for {0}.",
                         container.getName());
             } else {
                 deleteDraft(container.getId());
@@ -800,8 +803,10 @@ public final class ContainerModelImpl extends
             final Container postPublish = read(container.getId());
             final ContainerVersion postPublishVersion = readVersion(
                     container.getId(), version.getVersionId());
-            notifyContainerPublished(postPublish, draft, previous,
-                    postPublishVersion, publishedBy, remoteEventGenerator);
+            // NOCOMMIT
+            if (!didExist)
+                notifyContainerPublished(postPublish, draft, previous,
+                        postPublishVersion, publishedBy, remoteEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }

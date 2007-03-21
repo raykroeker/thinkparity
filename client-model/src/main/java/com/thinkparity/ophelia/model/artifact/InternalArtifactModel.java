@@ -123,6 +123,17 @@ public interface InternalArtifactModel extends ArtifactModel {
     /**
      * Determine if the artifact version exists.
      * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @param versionId
+     *            An artifact version id.
+     * @return True if the artifact version exists.
+     */
+    public Boolean doesVersionExist(final UUID uniqueId, final Long versionId);
+
+    /**
+     * Determine if the artifact version exists.
+     * 
      * @param artifactId
      *            An artifact id.
      * @param versionId

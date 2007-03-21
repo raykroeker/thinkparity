@@ -5,6 +5,8 @@
 package com.thinkparity.ophelia.browser.platform.action.platform;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
@@ -101,7 +103,11 @@ public class Login extends AbstractAction {
             try {
                 platform.initializeWorkspace(loginMonitor, workspace, credentials);
             } catch (final InvalidCredentialsException icx) {
-                monitor.reset();
+                SwingUtil.ensureDispatchThread(new Runnable() {
+                    public void run() {
+                        monitor.reset();
+                    }
+                });
             }
             return null;
         }

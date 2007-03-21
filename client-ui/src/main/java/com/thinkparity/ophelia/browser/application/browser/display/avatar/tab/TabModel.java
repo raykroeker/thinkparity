@@ -300,7 +300,7 @@ public abstract class TabModel implements TabDelegate {
                         applyConnection(connection);    
                     }
                 });
-        }
+            }
         }
     }
 

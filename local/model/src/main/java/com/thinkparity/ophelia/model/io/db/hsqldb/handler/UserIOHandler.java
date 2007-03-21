@@ -50,9 +50,9 @@ public final class UserIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the user flags. */
     private static final String SQL_READ_FLAGS =
-        new StringBuilder("select U.FLAGS ")
-        .append("from USER U ")
-        .append("where U.USER_ID=?")
+        new StringBuilder("select PU.FLAGS ")
+        .append("from PARITY_USER PU ")
+        .append("where PU.USER_ID=?")
         .toString();
 
     /** Sql to read a user's local user id. */
@@ -78,7 +78,7 @@ public final class UserIOHandler extends AbstractIOHandler implements
 
     /** Sql to update the user flags. */
     private static final String SQL_UPDATE_FLAGS =
-        new StringBuilder("update USER ")
+        new StringBuilder("update PARITY_USER ")
         .append("set FLAGS=? where USER_ID=?")
         .toString();
 

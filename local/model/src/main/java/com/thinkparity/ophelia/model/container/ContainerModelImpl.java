@@ -1820,6 +1820,9 @@ public final class ContainerModelImpl extends
             sessionModel.addTeamMember(
                     artifactModel.readUniqueId(containerId),
                     artifactModel.readTeamIds(containerId), localUserId());
+            // note the order of this add; it is important that it happen after
+            // the remote add
+            artifactModel.addTeamMember(containerId, localUserId());
 
             notifyContainerRestored(read(containerId), localEventGenerator);
         } catch (final Throwable t) {

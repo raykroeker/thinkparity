@@ -114,8 +114,10 @@ public final class ContainerModelImpl extends
         for (final DocumentVersion documentVersion : documentVersions) {
             totalSize += documentVersion.getSize();
         }
-        // 1 for the final publish stage; plus a step per k of size
-        final long steps = 1 + (totalSize / STEP_SIZE);
+        // a step per k of size
+        long steps = totalSize / STEP_SIZE;
+        // add 5% for the last step
+        steps = (long) (steps * 1.05);
         return Integer.valueOf((int) steps);
     }
 
@@ -795,7 +797,8 @@ public final class ContainerModelImpl extends
             sessionModel.confirmArtifactReceipt(localUserId(),
                     container.getUniqueId(), version.getVersionId(),
                     event.getPublishedBy(), event.getPublishedOn(),
-                    publishedToIds, localUserId(), confirmedOn);
+                    artifactModel.readTeamIds(container.getId()), localUserId(),
+                    confirmedOn);
             // audit\fire event
             final Container postPublish = read(container.getId());
             final ContainerVersion postPublishVersion = readVersion(

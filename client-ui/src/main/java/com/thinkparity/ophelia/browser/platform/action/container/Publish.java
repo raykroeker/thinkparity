@@ -9,12 +9,7 @@ import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.user.TeamMember;
-import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
+
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -23,6 +18,13 @@ import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
+
+import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
+import com.thinkparity.ophelia.browser.platform.action.ActionId;
+import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
 
 /**
  * Publish a document. This will send a given document version to every member
@@ -189,7 +191,7 @@ public class Publish extends AbstractBrowserAction {
         /**
          * Create a new publish monitor.
          * 
-         * @return A <code>PublishMonitor</code>.
+         * @return A <code>ProcessMonitor</code>.
          */
         private ProcessMonitor newPublishMonitor() {
             return new ProcessAdapter() {
@@ -214,15 +216,20 @@ public class Publish extends AbstractBrowserAction {
                 public void beginStep(final Step step,
                         final Object data) {
                     if (null != steps && steps.intValue() > 0) {
-                        if (PublishStep.UPLOAD_STREAM == step)
-                            monitor.setStep(stepIndex, (String) data);
-                        else
-                            monitor.setStep(stepIndex);
+                        if (PublishStep.UPLOAD_STREAM == step) {
+                            monitor.setStep(stepIndex, action.getString("ProgressUploadStream", new Object[] {data}));
+                        } else if (PublishStep.PUBLISH == step) {
+                            monitor.setStep(stepIndex, action.getString("ProgressPublish"));
+                        }
                     }
                 }
                 @Override
                 public void endStep(final Step step) {
-                    if (null != steps && steps.intValue() > 0) {
+                    if (PublishStep.PUBLISH == step) {
+                        // we're done
+                        stepIndex = steps - 1;
+                        monitor.setStep(stepIndex);
+                    } else if (null != steps && steps.intValue() > 0) {
                         stepIndex++;
                         monitor.setStep(stepIndex);
                     }

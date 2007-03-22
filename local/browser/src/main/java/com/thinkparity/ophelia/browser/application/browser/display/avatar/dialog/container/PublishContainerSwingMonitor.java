@@ -17,7 +17,7 @@ final class PublishContainerSwingMonitor implements ThinkParitySwingMonitor {
 
     private final PublishContainerSwingDisplay display;
 
-    private String note = "";
+    private String note;
 
     private int step = 0;
 

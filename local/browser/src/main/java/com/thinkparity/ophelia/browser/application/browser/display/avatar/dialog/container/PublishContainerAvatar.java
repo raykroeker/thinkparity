@@ -55,13 +55,12 @@ public final class PublishContainerAvatar extends Avatar implements
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPanel buttonBarJPanel = new javax.swing.JPanel();
     private final javax.swing.JTextArea commentJTextArea = new javax.swing.JTextArea();
-    private final javax.swing.JLabel documentJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel documentNameJLabel = new javax.swing.JLabel();
     private final javax.swing.JList namesJList = new javax.swing.JList();
     private final javax.swing.JScrollPane namesJScrollPane = new javax.swing.JScrollPane();
     private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
     private final javax.swing.JButton publishJButton = ButtonFactory.create();
     private final javax.swing.JProgressBar publishJProgressBar = new javax.swing.JProgressBar();
+    private final javax.swing.JLabel statusJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 
     /** The publish to list model <code>PublishContainerAvatarUserListModel</code>. */
@@ -180,13 +179,11 @@ public final class PublishContainerAvatar extends Avatar implements
             final String status) {
         publishJProgressBar.setValue(step);
         if (null != status) {
-            documentJLabel.setText(getDocumentJLabelText());
-            documentNameJLabel.setText(status);
+            statusJLabel.setText(status);
         } else {
             /* NOTE the space is deliberate (as opposed to an empty string) in
              * order to maintain vertical spacing. */
-            documentJLabel.setText(" ");
-            documentNameJLabel.setText(" ");
+            statusJLabel.setText(" ");
         }
     }
 
@@ -220,16 +217,6 @@ public final class PublishContainerAvatar extends Avatar implements
      */
     private String extractComment() {
         return SwingUtil.extract(commentJTextArea, Boolean.TRUE);
-    }
-    
-    /**
-     * Obtain the text for the document label.
-     * 
-     * @return A text <code>String<code>.
-     */
-    private String getDocumentJLabelText() {
-        final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages");
-        return bundle.getString("PublishContainerDialog.progressBarJPanel.documentJLabel");        
     }
     
     /**
@@ -372,7 +359,7 @@ public final class PublishContainerAvatar extends Avatar implements
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(cancelJButton))
                     .add(buttonBarJPanelLayout.createSequentialGroup()
-                        .add(fillerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE)
+                        .add(fillerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE)
                         .add(71, 71, 71))))
         );
         buttonBarJPanelLayout.setVerticalGroup(
@@ -388,11 +375,8 @@ public final class PublishContainerAvatar extends Avatar implements
         );
 
         progressBarJPanel.setOpaque(false);
-        documentJLabel.setFont(Fonts.DialogFont);
-        documentJLabel.setText(getDocumentJLabelText());
-
-        documentNameJLabel.setFont(Fonts.DialogFont);
-        documentNameJLabel.setText("!My Document.doc!");
+        statusJLabel.setFont(Fonts.DialogFont);
+        statusJLabel.setText("Uploading document.pdf...");
 
         publishJProgressBar.setBorder(javax.swing.BorderFactory.createLineBorder(Colors.Browser.ProgressBar.BORDER));
 
@@ -400,22 +384,17 @@ public final class PublishContainerAvatar extends Avatar implements
         progressBarJPanel.setLayout(progressBarJPanelLayout);
         progressBarJPanelLayout.setHorizontalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(progressBarJPanelLayout.createSequentialGroup()
-                .add(documentJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(documentNameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 278, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-            .add(publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
+            .add(publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE)
+            .add(statusJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE)
         );
         progressBarJPanelLayout.setVerticalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(progressBarJPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(documentJLabel)
-                    .add(documentNameJLabel))
+                .add(statusJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(publishJProgressBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
@@ -425,11 +404,11 @@ public final class PublishContainerAvatar extends Avatar implements
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
-                    .add(emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
-                    .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
-                    .add(commentJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
-                    .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
+                    .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE)
+                    .add(emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE)
+                    .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE)
+                    .add(commentJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE)
+                    .add(commentJScrollPane)
                     .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -595,8 +574,7 @@ public final class PublishContainerAvatar extends Avatar implements
         progressBarJPanel.setVisible(false);
         /* NOTE the space is deliberate (as opposed to an empty string) in
          * order to maintain vertical spacing. */
-        documentJLabel.setText(" ");
-        documentNameJLabel.setText(" ");
+        statusJLabel.setText(" ");
         validate();
     }
     

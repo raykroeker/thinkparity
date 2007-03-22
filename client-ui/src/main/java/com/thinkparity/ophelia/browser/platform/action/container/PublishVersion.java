@@ -11,18 +11,19 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.monitor.PublishStep;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
+
+import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
+import com.thinkparity.ophelia.browser.platform.action.ActionId;
+import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
 
 /**
  * @author raymond@thinkparity.com
@@ -117,23 +118,24 @@ public class PublishVersion extends AbstractBrowserAction {
             this.versionId = versionId;
             this.containerModel = publishVersion.getContainerModel();
             this.teamMembers = teamMembers;
-            this.publishMonitor = new ProcessAdapter() {
+            this.publishMonitor = newPublishVersionMonitor();
+        }
+        @Override
+        public Object construct() {
+            containerModel.publishVersion(publishMonitor, containerId,
+                    versionId, contacts, teamMembers);
+            artifactModel.applyFlagSeen(containerId);
+            return containerModel.readVersion(containerId, versionId);
+        }
+        /**
+         * Create a new publish version monitor.
+         * 
+         * @return A <code>ProcessMonitor</code>.
+         */
+        private ProcessMonitor newPublishVersionMonitor() {
+            return new ProcessAdapter() {
                 private Integer stepIndex;
                 private Integer steps;
-                @Override
-                public void beginProcess() {
-                    monitor.monitor();
-                }
-                @Override
-                public void beginStep(final Step step,
-                        final Object data) {
-                    if (null != steps && steps.intValue() > 0) {
-                        if (PublishStep.UPLOAD_STREAM == step)
-                            monitor.setStep(stepIndex, (String) data);
-                        else
-                            monitor.setStep(stepIndex);
-                    }
-                }
                 @Override
                 public void determineSteps(final Integer steps) {
                     this.stepIndex = 0;
@@ -142,24 +144,36 @@ public class PublishVersion extends AbstractBrowserAction {
                     monitor.setStep(stepIndex);
                 }
                 @Override
+                public void beginProcess() {
+                    monitor.monitor();
+                }
+                @Override
                 public void endProcess() {
                     monitor.complete();
                 }
                 @Override
-                public void endStep(final Step step) {
+                public void beginStep(final Step step,
+                        final Object data) {
                     if (null != steps && steps.intValue() > 0) {
+                        if (PublishStep.UPLOAD_STREAM == step) {
+                            monitor.setStep(stepIndex, action.getString("ProgressUploadStream", new Object[] {data}));
+                        } else if (PublishStep.PUBLISH == step) {
+                            monitor.setStep(stepIndex, action.getString("ProgressPublish"));
+                        }
+                    }
+                }
+                @Override
+                public void endStep(final Step step) {
+                    if (PublishStep.PUBLISH == step) {
+                        // we're done
+                        stepIndex = steps - 1;
+                        monitor.setStep(stepIndex);
+                    } else if (null != steps && steps.intValue() > 0) {
                         stepIndex++;
                         monitor.setStep(stepIndex);
                     }
                 }
             };
-        }
-        @Override
-        public Object construct() {
-            containerModel.publishVersion(publishMonitor, containerId,
-                    versionId, contacts, teamMembers);
-            artifactModel.applyFlagSeen(containerId);
-            return containerModel.readVersion(containerId, versionId);
         }
     }
 }

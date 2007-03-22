@@ -681,9 +681,6 @@ public final class ContainerModelImpl extends
                 doCreateDraft = false;
             }
 
-            if (doesExistDraft(containerId))
-                deleteDraft(containerId);
-
             if (doRestore) {
                 final Container container = read(containerId);
                 if (doCreateDraft)

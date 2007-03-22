@@ -1520,6 +1520,23 @@ public final class ContainerModelImpl extends
         try {
             final List<ArtifactReceipt> publishedTo =
                 containerIO.readPublishedToReceipts(containerId, versionId);
+            // sort by user
+            ModelSorter.sortReceipts(publishedTo, new Comparator<ArtifactReceipt>() {
+                public int compare(final ArtifactReceipt o1, final ArtifactReceipt o2) {
+                    return o1.getUser().getLocalId().compareTo(o2.getUser().getLocalId());
+                }
+            });
+            // remote duplicate users
+            ArtifactReceipt previousReceipt = null, receipt = null;
+            for (final Iterator<ArtifactReceipt> iPublishedTo =
+                publishedTo.iterator(); iPublishedTo.hasNext();) {
+                receipt = iPublishedTo.next();
+                if (null != previousReceipt
+                        && previousReceipt.getUser().equals(receipt.getUser())) {
+                    iPublishedTo.remove();
+                }
+                previousReceipt = receipt;
+            }
             FilterManager.filter(publishedTo, filter);
             ModelSorter.sortReceipts(publishedTo, comparator);
             return publishedTo;

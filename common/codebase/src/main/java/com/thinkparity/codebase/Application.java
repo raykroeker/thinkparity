@@ -9,7 +9,7 @@ package com.thinkparity.codebase;
  */
 public enum Application {
 
-    DESDEMONA("Desdemona - thinkParity XMPP Server", new ApplicationNature[] {ApplicationNature.XMPP}),
+    DESDEMONA("Desdemona - thinkParity XMPP Server", new ApplicationNature[] {ApplicationNature.XMPP, ApplicationNature.HTTP}),
 
     OPHELIA("Ophelia - thinkParity Client", new ApplicationNature[] {ApplicationNature.SWING, ApplicationNature.HTTP});
 

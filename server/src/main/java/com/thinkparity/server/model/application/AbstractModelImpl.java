@@ -544,7 +544,7 @@ public abstract class AbstractModelImpl
      */
     protected final Integer getDefaultBufferSize(final String context) {
         if ("stream-session".equals(context)) {
-            return 1024 * 1024 * 2; // BUFFER 2MB - AbstractModelImpl#getDefaultBufferSize(String)
+            return 1024 * 1; // BUFFER 1KB - AbstractModelImpl#getDefaultBufferSize(String)
         } else {
             return getDefaultBufferSize();
         }

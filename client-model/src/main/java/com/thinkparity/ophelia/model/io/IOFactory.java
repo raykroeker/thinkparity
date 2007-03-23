@@ -6,17 +6,7 @@ package com.thinkparity.ophelia.model.io;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicIOFactory;
-import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
-import com.thinkparity.ophelia.model.io.handler.AuditIOHandler;
-import com.thinkparity.ophelia.model.io.handler.ConfigurationIOHandler;
-import com.thinkparity.ophelia.model.io.handler.ContactIOHandler;
-import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
-import com.thinkparity.ophelia.model.io.handler.DocumentHistoryIOHandler;
-import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
-import com.thinkparity.ophelia.model.io.handler.MigratorIOHandler;
-import com.thinkparity.ophelia.model.io.handler.ProfileIOHandler;
-import com.thinkparity.ophelia.model.io.handler.SystemMessageIOHandler;
-import com.thinkparity.ophelia.model.io.handler.UserIOHandler;
+import com.thinkparity.ophelia.model.io.handler.*;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPIOFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -123,13 +113,6 @@ public abstract class IOFactory {
      * @return A thinkParity profile db io handler.
      */
     public abstract ProfileIOHandler createProfileHandler();
-
-    /**
-	 * Create a system message io handler.
-	 * 
-	 * @return The system message io handler.
-	 */
-	public abstract SystemMessageIOHandler createSystemMessageHandler();
 
 	/**
      * Create a user io handler.

@@ -33,7 +33,6 @@ import com.thinkparity.ophelia.model.audit.AuditEventType;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.io.md.MetaData;
 import com.thinkparity.ophelia.model.io.md.MetaDataType;
-import com.thinkparity.ophelia.model.message.SystemMessageType;
 
 /**
  * <b>Title:</b>thinkParity SQL Session<br>
@@ -507,19 +506,6 @@ public final class Session {
 		}
 	}
 
-    public SystemMessageType getSystemMessageTypeFromInteger(
-			final String columnName) {
-		assertConnectionIsOpen();
-		assertResultSetIsSet();
-		try {
-            final Integer value = resultSet.getInt(columnName);
-            logColumnExtraction(columnName, value);
-            return resultSet.wasNull() ? null : SystemMessageType.fromId(value);
-		} catch(final SQLException sqlx) {
-            throw new HypersonicException(sqlx);
-		}
-	}
-
 	public ArtifactType getTypeFromInteger(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
@@ -895,17 +881,6 @@ public final class Session {
 		}
 	}
 
-    public void setTypeAsInteger(final Integer index, final SystemMessageType value) {
-        assertConnectionIsOpen();
-        assertPreparedStatementIsSet();
-        logColumnInjection(index, value);
-        try {
-            preparedStatement.setInt(index, value.getId());
-        } catch (final SQLException sqlx) {
-            throw new HypersonicException(sqlx);
-        }
-    }
-
     public void setTypeAsInteger(final Integer index, final UserFlag value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
@@ -951,18 +926,6 @@ public final class Session {
 	}
 
     public void setTypeAsString(final Integer index, final MetaDataType value) {
-		assertConnectionIsOpen();
-		assertPreparedStatementIsSet();
-        logColumnInjection(index, value);
-		try {
-            preparedStatement.setString(index, value.toString());
-		} catch (final SQLException sqlx) {
-            throw new HypersonicException(sqlx);
-		}
-	}
-
-
-	public void setTypeAsString(final Integer index, final SystemMessageType value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);

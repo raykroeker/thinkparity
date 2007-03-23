@@ -8,17 +8,7 @@ package com.thinkparity.ophelia.model.io.xmpp;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.ophelia.model.io.IOFactory;
-import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
-import com.thinkparity.ophelia.model.io.handler.AuditIOHandler;
-import com.thinkparity.ophelia.model.io.handler.ConfigurationIOHandler;
-import com.thinkparity.ophelia.model.io.handler.ContactIOHandler;
-import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
-import com.thinkparity.ophelia.model.io.handler.DocumentHistoryIOHandler;
-import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
-import com.thinkparity.ophelia.model.io.handler.MigratorIOHandler;
-import com.thinkparity.ophelia.model.io.handler.ProfileIOHandler;
-import com.thinkparity.ophelia.model.io.handler.SystemMessageIOHandler;
-import com.thinkparity.ophelia.model.io.handler.UserIOHandler;
+import com.thinkparity.ophelia.model.io.handler.*;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -90,10 +80,7 @@ public class XMPPIOFactory extends IOFactory {
         throw Assert.createNotYetImplemented("XMPPIOFactory#createProfileHandler");
     }
 
-    public SystemMessageIOHandler createSystemMessageHandler() {
-        throw Assert.createUnreachable("XMPPIOFactory#createSystemMessageHandler()");
-    }
-
+    @Override
     public UserIOHandler createUserIOHandler() {
         throw Assert.createUnreachable("XMPPIOFactory#createUserIOHandler()");
     }

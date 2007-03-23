@@ -10,15 +10,12 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 
 import com.thinkparity.ophelia.model.audit.HistoryItem;
-import com.thinkparity.ophelia.model.message.SystemMessage;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class ComparatorBuilder {
-
-	private Comparator<SystemMessage> systemMessageDefault;
 
 	/**
 	 * Create a ComparatorBuilder.
@@ -65,13 +62,6 @@ public class ComparatorBuilder {
     public Comparator<HistoryItem> createIdDescending() {
         return new HistoryItemIdComparator(Boolean.FALSE);
     }
-
-	public Comparator<SystemMessage> createSystemMessageDefault() {
-		if(null == systemMessageDefault) {
-			systemMessageDefault = new SystemMessageIdComparator(Boolean.TRUE);
-		}
-		return systemMessageDefault;
-	}
 
 	/**
 	 * Create a version id comparator.

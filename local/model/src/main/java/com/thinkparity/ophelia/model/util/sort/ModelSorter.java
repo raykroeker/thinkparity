@@ -22,7 +22,6 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.audit.HistoryItem;
-import com.thinkparity.ophelia.model.message.SystemMessage;
 
 /**
  * Utility convenience class for sorting lists.
@@ -80,11 +79,6 @@ public class ModelSorter {
             final Comparator<? super ContactInvitation> comparator) {
         Collections.sort(list, comparator);
     }
-
-	public static void sortMessages(final List<SystemMessage> list,
-            final Comparator<SystemMessage> comparator) {
-		Collections.sort(list, comparator);
-	}
 
     public static void sortOutgoingContactInvitations(
             final List<OutgoingInvitation> list,

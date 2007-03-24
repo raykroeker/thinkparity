@@ -26,15 +26,15 @@ public abstract class AbstractModelImpl {
 
     private Context context;
 
-        /**
-         * Create AbstractModelImpl.
-         * 
-         * 
-         */
-        protected AbstractModelImpl() {
-            super();
-            this.logger = new Log4JWrapper(getClass());
-        }
+    /**
+     * Create AbstractModelImpl.
+     * 
+     * 
+     */
+    protected AbstractModelImpl() {
+        super();
+        this.logger = new Log4JWrapper(getClass());
+    }
 
     /**
      * Set context.

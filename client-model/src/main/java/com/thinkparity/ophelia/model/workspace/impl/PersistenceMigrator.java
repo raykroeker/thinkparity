@@ -65,7 +65,6 @@ public class PersistenceMigrator {
                 CONFIG.getProperty("CreateArtifactType"),
                 CONFIG.getProperty("CreateArtifact"),
                 CONFIG.getProperty("CreateArtifactTeamRel"),
-                CONFIG.getProperty("CreateArtifactRemoteInfo"),
                 CONFIG.getProperty("CreateArtifactVersion"),
                 CONFIG.getProperty("CreateArtifactVersionMetaData"),
                 CONFIG.getProperty("CreateConfiguration"),

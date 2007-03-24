@@ -23,7 +23,6 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.user.UserUtils;
 
-import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
@@ -329,7 +328,7 @@ public final class PublishContainerAvatar extends Avatar implements
 
         buttonBarJPanel.setOpaque(false);
         fillerJLabel.setFont(Fonts.DialogFont);
-        fillerJLabel.setPreferredSize(new java.awt.Dimension(3, 17));
+        fillerJLabel.setPreferredSize(new java.awt.Dimension(3, 14));
 
         publishJButton.setFont(Fonts.DialogButtonFont);
         publishJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("PublishContainerDialog.publishJButton"));
@@ -359,7 +358,7 @@ public final class PublishContainerAvatar extends Avatar implements
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(cancelJButton))
                     .add(buttonBarJPanelLayout.createSequentialGroup()
-                        .add(fillerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE)
+                        .add(fillerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
                         .add(71, 71, 71))))
         );
         buttonBarJPanelLayout.setVerticalGroup(
@@ -378,7 +377,9 @@ public final class PublishContainerAvatar extends Avatar implements
         statusJLabel.setFont(Fonts.DialogFont);
         statusJLabel.setText("Uploading document.pdf...");
 
-        publishJProgressBar.setBorder(javax.swing.BorderFactory.createLineBorder(Colors.Browser.ProgressBar.BORDER));
+        publishJProgressBar.setBorder(null);
+        publishJProgressBar.setBorderPainted(false);
+        publishJProgressBar.setOpaque(false);
 
         org.jdesktop.layout.GroupLayout progressBarJPanelLayout = new org.jdesktop.layout.GroupLayout(progressBarJPanel);
         progressBarJPanel.setLayout(progressBarJPanelLayout);
@@ -393,7 +394,7 @@ public final class PublishContainerAvatar extends Avatar implements
                 .addContainerGap()
                 .add(statusJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(publishJProgressBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(publishJProgressBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -416,7 +417,7 @@ public final class PublishContainerAvatar extends Avatar implements
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(emailsJLabel)
@@ -426,11 +427,10 @@ public final class PublishContainerAvatar extends Avatar implements
                 .add(commentJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(14, 14, 14)
                 .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

@@ -6,20 +6,16 @@ package com.thinkparity.ophelia.browser.platform.action;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import javax.swing.Icon;
 
 import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
-import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
-import com.thinkparity.ophelia.browser.util.ModelFactory;
-import com.thinkparity.ophelia.browser.util.localization.ActionLocalization;
+
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -29,11 +25,22 @@ import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.UserModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
+import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
+import com.thinkparity.ophelia.browser.util.ModelFactory;
+import com.thinkparity.ophelia.browser.util.localization.ActionLocalization;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public abstract class AbstractAction implements ActionInvocation {
+
+    /** The prefix for the thread name */
+    static final String THREAD_PREFIX = "TPS-OpheliaUI-";
 
 	/** Action localization. */
 	protected final ActionLocalization localization;
@@ -160,7 +167,11 @@ public abstract class AbstractAction implements ActionInvocation {
      * @see com.thinkparity.ophelia.browser.platform.action.ActionInvocation#invokeAction(com.thinkparity.ophelia.browser.platform.action.Data)
      */
     public void invokeAction(final Data data) {
-        invoke(data);
+        final Thread thread = Executors.defaultThreadFactory().newThread(new Runnable() {
+            public void run() { invoke(data); }
+        });
+        thread.setName(getThreadName());
+        thread.start();
     }
 
     /**
@@ -392,6 +403,14 @@ public abstract class AbstractAction implements ActionInvocation {
 	protected String getString(final String localKey, final Object[] arguments) {
 		return localization.getString(localKey, arguments);
 	}
+
+    /**
+     * Get the thread name.
+     */
+    protected String getThreadName() {
+        final StringBuffer threadName = new StringBuffer(THREAD_PREFIX).append(id.toString());
+        return threadName.toString();
+    }
 
 	/**
      * Obtain the thinkParity user interface.

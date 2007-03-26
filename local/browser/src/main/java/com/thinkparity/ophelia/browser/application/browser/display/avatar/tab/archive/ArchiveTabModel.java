@@ -640,7 +640,9 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      * Remove a container panel.
      * 
      * @param container
-     *            A <code>Container</code>.
+     *            The container id <code>Long</code>.
+     * @param removeExpandedState
+     *            Remove expanded state <code>boolean</code>.
      */
     private void removeContainerPanel(final Long containerId,
             final boolean removeExpandedState) {
@@ -653,9 +655,13 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
             }
         }
         final int panelIndex = lookupIndex(containerId);
-        final TabPanel containerPanel = panels.remove(panelIndex);
-        if (removeExpandedState) {
-            expandedState.remove(containerPanel);
+        if (-1 == panelIndex) {
+            logger.logError("Cannot remove archive panel, container id {0}.", containerId);
+        } else {
+            final TabPanel containerPanel = panels.remove(panelIndex);
+            if (removeExpandedState) {
+                expandedState.remove(containerPanel);
+            }
         }
         if (isSetSessionDraftMonitor(containerId)) {
             stopSessionDraftMonitor();

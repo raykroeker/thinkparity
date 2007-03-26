@@ -736,7 +736,9 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      * Remove a container panel.
      * 
      * @param container
-     *            A <code>Container</code>.
+     *            The container id <code>Long</code>.
+     * @param removeExpandedState
+     *            Remove expanded state <code>boolean</code>.
      */
     private void removeContainerPanel(final Long containerId,
             final boolean removeExpandedState) {

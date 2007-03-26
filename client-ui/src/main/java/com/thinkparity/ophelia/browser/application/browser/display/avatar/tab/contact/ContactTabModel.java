@@ -771,25 +771,45 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         return ((ContactProvider) contentProvider).readProfile();
     }
 
+    /**
+     * Remove a contact panel.
+     * 
+     * @param userId
+     *            The user id <code>JabberId</code>.
+     * @param removeExpandedState
+     *            Remove expanded state <code>boolean</code>.
+     */
     private void removePanel(final JabberId userId,
             final boolean removeExpandedState) {
         final int panelIndex = lookupIndex(userId);
-        if (removeExpandedState) {
-            final TabPanel panel = panels.remove(panelIndex);
-            expandedState.remove(panel);
+        if (-1 == panelIndex) {
+            logger.logError("Cannot remove contact panel, user id {0}.", userId.getUsername());
         } else {
-            panels.remove(panelIndex);
+            final TabPanel panel = panels.remove(panelIndex);
+            if (removeExpandedState) {
+                expandedState.remove(panel);
+            }
         }
     }
 
+    /**
+     * Remove a contact panel.
+     * 
+     * @param invitationId
+     *            The invitation id <code>Long</code>.
+     * @param removeExpandedState
+     *            Remove expanded state <code>boolean</code>.
+     */
     private void removePanel(final Long invitationId,
             final boolean removeExpandedState) {
         final int panelIndex = lookupIndex(invitationId);
-        if (removeExpandedState) {
-            final TabPanel panel = panels.remove(panelIndex);
-            expandedState.remove(panel);
+        if (-1 == panelIndex) {
+            logger.logError("Cannot remove contact panel, invitation id {0}.", invitationId);
         } else {
-            panels.remove(panelIndex);
+            final TabPanel panel = panels.remove(panelIndex);
+            if (removeExpandedState) {
+                expandedState.remove(panel);
+            }
         }
     }
 

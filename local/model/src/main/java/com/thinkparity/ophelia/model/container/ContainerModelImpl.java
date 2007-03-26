@@ -683,11 +683,13 @@ public final class ContainerModelImpl extends
                 doCreateDraft = false;
             }
 
+            /* HACK we know the latest flag was either applied or remoted by
+             * the artifact model */
+            final Container container = read(containerId);
+            notifyContainerFlagged(container, remoteEventGenerator);
             if (doRestore) {
-                final Container container = read(containerId);
                 if (doCreateDraft)
                     notifyDraftCreated(container, readDraft(containerId), remoteEventGenerator);
-                notifyContainerFlagged(container, remoteEventGenerator);
                 notifyContainerRestored(container, remoteEventGenerator);
             }
         } catch (final Throwable t) {

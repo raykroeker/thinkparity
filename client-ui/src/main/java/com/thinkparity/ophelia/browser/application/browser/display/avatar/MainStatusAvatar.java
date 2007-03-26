@@ -65,7 +65,7 @@ public class MainStatusAvatar extends Avatar {
     }
 
     /** The unit to use when displaying the backup information. */
-    private Unit backupUnit;
+    private final Unit backupUnit;
 
     /** The resize offset size in the x direction. */
     private int resizeOffsetX;    
@@ -96,7 +96,7 @@ public class MainStatusAvatar extends Avatar {
                             MainStatusAvatar.this);
             }
         });
-        this.backupUnit = Unit.GB;
+        this.backupUnit = Unit.AUTO;
     }
 
     /**
@@ -324,12 +324,6 @@ public class MainStatusAvatar extends Avatar {
 
         backupStatisticsJLabel.setFont(Fonts.DefaultFont);
         backupStatisticsJLabel.setText("1.0GB");
-        backupStatisticsJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                backupStatisticsJLabelMouseClicked(evt);
-            }
-        });
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 0;
@@ -381,17 +375,6 @@ public class MainStatusAvatar extends Avatar {
         add(resizeJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
-
-    private void backupStatisticsJLabelMouseClicked(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_backupStatisticsJLabelMouseClicked
-        if (2 == evt.getClickCount()) {
-            if (Unit.AUTO == backupUnit) {
-                backupUnit = Unit.GB;
-            } else {
-                backupUnit = Unit.AUTO;
-            }
-            reloadBackupStatistics();
-        }
-    }//GEN-LAST:event_backupStatisticsJLabelMouseClicked
 
     /**
      * Install a window state listener on the ancestor of the component.

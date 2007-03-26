@@ -149,7 +149,7 @@ public class AvatarFactory {
         case DIALOG_CONTACT_CREATE_OUTGOING_INVITATION:
             avatar = newAvatar(CreateInvitationAvatar.class);
             break;
-        case DIALOG_CONTACT_READ:
+        case DIALOG_CONTACT_INFO:
             avatar = newAvatar(UserInfoAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;

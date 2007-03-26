@@ -284,7 +284,20 @@ public class Browser extends AbstractApplication {
     public void displayContactCreateInvitation() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTACT_CREATE_OUTGOING_INVITATION);
     }
-    
+
+    /**
+     * Display the contact info dialogue.
+     *
+     * @param contactId
+     *            A contact id.
+     */
+    public void displayContactInfoDialog(final JabberId contactId) {
+        final Data input = new Data(1);
+        input.set(UserInfoAvatar.DataKey.USER_ID, contactId);
+        setInput(AvatarId.DIALOG_CONTACT_INFO, input);
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTACT_INFO);        
+    }
+
     /**
      * Display the contact tab avatar.
      *
@@ -471,19 +484,6 @@ public class Browser extends AbstractApplication {
         input.set(PublishContainerAvatar.DataKey.VERSION_ID, versionId);
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
-    }
-    
-    /**
-     * Display the contact info dialogue.
-     *
-     * @param contactId
-     *            A contact id.
-     */
-    public void displayReadContactDialog(JabberId contactId) {
-        final Data input = new Data(1);
-        input.set(UserInfoAvatar.DataKey.USER_ID, contactId);
-        setInput(AvatarId.DIALOG_CONTACT_READ, input);
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTACT_READ);        
     }
 
     /**
@@ -1068,6 +1068,18 @@ public class Browser extends AbstractApplication {
         if(null != files)
             data.set(Create.DataKey.FILES, files);
         invoke(ActionId.CONTAINER_CREATE, data);
+    }
+
+    /**
+     * Run the create outgoing user invitation action.
+     * 
+     * @param userId
+     *            A user id <code>Long</code>.
+     */
+    public void runCreateOutgoingUserInvitation(final Long userId) {
+        final Data data = new Data(1);
+        data.set(CreateOutgoingUserInvitation.DataKey.USER_ID, userId);
+        invoke(ActionId.CONTACT_CREATE_OUTGOING_USER_INVITATION, data);
     }
 
     /**

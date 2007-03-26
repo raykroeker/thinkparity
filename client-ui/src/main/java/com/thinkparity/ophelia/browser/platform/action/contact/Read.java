@@ -35,7 +35,7 @@ public class Read extends AbstractBrowserAction {
      */
     public void invoke(final Data data) {
         final JabberId contactId = (JabberId) data.get(DataKey.CONTACT_ID);
-        browser.displayReadContactDialog(contactId);
+        browser.displayContactInfoDialog(contactId);
     }
 
     /**

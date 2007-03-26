@@ -17,10 +17,14 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public class BytesFormat {
 
-    /** The format for the number of bytes. */
+    /** The format for the number of bytes for bytes units. */
+    private static MessageFormat BYTES_FORMAT;
+
+    /** The format for the number of bytes for all units except bytes. */
     private static MessageFormat FORMAT;
 
     static {
+        BYTES_FORMAT = new MessageFormat("{0,number,0}{1}");
         FORMAT = new MessageFormat("{0,number,0.0}{1}");
     }
 
@@ -53,42 +57,47 @@ public class BytesFormat {
      * @return A display string.
      */
     public String format(final Unit unit, final Long bytes) {
+        final MessageFormat format;
         final Object[] arguments = new Object[2];
         switch (unit) {
         case AUTO:
-            if (bytes >= 1099511627776L) {
+            if (bytes >= 1099511627776L)
                 return format(Unit.TB, bytes);
-            } else if (bytes >= 1073741824L) {
+            else if (bytes >= 1073741824L)
                 return format(Unit.GB, bytes);
-            } else if (bytes >= 1048576L) {
+            else if (bytes >= 1048576L)
                 return format(Unit.MB, bytes);
-            } else if (bytes >= 1024L) {
+            else if (bytes >= 1024L)
                 return format(Unit.KB, bytes);
-            } else if (bytes > 0L && bytes < 1024L) {
+            else if (bytes > 0L && bytes < 1024L)
                 return format(Unit.B, bytes);
-            } else {
+            else
                 return format(Unit.B, 0L);
-            }
         case B:
+            format = BYTES_FORMAT;
             arguments[0] = bytes;
             break;
         case GB:
+            format = FORMAT;
             arguments[0] = bytes / 1024F / 1024F / 1024F;
             break;
         case KB:
+            format = FORMAT;
             arguments[0] = bytes / 1024F;
             break;
         case MB:
+            format = FORMAT;
             arguments[0] = bytes / 1024F / 1024F;
             break;
         case TB:
+            format = FORMAT;
             arguments[0] = bytes / 1024F / 1024F / 1024F / 1024F;
             break;
         default:
             throw Assert.createUnreachable("Unknown bytes format unit.");
         }
         arguments[1] = unit.name();
-        return FORMAT.format(arguments);
+        return format.format(arguments);
     }
 
     /**

@@ -384,19 +384,11 @@ public class MainStatusAvatar extends Avatar {
 
     private void backupStatisticsJLabelMouseClicked(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_backupStatisticsJLabelMouseClicked
         if (2 == evt.getClickCount()) {
-            /* on double click, cycle through the units */
-            int nextIndex = -1;
-            final Unit[] units = Unit.values();
-            for (int i = 0; i < units.length; i++) {
-                if (units[i] == backupUnit) {
-                    nextIndex = i + 1;
-                    break;
-                }
+            if (Unit.AUTO == backupUnit) {
+                backupUnit = Unit.GB;
+            } else {
+                backupUnit = Unit.AUTO;
             }
-            if (nextIndex < units.length)
-                backupUnit = units[nextIndex];
-            else
-                backupUnit = units[0];
             reloadBackupStatistics();
         }
     }//GEN-LAST:event_backupStatisticsJLabelMouseClicked

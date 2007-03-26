@@ -15,13 +15,13 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class Rename  extends AbstractBrowserAction {
+public class Rename extends AbstractBrowserAction {
     
     /** The browser application. */
     private final Browser browser;
     
     /**
-     * Create Unsubscribe.
+     * Create Rename.
      * 
      * @param browser
      *            The thinkParity browser application.

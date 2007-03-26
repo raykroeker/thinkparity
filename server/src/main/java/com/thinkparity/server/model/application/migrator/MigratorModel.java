@@ -116,5 +116,5 @@ public interface MigratorModel {
      * @return A <code>Release</code>.
      */
     public List<Resource> readResources(final JabberId userId,
-            final UUID productUniqueId, final String releaseName, final OS os);
+            final String productName, final String releaseName, final OS os);
 }

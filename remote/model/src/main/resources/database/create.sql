@@ -158,21 +158,21 @@ create table TPSD_PRODUCT_RELEASE(
     unique(PRODUCT_ID,RELEASE_NAME,RELEASE_OS),
     foreign key(PRODUCT_ID) references TPSD_PRODUCT(PRODUCT_ID)
 );
-create table TPSD_RESOURCE(
+create table TPSD_PRODUCT_RELEASE_RESOURCE(
 	RESOURCE_ID bigint generated always as identity (start with 4000),
     RESOURCE_NAME varchar(64) not null,
-    RESOURCE_VERSION varchar(16) not null,
+    RESOURCE_VERSION varchar(64) not null,
     RESOURCE_CHECKSUM varchar(256) not null,
     RESOURCE_SIZE bigint not null,
 	RESOURCE blob not null,
     primary key(RESOURCE_ID),
     unique(RESOURCE_NAME,RESOURCE_VERSION,RESOURCE_CHECKSUM)
 );
-create table TPSD_RESOURCE_OS(
+create table TPSD_PRODUCT_RELEASE_RESOURCE_OS(
 	RESOURCE_ID bigint not null,
 	RESOURCE_OS varchar(32) not null,
 	primary key(RESOURCE_ID,RESOURCE_OS),
-	foreign key(RESOURCE_ID) references TPSD_RESOURCE(RESOURCE_ID)
+	foreign key(RESOURCE_ID) references TPSD_PRODUCT_RELEASE_RESOURCE(RESOURCE_ID)
 );
 create table TPSD_PRODUCT_RELEASE_RESOURCE_REL(
     RELEASE_ID bigint not null,
@@ -180,7 +180,7 @@ create table TPSD_PRODUCT_RELEASE_RESOURCE_REL(
     RESOURCE_PATH varchar(256) not null,
     primary key(RELEASE_ID,RESOURCE_ID),
     foreign key(RELEASE_ID) references TPSD_PRODUCT_RELEASE(RELEASE_ID),
-    foreign key(RESOURCE_ID) references TPSD_RESOURCE(RESOURCE_ID)
+    foreign key(RESOURCE_ID) references TPSD_PRODUCT_RELEASE_RESOURCE(RESOURCE_ID)
 );
 create table TPSD_USER_FEATURE_REL(
     USER_ID bigint not null,

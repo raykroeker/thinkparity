@@ -318,7 +318,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
 
     private List<Resource> readRemoteResources(final Release release) {
         return getSessionModel().readMigratorResources(
-                release.getProduct().getUniqueId(), release.getName(),
+                release.getProduct().getName(), release.getName(),
                 OSUtil.getOs());
     }
 

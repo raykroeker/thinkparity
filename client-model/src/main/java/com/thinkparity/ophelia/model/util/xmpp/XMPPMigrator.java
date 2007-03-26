@@ -175,24 +175,24 @@ final class XMPPMigrator extends AbstractXMPP<MigratorListener> {
     /**
      * Read migrator release resources.
      * 
-     * @param productUniqueId
-     *            A product unique id <code>UUID</code>.
+     * @param productName
+     *            A product name <code>String</code>.
      * @param name
-     *            A release name.
+     *            A release name <code>String</code>.
      * @param os
      *            An <code>OS</code>.
      * @return A <code>Release</code>.
      */
     List<Resource> readResources(final JabberId userId,
-            final UUID productUniqueId, final String releaseName, final OS os) {
+            final String productName, final String releaseName, final OS os) {
         logger.logApiId();
         logger.logVariable("userId", userId);
-        logger.logVariable("productUniqueId", productUniqueId);
+        logger.logVariable("productName", productName);
         logger.logVariable("releaseName", releaseName);
         logger.logVariable("os", os);
         final XMPPMethod readResources = new XMPPMethod("migrator:readresources");
         readResources.setParameter("userId", userId);
-        readResources.setParameter("productUniqueId", productUniqueId);
+        readResources.setParameter("productName", productName);
         readResources.setParameter("releaseName", releaseName);
         readResources.setParameter("os", os);
         return execute(readResources, Boolean.TRUE).readResultResources("resources");

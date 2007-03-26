@@ -296,9 +296,9 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
      * 
      */
     public List<Resource> readResources(final JabberId userId,
-            final UUID productUniqueId, final String releaseName, final OS os) {
+            final String productName, final String releaseName, final OS os) {
         try {
-            return migratorSql.readResources(productUniqueId, releaseName, os);
+            return migratorSql.readResources(productName, releaseName, os);
         } catch (final Throwable t) {
             throw translateError(t);
         }

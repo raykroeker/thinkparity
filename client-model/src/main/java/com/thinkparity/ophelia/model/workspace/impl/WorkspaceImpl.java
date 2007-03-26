@@ -579,6 +579,9 @@ public class WorkspaceImpl implements Workspace {
                     "log4j.renderer.com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent",
                     "com.thinkparity.codebase.model.util.logging.or.XMPPEventRenderer");
             logging.setProperty(
+                    "log4j.renderer.com.thinkparity.codebase.model.artifact.Artifact",
+                    "com.thinkparity.codebase.model.util.logging.or.ArtifactRenderer");
+            logging.setProperty(
                     "log4j.renderer.com.thinkparity.codebase.model.container.Container",
                     "com.thinkparity.codebase.model.util.logging.or.ContainerRenderer");
             logging.setProperty(

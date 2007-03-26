@@ -12,33 +12,33 @@ package com.thinkparity.ophelia.model.util;
  */
 public class ProcessAdapter implements ProcessMonitor {
 
-    /* (non-Javadoc)
+    /**
      * @see com.thinkparity.ophelia.model.util.ProcessMonitor#beginProcess()
+     *
      */
-    public void beginProcess() {
-    }
+    public void beginProcess() {}
 
-    /* (non-Javadoc)
+    /**
      * @see com.thinkparity.ophelia.model.util.ProcessMonitor#beginStep(com.thinkparity.ophelia.model.util.Step, java.lang.Object)
+     *
      */
-    public void beginStep(Step step, Object data) {
-    }
+    public void beginStep(final Step step, final Object data) {}
 
-    /* (non-Javadoc)
+    /**
      * @see com.thinkparity.ophelia.model.util.ProcessMonitor#determineSteps(java.lang.Integer)
+     *
      */
-    public void determineSteps(Integer steps) {
-    }
+    public void determineSteps(final Integer steps) {}
 
-    /* (non-Javadoc)
+    /**
      * @see com.thinkparity.ophelia.model.util.ProcessMonitor#endProcess()
+     *
      */
-    public void endProcess() {
-    }
+    public void endProcess() {}
 
-    /* (non-Javadoc)
+    /**
      * @see com.thinkparity.ophelia.model.util.ProcessMonitor#endStep(com.thinkparity.ophelia.model.util.Step)
+     *
      */
-    public void endStep(Step step) {
-    }
+    public void endStep(final Step step) {}
 }

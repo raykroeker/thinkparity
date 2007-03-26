@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.build
 
+import java.nio.ByteBuffer;
+
 import com.thinkparity.codebase.DateUtil
 import com.thinkparity.codebase.OS
 import com.thinkparity.codebase.OSUtil
@@ -57,6 +59,7 @@ class ConfigurationHelper {
 
         configuration["ant.base-dir"] = extractAntBasedir()
 
+        configuration["thinkparity.buffer"] = extractBuffer()
         configuration["thinkparity.charset-name"] = extractCharsetName()
         configuration["thinkparity.credentials"] = extractCredentials()
         configuration["thinkparity.environment"] = extractEnvironment()
@@ -89,6 +92,16 @@ class ConfigurationHelper {
      */
     File extractAntBasedir() {
         return new File(properties["basedir"])
+    }
+
+    /**
+     * Extract the buffer.
+     *
+     * @return A <code>ByteBuffer</code>.
+     */
+    ByteBuffer extractBuffer() {
+        // BUFFER - 2MB - ConfigurationHelper#extractBuffer()
+        return ByteBuffer.allocate(1024 * 1024 * 2)
     }
 
     /**

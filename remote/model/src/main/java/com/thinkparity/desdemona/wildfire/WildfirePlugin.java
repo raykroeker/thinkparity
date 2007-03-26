@@ -342,7 +342,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
         // desdemona renderers
         logging.setProperty(
                 "log4j.renderer.com.thinkparity.codebase.model.artifact.Artifact",
-                "com.thinkparity.desdemona.util.logging.or.ArtifactRenderer");
+                "com.thinkparity.codebase.model.util.logging.or.ArtifactRenderer");
         logging.setProperty(
                 "log4j.renderer.com.thinkparity.codebase.model.profile.Profile",
                 "com.thinkparity.desdemona.util.logging.or.ProfileObjectRenderer");

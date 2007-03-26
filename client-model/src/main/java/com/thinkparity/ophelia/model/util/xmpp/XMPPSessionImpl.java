@@ -950,12 +950,12 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
 
     /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readMigratorResources(com.thinkparity.codebase.jabber.JabberId,
-     *      java.util.UUID, java.lang.String, com.thinkparity.codebase.OS)
+     *      java.lang.String, java.lang.String, com.thinkparity.codebase.OS)
      * 
      */
     public List<Resource> readMigratorResources(final JabberId userId,
-            final UUID productUniqueId, final String releaseName, final OS os) {
-        return xmppMigrator.readResources(userId, productUniqueId, releaseName, os);
+            final String productName, final String releaseName, final OS os) {
+        return xmppMigrator.readResources(userId, productName, releaseName, os);
     }
 
     /**

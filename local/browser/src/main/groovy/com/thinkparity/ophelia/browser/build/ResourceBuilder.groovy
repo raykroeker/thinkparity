@@ -115,7 +115,7 @@ class ResourceBuilder {
 
     Resource create(String version, File file) {
         def resource = new Resource()
-        resource.setChecksum(checksum(file, 2048))
+        resource.setChecksum(checksum(file))
         resource.setName(file.getName())
         resource.setOs(release.getOs())
         resource.setPath(FileUtil.getRelativePath(imageDir, file))
@@ -133,14 +133,12 @@ class ResourceBuilder {
      *      A buffer size <code>Integer</code>.
      * @return An MD5 checksum <code>String</code>.
      */
-    String checksum(final File file, final Integer buffer) {
-        final InputStream stream = new BufferedInputStream(
-                new FileInputStream(file), buffer);
+    String checksum(final File file) {
+        final InputStream stream = new FileInputStream(file)
         try {
-            return MD5Util.md5Hex(stream);
+            return MD5Util.md5Hex(stream, configuration["thinkparity.buffer"])
         } finally {
-            stream.close();
+            stream.close()
         }
     }
-
 }

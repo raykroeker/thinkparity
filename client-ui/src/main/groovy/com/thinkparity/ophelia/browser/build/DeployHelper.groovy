@@ -66,9 +66,10 @@ class DeployHelper {
         // zip the package image
         final File imageArchiveFile = configuration["thinkparity.target.package.image.archive-file"]
         if (imageArchiveFile.exists())
-            imageArchiveFile.delete();
-        ZipUtil.createZipFile(imageArchiveFile, imageDir);
-        release.setChecksum(checksum(imageArchiveFile, 2048))
+            imageArchiveFile.delete()
+        ZipUtil.createZipFile(imageArchiveFile, imageDir,
+            configuration["thinkparity.buffer"])
+        release.setChecksum(checksum(imageArchiveFile))
         // deploy
         deploy(configuration["thinkparity.userid"], product, release, resources, upload(imageArchiveFile))
     }
@@ -93,15 +94,12 @@ class DeployHelper {
      *
      * @param file
      *      A <code>File</code>.
-     * @param buffer
-     *      A buffer size <code>Integer</code>.
      * @return An MD5 checksum <code>String</code>.
      */
-    String checksum(File file, Integer buffer) {
-        InputStream stream = new BufferedInputStream(new FileInputStream(file),
-            buffer);
+    String checksum(File file) {
+        final InputStream stream = new FileInputStream(file);
         try {
-            return MD5Util.md5Hex(stream);
+            return MD5Util.md5Hex(stream, configuration["thinkparity.buffer"])
         } finally {
             stream.close();
         }

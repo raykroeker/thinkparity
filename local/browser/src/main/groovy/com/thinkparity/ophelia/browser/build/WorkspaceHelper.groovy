@@ -6,7 +6,7 @@ package com.thinkparity.ophelia.browser.build
 import com.thinkparity.codebase.model.session.Credentials
 
 import com.thinkparity.ophelia.model.ModelFactory
-import com.thinkparity.ophelia.model.session.DefaultLoginMonitor
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.workspace.Workspace
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel
 
@@ -48,7 +48,7 @@ class WorkspaceHelper {
         workspace = model.getWorkspace(configuration["thinkparity.target.workspace-dir"])
         // initialize if required
         if (!model.isInitialized(workspace))
-            model.initialize(workspace, new LoginMonitor(), configuration["thinkparity.credentials"])
+            model.initialize(new InitializeMonitor(), workspace, configuration["thinkparity.credentials"])
         // save the workspace to the configuration
         configuration["thinkparity.workspace"] = workspace
         // save the model factory to the configuration
@@ -67,11 +67,7 @@ class WorkspaceHelper {
 }
 
 /**
- * <b>Title:</b>Workspace Helper Login Monitor<br>
- * <b>Description:</b>A login monitor that will always synchronize.<br>
+ * <b>Title:</b>Workspace Helper Initialize Monitor<br>
+ * <b>Description:</b>A process monitor.<br>
  */
-class LoginMonitor extends DefaultLoginMonitor {
-    public Boolean confirmSynchronize() {
-        return Boolean.TRUE
-    }
-}
+class InitializeMonitor extends ProcessAdapter {}

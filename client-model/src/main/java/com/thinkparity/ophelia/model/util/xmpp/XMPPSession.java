@@ -721,16 +721,16 @@ public interface XMPPSession {
     /**
      * Read migrator release resources.
      * 
-     * @param productUniqueId
-     *            A product unique id <code>UUID</code>.
+     * @param productName
+     *            A product name <code>String</code>.
      * @param name
-     *            A release name.
+     *            A release name <code>String</code>.
      * @param os
      *            An <code>OS</code>.
      * @return A <code>Release</code>.
      */
     public List<Resource> readMigratorResources(final JabberId userId,
-            final UUID productUniqueId, final String releaseName, final OS os);
+            final String productName, final String releaseName, final OS os);
     /**
      * Read all outgoing e-mail invitations.
      * 

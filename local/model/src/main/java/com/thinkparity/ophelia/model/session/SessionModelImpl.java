@@ -1272,17 +1272,18 @@ public final class SessionModelImpl extends Model<SessionListener>
 
     
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorResources(java.util.UUID, java.lang.String, com.thinkparity.codebase.OS)
-     *
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorResources(java.lang.String,
+     *      java.lang.String, com.thinkparity.codebase.OS)
+     * 
      */
-    public List<Resource> readMigratorResources(final UUID productUniqueId,
+    public List<Resource> readMigratorResources(final String productName,
             final String releaseName, final OS os) {
         try {
             assertOnline();
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 return xmppSession.readMigratorResources(localUserId(),
-                        productUniqueId, releaseName, os);
+                        productName, releaseName, os);
             }
         } catch (final Throwable t) {
             throw panic(t);

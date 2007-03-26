@@ -89,9 +89,10 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                         fileStream = new FileOutputStream(
                                 streamFileSystem.createFile(resource.getPath()));
                         try {
-                            resourceStream = migratorSql.openResource(
+                            // NOCOMMIT MigratorModelImpl#createStream()
+                            resourceStream = null;/*migratorSql.openResource(
                                     resource.getName(), resource.getVersion(),
-                                    resource.getChecksum());
+                                    resource.getChecksum());*/
                             try {
                                 final ByteBuffer buffer = getDefaultBuffer();
                                 synchronized (buffer) {

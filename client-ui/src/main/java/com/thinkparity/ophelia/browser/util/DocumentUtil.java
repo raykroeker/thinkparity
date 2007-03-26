@@ -6,39 +6,45 @@ package com.thinkparity.ophelia.browser.util;
 import java.io.File;
 import java.util.List;
 
+import com.thinkparity.codebase.sort.StringComparator;
+
 import com.thinkparity.codebase.model.document.Document;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity OpheliaUI Document Util<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.3
  */
 public class DocumentUtil {
 
 	/** A singleton instance of <code>DocumentUtil</code>. */
-	private static final DocumentUtil INSTANCE;
-
-	static {
-        INSTANCE = new DocumentUtil();
-	}
+	private static DocumentUtil INSTANCE;
 
 	/**
-     * Obtain the document's filename extension.
+     * Obtain an instance of document util.
      * 
-     * @param document
-     *            A thinkParity document.
-     * @return The document's filename extension.
+     * @return An instance of <code>DocumentUtil</code>.
      */
 	public static DocumentUtil getInstance() {
+        if (null == INSTANCE) {
+            INSTANCE = new DocumentUtil();
+        }
         return INSTANCE;
 	}
+
+    /** A <code>StringComparator</code>. */
+    private final StringComparator stringComparator;
 
 	/**
      * Create DocumentUtil.
      * 
      */
-	private DocumentUtil() { super(); }
+	private DocumentUtil() {
+        super();
+        this.stringComparator = new StringComparator(Boolean.TRUE);
+	}
 
     /**
      * Determine if the list of documents contains the file by using an exact
@@ -55,8 +61,8 @@ public class DocumentUtil {
     }
 
     /**
-     * Obtain the index of a file within a list of documents by using a
-     * non-case-sensitive name comparison.
+     * Obtain the index of a file within a list of documents by using a platform
+     * specific name comparison.
      * 
      * @param documents
      *            A <code>List</code> of <code>Document</code>s.
@@ -67,7 +73,8 @@ public class DocumentUtil {
      */
 	public int indexOf(final List<Document> documents, final File file) {
         for (int i = 0; i < documents.size(); i++)
-            if (documents.get(i).getName().equalsIgnoreCase(file.getName()))
+            if (0 == stringComparator.compare(documents.get(i).getName(),
+                    file.getName()))
                 return i;
         return -1;
     }

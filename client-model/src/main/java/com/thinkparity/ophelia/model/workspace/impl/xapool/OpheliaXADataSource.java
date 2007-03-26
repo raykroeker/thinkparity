@@ -58,6 +58,21 @@ public class OpheliaXADataSource extends StandardXADataSource {
     }
 
     /**
+     * Create OpheliaXADataSource.
+     * 
+     */
+    public OpheliaXADataSource(final String url, final String user,
+            final String password) throws SQLException {
+        super();
+        setDriverName(DS_DRIVER_NAME);
+        setPassword(password);
+        setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+        this.baseUrl = url;
+        setUrl(url.toString());
+        setUser(user);
+    }
+
+    /**
      * Obtain a connection used to shutdown the database.
      * 
      * @return A <code>Connection</code>.

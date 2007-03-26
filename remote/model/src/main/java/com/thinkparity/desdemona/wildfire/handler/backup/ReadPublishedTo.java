@@ -48,7 +48,7 @@ public final class ReadPublishedTo extends AbstractHandler {
     private List<ArtifactReceipt> readPublishedTo(
             final ServiceModelProvider provider, final JabberId userId,
             final UUID uniqueId, final Long versionId) {
-        return provider.getContainerModel().readBackupPublishedTo(userId,
+        return provider.getBackupModel().readContainerPublishedTo(userId,
                 uniqueId, versionId);
     }
 }

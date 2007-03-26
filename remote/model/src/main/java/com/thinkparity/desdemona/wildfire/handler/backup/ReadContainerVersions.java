@@ -43,23 +43,14 @@ public final class ReadContainerVersions extends AbstractHandler {
             final ServiceResponseWriter writer) {
         logger.logApiId();
         final List<ContainerVersion> versions =
-            readBackupVersions(provider, reader.readJabberId("userId"),
+            readContainerVersions(provider, reader.readJabberId("userId"),
                     reader.readUUID("uniqueId"));
         writer.writeContainerVersions("containerVersions", "containerVersions", versions);
     }
 
-    /**
-     * Read a list of container versions from the backup.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A container unique id <code>UUID</code>.
-     * @return A <code>List&lt;Container&gt;</code>.
-     */
-    private List<ContainerVersion> readBackupVersions(
+    private List<ContainerVersion> readContainerVersions(
             final ServiceModelProvider context, final JabberId userId,
             final UUID uniqueId) {
-        return context.getContainerModel().readBackupVersions(userId, uniqueId);
+        return context.getBackupModel().readContainerVersions(userId, uniqueId);
     }
 }

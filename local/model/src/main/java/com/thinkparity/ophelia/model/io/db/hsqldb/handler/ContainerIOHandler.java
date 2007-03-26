@@ -252,7 +252,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append(" where C.CONTAINER_ID=?")
         .toString();
 
-    /** Sql to read a container. */
+    /** Sql to read containers for a team member. */
     private static final String SQL_READ_BY_TEAM_MEMBER_ID =
         new StringBuilder(SQL_READ)
         .append(" inner join ARTIFACT_TEAM_REL ATR ")
@@ -472,6 +472,27 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("and CV.CONTAINER_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
         .append("inner join ARTIFACT A on CV.CONTAINER_ID=A.ARTIFACT_ID ")
         .append("where CV.CONTAINER_ID=?")
+        .toString();
+
+    /** Sql to read container versions for a document. */
+    private static final String SQL_READ_VERSIONS_BY_DOCUMENT_ID =
+        new StringBuilder("select CV.CONTAINER_ID,CV.CONTAINER_VERSION_ID,")
+        .append("A.ARTIFACT_TYPE_ID,AV.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,")
+        .append("AV.CREATED_ON,AV.ARTIFACT_NAME,AV.COMMENT,")
+        .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
+        .append("from CONTAINER_VERSION CV ")
+        .append("inner join ARTIFACT A on A.ARTIFACT_ID=CV.CONTAINER_ID ")
+        .append("inner join ARTIFACT_VERSION AV ")
+        .append("on AV.ARTIFACT_ID=CV.CONTAINER_ID ")
+        .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
+        .append("inner join PARITY_USER UC on UC.USER_ID=AV.CREATED_BY ")
+        .append("inner join PARITY_USER UU on UU.USER_ID=AV.UPDATED_BY ")
+        .append("inner join CONTAINER_VERSION_ARTIFACT_VERSION_REL CVAVR ")
+        .append("on CVAVR.CONTAINER_ID=CV.CONTAINER_ID ")
+        .append("and CVAVR.CONTAINER_VERSION_ID=CV.CONTAINER_VERSION_ID ")
+        .append("where CVAVR.ARTIFACT_ID=? ")
+        .append("and CVAVR.ARTIFACT_TYPE_ID=? ")
+        .append("order by CV.CONTAINER_ID asc,CV.CONTAINER_VERSION_ID asc")
         .toString();
 
     /** Sql to remove a version relationship. */
@@ -1312,6 +1333,27 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.executeQuery();
             final List<ContainerVersion> versions = new ArrayList<ContainerVersion>();
             while(session.nextResult()) {
+                versions.add(extractVersion(session));
+            }
+            return versions;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readVersionsForDocument(java.lang.Long)
+     *
+     */
+    public List<ContainerVersion> readVersionsForDocument(final Long documentId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_VERSIONS_BY_DOCUMENT_ID);
+            session.setLong(1, documentId);
+            session.setTypeAsInteger(2, ArtifactType.DOCUMENT);
+            session.executeQuery();
+            final List<ContainerVersion> versions = new ArrayList<ContainerVersion>();
+            while (session.nextResult()) {
                 versions.add(extractVersion(session));
             }
             return versions;

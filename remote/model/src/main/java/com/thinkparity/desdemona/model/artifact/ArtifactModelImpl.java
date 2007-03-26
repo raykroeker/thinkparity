@@ -24,7 +24,7 @@ import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.session.Session;
-import com.thinkparity.desdemona.model.user.UserModel;
+import com.thinkparity.desdemona.model.user.InternalUserModel;
 
 import org.jivesoftware.wildfire.auth.UnauthorizedException;
 
@@ -37,7 +37,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
     /** Artifact sql io. */
 	private final ArtifactSql artifactSql;
 
-	/**
+
+    /**
 	 * Create a ArtifactModelImpl.
 	 */
 	ArtifactModelImpl(final Session session) {
@@ -45,7 +46,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		this.artifactSql = new ArtifactSql();
 	}
 
-    /**
+	/**
      * Add a user to an artifact's team.
      * 
      * @param uniqueId
@@ -61,8 +62,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("teamMemberId", teamMemberId);
         try {
-            final UserModel userModel = getUserModel();
-            if (userModel.isArchive(userId)) {
+            final InternalUserModel userModel = getUserModel();
+            if (userModel.isBackup(userId)) {
                 logInfo("Ignoring archive user {0}.", userId);
             } else {
                 final Artifact artifact = read(uniqueId);
@@ -109,7 +110,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         try {
             assertIsAuthenticatedUser(userId);
 
-            if (getUserModel().isArchive(userId)) {
+            if (getUserModel().isBackup(userId)) {
                 logInfo("Ignoring archive user {0}.", userId);
             } else {
                 final ArtifactReceivedEvent received = new ArtifactReceivedEvent();
@@ -136,7 +137,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
      * Create an artifact; and add the creator to the team immediately. Note
      * that we are deliberately not using the model api to add a team member
      * because we do not want to fire off notifications.
@@ -161,7 +162,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
 	}
 
-    /**
+	/**
      * Create a draft for an artifact.
      * 
      * @param uniqueId
@@ -284,12 +285,20 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-	// TODO-javadoc InternalArtifactModel#readTeam()
+    // TODO-javadoc InternalArtifactModel#readTeam()
     List<TeamMember> readTeam(final JabberId userId, final Long artifactId) {
         try {
             assertIsAuthenticatedUser(userId);
 
             return artifactSql.readTeamRel(artifactId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+	List<UUID> readTeamArtifactIds(final User user) {
+        try {
+            return artifactSql.readTeamArtifactUniqueIds(user.getLocalId());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -311,16 +320,13 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("teamMemberId", teamMemberId);
         try {
-            final UserModel userModel = getUserModel();
-            if (userModel.isArchive(userId)) {
+            final InternalUserModel userModel = getUserModel();
+            if (userModel.isBackup(userId)) {
                 logInfo("Ignoring archive user {0}.", userId);
             } else {
                 final Artifact artifact = read(uniqueId);
                 final User teamMember = userModel.read(teamMemberId);
                 artifactSql.deleteTeamRel(artifact.getId(), teamMember.getLocalId());
-                if (0 == artifactSql.readTeamRelCount(artifact.getId())) {
-                    artifactSql.delete(artifact.getId());
-                }
 
                 final ArtifactTeamMemberRemovedEvent teamMemberRemoved = 
                     new ArtifactTeamMemberRemovedEvent();
@@ -333,16 +339,13 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    // TODO-javadoc InternalArtifactModel#addTeamMember()
+    // TODO-javadoc InternalArtifactModel#removeTeamMember()
     void removeTeamMember(final JabberId userId, final Long artifactId,
             final Long teamMemberId) {
         try {
             assertIsAuthenticatedUser(userId);
 
             artifactSql.deleteTeamRel(artifactId, teamMemberId);
-            if (0 == artifactSql.readTeamRelCount(artifactId)) {
-                artifactSql.delete(artifactId);
-            }
         } catch (final Throwable t) {
             throw panic(t);
         }

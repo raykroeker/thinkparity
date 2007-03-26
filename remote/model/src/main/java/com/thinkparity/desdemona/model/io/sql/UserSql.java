@@ -22,172 +22,158 @@ import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 
 /**
+ * <b>Title:</b>thinkParity DesdemonaModel User SQL<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version
+ * @version 1.1.2.17
  */
 public class UserSql extends AbstractSql {
 
     /** Sql to create an email address. */
     private static final String SQL_CREATE_EMAIL =
-            new StringBuffer("insert into EMAIL ")
-            .append("(USER_ID,EMAIL,VERIFIED,VERIFICATION_KEY) ")
-            .append("values (?,?,?,?)")
-            .toString();
+        new StringBuilder("insert into TPSD_EMAIL ")
+        .append("(USER_ID,EMAIL,VERIFIED,VERIFICATION_KEY) ")
+        .append("values (?,?,?,?)")
+        .toString();
 
     /** Sql to delete an email address. */
     private static final String SQL_DELETE_EMAIL =
-            new StringBuffer("delete from EMAIL ")
-            .append("where USER_ID=? and EMAIL=?")
-            .toString();
+        new StringBuilder("delete from TPSD_EMAIL ")
+        .append("where USER_ID=? and EMAIL=?")
+        .toString();
 
     /** Sql to read all users. */
     private static final String SQL_READ =
-        new StringBuffer("select PU.USERNAME,PU.USER_ID ")
-        .append("from PARITY_USER PU ")
-        .append("order by PU.USERNAME asc")
+        new StringBuilder("select U.USERNAME,U.USER_ID ")
+        .append("from TPSD_USER U ")
+        .append("order by U.USERNAME asc")
         .toString();
-
-    /** Sql to read a user's archive ids. */
-    private static final String SQL_READ_ARCHIVE_IDS =
-            new StringBuffer("select PU.USERNAME \"BACKUP_USERNAME\" ")
-            .append("from USER_BACKUP_REL UBR ")
-            .append("inner join PARITY_USER PU on UBR.BACKUP_ID=PU.USER_ID ")
-            .append("where UBR.USER_ID=? ")
-            .append("order by UBR.BACKUP_ID asc")
-            .toString();
-
-    /** Sql to read an archive user's credentials. */
-    private static final String SQL_READ_BACKUP_CREDENTIALS =
-            new StringBuffer("select PU.USERNAME,PU.PASSWORD ")
-            .append("from PARITY_USER PU ")
-            .append("inner join USER_BACKUP_REL UBR on PU.USER_ID=UBR.BACKUP_ID ")
-            .append("where PU.USERNAME=?")
-            .toString();
 
     /** Sql to read a username from an e-mail address. */
     private static final String SQL_READ_BY_EMAIL =
-        new StringBuilder("select PU.USERNAME,PU.USER_ID ")
-        .append("from PARITY_USER PU ")
-        .append("inner join USER_EMAIL UE on UE.USER_ID=PU.USER_ID ")
-        .append("inner join EMAIL E on E.EMAIL_ID=UE.EMAIL_ID ")
+        new StringBuilder("select U.USERNAME,U.USER_ID ")
+        .append("from TPSD_USER U ")
+        .append("inner join TPSD_USER_EMAIL UE on UE.USER_ID=U.USER_ID ")
+        .append("inner join TPSD_EMAIL E on E.EMAIL_ID=UE.EMAIL_ID ")
         .append("where E.EMAIL=?")
         .toString();
 
     /** Sql to read a user. */
     private static final String SQL_READ_BY_ID =
-        new StringBuilder("select PU.USERNAME,PU.USER_ID ")
-        .append("from PARITY_USER PU ")
-        .append("where PU.USER_ID=?")
+        new StringBuilder("select U.USERNAME,U.USER_ID ")
+        .append("from TPSD_USER U ")
+        .append("where U.USER_ID=?")
         .toString();
 
     /** Sql to read a user. */
     private static final String SQL_READ_BY_USERNAME =
-        new StringBuilder("select PU.USERNAME,PU.USER_ID ")
-        .append("from PARITY_USER PU ")
-        .append("where PU.USERNAME=?")
+        new StringBuilder("select U.USERNAME,U.USER_ID ")
+        .append("from TPSD_USER U ")
+        .append("where U.USERNAME=?")
         .toString();
 
     /** Sql to read the user credentials. */
     private static final String SQL_READ_CREDENTIALS =
-        new StringBuffer("select PU.USERNAME,PU.PASSWORD ")
-        .append("from PARITY_USER PU ")
-        .append("where PU.USERNAME=? ")
+        new StringBuilder("select U.USERNAME,U.PASSWORD ")
+        .append("from TPSD_USER U ")
+        .append("where U.USER_ID=? ")
         .toString();
 
     /** Sql to read email addresses. */
     private static final String SQL_READ_EMAIL =
-        new StringBuffer("select E.EMAIL ")
-        .append("from EMAIL E ")
-        .append("inner join PARITY_USER PU on PU.USER_ID=E.USER_ID ")
-        .append("where PU.USERNAME=? and E.EMAIL=? ")
+        new StringBuilder("select E.EMAIL ")
+        .append("from TPSD_EMAIL E ")
+        .append("inner join TPSD_USER U on U.USER_ID=E.USER_ID ")
+        .append("where U.USERNAME=? and E.EMAIL=? ")
         .append("and E.VERIFICATIONKEY=?")
         .toString();
 
     /** Sql to count email addresses. */
     private static final String SQL_READ_EMAIL_COUNT =
-        new StringBuffer("select COUNT(E.EMAIL) \"EMAIL_COUNT\" ")
-        .append("from EMAIL E ")
+        new StringBuilder("select COUNT(E.EMAIL) \"EMAIL_COUNT\" ")
+        .append("from TPSD_EMAIL E ")
         .append("where E.EMAIL=?")
         .toString();
 
     /** Sql to read e-mail addresses. */
     private static final String SQL_READ_EMAILS =
         new StringBuilder("select E.EMAIL ")
-        .append("from PARITY_USER PU ")
-        .append("inner join USER_EMAIL UE on PU.USER_ID=UE.USER_ID ")
-        .append("inner join EMAIL E on E.EMAIL_ID=UE.EMAIL_ID ")
-        .append("where PU.USER_ID=? and UE.VERIFIED=?")
+        .append("from TPSD_USER U ")
+        .append("inner join TPSD_USER_EMAIL UE on U.USER_ID=UE.USER_ID ")
+        .append("inner join TPSD_EMAIL E on E.EMAIL_ID=UE.EMAIL_ID ")
+        .append("where U.USER_ID=? and UE.VERIFIED=?")
         .toString();
         
     /** Read all custom features for the user. */
     private static final String SQL_READ_FEATURES =
-        new StringBuffer("select PF.PRODUCT_ID,PF.FEATURE_ID,")
+        new StringBuilder("select PF.PRODUCT_ID,PF.FEATURE_ID,")
         .append("PF.FEATURE_NAME ")
-        .append("from PARITY_USER PU ")
-        .append("inner join USER_FEATURE_REL UFR on PU.USER_ID=UFR.USER_ID ")
-        .append("inner join PRODUCT_FEATURE PF on UFR.FEATURE_ID=PF.FEATURE_ID ")
-        .append("where PF.PRODUCT_ID=? and PU.USERNAME=?")
+        .append("from TPSD_USER U ")
+        .append("inner join TPSD_USER_FEATURE_REL UFR on U.USER_ID=UFR.USER_ID ")
+        .append("inner join TPSD_PRODUCT_FEATURE PF on UFR.FEATURE_ID=PF.FEATURE_ID ")
+        .append("where U.USER_ID=? and PF.PRODUCT_ID=?")
         .toString();
 
     /** Sql to read the user id. */
     private static final String SQL_READ_LOCAL_USER_ID =
-        new StringBuffer("select PU.USER_ID ")
-        .append("from PARITY_USER PU ")
-        .append("where PU.USERNAME=?")
+        new StringBuilder("select U.USER_ID ")
+        .append("from TPSD_USER U ")
+        .append("where U.USERNAME=?")
         .toString();
 
     /** Sql to read the user profile's security answer. */
     private static final String SQL_READ_SECURITY_ANSWER =
-            new StringBuffer("select PU.SECURITY_ANSWER ")
-            .append("from PARITY_USER PU ")
-            .append("where PU.USERNAME=?")
-            .toString();
+        new StringBuilder("select U.SECURITY_ANSWER ")
+        .append("from TPSD_USER U ")
+        .append("where U.USERNAME=?")
+        .toString();
 
     /** Sql to read the user profile's security question. */
     private static final String SQL_READ_SECURITY_QUESTION =
-            new StringBuffer("select PU.SECURITY_QUESTION ")
-            .append("from PARITY_USER PU ")
-            .append("where PU.USERNAME=?")
-            .toString();
+        new StringBuilder("select U.SECURITY_QUESTION ")
+        .append("from TPSD_USER U ")
+        .append("where U.USERNAME=?")
+        .toString();
 
     /** Sql to read the user's token. */
     private static final String SQL_READ_TOKEN =
-        new StringBuffer("select PU.TOKEN ")
-        .append("from PARITY_USER PU ")
-        .append("where PU.USERNAME=? and PU.TOKEN is not null")
+        new StringBuilder("select U.TOKEN ")
+        .append("from TPSD_USER U ")
+        .append("where U.USERNAME=? and U.TOKEN is not null")
         .toString();
 
     /** Sql to read the user's vcard. */
     private static final String SQL_READ_VCARD =
-        new StringBuffer("select PU.VCARD ")
-        .append("from PARITY_USER PU ")
-        .append("where PU.USERNAME=?")
+        new StringBuilder("select U.VCARD ")
+        .append("from TPSD_USER U ")
+        .append("where U.USERNAME=?")
         .toString();
 
     /** Sql to update the password. */
     private static final String SQL_UPDATE_PASSWORD =
-        new StringBuffer("update PARITY_USER ")
+        new StringBuilder("update TPSD_USER ")
         .append("set PASSWORD=? ")
         .append("where USERNAME=? and PASSWORD=?")
         .toString();
 
     /** Sql to create the user's token. */
     private static final String SQL_UPDATE_TOKEN =
-        new StringBuffer("update PARITY_USER ")
+        new StringBuilder("update TPSD_USER ")
         .append("set TOKEN=? where USERNAME=?")
         .toString();
 
     /** Sql to update the user's vcard. */
     private static final String SQL_UPDATE_VCARD =
-        new StringBuffer("update PARITY_USER PU ")
+        new StringBuilder("update TPSD_USER U ")
         .append("set VCARD=? where USERNAME=?")
         .toString();
 
     private static final String SQL_VERIFY_EMAIL =
-            new StringBuffer("update USER_EMAIL ")
-            .append("set VERIFIED=?, VERIFICATION_KEY=?")
-            .append("where USER_ID=? and EMAIL=? and VERIFICATION_KEY=?")
-            .toString();
+        new StringBuilder("update TPSD_USER_EMAIL ")
+        .append("set VERIFIED=?, VERIFICATION_KEY=?")
+        .append("where USER_ID=? and EMAIL=? and VERIFICATION_KEY=?")
+        .toString();
 
     /** Create UserSql. */
     public UserSql() { super(); }
@@ -332,51 +318,18 @@ public class UserSql extends AbstractSql {
         }
     }
 
-    public Credentials readArchiveCredentials(final JabberId archiveId) {
-        final HypersonicSession session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_BACKUP_CREDENTIALS);
-            session.setString(1, archiveId.getUsername());
-            session.executeQuery();
-            if (session.nextResult()) {
-                return extractCredentials(session);
-            } else {
-                return null;
-            }
-        } finally {
-            session.close();
-        }
-    }
-
-    public List<JabberId> readArchiveIds(final JabberId userId) {
-        final HypersonicSession session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_ARCHIVE_IDS);
-            session.setLong(1, readLocalUserId(userId));
-            session.executeQuery();
-            final List<JabberId> archiveIds = new ArrayList<JabberId>();
-            while (session.nextResult()) {
-                archiveIds.add(JabberIdBuilder.parseUsername(
-                        session.getString("BACKUP_USERNAME")));
-            }
-            return archiveIds;
-        } finally {
-            session.close();
-        }
-    }
-
     /**
      * Read the user credentials.
      * 
-     * @param username
-     *            A username <code>String</code>.
+     * @param userId
+     *            A user id <code>Long</code>.
      * @return The user <code>Credentials</code>.
      */
-    public Credentials readCredentials(final JabberId userId) {
+    public Credentials readCredentials(final Long userId) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_CREDENTIALS);
-            session.setString(1, userId.getUsername());
+            session.setLong(1, userId);
             session.executeQuery();
             if (session.nextResult()) {
                 return extractCredentials(session);
@@ -424,13 +377,12 @@ public class UserSql extends AbstractSql {
         }
     }
 
-    public List<Feature> readFeatures(final JabberId userId,
-            final Long productId) {
+    public List<Feature> readFeatures(final Long userId, final Long productId) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_FEATURES);
-            session.setLong(1, productId);
-            session.setString(2, userId.getUsername());
+            session.setLong(1, userId);
+            session.setLong(2, productId);
             session.executeQuery();
             final List<Feature> features = new ArrayList<Feature>();
             while (session.nextResult()) {

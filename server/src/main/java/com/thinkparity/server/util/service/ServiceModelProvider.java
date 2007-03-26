@@ -3,7 +3,6 @@
  */
 package com.thinkparity.desdemona.util.service;
 
-import com.thinkparity.desdemona.model.archive.ArchiveModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
@@ -23,13 +22,6 @@ import com.thinkparity.desdemona.model.user.UserModel;
  * @version 1.1.2.3
  */
 public interface ServiceModelProvider {
-
-    /**
-     * Obtain an archive model.
-     * 
-     * @return An <code>ArchiveModel</code>.
-     */
-    public ArchiveModel getArchiveModel();
 
     /**
      * Obtain an artifact model.

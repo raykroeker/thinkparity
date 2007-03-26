@@ -5,12 +5,14 @@ package com.thinkparity.desdemona.model.artifact;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.desdemona.model.session.Session;
@@ -57,6 +59,12 @@ public class InternalArtifactModel extends ArtifactModel {
             final Long artifactId) {
         synchronized (getImplLock()) {
             return getImpl().readTeam(userId, artifactId);
+        }
+    }
+
+    public List<UUID> readTeamArtifactIds(final User user) {
+        synchronized (getImplLock()) {
+            return getImpl().readTeamArtifactIds(user);
         }
     }
 

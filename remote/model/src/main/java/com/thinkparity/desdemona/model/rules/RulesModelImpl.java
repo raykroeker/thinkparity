@@ -8,6 +8,7 @@ import java.util.List;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants.Product.Ophelia;
@@ -60,10 +61,12 @@ class RulesModelImpl extends AbstractModelImpl {
             /* NOTE the product id/name should be read from the interface once the
              * migrator code is complete */
             final Long productId = Ophelia.PRODUCT_ID;
+            final User publishFromUser = userModel.read(publishFrom);
+            final User publishToUser = userModel.read(publishTo);
             final List<Feature> publishFromFeatures = userModel.readFeatures(
-                    publishFrom, productId);
+                    publishFromUser.getLocalId(), productId);
             final List<Feature> publishToFeatures = userModel.readFeatures(
-                    publishTo, productId);
+                    publishToUser.getLocalId(), productId);
             for (final Feature feature : publishFromFeatures) {
                 if (Ophelia.Feature.CORE.equals(feature.getName())) {
                     return Boolean.FALSE;

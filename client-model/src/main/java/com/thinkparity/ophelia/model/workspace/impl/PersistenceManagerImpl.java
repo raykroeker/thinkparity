@@ -199,21 +199,28 @@ class PersistenceManagerImpl {
      *
      */
     void start() {
-        /* HACK if the logging root is set; we know we are being run within the
-         * thinkParity server and need not configure log4j */
-        final String loggingRootProperty = System.getProperty("thinkparity.logging.root");
-        final boolean desktop = null == loggingRootProperty;
-        if (desktop) {
-            System.setProperty("derby.stream.error.file",
-                    persistenceLogFile.getAbsolutePath());
-            System.setProperty("derby.infolog.append", "true");
-        }
         try {
+            /* HACK if the logging root is set; we know we are being run within the
+             * thinkParity server and need not configure log4j */
+            final String loggingRootProperty = System.getProperty("thinkparity.logging.root");
+            final boolean desktop = null == loggingRootProperty;
+            if (desktop) {
+                System.setProperty("derby.stream.error.file",
+                        persistenceLogFile.getAbsolutePath());
+                System.setProperty("derby.infolog.append", "true");
+                // create datasource
+                dataSource = new OpheliaXADataSourcePool(new OpheliaXADataSource(persistenceRoot));
+            } else {
+                // create datasource
+                dataSource = new OpheliaXADataSourcePool(new OpheliaXADataSource(
+                        System.getProperty("thinkparity.datasource-url"),
+                        System.getProperty("thinkparity.datasource-user"),
+                        System.getProperty("thinkparity.datasource-password")));
+            }
+
             // create transaction manager
             transactionManager = TransactionManager.getInstance();
             transactionManager.start();
-            // create datasource
-            dataSource = new OpheliaXADataSourcePool(new OpheliaXADataSource(persistenceRoot));
             // bind the transaction manager to the data source
             transactionManager.bind((OpheliaXADataSourcePool) dataSource);
             sessionManager = new SessionManager(dataSource);

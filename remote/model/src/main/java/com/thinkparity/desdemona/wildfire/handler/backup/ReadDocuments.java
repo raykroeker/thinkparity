@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
@@ -41,7 +42,7 @@ public final class ReadDocuments extends AbstractHandler {
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
         logger.logApiId();
-        final List<Document> documents = readBackupDocuments(provider,
+        final List<Document> documents = readContainerDocuments(provider,
                 reader.readJabberId("userId"), reader.readUUID("uniqueId"),
                 reader.readLong("versionId"));
         writer.writeDocuments("documents", "document", documents);
@@ -58,10 +59,10 @@ public final class ReadDocuments extends AbstractHandler {
      *            A container version id <code>Long</code>.
      * @return A <code>List&lt;Container&gt;</code>.
      */
-    private List<Document> readBackupDocuments(
+    private List<Document> readContainerDocuments(
             final ServiceModelProvider provider, final JabberId userId,
             final UUID uniqueId, final Long versionId) {
-        return provider.getContainerModel().readBackupDocuments(userId,
+        return provider.getBackupModel().readContainerDocuments(userId,
                 uniqueId, versionId);
     }
 }

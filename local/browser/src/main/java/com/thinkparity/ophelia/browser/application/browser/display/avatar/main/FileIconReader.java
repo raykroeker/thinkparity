@@ -14,13 +14,14 @@ import javax.swing.filechooser.FileSystemView;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
+import com.thinkparity.ophelia.model.document.DocumentUtil;
+
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
-import com.thinkparity.ophelia.browser.util.ArtifactUtil;
-import com.thinkparity.ophelia.browser.util.ArtifactVersionUtil;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
 /**
@@ -29,6 +30,9 @@ import com.thinkparity.ophelia.browser.util.ImageIOUtil;
  */
 public class FileIconReader {
 
+    /** An instance of <code>DocumentUtil</code>. */
+    private static final DocumentUtil DOCUMENT_UTIL;
+
     /** A cache of image icons. */
     private static final Map<String, Object> ICON_CACHE;
 
@@ -36,10 +40,9 @@ public class FileIconReader {
     private static final Log4JWrapper slogger;
 
     static {
+        DOCUMENT_UTIL = DocumentUtil.getInstance();
         slogger = new Log4JWrapper();
-
         ICON_CACHE = new Hashtable<String, Object>(20, 0.75F);
-
         cacheIcons();
     }
 
@@ -75,7 +78,7 @@ public class FileIconReader {
      * @return An <code>Icon</code>.
      */
     public Icon getIcon(final Document document) {
-        return getFileIcon(ArtifactUtil.getNameExtension(document));
+        return getFileIcon(DOCUMENT_UTIL.getNameExtension(document));
     }
 
     /**
@@ -86,7 +89,7 @@ public class FileIconReader {
      * @return An <code>Icon</code>.
      */
     public Icon getIcon(final DocumentVersion version) {
-        return getFileIcon(ArtifactVersionUtil.getNameExtension(version));
+        return getFileIcon(DOCUMENT_UTIL.getNameExtension(version));
     }
 
     /**

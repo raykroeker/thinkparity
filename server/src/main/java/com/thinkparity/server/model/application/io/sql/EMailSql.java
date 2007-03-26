@@ -19,7 +19,7 @@ class EMailSql extends AbstractSql {
 
     /** Sql to create an e-mail address. */
     private static final String SQL_CREATE_EMAIL =
-        new StringBuilder("insert into EMAIL ")
+        new StringBuilder("insert into TPSD_EMAIL ")
         .append("(EMAIL) ")
         .append("values (?)")
         .toString();
@@ -27,7 +27,7 @@ class EMailSql extends AbstractSql {
     /** Sql to read an e-mail address id. */
     private static final String SQL_READ_EMAIL_ID =
         new StringBuilder("select E.EMAIL_ID ")
-        .append("from EMAIL E ")
+        .append("from TPSD_EMAIL E ")
         .append("where E.EMAIL=?")
         .toString();
 
@@ -73,7 +73,7 @@ class EMailSql extends AbstractSql {
         if (1 != session.executeUpdate()) 
             throw new HypersonicException("Could not create e-mail address {0}.", email);
 
-        return session.getIdentity();
+        return session.getIdentity("TPSD_EMAIL");
     }
 
     /**

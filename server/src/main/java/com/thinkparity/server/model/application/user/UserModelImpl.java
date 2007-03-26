@@ -63,16 +63,16 @@ class UserModelImpl extends AbstractModelImpl {
      *            A user id <code>JabberId</code>.
      * @return True if the user represents an archive.
      */
-    Boolean isArchive(final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
+    Boolean isBackup(final JabberId userId) {
         try {
-            final Credentials archiveCredentials = readArchiveCredentials(userId);
-            if (null == archiveCredentials) {
-                return Boolean.FALSE;
-            } else {
-                return Boolean.TRUE;
-            }
+            final User user = userSql.read(userId);
+            final Credentials credentials = userSql.readCredentials(user.getLocalId());
+            final Credentials backupCredentials = readBackupCredentials();
+            // NOTE potentially not completely correct
+            return credentials.getUsername().equals(
+                        backupCredentials.getUsername())
+                    && credentials.getPassword().equals(
+                            backupCredentials.getPassword());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -134,27 +134,19 @@ class UserModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	Credentials readArchiveCredentials(final JabberId archiveId) {
-        logApiId();
-        logVariable("archiveId", archiveId);
+    Credentials readBackupCredentials() {
         try {
-            return userSql.readArchiveCredentials(archiveId);
+            final User backupUser = userSql.read(User.THINKPARITY_BACKUP.getId());
+            return userSql.readCredentials(backupUser.getLocalId());
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
-    JabberId readArchiveId(final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
+    JabberId readBackupUserId() {
         try {
-            // ASSUME For version 1 we assume a single archive
-            final List<JabberId> archiveIds = userSql.readArchiveIds(userId);
-            if (0 == archiveIds.size()) {
-                return null;
-            } else {
-                return archiveIds.get(0);
-            }
+            final User backupUser = userSql.read(User.THINKPARITY_BACKUP.getId());
+            return backupUser.getId();
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -173,13 +165,12 @@ class UserModelImpl extends AbstractModelImpl {
      * Read all features for a user.
      * 
      * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A <code>List&lt;Feature&gt</code>.
+     *            A user id <code>Long</code>.
+     * @param productId
+     *            A product id <code>Long</code>.
+     * @return A <code>List</code> of <code>Feature</code>s.
      */
-    List<Feature> readFeatures(final JabberId userId, final Long productId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("productId", productId);
+    List<Feature> readFeatures(final Long userId, final Long productId) {
         try {
             return userSql.readFeatures(userId, productId);
         } catch (final Throwable t) {

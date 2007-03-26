@@ -10,6 +10,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.session.Credentials;
 
 import com.thinkparity.desdemona.model.session.Session;
 
@@ -25,8 +26,41 @@ public class InternalUserModel extends UserModel {
      * Create InternalUserModel.
      *
      */
+    InternalUserModel(final Context context) {
+        super();
+    }
+
+    /**
+     * Create InternalUserModel.
+     *
+     */
     InternalUserModel(final Context context, final Session session) {
         super(session);
+    }
+
+    /**
+     * Determine if the user represents the backup user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return True if the user represents the backup user.
+     */
+    public Boolean isBackup(final JabberId userId) {
+        synchronized (getImplLock()) {
+            return getImpl().isBackup(userId);
+        }
+    }
+
+    public Credentials readBackupCredentials() {
+        synchronized (getImplLock()) {
+            return getImpl().readBackupCredentials();
+        }
+    }
+
+    public JabberId readBackupUserId() {
+        synchronized (getImplLock()) {
+            return getImpl().readBackupUserId();
+        }
     }
 
     public List<EMail> readEMails(final JabberId userId, final Long localUserId) {
@@ -38,14 +72,13 @@ public class InternalUserModel extends UserModel {
     /**
      * Read all features for a user.
      * 
+     * @param userId
+     *            A user id <code>Long</code>.
      * @param productId
      *            A product id <code>Long</code>.
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @return A <code>List&lt;Feature&gt</code>.
      */
-    public List<Feature> readFeatures(final JabberId userId,
-            final Long productId) {
+    public List<Feature> readFeatures(final Long userId, final Long productId) {
         synchronized (getImplLock()) {
             return getImpl().readFeatures(userId, productId);
         }

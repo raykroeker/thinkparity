@@ -30,66 +30,66 @@ public class InvitationSql extends AbstractSql {
 
     /** Sql to create a generic invitation. */
     private static final String SQL_CREATE =
-        new StringBuilder("insert into CONTACT_INVITATION ")
+        new StringBuilder("insert into TPSD_CONTACT_INVITATION ")
         .append("(CREATED_BY,CREATED_ON) ")
         .append("values (?,?)")
         .toString();
 
     /** Sql to create an incoming e-mail invitation. */
     private static final String SQL_CREATE_INCOMING_EMAIL =
-        new StringBuilder("insert into CONTACT_INVITATION_INCOMING_EMAIL ")
+        new StringBuilder("insert into TPSD_CONTACT_INVITATION_INCOMING_EMAIL ")
         .append("(CONTACT_INVITATION_ID,USER_ID,EMAIL_ID,EXTENDED_BY_USER_ID) ")
         .append("values (?,?,?,?)")
         .toString();
 
     /** Sql to create an incoming user invitation. */
     private static final String SQL_CREATE_INCOMING_USER =
-        new StringBuilder("insert into CONTACT_INVITATION_INCOMING_USER ")
+        new StringBuilder("insert into TPSD_CONTACT_INVITATION_INCOMING_USER ")
         .append("(CONTACT_INVITATION_ID,USER_ID,EXTENDED_BY_USER_ID) ")
         .append("values (?,?,?)")
         .toString();
 
     /** Sql to create an outgoing e-mail invitation. */
     private static final String SQL_CREATE_OUTGOING_EMAIL =
-        new StringBuilder("insert into CONTACT_INVITATION_OUTGOING_EMAIL ")
+        new StringBuilder("insert into TPSD_CONTACT_INVITATION_OUTGOING_EMAIL ")
         .append("(CONTACT_INVITATION_ID,USER_ID,INVITATION_EMAIL_ID) ")
         .append("values (?,?,?)")
         .toString();
 
     /** Sql to create an outgoing user invitation. */
     private static final String SQL_CREATE_OUTGOING_USER =
-        new StringBuilder("insert into CONTACT_INVITATION_OUTGOING_USER ")
+        new StringBuilder("insert into TPSD_CONTACT_INVITATION_OUTGOING_USER ")
         .append("(CONTACT_INVITATION_ID,USER_ID,INVITATION_USER_ID) ")
         .append("values (?,?,?)")
         .toString();
 
     /** Sql to delete an invitation. */
     private static final String SQL_DELETE =
-        new StringBuilder("delete from CONTACT_INVITATION ")
+        new StringBuilder("delete from TPSD_CONTACT_INVITATION ")
         .append("where CONTACT_INVITATION_ID=?")
         .toString();
 
     /** Sql to delete an incoming e-mail. */
     private static final String SQL_DELETE_INCOMING_EMAIL =
-        new StringBuilder("delete from CONTACT_INVITATION_INCOMING_EMAIL ")
+        new StringBuilder("delete from TPSD_CONTACT_INVITATION_INCOMING_EMAIL ")
         .append("where CONTACT_INVITATION_ID=?")
         .toString();
 
     /** Sql to delete an incoming e-mail. */
     private static final String SQL_DELETE_INCOMING_USER =
-        new StringBuilder("delete from CONTACT_INVITATION_INCOMING_USER ")
+        new StringBuilder("delete from TPSD_CONTACT_INVITATION_INCOMING_USER ")
         .append("where CONTACT_INVITATION_ID=?")
         .toString();
 
     /** Sql to delete an outgoing e-mail invitation. */
     private static final String SQL_DELETE_OUTGOING_EMAIL =
-        new StringBuilder("delete from CONTACT_INVITATION_OUTGOING_EMAIL ")
+        new StringBuilder("delete from TPSD_CONTACT_INVITATION_OUTGOING_EMAIL ")
         .append("where CONTACT_INVITATION_ID=?")
         .toString();
 
     /** Sql to delete an outgoing user invitation. */
     private static final String SQL_DELETE_OUTGOING_USER =
-        new StringBuilder("delete from CONTACT_INVITATION_OUTGOING_USER ")
+        new StringBuilder("delete from TPSD_CONTACT_INVITATION_OUTGOING_USER ")
         .append("where CONTACT_INVITATION_ID=?")
         .toString();
 
@@ -98,10 +98,10 @@ public class InvitationSql extends AbstractSql {
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
         .append("CIIE.CONTACT_INVITATION_ID,CIIE.USER_ID,E.EMAIL,")
         .append("CIIE.EXTENDED_BY_USER_ID ")
-        .append("from CONTACT_INVITATION_INCOMING_EMAIL CIIE ")
-        .append("inner join CONTACT_INVITATION CI ")
+        .append("from TPSD_CONTACT_INVITATION_INCOMING_EMAIL CIIE ")
+        .append("inner join TPSD_CONTACT_INVITATION CI ")
         .append("on CI.CONTACT_INVITATION_ID=CIIE.CONTACT_INVITATION_ID ")
-        .append("inner join EMAIL E on E.EMAIL_ID=CIIE.EMAIL_ID ")
+        .append("inner join TPSD_EMAIL E on E.EMAIL_ID=CIIE.EMAIL_ID ")
         .append("where CIIE.USER_ID=?")
         .toString();
 
@@ -110,10 +110,10 @@ public class InvitationSql extends AbstractSql {
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
         .append("CIIE.CONTACT_INVITATION_ID,CIIE.USER_ID,E.EMAIL,")
         .append("CIIE.EXTENDED_BY_USER_ID ")
-        .append("from CONTACT_INVITATION_INCOMING_EMAIL CIIE ")
-        .append("inner join CONTACT_INVITATION CI ")
+        .append("from TPSD_CONTACT_INVITATION_INCOMING_EMAIL CIIE ")
+        .append("inner join TPSD_CONTACT_INVITATION CI ")
         .append("on CI.CONTACT_INVITATION_ID=CIIE.CONTACT_INVITATION_ID ")
-        .append("inner join EMAIL E on E.EMAIL_ID=CIIE.EMAIL_ID ")
+        .append("inner join TPSD_EMAIL E on E.EMAIL_ID=CIIE.EMAIL_ID ")
         .append("where CIIE.USER_ID=? ")
         .append("and E.EMAIL=?")
         .append("and CIIE.EXTENDED_BY_USER_ID=?")
@@ -124,8 +124,8 @@ public class InvitationSql extends AbstractSql {
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
         .append("CIIU.CONTACT_INVITATION_ID,CIIU.USER_ID,")
         .append("CIIU.EXTENDED_BY_USER_ID ")
-        .append("from CONTACT_INVITATION_INCOMING_USER CIIU ")
-        .append("inner join CONTACT_INVITATION CI ")
+        .append("from TPSD_CONTACT_INVITATION_INCOMING_USER CIIU ")
+        .append("inner join TPSD_CONTACT_INVITATION CI ")
         .append("on CI.CONTACT_INVITATION_ID=CIIU.CONTACT_INVITATION_ID ")
         .append("where CIIU.USER_ID=?")
         .toString();
@@ -135,8 +135,8 @@ public class InvitationSql extends AbstractSql {
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
         .append("CIIU.CONTACT_INVITATION_ID,CIIU.USER_ID,")
         .append("CIIU.EXTENDED_BY_USER_ID ")
-        .append("from CONTACT_INVITATION_INCOMING_USER CIIU ")
-        .append("inner join CONTACT_INVITATION CI ")
+        .append("from TPSD_CONTACT_INVITATION_INCOMING_USER CIIU ")
+        .append("inner join TPSD_CONTACT_INVITATION CI ")
         .append("on CI.CONTACT_INVITATION_ID=CIIU.CONTACT_INVITATION_ID ")
         .append("where CIIU.USER_ID=? and CIIU.EXTENDED_BY_USER_ID=?")
         .toString();
@@ -145,10 +145,10 @@ public class InvitationSql extends AbstractSql {
     private static final String SQL_READ_OUTGOING_EMAIL =
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
         .append("CIOE.CONTACT_INVITATION_ID,CIOE.USER_ID,IE.EMAIL ")
-        .append("from CONTACT_INVITATION_OUTGOING_EMAIL CIOE ")
-        .append("inner join CONTACT_INVITATION CI ")
+        .append("from TPSD_CONTACT_INVITATION_OUTGOING_EMAIL CIOE ")
+        .append("inner join TPSD_CONTACT_INVITATION CI ")
         .append("on CI.CONTACT_INVITATION_ID=CIOE.CONTACT_INVITATION_ID ")
-        .append("inner join EMAIL IE on IE.EMAIL_ID=CIOE.INVITATION_EMAIL_ID ")
+        .append("inner join TPSD_EMAIL IE on IE.EMAIL_ID=CIOE.INVITATION_EMAIL_ID ")
         .append("where CIOE.USER_ID=?")
         .toString();
 
@@ -156,10 +156,10 @@ public class InvitationSql extends AbstractSql {
     private static final String SQL_READ_OUTGOING_EMAIL_UK =
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
         .append("CIOE.CONTACT_INVITATION_ID,CIOE.USER_ID,IE.EMAIL ")
-        .append("from CONTACT_INVITATION_OUTGOING_EMAIL CIOE ")
-        .append("inner join CONTACT_INVITATION CI ")
+        .append("from TPSD_CONTACT_INVITATION_OUTGOING_EMAIL CIOE ")
+        .append("inner join TPSD_CONTACT_INVITATION CI ")
         .append("on CI.CONTACT_INVITATION_ID=CIOE.CONTACT_INVITATION_ID ")
-        .append("inner join EMAIL IE on IE.EMAIL_ID=CIOE.INVITATION_EMAIL_ID ")
+        .append("inner join TPSD_EMAIL IE on IE.EMAIL_ID=CIOE.INVITATION_EMAIL_ID ")
         .append("where CIOE.USER_ID=? and IE.EMAIL=?")
         .toString();
 
@@ -168,8 +168,8 @@ public class InvitationSql extends AbstractSql {
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
         .append("CIOU.CONTACT_INVITATION_ID,CIOU.USER_ID,")
         .append("CIOU.INVITATION_USER_ID ")
-        .append("from CONTACT_INVITATION_OUTGOING_USER CIOU ")
-        .append("inner join CONTACT_INVITATION CI ")
+        .append("from TPSD_CONTACT_INVITATION_OUTGOING_USER CIOU ")
+        .append("inner join TPSD_CONTACT_INVITATION CI ")
         .append("on CI.CONTACT_INVITATION_ID=CIOU.CONTACT_INVITATION_ID ")
         .append("where CIOU.USER_ID=?")
         .toString();
@@ -646,7 +646,7 @@ public class InvitationSql extends AbstractSql {
         session.setCalendar(2, invitation.getCreatedOn());
         if (1 != session.executeUpdate())
             throw new HypersonicException("Could not create contact invitation.");
-        invitation.setId(session.getIdentity());
+        invitation.setId(session.getIdentity("TPSD_CONTACT_INVITATION"));
     }
 
     /**

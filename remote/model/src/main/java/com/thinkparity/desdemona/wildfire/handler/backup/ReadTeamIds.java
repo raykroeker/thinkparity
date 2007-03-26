@@ -37,7 +37,6 @@ public final class ReadTeamIds extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        logger.logApiId();
         final List<JabberId> teamIds = readTeamIds(provider,
                 reader.readJabberId("userId"), reader.readUUID("uniqueId"));
         writer.writeJabberIds("teamIds", "teamIds", teamIds);
@@ -54,6 +53,6 @@ public final class ReadTeamIds extends AbstractHandler {
      */
     private List<JabberId> readTeamIds(final ServiceModelProvider provider,
             final JabberId userId, final UUID uniqueId) {
-        return provider.getBackupModel().readTeam(userId, uniqueId);
+        return provider.getBackupModel().readTeamIds(userId, uniqueId);
     }
 }

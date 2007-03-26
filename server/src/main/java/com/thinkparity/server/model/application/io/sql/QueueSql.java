@@ -3,9 +3,7 @@
  */
 package com.thinkparity.desdemona.model.io.sql;
 
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +13,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
-import com.thinkparity.desdemona.model.queue.XMPPEventReader;
-import com.thinkparity.desdemona.model.queue.XMPPEventWriter;
+import com.thinkparity.desdemona.model.queue.EventOpener;
 
 /**
  * @author raykroeker@gmail.com
@@ -26,34 +23,34 @@ public class QueueSql extends AbstractSql {
 
     /** Sql to create an event. */
     private static final String SQL_CREATE_EVENT =
-        new StringBuffer("insert into USER_EVENT_QUEUE ")
+        new StringBuilder("insert into TPSD_USER_EVENT_QUEUE ")
         .append("(USER_ID,EVENT_ID,EVENT_DATE,EVENT_PRIORITY,EVENT_XML) ")
         .append("values (?,?,?,?,?)")
         .toString();
 
     /** Sql to delete an event. */
     private static final String SQL_DELETE_EVENT =
-            new StringBuffer("delete from USER_EVENT_QUEUE ")
-            .append("where USER_ID=? and EVENT_ID=?")
-            .toString();
+        new StringBuilder("delete from TPSD_USER_EVENT_QUEUE ")
+        .append("where USER_ID=? and EVENT_ID=?")
+        .toString();
 
     /** Sql to delete all events for a user. */
     private static final String SQL_DELETE_EVENTS =
-        new StringBuffer("delete from USER_EVENT_QUEUE ")
+        new StringBuilder("delete from TPSD_USER_EVENT_QUEUE ")
         .append("where USER_ID=?")
         .toString();
 
     /** Sql to read a user's event count. */
     private static final String SQL_READ_EVENT_COUNT =
-        new StringBuffer("select COUNT(UEQ.EVENT_ID) EVENT_COUNT ")
-        .append("from USER_EVENT_QUEUE UEQ ")
+        new StringBuilder("select COUNT(UEQ.EVENT_ID) EVENT_COUNT ")
+        .append("from TPSD_USER_EVENT_QUEUE UEQ ")
         .append("where UEQ.USER_ID=?")
         .toString();
 
 	/** Sql to read events. */
 	private static final String SQL_READ_EVENTS =
-        new StringBuffer("select UEQ.EVENT_XML ")
-        .append("from USER_EVENT_QUEUE UEQ ")
+        new StringBuilder("select UEQ.EVENT_XML ")
+        .append("from TPSD_USER_EVENT_QUEUE UEQ ")
         .append("where UEQ.USER_ID=? ")
         .append("order by UEQ.EVENT_PRIORITY asc,UEQ.EVENT_DATE asc")
         .toString();
@@ -70,7 +67,8 @@ public class QueueSql extends AbstractSql {
 	}
 
     public void createEvent(final JabberId userId, final XMPPEvent event,
-            final XMPPEventWriter eventWriter) {
+            final InputStream xml, final Long xmlLength,
+            final Integer bufferSize) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_CREATE_EVENT);
@@ -78,15 +76,13 @@ public class QueueSql extends AbstractSql {
             session.setString(2, event.getId());
             session.setCalendar(3, event.getDate());
             session.setInt(4, event.getPriority().priority());
-            final StringWriter writer = new StringWriter();
-            eventWriter.write(event, writer);
-            session.setString(5, writer.toString());
+            session.setAsciiStream(5, xml, xmlLength, bufferSize);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not create queue event.");
 
             session.commit();
         } catch (final Throwable t) {
-            translateError(session, t);
+            throw translateError(session, t);
         } finally {
             session.close();
         }
@@ -128,8 +124,17 @@ public class QueueSql extends AbstractSql {
         }
     }
 
+    /**
+     * Obtain a list of xmpp events for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param opener
+     *            An <code>EventOpener</code>.
+     * @return A <code>List</code> of <code>XMPPEvent</code>.
+     */
     public List<XMPPEvent> readEvents(final JabberId userId,
-            final XMPPEventReader eventReader) {
+            final EventOpener opener) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_EVENTS);
@@ -137,7 +142,12 @@ public class QueueSql extends AbstractSql {
             session.executeQuery();
             final List<XMPPEvent> events = new ArrayList<XMPPEvent>();
             while (session.nextResult()) {
-                events.add(extract(session, eventReader));
+                final InputStream event = session.getClob("EVENT_XML");
+                try {
+                    events.add(opener.open(event));
+                } finally {
+                    event.close();
+                }
             }
             return events;
         } catch (final Throwable t) {
@@ -145,12 +155,6 @@ public class QueueSql extends AbstractSql {
         } finally {
             session.close();
         }
-    }
-
-    private XMPPEvent extract(final HypersonicSession session,
-            final XMPPEventReader eventReader) {
-        final Reader reader = new StringReader(session.getString("EVENT_XML"));
-        return eventReader.read(reader);
     }
 
     private Integer readEventCount(final JabberId userId) {

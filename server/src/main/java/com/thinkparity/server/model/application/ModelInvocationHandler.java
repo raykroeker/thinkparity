@@ -58,7 +58,6 @@ final class ModelInvocationHandler implements InvocationHandler {
         ModelInvocationMetrics.begin(method);
         synchronized (session) {
             try {
-                checkSecurity((JabberId) args[0]);
                 return method.invoke(model, args);
             } catch (final InvocationTargetException itx) {
                 throw itx.getTargetException();

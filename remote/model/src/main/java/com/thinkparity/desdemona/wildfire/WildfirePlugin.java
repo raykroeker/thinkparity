@@ -16,7 +16,7 @@ import com.thinkparity.codebase.config.ConfigFactory;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.desdemona.model.Version;
-import com.thinkparity.desdemona.model.archive.ArchiveModel;
+import com.thinkparity.desdemona.model.backup.BackupService;
 import com.thinkparity.desdemona.model.stream.StreamModel;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 import com.thinkparity.desdemona.wildfire.util.SessionUtil;
@@ -99,6 +99,10 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
         System.setProperty("thinkparity.mode", mode.toString());
         System.setProperty("thinkparity.product-name", (String) jiveProperties.get("thinkparity.product-name"));
         System.setProperty("thinkparity.release-name", (String) jiveProperties.get("thinkparity.release-name"));
+        System.setProperty("thinkparity.datasource-url", JiveGlobals.getXMLProperty("database.defaultProvider.serverURL"));
+        System.setProperty("thinkparity.datasource-user", JiveGlobals.getXMLProperty("database.defaultProvider.username"));
+        System.setProperty("thinkparity.datasource-password", JiveGlobals.getXMLProperty("database.defaultProvider.password"));
+
         bootstrapLog4J(mode);
         logger = new Log4JWrapper();
 		logger.logInfo("{0}:{1}", "xmpp.auth.anonymous", jiveProperties.get("xmpp.auth.anonymous"));
@@ -118,7 +122,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 		initializeHandlers(pluginClassLoader, pluginDirectory);
         initializeListeners();
 		startStream();
-        startArchive();
+        startBackupService();
         final String message = getStartupMessage();
         new Log4JWrapper(getClass()).logInfo(message);
         System.out.println(message);
@@ -133,7 +137,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      * @see org.jivesoftware.wildfire.XMPPServerListener#serverStopping()
      */
     public void serverStopping() {
-        stopArchive();
+        stopBackupService();
     }
 
     /**
@@ -511,8 +515,8 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      * Start the archive service.
      *
      */
-    private void startArchive() {
-        ArchiveModel.getModel().start();
+    private void startBackupService() {
+        BackupService.getInstance().start();
     }
 
     /**
@@ -527,8 +531,8 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      * Stop the archive service.
      *
      */
-    private void stopArchive() {
-        ArchiveModel.getModel().stop();
+    private void stopBackupService() {
+        BackupService.getInstance().stop();
     }
 
     /**

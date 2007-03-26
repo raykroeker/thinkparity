@@ -6,6 +6,7 @@ package com.thinkparity.desdemona.wildfire.handler.backup;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.container.Container;
 
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
@@ -39,20 +40,12 @@ public final class ReadContainers extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        logger.logApiId();
-        final List<Container> containers = readBackup(provider, reader.readJabberId("userId"));
+        final List<Container> containers = readContainers(provider, reader.readJabberId("userId"));
         writer.writeContainers("containers", "container", containers);
     }
 
-    /**
-     * Read a list of containers from the backup.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A <code>List&lt;Container&gt;</code>.
-     */
-    private List<Container> readBackup(final ServiceModelProvider context,
+    private List<Container> readContainers(final ServiceModelProvider context,
             final JabberId userId) {
-        return context.getContainerModel().readBackup(userId);
+        return context.getBackupModel().readContainers(userId);
     }
 }

@@ -5,9 +5,8 @@ package com.thinkparity.desdemona.model;
 
 import com.thinkparity.codebase.model.Context;
 
-import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
-import com.thinkparity.ophelia.model.migrator.MigratorModelImpl;
-
+import com.thinkparity.desdemona.model.backup.BackupModelImpl;
+import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 import com.thinkparity.desdemona.model.session.Session;
 
 /**
@@ -58,13 +57,13 @@ public final class InternalModelFactory {
     }
 
     /**
-     * Obtain an internal migrator model.
+     * Obtain an internal backup model.
      * 
-     * @return An instance of <code>InternalMigratorModel</code>.
+     * @return An instance of <code>InternalBackupModel</code>.
      */
-    public final InternalMigratorModel getMigratorModel() {
-        return (InternalMigratorModel) newModelProxy(
-                InternalMigratorModel.class, MigratorModelImpl.class);
+    public final InternalBackupModel getBackupModel() {
+        return (InternalBackupModel) newModelProxy(
+                InternalBackupModel.class, BackupModelImpl.class);
     }
 
     /**

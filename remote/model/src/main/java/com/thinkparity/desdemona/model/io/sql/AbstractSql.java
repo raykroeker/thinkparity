@@ -10,30 +10,30 @@ import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
-import com.thinkparity.desdemona.model.io.hsqldb.HypersonicConnectionProvider;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSessionManager;
+import com.thinkparity.desdemona.model.io.jdbc.JDBCConnectionProvider;
 
 import org.jivesoftware.database.DbConnectionManager;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity DesdemonaModel SQL Abstraction<br>
  * <b>Description:</b><br>
  * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.7
+ * @version 1.1.2.8
  */
 public abstract class AbstractSql {
 
 	/** An apache logger. */
 	private static final  Log4JWrapper LOGGER;
 
-    /** A database connection provider. */
-    private static final HypersonicConnectionProvider CONNECTION_PROVIDER;
+    /** A <code>JDBCConnectionProvider</code>. */
+    private static final JDBCConnectionProvider CONNECTION_PROVIDER;
 
     static {
-        CONNECTION_PROVIDER = new HypersonicConnectionProvider() {
+        CONNECTION_PROVIDER = new JDBCConnectionProvider() {
             public Connection getConnection() {
                 try {
                     return DbConnectionManager.getConnection();

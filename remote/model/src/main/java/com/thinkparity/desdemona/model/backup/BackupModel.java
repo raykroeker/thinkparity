@@ -8,11 +8,12 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.backup.Statistics;
-
-import com.thinkparity.desdemona.model.AbstractModel;
-import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 
 /**
  * <b>Title:</b>thinkParity Backup Model<br>
@@ -21,36 +22,7 @@ import com.thinkparity.desdemona.model.session.Session;
  * @author CreateModel.groovy
  * @version 1.1
  */
-public class BackupModel extends AbstractModel<BackupModelImpl> {
-
-    /**
-     * Obtain a thinkParity Backup interface.
-     * 
-     * @return A thinkParity Backup interface.
-     */
-    public static InternalBackupModel getInternalModel(final Context context,
-            final Session session) {
-        return new InternalBackupModel(context, session);
-    }
-
-    /**
-     * Obtain a thinkParity Backup interface.
-     * 
-     * @return A thinkParity Backup interface.
-     */
-    public static BackupModel getModel(final Session session) {
-        return new BackupModel(session);
-    }
-
-    /**
-	 * Create BackupModel.
-	 *
-	 * @param workspace
-	 *		The thinkParity workspace.
-	 */
-	protected BackupModel(final Session session) {
-		super(new BackupModelImpl(session));
-	}
+public interface BackupModel {
 
     /**
      * Archive an artifact.
@@ -60,29 +32,23 @@ public class BackupModel extends AbstractModel<BackupModelImpl> {
      * @param uniqueId
      *            A unique id <code>UUID</code>.
      */
-    public void archive(final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().archive(userId, uniqueId);
-        }
-    }
+    public void archive(final JabberId userId, final UUID uniqueId);
 
     /**
-     * Open a document version's input stream.
+     * Upload a document version to the stream server using the provided stream
+     * id. The stream can then be downloaded by a client.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
      * @param uniqueId
      *            A document unique id <code>UUID</code>.
      * @param versionId
      *            A document version id <code>Long</code>.
-     * @return An <code>InputStream</code>.
      */
     public void createStream(final JabberId userId, final String streamId,
-            final UUID uniqueId, final Long versionId) {
-        synchronized (getImplLock()) {
-            getImpl().createStream(userId, streamId, uniqueId, versionId);
-        }
-    }
+            final UUID uniqueId, final Long versionId);
 
     /**
      * Delete an artifact.
@@ -92,38 +58,101 @@ public class BackupModel extends AbstractModel<BackupModelImpl> {
      * @param uniqueId
      *            A unique id <code>UUID</code>.
      */
-    public void delete(final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().delete(userId, uniqueId);
-        }
-    }
+    public void delete(final JabberId userId, final UUID uniqueId);
 
-    public Boolean isBackupOnline(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().isBackupOnline(userId);
-        }
-    }
+    public Boolean isBackupOnline(final JabberId userId);
 
-    public Statistics readStatistics(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readStatisitcs(userId);
-        }
-    }
+    /**
+     * Read a container.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>Container</code>.
+     */
+    public Container readContainer(final JabberId userId, final UUID uniqueId);
 
-	/**
-     * Read the team for a backup artifact.
+    /**
+     * Read the container version's document versions.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List</code> of <code>ContainerVersion</code>.
+     */
+    public List<DocumentVersion> readContainerDocumentVersions(
+            final JabberId userId, final UUID uniqueId, final Long versionId);
+
+    /**
+     * Read the container version's documents.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List</code> of <code>Document</code>s.
+     */
+    public List<Document> readContainerDocuments(final JabberId userId,
+            final UUID uniqueId, final Long versionId);
+
+    /**
+     * Read the container's published to list.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List</code> of <code>ArtifactReceipt</code>s.
+     */
+    public List<ArtifactReceipt> readContainerPublishedTo(
+            final JabberId userId, final UUID uniqueId, final Long versionId);
+
+    /**
+     * Read the containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List</code> of <code>Container</code>s.
+     */
+    public List<Container> readContainers(final JabberId userId);
+
+    /**
+     * Read the container's versions.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>List</code> of <code>ContainerVersion</code>s.
+     */
+    public List<ContainerVersion> readContainerVersions(final JabberId userId, final UUID uniqueId);
+
+    /**
+     * Read the backup statistics.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return An instance of <code>Statistics</code>.
+     */
+    public Statistics readStatistics(final JabberId userId);
+
+    /**
+     * Read the artifact team from the backup.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
-     * @return A <code>List&lt;JabberId&gt;</code>.
      */
-    public List<JabberId> readTeam(final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readTeam(userId, uniqueId);
-        }
-    }
+    public List<JabberId> readTeamIds(final JabberId userId, final UUID uniqueId);
 
     /**
      * Restore an artifact. This will simply remove the archived flag within the
@@ -134,9 +163,5 @@ public class BackupModel extends AbstractModel<BackupModelImpl> {
      * @param uniqueId
      *            An artifact unique id <code>Long</code>.
      */
-    public void restore(final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().restore(userId, uniqueId);
-        }
-    }
+    public void restore(final JabberId userId, final UUID uniqueId);
 }

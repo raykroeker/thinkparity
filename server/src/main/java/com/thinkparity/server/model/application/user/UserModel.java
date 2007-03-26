@@ -10,7 +10,6 @@ import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.AbstractModel;
@@ -21,6 +20,10 @@ import com.thinkparity.desdemona.model.session.Session;
  * @version 1.1
  */
 public class UserModel extends AbstractModel<UserModelImpl> {
+
+    public static InternalUserModel getInternalModel(final Context context) {
+        return new InternalUserModel(context);
+    }
 
     public static InternalUserModel getInternalModel(final Context context,
             final Session session) {
@@ -63,19 +66,6 @@ public class UserModel extends AbstractModel<UserModelImpl> {
         super(new UserModelImpl(session));
     }
 
-    /**
-     * Determine if the user is an archive.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return True if the user represents an archive.
-     */
-    public Boolean isArchive(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().isArchive(userId);
-        }
-    }
-
 	public List<User> read() {
         synchronized (getImplLock()) {
             return getImpl().read();
@@ -108,18 +98,6 @@ public class UserModel extends AbstractModel<UserModelImpl> {
             return getImpl().read(userIds);
 		}
 	}
-
-    public Credentials readArchiveCredentials(final JabberId archiveId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArchiveCredentials(archiveId);
-        }
-    }
-
-    public JabberId readArchiveId(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArchiveId(userId);
-        }
-    }
 
     public <T extends com.thinkparity.codebase.model.user.UserVCard> T readVCard(
             final JabberId userId, final T vcard) {

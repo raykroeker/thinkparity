@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import com.thinkparity.desdemona.model.io.jdbc.JDBCConnectionProvider;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -32,7 +34,7 @@ public class HypersonicSessionManager {
 	 * @return The new database session.
 	 */
 	public static HypersonicSession openSession(
-            final HypersonicConnectionProvider connectionProvider,
+            final JDBCConnectionProvider connectionProvider,
             final StackTraceElement caller) {
 		synchronized (sessions) {
             final HypersonicSession session = new HypersonicSession(connectionProvider.getConnection());

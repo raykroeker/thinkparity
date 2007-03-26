@@ -26,13 +26,15 @@ public class Credentials {
      */
     @Override
     public boolean equals(final Object obj) {
-        if (null != obj && obj instanceof Credentials) {
-            return ((Credentials) obj).username.equals(username) &&
-                ((Credentials) obj).password.equals(password) &&
-                ((Credentials) obj).resource.equals(resource);
-        } else {
+        if (this == obj)
+            return true;
+        if (null == obj)
             return false;
-        }
+        if (getClass() != obj.getClass())
+            return false;
+        return ((Credentials) obj).username.equals(username)
+                && ((Credentials) obj).password.equals(password)
+                && ((Credentials) obj).resource.equals(resource);
     }
 
     /**

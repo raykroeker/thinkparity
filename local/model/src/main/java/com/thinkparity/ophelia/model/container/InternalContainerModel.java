@@ -111,6 +111,15 @@ public interface InternalContainerModel extends ContainerModel {
     public ContainerDraft readDraft(final Long containerId);
 
     /**
+     * Read the containers for a document.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return A <code>List</code> of <code>Container</code>s.
+     */
+    public List<Container> readForDocument(final Long documentId);
+
+    /**
      * Read a list of containers for a team member.
      * 
      * @param teamMemberId

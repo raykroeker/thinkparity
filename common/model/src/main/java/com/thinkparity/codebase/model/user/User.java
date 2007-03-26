@@ -24,11 +24,16 @@ public class User {
     /** The thinkParity user. */
     public static final User THINK_PARITY;
 
+    /** The thinkParity backup <code>User</code>. */
+    public static final User THINKPARITY_BACKUP;
+
     static final String NAME_SEP = " ";
 
 	static {
         THINK_PARITY = new User();
         THINK_PARITY.setId(JabberIdBuilder.parseUsername("thinkparity"));
+        THINKPARITY_BACKUP = new User();
+        THINKPARITY_BACKUP.setId(JabberIdBuilder.parseUsername("thinkparity-backup"));
     }
 
     /** A list of all applied <code>UserFlag</code>s. */

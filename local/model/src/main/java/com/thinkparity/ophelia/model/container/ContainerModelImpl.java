@@ -803,7 +803,7 @@ public final class ContainerModelImpl extends
             final Container postPublish = read(container.getId());
             final ContainerVersion postPublishVersion = readVersion(
                     container.getId(), version.getVersionId());
-            // NOCOMMIT
+            // HACK - should be done be the client however cannot at this point
             if (!didExist)
                 notifyContainerPublished(postPublish, draft, previous,
                         postPublishVersion, publishedBy, remoteEventGenerator);
@@ -1391,6 +1391,24 @@ public final class ContainerModelImpl extends
                 }
             }
             return draft;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#readForDocument(java.lang.Long)
+     *
+     */
+    public List<Container> readForDocument(final Long documentId) {
+        try {
+            final List<ContainerVersion> versions = containerIO.readVersionsForDocument(documentId);
+            final List<Container> containers = new ArrayList<Container>(versions.size());
+            // add unique containers only
+            for (final ContainerVersion version : versions)
+                if (!ARTIFACT_UTIL.contains(containers, version))
+                    containers.add(read(version.getArtifactId()));
+            return containers;
         } catch (final Throwable t) {
             throw panic(t);
         }

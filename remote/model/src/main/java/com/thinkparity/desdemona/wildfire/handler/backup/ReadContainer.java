@@ -40,23 +40,13 @@ public final class ReadContainer extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        logger.logApiId();
-        final Container container = readBackup(provider,
+        final Container container = readContainer(provider,
                 reader.readJabberId("userId"), reader.readUUID("uniqueId"));
         writer.writeContainer("container", container);
     }
 
-    /**
-     * Read a list of containers from the backup.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A container unique id <code>UUID</code>.
-     * @return A <code>Container</code>.
-     */
-    private Container readBackup(final ServiceModelProvider context,
+    private Container readContainer(final ServiceModelProvider context,
             final JabberId userId, final UUID uniqueId) {
-        return context.getContainerModel().readBackup(userId, uniqueId);
+        return context.getBackupModel().readContainer(userId, uniqueId);
     }
 }

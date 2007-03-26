@@ -3,10 +3,10 @@
  */
 package com.thinkparity.desdemona.model.queue;
 
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.util.List;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
@@ -50,63 +50,68 @@ class QueueModelImpl extends AbstractModelImpl {
 
     void createEvent(final JabberId userId, final JabberId eventUserId,
             final XMPPEvent event, final XMPPEvent.Priority priority) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("eventUserId", eventUserId);
-        logger.logVariable("event", event);
-        logger.logVariable("priority", priority);
         try {
             assertIsAuthenticatedUser(userId);
-
             event.setDate(currentDateTime());
             event.setId(buildEventId(eventUserId));
             event.setPriority(priority);
-            queueSql.createEvent(eventUserId, event, new XMPPEventWriter() {
-                public void write(final XMPPEvent event, final Writer writer) {
-                    toXML(event, writer);
+            /* create a temporary file, write the event xml to it then use a
+             * file input stream to create the clob */
+            final File tempEventFile = session.createTempFile();
+            try {
+                final FileWriter fileWriter = new FileWriter(tempEventFile);
+                try {
+                    xstreamUtil.toXML(event, fileWriter);
+                } finally {
+                    fileWriter.close();
                 }
-            });
+                final InputStream inputStream = new FileInputStream(tempEventFile);
+                try {
+                    queueSql.createEvent(eventUserId, event, inputStream,
+                            tempEventFile.length(), getDefaultBufferSize());
+                } finally {
+                    inputStream.close();
+                }
+            } finally {
+                Assert.assertTrue(tempEventFile.delete(),
+                        "Could not delete temporary file {0}.", tempEventFile);
+            }
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
     void deleteEvent(final JabberId userId, final String eventId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("eventId", eventId);
         try {
             assertIsAuthenticatedUser(userId);
-
             queueSql.deleteEvent(userId, eventId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
     void deleteEvents(final JabberId userId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
         try {
             assertIsAuthenticatedUser(userId);
             queueSql.deleteEvents(userId);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
     List<XMPPEvent> readEvents(final JabberId userId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
         try {
             assertIsAuthenticatedUser(userId);
-            return queueSql.readEvents(userId, new XMPPEventReader() {
-                public XMPPEvent read(final Reader xml) {
-                    return fromXML(xml);
+            return queueSql.readEvents(userId, new EventOpener() {
+                public XMPPEvent open(final InputStream event) throws IOException {
+                    XMPPEvent root = null;
+                    return xstreamUtil.eventFromXML(new BufferedReader(
+                            new InputStreamReader(event),
+                            getDefaultBufferSize()), root);
                 }
             });
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -120,28 +125,5 @@ class QueueModelImpl extends AbstractModelImpl {
      */
     private String buildEventId(final JabberId userId) {
         return buildUserTimestampId(userId);
-    }
-
-    /**
-     * Create an xmpp event from xml.
-     * 
-     * @param xml
-     *            The xml representing the <code>XMPPEvent</code>.
-     * @return An <code>XMPPEvent</code>.
-     */
-    private XMPPEvent fromXML(final Reader xml) {
-        XMPPEvent root = null;
-        return xstreamUtil.eventFromXML(xml, root);
-    }
-
-    /**
-     * Stream the xmpp event to xml.
-     * 
-     * @param event
-     *            An <code>XMPPEvent</code>.
-     * @return The xmpp event as an xml <code>String</code>.
-     */
-    private void toXML(final XMPPEvent event, final Writer xml) {
-        xstreamUtil.toXML(event, xml);
     }
 }

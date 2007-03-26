@@ -304,11 +304,20 @@ public interface ContainerIOHandler {
     /**
      * Read a list of containers for a team member.
      * 
-     * @param localUser
-     *            The local <code>User</code>.
+     * @param teamMemberId
+     *            A team member id <code>Long</code>.
      * @return A <code>List</code> of <code>Container</code>s.
      */
     public List<Container> readForTeamMember(final Long teamMemberId);
+
+    /**
+     * Read a list of container versions a document is attached to.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return A <code>List</code> of <code>ContainerVersion</code>s.
+     */
+    public List<ContainerVersion> readVersionsForDocument(final Long documentId);
 
     /**
      * Read the latest container version.

@@ -29,7 +29,7 @@ public class ArtifactSql extends AbstractSql {
 
     /** Sql to create an artifact. */
     private static final String SQL_CREATE =
-        new StringBuffer("insert into ARTIFACT ")
+        new StringBuilder("insert into TPSD_ARTIFACT ")
         .append("(ARTIFACT_UNIQUE_ID,ARTIFACT_DRAFT_OWNER,CREATED_BY,")
         .append("CREATED_ON,UPDATED_BY,UPDATED_ON) ")
 		.append("values (?,?,?,?,?,?)")
@@ -37,89 +37,97 @@ public class ArtifactSql extends AbstractSql {
 
     /** Sql to create a team member relationship. */
     private static final String SQL_CREATE_TEAM_REL =
-        new StringBuffer("insert into ARTIFACT_TEAM_REL ")
+        new StringBuilder("insert into TPSD_ARTIFACT_TEAM_REL ")
         .append("(ARTIFACT_ID,USER_ID) ")
         .append("values (?,?)")
         .toString();
 
     /** Sql to delete an artifact. */
 	private static final String SQL_DELETE =
-		new StringBuffer("delete from ARTIFACT ")
+		new StringBuilder("delete from TPSD_ARTIFACT ")
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
     /** Sql to delete a team member relationship. */
     private static final String SQL_DELETE_TEAM_REL =
-        new StringBuffer("delete from ARTIFACT_TEAM_REL ")
+        new StringBuilder("delete from TPSD_ARTIFACT_TEAM_REL ")
         .append("where ARTIFACT_ID=? and USER_ID=?")
         .toString();
 
     /** Sql to read an artifact. */
 	private static final String SQL_READ =
-	    new StringBuffer("select ARTIFACT_ID,ARTIFACT_UNIQUE_ID,CREATED_ON,")
+	    new StringBuilder("select ARTIFACT_ID,ARTIFACT_UNIQUE_ID,CREATED_ON,")
         .append("UPDATED_ON ")
-        .append("from ARTIFACT A ")
+        .append("from TPSD_ARTIFACT A ")
         .append("where A.ARTIFACT_UNIQUE_ID=?")
         .toString();
 
-	/** Sql to read the artifact id. */
+    /** Sql to read the artifact id. */
     private static final String SQL_READ_ARTIFACT_ID =
-        new StringBuffer("select ARTIFACT_ID ")
-        .append("from ARTIFACT A ")
+        new StringBuilder("select A.ARTIFACT_ID ")
+        .append("from TPSD_ARTIFACT A ")
         .append("where A.ARTIFACT_UNIQUE_ID=?")
         .toString();
 
-	/** Sql to read the artifact draft owner. */
+    /** Sql to read the artifact draft owner. */
     private static final String SQL_READ_DRAFT_OWNER =
-            new StringBuffer("select PU.USERNAME \"ARTIFACT_DRAFT_OWNER\" ")
-            .append("from ARTIFACT A ")
-            .append("inner join PARITY_USER PU on A.ARTIFACT_DRAFT_OWNER=PU.USER_ID ")
-            .append("where A.ARTIFACT_UNIQUE_ID=?")
-            .toString();
+        new StringBuilder("select U.USERNAME \"ARTIFACT_DRAFT_OWNER\" ")
+        .append("from TPSD_ARTIFACT A ")
+        .append("inner join TPSD_USER U on A.ARTIFACT_DRAFT_OWNER=U.USER_ID ")
+        .append("where A.ARTIFACT_UNIQUE_ID=?")
+        .toString();
 
-    /** Sql to read all draft unique ids for a user. */
+	/** Sql to read all draft unique ids for a user. */
     private static final String SQL_READ_DRAFT_UNIQUE_IDS =
-        new StringBuffer("select A.ARTIFACT_UNIQUE_ID ")
-        .append("from ARTIFACT A ")
+        new StringBuilder("select A.ARTIFACT_UNIQUE_ID ")
+        .append("from TPSD_ARTIFACT A ")
         .append("where A.ARTIFACT_DRAFT_OWNER=? ")
         .append("order by A.ARTIFACT_ID asc")
         .toString();
 
+	/** Sql to read a user's artifacts from the team. */
+    private static final String SQL_READ_TEAM_ARTIFACT_UNIQUE_IDS =
+        new StringBuilder("select A.ARTIFACT_UNIQUE_ID ")
+        .append("from TPSD_ARTIFACT_TEAM_REL ATR ")
+        .append("inner join TPSD_ARTIFACT A on A.ARTIFACT_ID=ATR.ARTIFACT_ID ")
+        .append("where ATR.USER_ID=?")
+        .toString();
+
     /** Sql to read the team member relationship. */
     private static final String SQL_READ_TEAM_REL_BY_ARTIFACT_BY_USER =
-        new StringBuffer("select U.USERNAME,U.USER_ID,ATR.ARTIFACT_ID ")
-        .append("from ARTIFACT_TEAM_REL ATR ")
-        .append("inner join PARITY_USER U on ATR.USER_ID = U.USER_ID ")
+        new StringBuilder("select U.USERNAME,U.USER_ID,ATR.ARTIFACT_ID ")
+        .append("from TPSD_ARTIFACT_TEAM_REL ATR ")
+        .append("inner join TPSD_USER U on ATR.USER_ID=U.USER_ID ")
         .append("where ATR.ARTIFACT_ID=? ")
         .append("and ATR.USER_ID=?")
         .append("order by U.USERNAME asc")
         .toString();
 
-	/** Sql to read the team relationship. */
+    /** Sql to read the team relationship. */
     private static final String SQL_READ_TEAM_REL_BY_ARTIFACT_ID =
-        new StringBuffer("select U.USERNAME,U.USER_ID,ATR.ARTIFACT_ID ")
-        .append("from ARTIFACT_TEAM_REL ATR ")
-        .append("inner join PARITY_USER U on ATR.USER_ID = U.USER_ID ")
+        new StringBuilder("select U.USERNAME,U.USER_ID,ATR.ARTIFACT_ID ")
+        .append("from TPSD_ARTIFACT_TEAM_REL ATR ")
+        .append("inner join TPSD_USER U on ATR.USER_ID=U.USER_ID ")
         .append("where ATR.ARTIFACT_ID=? ")
         .append("order by U.USERNAME asc")
         .toString();
 
-    /** Sql to read the team member relationship. */
+	/** Sql to read the team member relationship. */
     private static final String SQL_READ_TEAM_REL_COUNT_BY_ARTIFACT_ID =
-        new StringBuffer("select COUNT(U.USER_ID) \"TEAM_REL_COUNT\" ")
-        .append("from ARTIFACT_TEAM_REL ATR ")
-        .append("inner join PARITY_USER U on ATR.USER_ID = U.USER_ID ")
+        new StringBuilder("select COUNT(U.USER_ID) \"TEAM_REL_COUNT\" ")
+        .append("from TPSD_ARTIFACT_TEAM_REL ATR ")
+        .append("inner join TPSD_USER U on ATR.USER_ID=U.USER_ID ")
         .append("where ATR.ARTIFACT_ID=?")
         .toString();
 
-	/** Sql to update the draft owner. */
+    /** Sql to update the draft owner. */
 	private static final String SQL_UPDATE_DRAFT_OWNER =
-		new StringBuffer("update ARTIFACT ")
+		new StringBuilder("update TPSD_ARTIFACT ")
 		.append("set ARTIFACT_DRAFT_OWNER=?,UPDATED_ON=?,UPDATED_BY=? ")
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
-    /** A user sql interface. */
+	/** A user sql interface. */
     private final UserSql userSql;
 
     /**
@@ -131,7 +139,7 @@ public class ArtifactSql extends AbstractSql {
         this.userSql = new UserSql();
 	}
 
-	/**
+    /**
      * Create an artifact.
      * 
      * @param uniqueId
@@ -159,7 +167,7 @@ public class ArtifactSql extends AbstractSql {
                 throw new HypersonicException("Could not create artifact {0}.", uniqueId);
             session.commit();
 
-			return session.getIdentity();
+			return session.getIdentity("TPSD_ARTIFACT");
         } catch (final Throwable t) {
             throw translateError(session, t);
 		} finally {
@@ -167,7 +175,7 @@ public class ArtifactSql extends AbstractSql {
 		}
 	}
 
-    /**
+	/**
      * Create a team relationship.
      * 
      * @param artifactId
@@ -325,6 +333,29 @@ public class ArtifactSql extends AbstractSql {
         try {
             session.prepareStatement(SQL_READ_DRAFT_UNIQUE_IDS);
             session.setLong(1, readLocalUserId(draftOwner));
+            session.executeQuery();
+            final List<UUID> uniqueIds = new ArrayList<UUID>();
+            while (session.nextResult()) {
+                uniqueIds.add(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
+            }
+            return uniqueIds;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read a team artifact unique ids.
+     * 
+     * @param userId
+     *            A user id <code>Long</code>.
+     * @return A <code>List</code> of artifact unique id <code>UUID</code>s.
+     */
+    public List<UUID> readTeamArtifactUniqueIds(final Long userId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_TEAM_ARTIFACT_UNIQUE_IDS);
+            session.setLong(1, userId);
             session.executeQuery();
             final List<UUID> uniqueIds = new ArrayList<UUID>();
             while (session.nextResult()) {

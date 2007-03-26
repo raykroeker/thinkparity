@@ -12,7 +12,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.desdemona.model.ModelFactory;
-import com.thinkparity.desdemona.model.archive.ArchiveModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
@@ -118,14 +117,11 @@ public abstract class AbstractHandler extends
                 IQ_LOGGER.logVariable("iq", iq);
                 IQ_LOGGER.logVariable("iq length", iq.getChildElement().asXML().length());
                 service(new ServiceModelProvider() {
-                    public ArchiveModel getArchiveModel() {
-                        return ArchiveModel.getModel(session);
-                    }
                     public ArtifactModel getArtifactModel() {
                         return ArtifactModel.getModel(session);
                     }
                     public BackupModel getBackupModel() {
-                        return BackupModel.getModel(session);
+                        return modelFactory.getBackupModel();
                     }
                     public ContactModel getContactModel() {
                         return ContactModel.getModel(session);

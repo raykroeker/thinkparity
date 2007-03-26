@@ -25,7 +25,7 @@ public final class ContactSql extends AbstractSql {
 
     /** Sql to create a contact. */
 	private static final String SQL_CREATE =
-		new StringBuilder("insert into CONTACT ")
+		new StringBuilder("insert into TPSD_CONTACT ")
 		.append("(USER_ID,CONTACT_ID,CREATED_BY,CREATED_ON,UPDATED_BY,")
         .append("UPDATED_ON) ")
 		.append("values (?,?,?,?,?,?)")
@@ -33,18 +33,18 @@ public final class ContactSql extends AbstractSql {
 
     /** Sql to delete a contact. */
 	private static final String SQL_DELETE =
-		new StringBuilder("delete from CONTACT ")
+		new StringBuilder("delete from TPSD_CONTACT ")
 		.append("where (USER_ID=? and CONTACT_ID=?) ")
         .append("or (USER_ID=? and CONTACT_ID=?)")
 		.toString();
 
     /** Sql to read contact ids. */
 	private static final String SQL_READ_IDS =
-		new StringBuilder("select PUC.USERNAME \"CONTACT_USERNAME\" ")
-		.append("from CONTACT C ")
-        .append("inner join PARITY_USER PU on PU.USER_ID=C.USER_ID ")
-        .append("inner join PARITY_USER PUC on PUC.USER_ID=C.CONTACT_ID ")
-		.append("where PU.USER_ID=?")
+		new StringBuilder("select UC.USERNAME \"CONTACT_USERNAME\" ")
+		.append("from TPSD_CONTACT C ")
+        .append("inner join TPSD_USER U on U.USER_ID=C.USER_ID ")
+        .append("inner join TPSD_USER UC on UC.USER_ID=C.CONTACT_ID ")
+		.append("where U.USER_ID=?")
 		.toString();
 
 	/**

@@ -4,14 +4,7 @@
 package com.thinkparity.desdemona.model.io.hsqldb;
 
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -27,6 +20,8 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 
+import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
+
 /** 
  * @author raykroeker@gmail.com
  * @version 1.1.2.1
@@ -35,6 +30,8 @@ public final class HypersonicSession {
 
     /** An apache logger wrapper. */
     protected static final Log4JWrapper LOGGER;
+
+    private static final String SQL_GET_IDENTITY_PRE = "select IDENTITY_VAL_LOCAL() \"ID\" from ";
 
     /** The local <code>TimeZone</code>. */
     private static final TimeZone TIME_ZONE;
@@ -184,25 +181,6 @@ public final class HypersonicSession {
             throw panic(sqlx);
 		}
 	}
-    /**
-     * Obtain the input stream from the result.
-     * 
-     * @param columnName
-     *            The column name.
-     * @return An input stream.
-     * @see ResultSet#getBinaryStream(String)
-     */
-    public InputStream getBinaryStream(final String columnName) {
-        assertConnectionIsOpen();
-        assertResultSetIsSet();
-        try {
-            final InputStream value = resultSet.getBinaryStream(columnName);
-            logColumnExtraction(columnName, value);
-            return resultSet.wasNull() ? null : value;
-        } catch (final SQLException sqlx) {
-            throw panic(sqlx);
-        }
-    }
 
     public Boolean getBoolean(final String columnName) {
         assertConnectionIsOpen();
@@ -247,6 +225,25 @@ public final class HypersonicSession {
 		}
 	}
 
+    /**
+     * Obtain the clob input stream from the result.
+     * 
+     * @param columnName
+     *            A column name <code>String</code>.
+     * @return An <code>InputStream</code>.
+     */
+    public InputStream getClob(final String columnName) {
+        assertConnectionIsOpen();
+        assertResultSetIsSet();
+        try {
+            final Clob value = resultSet.getClob(columnName);
+            logColumnExtraction(columnName, value);
+            return resultSet.wasNull() ? null : value.getAsciiStream();
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
+
     public EMail getEMail(final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
@@ -280,24 +277,16 @@ public final class HypersonicSession {
      * 
      * @return The identity value.
      */
-	public Long getIdentity() {
-	    assertConnectionIsOpen();
-        final String sql = "CALL IDENTITY()";
-        logStatement(sql);
-		ResultSet resultSet = null;
-		Statement statement = null;
+	public Long getIdentity(final String table) {
+        final String sql = new StringBuffer(SQL_GET_IDENTITY_PRE)
+            .append(table).toString();
         try {
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(sql);
-            if (resultSet.next()) {
-                return resultSet.getLong(1);
-            } else {
-                return null;
-            }
-        } catch (final SQLException sqlx) {
-            throw panic(sqlx);
+            prepareStatement(sql);
+            executeQuery();
+            nextResult();
+            return getLong("ID");
         } finally {
-            close(statement, resultSet);
+            close(preparedStatement, resultSet);
         }
 	}
 
@@ -464,7 +453,30 @@ public final class HypersonicSession {
 		}
 	}
 
-	/**
+    /**
+     * Set a clob column value.
+     * 
+     * @param index
+     *            The column index.
+     * @param value
+     *            The column value.
+     * @param bufferSize
+     *            The size of the buffer to use when writing the value.
+     */
+    public void setAsciiStream(final Integer index, final InputStream value,
+            final Long length, final Integer bufferSize) {
+        assertConnectionIsOpen();
+        assertPreparedStatementIsSet();
+        logColumnInjection(index, value);
+        try {
+            // NOTE possible loss of precision, long > int
+            preparedStatement.setAsciiStream(index, value, length.intValue());
+        } catch (final SQLException sqlx) {
+            throw panic(sqlx);
+        }
+    }
+
+    /**
      * Set a blob column value.
      * 
      * @param index
@@ -480,6 +492,7 @@ public final class HypersonicSession {
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
         try {
+            // NOTE possible loss of precision, long > int
             preparedStatement.setBinaryStream(index, value, length.intValue());
         } catch (final SQLException sqlx) {
             throw panic(sqlx);

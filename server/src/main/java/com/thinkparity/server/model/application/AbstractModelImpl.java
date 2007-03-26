@@ -20,7 +20,6 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import com.thinkparity.codebase.DateUtil;
-import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.assertion.Assert;
@@ -30,6 +29,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.DownloadMonitor;
+import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
@@ -40,11 +40,8 @@ import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEve
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
-import com.thinkparity.desdemona.model.archive.ArchiveModel;
-import com.thinkparity.desdemona.model.archive.InternalArchiveModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
-import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.model.io.sql.ConfigurationSql;
@@ -404,12 +401,9 @@ public abstract class AbstractModelImpl
             if (isOnline(eventUserId)) {
                 sendQueueUpdated(eventUserId);
             }
-            backupEvent(userId, eventUserId, event);
         }
-        // do not backup the same user twice
-        if (!eventUserIds.contains(userId)) {
-            backupEvent(userId, userId, event);
-        }
+        // backup
+        backupEvent(userId, userId, event);
     }
 
     /**
@@ -449,21 +443,9 @@ public abstract class AbstractModelImpl
             if (isOnline(eventUserId)) {
                 sendQueueUpdated(eventUserId);
             }
-            backupEvent(userId, eventUserId, event);
         }
-        // do not backup the same user twice
-        if (!eventUserIds.contains(userId)) {
-            backupEvent(userId, userId, event);
-        }
-    }
-
-    /**
-     * Obtain a thinkParity archive interface.
-     * 
-     * @return A thinkParity archive interface.
-     */
-    protected InternalArchiveModel getArchiveModel() {
-        return ArchiveModel.getInternalModel(getContext(), session);
+        // backup
+        backupEvent(userId, userId, event);
     }
 
     /**
@@ -476,12 +458,12 @@ public abstract class AbstractModelImpl
 	}
 
     /**
-     * Obtain a thinkParity backup interface.
+     * Obtain an internal backup model.
      * 
-     * @return A thinkParity backup interface.
+     * @return An instance of <code>InternalBackupModel</code>.
      */
     protected InternalBackupModel getBackupModel() {
-        return BackupModel.getInternalModel(getContext(), session);
+        return InternalModelFactory.getInstance(getContext(), session).getBackupModel();
     }
 
     /**
@@ -633,7 +615,7 @@ public abstract class AbstractModelImpl
         this.modelConfiguration = ModelConfiguration.getInstance(getClass());
     }
 
-	/**
+    /**
      * Intialize the model.
      * 
      * @param session
@@ -661,7 +643,7 @@ public abstract class AbstractModelImpl
         return logger.logVariable("type", type);
     }
 
-    /**
+	/**
      * Determine if the user id is the authenticated user.
      * 
      * @param userId
@@ -672,7 +654,7 @@ public abstract class AbstractModelImpl
         return session.getJabberId().equals(userId);
     }
 
-	/**
+    /**
      * Determine whether or not the user represented by the jabber id is
      * currently online.
      * 
@@ -687,7 +669,7 @@ public abstract class AbstractModelImpl
 		else { return Boolean.FALSE; }
 	}
 
-    protected Boolean isSessionUserKeyHolder(final UUID uniqueId) {
+	protected Boolean isSessionUserKeyHolder(final UUID uniqueId) {
 		return readKeyHolder(uniqueId).equals(session.getJabberId());
 	}
 
@@ -702,12 +684,12 @@ public abstract class AbstractModelImpl
         return userId.equals(User.THINK_PARITY.getId());
     }
 
-	/** Log an api id. */
+    /** Log an api id. */
     protected final void logApiId() {
         logger.logApiId();
     }
 
-    /**
+	/**
      * Log an api id with a message.
      * 
      * @param message
@@ -730,7 +712,7 @@ public abstract class AbstractModelImpl
         logger.logInfo(infoPattern, infoArguments);
     }
 
-	/** Log a trace id. */
+    /** Log a trace id. */
     protected final void logTraceId() {
         logger.logApiId();
     }
@@ -749,7 +731,7 @@ public abstract class AbstractModelImpl
         return logger.logVariable(name, value);
     }
 
-    /**
+	/**
      * Log a warning.
      * 
      * @param warning
@@ -758,6 +740,15 @@ public abstract class AbstractModelImpl
     protected final void logWarning(final String warningPattern,
             final Object... warningArguments) {
         logger.logWarning(warningPattern, warningArguments);
+    }
+
+    /**
+     * @see com.thinkparity.codebase.model.AbstractModelImpl#panic(java.lang.Throwable)
+     *
+     */
+    @Override
+    protected ThinkParityException panic(final Throwable t) {
+        return super.panic(t);
     }
 
     /**
@@ -833,15 +824,8 @@ public abstract class AbstractModelImpl
      * @param t
      *            An error.
      */
-    protected ParityModelException translateError(final Throwable t) {
-        if(ParityModelException.class.isAssignableFrom(t.getClass())) {
-            return (ParityModelException) t;
-        }
-        else {
-            final String errorId = new ErrorHelper().getErrorId(t);
-            logger.logError(t, errorId);
-            return ParityErrorTranslator.translateUnchecked(session, errorId, t);
-        }
+    protected ThinkParityException translateError(final Throwable t) {
+        return panic(t);
     }
 
     /**
@@ -856,28 +840,24 @@ public abstract class AbstractModelImpl
      */
     private void backupEvent(final JabberId userId, final JabberId eventUserId,
             final XMPPEvent event) {
-        final JabberId backupId = getUserModel().readArchiveId(eventUserId);
-        if (null == backupId) {
-            logger.logInfo("No backup exists for user {0}.", eventUserId);
-        } else {
-            // create a backup statistics event in the database
-            final BackupStatisticsUpdatedEvent bsue = new BackupStatisticsUpdatedEvent();
-            bsue.setStatistics(getBackupModel().readStatistics(eventUserId));
-            createEvent(userId, eventUserId, bsue);
-            if (isOnline(eventUserId)) {
-                // send the user a notification that an event is pending
-                sendQueueUpdated(eventUserId);
-            }
+        final JabberId backupUserId = getUserModel().readBackupUserId();
 
-            // create the backup event in the database
-            createEvent(userId, backupId, event);
-            if (isOnline(backupId)) {
-                // send the backup user a notification that an event is pending
-                sendQueueUpdated(backupId);
-            } else {
-                logWarning("Backup {0} for user {1} is not online.",
-                        backupId, eventUserId);
-            }
+        // create a backup statistics event in the database
+        final BackupStatisticsUpdatedEvent bsue = new BackupStatisticsUpdatedEvent();
+        bsue.setStatistics(getBackupModel().readStatistics(eventUserId));
+        createEvent(userId, eventUserId, bsue);
+        if (isOnline(eventUserId)) {
+            // send the user a notification that an event is pending
+            sendQueueUpdated(eventUserId);
+        }
+
+        // create the backup event in the database
+        createEvent(userId, backupUserId, event);
+        if (isOnline(backupUserId)) {
+            // send the backup user a notification that an event is pending
+            sendQueueUpdated(backupUserId);
+        } else {
+            logWarning("Backup service is not online.");
         }
     }
 

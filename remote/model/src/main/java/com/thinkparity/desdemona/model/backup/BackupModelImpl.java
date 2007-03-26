@@ -11,82 +11,291 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.UploadMonitor;
+import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactFlag;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
-import com.thinkparity.ophelia.model.container.InternalContainerModel;
-import com.thinkparity.ophelia.model.document.InternalDocumentModel;
+import com.thinkparity.ophelia.model.InternalModelFactory;
+import com.thinkparity.ophelia.model.document.CannotLockException;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
-import com.thinkparity.desdemona.model.archive.ClientModelFactory;
+import com.thinkparity.desdemona.model.Constants.Product.Ophelia;
+import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
+import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
+import com.thinkparity.desdemona.model.io.sql.BackupSql;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.stream.InternalStreamModel;
 
 /**
- * <b>Title:</b>thinkParity Backup Model Implementation</br>
- * <b>Description:</b>
- *
- * @author CreateModel.groovy
- * @version 1.1
+ * <b>Title:</b>thinkParity Backup Model Implementation<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-final class BackupModelImpl extends AbstractModelImpl {
+public final class BackupModelImpl extends AbstractModelImpl implements BackupModel,
+        InternalBackupModel {
 
-    private static final Statistics EMPTY_STATISTICS;
+    /** An artifact sql interface */
+    private ArtifactSql artifactSql;
 
-    static {
-        EMPTY_STATISTICS = new Statistics();
-        EMPTY_STATISTICS.setDiskUsage(0L);
-    }
+    /** A backup sql interface. */
+    private BackupSql backupSql;
+
     /**
      * Create BackupModelImpl.
-     *
-     * @param session
-     *		The user's session.
+     * 
      */
-    BackupModelImpl(final Session session) {
-        super(session);
+    public BackupModelImpl() {
+        super();
     }
 
-    
     /**
-     * Archive an artifact. This will simply apply the archived flag within the
-     * backup.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>Long</code>.
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#archive(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
+     *
      */
-    void archive(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
+    public void archive(final JabberId userId, final UUID uniqueId) {
         try {
-            assertIsAuthenticatedUser(userId);
-
-            final JabberId archiveId = readArchiveId(userId);
-            if (null == archiveId) {
-                logWarning("No archive exists for user {0}.", userId);
+            final User user = getUserModel().read(userId);
+            if (isBackupEnabled(user)) {
+                archiveImpl(user, uniqueId);
             } else {
-                final InternalArtifactModel artifactModel =
-                    getModelFactory(archiveId).getArtifactModel(getClass());
-                Assert.assertTrue(artifactModel.doesExist(uniqueId),
-                        "Artifact {0} does not exist for user {1} in archive {2}.",
-                        uniqueId, userId.getUsername(),
-                        archiveId.getUsername());
-                final Long artifactId = artifactModel.readId(uniqueId);
-                artifactModel.applyFlagArchived(artifactId);
+                logger.logWarning("User {0} has no backup feature.", userId);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#createStream(com.thinkparity.codebase.jabber.JabberId,
+     *      java.lang.String, java.util.UUID, java.lang.Long)
+     * 
+     */
+    public void createStream(final JabberId userId, final String streamId,
+            final UUID uniqueId, final Long versionId) {
+        try {
+            final User user = getUserModel().read(userId);
+            if (isBackupEnabled(user)) {
+                createStreamImpl(user, streamId, uniqueId, versionId);
+            } else {
+                logger.logWarning("User {0} has no backup feature.", userId);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#delete(com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.UUID)
+     * 
+     */
+    public void delete(final JabberId userId, final UUID uniqueId) {
+        try {
+            final User user = getUserModel().read(userId);
+            if (isBackupEnabled(user)) {
+                deleteImpl(user, uniqueId);
+            } else {
+                logger.logWarning("User {0} has no backup feature.", userId);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#isBackupOnline(com.thinkparity.codebase.jabber.JabberId)
+     * 
+     */
+    public Boolean isBackupOnline(final JabberId userId) {
+        try {
+            final User user = getUserModel().read(userId);
+            if (isBackupEnabled(user)) {
+                return isBackupOnlineImpl(user);
+            } else {
+                logger.logWarning("User {0} has no backup feature.", userId);
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainer(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
+     *
+     */
+    public Container readContainer(final JabberId userId, final UUID uniqueId) {
+        try {
+            final User user = getUserModel().read(userId);
+            if (isBackupEnabled(user)) {
+                return readContainerImpl(user, uniqueId);
+            } else {
+                logger.logWarning("User {0} has no backup feature.", userId);
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainerDocuments(com.thinkparity.codebase.jabber.JabberId, java.util.UUID, java.lang.Long)
+     *
+     */
+    public List<Document> readContainerDocuments(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        try {
+            final User user = getUserModel().read(userId);
+            if (isBackupEnabled(user)) {
+                return readContainerDocumentsImpl(user, uniqueId, versionId);
+            } else {
+                logger.logWarning("User {0} has no backup feature.", userId);
+                return Collections.emptyList();
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainerDocumentVersions(com.thinkparity.codebase.jabber.JabberId, java.util.UUID, java.lang.Long)
+     *
+     */
+    public List<DocumentVersion> readContainerDocumentVersions(
+            final JabberId userId, final UUID uniqueId, final Long versionId) {
+        try {
+            final User user = getUserModel().read(userId);
+            if (isBackupEnabled(user)) {
+                return readContainerDocumentVersionsImpl(user, uniqueId, versionId);
+            } else {
+                logger.logWarning("User {0} has no backup feature.", userId);
+                return Collections.emptyList();
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainerPublishedTo(com.thinkparity.codebase.jabber.JabberId, java.util.UUID, java.lang.Long)
+     *
+     */
+    public List<ArtifactReceipt> readContainerPublishedTo(
+            final JabberId userId, final UUID uniqueId, final Long versionId) {
+        try {
+            final User user = getUserModel().read(userId);
+            if (isBackupEnabled(user)) {
+                return readContainerPublishedToImpl(user, uniqueId, versionId);
+            } else {
+                logger.logWarning("User {0} has no backup feature.", userId);
+                return Collections.emptyList();
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainers(com.thinkparity.codebase.jabber.JabberId)
+     *
+     */
+    public List<Container> readContainers(final JabberId userId) {
+        try {
+            final User user = getUserModel().read(userId);
+            if (isBackupEnabled(user)) {
+                return readContainersImpl(user);
+            } else {
+                logger.logWarning("User {0} has no backup feature.", userId);
+                return Collections.emptyList();
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainerVersions(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
+     *
+     */
+    public List<ContainerVersion> readContainerVersions(final JabberId userId,
+            final UUID uniqueId) {
+        try {
+            final User user = getUserModel().read(userId);
+            if (isBackupEnabled(user)) {
+                return readContainerVersionsImpl(user, uniqueId);
+            } else {
+                logger.logWarning("User {0} has no backup feature.", userId);
+                return Collections.emptyList();
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#readStatistics(com.thinkparity.codebase.jabber.JabberId)
+     * 
+     */
+    public Statistics readStatistics(final JabberId userId) {
+        try {
+            final User user = getUserModel().read(userId);
+            if (isBackupEnabled(user)) {
+                return readStatisticsImpl(user);
+            } else {
+                logger.logWarning("User {0} has no backup feature.", userId);
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#readTeamIds(com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.UUID)
+     * 
+     */
+    public List<JabberId> readTeamIds(final JabberId userId, final UUID uniqueId) {
+        try {
+            final User user = getUserModel().read(userId);
+            if (isBackupEnabled(user)) {
+                return readTeamIdsImpl(user, uniqueId);
+            } else {
+                logger.logWarning("User {0} has no backup feature.", userId);
+                return Collections.emptyList();
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#restore(com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.UUID)
+     * 
+     */
+    public void restore(final JabberId userId, final UUID uniqueId) {
+        try {
+            final User user = getUserModel().read(userId);
+            if (isBackupEnabled(user)) {
+                restoreImpl(user, uniqueId);
+            } else {
+                logger.logWarning("User {0} has no backup feature.", userId);
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -94,8 +303,58 @@ final class BackupModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Upload a document version to the stream server using the provided stream
-     * id. The stream can then be downloaded by a client.
+     * @see com.thinkparity.desdemona.model.AbstractModelImpl#initializeModel(com.thinkparity.desdemona.model.session.Session)
+     *
+     */
+    @Override
+    protected void initializeModel(final Session session) {
+        this.artifactSql = new ArtifactSql();
+        this.backupSql = new BackupSql();
+    }
+
+    /**
+     * If the container is archived; apply the flag.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param container
+     *            A <code>Container</code>.
+     */
+    private void applyFlagArchived(final User user, final Container container) {
+        if (isArchived(user, container.getUniqueId())) {
+            container.add(ArtifactFlag.ARCHIVED);
+        }
+    }
+
+    /**
+     * If a container is archived; apply the archived flag.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param containers
+     *            A <code>List</code> of <code>Container</code>s.
+     */
+    private void applyFlagArchived(final User user,
+            final List<Container> containers) {
+        for (final Container container : containers)
+            applyFlagArchived(user, container);
+    }
+
+    /**
+     * Achive implementation.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     */
+    private void archiveImpl(final User user, final UUID uniqueId) {
+        final Artifact artifact = getArtifactModel().read(uniqueId);
+        backupSql.createArchive(user, artifact);
+    }
+
+    /**
+     * Create stream implementation.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
@@ -106,279 +365,65 @@ final class BackupModelImpl extends AbstractModelImpl {
      * @param versionId
      *            A document version id <code>Long</code>.
      */
-    void createStream(final JabberId userId, final String streamId,
+    private void createStreamImpl(final User user, final String streamId,
             final UUID uniqueId, final Long versionId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("streamId", streamId);
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        try {
-            assertIsAuthenticatedUser(userId);
-            final JabberId archiveId = readArchiveId(userId);
-            if (null == archiveId) {
-                logWarning("No archive exists for user {0}.", userId);
-            } else {
-                final ClientModelFactory modelFactory = getModelFactory(archiveId);
-                final InternalArtifactModel artifactModel = modelFactory.getArtifactModel(getClass());
-                final InternalDocumentModel documentModel = modelFactory.getDocumentModel(getClass());
-
-                final Long documentId = artifactModel.readId(uniqueId);
-                final Long streamSize = documentModel.readVersionSize(documentId, versionId);
-                logger.logVariable("documentId", documentId);
-                logger.logVariable("streamSize", streamSize);
-
-                final InternalStreamModel streamModel = getStreamModel();
-                final StreamSession streamSession =
-                    streamModel.createArchiveSession(archiveId);
-                documentModel.uploadVersion(documentId, versionId, new StreamUploader() {
-                    public void upload(final InputStream stream) throws IOException {
-                        final InputStream bufferedStream =
-                            new BufferedInputStream(stream, getDefaultBufferSize());
-                        /* NOTE the underlying stream is closed by the document
-                         * io handler through the document model and is thus not
-                         * closed here */
-                        BackupModelImpl.this.upload(new UploadMonitor() {
-                            public void chunkUploaded(final int chunkSize) {
-                                logger.logApiId();
-                                logger.logVariable("chunkSize", chunkSize);
-                            }
-                        }, streamId, streamSession, bufferedStream, streamSize);
-                    }
-                });
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
+        if (isDocumentBackedUp(user, uniqueId)) {
+            final com.thinkparity.ophelia.model.artifact.InternalArtifactModel
+                    artifactModel = getModelFactory(user).getArtifactModel();
+            final com.thinkparity.ophelia.model.document.InternalDocumentModel
+                    documentModel = getModelFactory(user).getDocumentModel();
+    
+            final Long documentId = artifactModel.readId(uniqueId);
+            final Long streamSize = documentModel.readVersionSize(documentId, versionId);
+    
+            final InternalStreamModel streamModel = getStreamModel();
+            final StreamSession streamSession =
+                streamModel.createArchiveSession(readBackupUserId());
+            documentModel.uploadVersion(documentId, versionId, new StreamUploader() {
+                public void upload(final InputStream stream) throws IOException {
+                    final InputStream bufferedStream =
+                        new BufferedInputStream(stream, getDefaultBufferSize());
+                    /* NOTE the underlying stream is closed by the document
+                     * io handler through the document model and is thus not
+                     * closed here */
+                    BackupModelImpl.this.upload(new UploadMonitor() {
+                        public void chunkUploaded(final int chunkSize) {
+                            logger.logApiId();
+                            logger.logVariable("chunkSize", chunkSize);
+                        }
+                    }, streamId, streamSession, bufferedStream, streamSize);
+                }
+            });
+        } else {
+            logger.logWarning("Artifact {0} is not backed up for user {1}.",
+                    uniqueId, user.getId());
         }
     }
 
     /**
-     * Delete an artifact.
+     * Delete implementation.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
+     * @param user
+     *            A <code>User</code>.
      * @param uniqueId
      *            A unique id <code>UUID</code>.
      */
-    void delete(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        try {
-            assertIsAuthenticatedUser(userId);
-
-            if (getUserModel().isArchive(userId)) {
-                logInfo("Ignoring archive user {0}.", userId);
-            } else {
-                final JabberId archiveId = readArchiveId(userId);
-                if (null == archiveId) {
-                    logger.logInfo("No archive exists for user \"{0}\".", userId.getUsername());
-                } else {
-                    final InternalArtifactModel artifactModel =
-                        getModelFactory(archiveId).getArtifactModel(getClass());
-                    Assert.assertTrue(artifactModel.doesExist(uniqueId),
-                            "Artifact {0} does not exist for user {1} in archive {2}.",
-                            uniqueId, userId.getUsername(),
-                            archiveId.getUsername());
-                    final Long artifactId = artifactModel.readId(uniqueId);
-                    final InternalContainerModel containerModel =
-                        getModelFactory(archiveId).getContainerModel(getClass());
-                    containerModel.delete(artifactId);
-                }
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
+    private void deleteImpl(final User user, final UUID uniqueId)
+            throws CannotLockException {
+        final Artifact artifact = getArtifactModel().read(uniqueId);
+        if (isArchived(user, uniqueId))
+            backupSql.deleteArchive(user, artifact);
+        if (!isContainerBackedUp(uniqueId)) {
+            final com.thinkparity.ophelia.model.container.InternalContainerModel
+                    containerModel = getModelFactory(user).getContainerModel();
+            final com.thinkparity.ophelia.model.artifact.InternalArtifactModel
+                    artifactModel = getModelFactory(user).getArtifactModel();
+            final Long containerId = artifactModel.readId(uniqueId);
+            containerModel.delete(containerId);
         }
-        
-    }
-
-    /**
-     * Obtain a container reader for the archive.
-     * 
-     * @return A container archive reader.
-     */
-    BackupReader<Container, ContainerVersion> getContainerReader(
-            final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
-        try {
-            assertIsAuthenticatedUser(userId);
-            return createContainerReader(userId);
-        } catch (final Throwable t) {
-            throw translateError(t);
+        if (0 == artifactSql.readTeamRelCount(artifact.getId())) {
+            artifactSql.delete(artifact.getId());
         }
-
-    }
-
-    /**
-     * Obtain a document archive reader.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A container unique id <code>UUID</code>.
-     * @return An <code>ArchiveReader&lt;Document, DocumentVersion&gt;</code>.
-     */
-    BackupReader<Document, DocumentVersion> getDocumentReader(
-            final JabberId userId, final UUID containerUniqueId,
-            final Long containerVersionId) {
-        try {
-            assertIsAuthenticatedUser(userId);
-            return createDocumentReader(userId, containerUniqueId, containerVersionId);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    Boolean isBackupOnline(final JabberId userId) {
-        try {
-            return getArchiveModel().isArchiveOnline(userId);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    Statistics readStatisitcs(final JabberId userId) {
-        try {
-            final JabberId backupId = readArchiveId(userId);
-            if (null == backupId) {
-                logger.logWarning("");
-                return emptyStatistics();
-            } else {
-                final InternalDocumentModel documentModel = getModelFactory(backupId).getDocumentModel(getClass());
-                final List<Document> documents = documentModel.read();
-                final List<DocumentVersion> versions = new ArrayList<DocumentVersion>();
-                long diskUsage = 0;
-                for (final Document document : documents) {
-                    versions.clear();
-                    versions.addAll(documentModel.readVersions(document.getId()));
-                    for (final DocumentVersion version : versions) {
-                        diskUsage += version.getSize().longValue();
-                    }
-                }
-
-                final Statistics statistics = new Statistics();
-                statistics.setDiskUsage(Long.valueOf(diskUsage));
-                return statistics;
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * Read the team for a backup artifact.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     * @return A <code>List&lt;JabberId&gt;</code>.
-     */
-    List<JabberId> readTeam(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        try {
-            assertIsAuthenticatedUser(userId);
-            final JabberId archiveId = readArchiveId(userId);
-            if (null == archiveId) {
-                logInfo("No archive exists for user {0}.", userId);
-                return Collections.emptyList();
-            } else {
-                final InternalArtifactModel artifactModel =
-                    getModelFactory(archiveId).getArtifactModel(getClass());
-                final Long artifactId = artifactModel.readId(uniqueId);
-                final List<TeamMember> teamMembers = artifactModel.readTeam2(artifactId);
-                final List<JabberId> teamIds = new ArrayList<JabberId>(teamMembers.size());
-                for (final TeamMember teamMember : teamMembers) {
-                    teamIds.add(teamMember.getId());
-                }
-                return teamIds;
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-
-    }
-
-    /**
-     * Restore an artifact.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     */
-    void restore(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        try {
-            assertIsAuthenticatedUser(userId);
-
-            final JabberId archiveId = readArchiveId(userId);
-            if (null == archiveId) {
-                logWarning("No archive exists for user {0}.", userId);
-            } else {
-                final InternalArtifactModel artifactModel =
-                    getModelFactory(archiveId).getArtifactModel(getClass());
-                final Long artifactId = artifactModel.readId(uniqueId);
-                Assert.assertTrue(artifactModel.doesExist(uniqueId),
-                        "Artifact {0} does not exist for user {1} in archive {2}.",
-                        uniqueId, userId.getUsername(),
-                        archiveId.getUsername());
-                artifactModel.removeFlagArchived(artifactId);
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Create a container backup reader for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A <code>BackupReader&lt;Container, ContainerVersion&gt;</code>.
-     */
-    private BackupReader<Container, ContainerVersion> createContainerReader(
-            final JabberId userId) {
-        final JabberId archiveId = readArchiveId(userId);
-        if (null == archiveId) {
-            logInfo("No archive exists for user {0}.", userId);
-            return BackupReader.emptyReader();
-        } else {
-            return new ContainerReader(getModelFactory(archiveId));
-        }
-    }
-
-    /**
-     * Create a container backup reader for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param containerUniqueId
-     *            A container unique id <code>UUID</code>.
-     * @param containerVersionId
-     *            A container version id <code>Long</code>.
-     * @return A <code>BackupReader&lt;Document, DocumentVersion&gt;<code>.
-     */
-    private BackupReader<Document, DocumentVersion> createDocumentReader(
-            final JabberId userId, final UUID containerUniqueId,
-            final Long containerVersionId) {
-        final JabberId archiveId = readArchiveId(userId);
-        if (null == archiveId) {
-            logInfo("No archive exists for user {0}.", userId);
-            return BackupReader.emptyReader();
-        } else {
-            return new DocumentReader(getModelFactory(archiveId),
-                    containerUniqueId, containerVersionId);
-        }
-    }
-
-    private Statistics emptyStatistics() {
-        return EMPTY_STATISTICS;
     }
 
     /**
@@ -388,18 +433,396 @@ final class BackupModelImpl extends AbstractModelImpl {
      *            An archive id <code>JabberId</code>.
      * @return An archive's <code>ClientModelFactory</code>.
      */
-    private ClientModelFactory getModelFactory(final JabberId archiveId) {
-        return getArchiveModel().getModelFactory(archiveId);
+    private InternalModelFactory getModelFactory(final User user) {
+        if (isBackupEnabled(user)) {
+            return BackupService.getInstance().getModelFactory();
+        } else {
+            throw new BackupException("User {0} has no backup feature.",
+                    user.getId());
+        }
     }
 
     /**
-     * Read an archive id for a user id.
+     * Determine if the artifact has been archived for the user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param artifact
+     *            An <code>Artifact</code>.
+     * @return True if the artifact has been archived by the user.
+     */
+    private boolean isArchived(final User user, final UUID uniqueId) {
+        final Artifact artifact = getArtifactModel().read(uniqueId);
+        return backupSql.doesExistArchive(user, artifact).booleanValue();
+    }
+
+    /**
+     * Determine if the unique id has been archived.
+     * 
+     * @param uniqueId
+     *            An artifact unique <code>UUID</code>.
+     * @return True if the artifact has been archived by any user.
+     */
+    private boolean isArchived(final UUID uniqueId) {
+        final Artifact artifact = getArtifactModel().read(uniqueId);
+        return backupSql.doesExistArchive(artifact).booleanValue();
+    }
+
+    /**
+     * Determine whether or not backup is enabled for the user.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @return An archive id <code>JabberId</code>.
+     * @return True if backup is enabled.
      */
-    private JabberId readArchiveId(final JabberId userId) {
-        return getUserModel().readArchiveId(userId);
+    private boolean isBackupEnabled(final User user) {
+        /* NOTE the product id/name should be read from the interface once the
+         * migrator code is complete */
+        final List<Feature> features = getUserModel().readFeatures(
+                user.getLocalId(), Ophelia.PRODUCT_ID);
+        for (final Feature feature : features) {
+            if (Ophelia.Feature.BACKUP.equals(feature.getName())) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * Is backup online implementation.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if the backup is online.
+     */
+    private Boolean isBackupOnlineImpl(final User user) {
+        return BackupService.getInstance().isOnline();
+    }
+
+    /**
+     * Determine if the user has backed up the container. We check the server
+     * team membership as well as the server archive flag.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return True if the user is either a team member; or has archived the
+     *         artifact.
+     */
+    private boolean isContainerBackedUp(final User user, final UUID uniqueId) {
+        return isTeamMember(user, uniqueId) || isArchived(user, uniqueId);
+    }
+
+    /**
+     * Determine if the container is backed up. We check the server team
+     * membership as well as the server archive flag.
+     * 
+     * @param artifact
+     *            An <code>Artifact</code>.
+     * @return True if the user is either a team member; or has archived the
+     *         artifact.
+     */
+    private boolean isContainerBackedUp(final UUID uniqueId) {
+        final Artifact artifact = getArtifactModel().read(uniqueId);
+        return 0 < artifactSql.readTeamRelCount(artifact.getId())
+                || isArchived(uniqueId);
+    }
+
+    /**
+     * Determine if the user has backed up the container this document belongs
+     * to.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param uniqueId
+     *            A document unique id <code>UUID</code>.
+     * @return True if the user is either a team member of the document's
+     *         container; or has archived the document's container.
+     */
+    private boolean isDocumentBackedUp(final User user, final UUID uniqueId) {
+        final com.thinkparity.ophelia.model.artifact.InternalArtifactModel
+                artifactModel = getModelFactory(user).getArtifactModel();
+        final com.thinkparity.ophelia.model.container.InternalContainerModel
+                containerModel = getModelFactory(user).getContainerModel();
+        final Long documentId = artifactModel.readId(uniqueId);
+        final List<Container> containers = containerModel.readForDocument(documentId);
+        for (final Container container : containers) {
+            if (isContainerBackedUp(user, container.getUniqueId()))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Determine if the user is a team member.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return True if the user is a team member.
+     */
+    private boolean isTeamMember(final User user, final UUID uniqueId) {
+        final InternalArtifactModel artifactModel = getArtifactModel();
+        final Artifact artifact = artifactModel.read(uniqueId);
+        final List<TeamMember> team = artifactModel.readTeam(user.getId(),
+                artifact.getId());
+        for (final TeamMember teamMember : team) {
+            if (teamMember.getLocalId().equals(user.getLocalId()))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Read a list of backed up container ids for a user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return A <code>List</code> of container <code>UUID</code>s.
+     */
+    private List<UUID> readBackedUpContainerIds(final User user) {
+        final List<UUID> backedUpContainerIds = backupSql.readArchive(user);
+        backedUpContainerIds.addAll(getArtifactModel().readTeamArtifactIds(user));
+        return backedUpContainerIds;
+    }
+
+    /**
+     * Read the backup user id.
+     * 
+     * @return A user id <code>JabberId</code>.
+     */
+    private JabberId readBackupUserId() {
+        return getUserModel().readBackupUserId();
+    }
+
+    /**
+     * Read the container documents implementation. If the user is a team member
+     * read the documents from the backup.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List</code> of <code>Document</code>s.
+     */
+    private List<Document> readContainerDocumentsImpl(final User user,
+            final UUID uniqueId, final Long versionId) {
+        if (isContainerBackedUp(user, uniqueId)) {
+            final InternalModelFactory modelFactory = getModelFactory(user);
+            final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
+            return modelFactory.getContainerModel().readDocuments(containerId, versionId);
+        } else {
+            logger.logWarning("Container {0} is backed up for user {1}.",
+                    uniqueId, user.getId());
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Read the container document versions implementation. If the user is a
+     * team member read the document versions from the backup.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List</code> of <code>DocumentVersion</code>s.
+     */
+    private List<DocumentVersion> readContainerDocumentVersionsImpl(
+            final User user, final UUID uniqueId, final Long versionId) {
+        if (isContainerBackedUp(user, uniqueId)) {
+            final InternalModelFactory modelFactory = getModelFactory(user);
+            final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
+            return modelFactory.getContainerModel().readDocumentVersions(containerId, versionId);
+        } else {
+            logger.logWarning("Container {0} is backed up for user {1}.",
+                    uniqueId, user.getId());
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Read a container implementation. If the user is a team member read the
+     * container from the backup.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>Container</code>.
+     */
+    private Container readContainerImpl(final User user, final UUID uniqueId) {
+        if (isContainerBackedUp(user, uniqueId)) {
+            final InternalModelFactory modelFactory = getModelFactory(user);
+            final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
+            final Container container = modelFactory.getContainerModel().read(containerId);
+            applyFlagArchived(user, container);
+            return container;
+        } else {
+            logger.logWarning("Container {0} is backed up for user {1}.",
+                    uniqueId, user.getId());
+            return null;
+        }
+    }
+
+    /**
+     * Read the container version published to implementation. If the user is a
+     * member of the team read the published to list from the backup.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List</code> of <code>ArtifactReceipt</code>s.
+     */
+    private List<ArtifactReceipt> readContainerPublishedToImpl(final User user,
+            final UUID uniqueId, final Long versionId) {
+        if (isContainerBackedUp(user, uniqueId)) {
+            final InternalModelFactory modelFactory = getModelFactory(user);
+            final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
+            return modelFactory.getContainerModel().readPublishedTo(containerId, versionId);
+        } else {
+            logger.logWarning("Container {0} is backed up for user {1}.",
+                    uniqueId, user.getId());
+            return null;
+        }
+
+    }
+
+    /**
+     * Read the containers implementation. Read the containers that are being
+     * backed up for the user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return A <code>List</code> of <code>Container</code>s.
+     */
+    private List<Container> readContainersImpl(final User user) {
+        final List<UUID> backedUpContainerIds = readBackedUpContainerIds(user);
+        final List<Container> backedUpContainers = new ArrayList<Container>(
+                backedUpContainerIds.size());
+        final com.thinkparity.ophelia.model.container.InternalContainerModel
+                containerModel = getModelFactory(user).getContainerModel();
+        final com.thinkparity.ophelia.model.artifact.InternalArtifactModel
+                artifactModel = getModelFactory(user).getArtifactModel();
+        Long containerId;
+        for (final UUID backedUpContainerId : backedUpContainerIds) {
+            containerId = artifactModel.readId(backedUpContainerId);
+            backedUpContainers.add(containerModel.read(containerId));
+        }
+        applyFlagArchived(user, backedUpContainers);
+        return backedUpContainers;
+    }
+
+    /**
+     * Read the container versions implementation. If the user is a member of
+     * the team read the versions from the backup.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>List</code> of <code>ContainerVersion</code>s.
+     */
+    private List<ContainerVersion> readContainerVersionsImpl(final User user,
+            final UUID uniqueId) {
+        if (isContainerBackedUp(user, uniqueId)) {
+            final InternalModelFactory modelFactory = getModelFactory(user);
+            final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
+            return modelFactory.getContainerModel().readVersions(containerId);
+        } else {
+            logger.logWarning("Container {0} is backed up for user {1}.",
+                    uniqueId, user.getId());
+            return null;
+        }
+    }
+
+    /**
+     * Read statistics implementation.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return An instance of <code>Statistics</code>.
+     */
+    private Statistics readStatisticsImpl(final User user) {
+        final List<UUID> backedUpContainerIds = readBackedUpContainerIds(user);
+        final com.thinkparity.ophelia.model.container.InternalContainerModel
+                containerModel = getModelFactory(user).getContainerModel();
+        final com.thinkparity.ophelia.model.document.InternalDocumentModel
+                documentModel = getModelFactory(user).getDocumentModel();
+        final com.thinkparity.ophelia.model.artifact.InternalArtifactModel
+                artifactModel = getModelFactory(user).getArtifactModel();
+        final List<ContainerVersion> versions = new ArrayList<ContainerVersion>();
+        final List<Document> documents = new ArrayList<Document>();
+        final List<Document> allDocuments = new ArrayList<Document>();
+        for (final UUID backedUpContainerId : backedUpContainerIds) {
+            versions.clear();
+            versions.addAll(containerModel.readVersions(artifactModel.readId(
+                    backedUpContainerId)));
+            for (final ContainerVersion version : versions) {
+                documents.clear();
+                documents.addAll(containerModel.readDocuments(
+                        version.getArtifactId(), version.getVersionId()));
+                for (final Document document : documents) {
+                    if (!allDocuments.contains(document))
+                        allDocuments.add(document);
+                }
+            }
+        }
+        final List<DocumentVersion> allDocumentVersions = new ArrayList<DocumentVersion>();
+        long diskUsage = 0;
+        for (final Document document : allDocuments) {
+            allDocumentVersions.clear();
+            allDocumentVersions.addAll(documentModel.readVersions(document.getId()));
+            for (final DocumentVersion documentVersion : allDocumentVersions) {
+                diskUsage += documentVersion.getSize().longValue();
+            }
+        }
+        final Statistics statistics = new Statistics();
+        statistics.setDiskUsage(Long.valueOf(diskUsage));
+        return statistics;
+    }
+
+    /**
+     * Read the team ids implementation. If the user is a member of the team,
+     * read the team ids from the backup.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return A <code>List</code> of <code>JabberId</code>s.
+     */
+    private List<JabberId> readTeamIdsImpl(final User user, final UUID uniqueId) {
+        if (isContainerBackedUp(user, uniqueId)) {
+            final InternalModelFactory modelFactory = getModelFactory(user);
+            final Long artifactId = modelFactory.getArtifactModel().readId(uniqueId);
+            return modelFactory.getArtifactModel().readTeamIds(artifactId);
+        } else {
+            logger.logWarning("Container {0} is backed up for user {1}.",
+                    uniqueId, user.getId());
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Restore implementation.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     */
+    private void restoreImpl(final User user, final UUID uniqueId) {
+        final Artifact artifact = getArtifactModel().read(uniqueId);
+        backupSql.deleteArchive(user, artifact);
     }
 }

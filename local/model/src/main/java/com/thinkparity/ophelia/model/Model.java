@@ -50,6 +50,7 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.ophelia.model.Constants.Versioning;
+import com.thinkparity.ophelia.model.artifact.ArtifactUtil;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.InternalAuditModel;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
@@ -83,6 +84,9 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 public abstract class Model<T extends EventListener> extends
         com.thinkparity.codebase.model.AbstractModelImpl {
 
+    /** An instance of <code>ArtifactUtil<code>. */
+    protected static final ArtifactUtil ARTIFACT_UTIL;
+
     /**
 	 * Assertion message to be displayed if the username is not set in the
 	 * parity preferences.
@@ -95,6 +99,7 @@ public abstract class Model<T extends EventListener> extends
     private static final UserUtils USER_UTILS;
 
     static {
+        ARTIFACT_UTIL = ArtifactUtil.getInstance();
         USER_UTILS = UserUtils.getInstance();
     }
 

@@ -162,7 +162,8 @@ class ProfileModelImpl extends AbstractModelImpl {
 
             final Profile profile = new Profile();
             profile.setVCard(getUserModel().readVCard(userId, new ProfileVCard()));
-            profile.setFeatures(userSql.readFeatures(userId, Ophelia.PRODUCT_ID));
+            profile.setFeatures(userSql.readFeatures(user.getLocalId(),
+                    Ophelia.PRODUCT_ID));
             return inject(profile, user);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -199,7 +200,8 @@ class ProfileModelImpl extends AbstractModelImpl {
         logVariable("userId", userId);
         try {
             assertIsAuthenticatedUser(userId);
-            return userSql.readFeatures(userId, Ophelia.PRODUCT_ID);
+            final User user = read(userId);
+            return userSql.readFeatures(user.getLocalId(), Ophelia.PRODUCT_ID);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -282,7 +284,8 @@ class ProfileModelImpl extends AbstractModelImpl {
                 userSql.readProfileSecurityAnswer(userId);
             Assert.assertTrue("SECURITY ANSWER DOES NOT MATCH",
                     securityAnswer.equals(storedSecurityAnswer));
-            final Credentials credentials = userSql.readCredentials(userId);
+            final User user = userSql.read(userId);
+            final Credentials credentials = userSql.readCredentials(user.getLocalId());
             final String newPassword = PasswordGenerator.generate();
             userSql.updatePassword(userId, credentials.getPassword(), newPassword);
             return newPassword;

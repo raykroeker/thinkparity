@@ -7,6 +7,8 @@ import java.lang.reflect.Proxy;
 
 import com.thinkparity.codebase.model.ThinkParityException;
 
+import com.thinkparity.desdemona.model.backup.BackupModel;
+import com.thinkparity.desdemona.model.backup.BackupModelImpl;
 import com.thinkparity.desdemona.model.migrator.MigratorModel;
 import com.thinkparity.desdemona.model.migrator.MigratorModelImpl;
 import com.thinkparity.desdemona.model.session.Session;
@@ -76,6 +78,16 @@ public final class ModelFactory {
         super();
         this.session = session;
         this.classLoader = session.getClass().getClassLoader();
+    }
+
+    /**
+     * Obtain a backup model.
+     * 
+     * @return An instance of <code>BackupModel</code>.
+     */
+    public final BackupModel getBackupModel() {
+        return (BackupModel) newModelProxy(
+                BackupModel.class, BackupModelImpl.class);
     }
 
     /**

@@ -77,6 +77,9 @@ public class MainStatusAvatar extends Avatar {
 
     private Runnable optionalLinkRunnable;
 
+    /** Backup statistics */
+    private Statistics statistics;
+
     /**
      * Create MainStatusAvatar.
      *
@@ -100,20 +103,14 @@ public class MainStatusAvatar extends Avatar {
     }
 
     /**
-     * Clear link.
-     */
-    public void clearLink() {
-        reloadLinks();
-    }
-
-    /**
      * Fire a backup event.
      * 
      * @param e
      *            A <code>BackupEvent</code>.
      */
     public void fireBackupEvent(final BackupEvent e) {
-        reloadBackupStatistics(e.getStatistics());
+        this.statistics = e.getStatistics();
+        reloadBackupStatistics(statistics);
     }
 
     /**
@@ -515,8 +512,11 @@ public class MainStatusAvatar extends Avatar {
      */
     private void reloadBackupStatistics() {
         backupStatisticsJLabel.setText("");
-        if (isOnline() && isBackupEnabled() && isBackupOnline()) {
-            reloadBackupStatistics(readBackupStatistics());
+        if (null != statistics) {
+            reloadBackupStatistics(statistics);
+        } else if (isOnline() && isBackupEnabled() && isBackupOnline()) {
+            this.statistics = readBackupStatistics();
+            reloadBackupStatistics(statistics);
         }
     }
 

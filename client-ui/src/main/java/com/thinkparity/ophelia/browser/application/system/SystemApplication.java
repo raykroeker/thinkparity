@@ -5,15 +5,17 @@ package com.thinkparity.ophelia.browser.application.system;
 
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.Application;
-import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
+
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.http.Link;
 import com.thinkparity.codebase.model.util.http.LinkFactory;
+
+import com.thinkparity.ophelia.model.events.ContactEvent;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -32,8 +34,8 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
 import com.thinkparity.ophelia.browser.platform.util.State;
-import com.thinkparity.ophelia.model.events.ContactEvent;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -53,9 +55,6 @@ public class SystemApplication extends AbstractApplication {
 	/** The event dispatcher. */
 	private EventDispatcher ed;
 
-	/** A fuzzy date formatter. */
-    private final FuzzyDateFormat fuzzyDateFormat;
-
 	/** The application impl. */
 	private SystemApplicationImpl impl;
 
@@ -69,7 +68,6 @@ public class SystemApplication extends AbstractApplication {
 		super(platform, L18nContext.SYS_APP);
         this.actionRegistry = new ActionRegistry();
         this.applicationRegistry = new ApplicationRegistry();
-        this.fuzzyDateFormat = new FuzzyDateFormat();
 	}
 
 	/**
@@ -291,9 +289,11 @@ public class SystemApplication extends AbstractApplication {
     void fireContactIncomingInvitationCreated(final ContactEvent e) {
         final Data data = new Data(1);
         data.set(Show.DataKey.INVITATION_ID, e.getIncomingInvitation().getId());
-        final String name = getName(e.getIncomingInvitation().getExtendedBy());
-        fireNotification(ActionId.CONTACT_SHOW, data, name,
-                "Notification.ContactIncomingInvitationCreatedMessage", name);
+        fireNotification(ActionId.CONTACT_SHOW, data,
+                getString("Notification.ContactIncomingInvitationCreated.Title"), 1,
+                getString("Notification.ContactIncomingInvitationCreated.HeadingLine1"),
+                getName(e.getIncomingInvitation().getExtendedBy()),
+                null, null);
     }
 
     /**
@@ -307,23 +307,26 @@ public class SystemApplication extends AbstractApplication {
         data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.CONTAINER_ID, e.getContainer().getId());
         if (null == e.getPreviousVersion()) {
             // this is the first publish event
-            fireNotification(ActionId.CONTAINER_SHOW,
-                    data, e.getContainer().getName(),
-                    "Notification.ContainerPublishedFirstTimeMessage",
+            fireNotification(ActionId.CONTAINER_SHOW, data,
+                    getString("Notification.ContainerPublishedFirstTime.Title"), 2,
+                    getString("Notification.ContainerPublishedFirstTime.HeadingLine1"),
                     getName(e.getTeamMember()),
-                    fuzzyDateFormat.format(e.getVersion().getUpdatedOn()));
+                    getString("Notification.ContainerPublishedFirstTime.HeadingLine2"),
+                    getName(e.getContainer()));
         } else {
             // this is a subsequent publish event
-            fireNotification(ActionId.CONTAINER_SHOW,
-                    data, e.getContainer().getName(),
-                    "Notification.ContainerPublishedNotFirstTimeMessage",
+            fireNotification(ActionId.CONTAINER_SHOW, data,
+                    getString("Notification.ContainerPublishedNotFirstTime.Title"), 2,
+                    getString("Notification.ContainerPublishedNotFirstTime.HeadingLine1"),
                     getName(e.getTeamMember()),
-                    fuzzyDateFormat.format(e.getVersion().getUpdatedOn()));
+                    getString("Notification.ContainerPublishedNotFirstTime.HeadingLine2"),
+                    getName(e.getContainer()));
         }
     }
 
     /**
-     * Fire a notification message.
+     * Fire a notification message. All strings passed as parameters
+     * should be localized already.
      * 
      * @param actionId
      *            A <code>ActionId</code>.
@@ -331,17 +334,36 @@ public class SystemApplication extends AbstractApplication {
      *            The action <code>Data</code>.
      * @param title
      *            A notification title <code>String</code>.
-     * @param messageKey
-     *            A notification message key <code>String</code>.
-     * @param messageArguments
-     *            A variable length list of message argument <code>Object</code>.
+     * @param numberLines
+     *            The number of notifications lines (1 or 2) <code>int</code>.
+     * @param headingLine1
+     *            The heading <code>String</code> for line 1.
+     * @param contentLine1
+     *            The message content <code>String</code> for line 1.
+     * @param headingLine2
+     *            The heading <code>String</code> for line 2.
+     * @param contentLine2
+     *            The message content <code>String</code> for line 2.
      */
     private void fireNotification(final ActionId actionId,
-            final Data data, final String title,
-            final String messageKey, final Object... messageArguments) {
+            final Data data, final String title, final int numberLines,
+            final String headingLine1, final String contentLine1,
+            final String headingLine2, final String contentLine2) {
         impl.fireNotification(new Notification() {
-            public String getMessage() {
-                return getString(messageKey, messageArguments);
+            public String getContentLine1() {
+                return contentLine1;
+            }
+            public String getContentLine2() {
+                return contentLine2;
+            }
+            public String getHeadingLine1() {
+                return headingLine1;
+            }
+            public String getHeadingLine2() {
+                return headingLine2;
+            }
+            public int getNumberLines() {
+                return numberLines;
             }
             public String getTitle() {
                 return title;
@@ -350,6 +372,17 @@ public class SystemApplication extends AbstractApplication {
                 run(actionId, data);
             }
         });
+    }
+
+    /**
+     * Extract the name from the container.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @return The <code>Container</code>'s name.
+     */
+    private String getName(final Container container) {
+        return container.getName();
     }
 
     /**

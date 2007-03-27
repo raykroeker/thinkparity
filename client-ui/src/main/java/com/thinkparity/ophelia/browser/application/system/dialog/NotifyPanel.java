@@ -46,9 +46,6 @@ public final class NotifyPanel extends SystemPanel {
     /** The current notification index. */
     private int notificationIndex;
 
-    /** The buffer to use when displaying the notification. */
-    private final StringBuffer notificationText;
-
     /**
      * Create NotifyPanel.
      * 
@@ -57,7 +54,6 @@ public final class NotifyPanel extends SystemPanel {
         super();
         initComponents();
         this.notificationIndex = 0;
-        this.notificationText = new StringBuffer();
         bindEscapeKey("Close", new AbstractAction() {
             public void actionPerformed(final ActionEvent e) {
                 closeNotifyPanel();
@@ -126,12 +122,11 @@ public final class NotifyPanel extends SystemPanel {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        closeJButton = new javax.swing.JButton();
-        logoJLabel = new javax.swing.JLabel();
-        notificationTitleJPanel = new javax.swing.JPanel();
-        notificationTitleJLabel = LabelFactory.createLink("",Fonts.DefaultFontBold);
-        notificationTitleFillerJLabel = new javax.swing.JLabel();
-        controlJPanel = new javax.swing.JPanel();
+        final javax.swing.JButton closeJButton = new javax.swing.JButton();
+        final javax.swing.JLabel logoJLabel = new javax.swing.JLabel();
+        final javax.swing.JPanel notificationTitleJPanel = new javax.swing.JPanel();
+        final javax.swing.JLabel notificationTitleFillerJLabel = new javax.swing.JLabel();
+        final javax.swing.JPanel controlJPanel = new javax.swing.JPanel();
         final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
 
         setOpaque(false);
@@ -184,8 +179,15 @@ public final class NotifyPanel extends SystemPanel {
         gridBagConstraints.weighty = 1.0;
         notificationTitleJPanel.add(notificationTitleFillerJLabel, gridBagConstraints);
 
-        notificationJLabel.setText("!Notification text!");
-        notificationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        headingLine1JLabel.setText("!Head 1!");
+
+        contentLine1JLabel.setText("!Notification text 1!");
+        contentLine1JLabel.setPreferredSize(new java.awt.Dimension(170, 14));
+
+        headingLine2JLabel.setText("!Head 2!");
+
+        contentLine2JLabel.setText("!Notification text 2!");
+        contentLine2JLabel.setPreferredSize(new java.awt.Dimension(170, 14));
 
         controlJPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -240,18 +242,23 @@ public final class NotifyPanel extends SystemPanel {
                 .add(logoJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 24, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(layout.createSequentialGroup()
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(controlJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
                         .add(6, 6, 6)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(layout.createSequentialGroup()
-                                .add(notificationTitleJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 185, Short.MAX_VALUE)
+                                .add(notificationTitleJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(closeJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(layout.createSequentialGroup()
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                    .add(headingLine2JLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .add(headingLine1JLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(notificationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE))))
-                    .add(layout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(controlJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)))
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                                    .add(contentLine2JLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
+                                    .add(org.jdesktop.layout.GroupLayout.LEADING, contentLine1JLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE))))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -265,8 +272,14 @@ public final class NotifyPanel extends SystemPanel {
                             .add(closeJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(notificationTitleJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(notificationJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 37, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(headingLine1JLabel)
+                            .add(contentLine1JLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(headingLine2JLabel)
+                            .add(contentLine2JLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(9, 9, 9)
                         .add(controlJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
@@ -287,6 +300,27 @@ public final class NotifyPanel extends SystemPanel {
         }
         return false;
     }
+
+    /**
+     * Determine if there is text in the first line of the notification.
+     * 
+     * @return true if there is text in the first line of the notification.
+     */
+    private boolean isNotificationLine1() {
+        return (notificationIndex >= 0 && notificationIndex < NOTIFICATIONS.size() &&
+                NOTIFICATIONS.get(notificationIndex).getNumberLines() > 0);
+    }
+
+    /**
+     * Determine if there is text in the second line of the notification.
+     * 
+     * @return true if there is text in the second line of the notification.
+     */
+    private boolean isNotificationLine2() {
+        return (notificationIndex >= 0 && notificationIndex < NOTIFICATIONS.size() &&
+                NOTIFICATIONS.get(notificationIndex).getNumberLines() > 1);
+    }
+
     /**
      * Determine if the previous button should be enabled.
      * 
@@ -331,7 +365,10 @@ public final class NotifyPanel extends SystemPanel {
         reloadNext();
         reloadPrevious();
         reloadNotificationTitle();
-        reloadNotification();
+        reloadNotificationHeadingLine1();
+        reloadNotificationContentLine1();
+        reloadNotificationHeadingLine2();
+        reloadNotificationContentLine2();
     }
 
     /**
@@ -356,18 +393,58 @@ public final class NotifyPanel extends SystemPanel {
     }
 
     /**
-     * Reload the notififcation text.
-     *
+     * Reload the content for the first line of the notification.
      */
-    private void reloadNotification() {
-        if (notificationIndex >= 0 && notificationIndex < NOTIFICATIONS.size()) {
-            notificationText.setLength(0);
-            notificationText.append("<html>")
-                .append(NOTIFICATIONS.get(notificationIndex).getMessage())
-                .append("</html>");
-            notificationJLabel.setText(notificationText.toString());
+    private void reloadNotificationContentLine1() {
+        Assert.assertNotNull("Null graphics in notification panel.",
+                contentLine1JLabel.getGraphics());
+        if (isNotificationLine1()) {
+            final String clippedContent = SwingUtil.limitWidthWithEllipsis(
+                    NOTIFICATIONS.get(notificationIndex).getContentLine1(),
+                    contentLine1JLabel.getPreferredSize().width,
+                    contentLine1JLabel.getGraphics());
+            contentLine1JLabel.setText(clippedContent);
         } else {
-            notificationJLabel.setText(" ");
+            contentLine1JLabel.setText(" ");
+        }
+    }
+
+    /**
+     * Reload the content for the second line of the notification.
+     */
+    private void reloadNotificationContentLine2() {
+        Assert.assertNotNull("Null graphics in notification panel.",
+                contentLine2JLabel.getGraphics());
+        if (isNotificationLine2()) {
+            final String clippedContent = SwingUtil.limitWidthWithEllipsis(
+                    NOTIFICATIONS.get(notificationIndex).getContentLine2(),
+                    contentLine2JLabel.getPreferredSize().width,
+                    contentLine2JLabel.getGraphics());
+            contentLine2JLabel.setText(clippedContent);
+        } else {
+            contentLine2JLabel.setText(" ");
+        }
+    }
+
+    /**
+     * Reload the heading for the first line of the notification.
+     */
+    private void reloadNotificationHeadingLine1() {
+        if (isNotificationLine1()) {
+            headingLine1JLabel.setText(NOTIFICATIONS.get(notificationIndex).getHeadingLine1());
+        } else {
+            headingLine1JLabel.setText(" ");
+        }
+    }
+
+    /**
+     * Reload the heading for the second line of the notification.
+     */
+    private void reloadNotificationHeadingLine2() {
+        if (isNotificationLine2()) {
+            headingLine2JLabel.setText(NOTIFICATIONS.get(notificationIndex).getHeadingLine2());
+        } else {
+            headingLine2JLabel.setText(" ");
         }
     }
 
@@ -397,15 +474,13 @@ public final class NotifyPanel extends SystemPanel {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton closeJButton;
-    private javax.swing.JPanel controlJPanel;
+    private final javax.swing.JLabel contentLine1JLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel contentLine2JLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel countJLabel = new javax.swing.JLabel();
-    private javax.swing.JLabel logoJLabel;
+    private final javax.swing.JLabel headingLine1JLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel headingLine2JLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel nextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JLabel notificationJLabel = new javax.swing.JLabel();
-    private javax.swing.JLabel notificationTitleFillerJLabel;
-    private javax.swing.JLabel notificationTitleJLabel;
-    private javax.swing.JPanel notificationTitleJPanel;
+    private final javax.swing.JLabel notificationTitleJLabel = LabelFactory.createLink("",Fonts.DefaultFontBold);
     private final javax.swing.JLabel previousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     // End of variables declaration//GEN-END:variables
 }

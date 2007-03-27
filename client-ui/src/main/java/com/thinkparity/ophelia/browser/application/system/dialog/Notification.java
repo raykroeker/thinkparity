@@ -8,7 +8,11 @@ package com.thinkparity.ophelia.browser.application.system.dialog;
  * @version 1.1
  */
 public interface Notification {
-    public String getMessage();
+    public String getContentLine1();
+    public String getContentLine2();
+    public String getHeadingLine1();
+    public String getHeadingLine2();
+    public int getNumberLines();
     public String getTitle();
     public void invokeAction();
 }

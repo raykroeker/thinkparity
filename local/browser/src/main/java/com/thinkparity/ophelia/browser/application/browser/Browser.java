@@ -165,8 +165,7 @@ public class Browser extends AbstractApplication {
      * 
      */
     public void clearStatusLink() {
-        final Data input = new Data(0);
-        setInput(AvatarId.MAIN_STATUS, input);
+        getStatusAvatar().clearLink();
     }
 
     /** Close the main window. */

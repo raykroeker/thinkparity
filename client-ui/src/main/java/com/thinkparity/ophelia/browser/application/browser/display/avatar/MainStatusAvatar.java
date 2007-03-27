@@ -100,6 +100,13 @@ public class MainStatusAvatar extends Avatar {
     }
 
     /**
+     * Clear link.
+     */
+    public void clearLink() {
+        reloadLinks();
+    }
+
+    /**
      * Fire a backup event.
      * 
      * @param e

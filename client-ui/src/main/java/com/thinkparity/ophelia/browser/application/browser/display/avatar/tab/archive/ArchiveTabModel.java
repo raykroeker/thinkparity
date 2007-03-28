@@ -31,6 +31,8 @@ import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
 import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterBy;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
@@ -53,7 +55,7 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
  * @version 1.1.2.1
  */
 public final class ArchiveTabModel extends TabPanelModel<Long> implements
-        TabAvatarSortByDelegate {
+        TabAvatarSortByDelegate, TabAvatarFilterDelegate {
 
     /** A session key for the draft monitor. */
     private static final String SK_DRAFT_MONITOR;
@@ -89,6 +91,15 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate#getFilterBy()
+     */
+    public List<TabAvatarFilterBy> getFilterBy() {
+        checkThread();
+        final List<TabAvatarFilterBy> filterBy = Collections.emptyList();
+        return filterBy;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate#getSortedBy()
      *
      */
@@ -113,6 +124,13 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
             });
         }
         return sortBy;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate#isFilterApplied()
+     */
+    public Boolean isFilterApplied() {
+        return Boolean.FALSE;
     }
 
     /**

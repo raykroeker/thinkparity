@@ -229,11 +229,7 @@ public final class Constants {
             public static final BufferedImage DIALOG_BOTTOM_LEFT =
                 ImageIOUtil.read("DialogBottomLeft.png");
             public static final BufferedImage DIALOG_BOTTOM_RIGHT =
-                ImageIOUtil.read("DialogBottomRight.png");   
-            public static final BufferedImage HALO =
-                ImageIOUtil.read("BrowserTitle_SearchHalo.png");
-            public static final BufferedImage SEARCH_BACKGROUND =
-                ImageIOUtil.read("BrowserTitle_SearchBackground.png");
+                ImageIOUtil.read("DialogBottomRight.png");
             public static final BufferedImage LOGO =
                 ImageIOUtil.read("thinkParityLogo.png");
         }

@@ -32,6 +32,7 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
         super(AvatarId.TAB_ARCHIVE, new ArchiveTabModel());
         model.setLocalization(getLocalization());
         model.setSession(getSession());
+        setFilterDelegate(model);
         setSortByDelegate(model);
         addPropertyChangeListener("eventDispatcher",
                 new PropertyChangeListener() {

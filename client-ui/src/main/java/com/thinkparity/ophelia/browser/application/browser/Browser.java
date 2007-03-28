@@ -50,6 +50,8 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameDocumentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.archive.ArchiveTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabAvatar;
@@ -653,6 +655,17 @@ public class Browser extends AbstractApplication {
      */
     public Connection getConnection() {
         return connection;
+    }
+
+    /**
+     * Get the filter delegate for the selected tab avatar.
+     * 
+     * @param tabId
+     *            A <code>MainTitleAvatar.TabId</code>.
+     * @return A <code>TabAvatarFilterDelegate</code>.
+     */
+    public TabAvatarFilterDelegate getFilterDelegate(final MainTitleAvatar.TabId tabId) {
+        return getTabAvatar(tabId).getFilterDelegate();
     }
 
     /**
@@ -1969,6 +1982,27 @@ public class Browser extends AbstractApplication {
      */
     private ArchiveTabAvatar getTabArchiveAvatar() {
         return (ArchiveTabAvatar) getAvatar(AvatarId.TAB_ARCHIVE);
+    }
+
+    /**
+     * Obtain the selected tab avatar.
+     * 
+     * @param tabId
+     *            A <code>MainTitleAvatar.TabId</code>.
+     * @return A <code>TabPanelAvatar</code>.
+     */
+    private TabPanelAvatar getTabAvatar(final MainTitleAvatar.TabId tabId) {
+        switch(tabId) {
+        case ARCHIVE:
+            return getTabArchiveAvatar();
+        case CONTACT:
+            return getTabContactAvatar();
+        case CONTAINER:
+            return getTabContainerAvatar();
+        default:
+            Assert.assertUnreachable("Unknown main title tab id.");
+        }
+        return null;
     }
 
     /**

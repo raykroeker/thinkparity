@@ -16,6 +16,8 @@ import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.filter.Filter;
+import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.sort.DefaultComparator;
 import com.thinkparity.codebase.sort.StringComparator;
@@ -33,6 +35,8 @@ import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
 import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterBy;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
@@ -50,14 +54,18 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
  * @version 1.1.2.4
  */
 public final class ContainerTabModel extends TabPanelModel<Long> implements
-        TabAvatarSortByDelegate {
+        TabAvatarSortByDelegate, TabAvatarFilterDelegate {
 
     /** A session key for the draft monitor. */
     private static final String SK_DRAFT_MONITOR;
 
+    /** A filter by persistence key */
+    private static final String FILTER_BY_PERSISTENCE_KEY;
+
     static {
         SK_DRAFT_MONITOR = new StringBuffer(ContainerTabModel.class.getName())
             .append("#ContainerDraftMonitor").toString();
+        FILTER_BY_PERSISTENCE_KEY = "filter";
     }
 
     /** A <code>ContainerTabActionDelegate</code>. */
@@ -68,6 +76,9 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
 
     /** The browser controller's display helper. */
     private final ContainerTabImportHelper containerTabImportHelper;
+
+    /** The current filter. */
+    private Filter<TabPanel> filterBy;
 
     /** A <code>ContainerTabPopupDelegate</code>. */
     private final ContainerTabPopupDelegate popupDelegate;
@@ -90,6 +101,29 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate#getFilterBy()
+     */
+    public List<TabAvatarFilterBy> getFilterBy() {
+        checkThread();
+        final List<TabAvatarFilterBy> filterBy = new ArrayList<TabAvatarFilterBy>();
+        for (final FilterBy filterByValue : FilterBy.values()) {
+            filterBy.add(new TabAvatarFilterBy() {
+                public Action getAction() {
+                    return new AbstractAction() {
+                        public void actionPerformed(final ActionEvent e) {
+                            applyFilter(filterByValue);
+                        }
+                    };
+                }
+                public String getText() {
+                    return getString(filterByValue);
+                }
+            });
+        }
+        return filterBy;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate#getSortedBy()
      *
      */
@@ -102,6 +136,11 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
                     return new AbstractAction() {
                         public void actionPerformed(final ActionEvent e) {
                             applySort(sortByValue);
+                            if (sortByValue.equals(SortBy.BOOKMARK)) {
+                                applyFilter(FilterBy.FILTER_BOOKMARK);
+                            } else {
+                                applyFilter(FilterBy.FILTER_NONE);
+                            }
                         }
                     };
                 }
@@ -114,6 +153,13 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
             });
         }
         return sortBy;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate#isFilterApplied()
+     */
+    public Boolean isFilterApplied() {
+        return (null != filterBy && !filterBy.equals(FilterBy.FILTER_NONE));
     }
 
     /**
@@ -131,6 +177,17 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         }
         
         super.toggleExpansion(containerPanel, animate);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applyFilter()
+     */
+    @Override
+    protected void applyFilter() {
+        checkThread();
+        if (isFilterApplied()) {
+            FilterManager.filter(filteredPanels, filterBy);
+        }
     }
 
     /**
@@ -231,6 +288,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         for (final Container container : containers) {
             addContainerPanel(container);
         }
+        applyFilter(getInitialFilter());
         applySort(getInitialSort());
         debug();
     }
@@ -454,6 +512,19 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Apply a filter to the panels.
+     * 
+     * @param filterBy
+     *            A <code>FilterBy</code>.
+     */
+    private void applyFilter(final FilterBy filterBy) {
+        debug();
+        this.filterBy = filterBy;
+        persistence.set(FILTER_BY_PERSISTENCE_KEY, filterBy);
+        synchronize();
+    }
+
+    /**
      * Apply an ordering to the panels.
      * 
      * @param sortBy
@@ -491,7 +562,18 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
             final ContainerDraftListener listener) {
         return ((ContainerProvider) contentProvider).getDraftMonitor(containerId, listener);
     }
-    
+
+    /**
+     * Get the initial filter from persistence.
+     * 
+     * @return A <code>FilterBy</code>.
+     */
+    private FilterBy getInitialFilter() {
+        // TODO figure out why this double cast needs to happen
+        final FilterBy filterBy = (FilterBy)(Filter<TabPanel>)persistence.get(FILTER_BY_PERSISTENCE_KEY, FilterBy.FILTER_NONE);
+        return filterBy;
+    }
+
     /**
      * Get the initial sort from persistence.
      * 
@@ -530,6 +612,17 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         } else {
             return SortDirection.NONE;
         }
+    }
+
+    /**
+     * Obtain a localized string for a filter.
+     * 
+     * @param filterBy
+     *            A <code>FilterBy</code>.
+     * @return A localized <code>String</code>.
+     */
+    private String getString(final FilterBy filterBy) {
+        return localization.getString(filterBy);
     }
 
     /**
@@ -890,6 +983,29 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
             });
         }
         return panel;
+    }
+
+    /** An enumerated type defining the tab panel filtering. */
+    private enum FilterBy implements Filter<TabPanel> {
+        FILTER_BOOKMARK, FILTER_DRAFT_OWNER, FILTER_NONE;
+
+        /**
+         * @see com.thinkparity.codebase.filter.Filter#doFilter(java.lang.Object)
+         */
+        public Boolean doFilter(final TabPanel o) {
+            final ContainerPanel panel = (ContainerPanel) o;
+            // Items flagged true are removed.
+            switch (this) {
+            case FILTER_BOOKMARK:
+                return !panel.getContainer().isBookmarked();
+            case FILTER_DRAFT_OWNER:
+                return !panel.isLocalDraft();
+            case FILTER_NONE:
+                return Boolean.FALSE;
+            default:
+                return false;
+            }
+        }
     }
 
     /** An enumerated type defining the tab panel ordering. */

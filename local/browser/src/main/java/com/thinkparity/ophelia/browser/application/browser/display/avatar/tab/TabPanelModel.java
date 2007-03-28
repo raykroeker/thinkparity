@@ -270,12 +270,12 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
         doToggleExpansion(tabPanel, animate);
         synchronize();
     }
-    
+
     /**
-     * Apply a series of filters on the panels.
-     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySearchFilter()
      */
-    protected void applyFilters() {
+    @Override
+    protected void applySearchFilter() {
         checkThread();
         filteredPanels.clear();
         if (isSearchApplied()) {
@@ -293,7 +293,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
             filteredPanels.addAll(panels);
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySearch(java.lang.String)
      *
@@ -310,7 +310,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
             synchronize();
         }
     }
-    
+
     /**
      * Clear all panels.
      *
@@ -319,7 +319,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
         checkThread();
         panels.clear();
     }
-       
+
     /**
      * Toggle the expansion of a single panel.
      * 
@@ -482,7 +482,8 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     protected void synchronizeImpl() {
         checkThread();
         debug();
-        applyFilters();
+        applySearchFilter();
+        applyFilter();
         applySort();
         /* add the filtered panels the visibility list */
         visiblePanels.clear();

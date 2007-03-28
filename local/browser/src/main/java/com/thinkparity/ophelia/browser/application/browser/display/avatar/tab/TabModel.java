@@ -95,10 +95,16 @@ public abstract class TabModel implements TabDelegate {
     protected void applyConnection(final Connection connection) {}
 
     /**
-     * Apply a series of filters on the panels.
+     * Apply a filter on the panel.
      * 
      */
-    protected void applyFilters() {}
+    protected void applyFilter() {}
+
+    /**
+     * Apply a search filter on the panel.
+     * 
+     */
+    protected void applySearchFilter() {}
 
     /**
      * Apply an ordering to the tab.

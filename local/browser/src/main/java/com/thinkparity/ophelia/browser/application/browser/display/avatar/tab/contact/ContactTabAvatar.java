@@ -29,6 +29,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
         super(AvatarId.TAB_CONTACT, new ContactTabModel());
         model.setLocalization(getLocalization());
         model.setSession(getSession());
+        setFilterDelegate(model);
         setSortByDelegate(model);
     }
 

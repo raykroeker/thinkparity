@@ -35,6 +35,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
         super(AvatarId.TAB_CONTAINER, new ContainerTabModel());
         model.setLocalization(getLocalization());
         model.setSession(getSession());
+        setFilterDelegate(model);
         setSortByDelegate(model);
         addPropertyChangeListener("eventDispatcher",
                 new PropertyChangeListener() {

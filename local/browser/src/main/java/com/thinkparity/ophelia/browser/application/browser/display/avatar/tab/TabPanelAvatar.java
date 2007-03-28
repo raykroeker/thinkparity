@@ -61,6 +61,9 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
      */
     private final GridBagConstraints fillConstraints;
 
+    /** A <code>TabAvatarFilterDelegate</code>. */
+    private TabAvatarFilterDelegate filterDelegate;
+
     /** The set of <code>GridBagConstraints</code> used when adding a panel. */
     private final GridBagConstraints panelConstraints;
 
@@ -167,6 +170,15 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
     }
 
     /**
+     * Obtain the filter delegate.
+     *
+     * @return A <code>TabAvatarFilterDelegate</code>.
+     */
+    public TabAvatarFilterDelegate getFilterDelegate() {
+        return filterDelegate;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatar#reload()
      * 
      */
@@ -191,6 +203,16 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
      */
     protected TabAvatarSortByDelegate getSortByDelegate() {
         return sortByDelegate;
+    }
+
+    /**
+     * Set the filter delegate.
+     *
+     * @param filterDelegate
+     *            A <code>TabAvatarFilterDelegate</code>.
+     */
+    protected void setFilterDelegate(final TabAvatarFilterDelegate filterDelegate) {
+        this.filterDelegate = filterDelegate;
     }
 
     /**
@@ -314,46 +336,28 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
         java.awt.GridBagConstraints gridBagConstraints;
 
         final javax.swing.JPanel headerJPanel = new javax.swing.JPanel();
-        final javax.swing.JLabel paddingJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel orderByJLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
 
-        headerJPanel.setLayout(new java.awt.GridBagLayout());
-
-        headerJPanel.setMaximumSize(new java.awt.Dimension(5000, 19));
-        headerJPanel.setMinimumSize(new java.awt.Dimension(128, 19));
+        headerJPanel.setMaximumSize(new java.awt.Dimension(5000, 1));
+        headerJPanel.setMinimumSize(new java.awt.Dimension(128, 1));
         headerJPanel.setOpaque(false);
-        headerJPanel.setPreferredSize(new java.awt.Dimension(128, 19));
-        paddingJLabel.setFocusable(false);
-        paddingJLabel.setMaximumSize(new java.awt.Dimension(4, 20));
-        paddingJLabel.setMinimumSize(new java.awt.Dimension(4, 20));
-        paddingJLabel.setPreferredSize(new java.awt.Dimension(4, 20));
+        headerJPanel.setPreferredSize(new java.awt.Dimension(128, 1));
+        org.jdesktop.layout.GroupLayout headerJPanelLayout = new org.jdesktop.layout.GroupLayout(headerJPanel);
+        headerJPanel.setLayout(headerJPanelLayout);
+        headerJPanelLayout.setHorizontalGroup(
+            headerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 481, Short.MAX_VALUE)
+        );
+        headerJPanelLayout.setVerticalGroup(
+            headerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 1, Short.MAX_VALUE)
+        );
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        headerJPanel.add(paddingJLabel, gridBagConstraints);
-
-        orderByJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/SortButton.png")));
-        orderByJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                orderByJLabelMousePressed(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        headerJPanel.add(orderByJLabel, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(3, 0, 3, 4);
+        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
         add(headerJPanel, gridBagConstraints);
 
         tabJScrollPane.setBorder(null);
@@ -424,19 +428,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
                 reloadPanels();
             } 
         });
-    }    
-    private void orderByJLabelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_orderByJLabelMousePressed
-        if (null != sortByDelegate) {
-            final javax.swing.JLabel orderByJLabel = (javax.swing.JLabel) e.getSource();
-            orderByJLabel.requestFocusInWindow();
-            final TabAvatarSortByPanel sortByPanel = new TabAvatarSortByPanel();
-            sortByPanel.setDelegate(sortByDelegate);
-            // The sortByPanel is shown slightly below the button
-            sortByPanel.show(this, orderByJLabel.getX(),
-                    orderByJLabel.getY() + orderByJLabel.getHeight() + 3);
-        }
-    }//GEN-LAST:event_orderByJLabelMousePressed
-    
+    }        
     /**
      * Redispatch events to the destination component.
      * 

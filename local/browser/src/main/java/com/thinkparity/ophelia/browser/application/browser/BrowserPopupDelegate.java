@@ -15,7 +15,7 @@ import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 public class BrowserPopupDelegate extends DefaultPopupDelegate {
 
     /**
-     * Create a BrowserPopupHelper.
+     * Create a BrowserPopupDelegate.
      */
     public BrowserPopupDelegate() {
         super();
@@ -29,7 +29,7 @@ public class BrowserPopupDelegate extends DefaultPopupDelegate {
         prepareMenu();
         super.show();
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForVersion(com.thinkparity.codebase.model.container.ContainerVersion,
      *      java.util.Map, java.util.Map,

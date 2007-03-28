@@ -10,19 +10,25 @@ import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
+import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.TopBottomBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
-import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.Constants.Search;
 import com.thinkparity.ophelia.browser.application.browser.BrowserPopupHelper;
+import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar.TabId;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
+import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
 /**
  *
@@ -33,19 +39,64 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
+    /** The <code>BufferedImage</code> for the halo. */
+    public static final BufferedImage HALO;
+
+    /** The <code>BufferedImage</code> for the search background. */
+    public static final BufferedImage SEARCH_BACKGROUND;
+
+    /** The <code>BufferedImage</code> for the search left. */
+    private static final ImageIcon SEARCH_LEFT;
+
+    /** The <code>BufferedImage</code> for the search left when active (menu available). */
+    private static final ImageIcon SEARCH_LEFT_ACTIVE;
+
+    /** The <code>BufferedImage</code> for the search left when a filter is active. */
+    private static final ImageIcon SEARCH_LEFT_FILTERING;
+
+    /** The <code>BufferedImage</code> for the search left during rollover. */
+    private static final ImageIcon SEARCH_LEFT_ROLLOVER;
+
+    static {
+        HALO = ImageIOUtil.read("BrowserTitle_SearchHalo.png");
+        SEARCH_BACKGROUND = ImageIOUtil.read("BrowserTitle_SearchBackground.png");
+        SEARCH_LEFT = ImageIOUtil.readIcon("BrowserTitle_SearchLeft.png");
+        SEARCH_LEFT_ACTIVE = ImageIOUtil.readIcon("BrowserTitle_SearchLeftActive.png");
+        SEARCH_LEFT_FILTERING = ImageIOUtil.readIcon("BrowserTitle_SearchLeftFiltering.png");
+        SEARCH_LEFT_ROLLOVER = ImageIOUtil.readIcon("BrowserTitle_SearchLeftRollover.png");
+    }
+
     /** The search activation timer. */
     private Timer searchActivationTimer;
-    
+
+    /** The filter delegate. */
+    private TabAvatarFilterDelegate filterDelegate;
+
+    /** The filter popup delegate. */
+    private final FilterPopupDelegate filterPopupDelegate;
+
     /** Flag indicating the user pressed the mouse in the text area */
     private Boolean userActivated = Boolean.FALSE;
-    
+
     /** Creates new form BrowserTitleSearch */
     public MainTitleAvatarSearchPanel() {
         super();
+        this.filterPopupDelegate = new FilterPopupDelegate();
         initComponents();
         addMoveListener(this);
         new BrowserPopupHelper().addPopupListener(this);
-        new Resizer(getBrowser(), this, Boolean.FALSE, Resizer.ResizeEdges.RIGHT);       
+        new Resizer(getBrowser(), this, Boolean.FALSE, Resizer.ResizeEdges.RIGHT);     
+    }
+
+    /**
+     * Reload the tab filter.
+     * 
+     * @param tabId
+     *            A tab.
+     */
+    public void reloadTabFilter(final TabId tabId) {
+        filterDelegate = getBrowser().getFilterDelegate(tabId);
+        setFilterIcon(Boolean.FALSE);
     }
 
     /**
@@ -58,10 +109,10 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         try {
             if (userActivated) {
                 final Point leftLocation = leftJLabel.getLocation();
-                g2.drawImage(Images.BrowserTitle.HALO, leftLocation.x - 1, leftLocation.y - 1, null);
+                g2.drawImage(HALO, leftLocation.x - 1, leftLocation.y - 1, null);
             } else {
                 final Point leftLocation = searchJTextField.getLocation();
-                g2.drawImage(Images.BrowserTitle.SEARCH_BACKGROUND, leftLocation.x, leftLocation.y + 1, null);   
+                g2.drawImage(SEARCH_BACKGROUND, leftLocation.x, leftLocation.y + 1, null); 
             }
         } finally {
             g2.dispose();
@@ -77,6 +128,16 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
                 SwingUtil.extract(searchJTextField));
     }
 
+    /**
+     * Get the filter menu width.
+     * 
+     * @return The filter menu width <code>int</code>.
+     */
+    private int getFilterMenuWidth() {
+        // The menu width is slightly less than the width of the search control.
+        return leftJLabel.getWidth() + rightJLabel.getWidth() + searchJTextField.getWidth() - 2;
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -85,9 +146,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
-        javax.swing.JLabel rightJLabel;
 
-        rightJLabel = new javax.swing.JLabel();
         searchJTextField = new javax.swing.JTextField();
         searchJTextField.setBorder(new TopBottomBorder(Colors.Browser.MainTitle.SEARCH_OUTLINE));
         searchJTextField.getDocument().addDocumentListener(new DocumentListener() {
@@ -101,7 +160,6 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
                 searchJTextFieldRemoveUpdate(e);
             }
         });
-        leftJLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -154,6 +212,18 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
 
         leftJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_SearchLeft.png")));
         leftJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        leftJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                leftJLabelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                leftJLabelMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                leftJLabelMousePressed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -163,6 +233,29 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         add(leftJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Determine if the filter is active for this tab.
+     * 
+     * @return true if the filter is active for this tab.
+     */
+    private boolean isFilterActive() {
+        return !filterDelegate.getFilterBy().isEmpty();
+    }
+
+    private void leftJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_leftJLabelMousePressed
+        if (isFilterActive() && !MenuFactory.isPopupMenu()) {
+            showFilterMenu();
+        }
+    }//GEN-LAST:event_leftJLabelMousePressed
+
+    private void leftJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_leftJLabelMouseExited
+        setFilterIcon(Boolean.FALSE);
+    }//GEN-LAST:event_leftJLabelMouseExited
+
+    private void leftJLabelMouseEntered(java.awt.event.MouseEvent evt) {                                        
+        setFilterIcon(Boolean.TRUE);
+    }                                                                          
 
     private void searchJTextFieldMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_searchJTextFieldMousePressed
         userActivated = Boolean.TRUE;
@@ -197,7 +290,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         // NOTE Perhaps reconsider this approach if we need to tab to this control.
         searchJTextField.getCaret().setVisible(userActivated);
     }//GEN-LAST:event_searchJTextFieldFocusGained
-    
+
     /**
      * When the search text field's document is updated; initialize a timer to
      * run the search after a delay. Each update to the text field's document
@@ -257,8 +350,43 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         searchFieldUpdated(e);
     }
 
+    /**
+     * Set the appropriate filter icon.
+     * 
+     * @param mouseOver
+     *            A mouse rollover <code>Boolean</code>.
+     */
+    private void setFilterIcon(final Boolean mouseOver) {
+        Assert.assertNotNull("Null filter delegate in search avatar.", filterDelegate);
+        if (!isFilterActive()) {
+            leftJLabel.setIcon(SEARCH_LEFT);
+        } else if (mouseOver) {
+            leftJLabel.setIcon(SEARCH_LEFT_ROLLOVER);
+        } else if (filterDelegate.isFilterApplied()) {
+            leftJLabel.setIcon(SEARCH_LEFT_FILTERING);
+        } else {
+            leftJLabel.setIcon(SEARCH_LEFT_ACTIVE);
+        }
+    }
+
+    /**
+     * Show the filter menu.
+     */
+    private void showFilterMenu() {
+        filterPopupDelegate.setFilterDelegate(filterDelegate);
+        filterPopupDelegate.setFilterMenuWidth(getFilterMenuWidth());
+        filterPopupDelegate.setFilterActionComplete(new Runnable() {
+            public void run() {
+                setFilterIcon(Boolean.FALSE);
+            }
+        });
+        filterPopupDelegate.initialize(this, leftJLabel.getX(), leftJLabel.getY() + leftJLabel.getHeight());
+        filterPopupDelegate.show();
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel leftJLabel;
+    private final javax.swing.JLabel leftJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel rightJLabel = new javax.swing.JLabel();
     private javax.swing.JTextField searchJTextField;
     // End of variables declaration//GEN-END:variables
 }

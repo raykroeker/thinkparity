@@ -28,6 +28,8 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterBy;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
@@ -45,7 +47,7 @@ import com.thinkparity.ophelia.browser.platform.Platform.Connection;
  * @version 1.1.2.1
  */
 public final class ContactTabModel extends TabPanelModel<ContactPanelId> implements
-        TabAvatarSortByDelegate {
+        TabAvatarSortByDelegate, TabAvatarFilterDelegate {
 
     /** The <code>ContactTabActionDelegate</code>. */
     private final ContactTabActionDelegate actionDelegate;    
@@ -76,6 +78,15 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate#getFilterBy()
+     */
+    public List<TabAvatarFilterBy> getFilterBy() {
+        checkThread();
+        final List<TabAvatarFilterBy> filterBy = Collections.emptyList();
+        return filterBy;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate#getSortBy()
      *
      */
@@ -100,6 +111,13 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             });
         }
         return sortBy;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate#isFilterApplied()
+     */
+    public Boolean isFilterApplied() {
+        return Boolean.FALSE;
     }
 
     /**

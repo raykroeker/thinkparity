@@ -169,10 +169,6 @@ public class MainTitleAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatarSearchPanel searchPanel;
-
-        searchPanel = new com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatarSearchPanel();
-        tabPanel = new com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatarTabPanel();
 
         searchPanel.setMainTitleAvatar(this);
 
@@ -219,6 +215,7 @@ public class MainTitleAvatar extends Avatar {
             default:
                 Assert.assertUnreachable("UNKNOWN TAB");
             }
+            searchPanel.reloadTabFilter(tabId);
         } else {
             final TabListExtension tabListExtension = getInputTabListExtension();
             if (null != tabListExtension) {
@@ -234,7 +231,8 @@ public class MainTitleAvatar extends Avatar {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatarTabPanel tabPanel;
+    private final com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatarSearchPanel searchPanel = new com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatarSearchPanel();
+    private final com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatarTabPanel tabPanel = new com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatarTabPanel();
     // End of variables declaration//GEN-END:variables
 
     public enum DataKey { PROFILE, TAB_ID, TAB_LIST_EXTENSION, TAB_PANEL_EXTENSION }

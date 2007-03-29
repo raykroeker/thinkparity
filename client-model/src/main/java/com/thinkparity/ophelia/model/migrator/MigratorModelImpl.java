@@ -272,7 +272,8 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      *
      */
     public Boolean isReleaseInitialized() {
-        return migratorIO.isReleaseInitialized(readRelease());
+        return Boolean.TRUE;
+        //return migratorIO.isReleaseInitialized(readRelease());
     }
 
     /**

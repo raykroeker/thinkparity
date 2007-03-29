@@ -91,7 +91,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate#getFilterBy()
      */
     public List<TabAvatarFilterBy> getFilterBy() {
-        checkThread();
         final List<TabAvatarFilterBy> filterBy = Collections.emptyList();
         return filterBy;
     }

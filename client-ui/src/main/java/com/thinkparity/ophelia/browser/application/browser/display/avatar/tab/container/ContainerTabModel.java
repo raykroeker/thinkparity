@@ -98,7 +98,6 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate#getFilterBy()
      */
     public List<TabAvatarFilterBy> getFilterBy() {
-        checkThread();
         final List<TabAvatarFilterBy> filterBy = new ArrayList<TabAvatarFilterBy>();
         for (final FilterBy filterByValue : FilterBy.values()) {
             filterBy.add(new TabAvatarFilterBy() {

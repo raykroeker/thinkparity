@@ -73,7 +73,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate#getFilterBy()
      */
     public List<TabAvatarFilterBy> getFilterBy() {
-        checkThread();
         final List<TabAvatarFilterBy> filterBy = Collections.emptyList();
         return filterBy;
     }

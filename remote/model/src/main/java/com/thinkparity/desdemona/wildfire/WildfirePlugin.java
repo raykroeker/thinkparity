@@ -16,6 +16,7 @@ import com.thinkparity.codebase.config.ConfigFactory;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.desdemona.model.Version;
+import com.thinkparity.desdemona.model.backup.BackupService;
 import com.thinkparity.desdemona.model.stream.StreamModel;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 import com.thinkparity.desdemona.wildfire.util.PersistenceManager;
@@ -534,7 +535,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      *
      */
     private void startBackupService() {
-//        BackupService.getInstance().start();
+        BackupService.getInstance().start();
     }
 
     /**
@@ -558,7 +559,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      *
      */
     private void stopBackupService() {
-//        BackupService.getInstance().stop();
+        BackupService.getInstance().stop();
     }
 
     /**

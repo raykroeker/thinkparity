@@ -120,17 +120,17 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
         try {
             // create the product
             final Product product = readRemoteProduct(Constants.Product.NAME);
-            final Release release = readRemoteRelease(product, Constants.Release.NAME);
-            final List<Resource> resources = readRemoteResources(release);
-            migratorIO.createProduct(product, release, resources);
-            // set the latest release
-            final Release latestRelease = readRemoteLatestRelease(product);
-            if (!release.equals(latestRelease)) {
-                final List<Resource> latestReleaseResources = readRemoteResources(
-                        latestRelease);
-                migratorIO.createRelease(latestRelease, latestReleaseResources);
-                migratorIO.updateLatestRelease(product, latestRelease);
-            }
+//            final Release release = readRemoteRelease(product, Constants.Release.NAME);
+//            final List<Resource> resources = readRemoteResources(release);
+//            migratorIO.createProduct(product, release, resources);
+//            // set the latest release
+//            final Release latestRelease = readRemoteLatestRelease(product);
+//            if (!release.equals(latestRelease)) {
+//                final List<Resource> latestReleaseResources = readRemoteResources(
+//                        latestRelease);
+//                migratorIO.createRelease(latestRelease, latestReleaseResources);
+//                migratorIO.updateLatestRelease(product, latestRelease);
+//            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -257,10 +257,11 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      */
     public Boolean isLatestRelease() {
         try {
-            final Product product = readProduct();
-            final Release installed = migratorIO.readInstalledRelease(product);
-            final Release latest = migratorIO.readLatestRelease(product);
-            return installed.equals(latest);
+            return Boolean.TRUE;
+//            final Product product = readProduct();
+//            final Release installed = migratorIO.readInstalledRelease(product);
+//            final Release latest = migratorIO.readLatestRelease(product);
+//            return installed.equals(latest);
         } catch (final Throwable t) {
             throw panic(t);
         }

@@ -156,7 +156,6 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         reloadUsername(username);
         reloadPassword(password);
         reloadError(validCredentials);
-        nextJButton.setEnabled(isInputValid());
         reloadProgressBar();
         usernameJTextField.requestFocusInWindow();
     }
@@ -266,6 +265,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
         errorMessageJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.ErrorBadCredentials"));
+        errorMessageJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         nextJButton.setFont(Fonts.DialogButtonFont);
         nextJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.LoginButton"));
@@ -294,13 +294,13 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         buttonBarJPanel.setLayout(buttonBarJPanelLayout);
         buttonBarJPanelLayout.setHorizontalGroup(
             buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(buttonBarJPanelLayout.createSequentialGroup()
-                .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonBarJPanelLayout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonBarJPanelLayout.createSequentialGroup()
+                .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
+                    .add(buttonBarJPanelLayout.createSequentialGroup()
                         .add(forgotPasswordJLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 138, Short.MAX_VALUE)
-                        .add(nextJButton))
-                    .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE))
+                        .add(nextJButton)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(cancelJButton))
         );
@@ -310,8 +310,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         buttonBarJPanelLayout.setVerticalGroup(
             buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonBarJPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(errorMessageJLabel)
+                .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(cancelJButton)
@@ -428,11 +427,11 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     }//GEN-LAST:event_nextJButtonActionPerformed
 
     private void reloadError(final Boolean validCredentials) {
-        if (validCredentials) {
-            // Note the space to ensure the dialog leaves room.
-            errorMessageJLabel.setText(" ");
-        } else {
+        if (!validCredentials) {
             errorMessageJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.ErrorBadCredentials"));
+            nextJButton.setEnabled(Boolean.FALSE);
+        } else {
+            validateInput();
         }
     }
 

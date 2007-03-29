@@ -144,20 +144,20 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             final File directory) {
         try {
             final Product product = readProduct();
-            final Release installedRelease = readRelease();
-            // clean up old releases
-            final List<Release> releases = migratorIO.readReleases();
-            FileSystem releaseFileSystem;
-            for (final Release release : releases) {
-                if (!installedRelease.equals(release)) {
-                    releaseFileSystem = new FileSystem(new File(directory, release.getName()));
-                    releaseFileSystem.deleteTree();
-                    migratorIO.delete(release);
-                }
-            }
-
-            migratorIO.updateInstalledRelease(product, installedRelease);
-            migratorIO.updateReleaseInitialization(installedRelease);
+//            final Release installedRelease = readRelease();
+//            // clean up old releases
+//            final List<Release> releases = migratorIO.readReleases();
+//            FileSystem releaseFileSystem;
+//            for (final Release release : releases) {
+//                if (!installedRelease.equals(release)) {
+//                    releaseFileSystem = new FileSystem(new File(directory, release.getName()));
+//                    releaseFileSystem.deleteTree();
+//                    migratorIO.delete(release);
+//                }
+//            }
+//
+//            migratorIO.updateInstalledRelease(product, installedRelease);
+//            migratorIO.updateReleaseInitialization(installedRelease);
         } catch (final Throwable t) {
             throw panic(t);
         }

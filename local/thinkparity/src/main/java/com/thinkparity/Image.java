@@ -58,7 +58,7 @@ public class Image {
      * @param name
      *            An image <code>String</code>.
      */
-    public Image(final String image) {
+    Image(final String image) {
         super();
         this.rootDirectory = new File(Directories.ThinkParity.Dir, image);
         ThinkParity.checkFileExists(rootDirectory);
@@ -72,7 +72,7 @@ public class Image {
      * library paths then invoke the main class.
      *
      */
-    public void execute() {
+    void execute() {
         if (!isMounted())
             throw new IllegalStateException("Image not mounted.");
         // set last run property
@@ -114,7 +114,7 @@ public class Image {
      * build the class path, library path, main and main args.
      * 
      */
-    public void mount() {
+    void mount() {
         if (isMounted())
             throw new IllegalStateException();
         // load the image configuration

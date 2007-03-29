@@ -275,19 +275,19 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createMigratorStream(java.lang.String, java.util.List)
-     *
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createMigratorStream(java.lang.String,
+     *      com.thinkparity.codebase.model.migrator.Product,
+     *      com.thinkparity.codebase.model.migrator.Release, java.util.List)
+     * 
      */
     public void createMigratorStream(final String streamId,
+            final Product product, final Release release,
             final List<Resource> resources) {
-        logger.logApiId();
-        logger.logVariable("streamId", streamId);
-        logger.logVariable("resources", resources);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 xmppSession.createMigratorStream(localUserId(),
-                        streamId, resources);
+                        streamId, product, release, resources);
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -597,14 +597,16 @@ public final class SessionModelImpl extends Model<SessionListener>
 
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#logError(com.thinkparity.codebase.model.migrator.Product,
+     *      com.thinkparity.codebase.model.migrator.Release,
      *      com.thinkparity.codebase.model.migrator.Error)
      * 
      */
-    public void logError(final Product product, final Error error) {
+    public void logError(final Product product, final Release release,
+            final Error error) {
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                xmppSession.logError(localUserId(), product, error);
+                xmppSession.logError(localUserId(), product, release, error);
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -1220,16 +1222,17 @@ public final class SessionModelImpl extends Model<SessionListener>
 	}
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorLatestRelease(java.util.UUID, com.thinkparity.codebase.OS)
-     *
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorLatestRelease(java.lang.String,
+     *      com.thinkparity.codebase.OS)
+     * 
      */
-    public Release readMigratorLatestRelease(final UUID productUniqueId, final OS os) {
+    public Release readMigratorLatestRelease(final String productName, final OS os) {
         try {
             assertOnline();
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 return xmppSession.readMigratorLatestRelease(localUserId(),
-                        productUniqueId, os);
+                        productName, os);
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -1252,18 +1255,19 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorRelease(java.lang.String)
-     *
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorRelease(java.lang.String,
+     *      java.lang.String, com.thinkparity.codebase.OS)
+     * 
      */
-    public Release readMigratorRelease(final UUID productUniqueId,
+    public Release readMigratorRelease(final String productName,
             final String name, final OS os) {
         try {
             assertOnline();
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 return xmppSession.readMigratorRelease(localUserId(),
-                        productUniqueId, name, os);
+                        productName, name, os);
             }
         } catch (final Throwable t) {
             throw panic(t);

@@ -78,7 +78,7 @@ public class QueueSql extends AbstractSql {
             session.setInt(4, event.getPriority().priority());
             session.setAsciiStream(5, xml, xmlLength, bufferSize);
             if (1 != session.executeUpdate())
-                throw new HypersonicException("Could not create queue event.");
+                throw panic("Could not create queue event.");
 
             session.commit();
         } catch (final Throwable t) {
@@ -114,7 +114,7 @@ public class QueueSql extends AbstractSql {
             session.prepareStatement(SQL_DELETE_EVENTS);
             session.setLong(1, readLocalUserId(userId));
             if (eventCount.intValue() != session.executeUpdate())
-                throw new HypersonicException("Could not delete queue events.");
+                throw panic("Could not delete queue events.");
 
             session.commit();
         } catch (final Throwable t) {

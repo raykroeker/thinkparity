@@ -128,7 +128,7 @@ public class ThinkParity {
     }
 
     /**
-     * Obtain a property.
+     * Obtain a property from thinkParity.properties.
      * 
      * @param key
      *            A property key <code>String</code>.
@@ -139,11 +139,56 @@ public class ThinkParity {
     }
 
     /**
-     * Load thinkParity.properties.
-     *
+     * Obtain a system property.
+     * 
+     * @param key
+     *            A property key <code>String</code>.
+     * @return A property value <code>String</code>.
+     */
+    private String getSystemProperty(final String key) {
+        return System.getProperty(key);
+    }
+
+    /**
+     * Obtain a system property.
+     * 
+     * @param key
+     *            A property key <code>String</code>.
+     * @return A property value <code>String</code>.
+     */
+    private boolean isSetSystemProperty(final String key) {
+        final String value = getSystemProperty(key);
+        if (null == value || 0 == value.length()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Load thinkParity.properties. If a system property value for the image is
+     * set, set the corresponding value within the properties.
+     * 
      */
     private void loadProperties() throws IOException {
         PropertiesUtil.load(properties, propertiesFile);
+        if (isSetSystemProperty(PropertyNames.ThinkParity.Image)) {
+            setProperty(PropertyNames.ThinkParity.Image,
+                    getSystemProperty(PropertyNames.ThinkParity.Image));
+        }
+    }
+
+    /**
+     * Set a property in thinkParity.properties.
+     * 
+     * @param key
+     *            A property key <code>String</code>.
+     * @param value
+     *            A property value <code>String</code>.
+     * @return The previous property value.
+     */
+    private String setProperty(final String key, final String value) {
+        return (String) properties.setProperty(key, value);
     }
 
     /**

@@ -3,27 +3,32 @@
  */
 package com.thinkparity.ophelia.browser.platform.migrator;
 
-import com.thinkparity.ophelia.model.migrator.MigratorModel;
-import com.thinkparity.ophelia.model.util.ProcessAdapter;
-import com.thinkparity.ophelia.model.util.Step;
+import com.thinkparity.codebase.model.migrator.Release;
 
+import com.thinkparity.ophelia.model.migrator.MigratorModel;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+
+import com.thinkparity.ophelia.browser.Constants.Directories;
 import com.thinkparity.ophelia.browser.platform.Platform;
 
 /**
- * <b>Title:</b>thinkParity OpheliaUI Migrator Helper<br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity OpheliaUI Platform Migrator Helper<br>
+ * <b>Description:</b>Interacts with the migrator model to monitor and install
+ * the latest release for the product.<br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class MigratorHelper {
+public final class MigratorHelper {
 
     /** An instance of <code>MigratorModel</code>. */
     private final MigratorModel model;
 
     /**
      * Create MigratorHelper.
-     *
+     * 
+     * @param platform
+     *            The <code>Platform</code>.
      */
     public MigratorHelper(final Platform platform) {
         super();
@@ -31,30 +36,45 @@ public class MigratorHelper {
     }
 
     /**
-     * Determine if migration is possible.
-     * 
-     * @return True if migration is possible.
+     * Intialize the installed release.
+     *
      */
-    public Boolean isMigrationPossible() {
-        return model.isMigrationPossible();
+    public void initializeRelease(final ProcessMonitor monitor) {
+        model.initializeRelease(monitor, Directories.ThinkParity.DIR);
     }
 
     /**
-     * Migrate.
+     * Determine if the installed release is the latest release.
+     * 
+     * @return True if the installed release is the latest release.
+     */
+    public Boolean isLatestRelease() {
+        return model.isLatestRelease();
+    }
+
+    /**
+     * Determine if the installed release is initialized.
+     * 
+     * @return True if the installed release is initialized.
+     */
+    public Boolean isReleaseInitialized() {
+        return model.isReleaseInitialized();
+    }
+
+    /**
+     * Install the latest release.
      *
      */
-    public void migrate() {
-        model.migrate(new ProcessAdapter() {
-            @Override
-            public void beginProcess() {}
-            @Override
-            public void beginStep(final Step step, final Object data) {}
-            @Override
-            public void determineSteps(final Integer steps) {}
-            @Override
-            public void endProcess() {}
-            @Override
-            public void endStep(final Step step) {}
-        });
+    public void installRelease(final ProcessMonitor monitor) {
+        model.installRelease(monitor, Directories.ThinkParity.DIR);
+    }
+
+    /**
+     * Read the installed release.
+     * 
+     * @return A <code>Release</code>.
+     */
+    public Release readRelease() {
+        return model.readRelease();
     }
 }

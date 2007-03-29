@@ -9,21 +9,13 @@ import java.util.Calendar;
 import com.thinkparity.codebase.OS;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity CommonModel Release<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class Release implements Comparable<Release> {
-
-    public static final Release THIS;
-
-    static {
-        THIS = new Release();
-    }
-
-    /** A checksum <code>String</code>. */
-    private String checksum;
+public final class Release implements Comparable<Release> {
 
     /** A date <code>Calendar</code>. */
     private Calendar date;
@@ -36,9 +28,6 @@ public class Release implements Comparable<Release> {
 
     /** An <code>OS</code>. */
     private OS os;
-
-    /** A product name <code>String</code>. */
-    private Product product;
 
     /**
      * Create Release.
@@ -63,24 +52,14 @@ public class Release implements Comparable<Release> {
      */
     @Override
     public boolean equals(final Object obj) {
-        if (null == obj)
-            return false;
         if (this == obj)
             return true;
-        if (!getClass().equals(obj.getClass()))
+        if (null == obj)
             return false;
-        final Release objRelease = (Release) obj;
-        return objRelease.name.equals(name) && objRelease.os.equals(os)
-                && objRelease.product.equals(product);
-    }
-
-    /**
-     * Obtain checksum.
-     *
-     * @return A String.
-     */
-    public String getChecksum() {
-        return checksum;
+        if (getClass() != obj.getClass())
+            return false;
+        return ((Release) obj).name.equals(name)
+                && ((Release) obj).os.equals(os);
     }
 
     /**
@@ -120,15 +99,6 @@ public class Release implements Comparable<Release> {
     }
 
     /**
-     * Obtain product.
-     *
-     * @return A Product.
-     */
-    public Product getProduct() {
-        return product;
-    }
-
-    /**
      * @see java.lang.Object#hashCode()
      *
      */
@@ -136,20 +106,9 @@ public class Release implements Comparable<Release> {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((name == null) ? 0 : name.hashCode());
-        result = PRIME * result + ((os == null) ? 0 : os.hashCode());
-        result = PRIME * result + ((product == null) ? 0 : product.hashCode());
+        result = PRIME * result + name.hashCode();
+        result = PRIME * result + os.hashCode();
         return result;
-    }
-
-    /**
-     * Set checksum.
-     *
-     * @param checksum
-     *		A String.
-     */
-    public void setChecksum(final String checksum) {
-        this.checksum = checksum;
     }
 
     /**
@@ -190,15 +149,5 @@ public class Release implements Comparable<Release> {
      */
     public void setOs(final OS os) {
         this.os = os;
-    }
-
-    /**
-     * Set product.
-     *
-     * @param product
-     *		A Product.
-     */
-    public void setProduct(final Product product) {
-        this.product = product;
     }
 }

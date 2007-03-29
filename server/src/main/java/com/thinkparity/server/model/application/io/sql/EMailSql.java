@@ -5,7 +5,6 @@ package com.thinkparity.desdemona.model.io.sql;
 
 import com.thinkparity.codebase.email.EMail;
 
-import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 
 /**
@@ -71,7 +70,7 @@ class EMailSql extends AbstractSql {
         session.prepareStatement(SQL_CREATE_EMAIL);
         session.setString(1, email.toString());
         if (1 != session.executeUpdate()) 
-            throw new HypersonicException("Could not create e-mail address {0}.", email);
+            throw panic("Could not create e-mail address {0}.", email);
 
         return session.getIdentity("TPSD_EMAIL");
     }

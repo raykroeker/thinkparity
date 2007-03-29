@@ -68,8 +68,9 @@ class PropertiesUtil {
     static void store(final Properties properties, final File file,
             final String comments) throws IOException {
         final FileOutputStream fos = new FileOutputStream(file);
-        try { properties.store(fos, comments); }
-        finally {
+        try {
+            properties.store(fos, comments);
+        } finally {
             fos.flush();
             fos.close();
         }

@@ -28,12 +28,7 @@ class ProductBuilder {
      */
     Product create(String name) {
         def product = new Product()
-        product.setCreatedBy(configuration["thinkparity.userid"])
-        product.setCreatedOn(configuration["thinkparity.now"])
         product.setName(configuration["thinkparity.product-name"])
-        product.setUniqueId(UUIDGenerator.nextUUID());
-        product.setUpdatedBy(product.getCreatedBy());
-        product.setUpdatedOn(product.getCreatedOn());
         return product
     }
 }

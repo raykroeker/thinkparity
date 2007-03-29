@@ -2376,7 +2376,7 @@ public final class ContainerModelImpl extends
                         }
                     }
                 });
-        /* HACK a potential synchronization issue; however as long as we
+        /* NOTE a potential synchronization issue; however as long as we
          * synchronize on the workspace this will return the correct result */
         return getDocumentModel().readLatestVersion(document.getId());
     }

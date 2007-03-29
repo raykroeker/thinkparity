@@ -57,7 +57,7 @@ insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABL
 insert into TPSD_EMAIL(EMAIL)
     values('djohnson@thinkparity.com');
 insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
-    values(7004,5005,'1');
+    values(7004,5004,'1');
 
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('emorrison','parity','What is my username?','emorrison','0','<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>Emily Morrison</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');

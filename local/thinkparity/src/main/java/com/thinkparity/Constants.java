@@ -30,8 +30,14 @@ public final class Constants {
     }
 
     public static final class FileNames {
+        public static final String JAR = "thinkParity.jar";
         public static final String ThinkParityImageProperties = "thinkParityImage.properties";
         public static final String ThinkParityProperties = "thinkParity.properties";
+    }
+    public static final class Files {
+        public static final class ThinkParity {
+            public static final File JAR = new File(Directories.ThinkParity.Dir, FileNames.JAR);
+        }
     }
 
     public static final class PropertyNames {

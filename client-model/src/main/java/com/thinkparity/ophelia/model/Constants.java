@@ -3,14 +3,21 @@
  */
 package com.thinkparity.ophelia.model;
 
+import java.io.File;
 
 /**
- * The parity local model constants.
- *
+ * <b>Title:</b>thinkParity OpheliaModel Constants<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1
+ * @version 1.1.2.20
  */
 public final class Constants {
+    public static final class Directories {
+        public static final class ThinkParity {
+            public static final File DIR = new File(System.getProperty(PropertyNames.ThinkParity.DIR));
+        }
+    }
     public static final class DirectoryNames {
         public static final String BIN = "bin";
         public static final String CORE = "core";
@@ -21,6 +28,7 @@ public final class Constants {
             public static final String INDEX = "index";
             public static final String LOG = "logs";
             public static final String TEMP = ".temp";
+            public static final String DOWNLOAD = "download";
             public static final class Data {
                 public static final String DB = "db.io";
                 public static final String LOCAL = "local";
@@ -28,6 +36,9 @@ public final class Constants {
         }
     }
     public static final class FileNames {
+        public static final class Install {
+            public static final String PROPERTIES = "thinkParity.properties";
+        }
         public static final class Workspace {
             public static final class Data {
                 public static final String DB = "db";
@@ -46,6 +57,11 @@ public final class Constants {
         public static final class Features {
             public static final String BACKUP = "BACKUP";
             public static final String CORE = "CORE";
+        }
+    }
+    public static final class PropertyNames {
+        public static final class ThinkParity {
+            public static final String DIR = "thinkparity-dir";
         }
     }
     public static final class Release {
@@ -93,96 +109,10 @@ public final class Constants {
             public static final String ORGANIZATION = "organization";
             public static final String VCARD = "vCard";
         }
-        public static final class Container {
-            public static final class Method {
-                public static final class Publish {
-                    public static final class Parameter {
-                        public static final String CONTAINER_UNIQUE_ID = "containerUniqueId";
-                        public static final String CONTAINER_VERSION_ID = "containerVersionId";
-                        public static final String PUBLISHED_BY = "publishedBy";
-                        public static final String PUBLISHED_ON = "publishedOn";
-                    }
-                }
-                public static final class PublishArtifact {
-                    public static final class Parameter {
-                        public static final String ARTIFACT_BYTES = "artifactBytes";
-                        public static final String ARTIFACT_CHECKSUM = "artifactChecksum";
-                        public static final String ARTIFACT_NAME = "artifactName";
-                        public static final String ARTIFACT_TYPE = "artifactType";
-                        public static final String ARTIFACT_UNIQUE_ID = "artifactUniqueId";
-                        public static final String ARTIFACT_VERSION_ID = "artifactVersionId";
-                        public static final String CONTAINER_ARTIFACT_COUNT = "containerArtifactCount";
-                        public static final String CONTAINER_ARTIFACT_INDEX = "containerArtifactIndex";
-                        public static final String CONTAINER_NAME = "containerName";
-                        public static final String CONTAINER_TEAM_MEMBER = "containerTeamMember";
-                        public static final String CONTAINER_TEAM_MEMBERS = "containerTeamMembers";
-                        public static final String CONTAINER_UNIQUE_ID = "containerUniqueId";
-                        public static final String CONTAINER_VERSION_ID = "containerVersionId";
-                        public static final String PUBLISHED_BY = "publishedBy";
-                        public static final String PUBLISHED_ON = "publishedOn";
-                    }
-                }
-            }
-        }
-
-        public static final class Method {
-            public static final class Container {
-                public static final String PUBLISH = "container:publish";
-                public static final String PUBLISH_ARTIFACT = "container:publishartifact";
-                public static final String SEND = "container:send";
-            }
-        }
-        public static final class Profile {
-            public static final String EMAIL = "email";
-            public static final String EMAILS = "emails";
-            public static final String JABBER_ID = "jabberId";
-            public static final String NAME = "name";
-            public static final String ORGANIZATION = "organization";
-        }
         public static final class Service {
             public static final String NAME = "query";
             public static final String NAMESPACE = "jabber:iq:parity:";
             public static final String NAMESPACE_RESPONSE = NAMESPACE + "response";
-            public static final class Artifact {
-                public static final String ADD_TEAM_MEMBER = "artifact:addteammember";
-                public static final String CONFIRM_RECEIPT = NAMESPACE + "artifactconfirmreceipt";
-                public static final String CREATE_ARTIFACT = NAMESPACE + "createartifact";
-                public static final String CREATE_DRAFT = NAMESPACE + "artifact:createdraft";
-                public static final String DELETE_DRAFT = NAMESPACE + "artifact:deletedraft";
-                public static final String FLAG_ARTIFACT = NAMESPACE + "flagartifact";
-                public static final String GET_SUBSCRIPTION = NAMESPACE + "getsubscription";
-                public static final String READ_CONTACTS = NAMESPACE + "artifactreadcontacts";
-                public static final String READ_KEY_HOLDER = NAMESPACE + "artifact:readkeyholder";
-                public static final String REMOVE_TEAM_MEMBER = NAMESPACE + "artifact:removeteammember";
-            }
-            public static final class Contact {
-                public static final String ACCEPT_INVITATION = NAMESPACE + "contact:acceptinvitation";
-                public static final String DECLINE_INVITATION = NAMESPACE + "contact:declineinvitation";
-                public static final String EXTEND_INVITATION = NAMESPACE + "contact:invite";
-                public static final String READ = NAMESPACE + "contact:read";
-                public static final String READ_CONTACTS = NAMESPACE + "readcontacts";
-            }
-            public static final class Container {
-                public static final String PUBLISH = "container:publish";
-                public static final String SEND = "container:send";
-                public static final String SEND_ARTIFACT = "container:sendartifact";
-            }
-            public static final class Document {
-                public static final String SEND = NAMESPACE + "documentsend";
-            }
-            public static final class Profile {
-                public static final String READ = NAMESPACE + "profile:read";
-            }
-            public static final class Queue {
-                public static final String PROCESS_OFFLINE_QUEUE = NAMESPACE + "processofflinequeue";
-            }
-            public static final class User {
-                public static final String READ = NAMESPACE + "readusers";
-            }
-        }
-        public static final class User {
-            public static final String JABBER_ID = "jabberId";
-            public static final String JABBER_IDS = "jabberIds";
         }
     }
 }

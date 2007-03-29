@@ -176,9 +176,9 @@ class ProfileManagerAvatar extends Avatar {
         renameJButton = ButtonFactory.create(getString("RenameButton"));
         newJButton = ButtonFactory.create(getString("NewButton"));
         deleteJButton = ButtonFactory.create(getString("DeleteButton"));
-
-        eaJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ProfileManagerAvatar.EmbeddedAssistance"));
-
+// NOCOMMIT
+//eaJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ProfileManagerAvatar.EmbeddedAssistance"));
+eaJLabel.setText(new StringBuilder(System.getProperty("thinkparity.release-name")).append("-").append(System.getProperty("thinkparity.image")).toString());
         profileJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         profileJList.setCellRenderer(new ProfileListCellRenderer());
         profileJList.setModel(profileModel);

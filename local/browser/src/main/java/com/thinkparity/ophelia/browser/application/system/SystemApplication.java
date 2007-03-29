@@ -103,11 +103,20 @@ public class SystemApplication extends AbstractApplication {
         return getPlatform().getLogger(clasz);
     }
 
+	/**
+     * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getReleaseName()
+     *
+     */
+    @Override
+    public String getReleaseName() {
+        return super.getReleaseName();
+    }
+
 	public String getString(final String localKey) {
 		return super.getString(localKey);
 	}
 
-	public String getString(final String localKey, final Object[] arguments) {
+    public String getString(final String localKey, final Object[] arguments) {
 		return super.getString(localKey, arguments);
 	}
 
@@ -173,13 +182,6 @@ public class SystemApplication extends AbstractApplication {
 	 */
 	public void restoreState(final State state) {}
 
-    /** Run the iconify action. */
-    public void runIconify(final Boolean iconify) {
-        final Data data = new Data(1);
-        data.set(Iconify.DataKey.ICONIFY, iconify);
-        runLater(ActionId.PLATFORM_BROWSER_ICONIFY, data);
-    }
-
     /** Show the display info dialog. */
     public void runDisplayInfo() {
         impl.displayInfo();
@@ -188,6 +190,13 @@ public class SystemApplication extends AbstractApplication {
     /** Run the exit platform action. */
     public void runExitPlatform() {
         runLater(ActionId.PLATFORM_QUIT, Data.emptyData());
+    }
+
+    /** Run the iconify action. */
+    public void runIconify(final Boolean iconify) {
+        final Data data = new Data(1);
+        data.set(Iconify.DataKey.ICONIFY, iconify);
+        runLater(ActionId.PLATFORM_BROWSER_ICONIFY, data);
     }
 
     /** Run the login action. */

@@ -12,9 +12,9 @@ import javax.swing.AbstractAction;
 import javax.swing.Icon;
 
 import com.thinkparity.codebase.StringUtil;
+
 import com.thinkparity.codebase.model.util.http.Link;
 
-import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.system.SystemApplication;
@@ -213,7 +213,8 @@ public class DisplayInfoPanel extends SystemPanel {
     }//GEN-LAST:event_closeJButtonActionPerformed
 
     private void reloadVersion() {
-        versionJLabel.setText(getString("DisplayInfoPanel.Version", new Object[] { Version.getVersion() }));
+        versionJLabel.setText(getString("DisplayInfoPanel.Version",
+                new Object[] {systemApplication.getReleaseName()}));
     }
 
     private void reloadWebPage() {

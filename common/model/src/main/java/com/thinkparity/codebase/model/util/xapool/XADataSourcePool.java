@@ -1,7 +1,7 @@
 /*
  * Created On:  16-Mar-07 8:42:10 PM
  */
-package com.thinkparity.ophelia.model.workspace.impl.xapool;
+package com.thinkparity.codebase.model.util.xapool;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -11,24 +11,24 @@ import javax.transaction.TransactionManager;
 import org.enhydra.jdbc.pool.StandardXAPoolDataSource;
 
 /**
- * <b>Title:</b>thinkParity OpheliaModel Transaction Data Source Pool<br>
+ * <b>Title:</b>thinkParity CommonModel Transaction Data Source Pool<br>
  * <b>Description:</b><br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class OpheliaXADataSourcePool extends StandardXAPoolDataSource {
+public final class XADataSourcePool extends StandardXAPoolDataSource {
 
-    /** The underlying <code>OpheliaXADataSource</code>. */
-    private final OpheliaXADataSource xaDataSource;
+    /** The underlying <code>XADataSource</code>. */
+    private final XADataSource xaDataSource;
 
     /**
-     * Create OpheliaXADataSourcePool.
+     * Create XADataSourcePool.
      * 
      * @param xaDataSource
-     *            An <code>OpheliaXADataSource</code>.
+     *            An <code>XADataSource</code>.
      */
-    public OpheliaXADataSourcePool(final OpheliaXADataSource xaDataSource) {
+    public XADataSourcePool(final XADataSource xaDataSource) {
         super(xaDataSource, 5);
         this.xaDataSource = xaDataSource;
         setUser(xaDataSource.getUser());

@@ -15,14 +15,16 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.util.jta.Transaction;
 import com.thinkparity.codebase.model.util.jta.TransactionManager;
+import com.thinkparity.codebase.model.util.xapool.XADataSource;
+import com.thinkparity.codebase.model.util.xapool.XADataSourceConfiguration;
+import com.thinkparity.codebase.model.util.xapool.XADataSourcePool;
+import com.thinkparity.codebase.model.util.xapool.XADataSourceConfiguration.Key;
 
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.md.MetaDataType;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
-import com.thinkparity.ophelia.model.workspace.impl.xapool.OpheliaXADataSource;
-import com.thinkparity.ophelia.model.workspace.impl.xapool.OpheliaXADataSourcePool;
 
 /**
  * <b>Title:</b>thinkParity OpheliaModel Persistence Manager Implementation<br>
@@ -154,44 +156,12 @@ class PersistenceManagerImpl {
     }
 
     /**
-     * Determine whether or not the persistence manager has been initialized.
+     * Open a database session.
      * 
-     * @return True if it has been initialized.
+     * @return A <code>Session</code>.
      */
-    Boolean isInitialized() {
-        try {
-            final Session session = sessionManager.openSession();
-            final Boolean isInitialized;
-            try {
-                // check for the existence of the META_DATA table
-                session.openMetaData();
-                session.getMetaDataTables("META_DATA");
-                if (session.nextResult()) {
-                    session.getMetaDataTables();
-                    final String sql =
-                        new StringBuffer("select META_DATA_VALUE ")
-                        .append("from META_DATA ")
-                        .append("where META_DATA_KEY=?")
-                        .toString();
-                    session.prepareStatement(sql);
-                    session.setString(1, "thinkparity.workspace-initialized");
-                    session.executeQuery();
-                    if (session.nextResult()) {
-                        isInitialized = Boolean.valueOf(
-                                session.getString("META_DATA_VALUE"));
-                    } else {
-                        isInitialized = Boolean.FALSE;
-                    }
-                } else {
-                    isInitialized = Boolean.FALSE;
-                }
-            } finally {
-                session.close();
-            }
-            return isInitialized;
-        } catch (final Throwable t) {
-            throw new WorkspaceException("Cannot initialize persistence.", t);
-        }
+    Session openSession() {
+        return sessionManager.openSession();
     }
 
     /**
@@ -204,25 +174,35 @@ class PersistenceManagerImpl {
              * thinkParity server and need not configure log4j */
             final String loggingRootProperty = System.getProperty("thinkparity.logging.root");
             final boolean desktop = null == loggingRootProperty;
+            final XADataSourceConfiguration xaDataSourceConfiguration;
             if (desktop) {
                 System.setProperty("derby.stream.error.file",
                         persistenceLogFile.getAbsolutePath());
                 System.setProperty("derby.infolog.append", "true");
-                // create datasource
-                dataSource = new OpheliaXADataSourcePool(new OpheliaXADataSource(persistenceRoot));
+                // create datasource configuration
+                xaDataSourceConfiguration = new XADataSourceConfiguration();
+                xaDataSourceConfiguration.setProperty(Key.DRIVER, "org.apache.derby.jdbc.EmbeddedDriver");
+                final StringBuilder url = new StringBuilder("jdbc:derby:")
+                    .append(persistenceRoot.getAbsolutePath());
+                if (!persistenceRoot.exists())
+                    url.append(";create=true");
+                xaDataSourceConfiguration.setProperty(Key.URL, url.toString());
+                xaDataSourceConfiguration.setProperty(Key.USER, "sa");
             } else {
-                // create datasource
-                dataSource = new OpheliaXADataSourcePool(new OpheliaXADataSource(
-                        System.getProperty("thinkparity.datasource-url"),
-                        System.getProperty("thinkparity.datasource-user"),
-                        System.getProperty("thinkparity.datasource-password")));
+                // create datasource configuration
+                xaDataSourceConfiguration = new XADataSourceConfiguration();
+                xaDataSourceConfiguration.setProperty(Key.DRIVER, "org.apache.derby.jdbc.ClientDriver");
+                xaDataSourceConfiguration.setProperty(Key.PASSWORD, System.getProperty("thinkparity.datasource-password")); 
+                xaDataSourceConfiguration.setProperty(Key.URL, System.getProperty("thinkparity.datasource-url")); 
+                xaDataSourceConfiguration.setProperty(Key.USER, System.getProperty("thinkparity.datasource-user"));
             }
+            dataSource = new XADataSourcePool(new XADataSource(xaDataSourceConfiguration));
 
             // create transaction manager
             transactionManager = TransactionManager.getInstance();
             transactionManager.start();
             // bind the transaction manager to the data source
-            transactionManager.bind((OpheliaXADataSourcePool) dataSource);
+            transactionManager.bind((XADataSourcePool) dataSource);
             sessionManager = new SessionManager(dataSource);
         } catch (final Throwable t) {
             throw new WorkspaceException("Cannot start persistence manager.", t);
@@ -242,9 +222,9 @@ class PersistenceManagerImpl {
             session.close();
         }
 
-        ((OpheliaXADataSourcePool) dataSource).shutdown(true);
+        ((XADataSourcePool) dataSource).shutdown(true);
         try {
-            ((OpheliaXADataSourcePool) dataSource).getShutdownConnection();
+            ((XADataSourcePool) dataSource).getShutdownConnection();
         } catch (final SQLException sqlx) {
         } catch (final Throwable t) {
             throw new WorkspaceException("Cannot stop persistence manager.", t);

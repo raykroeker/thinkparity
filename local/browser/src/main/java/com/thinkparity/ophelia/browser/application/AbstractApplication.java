@@ -16,7 +16,16 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.l10n.L18nContext;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.profile.Profile;
+
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.contact.ContactModel;
+import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.document.DocumentModel;
+import com.thinkparity.ophelia.model.events.ContactListener;
+import com.thinkparity.ophelia.model.events.ProfileListener;
+import com.thinkparity.ophelia.model.session.SessionModel;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarFactory;
@@ -32,13 +41,6 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.util.localization.ApplicationL18n;
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
-import com.thinkparity.ophelia.model.contact.ContactModel;
-import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.document.DocumentModel;
-import com.thinkparity.ophelia.model.events.ContactListener;
-import com.thinkparity.ophelia.model.events.ProfileListener;
-import com.thinkparity.ophelia.model.session.SessionModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -110,7 +112,7 @@ public abstract class AbstractApplication implements Application {
 		this.status = ApplicationStatus.NEW;
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#addListener(com.thinkparity.ophelia.browser.platform.application.ApplicationListener)
 	 * 
 	 */
@@ -127,7 +129,7 @@ public abstract class AbstractApplication implements Application {
 		}
 	}
 
-    /**
+	/**
      * Add a contact listener.
      * 
      * @param contactListener
@@ -183,7 +185,7 @@ public abstract class AbstractApplication implements Application {
 		return platform.getModelFactory().getDocumentModel(getClass());
 	}
 
-	/**
+    /**
 	 * Obtain the parity session interface.
 	 * 
 	 * @return The parity session interface.
@@ -223,7 +225,7 @@ public abstract class AbstractApplication implements Application {
         platform.getModelFactory().getContactModel(getClass()).removeListener(listener);
     }
 
-    /**
+	/**
      * Remove a profile listener.
      * 
      * @param profileListener
@@ -233,7 +235,7 @@ public abstract class AbstractApplication implements Application {
         platform.getModelFactory().getProfileModel(getClass()).removeListener(listener);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#setProfile(com.thinkparity.codebase.model.profile.Profile)
      */
     public void setProfile(final Profile profile) {
@@ -313,7 +315,7 @@ public abstract class AbstractApplication implements Application {
 		}
 	}
 
-    /**
+	/**
      * Obtain an avatar for a tab list extension.
      * 
      * @param tabExtension
@@ -343,7 +345,7 @@ public abstract class AbstractApplication implements Application {
         }
     }
 
-	/**
+    /**
 	 * Obtain the platform.
 	 * 
 	 * @return The platform.
@@ -354,7 +356,7 @@ public abstract class AbstractApplication implements Application {
 		return persistence.get(key, defaultValue);
 	}
 
-    protected String getPref(final String key, final String defaultValue) {
+	protected String getPref(final String key, final String defaultValue) {
 		return persistence.get(key, defaultValue);
 	}
 
@@ -365,6 +367,15 @@ public abstract class AbstractApplication implements Application {
      */
     protected Profile getProfile() {
         return profile;
+    }
+
+    /**
+     * Obtain the release name.
+     * 
+     * @return The release name <code>String</code>.
+     */
+    protected String getReleaseName() {
+        return platform.getRelease().getName();
     }
 
     protected String getString(final String localKey) {

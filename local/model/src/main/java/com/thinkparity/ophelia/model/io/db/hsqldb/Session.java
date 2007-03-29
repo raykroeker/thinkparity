@@ -51,6 +51,7 @@ public final class Session {
     /** An <code>XStreamUtil</code> instance. */
     protected static final XStreamUtil XSTREAM_UTIL;
 
+    /** Sql prefix to retreive an identity value. */
     private static final String SQL_GET_IDENTITY_PRE = "select IDENTITY_VAL_LOCAL() \"ID\" from ";
 
     /** The local <code>TimeZone</code>. */
@@ -200,25 +201,6 @@ public final class Session {
             return preparedStatement.executeUpdate();
         } catch (final SQLException sqlx) {
             throw panic(sqlx);
-        }
-    }
-
-    /**
-     * Obtain the blob input stream from the result.
-     * 
-     * @param columnName
-     *            A column name <code>String</code>.
-     * @return An <code>InputStream</code>.
-     */
-    public Blob getActualBlob(final String columnName) {
-        assertConnectionIsOpen();
-        assertResultSetIsSet();
-        try {
-            final Blob value = resultSet.getBlob(columnName);
-            logColumnExtraction(columnName, value);
-            return resultSet.wasNull() ? null : value;
-        } catch (final SQLException sqlx) {
-            throw new HypersonicException(sqlx);
         }
     }
 

@@ -148,10 +148,15 @@ public interface InternalSessionModel extends SessionModel {
      * 
      * @param streamId
      *            A stream id <code>String</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
      * @param resources
      *            A <code>List</code> of <code>Resource</code>s.
      */
     public void createMigratorStream(final String streamId,
+            final Product product, final Release release,
             final List<Resource> resources);
 
     /**
@@ -308,12 +313,15 @@ public interface InternalSessionModel extends SessionModel {
      * 
      * @param product
      *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
      * @param error
      *            An <code>Error</code>.
      * @param occuredOn
      *            The date/time the error occured.
      */
-    public void logError(final Product product, final Error error);
+    public void logError(final Product product, final Release release,
+            final Error error);
 
     /**
      * Login for the first time in this workspace.
@@ -544,13 +552,13 @@ public interface InternalSessionModel extends SessionModel {
     /**
      * Read the latest release.
      * 
-     * @param productUniqueId
-     *            A product unique id <code>UUID</code>.
+     * @param productName
+     *            A product name <code>String</code>.
      * @param os
      *            An <code>OS</code>.
      * @return A <code>Release</code>.
      */
-    public Release readMigratorLatestRelease(final UUID productUniqueId,
+    public Release readMigratorLatestRelease(final String productName,
             final OS os);
 
     /**
@@ -565,15 +573,15 @@ public interface InternalSessionModel extends SessionModel {
     /**
      * Read a migrator release.
      * 
-     * @param productUniqueId
-     *            A product unique id <code>UUID</code>.
+     * @param productName
+     *            A product name <code>String</code>.
      * @param name
      *            A release name.
      * @param os
      *            An <code>OS</code>.
      * @return A <code>Release</code>.
      */
-    public Release readMigratorRelease(final UUID productUniqueId,
+    public Release readMigratorRelease(final String productName,
             final String name, final OS os);
 
     /**

@@ -82,8 +82,12 @@ final class ModelInvocationHandler implements InvocationHandler {
      */
     public Object invoke(final Object proxy, final Method method,
             final Object[] args) throws Throwable {
-        LOGGER.logTrace("Invoking method {0} on {1} in workspace {2}.", method,
+        LOGGER.logTrace("Invoking method {0} on {1} in {2}.", method,
                 model, workspace);
+        if (null != args && 0 < args.length && LOGGER.isDebugEnabled()) {
+            for (int i = 0; i < args.length; i++)
+                LOGGER.logDebug("args[{0}]:{1}", i, args[i]);
+        }
         synchronized (workspace) {
             final Transaction transaction = workspace.getTransaction();
             final TransactionContext transactionContext = newXAContext(method);

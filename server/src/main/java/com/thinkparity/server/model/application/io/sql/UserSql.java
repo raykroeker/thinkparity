@@ -188,7 +188,7 @@ public class UserSql extends AbstractSql {
             session.setBoolean(3, Boolean.FALSE);
             session.setString(4, key.getKey());
             if (1 != session.executeUpdate())
-                throw new HypersonicException("Could not create e-mail for {0}:{1}.", userId, email);
+                throw panic("Could not create e-mail for {0}:{1}.", userId, email);
 
             session.commit();
         } catch (final Throwable t) {
@@ -227,7 +227,7 @@ public class UserSql extends AbstractSql {
             } else if (1 == session.getInteger("EMAIL_COUNT")) {
                 return Boolean.FALSE;
             } else {
-                throw new HypersonicException("Could not determine availability.");
+                throw panic("Could not determine availability.");
             }
         } catch (final Throwable t) {
             throw translateError(session, t);
@@ -510,7 +510,7 @@ public class UserSql extends AbstractSql {
             session.setString(1, token.getValue());
             session.setString(2, userId.getUsername());
             if (1 != session.executeUpdate())
-                throw new HypersonicException("Could not update profile token.");
+                throw panic("Could not update profile token.");
 
             session.commit();
         } catch (final Throwable t) {
@@ -527,7 +527,7 @@ public class UserSql extends AbstractSql {
             session.setString(1, vcardXML);
             session.setString(2, userId.getUsername());
             if (1 != session.executeUpdate())
-                throw new HypersonicException("Could not update profile vcard.");
+                throw panic("Could not update profile vcard.");
 
             session.commit();
         } catch (final Throwable t) {

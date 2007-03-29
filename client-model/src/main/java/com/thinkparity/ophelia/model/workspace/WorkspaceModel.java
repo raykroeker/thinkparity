@@ -224,22 +224,23 @@ public class WorkspaceModel {
 
     /**
      * Initialize the workspace. If the workspace fails to initialize; it will
-     * be deleted. The login monitor will allow the client to capture incorrect
-     * passwords as well as confirmation of synchronization.
+     * be deleted. The monitor will allow the client to capture the progress of
+     * the initialization process.
      * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code> provides progress feedback on
+     *            the initialization process.
      * @param workspace
      *            A <code>Workspace</code>.
-     * @param loginMonitor
-     *            A <code>LoginMonitor</code>.
      * @param credentials
      *            The user's login <code>Credentials</code>.
      */
     public void initialize(final ProcessMonitor monitor,
             final Workspace workspace, final Credentials credentials)
             throws InvalidCredentialsException {
+        final WorkspaceImpl workspaceImpl = findImpl(workspace);
         notifyProcessBegin(monitor);
         notifyDetermine(monitor, 3);
-        final WorkspaceImpl workspaceImpl = findImpl(workspace);
         try {
             // begin initialization
             notifyStepBegin(monitor, InitializeStep.PERSISTENCE_INITIALIZE);
@@ -251,8 +252,8 @@ public class WorkspaceModel {
             notifyStepBegin(monitor, InitializeStep.SESSION_LOGIN);
             sessionModel.login(credentials);
             notifyStepEnd(monitor, InitializeStep.SESSION_LOGIN);
-            // initialize migrator
-            modelFactory.getMigratorModel().initialize();
+            // initialize migrator product
+            modelFactory.getMigratorModel().initializeProduct();
             // create the profile
             notifyStepBegin(monitor, InitializeStep.PROFILE_CREATE);
             modelFactory.getProfileModel().create();

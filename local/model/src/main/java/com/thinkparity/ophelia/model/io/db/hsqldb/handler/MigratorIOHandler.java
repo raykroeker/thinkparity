@@ -3,16 +3,12 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
 
 import javax.sql.DataSource;
 
 import com.thinkparity.codebase.OS;
-import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
@@ -20,8 +16,6 @@ import com.thinkparity.codebase.model.migrator.Resource;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
-import com.thinkparity.ophelia.model.io.md.MetaData;
-import com.thinkparity.ophelia.model.io.md.MetaDataType;
 
 /**
  * <b>Title:</b>thinkParity Migrator IO Handler Implementation<br>
@@ -30,42 +24,124 @@ import com.thinkparity.ophelia.model.io.md.MetaDataType;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-// NOCOMMIT - MigratorIOHandler - Supress Warnings
-@SuppressWarnings("unused")
 public final class MigratorIOHandler extends AbstractIOHandler implements
         com.thinkparity.ophelia.model.io.handler.MigratorIOHandler {
 
-    /** Sql to create a migrator meta data reference. */
-    private static final String SQL_CREATE_META_DATA =
-        new StringBuffer("insert into MIGRATOR_META_DATA ")
-        .append("(META_DATA_ID) ")
-        .append("values (?)")
+    /** Sql to create a product. */
+    private static final String SQL_CREATE_PRODUCT =
+        new StringBuilder("insert into PRODUCT ")
+        .append("(PRODUCT_NAME,INSTALLED_RELEASE_ID,LATEST_RELEASE_ID) ")
+        .append("values (?,?,?)")
         .toString();
 
-    /** Sql to create a migrator meta data reference. */
-    private static final String SQL_DELETE_META_DATA =
-        new StringBuffer("delete from MIGRATOR_META_DATA where META_DATA_ID=?")
+    /** Sql to create a release. */
+    private static final String SQL_CREATE_RELEASE =
+        new StringBuilder("insert into PRODUCT_RELEASE ")
+        .append("(RELEASE_NAME,RELEASE_OS,RELEASE_DATE,RELEASE_INITIALIZED) ")
+        .append("values (?,?,?,?)")
         .toString();
 
-    /** Sql to read a meta data item. */
-    private static final String SQL_READ_META_DATA =
-        new StringBuffer("select MD.META_DATA_ID,MD.META_DATA_KEY,MD.META_DATA_TYPE_ID,")
-        .append("MD.META_DATA_VALUE ")
-        .append("from MIGRATOR_META_DATA MMD ")
-        .append("inner join META_DATA MD on MMD.META_DATA_ID=MD.META_DATA_ID ")
-        .append("where MD.META_DATA_KEY=? and MD.META_DATA_TYPE_ID=?")
+    /** Sql to create a release resource. */
+    private static final String SQL_CREATE_RELEASE_RESOURCE =
+        new StringBuilder("insert into PRODUCT_RELEASE_RESOURCE ")
+        .append("(RELEASE_ID,RESOURCE_CHECKSUM,RESOURCE_CHECKSUM_ALGORITHM,")
+        .append("RESOURCE_PATH,RESOURCE_SIZE) ")
+        .append("values (?,?,?,?,?)")
         .toString();
 
-    /** Select a tree of meta data entries. */
-    private static final String SQL_READ_META_DATA_TREE =
-        new StringBuffer("select ")
-        .append("from META_DATA MD ")
-        .append("inner join MIGRATOR_META_DATA MMD on MD.META_DATA_ID=MMD.META_DATA_ID ")
-        .append("where MD.META_DATA_KEY like ?")
+    /** Sql to delete the release resources. */
+    private static final String SQL_DELETE_RELEASE =
+        new StringBuilder("delete from PRODUCT_RELEASE ")
+        .append("where RELEASE_ID=?")
         .toString();
 
-    /** An instance of <code>MetaDataIO</code>. */
-    private final MetaDataIOHandler metaDataIO;
+    /** Sql to delete the release resources. */
+    private static final String SQL_DELETE_RELEASE_RESOURCES =
+        new StringBuilder("delete from PRODUCT_RELEASE_RESOURCES ")
+        .append("where RELEASE_ID=?")
+        .toString();
+
+    /** Sql to determine if the release is initialized by its primary key. */
+    private static final String SQL_IS_RELEASE_INITIALIZED_PK =
+        new StringBuilder("select PR.RELEASE_INITIALIZED ")
+        .append("from PRODUCT_RELEASE PR ")
+        .append("where PR.RELEASE_ID=?")
+        .toString();
+
+    /** Sql to read installed release. */
+    private static final String SQL_READ_INSTALLED_RELEASE =
+        new StringBuilder("select RELEASE_DATE,RELEASE_ID,RELEASE_NAME,")
+        .append("RELEASE_OS ")
+        .append("from PRODUCT_RELEASE PR ")
+        .append("inner join PRODUCT P on P.INSTALLED_RELEASE_ID=PR.RELEASE_ID ")
+        .append("where P.PRODUCT_ID=?")
+        .toString();
+
+    /** Sql to read installed resources. */
+    private static final String SQL_READ_INSTALLED_RESOURCES =
+        new StringBuilder("select PRR.RESOURCE_CHECKSUM,")
+        .append("PRR.RESOURCE_CHECKSUM_ALGORITHM,PRR.RESOURCE_ID,")
+        .append("PRR.RESOURCE_PATH,PRR.RESOURCE_SIZE ")
+        .append("from PRODUCT_RELEASE_RESOURCE PRR ")
+        .append("inner join PRODUCT_RELEASE PR on PR.RELEASE_ID=PRR.RELEASE_ID ")
+        .append("inner join PRODUCT P on P.INSTALLED_RELEASE_ID=PR.RELEASE_ID ")
+        .append("where P.PRODUCT_ID=?")
+        .toString();
+
+    /** Sql to read latest release. */
+    private static final String SQL_READ_LATEST_RELEASE =
+        new StringBuilder("select RELEASE_DATE,RELEASE_ID,RELEASE_NAME,")
+        .append("RELEASE_OS ")
+        .append("from PRODUCT_RELEASE PR ")
+        .append("inner join PRODUCT P on P.LATEST_RELEASE_ID=PR.RELEASE_ID ")
+        .append("where P.PRODUCT_ID=?")
+        .toString();
+
+    /** Sql to read latest resources. */
+    private static final String SQL_READ_LATEST_RESOURCES =
+        new StringBuilder("select PRR.RESOURCE_CHECKSUM,")
+        .append("PRR.RESOURCE_CHECKSUM_ALGORITHM,PRR.RESOURCE_ID,")
+        .append("PRR.RESOURCE_PATH,PRR.RESOURCE_SIZE ")
+        .append("from PRODUCT_RELEASE_RESOURCE PRR ")
+        .append("inner join PRODUCT_RELEASE PR on PR.RELEASE_ID=PRR.RELEASE_ID ")
+        .append("inner join PRODUCT P on P.LATEST_RELEASE_ID=PR.RELEASE_ID ")
+        .append("where P.PRODUCT_ID=?")
+        .toString();
+
+    /** Sql to read a product by its unique key. */
+    private static final String SQL_READ_PRODUCT_UK =
+        new StringBuilder("select P.PRODUCT_ID,P.PRODUCT_NAME ")
+        .append("from PRODUCT P ")
+        .append("where P.PRODUCT_NAME=?")
+        .toString();
+
+    /** Sql to read all releases. */
+    private static final String SQL_READ_RELEASES =
+        new StringBuilder("select RELEASE_DATE,RELEASE_ID,RELEASE_NAME,")
+        .append("RELEASE_OS ")
+        .append("from PRODUCT_RELEASE PR")
+        .toString();
+
+    /** Sql to update the latest release. */
+    private static final String SQL_UPDATE_INSTALLED_RELEASE =
+        new StringBuilder("update PRODUCT ")
+        .append("set INSTALLED_RELEASE_ID=? ")
+        .append("where PRODUCT_ID=?")
+        .toString();
+
+    /** Sql to update the latest release. */
+    private static final String SQL_UPDATE_LATEST_RELEASE =
+        new StringBuilder("update PRODUCT ")
+        .append("set LATEST_RELEASE_ID=? ")
+        .append("where PRODUCT_ID=?")
+        .toString();
+
+    /** Sql to update the release initialization flag by its primary key. */
+    private static final String SQL_UPDATE_RELEASE_INITIALIZATION_PK =
+        new StringBuilder("update PRODUCT_RELEASE ")
+        .append("set RELEASE_INITIALIZED=? ")
+        .append("where RELEASE_ID=?")
+        .toString();
 
     /**
      * Create MigratorIOHandler.
@@ -75,23 +151,80 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
      */
     public MigratorIOHandler(final DataSource dataSource) {
         super(dataSource);
-        this.metaDataIO = new MetaDataIOHandler(dataSource);
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#createInstalledRelease(com.thinkparity.codebase.model.migrator.Release)
-     *
+     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#createProduct(com.thinkparity.codebase.model.migrator.Product,
+     *      com.thinkparity.codebase.model.migrator.Release, java.util.List)
+     * 
      */
-    public void createInstalledRelease(final Release release,
+    public void createProduct(final Product product, final Release release,
             final List<Resource> resources) {
         final Session session = openSession();
         try {
-            createMetaDataCalendar(session, "InstalledRelease.date", release.getDate());
-            createMetaDataString(session, "InstalledRelease.name", release.getName());
-            createMetaDataOs(session, "InstalledRelease.os", release.getOs());
-            createMetaDataInteger(session, "InstalledRelease.resources-size", resources.size());
-            for (int i = 0; i < resources.size(); i++) {
-                addResource(session, "InstalledRelease", resources, i);
+            createRelease(session, release, resources);
+
+            session.prepareStatement(SQL_CREATE_PRODUCT);
+            session.setString(1, product.getName());
+            session.setLong(2, release.getId());
+            session.setLong(3, release.getId());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not create product.");
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#createRelease(com.thinkparity.codebase.model.migrator.Release,
+     *      java.util.List)
+     * 
+     */
+    public void createRelease(final Release release,
+            final List<Resource> resources) {
+        final Session session = openSession();
+        try {
+            createRelease(session, release, resources);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#delete(com.thinkparity.codebase.model.migrator.Release)
+     *
+     */
+    public void delete(final Release release) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_RELEASE_RESOURCES);
+            session.setLong(1, release.getId());
+            if (1 < session.executeUpdate())
+                throw new HypersonicException("Could not delete release resources.");
+
+            session.prepareStatement(SQL_DELETE_RELEASE);
+            session.setLong(1, release.getId());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not delete release.");
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#isReleaseInitialized(com.thinkparity.codebase.model.migrator.Release)
+     *
+     */
+    public Boolean isReleaseInitialized(final Release release) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_IS_RELEASE_INITIALIZED_PK);
+            session.setLong(1, release.getId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getBoolean("RELEASE_INITIALIZED");
+            } else {
+                return null;
             }
         } finally {
             session.close();
@@ -99,18 +232,19 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#createLatestRelease(com.thinkparity.codebase.model.migrator.Release)
+     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#readInstalledRelease(com.thinkparity.codebase.model.migrator.Product)
      *
      */
-    public void createLatestRelease(final Release release, final List<Resource> resources) {
+    public Release readInstalledRelease(final Product product) {
         final Session session = openSession();
         try {
-            createMetaDataCalendar(session, "LatestRelease.date", release.getDate());
-            createMetaDataString(session, "LatestRelease.name", release.getName());
-            createMetaDataOs(session, "LatestRelease.os", release.getOs());
-            createMetaDataInteger(session, "LatestRelease.resources-size", resources.size());
-            for (int i = 0; i < resources.size(); i++) {
-                addResource(session, "LatestRelease", resources, i);
+            session.prepareStatement(SQL_READ_INSTALLED_RELEASE);
+            session.setLong(1, product.getId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractRelease(session);
+            } else {
+                return null;
             }
         } finally {
             session.close();
@@ -118,68 +252,18 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#createProduct(com.thinkparity.codebase.model.migrator.Product)
-     *
+     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#readInstalledResources(com.thinkparity.codebase.model.migrator.Product)
+     * 
      */
-    public void createProduct(final Product product) {
+    public List<Resource> readInstalledResources(final Product product) {
         final Session session = openSession();
         try {
-// NOCOMMIT - MigratorIOHandler#createProduct(Product)
-//            createMetaDataUserId(session, "Product.createdBy", product.getCreatedBy());
-//            createMetaDataCalendar(session, "Product.createdOn", product.getCreatedOn());
-            createMetaDataString(session, "Product.name", product.getName());
-//            createMetaDataUniqueId(session, "Product.uniqueId", product.getUniqueId());
-//            createMetaDataUserId(session, "Product.updatedBy", product.getUpdatedBy());
-//            createMetaDataCalendar(session, "Product.updatedOn", product.getUpdatedOn());
-        } catch (final Throwable t) {
-            throw translateError(session, t);
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#deleteLatestRelease()
-     *
-     */
-    public void deleteLatestRelease() {
-        final Session session = openSession();
-        try {
-            deleteMetaDataTree(session, "LatestRelease");
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#readInstalledRelease()
-     *
-     */
-    public Release readInstalledRelease() {
-        final Session session = openSession();
-        try {
-            final Release release = new Release();
-            release.setDate(readMetaDataCalendar(session, "InstalledRelease.date"));
-            release.setName(readMetaDataString(session, "InstalledRelease.name"));
-            release.setOs(readMetaDataOs(session, "InstalledRelease.os"));
-            release.setProduct(readProduct(session));
-            return release;
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#readInstalledResources()
-     *
-     */
-    public List<Resource> readInstalledResources() {
-        final Session session = openSession();
-        try {
-            final Integer resourcesSize = readMetaDataInteger(session, "InstalledRelease.resources-size");
-            final List<Resource> resources = new ArrayList<Resource>(resourcesSize);
-            for (int i = 0; i < resourcesSize; i++) {
-                resources.add(readResource(session, "InstalledRelease", i));
+            session.prepareStatement(SQL_READ_INSTALLED_RESOURCES);
+            session.setLong(1, product.getId());
+            session.executeQuery();
+            final List<Resource> resources = new ArrayList<Resource>();
+            while (session.nextResult()) {
+                resources.add(extractResource(session));
             }
             return resources;
         } finally {
@@ -188,34 +272,38 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#readLatestRelease()
+     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#readLatestRelease(com.thinkparity.codebase.model.migrator.Product)
      *
      */
-    public Release readLatestRelease() {
+    public Release readLatestRelease(final Product product) {
         final Session session = openSession();
         try {
-            final Release release = new Release();
-            release.setDate(readMetaDataCalendar(session, "LatestRelease.date"));
-            release.setName(readMetaDataString(session, "LatestRelease.name"));
-            release.setOs(readMetaDataOs(session, "LatestRelease.os"));
-            release.setProduct(readProduct(session));
-            return release;
+            session.prepareStatement(SQL_READ_LATEST_RELEASE);
+            session.setLong(1, product.getId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractRelease(session);
+            } else {
+                return null;
+            }
         } finally {
             session.close();
         }
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#readLatestResources()
+     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#readLatestResources(com.thinkparity.codebase.model.migrator.Product)
      *
      */
-    public List<Resource> readLatestResources() {
+    public List<Resource> readLatestResources(final Product product) {
         final Session session = openSession();
         try {
-            final Integer resourcesSize = readMetaDataInteger(session, "LatestRelease.resources-size");
-            final List<Resource> resources = new ArrayList<Resource>(resourcesSize);
-            for (int i = 0; i < resourcesSize; i++) {
-                resources.add(readResource(session, "LatestRelease", i));
+            session.prepareStatement(SQL_READ_LATEST_RESOURCES);
+            session.setLong(1, product.getId());
+            session.executeQuery();
+            final List<Resource> resources = new ArrayList<Resource>();
+            while (session.nextResult()) {
+                resources.add(extractResource(session));
             }
             return resources;
         } finally {
@@ -227,365 +315,166 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
      * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#readProduct()
      *
      */
-    public Product readProduct() {
+    public Product readProduct(final String name) {
         final Session session = openSession();
         try {
-            return readProduct(session);
+            session.prepareStatement(SQL_READ_PRODUCT_UK);
+            session.setString(1, name);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractProduct(session);
+            } else {
+                return null;
+            }
         } finally {
             session.close();
         }
     }
 
     /**
-     * Add a resource.
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param releaseKey
-     *            A release key <code>String</code>.
-     * @param resources
-     *            A <code>List</code> of <code>Resource</code>s.
-     * @param index
-     *            An <code>Integer</code> index within the list.
+     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#readReleases(com.thinkparity.codebase.model.migrator.Product)
+     *
      */
-    private void addResource(final Session session, final String releaseKey,
-            final List<Resource> resources, final Integer index) {
-        final Resource resource = resources.get(index);
-        createMetaDataString(session, getKey(releaseKey, index, "checksum"), resource.getChecksum());
-        createMetaDataString(session, getKey(releaseKey, index, "name"), resource.getName());
-        createMetaDataString(session, getKey(releaseKey, index, "path"), resource.getPath());
-        createMetaDataString(session, getKey(releaseKey, index, "version"), resource.getVersion());
-        createMetaDataOs(session, getKey(releaseKey, index, "os"), resource.getOs());
-        createMetaDataLong(session, getKey(releaseKey, index, "size"), resource.getSize());
+    public List<Release> readReleases() {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_RELEASES);
+            session.executeQuery();
+            final List<Release> releases = new ArrayList<Release>();
+            while (session.nextResult()) {
+                releases.add(extractRelease(session));
+            }
+            return releases;
+        } finally {
+            session.close();
+        }
     }
 
+    
     /**
-     * Create a meta data reference for the migrator.
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param metaDataId
-     *            A meta data id <code>Long</code>.
+     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#updateInstalledRelease(com.thinkparity.codebase.model.migrator.Product, com.thinkparity.codebase.model.migrator.Release)
+     *
      */
-    private void createMetaData(final Session session, final Long metaDataId) {
-        session.prepareStatement(SQL_CREATE_META_DATA);
-        session.setLong(1, metaDataId);
-        if (1 != session.executeUpdate())
-            throw new HypersonicException("Could not create migrator meta data.");
-    }
-
-    /**
-     * Create a meta data reference for a calendar
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param key
-     *            A meta data key <code>String</code>.
-     * @param value
-     *            A <code>Calendar</code> value.
-     */
-    private void createMetaDataCalendar(final Session session, final String key,
-            final Calendar value) {
-        createMetaData(session, metaDataIO.create(MetaDataType.CALENDAR, key, value));
-    }
-
-    /**
-     * Create a meta data reference for a string
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param key
-     *            A meta data key <code>String</code>.
-     * @param value
-     *            A <code>String</code> value.
-     */
-    private void createMetaDataInteger(final Session session, final String key,
-            final Integer value) {
-        createMetaData(session, metaDataIO.create(MetaDataType.INTEGER, key, value));
-    }
-
-    /**
-     * Create a meta data reference for a string
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param key
-     *            A meta data key <code>String</code>.
-     * @param value
-     *            A <code>String</code> value.
-     */
-    private void createMetaDataLong(final Session session, final String key,
-            final Long value) {
-        createMetaData(session, metaDataIO.create(MetaDataType.LONG, key, value));
-    }
-
-    /**
-     * Create a meta data reference for a string
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param key
-     *            A meta data key <code>String</code>.
-     * @param value
-     *            A <code>String</code> value.
-     */
-    private void createMetaDataOs(final Session session, final String key,
-            final OS value) {
-        createMetaData(session, metaDataIO.create(MetaDataType.STRING, key, value.name()));
-    }
-
-    /**
-     * Create a meta data reference for a string
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param key
-     *            A meta data key <code>String</code>.
-     * @param value
-     *            A <code>String</code> value.
-     */
-    private void createMetaDataString(final Session session, final String key,
-            final String value) {
-        createMetaData(session, metaDataIO.create(MetaDataType.STRING, key, value));
-    }
-
-    /**
-     * Create a meta data reference for a unique id.
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param key
-     *            A meta data key <code>String</code>.
-     * @param value
-     *            A <code>String</code> value.
-     */
-    private void createMetaDataUniqueId(final Session session, final String key,
-            final UUID value) {
-        createMetaData(session, metaDataIO.create(MetaDataType.UNIQUE_ID, key, value));
-    }
-
-    /**
-     * Create a meta data reference for a user id.
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param key
-     *            A meta data key <code>String</code>.
-     * @param value
-     *            A <code>JabberId</code> value.
-     */
-    private void createMetaDataUserId(final Session session, final String key,
-            final JabberId value) {
-        createMetaData(session, metaDataIO.create(MetaDataType.JABBER_ID, key, value));
-    }
-
-    /**
-     * Delete a tree of meta data items.
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param keyPrefix
-     *            A key prefix <code>String</code>
-     */
-    private void deleteMetaDataTree(final Session session,
-            final String keyPrefix) {
-        final List<Long> metaDataIds = readMetaDataTree(session, keyPrefix);
-        session.prepareStatement(SQL_DELETE_META_DATA);
-        for (final Long metaDataId : metaDataIds) {
-            session.setLong(1, metaDataId);
+    public void updateInstalledRelease(final Product product,
+            final Release release) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_INSTALLED_RELEASE);
+            session.setLong(1, release.getId());
+            session.setLong(2, product.getId());
             if (1 != session.executeUpdate())
-                throw new HypersonicException("Could not delete meta data tree item.");
-
-            metaDataIO.delete(metaDataId);
+                throw new HypersonicException("Could not update latest release.");
+        } finally {
+            session.close();
         }
     }
 
     /**
-     * Obtain the key for a release resource.
+     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#updateLatestRelease(com.thinkparity.codebase.model.migrator.Product,
+     *      com.thinkparity.codebase.model.migrator.Release)
      * 
-     * @param releaseKey
-     *            A release key <code>String</code>.
-     * @param resourceIndex
-     *            A resource index <code>Integer</code>.
-     * @param key
-     *            A value key <code>String</code>.
-     * @return A meta data composite key <code>String</code>.
      */
-    private String getKey(final String releaseKey, final Integer resourceIndex,
-            final String key) {
-        // "InstalledRelease.resource-0.checksum"
-        return MessageFormat.format("{0}.resource-{1}.{2}",
-                releaseKey, String.valueOf(resourceIndex), key);
-    }
-
-    /**
-     * Read meta data for a given key.
-     * 
-     * @param key
-     *            A meta data key.
-     * @return An instance of <code>MetaData</code>.
-     */
-    private MetaData readMetaData(final Session session, final String key,
-            final MetaDataType type) {
-        session.prepareStatement(SQL_READ_META_DATA);
-        session.setString(1, key);
-        session.setTypeAsInteger(2, type);
-        session.executeQuery();
-        if (session.nextResult()) {
-            return extractMetaData(session, metaDataIO);
-        } else {
-            return null;
+    public void updateLatestRelease(final Product product, final Release release) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_LATEST_RELEASE);
+            session.setLong(1, release.getId());
+            session.setLong(2, product.getId());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not update latest release.");
+        } finally {
+            session.close();
         }
     }
 
     /**
-     * Read a calendar meta data value.
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param key
-     *            A meta data key <code>String</code>.
-     * @return A <code>Calendar</code> value.
+     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#updateReleaseInitialization(com.thinkparity.codebase.model.migrator.Release)
+     *
      */
-    private Calendar readMetaDataCalendar(final Session session, final String key) {
-        return (Calendar) readMetaData(session, key, MetaDataType.CALENDAR).getValue();
-    }
-
-    /**
-     * Read a long meta data value.
-     * @param session
-     *            A <code>Session</code>.
-     * @param key
-     *            A meta data key <code>String</code>.
-     * @return A <code>Integer</code> value.
-     */
-    private Integer readMetaDataInteger(final Session session, final String key) {
-        return (Integer) readMetaData(session, key, MetaDataType.INTEGER).getValue();
-    }
-
-    /**
-     * Read a long meta data value.
-     * @param session
-     *            A <code>Session</code>.
-     * @param key
-     *            A meta data key <code>String</code>.
-     * @return A <code>Long</code> value.
-     */
-    private Long readMetaDataLong(final Session session, final String key) {
-        return (Long) readMetaData(session, key, MetaDataType.LONG).getValue();
-    }
-
-    /**
-     * Read an operating system meta data value.
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param key
-     *            A meta data key <code>String</code>.
-     * @return An <code>OS</code> value.
-     */
-    private OS readMetaDataOs(final Session session, final String key) {
-        return OS.valueOf((String) readMetaData(session, key, MetaDataType.STRING).getValue());
-    }
-
-    /**
-     * Read a string meta data value.
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param key
-     *            A meta data key <code>String</code>.
-     * @return A <code>String</code> value.
-     */
-    private String readMetaDataString(final Session session, final String key) {
-        return (String) readMetaData(session, key, MetaDataType.STRING).getValue();
-    }
-
-    /**
-     * Read a tree of meta data elements.
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param keyPrefix
-     *            A key prefix <code>String</code>.
-     * @return A <code>List</code> of <code>Long</code>s.
-     */
-    private List<Long> readMetaDataTree(final Session session,
-            final String keyPrefix) {
-        session.prepareStatement(SQL_READ_META_DATA_TREE);
-        session.setString(1, new StringBuffer(keyPrefix).append("%").toString());
-        session.executeQuery();
-        final List<Long> metaDataIds = new ArrayList<Long>();
-        while (session.nextResult()) {
-            metaDataIds.add(session.getLong("META_DATA_ID"));
+    public void updateReleaseInitialization(final Release release) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_RELEASE_INITIALIZATION_PK);
+            session.setBoolean(1, Boolean.TRUE);
+            session.setLong(2, release.getId());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not update release initialization.");
+        } finally {
+            session.close();
         }
-        return metaDataIds;
     }
 
     /**
-     * Read a unique id meta data value.
+     * Create a release using the session.
      * 
      * @param session
      *            A <code>Session</code>.
-     * @param key
-     *            A meta data key <code>String</code>.
-     * @return A <code>UUID</code> value.
+     * @param release
+     *            A <code>Release</code>.
+     * @param releaseResources
+     *            A <code>List</code> of <code>Resource</code>s.
      */
-    private UUID readMetaDataUniqueId(final Session session, final String key) {
-        return (UUID) readMetaData(session, key, MetaDataType.UNIQUE_ID).getValue();
+    private void createRelease(final Session session, final Release release,
+            final List<Resource> resources) {
+        session.prepareStatement(SQL_CREATE_RELEASE);
+        session.setString(1, release.getName());
+        session.setString(2, release.getOs().name());
+        session.setCalendar(3, release.getDate());
+        session.setBoolean(4, Boolean.FALSE);
+        if (1 != session.executeUpdate())
+            throw new HypersonicException("Could not create release.");
+        release.setId(session.getIdentity("PRODUCT_RELEASE"));
+
+        for (final Resource resource : resources) {
+            session.prepareStatement(SQL_CREATE_RELEASE_RESOURCE);
+            session.setLong(1, release.getId());
+            session.setString(2, resource.getChecksum());
+            session.setString(3, resource.getChecksumAlgorithm());
+            session.setString(4, resource.getPath());
+            session.setLong(5, resource.getSize());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not create release resource.");
+            resource.setId(session.getIdentity("PRODUCT_RELEASE_RESOURCE"));
+        }
     }
 
     /**
-     * Read a jabber id meta data value.
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param key
-     *            A meta data key <code>String</code>.
-     * @return A <code>JabberId</code> value.
-     */
-    private JabberId readMetaDataUserId(final Session session, final String key) {
-        return (JabberId) readMetaData(session, key, MetaDataType.JABBER_ID).getValue();
-    }
-
-    /**
-     * Read the product.
+     * Extract a product from the session.
      * 
      * @param session
      *            A <code>Session</code>.
      * @return A <code>Product</code>.
      */
-    private Product readProduct(final Session session) {
+    private Product extractProduct(final Session session) {
         final Product product = new Product();
-// NOCOMMIT - MigratorIOHandler#readProduct(Session)
-//        product.setCreatedBy(readMetaDataUserId(session, "Product.createdBy"));
-//        product.setCreatedOn(readMetaDataCalendar(session, "Product.createdOn"));
-        product.setName(readMetaDataString(session, "Product.name"));
-//        product.setUniqueId(readMetaDataUniqueId(session, "Product.uniqueId"));
-//        product.setUpdatedBy(readMetaDataUserId(session, "Product.updatedBy"));
-//        product.setUpdatedOn(readMetaDataCalendar(session, "Product.updatedOn"));
+        product.setId(session.getLong("PRODUCT_ID"));
+        product.setName(session.getString("PRODUCT_NAME"));
         return product;
     }
 
     /**
-     * Add a resource.
+     * Extract a release from a session for a product.
      * 
      * @param session
      *            A <code>Session</code>.
-     * @param releaseKey
-     *            A release key <code>String</code>.
-     * @param index
-     *            An <code>Integer</code> index within the list.
+     * @return A <code>Release</code>.
      */
-    private Resource readResource(final Session session,
-            final String releaseKey, final Integer index) {
+    private Release extractRelease(final Session session) {
+        final Release release = new Release();
+        release.setDate(session.getCalendar("RELEASE_DATE"));
+        release.setId(session.getLong("RELEASE_ID"));
+        release.setName(session.getString("RELEASE_NAME"));
+        release.setOs(OS.valueOf(session.getString("RELEASE_OS")));
+        return release;
+    }
+
+    private Resource extractResource(final Session session) {
         final Resource resource = new Resource();
-        resource.setChecksum(readMetaDataString(session, getKey(releaseKey, index, "checksum")));
-        resource.setName(readMetaDataString(session, getKey(releaseKey, index, "name")));
-        resource.setPath(readMetaDataString(session, getKey(releaseKey, index, "path")));
-        resource.setVersion(readMetaDataString(session, getKey(releaseKey, index, "version")));
-        resource.setOs(readMetaDataOs(session, getKey(releaseKey, index, "os")));
-        resource.setSize(readMetaDataLong(session, getKey(releaseKey, index, "size")));
+        resource.setChecksum(session.getString("RESOURCE_CHECKSUM"));
+        resource.setChecksumAlgorithm(session.getString("RESOURCE_CHECKSUM_ALGORITHM"));
+        resource.setId(session.getLong("RESOURCE_ID"));
+        resource.setPath(session.getString("RESOURCE_PATH"));
+        resource.setSize(session.getLong("RESOURCE_SIZE"));
         return resource;
     }
 }

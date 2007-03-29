@@ -46,30 +46,35 @@ public final class HypersonicSession {
     }
 
     /** A <code>Connection</code>. */
-	private final Connection connection;
+	private Connection connection;
 
-	/** A session unique id <code>JVMUniqueId</code>. */
+    /** A session unique id <code>JVMUniqueId</code>. */
 	private final JVMUniqueId id;
 
-    /** A <code>PreparedStatement</code>. */
+	/** A <code>PreparedStatement</code>. */
 	private PreparedStatement preparedStatement;
 
     /** A <code>ResultSet</code>. */
 	private ResultSet resultSet;
 
-	/**
+    /** A <code>HypersonicSessionManager</code>. */
+    private final HypersonicSessionManager sessionManager;
+
+    /**
 	 * Create a Session.
 	 * 
 	 * @param connection
 	 *            The sql connection.
 	 */
-	HypersonicSession(final Connection connection) {
+	HypersonicSession(final HypersonicSessionManager sessionManager,
+            final Connection connection) {
 		super();
 		this.connection = connection;
 		this.id = JVMUniqueId.nextId();
+        this.sessionManager = sessionManager;
 	}
 
-    /**
+	/**
      * Close the session.
      *
      */
@@ -83,7 +88,8 @@ public final class HypersonicSession {
             } catch (final SQLException sqlx) {
                 throw panic(sqlx);
             } finally {
-                HypersonicSessionManager.close(this);
+                connection = null;
+                sessionManager.close(this);
             }
 		}
 	}
@@ -151,7 +157,7 @@ public final class HypersonicSession {
 		finally { close(statement); }
 	}
 
-	/**
+    /**
      * Execute the SQL query in the session's prepared statement and set the
      * result set.
      * 
@@ -166,7 +172,7 @@ public final class HypersonicSession {
 		}
 	}
 
-    /**
+	/**
      * Execute the SQL query in the session's prepared statement and set the
      * result set. Return the number of rows updated.
      * 
@@ -181,6 +187,25 @@ public final class HypersonicSession {
             throw panic(sqlx);
 		}
 	}
+
+    /**
+     * Obtain the blob input stream from the result.
+     * 
+     * @param columnName
+     *            A column name <code>String</code>.
+     * @return An <code>InputStream</code>.
+     */
+    public InputStream getBlob(final String columnName) {
+        assertConnectionIsOpen();
+        assertResultSetIsSet();
+        try {
+            final Blob value = resultSet.getBlob(columnName);
+            logColumnExtraction(columnName, value);
+            return resultSet.wasNull() ? null : value.getBinaryStream();
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
 
     public Boolean getBoolean(final String columnName) {
         assertConnectionIsOpen();

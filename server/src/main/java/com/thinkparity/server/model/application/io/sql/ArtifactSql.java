@@ -164,7 +164,7 @@ public class ArtifactSql extends AbstractSql {
             session.setLong(5, readLocalUserId(createdBy));
             session.setCalendar(6, createdOn);
             if (1 != session.executeUpdate())
-                throw new HypersonicException("Could not create artifact {0}.", uniqueId);
+                throw panic("Could not create artifact {0}.", uniqueId);
             session.commit();
 
 			return session.getIdentity("TPSD_ARTIFACT");
@@ -214,7 +214,7 @@ public class ArtifactSql extends AbstractSql {
 			session.prepareStatement(SQL_DELETE);
 			session.setLong(1, artifactId);
             if (1 != session.executeUpdate())
-                throw new HypersonicException("Cannot delete artifact {0}.", artifactId);
+                throw panic("Cannot delete artifact {0}.", artifactId);
 
             session.commit();
         } catch (final Throwable t) {

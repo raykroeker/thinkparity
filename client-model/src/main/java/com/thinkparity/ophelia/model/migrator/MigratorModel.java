@@ -54,17 +54,46 @@ public interface MigratorModel {
             final File file);
 
     /**
-     * Determine if a migration is possible.
+     * Initialize the installed release.
      * 
-     * @return True if a migration is possible.
+     * 
+     * @param monitor
+     *            a <code>ProcessMonitor</code>.
+     * @param directory
+     *            The install directory <code>File</code>.
      */
-    public Boolean isMigrationPossible();
+    public void initializeRelease(final ProcessMonitor monitor,
+            final File directory);
 
     /**
-     * Migrate.
-     *
+     * Install the latest release.
+     * 
+     * @param directory
+     *            The install directory <code>File</code>.
      */
-    public void migrate(final ProcessMonitor monitor);
+    public void installRelease(final ProcessMonitor monitor,
+            final File directory);
+
+    /**
+     * Determine if the installed release is the latest release.
+     * 
+     * @return True if a the installed release is the latest release.
+     */
+    public Boolean isLatestRelease();
+
+    /**
+     * Determine if the installed release is initialized.
+     * 
+     * @return True if the installed release is initialized.
+     */
+    public Boolean isReleaseInitialized();
+
+    /**
+     * Read the installed release.
+     * 
+     * @return A <code>Release</code>.
+     */
+    public Release readRelease();
 
     /**
      * Remove a migrator listener.

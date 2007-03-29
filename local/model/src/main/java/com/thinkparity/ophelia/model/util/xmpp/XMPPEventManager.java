@@ -101,7 +101,6 @@ final class XMPPEventManager {
 
     void clearHandlers() {
         synchronized (registry) {
-            // TODO check if this is enough to free up all handler memory
             registry.clear();
         }
     }

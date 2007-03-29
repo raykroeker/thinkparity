@@ -8,7 +8,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -35,12 +34,10 @@ import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.model.util.codec.MD5Util;
 import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
-import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.io.sql.MigratorSql;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.util.smtp.MessageFactory;
@@ -55,9 +52,6 @@ import com.thinkparity.desdemona.util.smtp.TransportManager;
  */
 public final class MigratorModelImpl extends AbstractModelImpl implements
         MigratorModel {
-
-    /** An <code>ArtifactSql</code> persistence. */
-    private ArtifactSql artifactSql;
 
     /** A <code>MigratorSql</code> persistence. */
     private MigratorSql migratorSql;
@@ -76,34 +70,36 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
      * 
      */
     public void createStream(final JabberId userId, final String streamId,
+            final Product product, final Release release,
             final List<Resource> resources) {
         try {
-            final FileSystem streamFileSystem = new FileSystem(session.createTempDirectory());
+            final FileSystem streamFileSystem = new FileSystem(
+                    session.createTempDirectory());
             try {
                 final File streamFile = session.createTempFile();
                 try {
                     // copy the resources into the file system
-                    OutputStream fileStream;
-                    InputStream resourceStream;
+                    final Release localRelease = migratorSql.readRelease(
+                            product.getName(), release.getName(), release.getOs());
+                    Resource localResource;
                     for (final Resource resource : resources) {
-                        fileStream = new FileOutputStream(
-                                streamFileSystem.createFile(resource.getPath()));
+                        localResource = migratorSql.readResource(localRelease,
+                                resource.getChecksum());
+                        final OutputStream resourceOutput =
+                            new FileOutputStream(streamFileSystem.createFile(
+                                    resource.getPath()));
                         try {
-                            // NOCOMMIT MigratorModelImpl#createStream()
-                            resourceStream = null;/*migratorSql.openResource(
-                                    resource.getName(), resource.getVersion(),
-                                    resource.getChecksum());*/
-                            try {
-                                final ByteBuffer buffer = getDefaultBuffer();
-                                synchronized (buffer) {
-                                    StreamUtil.copy(resourceStream, fileStream,
-                                            buffer);
-                                }
-                            } finally {
-                                resourceStream.close();
-                            }
+                            migratorSql.openResource(localResource,
+                                    new ResourceOpener() {
+                                        public void open(final InputStream stream) throws IOException {
+                                            final ByteBuffer buffer = getDefaultBuffer();
+                                            synchronized (buffer) {
+                                                StreamUtil.copy(stream, resourceOutput, buffer);
+                                            }
+                                        }
+                                    });
                         } finally {
-                            fileStream.close();
+                            resourceOutput.close();
                         }
                     }
                     // archive the resources
@@ -148,11 +144,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
             assertIsSystemUser(userId);
 
             // find/create the product
-            final Product deployProduct;
-            if (!doesExistProduct(product.getName())) {
-                createProduct(userId, product);
-            }
-            deployProduct = readProduct(product.getName());
+            final Product deployProduct = readProduct(product.getName());
 
             Assert.assertNotTrue(doesExistRelease(deployProduct.getId(),
                     release.getName(), release.getOs()),
@@ -177,8 +169,6 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                         ZipUtil.extractZipFile(releaseFile,
                                 tempFileSystem.getRoot(), buffer);
                     }
-                    // validate
-                    validateRelease(release, resources, releaseFile, tempFileSystem);
                     // create
                     createRelease(deployProduct, release, resources, tempFileSystem);
                     // notify
@@ -201,10 +191,11 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
      * 
      */
     public void logError(final JabberId userId, final Product product,
-            final Error error) {
+            final Release release, final Error error) {
         try {
             final User user = getUserModel().read(userId);
-            final Product localProduct = migratorSql.readProduct(product.getName());
+            final Release localRelease = migratorSql.readRelease(
+                    product.getName(), release.getName(), release.getOs());
 
             final File tempErrorFile = session.createTempFile();
             try {
@@ -216,7 +207,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                 }
                 final InputStream inputStream = new FileInputStream(tempErrorFile);
                 try {
-                    migratorSql.createError(user, localProduct, inputStream,
+                    migratorSql.createError(user, localRelease, inputStream,
                             tempErrorFile.length(), getDefaultBufferSize(),
                             error);
                 } finally {
@@ -249,15 +240,15 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
 
     /**
      * @see com.thinkparity.desdemona.model.migrator.MigratorModel#readLatestRelease(com.thinkparity.codebase.jabber.JabberId,
-     *      java.util.UUID, com.thinkparity.codebase.OS)
+     *      java.lang.String, com.thinkparity.codebase.OS)
      * 
      */
     public Release readLatestRelease(final JabberId userId,
-            final UUID productUniqueId, final OS os) {
+            final String productName, final OS os) {
         try {
             final String latestReleaseName = migratorSql.readLatestReleaseName(
-                    productUniqueId, os);
-            return migratorSql.readRelease(productUniqueId, latestReleaseName, os);
+                    productName, os);
+            return migratorSql.readRelease(productName, latestReleaseName, os);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -278,13 +269,13 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
 
     /**
      * @see com.thinkparity.desdemona.model.migrator.MigratorModel#readRelease(com.thinkparity.codebase.jabber.JabberId,
-     *      java.util.UUID, java.lang.String, com.thinkparity.codebase.OS)
+     *      java.lang.String, java.lang.String, com.thinkparity.codebase.OS)
      * 
      */
     public Release readRelease(final JabberId userId,
-            final UUID productUniqueId, final String name, final OS os) {
+            final String productName, final String name, final OS os) {
         try {
-            return migratorSql.readRelease(productUniqueId, name, os);
+            return migratorSql.readRelease(productName, name, os);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -298,7 +289,9 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
     public List<Resource> readResources(final JabberId userId,
             final String productName, final String releaseName, final OS os) {
         try {
-            return migratorSql.readResources(productName, releaseName, os);
+            final Release release = migratorSql.readRelease(productName,
+                    releaseName, os);
+            return migratorSql.readResources(release);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -310,23 +303,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
      */
     @Override
     protected void initializeModel(final Session session) {
-        this.artifactSql = new ArtifactSql();
         this.migratorSql = new MigratorSql();
-    }
-
-    /**
-     * Create a product.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param product
-     *            A <code>Product</code>.
-     * @return A <code>Product</code>.
-     */
-    private void createProduct(final JabberId userId, final Product product) {
-        product.setId(new Long(artifactSql.create(product.getUniqueId(), userId,
-                    product.getCreatedBy(), product.getCreatedOn())));
-        migratorSql.createProduct(product);
     }
 
     /**
@@ -350,45 +327,24 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
             throws IOException {
         migratorSql.createRelease(product, release);
         InputStream stream;
+        Resource localResource;
         for (final Resource resource : resources) {
-            logger.logVariable("resource.getName()", resource.getName());
-            logger.logVariable("resource.getOs()", resource.getOs());
-            logger.logVariable("resource.getPath()", resource.getPath());
-            logger.logVariable("resource.getVersion()", resource.getVersion());
-            if (migratorSql.doesExistResource(resource.getName(),
-                    resource.getVersion(), resource.getChecksum())) {
-                resource.setId(migratorSql.readResourceId(resource.getName(),
-                        resource.getVersion(), resource.getChecksum()));
-                if (migratorSql.doesExistResource(resource.getId(), resource.getOs())) {
-                    logger.logInfo("Resource {0} for {1} already exists.",
-                            resource.getId(), resource.getOs());
-                } else {
-                    logger.logInfo("Resource {0} already exists.  Adding {1}.",
-                            resource.getId(), resource.getOs());
-                    migratorSql.addResource(resource, resource.getOs());
-                }
-                migratorSql.addResource(release, resource);
+            /* if the resource does not exist, create it then add a relationship
+             * to the release */
+            if (migratorSql.doesExistResource(resource.getChecksum()).booleanValue()) {
+                localResource = migratorSql.readResource(resource.getChecksum());
             } else {
                 stream = new FileInputStream(releaseFileSystem.findFile(resource.getPath()));
                 try {
-                    migratorSql.addResource(release, resource, stream,
-                            getDefaultBufferSize());
+                    migratorSql.createResource(resource, stream, getDefaultBufferSize());
                 } finally {
                     stream.close();
                 }
+                localResource = migratorSql.readResource(resource.getChecksum());
             }
+            localResource.setPath(resource.getPath());
+            migratorSql.addResource(release, localResource);
         }
-    }
-
-    /**
-     * Determine if a product exists.
-     * 
-     * @param name
-     *            A name <code>String</code>.
-     * @return True if the product exists.
-     */
-    private boolean doesExistProduct(final String name) {
-        return migratorSql.doesExistProduct(name).booleanValue();
     }
 
     /**
@@ -459,33 +415,5 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
      */
     private Product readProduct(final String name) {
         return migratorSql.readProduct(name);
-    }
-
-    /**
-     * Validate the release and the release file. A checksum will be calculated
-     * for the file and verified against the release.
-     * 
-     * @param release
-     *            A <code>Release</code>.
-     * @param releaseFile
-     *            A release <code>File</code>.
-     * @throws IOException
-     */
-    private void validateRelease(final Release release,
-            final List<Resource> resources, final File releaseFile,
-            final FileSystem releaseFileSystem) throws IOException {
-        final InputStream stream = new FileInputStream(releaseFile);
-        final String checksum;
-        try {
-            final ByteBuffer buffer = getDefaultBuffer();
-            synchronized (buffer) {
-                checksum = MD5Util.md5Hex(stream, buffer);
-            }
-        } finally {
-            stream.close();
-        }
-        Assert.assertTrue(release.getChecksum().equals(checksum),
-                "Checksum for release {0} does not match calculation.  {1} <> {2}",
-                release.getName());
     }
 }

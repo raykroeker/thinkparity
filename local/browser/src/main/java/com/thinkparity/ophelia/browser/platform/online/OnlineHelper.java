@@ -18,10 +18,15 @@ import com.thinkparity.ophelia.browser.platform.Platform;
  */
 public class OnlineHelper {
 
-    /** The thinkParity platform. */
+    /** The <code>Platform</code>. */
     private final Platform platform;
 
-    /** Create OnlineHelper. */
+    /**
+     * Create OnlineHelper.
+     * 
+     * @param platform
+     *            The <code>Platform</code>.
+     */
     public OnlineHelper(final Platform platform) {
         super();
         this.platform = platform;

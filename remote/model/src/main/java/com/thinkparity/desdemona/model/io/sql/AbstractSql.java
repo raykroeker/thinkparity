@@ -3,9 +3,6 @@
  */
 package com.thinkparity.desdemona.model.io.sql;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -13,9 +10,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSessionManager;
-import com.thinkparity.desdemona.model.io.jdbc.JDBCConnectionProvider;
-
-import org.jivesoftware.database.DbConnectionManager;
+import com.thinkparity.desdemona.wildfire.util.PersistenceManager;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel SQL Abstraction<br>
@@ -26,23 +21,16 @@ import org.jivesoftware.database.DbConnectionManager;
  */
 public abstract class AbstractSql {
 
-	/** An apache logger. */
+    /** An apache logger. */
 	private static final  Log4JWrapper LOGGER;
 
-    /** A <code>JDBCConnectionProvider</code>. */
-    private static final JDBCConnectionProvider CONNECTION_PROVIDER;
-
     static {
-        CONNECTION_PROVIDER = new JDBCConnectionProvider() {
-            public Connection getConnection() {
-                try {
-                    return DbConnectionManager.getConnection();
-                } catch (final SQLException sqlx) {
-                    throw new HypersonicException("Could not establish a connection.");
-                }
-            }
-        };
         LOGGER = new Log4JWrapper("DESDEMONA_SQL_DEBUGGER");
+    }
+
+    protected static final HypersonicException panic(final String message,
+            final Object... arguments) {
+        return new HypersonicException(message, arguments);
     }
 
     /**
@@ -67,12 +55,17 @@ public abstract class AbstractSql {
         }
     }
 
-	/**
+	/** A <code>HypersonicSessionManager</code>. */
+    private final HypersonicSessionManager sessionManager;
+
+    /**
      * Create AbstractSql.
      *
      */
 	protected AbstractSql() {
         super();
+        this.sessionManager = new HypersonicSessionManager(
+                PersistenceManager.getInstance().getDataSource());
     }
 
     /**
@@ -81,6 +74,6 @@ public abstract class AbstractSql {
      * @return A <code>HypersonicSession</code>.
      */
     protected HypersonicSession openSession() {
-        return HypersonicSessionManager.openSession(CONNECTION_PROVIDER, StackUtil.getCaller());
+        return sessionManager.openSession(StackUtil.getCaller());
     }
 }

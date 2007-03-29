@@ -3,12 +3,16 @@
  */
 package com.thinkparity.desdemona.model.io.hsqldb;
 
+import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import com.thinkparity.desdemona.model.io.jdbc.JDBCConnectionProvider;
+import javax.sql.DataSource;
+
+import com.thinkparity.codebase.StackUtil;
 
 /**
  * @author raykroeker@gmail.com
@@ -16,45 +20,29 @@ import com.thinkparity.desdemona.model.io.jdbc.JDBCConnectionProvider;
  */
 public class HypersonicSessionManager {
 
-	/** A map of the session to the session's caller. */
-    private static final Map<HypersonicSession, Object> sessionCallers;
+    /** A map of the session to the session's caller. */
+    private static final Map<HypersonicSession, Object> SESSION_CALLERS;
 
     /** A list of all open sessions. */
-	private static final Vector<HypersonicSession> sessions;
+    private static final Vector<HypersonicSession> SESSIONS;
 
-	static {
-		sessions = new Vector<HypersonicSession>();
-        sessionCallers = new HashMap<HypersonicSession, Object>();
-		HypersonicUtil.registerDriver();
-	}
+    static {
+        SESSIONS = new Vector<HypersonicSession>();
+        SESSION_CALLERS = new HashMap<HypersonicSession, Object>();
+    }
 
-	/**
-	 * Open a new database session.
-	 * 
-	 * @return The new database session.
-	 */
-	public static HypersonicSession openSession(
-            final JDBCConnectionProvider connectionProvider,
-            final StackTraceElement caller) {
-		synchronized (sessions) {
-            final HypersonicSession session = new HypersonicSession(connectionProvider.getConnection());
-            sessions.add(session);
-            sessionCallers.put(session, caller);
-            return session;
-        }
-	}
+    /** A <code>DataSource</code>. */
+    private final DataSource dataSource;
 
-	/**
-	 * Close the session.
-	 * 
-	 * @param session
-	 *            The session to close.
-	 */
-	static void close(final HypersonicSession session) {
-        synchronized(sessions) {
-            sessions.remove(session);
-            sessionCallers.remove(session);
-        }
+    /**
+     * Create SessionManager.
+     * 
+     * @param dataSource
+     *            A sql <code>DataSource</code>.
+     */
+    public HypersonicSessionManager(final DataSource dataSource) {
+        super();
+        this.dataSource = dataSource;
     }
 
     /**
@@ -64,19 +52,71 @@ public class HypersonicSessionManager {
      *            A session.
      * @return The stack trace element of the caller.
      */
-    static StackTraceElement getSessionCaller(final HypersonicSession session) {
-        return (StackTraceElement) sessionCallers.get(session);
+    public StackTraceElement getSessionCaller(final HypersonicSession session) {
+        synchronized (SESSIONS) {
+            return (StackTraceElement) SESSION_CALLERS.get(session);
+        }
     }
 
     /**
-     * Obtain the list of sessions.
+     * Obtain a list of the sessions.
      * 
-     * @return A list of sessions.
+     * @return A <code>List&lt;Session&gt;</code>.
      */
-    static List<HypersonicSession> getSessions() {
-        return sessions;
+    public List<HypersonicSession> getSessions() {
+        return Collections.unmodifiableList(SESSIONS);
     }
 
-	/** Create SessionManager. */
-	private HypersonicSessionManager() { super(); }
+    /**
+     * Open a new database session.
+     * 
+     * @return A <code>Session</code>.
+     */
+    public HypersonicSession openSession() {
+        return openSessionImpl(StackUtil.getCaller());
+    }
+
+    /**
+     * Open a new database session.
+     * 
+     * @param caller
+     *            A caller <code>StackTraceElement</code>.
+     * @return A <code>Session</code>.
+     */
+    public HypersonicSession openSession(final StackTraceElement caller) {
+        return openSessionImpl(caller);
+    }
+
+    /**
+     * Close the session.
+     * 
+     * @param session
+     *            The session to close.
+     */
+    protected void close(final HypersonicSession session) {
+        synchronized (SESSIONS) {
+            SESSIONS.remove(session);
+            SESSION_CALLERS.remove(session);
+        }
+    }
+
+    /**
+     * Open a new database session.
+     * 
+     * @param caller
+     *            A caller <code>StackTraceElement</code>.
+     * @return A <code>Session</code>.
+     */
+    private HypersonicSession openSessionImpl(final StackTraceElement caller) {
+        synchronized (SESSIONS) {
+            try {
+                final HypersonicSession session = new HypersonicSession(this, dataSource.getConnection());
+                SESSIONS.add(session);
+                SESSION_CALLERS.put(session, caller);
+                return session;
+            } catch (final SQLException sqlx) {
+                throw new HypersonicException(sqlx);
+            }
+        }
+    }
 }

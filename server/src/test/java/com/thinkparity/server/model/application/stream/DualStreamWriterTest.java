@@ -45,6 +45,7 @@ public final class DualStreamWriterTest extends StreamTestCase {
         final int streamCount = 2;
         final List<Thread> streamWriters = new ArrayList<Thread>();
         for (int i = 0; i < streamCount; i++) {
+            // THREAD - DualStreamWriterTEst#setUp()
             streamWriters.add(new Thread(new Runnable() {
                     public void run() {
                         try {

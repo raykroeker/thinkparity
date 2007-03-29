@@ -10,10 +10,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Properties;
 import java.util.TimeZone;
 
+import com.thinkparity.codebase.JVMUtil;
 import com.thinkparity.codebase.Mode;
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
@@ -21,18 +22,19 @@ import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.sort.StringComparator;
 
+import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.Directories;
-import com.thinkparity.ophelia.browser.Constants.Java;
-import com.thinkparity.ophelia.browser.Constants.PropertyNames;
+import com.thinkparity.ophelia.browser.Constants.Files;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -59,10 +61,13 @@ import com.thinkparity.ophelia.browser.util.ModelFactory;
 import org.apache.log4j.Logger;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity OpheliaUI Platform Implementation<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.33
  */
-public class BrowserPlatform implements Platform {
+public final class BrowserPlatform implements Platform {
 
     /** A singleton instance. */
     private static BrowserPlatform SINGLETON;
@@ -121,7 +126,7 @@ public class BrowserPlatform implements Platform {
      */
     private final ListenerHelper listenerHelper;
 
-	/** The platform migrator helper. */
+	/** The platform <code>MigratorHelper</code>. */
     private final MigratorHelper migratorHelper;
 
     /** A thinkParity <code>Mode</code>. */
@@ -130,16 +135,19 @@ public class BrowserPlatform implements Platform {
     /** The parity model factory. */
 	private final ModelFactory modelFactory;
 
-	/** The platform online helper. */
+	/** The platform <code>OnlineHelper</code>. */
     private final OnlineHelper onlineHelper;
 
 	/** The platform settings. */
 	private final BrowserPlatformPersistence persistence;
 
-	/** The platform plugin helper. */
+	/** The platform <code>PluginHelper</code>. */
     private final PluginHelper pluginHelper;
 
-	/** The thinkParity <code>WindowRegistry</code>. */
+	/** The platform <code>Release</code>. */
+    private Release release;
+
+    /** The thinkParity <code>WindowRegistry</code>. */
 	private final WindowRegistry windowRegistry;
 
     /** A thinkParity <code>Workspace</code>. */
@@ -186,6 +194,7 @@ public class BrowserPlatform implements Platform {
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#createTempFile(java.lang.String)
+     * 
      */
     public File createTempFile(final String suffix) throws IOException {
         return workspace.createTempFile(suffix);
@@ -232,7 +241,7 @@ public class BrowserPlatform implements Platform {
         return availableLocales.toArray(new Locale[] {});
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getAvailableTimeZones()
      *
      */
@@ -264,7 +273,7 @@ public class BrowserPlatform implements Platform {
         return available.toArray(new TimeZone[] {});
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getAvatarRegistry()
 	 * 
 	 */
@@ -277,7 +286,7 @@ public class BrowserPlatform implements Platform {
         return environment;
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getLocale()
      *
      */
@@ -285,7 +294,7 @@ public class BrowserPlatform implements Platform {
         return persistence.getLocale();
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getLogger(java.lang.Class)
 	 * 
 	 */
@@ -293,13 +302,13 @@ public class BrowserPlatform implements Platform {
 		return Logger.getLogger(clasz);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getModelFactory()
 	 * 
 	 */
 	public ModelFactory getModelFactory() { return modelFactory; }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getPersistence()
 	 * 
 	 */
@@ -307,12 +316,23 @@ public class BrowserPlatform implements Platform {
 		return persistence;
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getPluginRegistry()
      */
     public PluginRegistry getPluginRegistry() {
 //        return pluginHelper.getRegistry();
         return null;
+    }
+
+	/**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#getRelease()
+     *
+     */
+    public Release getRelease() {
+        if (null == release) {
+            release = migratorHelper.readRelease();
+        }
+        return release;
     }
 
 	/**
@@ -329,7 +349,7 @@ public class BrowserPlatform implements Platform {
 	 */
 	public WindowRegistry getWindowRegistry() { return windowRegistry; }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#hibernate(com.thinkparity.ophelia.browser.platform.application.ApplicationId)
 	 * 
 	 */
@@ -350,7 +370,7 @@ public class BrowserPlatform implements Platform {
                 credentials);
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.Platform#isDevelopmentMode() */
+	/** @see com.thinkparity.ophelia.browser.platform.Platform#isDevelopmentMode() */
 	public Boolean isDevelopmentMode() {
         switch (mode) {
         case DEMO:
@@ -364,7 +384,7 @@ public class BrowserPlatform implements Platform {
         }
     }
 
-	/** @see com.thinkparity.ophelia.browser.platform.Platform#isOnline() */
+    /** @see com.thinkparity.ophelia.browser.platform.Platform#isOnline() */
     public Boolean isOnline() {
         return onlineHelper.isOnline();
     }
@@ -417,7 +437,7 @@ public class BrowserPlatform implements Platform {
         logVariable("application", application);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyRestore(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */
@@ -426,7 +446,7 @@ public class BrowserPlatform implements Platform {
         logVariable("application", application);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyStart(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */
@@ -435,7 +455,7 @@ public class BrowserPlatform implements Platform {
         logVariable("application", application);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#removeListener(com.thinkparity.ophelia.browser.platform.event.LifeCycleListener)
      */
     public void removeListener(final LifeCycleListener listener) {
@@ -447,47 +467,13 @@ public class BrowserPlatform implements Platform {
      *
      */
     public void restart() {
-        restart(System.getProperties());
+        restart(null);
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.Platform#restart(java.util.Properties)
-     *
+     * @see com.thinkparity.ophelia.browser.platform.Platform#restore(com.thinkparity.ophelia.browser.platform.application.ApplicationId)
+     * 
      */
-    public void restart(final Properties properties) {
-        logger.logApiId();
-        logger.logVariable("properties", properties);
-        // attach a process to the jvm shutdown
-        final List<String> commands = new ArrayList<String>();
-        commands.add(Java.EXECUTABLE);
-        if(properties.containsKey("parity.image.name"))
-            commands.add(Java.OPTION_PARITY_IMAGE.format(new Object[] {properties.getProperty("parity.image.name")}));
-        commands.add(Java.OPTION_PARITY_INSTALL.format(new Object[] {PropertyNames.ThinkParity.DIR, Directories.ThinkParity.DIR.getAbsolutePath()}));
-        commands.add(Java.OPTION_CLASS_PATH);
-        commands.add(Java.OPTION_CLASS_PATH_VALUE);
-        commands.add(Java.MAIN_CLASS);
-        for (final String command : commands) {
-            logger.logVariable("command", command);
-        }
-        final ProcessBuilder pb = new ProcessBuilder();
-        pb.command(commands);
-        pb.directory(Directories.ThinkParity.DIR);
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                try {
-                    pb.start();
-                } catch (final IOException iox) {
-                    throw new BrowserException("Could not restart browser platform.", iox);
-                }
-            }
-        });
-        end();
-    }
-
-    /**
-	 * @see com.thinkparity.ophelia.browser.platform.Platform#restore(com.thinkparity.ophelia.browser.platform.application.ApplicationId)
-	 * 
-	 */
 	public void restore(final ApplicationId applicationId) {
 		logApiId();
         logVariable("applicationId", applicationId);
@@ -495,9 +481,13 @@ public class BrowserPlatform implements Platform {
 	}
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.Platform#runLogin(java.lang.String, java.lang.String, com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor)
+     * @see com.thinkparity.ophelia.browser.platform.Platform#runLogin(java.lang.String,
+     *      java.lang.String,
+     *      com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor)
+     * 
      */
-    public void runLogin(final String username, final String password, final ThinkParitySwingMonitor monitor) {
+    public void runLogin(final String username, final String password,
+            final ThinkParitySwingMonitor monitor) {
         final Data data = new Data(3);
         data.set(Login.DataKey.MONITOR, monitor);
         data.set(Login.DataKey.PASSWORD, password);
@@ -507,12 +497,13 @@ public class BrowserPlatform implements Platform {
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#runResetPassword()
+     * 
      */
     public void runResetPassword() {
         invoke(ActionId.PLATFORM_RESET_PASSWORD, Data.emptyData());
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#start()
      * 
      */
@@ -526,18 +517,20 @@ public class BrowserPlatform implements Platform {
             deleteWorkspace();
             end();
         } else {
-            if (isMigrationPossible()) {
-                migrate();
-                restart();
-            } else {
+            if (isLatestRelease()) {
+                if (isReleaseInitialized()) {
+                    initializeRelease();
+                }
                 startPlugins();
                 startApplications();
+                notifyLifeCycleStarted();
+            } else {
+                installRelease();
             }
-            notifyLifeCycleStarted();
         }
 	}
 
-	protected final void logApiId() {
+    protected final void logApiId() {
         logger.logApiId();
     }
 
@@ -604,11 +597,28 @@ public class BrowserPlatform implements Platform {
     }
 
     /**
+     * Initialize the installed release.
+     * 
+     */
+    private void initializeRelease() {
+        migratorHelper.initializeRelease(new ProcessAdapter() {});
+    }
+
+    /**
      * Perform first run initialization.
      * 
      */
     private void initializeWorkspace() {
         firstRunHelper.firstRun();
+    }
+
+    /**
+     * Install the latest release.
+     * 
+     */
+    private void installRelease() {
+        migratorHelper.installRelease(new ProcessAdapter() {});
+        restart(migratorHelper.readRelease().getName());
     }
 
     /**
@@ -633,8 +643,17 @@ public class BrowserPlatform implements Platform {
      * 
      * @return True if an update is available.
      */
-    private boolean isMigrationPossible() {
-        return migratorHelper.isMigrationPossible().booleanValue();
+    private boolean isLatestRelease() {
+        return migratorHelper.isLatestRelease().booleanValue();
+    }
+
+    /**
+     * Determine whether or not the installed release is initialized.
+     * 
+     * @return True if the migration is initialized; false otherwise.
+     */
+    private boolean isReleaseInitialized() {
+        return migratorHelper.isReleaseInitialized().booleanValue();
     }
 
     /**
@@ -647,15 +666,7 @@ public class BrowserPlatform implements Platform {
                 modelFactory.getWorkspace(getClass()));
     }
 
-    /**
-     * Migrate.
-     * 
-     */
-    private void migrate() {
-        migratorHelper.migrate();
-    }
-
-	private void notifyLifeCycleEnded() {
+    private void notifyLifeCycleEnded() {
         final LifeCycleEvent e = listenerHelper.createEvent();
         listenerHelper.notifyListeners(new EventNotifier<LifeCycleListener>() {
             public void notifyListener(final LifeCycleListener listener) {
@@ -664,7 +675,7 @@ public class BrowserPlatform implements Platform {
         });
     }
 
-    private void notifyLifeCycleEnding() {
+	private void notifyLifeCycleEnding() {
         final LifeCycleEvent e = listenerHelper.createEvent();
         listenerHelper.notifyListeners(new EventNotifier<LifeCycleListener>() {
             public void notifyListener(final LifeCycleListener listener) {
@@ -687,6 +698,40 @@ public class BrowserPlatform implements Platform {
         listenerHelper.notifyListeners(new EventNotifier<LifeCycleListener>() {
             public void notifyListener(final LifeCycleListener listener) {
                 listener.starting(e);
+            }
+        });
+    }
+
+    /**
+     * Restart the platform running the specified image. An image name and a
+     * model release name are identical.
+     * 
+     * @param imageName
+     *            An image name <code>String</code>.
+     */
+    private void restart(final String imageName) {
+        closeWorkspace();
+        final List<String> jvmArgs = new ArrayList<String>();
+        jvmArgs.add("-Dthinkparity-dir="
+                            + Directories.ThinkParity.DIR.getAbsolutePath());
+        jvmArgs.add("-Dthinkparity.mode=" + mode.name());
+        jvmArgs.add("-Dthinkparity.environment=" + environment.name());
+        if (null != imageName)
+            jvmArgs.add("-Dthinkparity.image=" + imageName);
+        // THREAD - BrowserPlatform#restart()
+        Runtime.getRuntime().addShutdownHook(new Thread("TPS-OpheliaUI-Restart") {
+            @Override
+            public void run() {
+                try {
+                    JVMUtil.getInstance().executeJar(
+                            Directories.ThinkParity.DIR, Files.JAR,
+                            jvmArgs.toArray(new String[] {}));
+                } catch (final IOException iox) {
+                    logger.logError(iox,
+                            "Could not restart ui platform.{0}{1}{0}{2}{0}{3}",
+                            Separator.SystemNewLine,
+                            Directories.ThinkParity.DIR, Files.JAR, jvmArgs);
+                }
             }
         });
     }

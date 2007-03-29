@@ -103,6 +103,15 @@ public class Log4JWrapper {
     }
 
     /**
+     * Determine if debug is enabled for the logger.
+     * 
+     * @return True if debug is enabled.
+     */
+    public boolean isDebugEnabled() {
+        return logger.isDebugEnabled();
+    }
+
+    /**
      * Log an api id. (A stack-trace format of the caller's caller).
      *
      */

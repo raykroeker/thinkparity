@@ -16,7 +16,6 @@ import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
-import com.thinkparity.ophelia.model.util.UUIDGenerator;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 
@@ -82,7 +81,6 @@ public final class MigratorTest extends MigratorTestCase {
      */
     public void testDeployNewRelease() {
         final Release release = new Release();
-        release.setChecksum(seedRelease.getChecksum());
         release.setName(seedRelease.getName() + System.currentTimeMillis());
         getMigratorModel(datum.thinkparity).deploy(DEPLOY_MONITOR, seedProduct,
                 release, seedResources, seedFile);
@@ -99,17 +97,11 @@ public final class MigratorTest extends MigratorTestCase {
         login(OpheliaTestUser.THINKPARITY);
         try {
             seedProduct = new Product();
-            seedProduct.setCreatedBy(OpheliaTestUser.THINKPARITY.getId());
-            seedProduct.setCreatedOn(getSessionModel(OpheliaTestUser.THINKPARITY).readDateTime());
             seedProduct.setName("JUnit Test Product");
-            seedProduct.setUniqueId(UUIDGenerator.nextUUID());
-            seedProduct.setUpdatedBy(seedProduct.getCreatedBy());
-            seedProduct.setUpdatedOn(seedProduct.getCreatedOn());
 
             ZipUtil.createZipFile(seedFile, getTestCaseDirectory(), getDefaultBuffer());
 
             seedRelease = new Release();
-            seedRelease.setChecksum(checksum(seedFile, getDefaultBuffer()));
             seedRelease.setName("Version 1.0.0");
 
             seedResources = new ArrayList<Resource>();

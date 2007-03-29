@@ -16,9 +16,9 @@ import com.thinkparity.codebase.config.ConfigFactory;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.desdemona.model.Version;
-import com.thinkparity.desdemona.model.backup.BackupService;
 import com.thinkparity.desdemona.model.stream.StreamModel;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
+import com.thinkparity.desdemona.wildfire.util.PersistenceManager;
 import com.thinkparity.desdemona.wildfire.util.SessionUtil;
 
 import org.apache.log4j.LogManager;
@@ -54,6 +54,9 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
     /** The plugin's handlers. */
     private final List<IQHandler> handlers;
 
+    /** The <code>PersistenceManager</code>. */
+    private final PersistenceManager persistenceManager;
+
     /** The wildfire router. */
     private final IQRouter router;
 
@@ -67,6 +70,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
     public WildfirePlugin() {
         super();
         this.handlers = new LinkedList<IQHandler>();
+        this.persistenceManager = PersistenceManager.getInstance();
         this.router = XMPPServer.getInstance().getIQRouter();
         XMPPServer.getInstance().addServerListener(this);
     }
@@ -79,6 +83,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
         stopStream();
         destroyListeners();
         destroyHandlers();
+        stopPersistenceManager();
         final String message = getDestroyMessage();
         new Log4JWrapper(getClass()).logInfo(message);
         System.out.println(message);
@@ -94,14 +99,17 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
         final PluginClassLoader pluginClassLoader = manager.getPluginClassloader(this);
         Thread.currentThread().setContextClassLoader(pluginClassLoader.getClassLoader());
 
+        // start database
+        System.setProperty("thinkparity.datasource-url", JiveGlobals.getXMLProperty("database.defaultProvider.serverURL"));
+        System.setProperty("thinkparity.datasource-user", JiveGlobals.getXMLProperty("database.defaultProvider.username"));
+        System.setProperty("thinkparity.datasource-password", JiveGlobals.getXMLProperty("database.defaultProvider.password"));
+        startPersistenceManager();
+
 	    final JiveProperties jiveProperties = JiveProperties.getInstance();
 	    final Mode mode = Mode.valueOf((String) jiveProperties.get("thinkparity.mode"));
         System.setProperty("thinkparity.mode", mode.toString());
         System.setProperty("thinkparity.product-name", (String) jiveProperties.get("thinkparity.product-name"));
         System.setProperty("thinkparity.release-name", (String) jiveProperties.get("thinkparity.release-name"));
-        System.setProperty("thinkparity.datasource-url", JiveGlobals.getXMLProperty("database.defaultProvider.serverURL"));
-        System.setProperty("thinkparity.datasource-user", JiveGlobals.getXMLProperty("database.defaultProvider.username"));
-        System.setProperty("thinkparity.datasource-password", JiveGlobals.getXMLProperty("database.defaultProvider.password"));
 
         bootstrapLog4J(mode);
         logger = new Log4JWrapper();
@@ -133,7 +141,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      */
     public void serverStarted() {}
 
-	/**
+    /**
      * @see org.jivesoftware.wildfire.XMPPServerListener#serverStopping()
      */
     public void serverStopping() {
@@ -344,6 +352,15 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
                 "log4j.renderer.com.thinkparity.codebase.model.artifact.Artifact",
                 "com.thinkparity.codebase.model.util.logging.or.ArtifactRenderer");
         logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.migrator.Product",
+                "com.thinkparity.codebase.model.util.logging.or.ProductRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.migrator.Release",
+                "com.thinkparity.codebase.model.util.logging.or.ReleaseRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.migrator.Resource",
+                "com.thinkparity.codebase.model.util.logging.or.ResourceRenderer");
+        logging.setProperty(
                 "log4j.renderer.com.thinkparity.codebase.model.profile.Profile",
                 "com.thinkparity.desdemona.util.logging.or.ProfileObjectRenderer");
         logging.setProperty(
@@ -393,7 +410,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
         }
     }
 
-	/**
+    /**
      * Bootstrap the log4j root directory based upon the operating mode.
      * 
      * @return A log4j root directory.
@@ -404,7 +421,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
         return loggingRoot;
     }
 
-    /**
+	/**
 	 * Destroy the iq dispatcher.
 	 * 
 	 */
@@ -417,7 +434,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
         }
 	}
 
-    /**
+	/**
      * Destroy the wildfire session listener.
      *
      */
@@ -483,6 +500,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
             logger.logFatal("Handler could not be initialized.", t);
         }
     }
+
     /**
      * Initialize wildfire listeners. We add a session listener such that we can
      * manage thinkParity sessions.
@@ -510,15 +528,23 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
         };
         SessionEventDispatcher.addListener(sessionEventListener);
     }
-        
+
     /**
      * Start the archive service.
      *
      */
     private void startBackupService() {
-        BackupService.getInstance().start();
+//        BackupService.getInstance().start();
     }
 
+    /**
+     * Start the persistence manager.
+     *
+     */
+    private void startPersistenceManager() {
+        persistenceManager.start();
+    }
+        
     /**
      * Start the stream service.
      *
@@ -532,7 +558,15 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      *
      */
     private void stopBackupService() {
-        BackupService.getInstance().stop();
+//        BackupService.getInstance().stop();
+    }
+
+    /**
+     * Stop the persistence manager.
+     *
+     */
+    private void stopPersistenceManager() {
+        persistenceManager.stop();
     }
 
     /**

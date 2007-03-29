@@ -19,73 +19,125 @@ import com.thinkparity.codebase.model.migrator.Resource;
 public interface MigratorIOHandler {
 
     /**
-     * Create an installed release.
-     * 
-     * @param release
-     *            A <code>Release</code>.
-     * @param resources
-     *            A <code>List</code> of <code>Resource</code>s.
-     */
-    public void createInstalledRelease(final Release release,
-            final List<Resource> resources);
-
-    /**
-     * Create a latest release.
-     * 
-     * @param release
-     *            A <code>Release</code>.
-     * @param resources
-     *            A <code>List</code> of <code>Resource</code>s.
-     */
-    public void createLatestRelease(final Release release,
-            final List<Resource> resources);
-
-    /**
-     * Create the installed product.
+     * Create the product.
      * 
      * @param product
      *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     * @param releaseResources
+     *            A <code>List</code> of <code>Resource</code>s.
      */
-    public void createProduct(final Product product);
+    public void createProduct(final Product product,
+            final Release release,
+            final List<Resource> releaseResources);
 
     /**
-     * Delete the latest release.
-     *
+     * Create the release.
+     * 
+     * @param release
+     *            A <code>Release</code>.
+     * @param releaseResources
+     *            A <code>List</code> of <code>Resource</code>s.
      */
-    public void deleteLatestRelease();
+    public void createRelease(final Release release,
+            final List<Resource> releaseResources);
+
+    /**
+     * Delete a release.
+     * 
+     * @param release
+     *            A <code>Release</code>.
+     */
+    public void delete(final Release release);
+
+    /**
+     * Determine if the release has been initialized.
+     * 
+     * @param release
+     *            A <code>Release</code>.
+     * @return True if the release has been initialized.
+     */
+    public Boolean isReleaseInitialized(final Release release);
 
     /**
      * Read the installed release.
      * 
+     * @param product
+     *            A <code>Product</code>.
      * @return A <code>Release</code>.
      */
-    public Release readInstalledRelease();
+    public Release readInstalledRelease(final Product product);
 
     /**
-     * Read the installed resources.
+     * Read the installed resources for a product.
      * 
+     * @param product
+     *            A <code>Product</code>.
      * @return A <code>List</code> of <code>Resource</code>s.
      */
-    public List<Resource> readInstalledResources();
+    public List<Resource> readInstalledResources(final Product product);
 
     /**
      * Read the latest release.
      * 
+     * @param product
+     *            A <code>Product</code>.
      * @return A <code>Release</code>.
      */
-    public Release readLatestRelease();
+    public Release readLatestRelease(final Product product);
 
     /**
-     * Read the latest resources.
+     * Read the latest resources for a product.
      * 
+     * @param product
+     *            A <code>Product</code>.
      * @return A <code>List</code> of <code>Resource</code>s.
      */
-    public List<Resource> readLatestResources();
+    public List<Resource> readLatestResources(final Product product);
 
     /**
      * Read the product.
      * 
+     * @param name
+     *            A product name <code>String</code>.
      * @return A <code>Product</code>.
      */
-    public Product readProduct();
+    public Product readProduct(final String name);
+
+    /**
+     * Read all releases.
+     * 
+     * @return A <code>List</code> of <code>Release</code>s.
+     */
+    public List<Release> readReleases();
+
+    /**
+     * Update the installed release.
+     * 
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     */
+    public void updateInstalledRelease(final Product product,
+            final Release release);
+
+    /**
+     * Update the latest release.
+     * 
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     */
+    public void updateLatestRelease(final Product product, final Release release);
+
+    /**
+     * Update the release initialization.
+     * 
+     * @param release
+     *            A <code>Release</code>.
+     */
+    public void updateReleaseInitialization(final Release release);
 }

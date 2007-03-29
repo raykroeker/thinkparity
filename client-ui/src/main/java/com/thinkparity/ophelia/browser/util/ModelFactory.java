@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.util;
 
-
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.session.Environment;

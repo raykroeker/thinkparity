@@ -69,7 +69,6 @@ class DeployHelper {
             imageArchiveFile.delete()
         ZipUtil.createZipFile(imageArchiveFile, imageDir,
             configuration["thinkparity.buffer"])
-        release.setChecksum(checksum(imageArchiveFile))
         // deploy
         deploy(configuration["thinkparity.userid"], product, release, resources, upload(imageArchiveFile))
     }

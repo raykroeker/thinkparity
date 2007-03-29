@@ -204,11 +204,16 @@ public interface XMPPSession {
      * 
      * @param streamId
      *            A stream id <code>String</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
      * @param resources
      *            A <code>List</code> of <code>Resource</code>s.
      */
     public void createMigratorStream(final JabberId userId,
-            final String streamId, final List<Resource> resources);
+            final String streamId, final Product product,
+            final Release release, final List<Resource> resources);
 
     /**
      * Create a stream.
@@ -410,9 +415,11 @@ public interface XMPPSession {
      *            An <code>Error</code>.
      * @param product
      *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
      */
     public void logError(final JabberId userId, final Product product,
-            final Error error);
+            final Release release, final Error error);
 
     /**
      * Login.
@@ -682,14 +689,14 @@ public interface XMPPSession {
     /**
      * Read the latest release.
      * 
-     * @param productUniqueId
-     *            A product unique id <code>UUID</code>.
+     * @param productName
+     *            A product name <code>String</code>.
      * @param os
      *            An <code>OS</code>.
      * @return A <code>Release</code>.
      */
     public Release readMigratorLatestRelease(final JabberId userId,
-            final UUID productUniqueId, final OS os);
+            final String productName, final OS os);
 
     /**
      * Read a migrator product.
@@ -707,8 +714,8 @@ public interface XMPPSession {
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @param productUniqueId
-     *            A product unique id <code>UUID</code>.
+     * @param productName
+     *            A product name <code>String</code>.
      * @param name
      *            A release name.
      * @param os
@@ -716,7 +723,7 @@ public interface XMPPSession {
      * @return A <code>Release</code>.
      */
     public Release readMigratorRelease(final JabberId userId,
-            final UUID productUniqueId, final String name, final OS os);
+            final String productName, final String name, final OS os);
 
     /**
      * Read migrator release resources.

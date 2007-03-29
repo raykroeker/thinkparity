@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.model.util.xmpp;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -47,14 +46,13 @@ final class XMPPMigrator extends AbstractXMPP<MigratorListener> {
     }
 
     void createStream(final JabberId userId, final String streamId,
+            final Product product, final Release release,
             final List<Resource> resources) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("streamId", streamId);
-        logger.logVariable("resources", resources);
         final XMPPMethod createStream = new XMPPMethod("migrator:createstream");
         createStream.setParameter("userId", userId);
         createStream.setParameter("streamId", streamId);
+        createStream.setParameter("product", product);
+        createStream.setParameter("release", release);
         createStream.setResourceParameters("resources", resources);
         execute(createStream);
     }
@@ -104,10 +102,11 @@ final class XMPPMigrator extends AbstractXMPP<MigratorListener> {
      *            The error's occured on <code>Calendar</code>.
      */
     void logError(final JabberId userId, final Product product,
-            final Error error) {
+            final Release release, final Error error) {
         final XMPPMethod xmppMethod = new XMPPMethod("migrator:logerror");
         xmppMethod.setParameter("userId", userId);
         xmppMethod.setParameter("product", product);
+        xmppMethod.setParameter("release", release);
         xmppMethod.setParameter("error", error);
         execute(xmppMethod);
     }
@@ -115,21 +114,17 @@ final class XMPPMigrator extends AbstractXMPP<MigratorListener> {
     /**
      * Read the latest release.
      * 
-     * @param productUniqueId
-     *            A product unique id <code>UUID</code>.
+     * @param productName
+     *            A product name <code>String</code>.
      * @param os
      *            An <code>OS</code>.
      * @return A <code>Release</code>.
      */
     Release readLatestRelease(final JabberId userId,
-            final UUID productUniqueId, final OS os) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("productUniqueId", productUniqueId);
-        logger.logVariable("os", os);
+            final String productName, final OS os) {
         final XMPPMethod readRelease = new XMPPMethod("migrator:readlatestrelease");
         readRelease.setParameter("userId", userId);
-        readRelease.setParameter("productUniqueId", productUniqueId);
+        readRelease.setParameter("productName", productName);
         readRelease.setParameter("os", os);
         return execute(readRelease, Boolean.TRUE).readResultRelease("release");
     }
@@ -154,19 +149,23 @@ final class XMPPMigrator extends AbstractXMPP<MigratorListener> {
     }
     
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readMigratorRelease(com.thinkparity.codebase.jabber.JabberId, java.util.UUID, java.lang.String, com.thinkparity.codebase.OS)
-     *
+     * Read a release.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param productName
+     *            A product name <code>String</code>.
+     * @param name
+     *            A release name <code>String</code>.
+     * @param os
+     *            An operating system <code>OS</code>.
+     * @return A <code>Release</code>.
      */
-    Release readRelease(final JabberId userId,
-            final UUID productUniqueId, final String name, final OS os) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("productUniqueId", productUniqueId);
-        logger.logVariable("name", name);
-        logger.logVariable("os", os);
+    Release readRelease(final JabberId userId, final String productName,
+            final String name, final OS os) {
         final XMPPMethod readRelease = new XMPPMethod("migrator:readrelease");
         readRelease.setParameter("userId", userId);
-        readRelease.setParameter("productUniqueId", productUniqueId);
+        readRelease.setParameter("productName", productName);
         readRelease.setParameter("name", name);
         readRelease.setParameter("os", os);
         return execute(readRelease, Boolean.TRUE).readResultRelease("release");

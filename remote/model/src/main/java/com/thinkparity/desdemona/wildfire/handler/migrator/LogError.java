@@ -7,6 +7,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
 
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
@@ -41,11 +42,13 @@ public final class LogError extends AbstractHandler {
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
         logError(provider, reader.readJabberId("userId"),
-                reader.readProduct("product"), reader.readError("error"));
+                reader.readProduct("product"), reader.readRelease("release"),
+                reader.readError("error"));
     }
 
     private void logError(final ServiceModelProvider provider,
-            final JabberId userId, final Product product, final Error error) {
-        provider.getMigratorModel().logError(userId, product, error);
+            final JabberId userId, final Product product,
+            final Release release, final Error error) {
+        provider.getMigratorModel().logError(userId, product, release, error);
     }
 }

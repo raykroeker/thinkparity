@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.build
 import com.thinkparity.antx.Dependency
 import com.thinkparity.antx.DependencyTracker
 
+import com.thinkparity.codebase.Constants
 import com.thinkparity.codebase.FileUtil
 import com.thinkparity.codebase.FileSystem
 
@@ -116,11 +117,9 @@ class ResourceBuilder {
     Resource create(String version, File file) {
         def resource = new Resource()
         resource.setChecksum(checksum(file))
-        resource.setName(file.getName())
-        resource.setOs(release.getOs())
+        resource.setChecksumAlgorithm(Constants.ChecksumAlgorithm.MD5.name())
         resource.setPath(FileUtil.getRelativePath(imageDir, file))
         resource.setSize(file.length())
-        resource.setVersion(version)
         return resource
     }
 

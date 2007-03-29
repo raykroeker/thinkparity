@@ -128,6 +128,7 @@ public abstract class SwingWorker {
              }
          };
 
+         // THREAD - SwingWorker#<init>
          Thread t = new Thread(doConstruct, name);
          threadVar = new ThreadVar(t);
     }

@@ -386,12 +386,15 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createMigratorStream(com.thinkparity.codebase.jabber.JabberId, java.lang.String, java.util.List)
-     *
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createMigratorStream(com.thinkparity.codebase.jabber.JabberId,
+     *      java.lang.String, com.thinkparity.codebase.model.migrator.Product,
+     *      com.thinkparity.codebase.model.migrator.Release, java.util.List)
+     * 
      */
     public void createMigratorStream(final JabberId userId,
-            final String streamId, final List<Resource> resources) {
-        xmppMigrator.createStream(userId, streamId, resources);
+            final String streamId, final Product product,
+            final Release release, final List<Resource> resources) {
+        xmppMigrator.createStream(userId, streamId, product, release, resources);
     }
 
     /**
@@ -622,12 +625,13 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#logError(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.migrator.Product,
+     *      com.thinkparity.codebase.model.migrator.Release,
      *      com.thinkparity.codebase.model.migrator.Error)
      * 
      */
     public void logError(final JabberId userId, final Product product,
-            final Error error) {
-        xmppMigrator.logError(userId, product, error);
+            final Release release, final Error error) {
+        xmppMigrator.logError(userId, product, release, error);
     }
 
     /**
@@ -923,12 +927,12 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
 
 	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readMigratorLatestRelease(com.thinkparity.codebase.jabber.JabberId,
-     *      java.util.UUID, com.thinkparity.codebase.OS)
+     *      java.lang.String, com.thinkparity.codebase.OS)
      * 
      */
     public Release readMigratorLatestRelease(final JabberId userId,
-            final UUID productUniqueId, final OS os) {
-        return xmppMigrator.readLatestRelease(userId, productUniqueId, os);
+            final String productName, final OS os) {
+        return xmppMigrator.readLatestRelease(userId, productName, os);
     }
 
 	/**
@@ -940,12 +944,13 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readMigratorRelease(com.thinkparity.codebase.jabber.JabberId, java.util.UUID, java.lang.String, com.thinkparity.codebase.OS)
-     *
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readMigratorRelease(com.thinkparity.codebase.jabber.JabberId,
+     *      java.lang.String, java.lang.String, com.thinkparity.codebase.OS)
+     * 
      */
     public Release readMigratorRelease(final JabberId userId,
-            final UUID productUniqueId, final String name, final OS os) {
-        return xmppMigrator.readRelease(userId, productUniqueId, name, os);
+            final String productName, final String name, final OS os) {
+        return xmppMigrator.readRelease(userId, productName, name, os);
     }
 
     /**

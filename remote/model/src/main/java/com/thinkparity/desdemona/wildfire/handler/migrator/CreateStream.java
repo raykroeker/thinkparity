@@ -7,6 +7,8 @@ import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
 
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
@@ -40,22 +42,14 @@ public final class CreateStream extends AuthenticatedHandler {
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
         createStream(provider, reader.readJabberId("userId"),
-                reader.readString("streamId"),
-                reader.readResources("resources"));
+                reader.readString("streamId"), reader.readProduct("product"),
+                reader.readRelease("release"), reader.readResources("resources"));
     }
 
-    /**
-     * Read a release.
-     * 
-     * @param provider
-     *            A <code>ServiceModelProvider</code>.
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A <code>Release</code>.
-     */
     private void createStream(final ServiceModelProvider provider,
-            final JabberId userId, final String streamId,
-            final List<Resource> resources) {
-        provider.getMigratorModel().createStream(userId, streamId, resources);
+            final JabberId userId, final String streamId, final Product product,
+            final Release release, final List<Resource> resources) {
+        provider.getMigratorModel().createStream(userId, streamId, product,
+                release, resources);
     }
 }

@@ -3,9 +3,6 @@
  */
 package com.thinkparity.codebase.model.migrator;
 
-import com.thinkparity.codebase.OS;
-
-
 /**
  * <b>Title:</b>thinkParity Resource<br>
  * <b>Description:</b><br>
@@ -13,28 +10,22 @@ import com.thinkparity.codebase.OS;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class Resource {
+public final class Resource {
 
     /** A resource checksum <code>String</code>. */
     private String checksum;
 
+    /** A checksum algorithm <code>String</code>. */
+    private String checksumAlgorithm;
+
     /** A resource id <code>Long</code>. */
     private Long id;
-
-    /** A resource name <code>String</code>. */
-    private String name;
-
-    /** An <code>OS</code>. */
-    private OS os;
 
     /** A resource path <code>String</code>. */
     private String path;
 
     /** A resource size <code>Long</code>. */
     private Long size;
-
-    /** A resource version <code>String</code>. */
-    private String version;
 
     /**
      * Create Resource.
@@ -45,8 +36,23 @@ public class Resource {
     }
 
     /**
-     * Obtain checksum.
+     * @see java.lang.Object#equals(java.lang.Object)
      *
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (null == obj)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        return ((Resource) obj).checksum.equals(checksum);
+    }
+
+    /**
+     * Obtain checksum.
+     * 
      * @return A String.
      */
     public String getChecksum() {
@@ -54,30 +60,22 @@ public class Resource {
     }
 
     /**
+     * Obtain checksumAlgorithm.
+     *
+     * @return A String.
+     */
+    public String getChecksumAlgorithm() {
+        return checksumAlgorithm;
+    }
+
+    
+    /**
      * Obtain id.
      *
      * @return A Long.
      */
     public Long getId() {
         return id;
-    }
-
-    /**
-     * Obtain name.
-     *
-     * @return A String.
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Obtain os.
-     *
-     * @return A OS.
-     */
-    public OS getOs() {
-        return os;
     }
 
     /**
@@ -99,12 +97,12 @@ public class Resource {
     }
 
     /**
-     * Obtain version.
+     * @see java.lang.Object#hashCode()
      *
-     * @return A String.
      */
-    public String getVersion() {
-        return version;
+    @Override
+    public int hashCode() {
+        return checksum.hashCode();
     }
 
     /**
@@ -118,6 +116,16 @@ public class Resource {
     }
 
     /**
+     * Set checksumAlgorithm.
+     *
+     * @param checksumAlgorithm
+     *		A String.
+     */
+    public void setChecksumAlgorithm(final String checksumAlgorithm) {
+        this.checksumAlgorithm = checksumAlgorithm;
+    }
+
+    /**
      * Set id.
      *
      * @param id
@@ -125,26 +133,6 @@ public class Resource {
      */
     public void setId(final Long id) {
         this.id = id;
-    }
-
-    /**
-     * Set name.
-     *
-     * @param name
-     *		A String.
-     */
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    /**
-     * Set os.
-     *
-     * @param os
-     *		A OS.
-     */
-    public void setOs(final OS os) {
-        this.os = os;
     }
 
     /**
@@ -165,15 +153,5 @@ public class Resource {
      */
     public void setSize(final Long size) {
         this.size = size;
-    }
-
-    /**
-     * Set version.
-     *
-     * @param version
-     *		A String.
-     */
-    public void setVersion(final String version) {
-        this.version = version;
     }
 }

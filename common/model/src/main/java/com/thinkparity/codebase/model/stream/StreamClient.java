@@ -228,7 +228,7 @@ abstract class StreamClient {
         write(new StreamHeader(StreamHeader.Type.STREAM_ID, streamId));
         write(new StreamHeader(StreamHeader.Type.STREAM_OFFSET, String.valueOf(streamOffset)));
         write(new StreamHeader(StreamHeader.Type.STREAM_SIZE, String.valueOf(streamSize)));
-        // THREAD stream client write listener
+        // THREAD StreamClient#initializeWrite()
         new Thread("TPS-Common-SCWriteListener") {
             public void run() {
                 try {

@@ -55,7 +55,7 @@ final class ModelInvocationHandler implements InvocationHandler {
     public Object invoke(final Object proxy, final Method method,
             final Object[] args) throws Throwable {
         LOGGER.logTrace("Invoking method {0} on {1}.", method, model);
-        if (null != args && 0 < args.length) {
+        if (null != args && 0 < args.length && LOGGER.isDebugEnabled()) {
             for (int i = 0; i < args.length; i++)
                 LOGGER.logDebug("args[{0}]:{1}", i, args[i]);
         }

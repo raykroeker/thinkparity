@@ -16,7 +16,7 @@ public class Constants {
      * <b>Title:</b>Checksum Algorithms<br>
      * <b>Description:</b>Enumerated checksum algorithms.<br>
      */
-    public enum ChecksumAlgorithm{ MD5 }
+    public enum ChecksumAlgorithm { MD5 }
 
     /**
      * <b>Title:</b>thinkParity File Constants<br>

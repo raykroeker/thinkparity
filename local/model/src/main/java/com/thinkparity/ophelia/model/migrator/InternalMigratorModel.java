@@ -26,13 +26,14 @@ public interface InternalMigratorModel extends MigratorModel {
      * @param event
      *            A <code>ProductReleaseDeployedEvent</code>.
      */
-    public void handleProductReleaseDeployed(final ProductReleaseDeployedEvent event);
+    public void handleProductReleaseDeployed(
+            final ProductReleaseDeployedEvent event);
 
     /**
-     * Initialize the migrator model.
+     * Initialize the product.
      *
      */
-    public void initialize();
+    public void initializeProduct();
 
     /**
      * Log an error.

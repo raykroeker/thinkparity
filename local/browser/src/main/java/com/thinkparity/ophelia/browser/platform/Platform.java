@@ -6,9 +6,9 @@ package com.thinkparity.ophelia.browser.platform;
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
-import java.util.Properties;
 import java.util.TimeZone;
 
+import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
@@ -28,33 +28,13 @@ import com.thinkparity.ophelia.browser.util.ModelFactory;
 import org.apache.log4j.Logger;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity OpheliaUI Platform<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
 public interface Platform extends ApplicationListener {
-
-    /**
-     * Initialize a workspace.
-     * 
-     * @param workspace
-     *            A thinkParity <code>Workspace</code>.
-     * @param loginMonitor
-     *            A <code>LoginMonitor</code>.
-     * @param credentials
-     *            A user's <code>Credentials</code>.
-     */
-    public void initializeWorkspace(final ProcessMonitor monitor,
-            final Workspace workspace, final Credentials credentials)
-            throws InvalidCredentialsException;
-
-    /**
-     * Determine if a workspace has been initialized.
-     * 
-     * @param workspace
-     *            A thinkParity <code>Workspace</code>
-     * @return True if the workspace has already been initialized.
-     */
-    public Boolean isWorkspaceInitialized(final Workspace workspace);
 
     /**
      * Add a platform life cycle listener.
@@ -112,9 +92,9 @@ public interface Platform extends ApplicationListener {
 
     public Logger getLogger(final Class clasz);
 
-	public ModelFactory getModelFactory();
+    public ModelFactory getModelFactory();
 
-	public BrowserPlatformPersistence getPersistence();
+    public BrowserPlatformPersistence getPersistence();
 
 	/**
      * Obtain the plugin registry for the platform.
@@ -123,7 +103,14 @@ public interface Platform extends ApplicationListener {
      */
     public PluginRegistry getPluginRegistry();
 
-    /**
+	/**
+     * Obtain the release for the platform.
+     * 
+     * @return The platform <code>Release</code>.
+     */
+    public Release getRelease();
+
+	/**
      * Obtain the time zone.
      * 
      * @return The <code>TimeZone</code>.
@@ -139,6 +126,20 @@ public interface Platform extends ApplicationListener {
 	 *            The application id.
 	 */
 	public void hibernate(final ApplicationId applicationId);
+
+    /**
+     * Initialize a workspace.
+     * 
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>.
+     * @param loginMonitor
+     *            A <code>LoginMonitor</code>.
+     * @param credentials
+     *            A user's <code>Credentials</code>.
+     */
+    public void initializeWorkspace(final ProcessMonitor monitor,
+            final Workspace workspace, final Credentials credentials)
+            throws InvalidCredentialsException;
 
 	/**
 	 * Indicates whether or not the platform is running in debug mode.
@@ -174,6 +175,15 @@ public interface Platform extends ApplicationListener {
 	public Boolean isTestingMode();
 
 	/**
+     * Determine if a workspace has been initialized.
+     * 
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>
+     * @return True if the workspace has already been initialized.
+     */
+    public Boolean isWorkspaceInitialized(final Workspace workspace);
+
+    /**
      * Add a platform life cycle listener.
      * 
      * @param listener
@@ -186,14 +196,6 @@ public interface Platform extends ApplicationListener {
      * 
      */
     public void restart();
-
-    /**
-     * Restart the platform with the specified properties.
-     * 
-     * @param properties
-     *            Platform properties.
-     */
-    public void restart(final Properties properties);
 
     /**
 	 * RestoreBrower an application from hibernation.
@@ -213,10 +215,12 @@ public interface Platform extends ApplicationListener {
      * @param monitor
      *            A <code>ThinkParitySwingMonitor</code>.
      */
-    public void runLogin(final String username, final String password, final ThinkParitySwingMonitor monitor);
+    public void runLogin(final String username, final String password,
+            final ThinkParitySwingMonitor monitor);
 
     /**
      * Run the reset password action.
+     * 
      */
     public void runResetPassword();
 

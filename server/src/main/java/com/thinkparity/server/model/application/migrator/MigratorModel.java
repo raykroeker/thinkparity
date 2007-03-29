@@ -4,7 +4,6 @@
 package com.thinkparity.desdemona.model.migrator;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -30,10 +29,13 @@ public interface MigratorModel {
      *            A user id <code>JabberId</code>.
      * @param streamId
      *            A stream id <code>String</code>.
+     * @param release
+     *            A <code>Release</code>.
      * @param resources
      *            A <code>List</code> of <code>Resource</code>s.
      */
     public void createStream(final JabberId userId, final String streamId,
+            final Product product, final Release release,
             final List<Resource> resources);
 
     /**
@@ -61,23 +63,25 @@ public interface MigratorModel {
      *            A user id <code>JabberId</code>.
      * @param product
      *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
      * @param occuredOn
      *            The <code>Calendar</code> the error occured.
      */
     public void logError(final JabberId userId, final Product product,
-            final Error error);
+            final Release release, final Error error);
 
     /**
      * Read the latest release.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @param productUniqueId
-     *            A product unique id <code>UUID</code>.
+     * @param productName
+     *            A product name <code>String</code>.
      * @return A <code>Release</code>.
      */
     public Release readLatestRelease(final JabberId userId,
-            final UUID productUniqueId, final OS os);
+            final String productName, final OS os);
 
     /**
      * Read a product.
@@ -95,22 +99,22 @@ public interface MigratorModel {
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @param productUniqueId
-     *            A product unique id <code>UUID</code>.
+     * @param productName
+     *            A product name <code>String</code>.
      * @param name
      *            A release name.
      * @return A <code>Release</code>.
      */
     public Release readRelease(final JabberId userId,
-            final UUID productUniqueId, final String name, final OS os);
+            final String productName, final String name, final OS os);
 
     /**
      * Read a release.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @param productUniqueId
-     *            A product unique id <code>UUID</code>.
+     * @param productName
+     *            A product name <code>String</code>.
      * @param releaseName
      *            A release name.
      * @return A <code>Release</code>.

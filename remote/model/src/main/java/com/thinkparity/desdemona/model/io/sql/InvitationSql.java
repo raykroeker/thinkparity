@@ -645,7 +645,7 @@ public class InvitationSql extends AbstractSql {
         session.setLong(1, invitation.getCreatedBy().getLocalId());
         session.setCalendar(2, invitation.getCreatedOn());
         if (1 != session.executeUpdate())
-            throw new HypersonicException("Could not create contact invitation.");
+            throw panic("Could not create contact invitation.");
         invitation.setId(session.getIdentity("TPSD_CONTACT_INVITATION"));
     }
 
@@ -662,7 +662,7 @@ public class InvitationSql extends AbstractSql {
         session.prepareStatement(SQL_DELETE);
         session.setLong(1, invitation.getId());
         if (1 != session.executeUpdate())
-            throw new HypersonicException("Could not delete invitation {0}.",
+            throw panic("Could not delete invitation {0}.",
                     invitation);
     }
 

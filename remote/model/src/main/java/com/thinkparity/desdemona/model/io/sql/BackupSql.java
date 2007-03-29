@@ -10,7 +10,6 @@ import java.util.UUID;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 
 /**
@@ -80,7 +79,7 @@ public final class BackupSql extends AbstractSql {
             session.setLong(1, user.getLocalId());
             session.setLong(2, artifact.getId());
             if (1 != session.executeUpdate())
-                throw new HypersonicException("Could not restore artifact for user.",
+                throw panic("Could not restore artifact for user.",
                         artifact.getId(), user.getId());
             session.commit();
         } catch (final Throwable t) {
@@ -105,7 +104,7 @@ public final class BackupSql extends AbstractSql {
             session.setLong(1, user.getLocalId());
             session.setLong(2, artifact.getId());
             if (1 != session.executeUpdate())
-                throw new HypersonicException("Could not restore artifact for user.",
+                throw panic("Could not restore artifact for user.",
                         artifact.getId(), user.getId());
             session.commit();
         } catch (final Throwable t) {
@@ -135,10 +134,10 @@ public final class BackupSql extends AbstractSql {
                 } else if (0 < archiveCount) {
                     return Boolean.TRUE;
                 } else {
-                    throw new HypersonicException("Could not determine archive existence.");
+                    throw panic("Could not determine archive existence.");
                 }
             } else {
-                throw new HypersonicException("Could not determine archive existence.");
+                throw panic("Could not determine archive existence.");
             }
         } catch (final Throwable t) {
             throw translateError(session, t);
@@ -170,10 +169,10 @@ public final class BackupSql extends AbstractSql {
                 } else if (1 == archiveCount) {
                     return Boolean.TRUE;
                 } else {
-                    throw new HypersonicException("Could not determine archive existence.");
+                    throw panic("Could not determine archive existence.");
                 }
             } else {
-                throw new HypersonicException("Could not determine archive existence.");
+                throw panic("Could not determine archive existence.");
             }
         } catch (final Throwable t) {
             throw translateError(session, t);

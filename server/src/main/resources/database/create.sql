@@ -115,7 +115,6 @@ create table TPSD_ARTIFACT(
     foreign key(CREATED_BY) references TPSD_USER(USER_ID),
     foreign key(UPDATED_BY) references TPSD_USER(USER_ID)
 );
-create index TPSD_ARTIFACT_IX_1 on TPSD_ARTIFACT(ARTIFACT_DRAFT_OWNER);
 create table TPSD_ARTIFACT_TEAM_REL(
     ARTIFACT_ID bigint not null,
     USER_ID bigint not null,
@@ -130,16 +129,6 @@ create table TPSD_PRODUCT(
     primary key(PRODUCT_ID),
     unique(PRODUCT_NAME)
 );
-create table TPSD_PRODUCT_ERROR(
-    ERROR_ID bigint generated always as identity (start with 9000),
-    PRODUCT_ID bigint not null,
-    USER_ID bigint not null,
-    ERROR_DATE timestamp not null,
-    ERROR_XML blob not null,
-    primary key(ERROR_ID),
-    foreign key(USER_ID) references TPSD_USER(USER_ID),
-    foreign key(PRODUCT_ID) references TPSD_PRODUCT(PRODUCT_ID)
-);
 create table TPSD_PRODUCT_FEATURE(
     PRODUCT_ID bigint not null,
     FEATURE_ID bigint generated always as identity (start with 6000),
@@ -149,8 +138,8 @@ create table TPSD_PRODUCT_FEATURE(
     foreign key(PRODUCT_ID) references TPSD_PRODUCT(PRODUCT_ID)
 );
 create table TPSD_PRODUCT_RELEASE(
-	PRODUCT_ID bigint not null,
-	RELEASE_ID bigint generated always as identity (start with 3000),
+    PRODUCT_ID bigint not null,
+    RELEASE_ID bigint generated always as identity (start with 3000),
     RELEASE_NAME varchar(64) not null,
     RELEASE_OS varchar(32) not null,
     RELEASE_DATE timestamp not null,
@@ -158,27 +147,31 @@ create table TPSD_PRODUCT_RELEASE(
     unique(PRODUCT_ID,RELEASE_NAME,RELEASE_OS),
     foreign key(PRODUCT_ID) references TPSD_PRODUCT(PRODUCT_ID)
 );
-create table TPSD_PRODUCT_RELEASE_RESOURCE(
-	RESOURCE_ID bigint generated always as identity (start with 4000),
-    RESOURCE_NAME varchar(64) not null,
-    RESOURCE_VERSION varchar(64) not null,
-    RESOURCE_CHECKSUM varchar(256) not null,
-    RESOURCE_SIZE bigint not null,
-	RESOURCE blob not null,
-    primary key(RESOURCE_ID),
-    unique(RESOURCE_NAME,RESOURCE_VERSION,RESOURCE_CHECKSUM)
+create table TPSD_PRODUCT_RELEASE_ERROR(
+    ERROR_ID bigint generated always as identity (start with 9000),
+    RELEASE_ID bigint not null,
+    USER_ID bigint not null,
+    ERROR_DATE timestamp not null,
+    ERROR_XML clob not null,
+    primary key(ERROR_ID),
+    foreign key(USER_ID) references TPSD_USER(USER_ID),
+    foreign key(RELEASE_ID) references TPSD_PRODUCT_RELEASE(RELEASE_ID)
 );
-create table TPSD_PRODUCT_RELEASE_RESOURCE_OS(
-	RESOURCE_ID bigint not null,
-	RESOURCE_OS varchar(32) not null,
-	primary key(RESOURCE_ID,RESOURCE_OS),
-	foreign key(RESOURCE_ID) references TPSD_PRODUCT_RELEASE_RESOURCE(RESOURCE_ID)
+create table TPSD_PRODUCT_RELEASE_RESOURCE(
+    RESOURCE_ID bigint generated always as identity (start with 4000),
+    RESOURCE_CHECKSUM varchar(256) not null,
+    RESOURCE_CHECKSUM_ALGORITHM varchar(16) not null,
+    RESOURCE_SIZE bigint not null,
+    RESOURCE blob not null,
+    primary key(RESOURCE_ID),
+    unique(RESOURCE_CHECKSUM)
 );
 create table TPSD_PRODUCT_RELEASE_RESOURCE_REL(
     RELEASE_ID bigint not null,
     RESOURCE_ID bigint not null,
     RESOURCE_PATH varchar(256) not null,
     primary key(RELEASE_ID,RESOURCE_ID),
+    unique(RELEASE_ID,RESOURCE_PATH),
     foreign key(RELEASE_ID) references TPSD_PRODUCT_RELEASE(RELEASE_ID),
     foreign key(RESOURCE_ID) references TPSD_PRODUCT_RELEASE_RESOURCE(RESOURCE_ID)
 );

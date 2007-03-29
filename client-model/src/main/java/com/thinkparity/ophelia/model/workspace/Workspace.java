@@ -107,13 +107,6 @@ public interface Workspace {
     public DataSource getDataSource();
 
     /**
-     * Obtain the default buffer size.
-     * 
-     * @return A buffer size <code>Integer</code>.
-     */
-    public Integer getDefaultBufferSize();
-
-    /**
      * Obtain the default buffer.
      * 
      * @return A <code>ByteBuffer</code>.
@@ -121,11 +114,25 @@ public interface Workspace {
     public ByteBuffer getDefaultBuffer();
 
     /**
-	 * Obtain the index directory.
-	 * 
-	 * @return The index directory <code>File</code.
-	 */
-	public File getIndexDirectory();
+     * Obtain the default buffer size.
+     * 
+     * @return A buffer size <code>Integer</code>.
+     */
+    public Integer getDefaultBufferSize();
+
+    /**
+     * Obtain the download directory.
+     * 
+     * @return The download directory <code>File</code.
+     */
+    public File getDownloadDirectory();
+
+    /**
+     * Obtain the index directory.
+     * 
+     * @return The index directory <code>File</code.
+     */
+    public File getIndexDirectory();
 
     /**
      * Obtain the log directory.

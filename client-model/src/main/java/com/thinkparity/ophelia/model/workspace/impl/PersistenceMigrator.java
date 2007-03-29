@@ -68,7 +68,6 @@ public class PersistenceMigrator {
                 CONFIG.getProperty("CreateArtifactVersion"),
                 CONFIG.getProperty("CreateArtifactVersionMetaData"),
                 CONFIG.getProperty("CreateConfiguration"),
-                CONFIG.getProperty("CreateMigratorMetaData"),
                 CONFIG.getProperty("CreateContainer"),
                 CONFIG.getProperty("CreateContainerVersion"),
                 CONFIG.getProperty("CreateContainerVersionArtifactVersionRel"),
@@ -80,6 +79,9 @@ public class PersistenceMigrator {
                 CONFIG.getProperty("CreateDocument"),
                 CONFIG.getProperty("CreateDocumentVersion"),
                 CONFIG.getProperty("CreateContainerDraftDocument"),
+                CONFIG.getProperty("CreateProductRelease"),
+                CONFIG.getProperty("CreateProductReleaseResource"),
+                CONFIG.getProperty("CreateProduct"),
                 CONFIG.getProperty("CreateIndexUserName"),
                 CONFIG.getProperty("CreateIndexUserOrganization"),
                 CONFIG.getProperty("CreateIndexEmail")

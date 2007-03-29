@@ -38,16 +38,17 @@ public class ZipUtil {
             throws FileNotFoundException, IOException {
         if (null == zipFile)
             throw new NullPointerException("zipFile cannot be null.");
-        if (zipFile.exists())
-            throw new IllegalArgumentException(
-                    MessageFormat.format("{0} cannot exist.", zipFile.getAbsolutePath()));
         if (null == inputDirectory)
             throw new NullPointerException("inputDirectory cannot be null.");
         if (!inputDirectory.isDirectory())
             throw new IllegalArgumentException(
                     MessageFormat.format("{0} must be a directory.", inputDirectory.getAbsolutePath()));
+        if (zipFile.exists()) {
+            Assert.assertTrue(zipFile.delete(),
+                    "Existing zip file {0} could not be deleted.", zipFile);
+        }
 		Assert.assertTrue(zipFile.createNewFile(),
-                "Zip file ''{0}'' could not be created.", zipFile);
+                "Zip file {0} could not be created.", zipFile);
 		final ZipOutputStream zipStream =
 			new ZipOutputStream(new FileOutputStream(zipFile));
         zipStream.setMethod(ZipOutputStream.DEFLATED);

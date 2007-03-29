@@ -33,6 +33,7 @@ import com.thinkparity.codebase.model.util.jta.Transaction;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.Constants.FileNames;
+import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl;
@@ -43,10 +44,13 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.PropertyConfigurator;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1.2.2
+ * <b>Title:</b>thinkParity OpheliaModel Workspace Implementation<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.37
  */
-public class WorkspaceImpl implements Workspace {
+public final class WorkspaceImpl implements Workspace {
 
     /** The workspace default <code>ByteBuffer</code>. */
     private ByteBuffer defaultBuffer;
@@ -272,13 +276,22 @@ public class WorkspaceImpl implements Workspace {
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getDownloadDirectory()
+     *
+     */
+    public File getDownloadDirectory() {
+        return initChild(DirectoryNames.Workspace.DOWNLOAD);
+    }
+
+	/**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getIndexDirectory()
+     * 
      */
     public File getIndexDirectory() {
         return initChild(DirectoryNames.Workspace.INDEX);
     }
 
-	/**
+    /**
      * Obtain the model's event listeners.
      * 
      * @param <T>
@@ -360,7 +373,39 @@ public class WorkspaceImpl implements Workspace {
      * @return True if it has already been initialized.
      */
     public Boolean isInitialized() {
-        return persistenceManagerImpl.isInitialized();
+        try {
+            final Session session = persistenceManagerImpl.openSession();
+            final Boolean isInitialized;
+            try {
+                // check for the existence of the META_DATA table
+                session.openMetaData();
+                session.getMetaDataTables("META_DATA");
+                if (session.nextResult()) {
+                    session.getMetaDataTables();
+                    final String sql =
+                        new StringBuffer("select META_DATA_VALUE ")
+                        .append("from META_DATA ")
+                        .append("where META_DATA_KEY=?")
+                        .toString();
+                    session.prepareStatement(sql);
+                    session.setString(1, "thinkparity.workspace-initialized");
+                    session.executeQuery();
+                    if (session.nextResult()) {
+                        isInitialized = Boolean.valueOf(
+                                session.getString("META_DATA_VALUE"));
+                    } else {
+                        isInitialized = Boolean.FALSE;
+                    }
+                } else {
+                    isInitialized = Boolean.FALSE;
+                }
+            } finally {
+                session.close();
+            }
+            return isInitialized;
+        } catch (final Throwable t) {
+            throw new WorkspaceException("Cannot determine workspace initialization.", t);
+        }
     }
 
     /**

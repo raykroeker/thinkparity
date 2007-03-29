@@ -3,8 +3,6 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.migrator;
 
-import java.util.UUID;
-
 import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -41,7 +39,7 @@ public final class ReadRelease extends AuthenticatedHandler {
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
         writer.write("release", readRelease(provider,
-                reader.readJabberId("userId"), reader.readUUID("productUniqueId"),
+                reader.readJabberId("userId"), reader.readString("productName"),
                 reader.readString("name"), reader.readOs("os")));
     }
 
@@ -57,9 +55,9 @@ public final class ReadRelease extends AuthenticatedHandler {
      * @return A <code>Release</code>.
      */
     private Release readRelease(final ServiceModelProvider provider,
-            final JabberId userId, final UUID productUniqueId,
+            final JabberId userId, final String productName,
             final String name, final OS os) {
-        return provider.getMigratorModel().readRelease(userId, productUniqueId,
+        return provider.getMigratorModel().readRelease(userId, productName,
                 name, os);
     }
 }

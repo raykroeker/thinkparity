@@ -323,19 +323,15 @@ public class ThinkParityDebuggerFrame extends AbstractJFrame {
     }
 
     private void swingInspectorReloadJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_swingInspectorReloadJButtonActionPerformed
-// TODO add your handling code here:
     }//GEN-LAST:event_swingInspectorReloadJButtonActionPerformed
 
     private void swingInspectorEnableJRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_swingInspectorEnableJRadioButtonActionPerformed
-// TODO add your handling code here:
     }//GEN-LAST:event_swingInspectorEnableJRadioButtonActionPerformed
 
     private void swingInspectorDisableJRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_swingInspectorDisableJRadioButtonActionPerformed
-// TODO add your handling code here:
     }//GEN-LAST:event_swingInspectorDisableJRadioButtonActionPerformed
 
     private void thinkParityPropertiesReloadJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_thinkParityPropertiesReloadJButtonActionPerformed
-// TODO add your handling code here:
     }//GEN-LAST:event_thinkParityPropertiesReloadJButtonActionPerformed
 
     private void reloadSystemPropertiesJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reloadSystemPropertiesJButtonActionPerformed

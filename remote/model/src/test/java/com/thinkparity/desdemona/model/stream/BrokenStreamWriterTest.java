@@ -71,7 +71,7 @@ public final class BrokenStreamWriterTest extends StreamTestCase {
         final int streamCount = 1;
         final List<Thread> streamWriters = new ArrayList<Thread>();
         for (int i = 0; i < streamCount; i++) {
-            // THREAD broken stream write test thread
+            // THREAD BrokenStreamWriterTest#setUp()
             streamWriters.add(new Thread(new Runnable() {
                     public void run() {
                         try {

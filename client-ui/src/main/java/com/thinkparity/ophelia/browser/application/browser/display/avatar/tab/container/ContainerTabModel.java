@@ -54,13 +54,9 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     /** A session key for the draft monitor. */
     private static final String SK_DRAFT_MONITOR;
 
-    /** A filter by persistence key */
-    private static final String FILTER_BY_PERSISTENCE_KEY;
-
     static {
         SK_DRAFT_MONITOR = new StringBuffer(ContainerTabModel.class.getName())
             .append("#ContainerDraftMonitor").toString();
-        FILTER_BY_PERSISTENCE_KEY = "filter";
     }
 
     /** A <code>ContainerTabActionDelegate</code>. */
@@ -478,7 +474,6 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     private void applyFilter(final FilterBy filterBy) {
         debug();
         this.filterBy = filterBy;
-        persistence.set(FILTER_BY_PERSISTENCE_KEY, filterBy);
         synchronize();
     }
 
@@ -524,16 +519,15 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Get the initial filter from persistence.
+     * Get the initial filter.
      * 
      * @return A <code>FilterBy</code>.
      */
     private FilterBy getInitialFilter() {
-        // TODO figure out why this double cast needs to happen
-        final FilterBy filterBy = (FilterBy)(Filter<TabPanel>)persistence.get(FILTER_BY_PERSISTENCE_KEY, FilterBy.FILTER_NONE);
+        final FilterBy filterBy = FilterBy.FILTER_NONE;
         return filterBy;
     }
-    
+
     /**
      * Obtain the session draft monitor.
      * 

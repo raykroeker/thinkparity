@@ -9,9 +9,11 @@ import javax.swing.AbstractAction;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
-import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
@@ -89,11 +91,11 @@ public class UpdatePasswordAvatar extends Avatar {
         final String newPassword = extractNewPassword();
         final String confirmNewPassword = extractConfirmNewPassword();
         if (null == password)
-            addInputError(getString("ErrorPasswordNotSpecified"));
+            addInputError(Separator.Space.toString());
         if (null == newPassword)
-            addInputError(getString("ErrorNewPasswordNotSpecified"));
+            addInputError(Separator.Space.toString());
         if (null == confirmNewPassword)
-            addInputError(getString("ErrorConfirmNewPasswordNotSpecified"));
+            addInputError(Separator.Space.toString());
         if (null != newPassword && null != confirmNewPassword &&
                 !newPassword.equals(confirmNewPassword))
             addInputError(getString("ErrorPasswordsDoNotMatch"));
@@ -330,7 +332,7 @@ public class UpdatePasswordAvatar extends Avatar {
                 errorMessageJLabel.setText(" ");
                 if (containsInputErrors())
                     errorMessageJLabel.setText(getInputErrors().get(0));
-                okJButton.setEnabled(containsInputErrors());
+                okJButton.setEnabled(Boolean.FALSE);
 
                 return Boolean.FALSE;
             }
@@ -339,7 +341,7 @@ public class UpdatePasswordAvatar extends Avatar {
             errorMessageJLabel.setText(" ");
             if (containsInputErrors())
                 errorMessageJLabel.setText(getInputErrors().get(0));
-            okJButton.setEnabled(containsInputErrors());
+            okJButton.setEnabled(Boolean.FALSE);
 
             return Boolean.FALSE;
         }

@@ -13,6 +13,7 @@ import javax.swing.AbstractAction;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
 
@@ -95,9 +96,9 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         final String username = extractUsername();
         final String password = extractPassword();
         if (null == username)
-            addInputError(getString("ErrorNoUsername"));
+            addInputError(Separator.Space.toString());
         if (null == password)
-            addInputError(getString("ErrorNoPassword"));
+            addInputError(Separator.Space.toString());
 
         errorMessageJLabel.setText(" ");
         if (containsInputErrors())

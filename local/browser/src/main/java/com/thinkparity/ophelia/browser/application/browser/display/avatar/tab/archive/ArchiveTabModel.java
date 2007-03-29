@@ -4,18 +4,18 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.archive;
 
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.filter.Filter;
+import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -72,6 +72,9 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     /** A way to lookup container ids from document ids. */
     private final Map<Long, Long> containerIdLookup;
 
+    /** The current filter. */
+    private Filter<TabPanel> filterBy;
+
     /** A <code>ArchiveTabPopupDelegate</code>. */
     private final ArchiveTabPopupDelegate popupDelegate;
 
@@ -91,7 +94,21 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate#getFilterBy()
      */
     public List<TabAvatarFilterBy> getFilterBy() {
-        final List<TabAvatarFilterBy> filterBy = Collections.emptyList();
+        final List<TabAvatarFilterBy> filterBy = new ArrayList<TabAvatarFilterBy>();
+        for (final FilterBy filterByValue : FilterBy.values()) {
+            filterBy.add(new TabAvatarFilterBy() {
+                public Action getAction() {
+                    return new AbstractAction() {
+                        public void actionPerformed(final ActionEvent e) {
+                            applyFilter(filterByValue);
+                        }
+                    };
+                }
+                public String getText() {
+                    return getString(filterByValue);
+                }
+            });
+        }
         return filterBy;
     }
 
@@ -99,7 +116,7 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate#isFilterApplied()
      */
     public Boolean isFilterApplied() {
-        return Boolean.FALSE;
+        return (null != filterBy && !filterBy.equals(FilterBy.FILTER_NONE));
     }
 
     /**
@@ -117,6 +134,17 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
             archivePanel = (ArchiveTabPanel) lookupPanel(containerId);
         }
         super.toggleExpansion(archivePanel, animate);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applyFilter()
+     */
+    @Override
+    protected void applyFilter() {
+        checkThread();
+        if (isFilterApplied()) {
+            FilterManager.filter(filteredPanels, filterBy);
+        }
     }
 
     /**
@@ -169,6 +197,7 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
         for (final Container container : containers) {
             addContainerPanel(container);
         }
+        applyFilter(getInitialFilter());
         debug();
     }
 
@@ -333,6 +362,18 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Apply a filter to the panels.
+     * 
+     * @param filterBy
+     *            A <code>FilterBy</code>.
+     */
+    private void applyFilter(final FilterBy filterBy) {
+        debug();
+        this.filterBy = filterBy;
+        synchronize();
+    }
+
+    /**
      * Check we are on the AWT event dispatching thread.
      */
     private void checkThread() {
@@ -372,7 +413,7 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
             final ContainerDraftListener listener) {
         return getProvider().getDraftMonitor(containerId, listener);
     }
-    
+
     /**
      * Obtain the provider.
      * 
@@ -381,7 +422,17 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     private ArchiveTabProvider getProvider() {
         return (ArchiveTabProvider) contentProvider;
     }
-    
+
+    /**
+     * Get the initial filter.
+     * 
+     * @return A <code>FilterBy</code>.
+     */
+    private FilterBy getInitialFilter() {
+        final FilterBy filterBy = FilterBy.FILTER_NONE;
+        return filterBy;
+    }
+
     /**
      * Obtain the session draft monitor.
      * 
@@ -389,6 +440,17 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      */
     private ContainerDraftMonitor getSessionDraftMonitor() {
         return (ContainerDraftMonitor) session.getAttribute(SK_DRAFT_MONITOR);        
+    }
+
+    /**
+     * Obtain a localized string for a filter.
+     * 
+     * @param filterBy
+     *            A <code>FilterBy</code>.
+     * @return A localized <code>String</code>.
+     */
+    private String getString(final FilterBy filterBy) {
+        return localization.getString(filterBy);
     }
 
     /**
@@ -725,5 +787,26 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
             });
         }
         return panel;
+    }
+
+    /** An enumerated type defining the tab panel filtering. */
+    private enum FilterBy implements Filter<TabPanel> {
+        FILTER_BOOKMARK, FILTER_NONE;
+
+        /**
+         * @see com.thinkparity.codebase.filter.Filter#doFilter(java.lang.Object)
+         */
+        public Boolean doFilter(final TabPanel o) {
+            final ContainerPanel panel = (ContainerPanel) o;
+            // Items flagged true are removed.
+            switch (this) {
+            case FILTER_BOOKMARK:
+                return !panel.getContainer().isBookmarked();
+            case FILTER_NONE:
+                return Boolean.FALSE;
+            default:
+                return false;
+            }
+        }
     }
 }

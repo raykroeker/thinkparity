@@ -4,19 +4,14 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
 import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.sort.DefaultComparator;
 import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.codebase.model.contact.Contact;
@@ -30,10 +25,7 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy.SortDirection;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactTabPanel;
@@ -47,7 +39,7 @@ import com.thinkparity.ophelia.browser.platform.Platform.Connection;
  * @version 1.1.2.1
  */
 public final class ContactTabModel extends TabPanelModel<ContactPanelId> implements
-        TabAvatarSortByDelegate, TabAvatarFilterDelegate {
+        TabAvatarFilterDelegate {
 
     /** The <code>ContactTabActionDelegate</code>. */
     private final ContactTabActionDelegate actionDelegate;    
@@ -58,11 +50,11 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     /** The <code>Locale</code>. */
     private final Locale locale;
 
+    /** The <code>ContactTabComparator</code>. */
+    private final ContactTabComparator comparator;
+
     /** The <code>ContactTabPopupDelegate</code>. */
     private final ContactTabPopupDelegate popupDelegate;
-
-    /** A list of the current sort orderings. */
-    private final List<SortBy> sortedBy;
 
     /**
      * Create ContactTabModel.
@@ -72,7 +64,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         super();
         this.actionDelegate = new ContactTabActionDelegate(this);
         this.popupDelegate= new ContactTabPopupDelegate(this);
-        this.sortedBy = new ArrayList<SortBy>();
+        this.comparator = new ContactTabComparator();
         this.availableLocales = browser.getAvailableLocales();
         this.locale = browser.getLocale();
     }
@@ -84,33 +76,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         checkThread();
         final List<TabAvatarFilterBy> filterBy = Collections.emptyList();
         return filterBy;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate#getSortBy()
-     *
-     */
-    public List<TabAvatarSortBy> getSortBy() {
-        checkThread();
-        final List<TabAvatarSortBy> sortBy = new ArrayList<TabAvatarSortBy>();
-        for (final SortBy sortByValue : SortBy.values()) {
-            sortBy.add(new TabAvatarSortBy() {
-                public Action getAction() {
-                    return new AbstractAction() {
-                        public void actionPerformed(final ActionEvent e) {
-                            applySort(sortByValue);
-                        }
-                    };
-                }
-                public SortDirection getDirection() {
-                    return getSortDirection(sortByValue);
-                }
-                public String getText() {
-                    return getString(sortByValue);
-                }
-            });
-        }
-        return sortBy;
     }
 
     /**
@@ -135,14 +100,12 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
 
     /**
      * Apply the sort to the filtered list of panels.
-     *
+     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySort()
      */
+    @Override
     protected void applySort() {
         checkThread();
-        final DefaultComparator<TabPanel> comparator = new DefaultComparator<TabPanel>();
-        for (final SortBy sortBy : sortedBy) {
-            comparator.add(sortBy);
-        }
         Collections.sort(filteredPanels, comparator);
     }
 
@@ -199,7 +162,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         for (final Contact contact : contacts) {
             addPanel(contact);
         }
-        applySort(getInitialSort());
+        synchronize();
         debug();
     }
 
@@ -592,81 +555,10 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     /**
-     * Apply an ordering to the panels.
-     * 
-     * @param ordering
-     *            An <code>Ordering</code>.
-     */
-    private void applySort(final SortBy sortBy) {
-        debug();
-        if (isSortApplied(sortBy)) {
-            sortBy.ascending = !sortBy.ascending;
-        }
-        sortedBy.clear();
-        sortedBy.add(sortBy);
-        persistence.set(sortByKey, sortBy);
-        persistence.set(sortAscendingKey, sortBy.ascending);
-        synchronize();
-    }
-
-    /**
      * Check we are on the AWT event dispatching thread.
      */
     private void checkThread() {
         Assert.assertTrue(EventQueue.isDispatchThread(), "Contact tab model not on the AWT event dispatch thread.");
-    }
-
-    /**
-     * Get the initial sort from persistence.
-     * 
-     * @return A <code>SortBy</code>.
-     */
-    private SortBy getInitialSort() {
-        final SortBy sortBy = (SortBy)(Comparator<TabPanel>)persistence.get(sortByKey, SortBy.NAME);
-        sortBy.ascending = persistence.get(sortAscendingKey, true);
-        return sortBy;
-    }
-
-    /**
-     * Get the sort direction.
-     * 
-     * @param sortBy
-     *            A <code>SortBy</code>.
-     * @return A <code>SortDirection</code>.        
-     */
-    private SortDirection getSortDirection(final SortBy sortBy) {
-        if (isSortApplied(sortBy)) {
-            if (sortBy.ascending) {
-                return SortDirection.ASCENDING;
-            } else {
-                return SortDirection.DESCENDING;
-            }
-        } else {
-            return SortDirection.NONE;
-        }
-    }
-
-    /**
-     * Obtain a localized string for an ordering.
-     * 
-     * @param sortBy
-     *            A <code>SortBy</code>.
-     * @return A localized <code>String</code>.
-     */
-    private String getString(final SortBy sortBy) {
-        return localization.getString(sortBy);
-    }
-
-    /**
-     * Determine if an ordering is applied.
-     * 
-     * @param ordering
-     *            An <code>Ordering</code>.
-     * @return True if it is applied false otherwise.
-     */
-    private boolean isSortApplied(final SortBy sortBy) {
-        debug();
-        return sortedBy.contains(sortBy);
     }
 
     private int lookupIndex(final JabberId userId) {
@@ -915,7 +807,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         panel.setTabDelegate(this);
         return panel;
     }
-    
+
     /**
      * Obtain the contact display cell for a profile.
      * 
@@ -933,32 +825,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         return panel;
     }
 
-    private enum SortBy implements Comparator<TabPanel> {
-    
-        NAME(true), ORGANIZATION(true), TITLE(true);
-
-        /** An ascending <code>StringComparator</code>. */
-        private static final StringComparator STRING_COMPARATOR_ASC;
-
-        /** A descending <code>StringComparator</code>. */
-        private static final StringComparator STRING_COMPARATOR_DESC;
-
-        static {
-            STRING_COMPARATOR_ASC = new StringComparator(Boolean.TRUE);
-            STRING_COMPARATOR_DESC = new StringComparator(Boolean.FALSE);
-        }
-
-        /** Whether or not to sort in ascending order. */
-        private boolean ascending;
-
-        /**
-         * Create Ordering.
-         *
-         * @param ascending
-         */
-        private SortBy(final boolean ascending) {
-            this.ascending = ascending;
-        }
+    private class ContactTabComparator implements Comparator<TabPanel> {
 
         /**
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
@@ -966,87 +833,31 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         public int compare(final TabPanel o1, final TabPanel o2) {
             final ContactTabPanel p1 = (ContactTabPanel) o1;
             final ContactTabPanel p2 = (ContactTabPanel) o2;
-            
+            final StringComparator stringComparatorAsc =
+                new StringComparator(Boolean.TRUE);
+
             // Sort first by panel type (incoming invite, outgoing invite, contacts)
             int result = getTypePriority(p1).compareTo(getTypePriority(p2));
-            
-            // Sort outgoing e-mail invitations alphabetically by email
-            if (0 == result && p1.isSetOutgoingEMail()) {
-                return STRING_COMPARATOR_ASC.compare(
-                        p1.getOutgoingEMail().getInvitationEMail().toString(),
-                        p2.getOutgoingEMail().getInvitationEMail().toString());
-            }
-            
-            // Sort incoming invitations, contacts, and profile
-            if (0 == result) {
-                switch (this) {
-                case NAME:
-                    // note the lack of multiplier
-                    return ascending
-                        ? STRING_COMPARATOR_ASC.compare(
-                                getUser(p1).getName(),
-                                getUser(p2).getName())
-                        : STRING_COMPARATOR_DESC.compare(
-                                getUser(p1).getName(),
-                                getUser(p2).getName());
-                case TITLE:
-                    // note the lack of multiplier
-                    result =  ascending
-                        ? STRING_COMPARATOR_ASC.compare(
-                                getUser(p1).getTitle(),
-                                getUser(p2).getTitle())
-                        : STRING_COMPARATOR_DESC.compare(
-                                getUser(p1).getTitle(),
-                                getUser(p2).getTitle());
-                    if (0 == result) {
-                        result = compareDefault(p1, p2);
-                    }
-                    return result;
-                case ORGANIZATION:
-                    // note the lack of multiplier
-                    result = ascending
-                        ? STRING_COMPARATOR_ASC.compare(
-                                getUser(p1).getOrganization(),
-                                getUser(p2).getOrganization())
-                        : STRING_COMPARATOR_DESC.compare(
-                                getUser(p1).getOrganization(),
-                                getUser(p2).getOrganization());
-                    if (0 == result) {
-                        result = compareDefault(p1, p2);
-                    }
-                    return result;            
-                default:
-                    throw Assert.createUnreachable("Unknown ordering.");
-                }         
-            } else {
+            if (result != 0) {
                 return result;
             }
-        }
 
-        /**
-         * Apply a default ordering (assuming the same panel type, ie. both are contacts,
-         * both are incoming invitations, etc).
-         * 
-         * @param p1
-         *          A <code>ContactTabPanel</code>.
-         * @param p2
-         *          A <code>ContactTabPanel</code>.
-         * @return An <code>int</code> compare result.         
-         */
-        private int compareDefault(final ContactTabPanel p1, final ContactTabPanel p2) {
-            return ascending
-                ? STRING_COMPARATOR_ASC.compare(
-                        getUser(p1).getName(),
-                        getUser(p2).getName())
-                : STRING_COMPARATOR_DESC.compare(
-                        getUser(p1).getName(),
-                        getUser(p2).getName());
+            // Sort outgoing e-mail invitations alphabetically by email.
+            // Sort all other types by name.
+            if (p1.isSetOutgoingEMail()) {
+                return stringComparatorAsc.compare(
+                        p1.getOutgoingEMail().getInvitationEMail().toString(),
+                        p2.getOutgoingEMail().getInvitationEMail().toString());
+            } else {
+                return stringComparatorAsc.compare(
+                                getUser(p1).getName(),
+                                getUser(p2).getName());
+            }
         }
 
         /**
          * Get the priority based on panel type. Incoming invitations, then
-         * outgoing user invitations, then outgoing e-mail invitations, then
-         * remaining panels.
+         * outgoing invitations, then remaining panels.
          * 
          * @param p
          *            A <code>ContactTabPanel</code>.

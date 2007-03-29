@@ -33,7 +33,6 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
         model.setLocalization(getLocalization());
         model.setSession(getSession());
         setFilterDelegate(model);
-        setSortByDelegate(model);
         addPropertyChangeListener("eventDispatcher",
                 new PropertyChangeListener() {
                     public void propertyChange(final PropertyChangeEvent evt) {

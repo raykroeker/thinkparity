@@ -35,21 +35,6 @@ import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
  * @version 1.1.2.2
  */
 public abstract class TabPanelModel<T extends Object> extends TabModel {
-    
-    /** A sort ascending persistence key */
-    // TODO use appropriate variable naming for constants
-    // TODO move the persistence key variables to the same scope as the persitence instance
-    protected static final String sortAscendingKey;
-    
-    /** A sort by persistence key */
-    // TODO use appropriate variable naming for constants
-    // TODO move the persistence key variables to the same scope as the persitence instance
-    protected static final String sortByKey;
-    
-    static {
-        sortByKey = "sort.by";
-        sortAscendingKey = "sort.ascending";
-    }
 
     /** The application. */
     protected final Browser browser;

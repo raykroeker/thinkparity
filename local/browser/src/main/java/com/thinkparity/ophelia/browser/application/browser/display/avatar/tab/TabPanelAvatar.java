@@ -73,12 +73,9 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
      */
     private final TransferHandler panelTransferHandler;
 
-    /** A <code>TabAvatarSortByDelegate</code>. */
-    private TabAvatarSortByDelegate sortByDelegate;
-    
     /** The map of tab panel mouse listeners. */
     private final Map<TabPanel, MouseAdapter> tabPanelMouseListeners;
-    
+
     /** The map of tab panel mouse listeners. */
     private final Map<TabPanel, MouseAdapter> tabPanelMouseMotionListeners;
 
@@ -195,15 +192,6 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
     protected ResizeEdges getResizeEdges() {
         return Resizer.ResizeEdges.MIDDLE;
     }
-    
-    /**
-     * Obtain sortByDelegate.
-     *
-     * @return A TabAvatarSortByDelegate.
-     */
-    protected TabAvatarSortByDelegate getSortByDelegate() {
-        return sortByDelegate;
-    }
 
     /**
      * Set the filter delegate.
@@ -213,17 +201,6 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
      */
     protected void setFilterDelegate(final TabAvatarFilterDelegate filterDelegate) {
         this.filterDelegate = filterDelegate;
-    }
-
-    /**
-     * Set sortByDelegate.
-     *
-     * @param sortByDelegate
-     *		A TabAvatarSortByDelegate.
-     */
-    protected void setSortByDelegate(
-            final TabAvatarSortByDelegate sortByDelegate) {
-        this.sortByDelegate = sortByDelegate;
     }
 
     /**

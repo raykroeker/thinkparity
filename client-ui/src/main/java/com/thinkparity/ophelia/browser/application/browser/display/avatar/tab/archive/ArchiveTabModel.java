@@ -4,19 +4,19 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.archive;
 
 import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.sort.DefaultComparator;
-import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
@@ -33,15 +33,13 @@ import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy.SortDirection;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.archive.ArchiveTabProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.archive.ArchiveTabActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.archive.ArchiveTabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.archive.ArchiveTabPopupDelegate;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 import com.thinkparity.ophelia.browser.platform.application.Application;
@@ -55,7 +53,7 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
  * @version 1.1.2.1
  */
 public final class ArchiveTabModel extends TabPanelModel<Long> implements
-        TabAvatarSortByDelegate, TabAvatarFilterDelegate {
+        TabAvatarFilterDelegate {
 
     /** A session key for the draft monitor. */
     private static final String SK_DRAFT_MONITOR;
@@ -68,14 +66,14 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     /** A <code>ArchiveTabActionDelegate</code>. */
     private final ArchiveTabActionDelegate actionDelegate;
 
+    /** The <code>Comparator</code>. */
+    private Comparator<TabPanel> comparator;
+
     /** A way to lookup container ids from document ids. */
     private final Map<Long, Long> containerIdLookup;
 
     /** A <code>ArchiveTabPopupDelegate</code>. */
     private final ArchiveTabPopupDelegate popupDelegate;
-
-    /** The current ordering. */
-    private final List<SortBy> sortedBy;
 
     /**
      * Create ArchiveTabModel.
@@ -86,7 +84,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
         this.actionDelegate = new ArchiveTabActionDelegateImpl(this);
         this.containerIdLookup = new HashMap<Long, Long>();
         this.popupDelegate = new ArchiveTabPopupDelegateImpl(this);
-        this.sortedBy = new Stack<SortBy>();
         addApplicationListener();
     }
 
@@ -97,33 +94,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
         checkThread();
         final List<TabAvatarFilterBy> filterBy = Collections.emptyList();
         return filterBy;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate#getSortedBy()
-     *
-     */
-    public List<TabAvatarSortBy> getSortBy() {
-        checkThread();
-        final List<TabAvatarSortBy> sortBy = new ArrayList<TabAvatarSortBy>();
-        for (final SortBy sortByValue : SortBy.values()) {
-            sortBy.add(new TabAvatarSortBy() {
-                public Action getAction() {
-                    return new AbstractAction() {
-                        public void actionPerformed(final ActionEvent e) {
-                            applySort(sortByValue);
-                        }
-                    };
-                }
-                public SortDirection getDirection() {
-                    return getSortDirection(sortByValue);
-                }
-                public String getText() {
-                    return getString(sortByValue);
-                }
-            });
-        }
-        return sortBy;
     }
 
     /**
@@ -152,15 +122,13 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
 
     /**
      * Apply the sort to the filtered list of panels.
-     *
+     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySort()
      */
+    @Override
     protected void applySort() {
         checkThread();
-        final DefaultComparator<TabPanel> comparator = new DefaultComparator<TabPanel>();
-        for (final SortBy sortBy : sortedBy) {
-            comparator.add(sortBy);
-        }
-        Collections.sort(filteredPanels, comparator);
+        Collections.sort(filteredPanels, getComparator());
     }
 
     /**
@@ -202,7 +170,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
         for (final Container container : containers) {
             addContainerPanel(container);
         }
-        applySort(getInitialSort());
         debug();
     }
 
@@ -367,28 +334,30 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Apply an ordering to the panels.
-     * 
-     * @param sortBy
-     *            A <code>SortBy</code>.
-     */
-    private void applySort(final SortBy sortBy) {
-        debug();
-        if (isSortApplied(sortBy)) {
-            sortBy.ascending = !sortBy.ascending;
-        }
-        sortedBy.clear();
-        sortedBy.add(sortBy);
-        persistence.set(sortByKey, sortBy);
-        persistence.set(sortAscendingKey, sortBy.ascending);
-        synchronize();
-    }
-
-    /**
      * Check we are on the AWT event dispatching thread.
      */
     private void checkThread() {
         Assert.assertTrue(EventQueue.isDispatchThread(), "Archive tab model not on the AWT event dispatch thread.");
+    }
+
+    /**
+     * Get the tab comparator.
+     * 
+     * @return A <code>Comparator</code>.
+     */
+    private Comparator<TabPanel> getComparator() {
+        if (null == comparator) {
+            comparator = new Comparator<TabPanel>() {
+                public int compare(final TabPanel o1, final TabPanel o2) {
+                    // Descending sort by date first seen.
+                    final ContainerPanel p1 = (ContainerPanel) o1;
+                    final ContainerPanel p2 = (ContainerPanel) o2;
+                    final int multiplier = -1;
+                    return multiplier * p1.getDateFirstSeen().compareTo(p2.getDateFirstSeen());
+                }
+            };
+        }
+        return comparator;
     }
 
     /**
@@ -403,18 +372,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     private ContainerDraftMonitor getDraftMonitor(final Long containerId,
             final ContainerDraftListener listener) {
         return getProvider().getDraftMonitor(containerId, listener);
-    }
-
-    /**
-     * Get the initial sort from persistence.
-     * 
-     * @return A <code>SortBy</code>.
-     */
-    private SortBy getInitialSort() {
-        // TODO figure out why this double cast needs to happen
-        final SortBy sortBy = (SortBy)(Comparator<TabPanel>)persistence.get(sortByKey, SortBy.CREATED_ON);
-        sortBy.ascending = persistence.get(sortAscendingKey, false);
-        return sortBy;
     }
     
     /**
@@ -436,36 +393,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Get the sort direction.
-     * 
-     * @param sortBy
-     *            A <code>SortBy</code>.
-     * @return A <code>SortDirection</code>.        
-     */
-    private SortDirection getSortDirection(final SortBy sortBy) {
-        if (isSortApplied(sortBy)) {
-            if (sortBy.ascending) {
-                return SortDirection.ASCENDING;
-            } else {
-                return SortDirection.DESCENDING;
-            }
-        } else {
-            return SortDirection.NONE;
-        }
-    }
-
-    /**
-     * Obtain a localized string for an ordering.
-     * 
-     * @param sortBy
-     *            A <code>SortBy</code>.
-     * @return A localized <code>String</code>.
-     */
-    private String getString(final SortBy sortBy) {
-        return localization.getString(sortBy);
-    }
-
-    /**
      * Determine if the session draft monitor is set for the container.
      * 
      * @param containerId
@@ -476,18 +403,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     private boolean isSetSessionDraftMonitor(final Long containerId) {
         final ContainerDraftMonitor monitor = getSessionDraftMonitor();
         return null != monitor && monitor.getContainerId().equals(containerId);
-    }
-
-    /**
-     * Determine if an ordering is applied.
-     * 
-     * @param ordering
-     *            An <code>Ordering</code>.
-     * @return True if it is applied false otherwise.
-     */
-    private boolean isSortApplied(final SortBy sortBy) {
-        debug();
-        return sortedBy.contains(sortBy);
     }
     
     /**
@@ -811,126 +726,5 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
             });
         }
         return panel;
-    }
-
-    /** An enumerated type defining the tab panel ordering. */
-    private enum SortBy implements Comparator<TabPanel> {
-
-        BOOKMARK(true), CREATED_ON(false), NAME(true), OWNER(true), UPDATED_ON(false);
-
-        /** An ascending <code>StringComparator</code>. */
-        private static final StringComparator STRING_COMPARATOR_ASC;
-
-        /** A descending <code>StringComparator</code>. */
-        private static final StringComparator STRING_COMPARATOR_DESC;
-
-        static {
-            STRING_COMPARATOR_ASC = new StringComparator(Boolean.TRUE);
-            STRING_COMPARATOR_DESC = new StringComparator(Boolean.FALSE);
-        }
-        
-        /** Whether or not to sort in ascending order. */
-        private boolean ascending;
-
-        /**
-         * Create SortBy.
-         * 
-         * @param ascending
-         *            Whether or not to sort in ascending order.
-         */
-        private SortBy(final boolean ascending) {
-            this.ascending = ascending;
-        }
-        
-        /**
-         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-         * 
-         */
-        public int compare(final TabPanel o1, final TabPanel o2) {
-            final ArchiveTabPanel p1 = (ArchiveTabPanel) o1;
-            final ArchiveTabPanel p2 = (ArchiveTabPanel) o2;
-            final int multiplier = ascending ? 1 : -1;
-            int result = 0;
-            switch (this) {
-            case BOOKMARK:
-                // we want true values at the top
-                result = -1 * multiplier * p1.getContainer().isBookmarked().compareTo(
-                        p2.getContainer().isBookmarked());
-                if (0 == result) {
-                    result = compareDefault(p1, p2);
-                }
-                return result;
-            case CREATED_ON:
-                return multiplier * p1.getContainer().getCreatedOn().compareTo(
-                        p2.getContainer().getCreatedOn());
-            case UPDATED_ON:
-                return multiplier * p1.getContainer().getUpdatedOn().compareTo(
-                        p2.getContainer().getUpdatedOn());
-            case NAME:
-                // note the lack of multiplier
-                return ascending
-                    ? STRING_COMPARATOR_ASC.compare(
-                            p1.getContainer().getName(),
-                            p2.getContainer().getName())
-                    : STRING_COMPARATOR_DESC.compare(
-                            p1.getContainer().getName(),
-                            p2.getContainer().getName());
-            case OWNER:
-                // Sort by local draft first
-                if (p1.isLocalDraft() && !p2.isLocalDraft()) {
-                    return multiplier * -1;
-                } else if (!p1.isLocalDraft() && p2.isLocalDraft()) {
-                    return multiplier * 1;            
-                }
-                
-                // Sort by draft, and within drafts, by draft owner
-                if (isVisibleDraft(p1)) {
-                    if(isVisibleDraft(p2)) {
-                        // note the lack of multiplier
-                        result = ascending
-                            ? STRING_COMPARATOR_ASC.compare(
-                                p1.getDraft().getOwner().getName(),
-                                p2.getDraft().getOwner().getName())
-                            : STRING_COMPARATOR_DESC.compare(
-                                    p1.getDraft().getOwner().getName(),
-                                    p2.getDraft().getOwner().getName());
-                    } else {
-                        return multiplier * -1;
-                    }
-                } else {
-                    if (isVisibleDraft(p2)) {
-                        return multiplier * 1;
-                    }
-                }
-
-                // Default sort if necessary
-                if (0 == result) {
-                    result = compareDefault(p1, p2);
-                }
-                return result;               
-            default:
-                return 0;
-            }
-        }
-        
-        /**
-         * Apply a default ordering.
-         */
-        private int compareDefault(final ArchiveTabPanel p1, final ArchiveTabPanel p2) {
-            return ascending
-                ? STRING_COMPARATOR_ASC.compare(
-                        p1.getContainer().getName(),
-                        p2.getContainer().getName())
-                : STRING_COMPARATOR_DESC.compare(
-                        p1.getContainer().getName(),
-                        p2.getContainer().getName());
-        }
-
-        /**
-         * Determine if there is a visible draft.
-         */
-        private boolean isVisibleDraft(final ArchiveTabPanel panel) {
-            return panel.isSetDraft();
-        }
     }
 }

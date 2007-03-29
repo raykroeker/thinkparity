@@ -107,14 +107,6 @@ public abstract class TabModel implements TabDelegate {
     protected void applySearchFilter() {}
 
     /**
-     * Apply an ordering to the tab.
-     * 
-     * @param ordering
-     *            The ordering selected by the user.
-     */
-    protected void applyOrdering(final TabOrdering ordering) {}
-
-    /**
      * Apply a search to the tab.
      * 
      * @param searchExpression

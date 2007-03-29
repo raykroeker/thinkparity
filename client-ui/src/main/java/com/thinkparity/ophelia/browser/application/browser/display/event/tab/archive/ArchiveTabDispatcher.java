@@ -55,6 +55,10 @@ public class ArchiveTabDispatcher implements EventDispatcher<ArchiveTabAvatar> {
             public void containerDeleted(final ContainerEvent e) {
                 avatar.fireDeleted(e);
             }
+            @Override
+            public void containerFlagged(final ContainerEvent e) {
+                avatar.fireFlagged(e);
+            }
         };
         containerModel.addListener(containerListener);
     }

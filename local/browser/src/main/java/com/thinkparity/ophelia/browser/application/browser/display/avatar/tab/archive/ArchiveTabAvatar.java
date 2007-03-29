@@ -87,6 +87,17 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
     }
 
     /**
+     * Notify the avatar that a container has been flagged.
+     * (eg. bookmark added or removed, latest flag changed, etc.)
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.       
+     */
+    public void fireFlagged(final ContainerEvent e) {
+        sync(e);
+    }
+
+    /**
      * Fire a restored container event.
      * 
      * @param e

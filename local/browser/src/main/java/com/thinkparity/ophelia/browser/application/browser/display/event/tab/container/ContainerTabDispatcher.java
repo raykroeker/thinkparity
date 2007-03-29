@@ -57,7 +57,7 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
                 avatar.fireDeleted(e);
             }
             @Override
-            public void containerFlagged(ContainerEvent e) {
+            public void containerFlagged(final ContainerEvent e) {
                 avatar.fireFlagged(e);
             }
             @Override
@@ -65,11 +65,11 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
                 avatar.fireContainerPublished(e);
             }
             @Override
-            public void containerReceived(ContainerEvent e) {
+            public void containerReceived(final ContainerEvent e) {
                 avatar.fireReceived(e);              
             }
             @Override
-            public void containerRenamed(ContainerEvent e) {
+            public void containerRenamed(final ContainerEvent e) {
                 avatar.fireRenamed(e);
             }
             @Override
@@ -89,7 +89,7 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
                 avatar.fireDocumentRemoved(e);
             }
             @Override
-            public void documentReverted(ContainerEvent e) {
+            public void documentReverted(final ContainerEvent e) {
                 avatar.fireDocumentReverted(e);
             }
             @Override

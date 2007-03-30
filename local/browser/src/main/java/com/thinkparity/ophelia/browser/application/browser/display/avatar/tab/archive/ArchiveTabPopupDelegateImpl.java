@@ -18,6 +18,7 @@ import javax.swing.JMenuItem;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
@@ -224,7 +225,8 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
         addSeparator();
 
         // print
-        if (documentViews.size() > 1) {
+        final List<DocumentView> documentViewsNotDeleted = getDocumentViewsNotDeleted(documentViews);
+        if (documentViewsNotDeleted.size() > 1) {
             final Data printData = new Data(2);
             printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.CONTAINER_ID, version.getArtifactId());
             printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.VERSION_ID, version.getVersionId());
@@ -232,7 +234,7 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
             addSeparator(ActionId.DOCUMENT_PRINT_VERSION);
         }
         // print versions
-        for (final DocumentView documentView : documentViews) {
+        for (final DocumentView documentView : documentViewsNotDeleted) {
             final Data documentVersionPrintData = new Data(2);
             documentVersionPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.DOCUMENT_ID, documentView.getDocumentId());
             documentVersionPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.VERSION_ID, documentView.getVersionId());
@@ -240,7 +242,7 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
         }
 
         // Collapse
-        if (documentViews.size() > 0) {
+        if (documentViewsNotDeleted.size() > 0) {
             addSeparator();
         }
         addCollapse(version.getArtifactId());
@@ -299,6 +301,23 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
         actionIds.add(actionId);
         dataList.add(data);
         add(actionIds, dataList, 1);
+    }
+
+    /**
+     * Get the list of document views that have not been deleted.
+     * 
+     * @param documentViews
+     *            A list of <code>DocumentView</code>.
+     * @return A List of <code>DocumentView</code>.
+     */
+    private List<DocumentView> getDocumentViewsNotDeleted(final List<DocumentView> documentViews) {
+        final List<DocumentView> documentsNotDeleted = new ArrayList<DocumentView>();
+        for (final DocumentView documentView : documentViews) {
+            if (Delta.REMOVED != documentView.getDelta()) {
+                documentsNotDeleted.add(documentView);
+            }
+        }
+        return documentsNotDeleted;
     }
 
     /**

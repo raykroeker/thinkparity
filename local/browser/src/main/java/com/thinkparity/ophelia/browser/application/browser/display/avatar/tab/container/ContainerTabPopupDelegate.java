@@ -20,6 +20,7 @@ import javax.swing.JMenuItem;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.user.User;
 
@@ -289,31 +290,30 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
                 add(ActionId.CONTAINER_REMOVE_DOCUMENT, document.getName(), removeData);
             }
         }
-        
-        if (documents.size() > 0) {
-            addSeparator();
-        }
-        
+
+        addSeparator();
+
         // Print
-        if (documents.size() > 1) {
+        final List<Document> documentsNotDeleted = getDocumentsNotDeleted(draft);
+        if (documentsNotDeleted.size() > 1) {
             final Data printData = new Data(1);
             printData.set(PrintDraft.DataKey.CONTAINER_ID, draft.getContainerId());
             add(ActionId.DOCUMENT_PRINT_DRAFT, ActionId.CONTAINER_PRINT_DRAFT, printData);
             addSeparator(ActionId.DOCUMENT_PRINT_DRAFT);           
         }
-       
-        for (final Document document : documents) {
+
+        for (final Document document : documentsNotDeleted) {
             final Data documentPrintData = new Data(1);
             documentPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintDraft.DataKey.DOCUMENT_ID, document.getId());
             add(ActionId.DOCUMENT_PRINT_DRAFT, document.getName(), documentPrintData);     
         }
-        
+
         // Collapse
-        if (documents.size() > 0) {
+        if (documentsNotDeleted.size() > 0) {
             addSeparator();
         }
         addCollapse(container.getId());
-        
+
         show();
     }
 
@@ -414,7 +414,8 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         addSeparator();
         
         // Print
-        if (documentViews.size() > 1) {
+        final List<DocumentView> documentViewsNotDeleted = getDocumentViewsNotDeleted(documentViews);
+        if (documentViewsNotDeleted.size() > 1) {
             final Data printData = new Data(2);
             printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.CONTAINER_ID, version.getArtifactId());
             printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.VERSION_ID, version.getVersionId());
@@ -422,7 +423,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             addSeparator(ActionId.DOCUMENT_PRINT_VERSION);
         }
         
-        for (final DocumentView documentView : documentViews) {
+        for (final DocumentView documentView : documentViewsNotDeleted) {
             final Data documentVersionPrintData = new Data(2);
             documentVersionPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.DOCUMENT_ID, documentView.getDocumentId());
             documentVersionPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.VERSION_ID, documentView.getVersionId());
@@ -430,7 +431,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         }
 
         // Collapse
-        if (documentViews.size() > 0) {
+        if (documentViewsNotDeleted.size() > 0) {
             addSeparator();
         }
         addCollapse(version.getArtifactId());
@@ -521,6 +522,40 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      */
     private boolean doesExistOutgoingUserInvitation(final User user) {
         return model.readDoesExistOutgoingUserInvitation(user).booleanValue();
+    }
+
+    /**
+     * Get the list of documents that have not been deleted.
+     * 
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @return A List of <code>Document</code>.
+     */
+    private List<Document> getDocumentsNotDeleted(final ContainerDraft draft) {
+        final List<Document> documentsNotDeleted = new ArrayList<Document>();
+        for (final Document document : draft.getDocuments()) {
+            if (ArtifactState.REMOVED != draft.getState(document)) {
+                documentsNotDeleted.add(document);
+            }
+        }
+        return documentsNotDeleted;
+    }
+
+    /**
+     * Get the list of document views that have not been deleted.
+     * 
+     * @param documentViews
+     *            A list of <code>DocumentView</code>.
+     * @return A List of <code>DocumentView</code>.
+     */
+    private List<DocumentView> getDocumentViewsNotDeleted(final List<DocumentView> documentViews) {
+        final List<DocumentView> documentsNotDeleted = new ArrayList<DocumentView>();
+        for (final DocumentView documentView : documentViews) {
+            if (Delta.REMOVED != documentView.getDelta()) {
+                documentsNotDeleted.add(documentView);
+            }
+        }
+        return documentsNotDeleted;
     }
 
     /**

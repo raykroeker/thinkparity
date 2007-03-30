@@ -10,7 +10,7 @@
 <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;runtimeClasspathEntry id=&quot;org.eclipse.jdt.launching.classpathentry.defaultClasspath&quot;&gt;&#13;&#10;&lt;memento exportedEntriesOnly=&quot;false&quot; project=&quot;ophelia&quot;/&gt;&#13;&#10;&lt;/runtimeClasspathEntry&gt;&#13;&#10;"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.library.path=&quot;${THINKPARITY_HOME}\ophelia\vendor\i686\win32\jdic\0.9.1;${THINKPARITY_HOME}\ophelia\vendor\i686\win32\nativeskin\6.7&quot; -Dthinkparity-dir=&quot;${resource_path:/ophelia/target/classes}&quot; -Dthinkparity.mode=DEVELOPMENT -Dthinkparity.environment=TESTING -Dthinkparity.product-name=OpheliaProduct -Dthinkparity.release-name=DEVELOPMENT-1.0"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.library.path=&quot;${THINKPARITY_HOME}\ophelia\vendor\i686\win32\jdic\0.9.1;${THINKPARITY_HOME}\ophelia\vendor\i686\win32\nativeskin\6.7&quot; -Dthinkparity-dir=&quot;${resource_path:/ophelia/target/classes}&quot; -Dthinkparity.mode=DEVELOPMENT -Dthinkparity.environment=TESTING -Dthinkparity.product-name=OpheliaProduct -Dthinkparity.release-name=TESTING"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ophelia"/>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">

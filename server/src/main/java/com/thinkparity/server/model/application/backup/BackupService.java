@@ -28,7 +28,7 @@ import com.thinkparity.desdemona.model.user.UserModel;
 import org.jivesoftware.util.JiveProperties;
 
 /**
- * <b>Title:</b>thinkParity Archive Model Implementation</br>
+ * <b>Title:</b>thinkParity Backup Serivce</br>
  * <b>Description:</b>
  *
  * @author CreateModel.groovy
@@ -80,7 +80,7 @@ public final class BackupService {
      * Create BackupService.
      * 
      */
-    BackupService() {
+    private BackupService() {
         super();
         this.jiveProperties = JiveProperties.getInstance();
 

@@ -61,6 +61,13 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
         .append("where RELEASE_ID=?")
         .toString();
 
+    /** Sql to determine product existence by its unique key. */
+    private static final String SQL_DOES_EXIST_PRODUCT_UK =
+        new StringBuilder("select count(P.PRODUCT_ID) \"PRODUCT_COUNT\" ")
+        .append("from PRODUCT P ")
+        .append("where P.PRODUCT_NAME=?")
+        .toString();
+
     /** Sql to determine if the release is initialized by its primary key. */
     private static final String SQL_IS_RELEASE_INITIALIZED_PK =
         new StringBuilder("select PR.RELEASE_INITIALIZED ")
@@ -206,6 +213,33 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
             session.setLong(1, release.getId());
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not delete release.");
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#doesExistProduct(java.lang.String)
+     * 
+     */
+    public Boolean doesExistProduct(final String name) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_PRODUCT_UK);
+            session.setString(1, name);
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int productCount = session.getInteger("PRODUCT_COUNT");
+                if (0 == productCount) {
+                    return Boolean.FALSE;
+                } else if (1 == productCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine product existence.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine product existence.");
+            }
         } finally {
             session.close();
         }

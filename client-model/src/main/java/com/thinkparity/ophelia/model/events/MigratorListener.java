@@ -28,4 +28,20 @@ public interface MigratorListener extends EventListener {
      *            A <code>MigratorEvent</code>.
      */
     public void productReleaseDeployed(final MigratorEvent e);
+
+    /**
+     * A product release was downloaded.
+     * 
+     * @param e
+     *            A <code>MigratorEvent</code>.
+     */
+    public void productReleaseDownloaded(final MigratorEvent e);
+
+    /**
+     * A product release has been installed.
+     * 
+     * @param e
+     *            A <code>MigratorEvent</code>.
+     */
+    public void productReleaseInstalled(final MigratorEvent e);
 }

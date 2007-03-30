@@ -5,62 +5,57 @@ package com.thinkparity.ophelia.browser;
 
 import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
-import com.thinkparity.codebase.Mode;
 
 /**
- * Version
- * @author raykroeker@gmail.com
- * @version 1.0.0
+ * <b>Title:</b>thinkParity OpheliaUI Version<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class Version extends com.thinkparity.codebase.Version {
+public final class Version extends com.thinkparity.codebase.Version {
 
     /** The singleton instance. */
     private static final Version SINGLETON;
 
-	static {
+    static {
         SINGLETON = new Version(ConfigFactory.newInstance("version.properties"));
     }
 
     /**
-     * Create a Version.
+     * Obtain the build id.
+     * 
+     * @return A build id <code>String</code>.
+     */
+    public static String getBuildId() {
+        return SINGLETON.doGetBuildId();
+    }
+
+    /**
+     * Obtain the product name.
+     * 
+     * @return The product name <code>String</code>.
+     */
+    public static String getProductName() {
+        return SINGLETON.doGetProductName();
+    }
+
+    /**
+     * Obtain the release name.
+     *
+     * @return The release name <code>String</code>.
+     */
+    public static String getReleaseName() {
+        return SINGLETON.doGetReleaseName();
+    }
+
+    /**
+     * Create Version.
      *
      * @param config
-     *      The version properties.
+     *      The version <code>Config</code>.
      */
-    private Version(final Config config) { super(config); }
-
-	/**
-	 * Obtain the build id.
-	 * 
-	 * @return A build id string.
-	 */
-    public static String getBuildId() { return SINGLETON.doGetBuildId(); }
-
-    /**
-     * Obtain the operating mode.
-     *
-     * @return An operating mode.
-     */
-    public static Mode getMode() { return SINGLETON.doGetMode(); }
-
-	/**
-	 * Obtain the name.
-	 * 
-	 * @return A name string.
-	 */
-	public static  String getName() { return SINGLETON.doGetName(); }
-
-    /**
-     * Obtain the release id.
-     *
-     * @return A release id.
-     */
-    public static String getReleaseId() { return SINGLETON.doGetReleaseId(); }
-
-	/**
-	 * Obtain the version.
-	 * 
-	 * @return A version string.
-	 */
-    public static  String getVersion() { return SINGLETON.doGetVersion(); }
+    private Version(final Config config) {
+        super(config);
+    }
 }

@@ -22,17 +22,17 @@ import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.sort.StringComparator;
 
-import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
-import com.thinkparity.ophelia.model.util.ProcessAdapter;
+import com.thinkparity.ophelia.model.events.MigratorEvent;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.Constants.Directories;
 import com.thinkparity.ophelia.browser.Constants.Files;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
@@ -60,6 +60,8 @@ import com.thinkparity.ophelia.browser.util.ModelFactory;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.ThinkParity;
+
 /**
  * <b>Title:</b>thinkParity OpheliaUI Platform Implementation<br>
  * <b>Description:</b><br>
@@ -67,7 +69,7 @@ import org.apache.log4j.Logger;
  * @author raymond@thinkparity.com
  * @version 1.1.2.33
  */
-public final class BrowserPlatform implements Platform {
+public final class BrowserPlatform implements Platform, LifeCycleListener {
 
     /** A singleton instance. */
     private static BrowserPlatform SINGLETON;
@@ -114,25 +116,25 @@ public final class BrowserPlatform implements Platform {
     /** An avatar registry. */
 	private final AvatarRegistry avatarRegistry;
 
-	/** The thinkParity <code>Environment</code>. */
+    /** The thinkParity <code>Environment</code>. */
     private final Environment environment;
 
-	/** The platform's first run helper. */
+    /** The platform's first run helper. */
     private final FirstRunHelper firstRunHelper;
 
-	/**
+    /**
      * The listener helper. Manages all listeners as well as the listener
      * notification.
      */
     private final ListenerHelper listenerHelper;
 
-	/** The platform <code>MigratorHelper</code>. */
+    /** The platform <code>MigratorHelper</code>. */
     private final MigratorHelper migratorHelper;
 
     /** A thinkParity <code>Mode</code>. */
     private final Mode mode;
 
-    /** The parity model factory. */
+	/** The parity model factory. */
 	private final ModelFactory modelFactory;
 
 	/** The platform <code>OnlineHelper</code>. */
@@ -144,16 +146,13 @@ public final class BrowserPlatform implements Platform {
 	/** The platform <code>PluginHelper</code>. */
     private final PluginHelper pluginHelper;
 
-	/** The platform <code>Release</code>. */
-    private Release release;
-
     /** The thinkParity <code>WindowRegistry</code>. */
 	private final WindowRegistry windowRegistry;
 
-    /** A thinkParity <code>Workspace</code>. */
+	/** A thinkParity <code>Workspace</code>. */
     private final Workspace workspace;
 
-    /**
+	/**
      * Create BrowserPlatform.
      * 
      * @param profile
@@ -185,14 +184,14 @@ public final class BrowserPlatform implements Platform {
         this.migratorHelper = new MigratorHelper(this);
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#addListener(com.thinkparity.ophelia.browser.platform.event.LifeCycleListener)
      */
     public void addListener(final LifeCycleListener listener) {
         listenerHelper.addListener(listener);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#createTempFile(java.lang.String)
      * 
      */
@@ -210,6 +209,28 @@ public final class BrowserPlatform implements Platform {
         endPlugins();
         closeWorkspace();
         notifyLifeCycleEnded();
+
+        // remove the platform as its own lifecycle listener
+        removeListener(this);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.event.LifeCycleListener#ended(com.thinkparity.ophelia.browser.platform.event.LifeCycleEvent)
+     *
+     */
+    public void ended(final LifeCycleEvent e) {}
+
+    /** A platform <code>EventDispatcher</code>. */
+    private EventDispatcher eventDispatcher;
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.event.LifeCycleListener#ending(com.thinkparity.ophelia.browser.platform.event.LifeCycleEvent)
+     *
+     */
+    public void ending(final LifeCycleEvent e) {
+        // end the event dispatcher
+        eventDispatcher.end();
+        eventDispatcher = null;
     }
 
     /**
@@ -241,7 +262,7 @@ public final class BrowserPlatform implements Platform {
         return availableLocales.toArray(new Locale[] {});
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getAvailableTimeZones()
      *
      */
@@ -302,13 +323,13 @@ public final class BrowserPlatform implements Platform {
 		return Logger.getLogger(clasz);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getModelFactory()
 	 * 
 	 */
 	public ModelFactory getModelFactory() { return modelFactory; }
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getPersistence()
 	 * 
 	 */
@@ -316,7 +337,7 @@ public final class BrowserPlatform implements Platform {
 		return persistence;
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getPluginRegistry()
      */
     public PluginRegistry getPluginRegistry() {
@@ -325,17 +346,14 @@ public final class BrowserPlatform implements Platform {
     }
 
 	/**
-     * @see com.thinkparity.ophelia.browser.platform.Platform#getRelease()
+     * @see com.thinkparity.ophelia.browser.platform.Platform#getReleaseName()
      *
      */
-    public Release getRelease() {
-        if (null == release) {
-            release = migratorHelper.readRelease();
-        }
-        return release;
+    public String getReleaseName() {
+        return Version.getReleaseName();
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getTimeZone()
      *
      */
@@ -349,7 +367,7 @@ public final class BrowserPlatform implements Platform {
 	 */
 	public WindowRegistry getWindowRegistry() { return windowRegistry; }
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#hibernate(com.thinkparity.ophelia.browser.platform.application.ApplicationId)
 	 * 
 	 */
@@ -397,7 +415,7 @@ public final class BrowserPlatform implements Platform {
         return getModelFactory().getProfileModel(getClass()).isSignUpAvailable();
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.Platform#isTestingMode() */
+	/** @see com.thinkparity.ophelia.browser.platform.Platform#isTestingMode() */
 	public Boolean isTestingMode() {
         switch (mode) {
         case DEMO:
@@ -411,7 +429,7 @@ public final class BrowserPlatform implements Platform {
         }
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#isWorkspaceInitialized(com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
@@ -419,7 +437,7 @@ public final class BrowserPlatform implements Platform {
         return WorkspaceModel.getInstance(environment).isInitialized(workspace);
     }
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyEnd(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */
@@ -428,7 +446,7 @@ public final class BrowserPlatform implements Platform {
         logVariable("application", application);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyHibernate(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */
@@ -442,8 +460,8 @@ public final class BrowserPlatform implements Platform {
 	 * 
 	 */
 	public void notifyRestore(final Application application) {
-        logApiId();
-        logVariable("application", application);
+        logger.logApiId();
+        logger.logVariable("application", application);
 	}
 
     /**
@@ -451,18 +469,18 @@ public final class BrowserPlatform implements Platform {
 	 * 
 	 */
 	public void notifyStart(final Application application) {
-        logApiId();
-        logVariable("application", application);
+        logger.logApiId();
+        logger.logVariable("application", application);
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#removeListener(com.thinkparity.ophelia.browser.platform.event.LifeCycleListener)
      */
     public void removeListener(final LifeCycleListener listener) {
         listenerHelper.addListener(listener);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#restart()
      *
      */
@@ -475,8 +493,8 @@ public final class BrowserPlatform implements Platform {
      * 
      */
 	public void restore(final ApplicationId applicationId) {
-		logApiId();
-        logVariable("applicationId", applicationId);
+		logger.logApiId();
+        logger.logVariable("applicationId", applicationId);
 		applicationRegistry.get(applicationId).restore(this);
 	}
 
@@ -503,11 +521,13 @@ public final class BrowserPlatform implements Platform {
         invoke(ActionId.PLATFORM_RESET_PASSWORD, Data.emptyData());
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#start()
      * 
      */
 	public void start() {
+        // add the platform as its own lifecycle listener
+        addListener(this);
 	    notifyLifeCycleStarting();
         logApiId();
         if (!isWorkspaceInitialized()) {
@@ -517,20 +537,33 @@ public final class BrowserPlatform implements Platform {
             deleteWorkspace();
             end();
         } else {
-            if (isLatestRelease()) {
-                if (isReleaseInitialized()) {
-                    initializeRelease();
-                }
-                startPlugins();
-                startApplications();
-                notifyLifeCycleStarted();
-            } else {
-                installRelease();
-            }
+            startPlugins();
+            startApplications();
+            notifyLifeCycleStarted();
         }
 	}
 
-    protected final void logApiId() {
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.event.LifeCycleListener#started(com.thinkparity.ophelia.browser.platform.event.LifeCycleEvent)
+     *
+     */
+    public void started(final LifeCycleEvent e) {
+        // start an event dispatcher
+        eventDispatcher = new EventDispatcher(this);
+        eventDispatcher.start();
+
+        /* if we are not running the latest release, start a download task */
+        if (!migratorHelper.isLatestRelease())
+            migratorHelper.startDownloadLatestRelease();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.event.LifeCycleListener#starting(com.thinkparity.ophelia.browser.platform.event.LifeCycleEvent)
+     *
+     */
+    public void starting(final LifeCycleEvent e) {}
+
+	protected final void logApiId() {
         logger.logApiId();
     }
 
@@ -539,6 +572,22 @@ public final class BrowserPlatform implements Platform {
      */
     protected final <V> V logVariable(final String name, final V value) {
         return logger.logVariable(name, value);
+    }
+
+    /**
+     * Fire a product release installed event. We set the image name for the
+     * launcher code.
+     * 
+     * @param e
+     *            A <code>MigratorEvent</code>.
+     */
+    void fireProductReleaseInstalled(final MigratorEvent e) {
+        try {
+            ThinkParity.setImage(e.getRelease().getName());
+        } catch (final IOException iox) {
+            logger.logFatal(iox, "Cannot upgrade to release {0}.",
+                    e.getRelease().getName());
+        }
     }
 
     /**
@@ -597,28 +646,11 @@ public final class BrowserPlatform implements Platform {
     }
 
     /**
-     * Initialize the installed release.
-     * 
-     */
-    private void initializeRelease() {
-        migratorHelper.initializeRelease(new ProcessAdapter() {});
-    }
-
-    /**
      * Perform first run initialization.
      * 
      */
     private void initializeWorkspace() {
         firstRunHelper.firstRun();
-    }
-
-    /**
-     * Install the latest release.
-     * 
-     */
-    private void installRelease() {
-        migratorHelper.installRelease(new ProcessAdapter() {});
-        restart(migratorHelper.readRelease().getName());
     }
 
     /**
@@ -636,24 +668,6 @@ public final class BrowserPlatform implements Platform {
             logger.logError(t, "Could not invoke action {0} with data {1}.", actionId, data);
             throw new BrowserException("Could not invoke platform action.", t);
         }
-    }
-
-    /**
-     * Determine if an update is available.
-     * 
-     * @return True if an update is available.
-     */
-    private boolean isLatestRelease() {
-        return migratorHelper.isLatestRelease().booleanValue();
-    }
-
-    /**
-     * Determine whether or not the installed release is initialized.
-     * 
-     * @return True if the migration is initialized; false otherwise.
-     */
-    private boolean isReleaseInitialized() {
-        return migratorHelper.isReleaseInitialized().booleanValue();
     }
 
     /**

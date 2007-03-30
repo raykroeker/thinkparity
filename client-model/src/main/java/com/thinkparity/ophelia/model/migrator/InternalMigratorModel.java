@@ -6,9 +6,10 @@ package com.thinkparity.ophelia.model.migrator;
 import java.lang.reflect.Method;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
-import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEvent;
+
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
 /**
  * <b>Title:</b>thinkParity Internal Migrator Model<br>
@@ -21,6 +22,12 @@ import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEven
 public interface InternalMigratorModel extends MigratorModel {
 
     /**
+     * Download the latest release.
+     *
+     */
+    public void downloadLatestRelease(final ProcessMonitor monitor);
+
+    /**
      * Handle the product release deployed remote event.
      * 
      * @param event
@@ -30,10 +37,17 @@ public interface InternalMigratorModel extends MigratorModel {
             final ProductReleaseDeployedEvent event);
 
     /**
-     * Initialize the product.
-     *
+     * Initialize the migrator model. We create the product the installed
+     * release and the latest release.
+     * 
      */
-    public void initializeProduct();
+    public void initialize(final ProcessMonitor monitor);
+
+    /**
+     * Install the latest release.
+     * 
+     */
+    public void installLatestRelease(final ProcessMonitor monitor);
 
     /**
      * Log an error.
@@ -47,11 +61,4 @@ public interface InternalMigratorModel extends MigratorModel {
      */
     public void logError(final Throwable cause, final Method method,
             final Object[] arguments);
-
-    /**
-     * Read the product.
-     * 
-     * @return A <code>Product</code>.
-     */
-    public Product readProduct();
 }

@@ -252,8 +252,9 @@ public class WorkspaceModel {
             notifyStepBegin(monitor, InitializeStep.SESSION_LOGIN);
             sessionModel.login(credentials);
             notifyStepEnd(monitor, InitializeStep.SESSION_LOGIN);
-            // initialize migrator product
-            modelFactory.getMigratorModel().initializeProduct();
+            // initialize migrator
+            if (workspace.isDesktop())
+                modelFactory.getMigratorModel().initialize(monitor);
             // create the profile
             notifyStepBegin(monitor, InitializeStep.PROFILE_CREATE);
             modelFactory.getProfileModel().create();

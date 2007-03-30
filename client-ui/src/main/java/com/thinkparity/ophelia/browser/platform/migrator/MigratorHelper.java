@@ -3,12 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.platform.migrator;
 
-import com.thinkparity.codebase.model.migrator.Release;
-
 import com.thinkparity.ophelia.model.migrator.MigratorModel;
-import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
-import com.thinkparity.ophelia.browser.Constants.Directories;
 import com.thinkparity.ophelia.browser.platform.Platform;
 
 /**
@@ -36,45 +32,19 @@ public final class MigratorHelper {
     }
 
     /**
-     * Intialize the installed release.
-     *
-     */
-    public void initializeRelease(final ProcessMonitor monitor) {
-        model.initializeRelease(monitor, Directories.ThinkParity.DIR);
-    }
-
-    /**
-     * Determine if the installed release is the latest release.
+     * Determine if this is the latest release.
      * 
-     * @return True if the installed release is the latest release.
+     * @return True if this is the latest release.
      */
     public Boolean isLatestRelease() {
         return model.isLatestRelease();
     }
 
     /**
-     * Determine if the installed release is initialized.
-     * 
-     * @return True if the installed release is initialized.
-     */
-    public Boolean isReleaseInitialized() {
-        return model.isReleaseInitialized();
-    }
-
-    /**
-     * Install the latest release.
+     * Start a thread to download the latest release.
      *
      */
-    public void installRelease(final ProcessMonitor monitor) {
-        model.installRelease(monitor, Directories.ThinkParity.DIR);
-    }
-
-    /**
-     * Read the installed release.
-     * 
-     * @return A <code>Release</code>.
-     */
-    public Release readRelease() {
-        return model.readRelease();
+    public void startDownloadLatestRelease() {
+        model.startDownloadLatestRelease();
     }
 }

@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
@@ -104,11 +103,11 @@ public interface Platform extends ApplicationListener {
     public PluginRegistry getPluginRegistry();
 
 	/**
-     * Obtain the release for the platform.
+     * Obtain the release name.
      * 
-     * @return The platform <code>Release</code>.
+     * @return The platform release name <code>String</code>.
      */
-    public Release getRelease();
+    public String getReleaseName();
 
 	/**
      * Obtain the time zone.

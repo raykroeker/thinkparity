@@ -17,6 +17,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.desdemona.model.Version;
 import com.thinkparity.desdemona.model.backup.BackupService;
+import com.thinkparity.desdemona.model.migrator.MigratorService;
 import com.thinkparity.desdemona.model.stream.StreamModel;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 import com.thinkparity.desdemona.wildfire.util.PersistenceManager;
@@ -131,6 +132,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 		initializeHandlers(pluginClassLoader, pluginDirectory);
         initializeListeners();
 		startStream();
+		startMigratorService();
         startBackupService();
         final String message = getStartupMessage();
         new Log4JWrapper(getClass()).logInfo(message);
@@ -147,6 +149,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      */
     public void serverStopping() {
         stopBackupService();
+        stopMigratorService();
     }
 
     /**
@@ -453,12 +456,12 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 
     private String getDestroyMessage() {
         return MessageFormat.format("{0} - {1} - {2} is offline.",
-                Version.getName(), Version.getMode(), Version.getBuildId());
+                Version.getProductName(), Version.getReleaseName(), Version.getBuildId());
     }
 
     private String getStartupMessage() {
         return MessageFormat.format("{0} - {1} - {2} is online.",
-                Version.getName(), Version.getMode(), Version.getBuildId());
+                Version.getProductName(), Version.getReleaseName(), Version.getBuildId());
     }
 
     /**
@@ -531,11 +534,19 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
     }
 
     /**
-     * Start the archive service.
+     * Start the backup service.
      *
      */
     private void startBackupService() {
         BackupService.getInstance().start();
+    }
+
+    /**
+     * Start the migrator service.
+     *
+     */
+    private void startMigratorService() {
+        MigratorService.getInstance().start();
     }
 
     /**
@@ -545,7 +556,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
     private void startPersistenceManager() {
         persistenceManager.start();
     }
-        
+
     /**
      * Start the stream service.
      *
@@ -553,13 +564,21 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
     private void startStream() {
         StreamModel.getModel().start();
     }
-
+        
     /**
      * Stop the archive service.
      *
      */
     private void stopBackupService() {
         BackupService.getInstance().stop();
+    }
+
+    /**
+     * Stop the migrator service.
+     *
+     */
+    private void stopMigratorService() {
+        MigratorService.getInstance().stop();
     }
 
     /**

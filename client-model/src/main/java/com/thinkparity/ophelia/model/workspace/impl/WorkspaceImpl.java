@@ -238,14 +238,14 @@ public final class WorkspaceImpl implements Workspace {
      */
     public Iterable<String> getAttributeNames() {
         return Collections.unmodifiableSet(sessionData.keySet());
-    }            
+    }
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getDataDirectory()
      */
     public File getDataDirectory() {
         return initChild(DirectoryNames.Workspace.DATA);
-    }
+    }            
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getDataSource()
@@ -283,7 +283,7 @@ public final class WorkspaceImpl implements Workspace {
         return initChild(DirectoryNames.Workspace.DOWNLOAD);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getIndexDirectory()
      * 
      */
@@ -291,7 +291,7 @@ public final class WorkspaceImpl implements Workspace {
         return initChild(DirectoryNames.Workspace.INDEX);
     }
 
-    /**
+	/**
      * Obtain the model's event listeners.
      * 
      * @param <T>
@@ -368,6 +368,14 @@ public final class WorkspaceImpl implements Workspace {
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#isDesktop()
+     *
+     */
+    public Boolean isDesktop() {
+        return System.getProperty("thinkparity.product-name").equals("OpheliaProduct");
+    }
+
+    /**
      * Determine if the workspace is initialized.
      * 
      * @return True if it has already been initialized.
@@ -432,7 +440,7 @@ public final class WorkspaceImpl implements Workspace {
         xmppSessionImpl = new XMPPSessionImpl(XMPPSessionDebugger.class);
 
         shutdownHooks = new ArrayList<ShutdownHook>();
-        
+
         FileUtil.deleteTree(initChild(DirectoryNames.Workspace.TEMP));
     }
 
@@ -499,11 +507,7 @@ public final class WorkspaceImpl implements Workspace {
      * 
      */
     private void bootstrapLog4J() {
-        /* HACK if the logging root is set; we know we are being run within the
-         * thinkParity server and need not configure log4j */
-        final String loggingRootProperty = System.getProperty("thinkparity.logging.root");
-        final boolean desktop = null == loggingRootProperty;
-        if (desktop) {
+        if (isDesktop()) {
             final Properties logging = bootstrapLog4JConfig(mode);
             final File loggingRoot = bootstrapLog4JRoot(mode);
             // console appender
@@ -554,7 +558,7 @@ public final class WorkspaceImpl implements Workspace {
             switch (mode) {
             case DEMO:
             case PRODUCTION:
-                if (desktop)
+                if (isDesktop())
                     logging.setProperty("log4j.rootLogger", "WARN, DEFAULT");
     
                 logging.setProperty("log4j.logger.com.thinkparity.ophelia", "WARN, DEFAULT");
@@ -573,7 +577,7 @@ public final class WorkspaceImpl implements Workspace {
                 logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
                 break;
             case DEVELOPMENT:
-                if (desktop)
+                if (isDesktop())
                     logging.setProperty("log4j.rootLogger", "INFO, CONSOLE, DEFAULT");
     
                 logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, CONSOLE, DEFAULT");
@@ -592,7 +596,7 @@ public final class WorkspaceImpl implements Workspace {
                 logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
                 break;
             case TESTING:
-                if (desktop)
+                if (isDesktop())
                     logging.setProperty("log4j.rootLogger", "INFO, DEFAULT");
     
                 logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, DEFAULT");

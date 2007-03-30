@@ -11,7 +11,6 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.profile.Profile;
 
-import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.Constants.Icons;
 import com.thinkparity.ophelia.browser.application.system.SystemApplication;
 import com.thinkparity.ophelia.browser.platform.Platform;
@@ -147,10 +146,10 @@ public final class Tray {
     private StringBuffer createCaption() {
         switch(systemApplication.getConnection()) {
         case OFFLINE:
-            return new StringBuffer(getString(Version.getMode() + ".OFFLINE",
+            return new StringBuffer(getString("OFFLINE",
                     new Object[] { profile.getName() }));
         case ONLINE:
-            return new StringBuffer(getString(Version.getMode() + ".ONLINE",
+            return new StringBuffer(getString("ONLINE",
                     new Object[] { profile.getName() }));
         default:
             throw Assert.createUnreachable("[UNKNOWN CONNECTION]");

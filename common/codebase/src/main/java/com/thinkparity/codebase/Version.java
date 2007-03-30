@@ -30,55 +30,29 @@ public abstract class Version {
     }
 
 	/**
-	 * Obtain the build id.
-	 * 
-	 * @return A build id string.
-	 */
-	protected String doGetBuildId() { return config.getProperty("com.thinkparity.parity.buildId"); }
-
-    /**
-     * Obtain an apache info log statement.
+     * Obtain the build id.
      * 
-     * @return A log message.
+     * @return The build id <code>String</code>.
      */
-    protected String doGetInfo() {
-        return new StringBuffer("BuildId:")
-                .append(doGetBuildId())
-                .append(",Mode:")
-                .append(doGetMode().toString())
-                .append(",Name:")
-                .append(doGetName())
-                .append(",Version:")
-                .append(doGetVersion()).toString();
-    }
+	protected String doGetBuildId() {
+        return config.getProperty("thinkparity.build-id");
+	}
 
 	/**
-     * Obtain the operating mode.
-     *
-     * @return An operating mode.
+     * Obtain the release name.
+     * 
+     * @return The release name <code>String</code>.
      */
-    protected Mode doGetMode() {
-        return Mode.valueOf(config.getProperty("com.thinkparity.parity.mode"));
-    }
-
-	/**
-	 * Obtain the name.
-	 * 
-	 * @return A name string.
-	 */
-	protected String doGetName() { return config.getProperty("com.thinkparity.parity.name"); }
+	protected String doGetReleaseName() {
+        return config.getProperty("thinkparity.release-name");
+	}
 
     /**
-     * Obtain the release id.
-     *
-     * @return A release id.
+     * Obtain the product name.
+     * 
+     * @return The product name <code>String</code>.
      */
-    protected String doGetReleaseId() { return config.getProperty("com.thinkparity.parity.releaseId"); }
-
-    /**
-	 * Obtain the version.
-	 * 
-	 * @return A version string.
-	 */
-	protected String doGetVersion() { return config.getProperty("com.thinkparity.parity.version"); }
+	protected String doGetProductName() {
+        return config.getProperty("thinkparity.product-name");
+	}
 }

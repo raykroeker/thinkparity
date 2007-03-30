@@ -54,46 +54,11 @@ public interface MigratorModel {
             final File file);
 
     /**
-     * Initialize the installed release.
-     * 
-     * 
-     * @param monitor
-     *            a <code>ProcessMonitor</code>.
-     * @param directory
-     *            The install directory <code>File</code>.
-     */
-    public void initializeRelease(final ProcessMonitor monitor,
-            final File directory);
-
-    /**
-     * Install the latest release.
-     * 
-     * @param directory
-     *            The install directory <code>File</code>.
-     */
-    public void installRelease(final ProcessMonitor monitor,
-            final File directory);
-
-    /**
      * Determine if the installed release is the latest release.
      * 
-     * @return True if a the installed release is the latest release.
+     * @return True if the installed release is the latest release.
      */
     public Boolean isLatestRelease();
-
-    /**
-     * Determine if the installed release is initialized.
-     * 
-     * @return True if the installed release is initialized.
-     */
-    public Boolean isReleaseInitialized();
-
-    /**
-     * Read the installed release.
-     * 
-     * @return A <code>Release</code>.
-     */
-    public Release readRelease();
 
     /**
      * Remove a migrator listener.
@@ -103,4 +68,10 @@ public interface MigratorModel {
      */
     @ThinkParityTransaction(TransactionType.NEVER)
     public void removeListener(final MigratorListener listener);
+
+    /**
+     * Start the download of the latest release.
+     *
+     */
+    public void startDownloadLatestRelease();
 }

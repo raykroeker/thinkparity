@@ -13,6 +13,7 @@ public interface Notification {
     public String getHeadingLine1();
     public String getHeadingLine2();
     public int getNumberLines();
-    public String getTitle();
+    public String getTextTitle();
+    public String getLinkTitle();
     public void invokeAction();
 }

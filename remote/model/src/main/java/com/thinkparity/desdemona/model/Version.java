@@ -4,17 +4,17 @@
  */
 package com.thinkparity.desdemona.model;
 
-import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
 
 /**
- * Remote model version info.
- *
+ * <b>Title:</b>thinkParity DesdemonaModel Version<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.0.0
+ * @version 1.1.2.3
  */
-public class Version extends com.thinkparity.codebase.Version {
+public final class Version extends com.thinkparity.codebase.Version {
 
     /** The singleton instance. */
     private static final Version SINGLETON;
@@ -24,52 +24,39 @@ public class Version extends com.thinkparity.codebase.Version {
 	}
 
     /**
-	 * Obtain the build id.
-	 * 
-	 * @return A build id string.
-	 */
-    public static String getBuildId() { return SINGLETON.doGetBuildId(); }
-
-	/**
-     * Obtain the operating mode.
-     *
-     * @return An operating mode.
-     */
-    public static Mode getMode() { return SINGLETON.doGetMode(); }
-
-    /**
-	 * Obtain the name.
-	 * 
-	 * @return A name string.
-	 */
-	public static  String getName() { return SINGLETON.doGetName(); }
-
-	/**
-     * Obtain the release id.
-     *
-     * @return A release id.
-     */
-    public static String getReleaseId() { return SINGLETON.doGetReleaseId(); }
-
-    /**
-	 * Obtain the version.
-	 * 
-	 * @return A version string.
-	 */
-    public static  String getVersion() { return SINGLETON.doGetVersion(); }
-
-	/**
-     * Obtain an apache loggable info statement.
+     * Obtain the build id.
      * 
-     * @return An info string.
+     * @return A build id <code>String</code>.
      */
-    public static String toInfo() { return SINGLETON.doGetInfo(); }
+    public static String getBuildId() {
+        return SINGLETON.doGetBuildId();
+    }
+
+	/**
+	 * Obtain the product name.
+	 * 
+	 * @return The product name <code>String</code>.
+	 */
+    public static String getProductName() {
+        return SINGLETON.doGetProductName();
+    }
 
     /**
-     * Create a Version.
+     * Obtain the release name.
+     *
+     * @return The release name <code>String</code>.
+     */
+    public static String getReleaseName() {
+        return SINGLETON.doGetReleaseName();
+    }
+
+    /**
+     * Create Version.
      *
      * @param config
-     *      The version properties.
+     *      The version <code>Config</code>.
      */
-    private Version(final Config config) { super(config); }
+    private Version(final Config config) {
+        super(config);
+    }
 }

@@ -20,16 +20,27 @@ import com.thinkparity.ophelia.browser.Constants.Colors;
  */
 public class LabelFactory extends ComponentFactory {
 
-	/**
-	 * Singleton instance.
-	 * 
-	 */
+    /**
+     * <b>Title:</b>thinkParity OpheliaUI Underline JLabel<br>
+     * <b>Description:</b>A label that displays its text with a graphical
+     * underline.<br>
+     */
+    private static class UnderlinedJLabel extends JLabel {
+        @Override
+        protected void paintComponent(final Graphics g) {
+            super.paintComponent(g);
+            if (getText().length() > 0) {            
+                final FontMetrics fontMetrics = getFontMetrics(getFont());
+                final int y = fontMetrics.getMaxAscent() + 1;
+                g.drawLine(0, y, fontMetrics.stringWidth(getText()), y);                
+            }
+        }        
+    }
+
+	/** A singleton instance of <code>LabelFactory</code>. */
 	private static final LabelFactory singleton;
 
-	/**
-	 * Singleton synchronization lock.
-	 * 
-	 */
+	/** The singleton instance synchronization lock <code>Object</code>. */
 	private static final Object singletonLock;
 
 	static {
@@ -238,18 +249,6 @@ public class LabelFactory extends ComponentFactory {
 		applyHandCursor(jLabel);
 		return jLabel;
 	}
-    
-    private class UnderlinedJLabel extends JLabel {
-        @Override
-        protected void paintComponent(final Graphics g) {
-            super.paintComponent(g);
-            if (getText().length() > 0) {            
-                final FontMetrics fontMetrics = getFontMetrics(getFont());
-                final int y = fontMetrics.getMaxAscent() + 1;
-                g.drawLine(0, y, fontMetrics.stringWidth(getText()), y);                
-            }
-        }        
-    }
 
 	/**
 	 * Text alignment when using an image and text in a label.

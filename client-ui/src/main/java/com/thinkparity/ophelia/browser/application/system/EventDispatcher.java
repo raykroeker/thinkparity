@@ -3,16 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.system;
 
-import com.thinkparity.ophelia.model.events.ContactAdapter;
-import com.thinkparity.ophelia.model.events.ContactEvent;
-import com.thinkparity.ophelia.model.events.ContactListener;
-import com.thinkparity.ophelia.model.events.ContainerAdapter;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
-import com.thinkparity.ophelia.model.events.ContainerListener;
-import com.thinkparity.ophelia.model.events.DocumentAdapter;
-import com.thinkparity.ophelia.model.events.DocumentListener;
-import com.thinkparity.ophelia.model.events.SessionAdapter;
-import com.thinkparity.ophelia.model.events.SessionListener;
+import com.thinkparity.ophelia.model.events.*;
 
 /**
  * The system application's event dispatcher.  
@@ -31,7 +22,10 @@ class EventDispatcher {
     /** A thinkParity document listener. */
 	private DocumentListener documentListener;
 
-	/** A thinkParity session listener. */
+	/** An instance of <code>MigratorListener</code>. */
+    private MigratorListener migratorListener;
+
+    /** A thinkParity session listener. */
     private SessionListener sessionListener;
 
     /** The <code>SystemApplication</code>. */
@@ -82,6 +76,9 @@ class EventDispatcher {
 		documentListener = createDocumentListener();
 		systemApplication.getDocumentModel().addListener(documentListener);
 
+        migratorListener = createMigratorListener();
+        systemApplication.getMigratorModel().addListener(migratorListener);
+
         sessionListener = createSessionListener();
         systemApplication.getSessionModel().addListener(sessionListener);
 	}
@@ -108,7 +105,7 @@ class EventDispatcher {
         };
     }
 
-	private ContainerListener createContainerListener() {
+    private ContainerListener createContainerListener() {
         return new ContainerAdapter() {
             @Override
             public void containerPublished(final ContainerEvent e) {
@@ -119,7 +116,7 @@ class EventDispatcher {
         };
     }
 
-    /**
+	/**
 	 * Create an update listener for the document model.
 	 * 
 	 * @return The creation listener.
@@ -127,6 +124,27 @@ class EventDispatcher {
 	private DocumentListener createDocumentListener() {
 		return new DocumentAdapter() {};
 	}
+
+    /**
+     * Create the system application migrator listener. The only events that are
+     * interesting for the user are when a release has been downloaded and when
+     * it has been installed. The system application will display a notification
+     * for both of these events.
+     * 
+     * @return A <code>MigratorListener</code>.
+     */
+    private MigratorListener createMigratorListener() {
+        return new MigratorAdapter() {
+            @Override
+            public void productReleaseDownloaded(final MigratorEvent e) {
+                systemApplication.fireProductReleaseDownloaded(e);
+            }
+            @Override
+            public void productReleaseInstalled(final MigratorEvent e) {
+                systemApplication.fireProductReleaseInstalled(e);
+            }
+        };
+    }
 
     /**
      * Create a session listener.

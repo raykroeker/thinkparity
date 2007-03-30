@@ -24,6 +24,7 @@ import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.md.MetaDataType;
+import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
 
 /**
@@ -62,19 +63,23 @@ class PersistenceManagerImpl {
     /** A <code>TransactionManager</code>. */
     private TransactionManager transactionManager;
 
+    /** The <code>Workspace</code>. */
+    private final Workspace workspace;
+
     /**
      * Create SessionManagerImpl.
      * 
      * @param workspace
-     *            The workspace root directory <code>File</code>.
+     *            The <code>Workspace</code>.
      */
-    PersistenceManagerImpl(final WorkspaceImpl workspace) {
+    PersistenceManagerImpl(final Workspace workspace) {
         super();
         this.logger = new Log4JWrapper();
         this.persistenceLogFile = new File(
                 workspace.getLogDirectory(), "thinkParity Derby.log");
         this.persistenceRoot = new File(
                 workspace.getDataDirectory(), DirectoryNames.Workspace.Data.DB);
+        this.workspace = workspace;
     }
 
     /**
@@ -170,12 +175,8 @@ class PersistenceManagerImpl {
      */
     void start() {
         try {
-            /* HACK if the logging root is set; we know we are being run within the
-             * thinkParity server and need not configure log4j */
-            final String loggingRootProperty = System.getProperty("thinkparity.logging.root");
-            final boolean desktop = null == loggingRootProperty;
             final XADataSourceConfiguration xaDataSourceConfiguration;
-            if (desktop) {
+            if (workspace.isDesktop()) {
                 System.setProperty("derby.stream.error.file",
                         persistenceLogFile.getAbsolutePath());
                 System.setProperty("derby.infolog.append", "true");

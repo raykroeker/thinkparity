@@ -80,7 +80,6 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.application.window.Window;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
-import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 
@@ -889,12 +888,6 @@ public class Browser extends AbstractApplication {
 	}
 
 	/**
-	 * @see com.thinkparity.ophelia.browser.platform.Saveable#restoreState(com.thinkparity.ophelia.browser.platform.util.State)
-	 * 
-	 */
-	public void restoreState(final State state) {}
-
-	/**
      * Confirm an attempt to retry an invocation of an action with the user and
      * if positive retry.
      * 
@@ -1491,12 +1484,6 @@ public class Browser extends AbstractApplication {
         }
         invoke(ActionId.PROFILE_VERIFY_EMAIL, data);
     }
-
-    /**
-	 * @see com.thinkparity.ophelia.browser.platform.Saveable#saveState(com.thinkparity.ophelia.browser.platform.util.State)
-	 * 
-	 */
-	public void saveState(final State state) {}
 
     /**
      * Select a tab. This displays the tab and also causes the

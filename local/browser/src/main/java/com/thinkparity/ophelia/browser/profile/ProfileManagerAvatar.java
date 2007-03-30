@@ -14,7 +14,6 @@ import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.ListFactory;
@@ -176,9 +175,7 @@ class ProfileManagerAvatar extends Avatar {
         renameJButton = ButtonFactory.create(getString("RenameButton"));
         newJButton = ButtonFactory.create(getString("NewButton"));
         deleteJButton = ButtonFactory.create(getString("DeleteButton"));
-// NOCOMMIT
-//eaJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ProfileManagerAvatar.EmbeddedAssistance"));
-eaJLabel.setText(new StringBuilder(System.getProperty("thinkparity.release-name")).append("-").append(System.getProperty("thinkparity.image")).toString());
+        eaJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ProfileManagerAvatar.EmbeddedAssistance"));
         profileJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         profileJList.setCellRenderer(new ProfileListCellRenderer());
         profileJList.setModel(profileModel);

@@ -6,20 +6,17 @@ package com.thinkparity.ophelia.browser.application.system;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.Application;
-import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.http.Link;
 import com.thinkparity.codebase.model.util.http.LinkFactory;
 
 import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.ophelia.model.events.MigratorEvent;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
-import com.thinkparity.ophelia.browser.application.system.dialog.Notification;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
@@ -33,15 +30,15 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
-import com.thinkparity.ophelia.browser.platform.util.State;
-
-import org.apache.log4j.Logger;
 
 /**
- * @author raykroeker@gmail.com
- * @version $Revision$
+ * <b>Title:</b>thinkParity OpheliaUI System Application<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.22
  */
-public class SystemApplication extends AbstractApplication {
+public final class SystemApplication extends AbstractApplication {
 
 	/** The action registry. */
     private final ActionRegistry actionRegistry;
@@ -62,13 +59,21 @@ public class SystemApplication extends AbstractApplication {
      * Create SystemApplication.
      * 
      * @param platform
-     *            A thinkParity platform.
+     *            The <code>Platform</code>.
      */
 	public SystemApplication(final Platform platform) {
 		super(platform, L18nContext.SYS_APP);
         this.actionRegistry = new ActionRegistry();
         this.applicationRegistry = new ApplicationRegistry();
 	}
+
+	/**
+     * Display the info notification.
+     * 
+     */
+    public void displayInfo() {
+        impl.displayInfo();
+    }
 
 	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#end(com.thinkparity.ophelia.browser.platform.Platform)
@@ -86,24 +91,23 @@ public class SystemApplication extends AbstractApplication {
 		notifyEnd();
 	}
 
-	/** @see com.thinkparity.ophelia.browser.platform.application.Application#getConnection() */
-    public Connection getConnection() { return connection; }
+	/**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#getConnection()
+     *
+	 */
+    public Connection getConnection() {
+        return connection;
+    }
 
 	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#getId()
 	 * 
 	 */
-	public ApplicationId getId() { return ApplicationId.SYSTEM; }
-
-	/**
-     * @see com.thinkparity.ophelia.browser.platform.application.Application#getLogger(java.lang.Class)
-     * 
-     */
-    public Logger getLogger(final Class clasz) {
-        return getPlatform().getLogger(clasz);
+	public ApplicationId getId() {
+        return ApplicationId.SYSTEM;
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getReleaseName()
      *
      */
@@ -112,10 +116,19 @@ public class SystemApplication extends AbstractApplication {
         return super.getReleaseName();
     }
 
+    /**
+     * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getString(java.lang.String)
+     * 
+     */
 	public String getString(final String localKey) {
 		return super.getString(localKey);
 	}
 
+    /**
+     * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getString(java.lang.String,
+     *      java.lang.Object[])
+     * 
+     */
     public String getString(final String localKey, final Object[] arguments) {
 		return super.getString(localKey, arguments);
 	}
@@ -126,7 +139,8 @@ public class SystemApplication extends AbstractApplication {
      * @return The web page <code>Link</code>.
      */
     public Link getWebPage() {
-        return LinkFactory.getInstance(Application.OPHELIA, BrowserPlatform.getInstance().getEnvironment()).create();
+        return LinkFactory.getInstance(Application.OPHELIA,
+                BrowserPlatform.getInstance().getEnvironment()).create();
     }
 
     /**
@@ -155,12 +169,15 @@ public class SystemApplication extends AbstractApplication {
             applicationRegistry.getStatus(ApplicationId.BROWSER);
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.application.Application#isDevelopmentMode() */
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#isDevelopmentMode()
+     * 
+     */
     public Boolean isDevelopmentMode() {
         return getPlatform().isDevelopmentMode();
     }
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#restore(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -177,69 +194,63 @@ public class SystemApplication extends AbstractApplication {
 	}
 
     /**
-	 * @see com.thinkparity.ophelia.browser.platform.Saveable#restoreState(com.thinkparity.ophelia.browser.platform.util.State)
-	 * 
-	 */
-	public void restoreState(final State state) {}
-
-    /** Show the display info dialog. */
-    public void runDisplayInfo() {
-        impl.displayInfo();
-    }
-
-    /** Run the exit platform action. */
-    public void runExitPlatform() {
-        runLater(ActionId.PLATFORM_QUIT, Data.emptyData());
-    }
-
-    /** Run the iconify action. */
+     * Run the iconify action.
+     * 
+     * @param iconify
+     *            Whether or not to iconify.
+     */
     public void runIconify(final Boolean iconify) {
         final Data data = new Data(1);
         data.set(Iconify.DataKey.ICONIFY, iconify);
         runLater(ActionId.PLATFORM_BROWSER_ICONIFY, data);
     }
 
-    /** Run the login action. */
+    /**
+     * Run the platform's login action.
+     *
+     */
     public void runLogin() {
         runLater(ActionId.PLATFORM_LOGIN, Data.emptyData());
     }
 
-    /** Run the move to front action. */
+    /**
+     * Run the platform's move to front action for the browser.
+     *
+     */
     public void runMoveBrowserToFront() {
         runLater(ActionId.PLATFORM_BROWSER_MOVE_TO_FRONT, Data.emptyData());
     }
 
-    /** Run the open website action. */
+    /**
+     * Run the platform's open website action.
+     *
+     */
     public void runOpenWebsite() {
         run(ActionId.PLATFORM_OPEN_WEBSITE, Data.emptyData());
     }
 
-    /** Run the restart platform action. */
+    /**
+     * Run the platform's quit action.
+     *
+     */
+    public void runQuitPlatform() {
+        runLater(ActionId.PLATFORM_QUIT, Data.emptyData());
+    }
+
+    /**
+     * Run the platform's restart action.
+     *
+     */
     public void runRestartPlatform() {
         run(ActionId.PLATFORM_RESTART, Data.emptyData());
     }
 
-    /** Run the restore browser action. */
+    /**
+     * Run the platform's restore action for the browser.
+     *
+     */
 	public void runRestoreBrowser() {
         runLater(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
-    }
-
-    /**
-	 * @see com.thinkparity.ophelia.browser.platform.Saveable#saveState(com.thinkparity.ophelia.browser.platform.util.State)
-	 * 
-	 */
-	public void saveState(State state) {
-		throw Assert.createNotYetImplemented("System#saveState");
-	}
-
-    /**
-     * Set the auto login preference.
-     *
-     * @param autoLogin
-     *      True to auto login; false to manually login.
-     */
-    public void setAutoLogin(final Boolean autoLogin) {
-        getPlatform().getPersistence().setAutoLogin(autoLogin);
     }
 
     /**
@@ -261,8 +272,9 @@ public class SystemApplication extends AbstractApplication {
 		notifyStart();
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getProfile()
+     * 
      */
     @Override
     protected Profile getProfile() {
@@ -271,26 +283,33 @@ public class SystemApplication extends AbstractApplication {
 
     /**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#translateError(java.lang.Throwable)
+     * 
      */
     @Override
     protected BrowserException translateError(final Throwable t) {
         return super.translateError(t);
     }
 
-    /** Notify the connection is offline. */
+    /**
+     * Fire a connection offline notification.
+     *
+     */
     void fireConnectionOffline() {
         connection = Connection.OFFLINE;
         impl.reloadConnectionStatus(connection);
     }
 
-    /** Notify the connection is online. */
+    /**
+     * Fire a connection online notification.
+     *
+     */
     void fireConnectionOnline() {
         connection = Connection.ONLINE;
         impl.reloadConnectionStatus(connection);
     }
 
     /**
-     * Fire the contact incoming invitation created event.
+     * Fire an incoming contact invitation created event.
      * 
      * @param e
      *            A <code>ContactEvent</code>.
@@ -298,15 +317,32 @@ public class SystemApplication extends AbstractApplication {
     void fireContactIncomingInvitationCreated(final ContactEvent e) {
         final Data data = new Data(1);
         data.set(Show.DataKey.INVITATION_ID, e.getIncomingInvitation().getId());
-        fireNotification(ActionId.CONTACT_SHOW, data,
-                getString("Notification.ContactIncomingInvitationCreated.Title"), 1,
-                getString("Notification.ContactIncomingInvitationCreated.HeadingLine1"),
-                getName(e.getIncomingInvitation().getExtendedBy()),
-                null, null);
+        impl.fireNotification(new DefaultNotification() {
+            @Override
+            public String getContentLine1() {
+                return e.getIncomingInvitation().getExtendedBy().getName();
+            }
+            @Override
+            public String getHeadingLine1() {
+                return getString("Notification.ContactIncomingInvitationCreated.HeadingLine1");
+            }
+            @Override
+            public String getLinkTitle() {
+                return getString("Notification.ContactIncomingInvitationCreated.Title");
+            }
+            @Override
+            public int getNumberLines() {
+                return 1;
+            }
+            @Override
+            public void invokeAction() {
+                run(ActionId.CONTACT_SHOW, data);
+            }
+        });
     }
 
     /**
-     * Fire the container published event.
+     * Fire a container published event.
      * 
      * @param e
      *            A <code>ContainerEvent</code>.
@@ -316,93 +352,129 @@ public class SystemApplication extends AbstractApplication {
         data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.CONTAINER_ID, e.getContainer().getId());
         if (null == e.getPreviousVersion()) {
             // this is the first publish event
-            fireNotification(ActionId.CONTAINER_SHOW, data,
-                    getString("Notification.ContainerPublishedFirstTime.Title"), 2,
-                    getString("Notification.ContainerPublishedFirstTime.HeadingLine1"),
-                    getName(e.getTeamMember()),
-                    getString("Notification.ContainerPublishedFirstTime.HeadingLine2"),
-                    getName(e.getContainer()));
+            impl.fireNotification(new DefaultNotification() {
+                @Override
+                public String getContentLine1() {
+                    return e.getTeamMember().getName();
+                }
+                @Override
+                public String getContentLine2() {
+                    return e.getContainer().getName();
+                }
+                @Override
+                public String getHeadingLine1() {
+                    return getString("Notification.ContainerPublishedFirstTime.HeadingLine1");
+                }
+                @Override
+                public String getHeadingLine2() {
+                    return getString("Notification.ContainerPublishedFirstTime.HeadingLine2");
+                }
+                @Override
+                public String getLinkTitle() {
+                    return getString("Notification.ContainerPublishedFirstTime.Title");
+                }
+                @Override
+                public int getNumberLines() {
+                    return 2;
+                }
+                @Override
+                public void invokeAction() {
+                    run(ActionId.CONTAINER_SHOW, data);
+                }
+            });
         } else {
             // this is a subsequent publish event
-            fireNotification(ActionId.CONTAINER_SHOW, data,
-                    getString("Notification.ContainerPublishedNotFirstTime.Title"), 2,
-                    getString("Notification.ContainerPublishedNotFirstTime.HeadingLine1"),
-                    getName(e.getTeamMember()),
-                    getString("Notification.ContainerPublishedNotFirstTime.HeadingLine2"),
-                    getName(e.getContainer()));
+            impl.fireNotification(new DefaultNotification() {
+                @Override
+                public String getContentLine1() {
+                    return e.getTeamMember().getName();
+                }
+                @Override
+                public String getContentLine2() {
+                    return e.getContainer().getName();
+                }
+                @Override
+                public String getHeadingLine1() {
+                    return getString("Notification.ContainerPublishedNotFirstTime.HeadingLine1");
+                }
+                @Override
+                public String getHeadingLine2() {
+                    return getString("Notification.ContainerPublishedNotFirstTime.HeadingLine2");
+                }
+                @Override
+                public String getLinkTitle() {
+                    return getString("Notification.ContainerPublishedNotFirstTime.Title");
+                }
+                @Override
+                public int getNumberLines() {
+                    return 2;
+                }
+                @Override
+                public void invokeAction() {
+                    run(ActionId.CONTAINER_SHOW, data);
+                }
+            });
         }
     }
 
     /**
-     * Fire a notification message. All strings passed as parameters
-     * should be localized already.
+     * Fire a product release downloaded event.
      * 
-     * @param actionId
-     *            A <code>ActionId</code>.
-     * @param data
-     *            The action <code>Data</code>.
-     * @param title
-     *            A notification title <code>String</code>.
-     * @param numberLines
-     *            The number of notifications lines (1 or 2) <code>int</code>.
-     * @param headingLine1
-     *            The heading <code>String</code> for line 1.
-     * @param contentLine1
-     *            The message content <code>String</code> for line 1.
-     * @param headingLine2
-     *            The heading <code>String</code> for line 2.
-     * @param contentLine2
-     *            The message content <code>String</code> for line 2.
+     * @param e
+     *            A <code>MigratorEvent</code>.
      */
-    private void fireNotification(final ActionId actionId,
-            final Data data, final String title, final int numberLines,
-            final String headingLine1, final String contentLine1,
-            final String headingLine2, final String contentLine2) {
-        impl.fireNotification(new Notification() {
+    void fireProductReleaseDownloaded(final MigratorEvent e) {
+        impl.fireNotification(new DefaultNotification() {
+            /**
+             * @see com.thinkparity.ophelia.browser.application.system.DefaultNotification#getContentLine1()
+             *
+             */
+            @Override
             public String getContentLine1() {
-                return contentLine1;
+                return e.getRelease().getName();
             }
-            public String getContentLine2() {
-                return contentLine2;
-            }
+            @Override
             public String getHeadingLine1() {
-                return headingLine1;
+                return getString("Notification.ProductReleaseDownloaded.Heading",
+                        new String[] {e.getRelease().getName()});
             }
-            public String getHeadingLine2() {
-                return headingLine2;
-            }
+            @Override
             public int getNumberLines() {
-                return numberLines;
+                return 1;
             }
-            public String getTitle() {
-                return title;
-            }
-            public void invokeAction() {
-                run(actionId, data);
+            @Override
+            public String getTextTitle() {
+                return getString("Notification.ProductReleaseDownloaded.Title");
             }
         });
     }
 
     /**
-     * Extract the name from the container.
+     * Fire a product release installed event.
      * 
-     * @param container
-     *            A <code>Container</code>.
-     * @return The <code>Container</code>'s name.
+     * @param e
+     *            A <code>MigratorEvent</code>.
      */
-    private String getName(final Container container) {
-        return container.getName();
-    }
-
-    /**
-     * Extract the name from the user.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @return The <code>User</code>'s name.
-     */
-    private String getName(final User user) {
-        return user.getName();
+    void fireProductReleaseInstalled(final MigratorEvent e) {
+        impl.fireNotification(new DefaultNotification() {
+            @Override
+            public String getContentLine1() {
+                return e.getRelease().getName();
+            }
+            @Override
+            public String getHeadingLine1() {
+                return getString("Notification.ProductReleaseInstalled.Heading",
+                        new String[] {e.getRelease().getName()});
+            }
+            @Override
+            public int getNumberLines() {
+                return 1;
+            }
+            @Override
+            public String getTextTitle() {
+                return getString("Notification.ProductReleaseInstalled.Title");
+            }
+        });
     }
 
     /**
@@ -428,7 +500,7 @@ public class SystemApplication extends AbstractApplication {
     }
 
     /**
-     * Run an action that doesn't need to be run imeediately.
+     * Run an action that doesn't need to be run imediately.
      * 
      * @param actionId
      *            The action id.
@@ -439,7 +511,9 @@ public class SystemApplication extends AbstractApplication {
      */
     private void runLater(final ActionId actionId, final Data data) {
         SwingUtilities.invokeLater(new Runnable() {
-            public void run() { SystemApplication.this.run(actionId, data); }
+            public void run() {
+                SystemApplication.this.run(actionId, data);
+            }
         });
     }
 }

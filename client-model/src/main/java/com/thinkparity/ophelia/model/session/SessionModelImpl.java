@@ -568,7 +568,6 @@ public final class SessionModelImpl extends Model<SessionListener>
 	 * @return True if the user is logged in, false otherwise.
 	 */
     public Boolean isLoggedIn() {
-        logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
     		synchronized (xmppSession) {
@@ -619,8 +618,6 @@ public final class SessionModelImpl extends Model<SessionListener>
      */
     public void login(final Credentials credentials)
             throws InvalidCredentialsException {
-        logger.logVariable("environment", environment);
-        logger.logVariable("credentials", credentials);
         try {
             assertNotIsOnline();
             assertXMPPIsReachable(environment);

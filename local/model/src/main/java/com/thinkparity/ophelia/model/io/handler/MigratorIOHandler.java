@@ -52,6 +52,15 @@ public interface MigratorIOHandler {
     public void delete(final Release release);
 
     /**
+     * Determine if the product exists.
+     * 
+     * @param name
+     *            The product name <code>String</code>.
+     * @return True if the product has been initialized.
+     */
+    public Boolean doesExistProduct(final String name);
+
+    /**
      * Determine if the release has been initialized.
      * 
      * @param release

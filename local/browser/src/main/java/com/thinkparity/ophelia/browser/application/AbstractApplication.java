@@ -25,6 +25,7 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.events.ContactListener;
 import com.thinkparity.ophelia.model.events.ProfileListener;
+import com.thinkparity.ophelia.model.migrator.MigratorModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 
 import com.thinkparity.ophelia.browser.BrowserException;
@@ -184,6 +185,15 @@ public abstract class AbstractApplication implements Application {
 	public DocumentModel getDocumentModel() { 
 		return platform.getModelFactory().getDocumentModel(getClass());
 	}
+
+    /**
+     * Obtain an instance of migrator model.
+     * 
+     * @return An instance of <code>MigratorModel</code>.
+     */
+    public MigratorModel getMigratorModel() {
+        return platform.getModelFactory().getMigratorModel(getClass());
+    }
 
     /**
 	 * Obtain the parity session interface.
@@ -375,7 +385,7 @@ public abstract class AbstractApplication implements Application {
      * @return The release name <code>String</code>.
      */
     protected String getReleaseName() {
-        return platform.getRelease().getName();
+        return platform.getReleaseName();
     }
 
     protected String getString(final String localKey) {

@@ -37,6 +37,6 @@ public final class ReadVersion extends AbstractHandler {
             final ServiceResponseWriter writer) {
         logger.logApiId();
         writer.writeString("version", MessageFormat.format("{0} - {1} - {2}",
-                Version.getName(), Version.getMode(), Version.getBuildId()));
+                Version.getProductName(), Version.getReleaseName(), Version.getBuildId()));
     }
 }

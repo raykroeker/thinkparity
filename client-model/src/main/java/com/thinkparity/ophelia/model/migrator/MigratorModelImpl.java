@@ -29,6 +29,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEven
 
 import com.thinkparity.ophelia.model.Constants;
 import com.thinkparity.ophelia.model.Model;
+import com.thinkparity.ophelia.model.events.MigratorAdapter;
 import com.thinkparity.ophelia.model.events.MigratorEvent;
 import com.thinkparity.ophelia.model.events.MigratorListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
@@ -48,8 +49,35 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 public final class MigratorModelImpl extends Model<MigratorListener> implements
         MigratorModel, InternalMigratorModel {
 
+    private static final ProcessMonitor DOWNLOAD_MONITOR;
+
+    private static final ProcessMonitor INSTALL_MONITOR;
+
+    /** A workspace attribute key for the download thread. */
+    private static final String WS_ATTRIBUTE_KEY_DOWNLOAD;
+
+    /** A workspace attribute key for the install thread. */
+    private static final String WS_ATTRIBUTE_KEY_INSTALL;
+
+    /** A workspace attribute key for the migrator listener. */
+    private static final String WS_ATTRIBUTE_KEY_LISTENER;
+
+    static {
+        DOWNLOAD_MONITOR = new ProcessAdapter() {};
+        INSTALL_MONITOR = new ProcessAdapter() {};
+        WS_ATTRIBUTE_KEY_DOWNLOAD = "MigratorModelImpl#download";
+        WS_ATTRIBUTE_KEY_INSTALL = "MigratorModelImpl#install";
+        WS_ATTRIBUTE_KEY_LISTENER = "MigratorModelImpl#listener";
+    }
+
     /** A workspace download directory <code>File</code>. */
     private File downloadDirectory;
+
+    /** The product install directory <code>File</code>. */
+    private File installDirectory;
+
+    /** A local <code>MigratorEventGenerator</code>. */
+    private final MigratorEventGenerator localEventGenerator;
 
     /** A <code>MigratorIOHandler</code>. */
     private MigratorIOHandler migratorIO;
@@ -63,6 +91,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      */
     public MigratorModelImpl() {
         super();
+        this.localEventGenerator = new MigratorEventGenerator(MigratorEvent.Source.LOCAL);
         this.remoteEventGenerator = new MigratorEventGenerator(MigratorEvent.Source.REMOTE);
     }
 
@@ -86,7 +115,62 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             // upload the stream
             final String streamId = upload(file);
             // deploy
-            getSessionModel().deployMigrator(product, release, resources, streamId);
+            getSessionModel().deployMigrator(product, release, resources,
+                    streamId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+//    /**
+//     * @see com.thinkparity.ophelia.model.migrator.InternalMigratorModel#initialize(com.thinkparity.ophelia.model.util.ProcessMonitor)
+//     * 
+//     */
+//    public void initialize(final ProcessMonitor monitor) {
+//        try {
+//            if (!isProductInitialized()) {
+//                initializeProduct();
+//            }
+//            if (!isInstalledReleaseInitialized()) {
+//                initializeInstalledRelease();
+//            }
+//            if (!isLatestRelease() && !isLatestReleaseDownloadComplete()) {
+//                startDownloadLatestRelease();
+//            }
+//        } catch (final Throwable t) {
+//            throw panic(t);
+//        }
+//    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.migrator.InternalMigratorModel#downloadLatestRelease(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     * 
+     */
+    public void downloadLatestRelease(final ProcessMonitor monitor) {
+        try {
+            final Product product = readProduct();
+            final Release latestRelease = readLatestRelease();
+            final List<Resource> installedResources = readInstalledResources();
+            final List<Resource> latestResources = readLatestResources();
+            // calculate the resources that need to be downloaded
+            final List<Resource> downloadManifest = createDownloadManifest(
+                    installedResources, latestResources);
+            final File releaseFile = new File(downloadDirectory, latestRelease.getName()); 
+            // download
+            final File temp = download(product, latestRelease, downloadManifest);
+            try {
+                // copy to a download directory
+                final ByteBuffer buffer = workspace.getDefaultBuffer();
+                synchronized (buffer) {
+                    FileUtil.copy(temp, releaseFile, buffer);
+                }
+            } finally {
+                // no assertion because it is a temp file
+                temp.delete();
+            }
+            // fire event
+            notifyLatestReleaseDownloaded(product, latestRelease,
+                    localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -99,12 +183,14 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     public void handleProductReleaseDeployed(
             final ProductReleaseDeployedEvent event) {
         try {
+            // create release
             final Release release = event.getRelease();
             final List<Resource> resources = event.getResources();
             migratorIO.createRelease(release, resources);
+            // update latest release
             final Product product = migratorIO.readProduct(Constants.Product.NAME);
             migratorIO.updateLatestRelease(product, release);
-
+            // fire event
             notifyProductReleaseDeployed(event.getProduct(), event.getRelease(),
                     remoteEventGenerator);
         } catch (final Throwable t) {
@@ -113,167 +199,99 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.migrator.InternalMigratorModel#initializeProduct()
+     * @see com.thinkparity.ophelia.model.migrator.InternalMigratorModel#initialize(com.thinkparity.ophelia.model.util.ProcessMonitor)
      * 
      */
-    public void initializeProduct() {
+    public void initialize(final ProcessMonitor monitor) {
         try {
-            // create the product
-            final Product product = readRemoteProduct(Constants.Product.NAME);
-//            final Release release = readRemoteRelease(product, Constants.Release.NAME);
-//            final List<Resource> resources = readRemoteResources(release);
-//            migratorIO.createProduct(product, release, resources);
-//            // set the latest release
-//            final Release latestRelease = readRemoteLatestRelease(product);
-//            if (!release.equals(latestRelease)) {
-//                final List<Resource> latestReleaseResources = readRemoteResources(
-//                        latestRelease);
-//                migratorIO.createRelease(latestRelease, latestReleaseResources);
-//                migratorIO.updateLatestRelease(product, latestRelease);
-//            }
+            initializeProduct();
+            initializeInstalledRelease();
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.migrator.MigratorModel#initializeRelease(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     * @see com.thinkparity.ophelia.model.migrator.InternalMigratorModel#installLatestRelease(com.thinkparity.ophelia.model.util.ProcessMonitor)
      * 
      */
-    public void initializeRelease(final ProcessMonitor monitor,
-            final File directory) {
+    public void installLatestRelease(final ProcessMonitor monitor) {
         try {
-            final Product product = readProduct();
-//            final Release installedRelease = readRelease();
-//            // clean up old releases
-//            final List<Release> releases = migratorIO.readReleases();
-//            FileSystem releaseFileSystem;
-//            for (final Release release : releases) {
-//                if (!installedRelease.equals(release)) {
-//                    releaseFileSystem = new FileSystem(new File(directory, release.getName()));
-//                    releaseFileSystem.deleteTree();
-//                    migratorIO.delete(release);
-//                }
-//            }
-//
-//            migratorIO.updateInstalledRelease(product, installedRelease);
-//            migratorIO.updateReleaseInitialization(installedRelease);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.migrator.MigratorModel#installRelease(com.thinkparity.ophelia.model.util.ProcessMonitor,
-     *      java.io.File)
-     * 
-     */
-    public void installRelease(final ProcessMonitor monitor,
-            final File directory) {
-        try {
-            /* if the release deployed notification has been delivered and the
-             * user has closed the workspace we might be in the scenario that we
-             * are offline; however we can attempt to login. */
-            if (!isOnline()) {
-                getSessionModel().login(new ProcessAdapter() {});
-            }
-            assertOnline(); 
-            
             // ensure the migration can be done
-            Assert.assertNotNull(directory, "Directory cannot be null.");
-            Assert.assertTrue(directory.isDirectory(),
-                    "Directory {0} is not a directory.", directory);
-            Assert.assertTrue(directory.canRead(),
-                    "Directory {0} cannot be read from.", directory);
-            Assert.assertTrue(directory.canWrite(),
-                    "Directory {0} cannot be written to.", directory);
             final Product product = migratorIO.readProduct(Constants.Product.NAME);
             final Release installedRelease = migratorIO.readInstalledRelease(product);
             final Release latestRelease = migratorIO.readLatestRelease(product);
             Assert.assertNotTrue(installedRelease.equals(latestRelease),
                     "Installed release {0} equals latest release {1}.",
                     installedRelease, latestRelease);
-
+    
             final List<Resource> installedResources = migratorIO.readInstalledResources(product);
             final List<Resource> latestResources = migratorIO.readLatestResources(product);
-
-            // calculate the resources that need to be downloaded
-            final List<Resource> downloadManifest = createDownloadManifest(
+    
+            final File download = new File(downloadDirectory, latestRelease.getName());
+            // reference install
+            final File install = new File(installDirectory, installedRelease.getName());
+            // createlatest
+            final File latest = new File(installDirectory, latestRelease.getName());
+            if (latest.exists())
+                FileUtil.deleteTree(latest);
+            Assert.assertTrue(latest.mkdir(),
+                    "Could not create directory {0}.", latest);
+            // extract download
+            final ByteBuffer buffer = workspace.getDefaultBuffer();
+            synchronized (buffer) {
+                ZipUtil.extractZipFile(download, latest, buffer);
+            }
+            // copy resources from installed to latest
+            final List<Resource> copyManifest = createCopyManifest(
                     installedResources, latestResources);
-            final File tmp = download(product, latestRelease, downloadManifest);
-            try {
-                final File download = new File(downloadDirectory,
-                        latestRelease.getName());
-                // copy to a download directory
-                final ByteBuffer buffer = workspace.getDefaultBuffer();
-                synchronized (buffer) {
-                    FileUtil.copy(tmp, download, buffer);
-                }
-                final File install = new File(directory, installedRelease.getName());
-                final File latest = new File(directory, latestRelease.getName());
-                Assert.assertTrue(latest.mkdir(),
-                        "Could not create directory {0}.", latest);
-                // extract
-                synchronized (buffer) {
-                    ZipUtil.extractZipFile(download, latest, buffer);
-                }
-                // copy resources from installed to latest
-                final List<Resource> copyManifest = createCopyManifest(
-                        installedResources, latestResources);
-                File from, to;
-                final FileSystem latestFS = new FileSystem(latest);
-                final FileSystem installFS = new FileSystem(install);
-                for (final Resource copy : copyManifest) {
-                    from = installFS.find(copy.getPath());
-                    to = latestFS.createFile(copy.getPath());
-                    final InputStream fromStream = new FileInputStream(from);
+            File from, to;
+            final FileSystem latestFS = new FileSystem(latest);
+            final FileSystem installFS = new FileSystem(install);
+            for (final Resource copy : copyManifest) {
+                from = installFS.find(copy.getPath());
+                to = latestFS.createFile(copy.getPath());
+                final InputStream fromStream = new FileInputStream(from);
+                try {
+                    final OutputStream toStream = new FileOutputStream(to);
                     try {
-                        final OutputStream toStream = new FileOutputStream(to);
-                        try {
-                            synchronized (buffer) {
-                                StreamUtil.copy(fromStream, toStream, buffer);
-                            }
-                        } finally {
-                            toStream.close();
+                        synchronized (buffer) {
+                            StreamUtil.copy(fromStream, toStream, buffer);
                         }
                     } finally {
-                        fromStream.close();
+                        toStream.close();
                     }
+                } finally {
+                    fromStream.close();
                 }
-                // install release
-                migratorIO.updateInstalledRelease(product, latestRelease);
-            } finally {
-                Assert.assertTrue(tmp.delete(), "Could not delete file {0}.",
-                        tmp);
             }
+            // delete download
+            Assert.assertTrue(download.delete(),
+                    "Could not delete file {0}.", download);
+            // install release
+            migratorIO.updateInstalledRelease(product, latestRelease);
+            // fire event
+            notifyLatestReleaseInstalled(product, latestRelease, localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.migrator.MigratorModel#isMigrationPossible()
-     *
+     * @see com.thinkparity.ophelia.model.migrator.InternalMigratorModel#isLatestRelease()
+     * 
      */
     public Boolean isLatestRelease() {
-        try {
-            return Boolean.TRUE;
-//            final Product product = readProduct();
-//            final Release installed = migratorIO.readInstalledRelease(product);
-//            final Release latest = migratorIO.readLatestRelease(product);
-//            return installed.equals(latest);
-        } catch (final Throwable t) {
-            throw panic(t);
+        /* NOTE if the product is not initialized the latest release cannot
+         * possibly be initialized or installed */
+        if (isProductInitialized()) {
+            final Product product = readProduct();
+            final Release installed = migratorIO.readInstalledRelease(product);
+            final Release latest = migratorIO.readLatestRelease(product);
+            return installed.equals(latest);
+        } else {
+            return Boolean.FALSE;
         }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.migrator.MigratorModel#isReleaseInitialized()
-     *
-     */
-    public Boolean isReleaseInitialized() {
-        return Boolean.TRUE;
-        //return migratorIO.isReleaseInitialized(readRelease());
     }
 
     /**
@@ -301,37 +319,12 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.migrator.InternalMigratorModel#readProduct()
-     *
+     * @see com.thinkparity.ophelia.model.migrator.MigratorModel#readInstalledRelease()
+     * 
      */
-    public Product readProduct() {
+    public Release readInstalledRelease() {
         try {
-            return migratorIO.readProduct(Constants.Product.NAME);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.migrator.MigratorModel#readProduct(java.lang.String)
-     *
-     */
-    public Product readProduct(final String name) {
-        try {
-            return getSessionModel().readMigratorProduct(name);   
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.migrator.MigratorModel#readRelease()
-     *
-     */
-    public Release readRelease() {
-        try {
-            final Product product = readProduct();
-            return migratorIO.readInstalledRelease(product);
+            return migratorIO.readInstalledRelease(readProduct());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -347,6 +340,30 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.migrator.MigratorModel#startDownloadLatestRelease()
+     * 
+     */
+    public void startDownloadLatestRelease() {
+        if (isLatestReleaseDownloadInProgress()) {
+            logger.logInfo("Release download in progress.");
+        } else {
+            // THREAD MigratorModelImpl#startDownloadLatestRelease
+            final Thread download = new Thread("TPS-OpheliaModel-DownloadRelease") {
+                @Override
+                public void run() {
+                    try {
+                        getMigratorModel().downloadLatestRelease(DOWNLOAD_MONITOR);
+                    } finally {
+                        workspace.removeAttribute(WS_ATTRIBUTE_KEY_DOWNLOAD);                    
+                    }
+                }
+            };
+            workspace.setAttribute(WS_ATTRIBUTE_KEY_DOWNLOAD, download);
+            download.start();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
@@ -354,7 +371,22 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
         downloadDirectory = workspace.getDownloadDirectory();
+        installDirectory = new File(System.getProperty("thinkparity-dir"));
         migratorIO = IOFactory.getDefault(workspace).createMigratorHandler();
+        if (!workspace.isSetAttribute(WS_ATTRIBUTE_KEY_LISTENER).booleanValue()) {
+            final MigratorListener listener = new MigratorAdapter() {
+                @Override
+                public void productReleaseDeployed(final MigratorEvent e) {
+                    startDownloadLatestRelease();
+                }
+                @Override
+                public void productReleaseDownloaded(final MigratorEvent e) {
+                    startInstallLatestRelease();
+                }
+            };
+            workspace.setAttribute(WS_ATTRIBUTE_KEY_LISTENER, listener);
+            addListener(listener);
+        }
     }
 
     /**
@@ -422,6 +454,99 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     }
 
     /**
+     * Initialize the installed release. Here we perform any custom logic
+     * required to upgrade the product from one release to another.
+     * 
+     * Then we update the installed release and its initialization information.
+     * 
+     */
+    private void initializeInstalledRelease() {
+        final Product product = readProduct();
+        final Release installedRelease = readInstalledRelease();
+
+        migratorIO.updateInstalledRelease(product, installedRelease);
+        migratorIO.updateReleaseInitialization(installedRelease);
+    }
+
+    /**
+     * Initialize the product. Download the product and release meta-data from
+     * the server and create them locally. Also read the latest release
+     * meta-data from the server and if it differs from the installed release,
+     * create it and update the latest release info.
+     */
+    private void initializeProduct() {
+        // create the product
+        final Product product = readRemoteProduct(Constants.Product.NAME);
+        final Release release = readRemoteRelease(product, Constants.Release.NAME);
+        final List<Resource> resources = readRemoteResources(release);
+        migratorIO.createProduct(product, release, resources);
+        // set the latest release
+        final Release latestRelease = readRemoteLatestRelease(product);
+        if (!release.equals(latestRelease)) {
+            final List<Resource> latestReleaseResources = readRemoteResources(
+                    latestRelease);
+            migratorIO.createRelease(latestRelease, latestReleaseResources);
+            migratorIO.updateLatestRelease(product, latestRelease);
+        }
+    }
+
+    /**
+     * Determine if the latest release download is in progress.
+     * 
+     * @return True if the latest release download is in progress.
+     */
+    private boolean isLatestReleaseDownloadInProgress() {
+        return workspace.isSetAttribute(WS_ATTRIBUTE_KEY_DOWNLOAD).booleanValue();
+    }
+
+    /**
+     * Determine if the product is initialized.
+     * 
+     * @return True if the product is initialized.
+     */
+    private boolean isProductInitialized() {
+        return migratorIO.doesExistProduct(Constants.Product.NAME).booleanValue();
+    }
+
+    /**
+     * Fire a product release downloaded event.
+     * 
+     * @param product
+     *            The <code>Product</code>.
+     * @param release
+     *            The <code>Release</code>.
+     * @param meg
+     *            The <code>MigratorEventGenerator</code>.
+     */
+    private void notifyLatestReleaseDownloaded(final Product product,
+            final Release release, final MigratorEventGenerator meg) {
+        notifyListeners(new EventNotifier<MigratorListener>() {
+            public void notifyListener(final MigratorListener listener) {
+                listener.productReleaseDownloaded(meg.generate(product, release));
+            }
+        });
+    }
+
+    /**
+     * Fire a product release installed event.
+     * 
+     * @param product
+     *            The <code>Product</code>.
+     * @param release
+     *            The <code>Release</code>.
+     * @param meg
+     *            The <code>MigratorEventGenerator</code>.
+     */
+    private void notifyLatestReleaseInstalled(final Product product,
+            final Release release, final MigratorEventGenerator meg) {
+        notifyListeners(new EventNotifier<MigratorListener>() {
+            public void notifyListener(final MigratorListener listener) {
+                listener.productReleaseInstalled(meg.generate(product, release));
+            }
+        });
+    }
+
+    /**
      * Fire a product release deployed event.
      * 
      * @param product
@@ -432,32 +557,117 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      *            A <code>MigratorEventGenerator</code>.
      */
     private void notifyProductReleaseDeployed(final Product product,
-            final Release release, final MigratorEventGenerator eventGenerator) {
-        super.notifyListeners(new EventNotifier<MigratorListener>() {
+            final Release release, final MigratorEventGenerator meg) {
+        notifyListeners(new EventNotifier<MigratorListener>() {
             public void notifyListener(final MigratorListener listener) {
-                listener.productReleaseDeployed(eventGenerator.generate(
-                        product, release));
+                listener.productReleaseDeployed(meg.generate(product, release));
             }
         });
     }
 
+    /**
+     * Read the installed release's resources.
+     * 
+     * @return A <code>List</code> of <code>Resource</code>s.
+     */
+    private List<Resource> readInstalledResources() {
+        return migratorIO.readInstalledResources(readProduct());
+    }
+
+    /**
+     * Read the latest release.
+     * 
+     * @return A <code>Release</code>.
+     */
+    private Release readLatestRelease() {
+        return migratorIO.readLatestRelease(readProduct());
+    }
+
+    /**
+     * Read the latest release's resources.
+     * 
+     * @return A <code>List</code> of <code>Resource</code>s.
+     */
+    private List<Resource> readLatestResources() {
+        return migratorIO.readLatestResources(readProduct());
+    }
+
+    /**
+     * Read the product.
+     * 
+     * @return A <code>Product</code>.
+     */
+    private Product readProduct() {
+        return migratorIO.readProduct(Constants.Product.NAME);
+    }
+
+    /**
+     * Read the latest release for a product from the server.
+     * 
+     * @param product
+     *            A <code>Product</code>.
+     * @return A <code>Release</code>.
+     */
     private Release readRemoteLatestRelease(final Product product) {
         return getSessionModel().readMigratorLatestRelease(
                 product.getName(), OSUtil.getOs());
     }
 
+    /**
+     * Read a product from the server.
+     * 
+     * @param name
+     *            A product name <code>String</code>.
+     * @return A <code>Product</code>.
+     */
     private Product readRemoteProduct(final String name) {
         return getSessionModel().readMigratorProduct(name);
     }
 
+    /**
+     * Read the release from the server.
+     * 
+     * @param product
+     *            A <code>Product</code>.
+     * @param name
+     *            A release name <code>String</code>.
+     * @return A <code>Release</code>.
+     */
     private Release readRemoteRelease(final Product product, final String name) {
         return getSessionModel().readMigratorRelease(product.getName(),
                 name, OSUtil.getOs());
     }
 
+    /**
+     * Read the resources for a release from the server.
+     * 
+     * @param release
+     *            A <code>Release</code>.
+     * @return A <code>List</code> of <code>Resource</code>s.
+     */
     private List<Resource> readRemoteResources(final Release release) {
         return getSessionModel().readMigratorResources(
                 Constants.Product.NAME, release.getName(), OSUtil.getOs());
+    }
+
+    /**
+     * Start a thread to install the latest release.
+     * 
+     */
+    private void startInstallLatestRelease() {
+        // THREAD MigratorModelImpl#startInstallLatestRelease
+        final Thread install = new Thread("TPS-OpheliaModel-InstallRelease") {
+            @Override
+            public void run() {
+                try {
+                    getMigratorModel().installLatestRelease(INSTALL_MONITOR);
+                } finally {
+                    workspace.removeAttribute(WS_ATTRIBUTE_KEY_INSTALL);                    
+                }
+            }
+        };
+        workspace.setAttribute(WS_ATTRIBUTE_KEY_INSTALL, install);
+        install.start();
     }
 
     /**

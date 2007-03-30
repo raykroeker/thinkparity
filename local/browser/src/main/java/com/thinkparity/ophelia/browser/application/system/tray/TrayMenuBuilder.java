@@ -50,7 +50,7 @@ class TrayMenuBuilder {
         this.displayInfo = new AbstractAction(getString("Menu.DisplayInfo")) {
             private static final long serialVersionUID = 1;
             public void actionPerformed(final ActionEvent e) {
-                application.runDisplayInfo();
+                application.displayInfo();
             }};
         this.displayInfo.putValue(Action.MNEMONIC_KEY, Integer.valueOf(getString("Menu.DisplayInfoMnemonic").charAt(0)));
 
@@ -68,7 +68,7 @@ class TrayMenuBuilder {
         this.exit = new AbstractAction(getString("Menu.Exit")) {
             private static final long serialVersionUID = 1;
             public void actionPerformed(final ActionEvent e) {
-                application.runExitPlatform();
+                application.runQuitPlatform();
             }};
         this.exit.putValue(Action.MNEMONIC_KEY, Integer.valueOf(getString("Menu.ExitMnemonic").charAt(0)));
     }

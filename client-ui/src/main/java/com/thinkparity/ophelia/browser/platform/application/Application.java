@@ -3,20 +3,19 @@
  */
 package com.thinkparity.ophelia.browser.platform.application;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.browser.platform.Platform;
-import com.thinkparity.ophelia.browser.platform.Saveable;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 
-
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity OpheliaUI Application<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.2
  */
-public interface Application extends Saveable {
+public interface Application {
 
 	/**
 	 * Add a listener to the application. The listener is used to generate
@@ -48,15 +47,6 @@ public interface Application extends Saveable {
 	 * @return The application id.
 	 */
 	public ApplicationId getId();
-
-    /**
-     * Obtain a logger for the class from the applilcation.
-     *
-     * @param clasz
-     *      The class for which to obtain the logger.
-     * @return An apache logger.
-     */
-    public Logger getLogger(final Class clasz);
 
     /**
 	 * Determine the application's current status.

@@ -17,4 +17,16 @@ public class MigratorAdapter implements MigratorListener {
      *
      */
     public void productReleaseDeployed(final MigratorEvent e) {}
+
+    /**
+     * @see com.thinkparity.ophelia.model.events.MigratorListener#productReleaseDownloaded(com.thinkparity.ophelia.model.events.MigratorEvent)
+     *
+     */
+    public void productReleaseDownloaded(final MigratorEvent e) {}
+
+    /**
+     * @see com.thinkparity.ophelia.model.events.MigratorListener#productReleaseInstalled(com.thinkparity.ophelia.model.events.MigratorEvent)
+     *
+     */
+    public void productReleaseInstalled(final MigratorEvent e) {}
 }

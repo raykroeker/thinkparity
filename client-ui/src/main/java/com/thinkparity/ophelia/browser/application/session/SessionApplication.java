@@ -19,7 +19,6 @@ import com.thinkparity.ophelia.browser.application.AbstractApplication;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
-import com.thinkparity.ophelia.browser.platform.util.State;
 
 import org.apache.log4j.Logger;
 
@@ -123,22 +122,6 @@ public class SessionApplication extends AbstractApplication {
      */
     public void restore(final Platform platform) {
         Assert.assertUnreachable("The session application does not support hibernation.");
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.Saveable#restoreState(com.thinkparity.ophelia.browser.platform.util.State)
-     * 
-     */
-    public void restoreState(final State state) {
-        throw Assert.createNotYetImplemented("The session application does not support state.");
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.Saveable#saveState(com.thinkparity.ophelia.browser.platform.util.State)
-     * 
-     */
-    public void saveState(final State state) {
-        throw Assert.createNotYetImplemented("The session application does not support state.");
     }
 
     /**

@@ -21,6 +21,9 @@ import com.thinkparity.Constants.Sundry;
  */
 public class ThinkParity {
 
+    /** A singleton instance of <code>ThinkParity</code>. */
+    private static ThinkParity INSTANCE;
+
     /**
      * The thinkParity client application entry point.
      * 
@@ -29,11 +32,26 @@ public class ThinkParity {
      */
     public static void main(String[] args) {
         try {
-            new ThinkParity().executeImage();
+            getInstance().executeImage();
         } catch (final Throwable t) {
             t.printStackTrace(System.err);
             System.exit(1);
         }
+    }
+
+    /**
+     * Set the image.
+     * 
+     * @param imageName
+     *            An image name <code>String</code>.
+     * @throws IOException
+     *             if the image cannot be set
+     */
+    public static void setImage(final String imageName) throws IOException {
+        // test to ensure validity
+        new Image(imageName);
+        getInstance().setProperty(PropertyNames.ThinkParity.Image, imageName);
+        getInstance().storeProperties();
     }
 
     /**
@@ -92,6 +110,18 @@ public class ThinkParity {
      */
     static void checkSystemProperty(final String key) {
         checkProperty(System.getProperties(), key);
+    }
+
+    /**
+     * Obtain an instance of thinkParity.
+     * 
+     * @return An instance of <code>ThinkParity</code>.
+     */
+    private static ThinkParity getInstance() {
+        if (null == INSTANCE) {
+            INSTANCE = new ThinkParity();
+        }
+        return INSTANCE;
     }
 
     /** The configuration <code>Properties</code>. */

@@ -903,7 +903,9 @@ public final class ContainerModelImpl extends
             final ContainerDraft draft = readDraft(containerId);
             final InternalDocumentModel documentModel = getDocumentModel();
             for (final Document document : draft.getDocuments()) {
-                printer.print(document, documentModel.openDraft(document.getId()));
+                if (ContainerDraft.ArtifactState.REMOVED != draft.getState(document)) {
+                    printer.print(document, documentModel.openDraft(document.getId()));
+                }
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -926,14 +928,25 @@ public final class ContainerModelImpl extends
             final InternalDocumentModel documentModel = getDocumentModel();
             final List<DocumentVersion> documentVersions =
                 containerIO.readDocumentVersions(containerId, versionId);
+            final ContainerVersion previousVersion =
+                readPreviousVersion(containerId, versionId);
+            final Map<DocumentVersion, Delta> versionDeltas;
+            if (null == previousVersion) {
+                versionDeltas = readDocumentVersionDeltas(containerId, versionId);
+            } else {
+                versionDeltas = readDocumentVersionDeltas(containerId, versionId,
+                        previousVersion.getVersionId());
+            }
             for (final DocumentVersion documentVersion : documentVersions) {
-                documentModel.openVersion(documentVersion.getArtifactId(),
-                        documentVersion.getVersionId(), new StreamOpener() {
-                    public void open(final InputStream stream)
-                                    throws IOException {
-                        printer.print(documentVersion, stream);
-                    }
-                });
+                if (Delta.REMOVED != versionDeltas.get(documentVersion)) {
+                    documentModel.openVersion(documentVersion.getArtifactId(),
+                            documentVersion.getVersionId(), new StreamOpener() {
+                        public void open(final InputStream stream)
+                                        throws IOException {
+                            printer.print(documentVersion, stream);
+                        }
+                    });
+                }
             }
         } catch (final Throwable t) {
             throw panic(t);

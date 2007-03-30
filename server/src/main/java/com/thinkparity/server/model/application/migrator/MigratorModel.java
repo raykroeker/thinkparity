@@ -13,6 +13,9 @@ import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
 
+import com.thinkparity.desdemona.model.annotation.ThinkParityAuthenticate;
+import com.thinkparity.desdemona.util.AuthenticationType;
+
 /**
  * <b>Title:</b>thinkParity Migrator Model<br>
  * <b>Description:</b><br>
@@ -20,6 +23,7 @@ import com.thinkparity.codebase.model.migrator.Resource;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
+@ThinkParityAuthenticate(AuthenticationType.USER)
 public interface MigratorModel {
 
     /**
@@ -52,6 +56,7 @@ public interface MigratorModel {
      * @param streamId
      *            A stream id <code>String</code>.
      */
+    @ThinkParityAuthenticate(AuthenticationType.SYSTEM)
     public void deploy(final JabberId userId, final Product product,
             final Release release, final List<Resource> resources,
             final String streamId);

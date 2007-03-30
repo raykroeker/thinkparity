@@ -11,6 +11,8 @@ import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.backup.BackupModelImpl;
 import com.thinkparity.desdemona.model.migrator.MigratorModel;
 import com.thinkparity.desdemona.model.migrator.MigratorModelImpl;
+import com.thinkparity.desdemona.model.profile.ProfileModel;
+import com.thinkparity.desdemona.model.profile.ProfileModelImpl;
 import com.thinkparity.desdemona.model.session.Session;
 
 /**
@@ -98,6 +100,16 @@ public final class ModelFactory {
     public final MigratorModel getMigratorModel() {
         return (MigratorModel) newModelProxy(
                 MigratorModel.class, MigratorModelImpl.class);
+    }
+
+    /**
+     * Obtain a profile model.
+     * 
+     * @return An instance of <code>ProfileModel</code>.
+     */
+    public final ProfileModel getProfileModel() {
+        return (ProfileModel) newModelProxy(
+                ProfileModel.class, ProfileModelImpl.class);
     }
 
     /**

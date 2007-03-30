@@ -3,13 +3,16 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
+import java.util.Calendar;
 import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.user.Token;
+import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.util.Token;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
@@ -53,6 +56,30 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         addEmail.setParameter("userId", userId);
         addEmail.setParameter("email", email);
         execute(addEmail);
+    }
+
+    void create(final JabberId userId, final Reservation reservation,
+            final Credentials credentials, final Profile profile,
+            final EMail email, final String securityQuestion,
+            final String securityAnswer) {
+        final XMPPMethod create = new XMPPMethod("profile:create");
+        create.setParameter("userId", userId);
+        create.setParameter("reservation", reservation);
+        create.setParameter("credentials", credentials);
+        create.setParameter("profile", profile);
+        create.setParameter("email", email);
+        create.setParameter("securityQuestion", securityQuestion);
+        create.setParameter("securityAnswer", securityAnswer);
+        execute(create);
+    }
+
+    Reservation createReservation(final JabberId userId, final String username,
+            final Calendar reservedOn) {
+        final XMPPMethod createReservation = new XMPPMethod("profile:createreservation");
+        createReservation.setParameter("userId", userId);
+        createReservation.setParameter("username", username);
+        createReservation.setParameter("reservedOn", reservedOn);
+        return execute(createReservation, Boolean.TRUE).readResultReservation("reservation");
     }
 
     /**

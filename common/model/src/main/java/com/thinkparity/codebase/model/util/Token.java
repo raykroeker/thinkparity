@@ -1,11 +1,11 @@
 /*
  * Created On: Tue Oct 17, 2006
  */
-package com.thinkparity.codebase.model.user;
+package com.thinkparity.codebase.model.util;
 
 /**
- * <b>Title:</b>thinkParity Session Token<br>
- * <b>Description:</b>A token uniquely identifying the user's installation.<br>
+ * <b>Title:</b>thinkParity CommonModel Token<br>
+ * <b>Description:</b>A unique token.<br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
@@ -13,7 +13,7 @@ package com.thinkparity.codebase.model.user;
 public final class Token {
 
     /** The token value <code>String</code>. */
-    private transient String value;
+    private String value;
     
     /**
      * Create Token.
@@ -27,12 +27,13 @@ public final class Token {
      */
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        } else if (null != obj && obj instanceof Token) {
-            return ((Token) obj).value.equals(value);
-        }
-        return false;
+        if (null == obj)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        return ((Token) obj).value.equals(value);
     }
 
     /**

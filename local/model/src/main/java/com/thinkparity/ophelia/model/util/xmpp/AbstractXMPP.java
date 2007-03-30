@@ -167,6 +167,32 @@ abstract class AbstractXMPP<T extends EventListener> {
     }
 
     /**
+     * Execute an xmpp method anonymously.
+     * 
+     * @param method
+     *            An <code>XMPPMethod</code>.
+     * @return An <code>XMPPMethodResponse</code>.
+     */
+    protected XMPPMethodResponse executeAnonymously(final XMPPMethod method) {
+        return xmppCore.executeAnonymously(method);
+    }
+
+    /**
+     * Execute an xmpp method optionally asserting a contained response.
+     * 
+     * @param method
+     *            An <code>XMPPMethod</code>.
+     * @param assertResult
+     *            A <code>Boolean</code> indicating whether or not to assert
+     *            the content of the response.
+     * @return An <code>XMPPMethodResponse</code>.
+     */
+    protected XMPPMethodResponse executeAnonymously(final XMPPMethod method,
+            final Boolean assertResult) {
+        return xmppCore.executeAnonymously(method, assertResult);
+    }
+
+    /**
      * Determine if the user id is the authenticated user.
      * 
      * @param userId

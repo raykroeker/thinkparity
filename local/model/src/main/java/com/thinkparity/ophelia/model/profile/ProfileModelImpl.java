@@ -19,6 +19,7 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
+import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
@@ -94,10 +95,47 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * Create the user's profile.
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#create(com.thinkparity.codebase.model.session.Credentials,
+     *      com.thinkparity.codebase.model.profile.Profile,
+     *      com.thinkparity.codebase.email.EMail, java.lang.String,
+     *      java.lang.String)
+     * 
+     */
+    public void create(final Reservation reservation,
+            final Credentials credentials, final Profile profile,
+            final EMail email, final String securityQuestion,
+            final String securityAnswer) throws ReservationExpiredException {
+        try {
+            final long now = currentDateTime().getTimeInMillis();
+            if (now > reservation.getExpiresOn().getTimeInMillis())
+                throw new ReservationExpiredException(reservation.getExpiresOn());
+
+            getSessionModel().createProfile(reservation, credentials, profile,
+                    email, securityQuestion, securityAnswer);
+        } catch (final ReservationExpiredException rex) {
+            throw rex;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#createReservation(java.lang.String)
      *
      */
-    public Profile create() {
+    public Reservation createReservation(final String username) {
+        try {
+            return getSessionModel().createProfileReservation(username);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.InternalProfileModel#initialize()
+     * 
+     */
+    public void initialize() {
         try {
             final Profile remoteProfile = getSessionModel().readProfile();
             /*
@@ -116,7 +154,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
                 profileIO.createEmail(remoteProfile.getLocalId(), profileEmail);
             }
             getIndexModel().indexProfile();
-            return profileIO.read(localUserId());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -236,6 +273,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         }
     }
 
+
     /**
      * Read a list of profile email addresses.
      * 
@@ -265,7 +303,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             throw panic(t);
         }
     }
-
 
     /**
      * Remove an email from a the profile.

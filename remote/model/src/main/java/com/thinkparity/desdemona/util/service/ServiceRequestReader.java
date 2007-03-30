@@ -23,7 +23,10 @@ import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
+import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
@@ -62,6 +65,15 @@ public interface ServiceRequestReader {
      * @return A <code>ContainerVersion</code>.
      */
     public ContainerVersion readContainerVersion(final String name);
+
+    /**
+     * Read credentials.
+     * 
+     * @param name
+     *            The parameter name <code>String</code>.
+     * @return The <code>Credentials</code>.
+     */
+    public Credentials readCredentials(final String name);
 
     /**
      * Read a list of document versions.
@@ -203,6 +215,15 @@ public interface ServiceRequestReader {
     public Product readProduct(final String name);
 
     /**
+     * Read a profile from the service request.
+     * 
+     * @param name
+     *            The name <code>String</code>.
+     * @return A <code>Profile</code>.
+     */
+    public Profile readProfile(final String name);
+
+    /**
      * Read a profile vcard.
      * 
      * @param name
@@ -219,6 +240,15 @@ public interface ServiceRequestReader {
      * @return The datum value <code>Release</code>.
      */
     public Release readRelease(final String name);
+
+    /**
+     * Read reservation.
+     * 
+     * @param name
+     *            The parameter name <code>String</code>.
+     * @return The <code>Reservation</code>.
+     */
+    public Reservation readReservation(final String name);
 
     /**
      * Read resource datum.

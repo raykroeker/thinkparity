@@ -38,6 +38,7 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
+import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
@@ -70,6 +71,9 @@ import org.xmpp.packet.JID;
 public abstract class AbstractModelImpl
     extends com.thinkparity.codebase.model.AbstractModelImpl {
 
+    /** A <code>XStreamUtil</code> xml serialization utility. */
+    protected static final XStreamUtil XSTREAM_UTIL;
+
     /** No session log statement. */
     private static final JabberId NO_SESSION;
 
@@ -77,8 +81,9 @@ public abstract class AbstractModelImpl
     private static final Log4JWrapper XMPP_IQ_LOGGER;
 
     static {
-        NO_SESSION = User.THINK_PARITY.getId();
+        NO_SESSION = User.THINKPARITY.getId();
         XMPP_IQ_LOGGER = new Log4JWrapper("DESDEMONA_XMPP_DEBUGGER");
+        XSTREAM_UTIL = XStreamUtil.getInstance();
     }
 
     /**
@@ -681,7 +686,7 @@ public abstract class AbstractModelImpl
      * @return True if the user is a system user.
      */
     protected Boolean isSystemUser(final JabberId userId) {
-        return userId.equals(User.THINK_PARITY.getId());
+        return userId.equals(User.THINKPARITY.getId());
     }
 
     /** Log an api id. */
@@ -980,7 +985,7 @@ public abstract class AbstractModelImpl
      * @return True if the system account is the key holder; false otherwise.
      */
     private Boolean isSystemKeyHolder(final UUID uniqueId) {
-        return readKeyHolder(uniqueId).equals(User.THINK_PARITY.getId());
+        return readKeyHolder(uniqueId).equals(User.THINKPARITY.getId());
     }
 
     /**

@@ -133,7 +133,7 @@ public abstract class AbstractHandler extends
                         return modelFactory.getMigratorModel();
                     }
                     public ProfileModel getProfileModel() {
-                        return ProfileModel.getModel(session);
+                        return modelFactory.getProfileModel();
                     }
                     public QueueModel getQueueModel() {
                         return QueueModel.getModel(session);

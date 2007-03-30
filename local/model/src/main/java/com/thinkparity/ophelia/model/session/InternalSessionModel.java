@@ -31,6 +31,7 @@ import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.stream.StreamSession;
@@ -158,6 +159,13 @@ public interface InternalSessionModel extends SessionModel {
     public void createMigratorStream(final String streamId,
             final Product product, final Release release,
             final List<Resource> resources);
+
+    public void createProfile(final Reservation reservation,
+            final Credentials credentials, final Profile profile,
+            final EMail email, final String securityQuestion,
+            final String securityAnswer);
+
+    public Reservation createProfileReservation(final String username);
 
     /**
      * Create a stream.

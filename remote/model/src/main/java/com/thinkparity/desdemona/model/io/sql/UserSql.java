@@ -3,8 +3,10 @@
  */
 package com.thinkparity.desdemona.model.io.sql;
 
-import java.sql.SQLException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
@@ -13,13 +15,15 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.profile.VerificationKey;
 import com.thinkparity.codebase.model.session.Credentials;
-import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.Token;
 
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
+import com.thinkparity.desdemona.model.user.VCardOpener;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel User SQL<br>
@@ -30,17 +34,57 @@ import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
  */
 public class UserSql extends AbstractSql {
 
+    /** Sql to create a user. */
+    private static final String SQL_CREATE =
+        new StringBuilder("insert into TPSD_USER ")
+        .append("(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD) ")
+        .append("values (?,?,?,?,?,?)")
+        .toString();
+
     /** Sql to create an email address. */
-    private static final String SQL_CREATE_EMAIL =
-        new StringBuilder("insert into TPSD_EMAIL ")
-        .append("(USER_ID,EMAIL,VERIFIED,VERIFICATION_KEY) ")
+    private static final String SQL_CREATE_EMAIL_REL =
+        new StringBuilder("insert into TPSD_USER_EMAIL ")
+        .append("(USER_ID,EMAIL_ID,VERIFIED,VERIFICATION_KEY) ")
+        .append("values (?,?,?,?)")
+        .toString();
+
+    /** Sql to create a user feature relationship. */
+    private static final String SQL_CREATE_FEATURE_REL =
+        new StringBuilder("insert into TPSD_USER_FEATURE_REL ")
+        .append("(USER_ID,FEATURE_ID) ")
+        .append("values (?,?)")
+        .toString();
+
+    /** Sql to create a reservation. */
+    private static final String SQL_CREATE_RESERVATION =
+        new StringBuilder("insert into TPSD_USER_RESERVATION ")
+        .append("(USERNAME,TOKEN,EXPIRES_ON,CREATED_ON) ")
         .append("values (?,?,?,?)")
         .toString();
 
     /** Sql to delete an email address. */
-    private static final String SQL_DELETE_EMAIL =
-        new StringBuilder("delete from TPSD_EMAIL ")
-        .append("where USER_ID=? and EMAIL=?")
+    private static final String SQL_DELETE_EMAIL_REL =
+        new StringBuilder("delete from TPSD_USER_EMAIL ")
+        .append("where USER_ID=? and EMAIL_ID=?")
+        .toString();
+
+    /** Sql to delete expired reservations. */
+    private static final String SQL_DELETE_EXPIRED_RESERVATIONS =
+        new StringBuilder("delete from TPSD_USER_RESERVATION ")
+        .append("where EXPIRES_ON < ?")
+        .toString();
+
+    /** Sql to delete a reservation by its unique key. */
+    private static final String SQL_DELETE_RESERVATION_UK =
+        new StringBuilder("delete from TPSD_USER_RESERVATION ")
+        .append("where TOKEN=?")
+        .toString();
+
+    /** Sql to determine reservation existence by unique key. */
+    private static final String SQL_DOES_EXIST_RESERVATION_UK =
+        new StringBuilder("select count(UR.TOKEN) \"RESERVATION_COUNT\" ")
+        .append("from TPSD_USER_RESERVATION UR ")
+        .append("where UR.TOKEN=?")
         .toString();
 
     /** Sql to read all users. */
@@ -81,19 +125,12 @@ public class UserSql extends AbstractSql {
         .toString();
 
     /** Sql to read email addresses. */
-    private static final String SQL_READ_EMAIL =
+    private static final String SQL_READ_EMAIL_UK =
         new StringBuilder("select E.EMAIL ")
         .append("from TPSD_EMAIL E ")
-        .append("inner join TPSD_USER U on U.USER_ID=E.USER_ID ")
-        .append("where U.USERNAME=? and E.EMAIL=? ")
-        .append("and E.VERIFICATIONKEY=?")
-        .toString();
-
-    /** Sql to count email addresses. */
-    private static final String SQL_READ_EMAIL_COUNT =
-        new StringBuilder("select COUNT(E.EMAIL) \"EMAIL_COUNT\" ")
-        .append("from TPSD_EMAIL E ")
-        .append("where E.EMAIL=?")
+        .append("inner join TPSD_USER_EMAIL UE on UE.EMAIL_ID=E.EMAIL_ID ")
+        .append("where UE.USER_ID=? and E.EMAIL=? ")
+        .append("and UE.VERIFICATION_KEY=?")
         .toString();
 
     /** Sql to read e-mail addresses. */
@@ -104,7 +141,7 @@ public class UserSql extends AbstractSql {
         .append("inner join TPSD_EMAIL E on E.EMAIL_ID=UE.EMAIL_ID ")
         .append("where U.USER_ID=? and UE.VERIFIED=?")
         .toString();
-        
+
     /** Read all custom features for the user. */
     private static final String SQL_READ_FEATURES =
         new StringBuilder("select PF.PRODUCT_ID,PF.FEATURE_ID,")
@@ -128,7 +165,7 @@ public class UserSql extends AbstractSql {
         .append("from TPSD_USER U ")
         .append("where U.USERNAME=?")
         .toString();
-
+        
     /** Sql to read the user profile's security question. */
     private static final String SQL_READ_SECURITY_QUESTION =
         new StringBuilder("select U.SECURITY_QUESTION ")
@@ -145,9 +182,8 @@ public class UserSql extends AbstractSql {
 
     /** Sql to read the user's vcard. */
     private static final String SQL_READ_VCARD =
-        new StringBuilder("select U.VCARD ")
-        .append("from TPSD_USER U ")
-        .append("where U.USERNAME=?")
+        new StringBuilder("select U.VCARD from TPSD_USER U ")
+        .append("where U.USER_ID=?")
         .toString();
 
     /** Sql to update the password. */
@@ -165,30 +201,82 @@ public class UserSql extends AbstractSql {
 
     /** Sql to update the user's vcard. */
     private static final String SQL_UPDATE_VCARD =
-        new StringBuilder("update TPSD_USER U ")
-        .append("set VCARD=? where USERNAME=?")
+        new StringBuilder("update TPSD_USER set VCARD=? where USER_ID=?")
         .toString();
 
     private static final String SQL_VERIFY_EMAIL =
         new StringBuilder("update TPSD_USER_EMAIL ")
         .append("set VERIFIED=?, VERIFICATION_KEY=?")
-        .append("where USER_ID=? and EMAIL=? and VERIFICATION_KEY=?")
+        .append("where USER_ID=? and EMAIL_ID=? and VERIFICATION_KEY=?")
         .toString();
 
-    /** Create UserSql. */
-    public UserSql() { super(); }
+    /** An e-mail sql interface. */
+    private final EMailSql emailSql;
 
-    public void createEmail(final JabberId userId, final EMail email,
+    /**
+     * Create UserSql.
+     * 
+     */
+    public UserSql() {
+        super();
+        this.emailSql = new EMailSql();
+    }
+
+    /**
+     * Create a user.
+     * 
+     * @param credentials
+     *            A user's <code>Credentials</code>.
+     * @param securityQuestion
+     *            A security question <code>String</code>.
+     * @param securityAnswer
+     *            A security answer <code>String</code>.
+     * @param vcardStream
+     *            A vcard <code>InputStream</code>.
+     * @param vcardLength
+     *            The vcard length.
+     * @param bufferSize
+     *            A buffer size <code>Integer</code>.
+     */
+    public Long create(final Credentials credentials,
+            final String securityQuestion, final String securityAnswer,
+            final InputStream vcardStream, final Long vcardLength,
+            final Integer bufferSize) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE);
+            session.setString(1, credentials.getUsername());
+            session.setString(2, credentials.getPassword());
+            session.setString(3, securityQuestion);
+            session.setString(4, securityAnswer);
+            session.setBoolean(5, Boolean.FALSE);
+            session.setAsciiStream(6, vcardStream, vcardLength, bufferSize);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not create user.");
+            final Long userId = session.getIdentity("TPSD_USER");
+            session.commit();
+            return userId;
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    public void createEmail(final Long userId, final EMail email,
             final VerificationKey key) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_CREATE_EMAIL);
-            session.setLong(1, readLocalUserId(userId));
-            session.setString(2, email.toString());
+            emailSql.readLazyCreate(session, email);
+            final Long emailId = emailSql.readEMailId(session, email);
+
+            session.prepareStatement(SQL_CREATE_EMAIL_REL);
+            session.setLong(1, userId);
+            session.setLong(2, emailId);
             session.setBoolean(3, Boolean.FALSE);
             session.setString(4, key.getKey());
             if (1 != session.executeUpdate())
-                throw panic("Could not create e-mail for {0}:{1}.", userId, email);
+                throw panic("Could not create e-mail relationship for {0}:{1}.", userId, email);
 
             session.commit();
         } catch (final Throwable t) {
@@ -198,15 +286,67 @@ public class UserSql extends AbstractSql {
         }
     }
 
-    public void deleteEmail(final JabberId userId, final EMail email) {
+    /**
+     * Create a feature relationship for a user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param feature
+     *            A <code>Feature</code>.
+     */
+    public void createFeature(final User user, final Feature feature) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_DELETE_EMAIL);
-            session.setLong(1, readLocalUserId(userId));
-            session.setString(2, email.toString());
+            session.prepareStatement(SQL_CREATE_FEATURE_REL);
+            session.setLong(1, user.getLocalId());
+            session.setLong(2, feature.getFeatureId());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not create feature relationship.");
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Create a reservation.
+     * 
+     * @param reservation
+     *            A <code>ProfileReservation</code>.
+     */
+    public void createReservation(final Reservation reservation) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_RESERVATION);
+            session.setString(1, reservation.getUsername());
+            session.setString(2, reservation.getToken().getValue());
+            session.setCalendar(3, reservation.getExpiresOn());
+            session.setCalendar(4, reservation.getCreatedOn());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not create reservation.");
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    public void deleteEmail(final Long userId, final EMail email) {
+        final HypersonicSession session = openSession();
+        try {
+            final Long emailId = emailSql.readEMailId(session, email);
+            session.prepareStatement(SQL_DELETE_EMAIL_REL);
+            session.setLong(1, userId);
+            session.setLong(2, emailId);
             if (1 != session.executeUpdate())
                 throw new HypersonicException(
-                        "Could not delete e-mail for {0}:{1}.", userId, email);
+                        "Could not delete e-mail relationship for {0}:{1}.", userId, email);
+
+            emailSql.delete(session, email);
             session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);
@@ -215,22 +355,103 @@ public class UserSql extends AbstractSql {
         }
     }
 
-    public Boolean isEmailAvailable(final EMail email) {
+    /**
+     * Delete expired profile reservations.
+     * 
+     * @param expireOn
+     *            The target expiration date.
+     */
+    public void deleteExpiredReservations(final Calendar expireOn) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_READ_EMAIL_COUNT);
-            session.setString(1, email.toString());
-            session.executeQuery();
-            session.nextResult();
-            if (0 == session.getInteger("EMAIL_COUNT")) {
-                return Boolean.TRUE;
-            } else if (1 == session.getInteger("EMAIL_COUNT")) {
-                return Boolean.FALSE;
-            } else {
-                throw panic("Could not determine availability.");
-            }
+            session.prepareStatement(SQL_DELETE_EXPIRED_RESERVATIONS);
+            session.setCalendar(1, expireOn);
+            session.executeUpdate();
+            session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Delete a reservation.
+     * 
+     * @param token
+     *            A reservation <code>Token</code>.
+     */
+    public void deleteReservation(final Token token) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_RESERVATION_UK);
+            session.setString(1, token.getValue());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not delete reservation.");
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Determine whether or not a given reservation exists.
+     * 
+     * @param token
+     *            A reservation <code>Token</code>.
+     * @return True if a reservation exists.
+     */
+    public Boolean doesExistReservation(final Token token) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_RESERVATION_UK);
+            session.setString(1, token.getValue());
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int reservationCount = session.getInteger("RESERVATION_COUNT");
+                if (0 == reservationCount) {
+                    return Boolean.FALSE;
+                } else if (1 == reservationCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine reservation existence.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine reservation existence.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Open a user's vcard.
+     * 
+     * @param userId
+     *            A user id <code>Long</code>.
+     * @param opener
+     *            A <code>VCardOpener</code>.
+     * @throws IOException
+     */
+    public void openVCard(final Long userId, final VCardOpener opener)
+            throws IOException {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_VCARD);
+            session.setLong(1, userId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                final InputStream stream = session.getClob("VCARD");
+                try {
+                    opener.open(stream);
+                } finally {
+                    stream.close();
+                }
+            } else {
+                opener.open(null);
+            }
         } finally {
             session.close();
         }
@@ -341,12 +562,12 @@ public class UserSql extends AbstractSql {
         }
     }
 
-    public EMail readEmail(final JabberId userId, final EMail email,
-            final VerificationKey key) throws SQLException {
+    public EMail readEmail(final Long userId, final EMail email,
+            final VerificationKey key) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_READ_EMAIL);
-            session.setString(1, userId.getUsername());
+            session.prepareStatement(SQL_READ_EMAIL_UK);
+            session.setLong(1, userId);
             session.setString(2, email.toString());
             session.setString(3, key.getKey());
             session.executeQuery();
@@ -456,22 +677,6 @@ public class UserSql extends AbstractSql {
         }
     }
 
-    public String readProfileVCard(final JabberId userId) {
-        final HypersonicSession session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_VCARD);
-            session.setString(1, userId.getUsername());
-            session.executeQuery();
-            if (session.nextResult()) {
-                return session.getString("VCARD");
-            } else {
-                return null;
-            }
-        } finally {
-            session.close();
-        }
-    }
-
     /**
      * Update the user's password.
      * 
@@ -520,12 +725,25 @@ public class UserSql extends AbstractSql {
         }
     }
 
-    public void updateProfileVCard(final JabberId userId, final String vcardXML) {
+    /**
+     * Update the user's vcard information.
+     * 
+     * @param userId
+     *            The user id <code>Long</code>.
+     * @param vcardStream
+     *            The vcard <code>InputStream</code>.
+     * @param vcardLength
+     *            The vcard length <code>Long</code>.
+     * @param bufferSize
+     *            The buffer size <code>Integer</code>.
+     */
+    public void updateVCard(final Long userId, final InputStream vcardStream,
+            final Long vcardLength, final Integer bufferSize) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_UPDATE_VCARD);
-            session.setString(1, vcardXML);
-            session.setString(2, userId.getUsername());
+            session.setAsciiStream(1, vcardStream, vcardLength, bufferSize);
+            session.setLong(2, userId);
             if (1 != session.executeUpdate())
                 throw panic("Could not update profile vcard.");
 
@@ -537,15 +755,17 @@ public class UserSql extends AbstractSql {
         }
     }
 
-    public void verifyEmail(final JabberId userId, final EMail email,
+    public void verifyEmail(final Long userId, final EMail email,
             final VerificationKey key) {
         final HypersonicSession session = openSession();
         try {
+            final Long emailId = emailSql.readEMailId(session, email);
+
             session.prepareStatement(SQL_VERIFY_EMAIL);
             session.setBoolean(1, Boolean.TRUE);
             session.setString(2, null);
-            session.setLong(3, readLocalUserId(userId));
-            session.setString(4, email.toString());
+            session.setLong(3, userId);
+            session.setLong(4, emailId);
             session.setString(5, key.getKey());
             if (1 != session.executeUpdate())
                 throw new HypersonicException(

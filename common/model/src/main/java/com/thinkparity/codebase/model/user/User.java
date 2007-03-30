@@ -22,7 +22,7 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 public class User {
 
     /** The thinkParity user. */
-    public static final User THINK_PARITY;
+    public static final User THINKPARITY;
 
     /** The thinkParity backup <code>User</code>. */
     public static final User THINKPARITY_BACKUP;
@@ -30,8 +30,8 @@ public class User {
     static final String NAME_SEP = " ";
 
 	static {
-        THINK_PARITY = new User();
-        THINK_PARITY.setId(JabberIdBuilder.parseUsername("thinkparity"));
+        THINKPARITY = new User();
+        THINKPARITY.setId(JabberIdBuilder.parseUsername("thinkparity"));
         THINKPARITY_BACKUP = new User();
         THINKPARITY_BACKUP.setId(JabberIdBuilder.parseUsername("thinkparity-backup"));
     }

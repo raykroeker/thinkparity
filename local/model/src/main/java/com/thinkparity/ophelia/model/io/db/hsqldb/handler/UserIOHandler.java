@@ -277,8 +277,8 @@ public final class UserIOHandler extends AbstractIOHandler implements
         session.setString(1, user.getName());
         session.setString(2, user.getOrganization());
         session.setString(3, user.getTitle());
-        session.setLong(4, user.getLocalId());
-        session.setUserFlags(5, user.getFlags());
+        session.setUserFlags(4, user.getFlags());
+        session.setLong(5, user.getLocalId());
         if (1 != session.executeUpdate())
             throw new HypersonicException("Could not update user.");
     }

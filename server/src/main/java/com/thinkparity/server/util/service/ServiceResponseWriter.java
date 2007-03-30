@@ -26,10 +26,11 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
-import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.UserVCard;
+import com.thinkparity.codebase.model.util.Token;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 /**
@@ -40,8 +41,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
  * @version 1.1.2.1
  */
 public interface ServiceResponseWriter {
-
-    public void write(final String name, final Statistics value);
 
     /**
      * Write the product to the service response.
@@ -63,6 +62,13 @@ public interface ServiceResponseWriter {
      */
     public void write(final String name, final Release value);
 
+    public void write(final String name, final Reservation value);
+
+    public void write(final String name, final Statistics value);
+
+    public void writeArtifactReceipts(final String name,
+            List<ArtifactReceipt> values);
+
     public void writeBoolean(final String name, final Boolean value);
 
     /**
@@ -76,10 +82,10 @@ public interface ServiceResponseWriter {
     public void writeCalendar(final String name, Calendar value);
 
     public void writeContainer(final String name, Container value);
-
+    
     public void writeContainers(final String parentName,
             String name, List<Container> values);
-    
+
     public void writeContainerVersions(final String parentName,
             String name, List<ContainerVersion> values);
 
@@ -225,9 +231,6 @@ public interface ServiceResponseWriter {
      *            The element value.
      */
     public void writeUniqueId(final String name, UUID value);
-
-    public void writeArtifactReceipts(final String name,
-            List<ArtifactReceipt> values);
 
     public void writeVCard(final String name, final UserVCard vcard);
 }

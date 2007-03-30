@@ -100,13 +100,13 @@ public class UserModel extends AbstractModel<UserModelImpl> {
 	}
 
     public <T extends com.thinkparity.codebase.model.user.UserVCard> T readVCard(
-            final JabberId userId, final T vcard) {
+            final Long userId, final T vcard) {
         synchronized (getImplLock()) {
             return getImpl().readVCard(userId, vcard);
         }
     }
 
-    public void updateVCard(final JabberId userId,
+    public void updateVCard(final Long userId,
             final com.thinkparity.codebase.model.user.UserVCard vcard) {
         synchronized (getImplLock()) {
             getImpl().updateVCard(userId, vcard);

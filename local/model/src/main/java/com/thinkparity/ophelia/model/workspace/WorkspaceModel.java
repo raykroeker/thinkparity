@@ -257,7 +257,7 @@ public class WorkspaceModel {
                 modelFactory.getMigratorModel().initialize(monitor);
             // create the profile
             notifyStepBegin(monitor, InitializeStep.PROFILE_CREATE);
-            modelFactory.getProfileModel().create();
+            modelFactory.getProfileModel().initialize();
             notifyStepEnd(monitor, InitializeStep.PROFILE_CREATE);
             // download contacts
             notifyStepBegin(monitor, InitializeStep.CONTACT_DOWNLOAD);

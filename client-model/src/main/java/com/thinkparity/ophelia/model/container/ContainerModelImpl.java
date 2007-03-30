@@ -666,7 +666,7 @@ public final class ContainerModelImpl extends
                 // restore the draft
                 final JabberId draftOwner = getSessionModel().readKeyHolder(
                         localUserId(), event.getUniqueId());
-                doCreateDraft = !draftOwner.equals(User.THINK_PARITY.getId());
+                doCreateDraft = !draftOwner.equals(User.THINKPARITY.getId());
                 if (doCreateDraft) {
                     final List<TeamMember> team = readTeam(containerId);
                     final ContainerDraft draft = new ContainerDraft();
@@ -1842,7 +1842,7 @@ public final class ContainerModelImpl extends
             final InternalSessionModel sessionModel = getSessionModel();
             final JabberId draftOwner = sessionModel.readKeyHolder(
                     localUserId(), artifactModel.readUniqueId(containerId));
-            if (draftOwner.equals(User.THINK_PARITY.getId())) {
+            if (draftOwner.equals(User.THINKPARITY.getId())) {
                 logger.logInfo("No remote draft exists for {0}.", containerId);
             } else {
                 final List<TeamMember> team = readTeam(containerId);

@@ -6,17 +6,7 @@ package com.thinkparity.desdemona.util.xmpp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.*;
 
 import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.Constants.XmlRpc;
@@ -38,7 +28,10 @@ import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
+import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
@@ -154,6 +147,14 @@ public final class IQReader implements ServiceRequestReader {
             xmlReader.moveUp();
             xmlReader.close();
         }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readCredentials(java.lang.String)
+     *
+     */
+    public Credentials readCredentials(final String name) {
+        return (Credentials) readXStreamObject(name, new Credentials());
     }
 
     /**
@@ -350,6 +351,14 @@ public final class IQReader implements ServiceRequestReader {
     }
 
     /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readProfile(java.lang.String)
+     *
+     */
+    public Profile readProfile(final String name) {
+        return (Profile) readXStreamObject(name, new Profile());
+    }
+
+    /**
      * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readProfileVCard(java.lang.String)
      * 
      */
@@ -373,6 +382,14 @@ public final class IQReader implements ServiceRequestReader {
      */
     public final Release readRelease(final String name) {
         return (Release) readXStreamObject(name, new Release());
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readReservation(java.lang.String)
+     *
+     */
+    public Reservation readReservation(final String name) {
+        return (Reservation) readXStreamObject(name, new Reservation());
     }
 
     /**

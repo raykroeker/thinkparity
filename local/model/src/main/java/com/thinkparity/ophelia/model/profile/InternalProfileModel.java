@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.model.profile;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
-import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
@@ -18,10 +17,11 @@ import com.thinkparity.codebase.model.util.jta.TransactionType;
 public interface InternalProfileModel extends ProfileModel {
 
     /**
-     * Create the user's profile locally.
-     *
+     * Initialize the user's profile. Download the profile data from the server
+     * and save it locally.
+     * 
      */
-    public Profile create();
+    public void initialize();
 
     /**
      * Read the user's credentials.

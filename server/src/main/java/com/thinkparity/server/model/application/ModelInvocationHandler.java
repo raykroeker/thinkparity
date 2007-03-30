@@ -11,6 +11,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.desdemona.model.annotation.ThinkParityAuthenticate;
 import com.thinkparity.desdemona.model.session.Session;
 
 /**
@@ -62,6 +63,10 @@ final class ModelInvocationHandler implements InvocationHandler {
         ModelInvocationMetrics.begin(method);
         synchronized (session) {
             try {
+                if (isAuthenticateUser(method))
+                    model.assertIsAuthenticatedUser((JabberId) args[0]);
+                else if (isAuthenticateSystem(method))
+                    model.assertIsSystemUser((JabberId) args[0]);
                 return method.invoke(model, args);
             } catch (final InvocationTargetException itx) {
                 throw itx.getTargetException();
@@ -84,6 +89,57 @@ final class ModelInvocationHandler implements InvocationHandler {
         Assert.assertTrue(isSessionUser(userId),
                 "User {0} does not match authenticated user {1}.",
                 userId.getUsername(), session.getJabberId().getUsername());
+    }
+
+    /**
+     * Determine if the method is annotated with authenticate and if the type is
+     * system.
+     * 
+     * @param method
+     *            A <code>Method</code>.
+     * @return True if it is annotated with authenticate.
+     */
+    private boolean isAuthenticateSystem(final Method method) {
+        ThinkParityAuthenticate authenticate = method.getAnnotation(ThinkParityAuthenticate.class);
+        if (null == authenticate)
+            authenticate = method.getDeclaringClass().getAnnotation(ThinkParityAuthenticate.class);
+        if (null == authenticate) {
+            return false;
+        } else {
+            switch (authenticate.value()) {
+            case USER:
+                return false;
+            case SYSTEM:
+                return true;
+            default:
+                throw Assert.createUnreachable("Unknown authentication type.");
+            }
+        }
+    }
+
+    /**
+     * Determine if the method is annotated with authenticate.
+     * 
+     * @param method
+     *            A <code>Method</code>.
+     * @return True if it is annotated with authenticate.
+     */
+    private boolean isAuthenticateUser(final Method method) {
+        ThinkParityAuthenticate authenticate = method.getAnnotation(ThinkParityAuthenticate.class);
+        if (null == authenticate)
+            authenticate = method.getDeclaringClass().getAnnotation(ThinkParityAuthenticate.class);
+        if (null == authenticate) {
+            return false;
+        } else {
+            switch (authenticate.value()) {
+            case USER:
+                return true;
+            case SYSTEM:
+                return false;
+            default:
+                throw Assert.createUnreachable("Unknown authentication type.");
+            }
+        }
     }
 
     /**

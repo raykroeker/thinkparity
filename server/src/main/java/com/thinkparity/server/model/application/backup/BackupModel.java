@@ -15,6 +15,9 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
+import com.thinkparity.desdemona.model.annotation.ThinkParityAuthenticate;
+import com.thinkparity.desdemona.util.AuthenticationType;
+
 /**
  * <b>Title:</b>thinkParity Backup Model<br>
  * <b>Description:</b>
@@ -22,6 +25,7 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
  * @author CreateModel.groovy
  * @version 1.1
  */
+@ThinkParityAuthenticate(AuthenticationType.USER)
 public interface BackupModel {
 
     /**

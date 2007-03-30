@@ -50,7 +50,7 @@ public class Update extends AbstractBrowserAction {
             profile.setMobilePhone((String) data.get(DataKey.MOBILE_PHONE));
             profile.setName((String) data.get(DataKey.NAME));
             profile.setOrganization((String) data.get(DataKey.ORGANIZATION));
-            profile.setOrganizationCountry(profile.getCountry());
+            profile.setOrganizationCountry(profile.getOrganizationCountry());
             profile.setPhone((String) data.get(DataKey.PHONE));
             profile.setPostalCode((String) data.get(DataKey.POSTAL_CODE));
             profile.setProvince((String) data.get(DataKey.PROVINCE));

@@ -4,12 +4,17 @@
 package com.thinkparity.ophelia.model.profile;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.profile.ProfileVCard;
+import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
 import com.thinkparity.ophelia.model.events.ProfileAdapter;
@@ -53,6 +58,49 @@ public final class ProfileTest extends ProfileTestCase {
         datum.waitForEvents();
         getModel(datum.junit).removeListener(datum.add_email_listener);
         assertTrue("Email added event not fired.", datum.add_email_notify);
+    }
+
+    /**
+     * Test creating a profile.
+     *
+     */
+    public void testCreate() {
+        logout(datum.junit);
+
+        final Credentials credentials = new Credentials();
+        credentials.setPassword("password");
+        credentials.setUsername("junit." + System.currentTimeMillis());
+
+        final Reservation reservation = getModel(datum.junit).createReservation(
+                credentials.getUsername());
+
+        final Profile profile = new Profile();
+        profile.setVCard(new ProfileVCard());
+        profile.setAddress("1234 5th Street Apt 6");
+        profile.setCity("City");
+        profile.setLocale(Locale.CANADA);
+        profile.setMobilePhone("555-555-1111");
+        profile.setName("JUnit Test User");
+        profile.setOrganization("thinkParity Solutions Inc.");
+        profile.setOrganizationLocale(Locale.CANADA);
+        profile.setPhone("555-555-2222");
+        profile.setPostalCode("A7AC0C");
+        profile.setProvince("Province");
+        profile.setTimeZone(TimeZone.getDefault());
+        profile.setTitle("Title");
+        final String emailInjection = "+" + String.valueOf(System.currentTimeMillis());
+        final EMail email = EMailBuilder.parse("junit" + emailInjection + "@thinkparity.com");
+        final String securityQuestion = "What is my username?";
+        final String securityAnswer = credentials.getUsername();
+        try {
+            getModel(datum.junit).create(reservation, credentials, profile, email,
+                    securityQuestion, securityAnswer);
+        } catch (final ReservationExpiredException rex) {
+            fail(rex, "Profile reservation has expired.");
+        }
+
+        login(datum.junit);
+        datum.waitForEvents(datum.junit);
     }
 
     /**
@@ -130,7 +178,7 @@ public final class ProfileTest extends ProfileTestCase {
         final Profile profile = getModel(datum.junit).read();
         final String updateSuffix = String.valueOf(System.currentTimeMillis());
         profile.setCity("Vancouver" + updateSuffix);
-        profile.setCountry("Canada" + updateSuffix);
+        profile.setLocale(Locale.CANADA);
         profile.setMobilePhone("888-555-1111" + updateSuffix);
         profile.setPhone("888-555-1111" + updateSuffix);
         getModel(datum.junit).addListener(datum.update_listener);

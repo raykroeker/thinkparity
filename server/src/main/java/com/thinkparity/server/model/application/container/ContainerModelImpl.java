@@ -109,7 +109,7 @@ class ContainerModelImpl extends AbstractModelImpl {
             if (!contains(localTeam, publishedByUser))
                 artifactModel.addTeamMember(userId, artifact.getId(), publishedByUser.getLocalId());
             artifactSql.updateDraftOwner(artifact.getId(),
-                    User.THINK_PARITY.getId(), publishedBy, publishedOn);
+                    User.THINKPARITY.getId(), publishedBy, publishedOn);
         } catch (final Throwable t) {
             throw translateError(t);
         }

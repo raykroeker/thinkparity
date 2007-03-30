@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.model.profile;
 
+import java.util.Calendar;
 import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
@@ -11,38 +12,21 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.user.Token;
+import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.util.Token;
 
-import com.thinkparity.desdemona.model.AbstractModel;
-import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.desdemona.model.annotation.ThinkParityAuthenticate;
+import com.thinkparity.desdemona.util.AuthenticationType;
 
 /**
- * <b>Title:</b>thinkParity Profile Model<br>
- * <b>Description:</b>
- *
- * @author CreateModel.groovy
- * @version 1.1
+ * <b>Title:</b>thinkParity DesdemonaModel Profile Model<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.10
  */
-public class ProfileModel extends AbstractModel<ProfileModelImpl> {
-
-    /**
-     * Create a Profile interface.
-     * 
-     * @return The Profile interface.
-     */
-    public static ProfileModel getModel(final Session session) {
-        return new ProfileModel(session);
-    }
-
-    /**
-     * Create ProfileModel.
-     *
-     * @param workspace
-     *      The thinkParity workspace.
-     */
-    protected ProfileModel(final Session session) {
-        super(new ProfileModelImpl(session));
-    }
+public interface ProfileModel {
 
 	/**
      * Add an email to a user's profile.
@@ -52,11 +36,18 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
      * @param email
      *            An <code>EMail</code>.
      */
-    public void addEmail(final JabberId userId, final EMail email) {
-        synchronized (getImplLock()) {
-            getImpl().addEmail(userId, email);
-        }
-    }
+    @ThinkParityAuthenticate(AuthenticationType.USER)
+    public void addEmail(final JabberId userId, final EMail email);
+
+    @ThinkParityAuthenticate(AuthenticationType.SYSTEM)
+    public void create(final JabberId userId, final Reservation reservation,
+            final Credentials credentials, final Profile profile,
+            final EMail email, final String securityQuestion,
+            final String securityAnswer);
+
+    @ThinkParityAuthenticate(AuthenticationType.SYSTEM)
+    public Reservation createReservation(final JabberId userId,
+            final String username, final Calendar reservedOn);
 
     /**
      * Create a user's token.
@@ -65,17 +56,20 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
      *            A user id <code>JabberId</code>.
      * @return A user's <code>Token</code>.
      */
-    public Token createToken(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().createToken(userId);
-        }
-    }
+    @ThinkParityAuthenticate(AuthenticationType.USER)
+    public Token createToken(final JabberId userId);
 
-    public Boolean isEmailAvailable(final JabberId userId, final EMail email) {
-        synchronized (getImplLock()) {
-            return getImpl().isEmailAvailable(userId, email);
-        }
-    }
+    /**
+     * Determine whether or not an e-mail address is available.
+     * 
+     * @param userId
+     *            A user Id <code>JabberId</code>.
+     * @param email
+     *            An <code>EMail</code> address.
+     * @return True if the e-mail address is available.
+     */
+    @ThinkParityAuthenticate(AuthenticationType.USER)
+    public Boolean isEmailAvailable(final JabberId userId, final EMail email);
 
     /**
      * Read a profile.
@@ -84,11 +78,8 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
      *            A user id <code>JabberId</code>.
      * @return A <code>Profile</code>.
      */
-    public Profile read(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().read(userId);
-        }
-    }
+    @ThinkParityAuthenticate(AuthenticationType.USER)
+    public Profile read(final JabberId userId);
 
     /**
      * Read all emails addresses for a user.
@@ -97,11 +88,8 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
      *            A user id <code>JabberId</code>.
      * @return A <code>List&lt;EMail&gt;</code>.
      */
-    public List<EMail> readEmails(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readEmails(userId);
-        }
-    }
+    @ThinkParityAuthenticate(AuthenticationType.USER)
+    public List<EMail> readEmails(final JabberId userId);
 
     /**
      * Read all features for a user.
@@ -110,11 +98,8 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
      *            A user id <code>JabberId</code>.
      * @return A <code>List&lt;Feature&gt</code>.
      */
-    public List<Feature> readFeatures(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readFeatures(userId);
-        }
-    }
+    @ThinkParityAuthenticate(AuthenticationType.USER)
+    public List<Feature> readFeatures(final JabberId userId);
 
     /**
      * Read a user's security question.
@@ -123,11 +108,7 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
      *            A user id <code>JabberId</code>.
      * @return A users's security question <code>String</code>.
      */
-    public String readSecurityQuestion(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readSecurityQuestion(userId);
-        }
-    }
+    public String readSecurityQuestion(final JabberId userId);
 
     /**
      * Read a user's token.
@@ -136,11 +117,8 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
      *            A user id <code>JabberId</code>.
      * @return A user's <code>Token</code>.
      */
-    public Token readToken(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readToken(userId);
-        }
-    }
+    @ThinkParityAuthenticate(AuthenticationType.USER)
+    public Token readToken(final JabberId userId);
 
     /**
      * Remove an email from a user's profile.
@@ -150,11 +128,8 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
      * @param email
      *            An <code>EMail</code>.
      */
-    public void removeEmail(final JabberId userId, final EMail email) {
-        synchronized (getImplLock()) {
-            getImpl().removeEmail(userId, email);
-        }
-    }
+    @ThinkParityAuthenticate(AuthenticationType.USER)
+    public void removeEmail(final JabberId userId, final EMail email);
 
     /**
      * Reset a user's credentials.
@@ -165,12 +140,9 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
      *            The security question answer <code>String</code>.
      * @return The user's new password.
      */
+    @ThinkParityAuthenticate(AuthenticationType.USER)
     public String resetPassword(final JabberId userId,
-            final String securityAnswer) {
-        synchronized (getImplLock()) {
-            return getImpl().resetCredentials(userId, securityAnswer);
-        }
-    }
+            final String securityAnswer);
 
     /**
      * Update a user's profile.
@@ -184,11 +156,8 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
      * @param title
      *            A user's title <code>String</code>.
      */
-    public void update(final JabberId userId, final ProfileVCard vcard) {
-        synchronized (getImplLock()) {
-            getImpl().update(userId, vcard);
-        }
-    }
+    @ThinkParityAuthenticate(AuthenticationType.USER)
+    public void update(final JabberId userId, final ProfileVCard vcard);
 
     /**
      * Update a user's password.
@@ -200,12 +169,9 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
      * @param newPassword
      *            The new password <code>String</code>.
      */
+    @ThinkParityAuthenticate(AuthenticationType.USER)
     public void updatePassword(final JabberId userId, final String password,
-            final String newPassword) {
-        synchronized (getImplLock()) {
-            getImpl().updatePassword(userId, password, newPassword);
-        }
-    }
+            final String newPassword);
 
     /**
      * Verify an email in a user's profile.
@@ -217,10 +183,7 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
      * @param key
      *            A verification code <code>String</code>.
      */
+    @ThinkParityAuthenticate(AuthenticationType.USER)
     public void verifyEmail(final JabberId userId, final EMail email,
-            final String key) {
-        synchronized (getImplLock()) {
-            getImpl().verifyEmail(userId, email, key);
-        }
-    }
+            final String key);
 }

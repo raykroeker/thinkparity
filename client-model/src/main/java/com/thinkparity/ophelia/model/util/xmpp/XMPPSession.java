@@ -29,13 +29,14 @@ import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
-import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.Token;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
@@ -108,7 +109,6 @@ public interface XMPPSession {
      */
     public void addProfileEmail(final JabberId userId, final EMail email);
 
-
     /**
      * Add a team member. This will create the team member relationship in the
      * distributed network with a pending state.
@@ -121,6 +121,7 @@ public interface XMPPSession {
      */
     public void addTeamMember(final JabberId userId, final List<JabberId> team,
             final UUID uniqueId, final JabberId teamMemberId);
+
 
     /**
      * Archive an artifact. This will simply apply the archived flag within the
@@ -214,6 +215,14 @@ public interface XMPPSession {
     public void createMigratorStream(final JabberId userId,
             final String streamId, final Product product,
             final Release release, final List<Resource> resources);
+
+    public Reservation createProfileReservation(final JabberId userId,
+            final String username, final Calendar reservedOn);
+
+    public void createProfile(final JabberId userId,
+            final Reservation reservation, final Credentials credentials,
+            final Profile profile, final EMail email,
+            final String securityQuestion, final String securityAnswer);
 
     /**
      * Create a stream.

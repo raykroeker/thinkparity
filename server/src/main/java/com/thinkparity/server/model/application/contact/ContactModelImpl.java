@@ -436,7 +436,7 @@ final class ContactModelImpl extends AbstractModelImpl {
 		    assertIsAuthenticatedUser(userId);
 
 		    final Contact contact = inject(new Contact(), getUserModel().read(contactId));
-            contact.setVCard(getUserModel().readVCard(contactId, new ContactVCard()));
+            contact.setVCard(getUserModel().readVCard(contact.getLocalId(), new ContactVCard()));
             contact.addAllEmails(userSql.readEmails(contact.getLocalId(), Boolean.TRUE));
             return contact;
 	    } catch (final Throwable t) {

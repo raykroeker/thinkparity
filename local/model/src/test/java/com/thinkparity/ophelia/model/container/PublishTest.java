@@ -81,7 +81,7 @@ public class PublishTest extends ContainerTestCase {
 
         final JabberId keyHolder = getArtifactModel(datum.junit).readKeyHolder(c.getId());
         assertEquals("Local artifact key holder does not match expectation.",
-                User.THINK_PARITY.getId(), keyHolder);
+                User.THINKPARITY.getId(), keyHolder);
         assertTrue("Local key flag is still mistakenly applied.",
                 !getArtifactModel(datum.junit).isFlagApplied(c.getId(), ArtifactFlag.KEY));
         InternalDocumentModel documentModel;
@@ -334,7 +334,7 @@ public class PublishTest extends ContainerTestCase {
 
         final JabberId keyHolder = getArtifactModel(datum.junit).readKeyHolder(c.getId());
         assertEquals("Local artifact key holder does not match expectation.",
-                User.THINK_PARITY.getId(), keyHolder);
+                User.THINKPARITY.getId(), keyHolder);
         assertTrue("Local key flag is still mistakenly applied.",
                 !getArtifactModel(datum.junit).isFlagApplied(c.getId(), ArtifactFlag.KEY));
         InternalDocumentModel documentModel;

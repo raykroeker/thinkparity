@@ -10,7 +10,7 @@ package com.thinkparity.codebase.model.session;
 public class Credentials {
 
     /** The password. */
-    private transient String password;
+    private String password;
 
     /** The resource. */
     private String resource;
@@ -18,8 +18,13 @@ public class Credentials {
     /** The username. */
     private String username;
 
-    /** Create Credentials. */
-    public Credentials() { super(); }
+    /**
+     * Create Credentials.
+     *
+     */
+    public Credentials() {
+        super();
+    }
 
     /**
      * @see java.lang.Object#equals(java.lang.Object)

@@ -44,13 +44,16 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
-import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.user.UserVCard;
+import com.thinkparity.codebase.model.util.Token;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
@@ -246,6 +249,10 @@ public class XMPPMethod extends IQ {
         parameters.add(new XMPPMethodParameter(name, Calendar.class, value));
     }
 
+    public final void setParameter(final String name, final Credentials value) {
+        parameters.add(new XMPPMethodParameter(name, Credentials.class, value));
+    }
+
     public final void setParameter(final String name, final EMail value) {
         parameters.add(new XMPPMethodParameter(name, EMail.class, value));
     }
@@ -286,12 +293,20 @@ public class XMPPMethod extends IQ {
         parameters.add(new XMPPMethodParameter(name, Product.class, value));
     }
 
+    public final void setParameter(final String name, final Profile value) {
+        parameters.add(new XMPPMethodParameter(name, Profile.class, value));
+    }
+
     public final void setParameter(final String name, final ProfileEMail value) {
         parameters.add(new XMPPMethodParameter(name, ProfileEMail.class, value));
     }
 
     public final void setParameter(final String name, final Release value) {
         parameters.add(new XMPPMethodParameter(name, Release.class, value));
+    }
+
+    public final void setParameter(final String name, final Reservation value) {
+        parameters.add(new XMPPMethodParameter(name, Reservation.class, value));
     }
 
     /**
@@ -445,7 +460,8 @@ public class XMPPMethod extends IQ {
             return parameter.javaValue.toString();
         } else if (parameter.javaType.equals(Contact.class)
                 || parameter.javaType.equals(User.class)
-                || parameter.javaType.equals(TeamMember.class)) {
+                || parameter.javaType.equals(TeamMember.class)
+                || parameter.javaType.equals(Profile.class)) {
             final StringWriter xmlWriter = new StringWriter();
             XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
             return xmlWriter.toString();
@@ -462,6 +478,10 @@ public class XMPPMethod extends IQ {
             XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
             return xmlWriter.toString();
         } else if (parameter.javaType.equals(Locale.class)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (parameter.javaType.equals(Credentials.class)) {
             final StringWriter xmlWriter = new StringWriter();
             XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
             return xmlWriter.toString();
@@ -504,6 +524,10 @@ public class XMPPMethod extends IQ {
             XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
             return xmlWriter.toString();
         } else if (ContactInvitation.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (Reservation.class.isAssignableFrom(parameter.javaType)) {
             final StringWriter xmlWriter = new StringWriter();
             XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
             return xmlWriter.toString();
@@ -738,6 +762,12 @@ public class XMPPMethod extends IQ {
                     parser.next();
                     parser.next();
                     return product;
+                } else if (javaType.equals(Reservation.class)) {
+                    Reservation reservation = null;
+                    reservation = (Reservation) xstreamUtil.unmarshal(new SmackXppReader(parser), reservation);
+                    parser.next();
+                    parser.next();
+                    return reservation;
                 } else if (javaType.equals(Release.class)) {
                     Release javaValue = null;
                     javaValue = (Release) xstreamUtil.unmarshal(new SmackXppReader(parser), javaValue);
@@ -768,6 +798,12 @@ public class XMPPMethod extends IQ {
                     parser.next();
                     parser.next();
                     return user;
+                } else if (javaType.equals(Token.class)) {
+                    Token token = null;
+                    token = (Token) xstreamUtil.unmarshal(new SmackXppReader(parser), token);
+                    parser.next();
+                    parser.next();
+                    return token;
                 } else if (ContactInvitation.class.isAssignableFrom(javaType)) {
                     ContactInvitation invitation = null;
                     invitation = (ContactInvitation) xstreamUtil.unmarshal(new SmackXppReader(parser), invitation);
@@ -859,9 +895,6 @@ public class XMPPMethod extends IQ {
                         ((StreamSession) javaValue).setCharset((Charset) parseJavaValue(parser, Charset.class));
                         ((StreamSession) javaValue).setEnvironment((Environment) parseJavaValue(parser, Environment.class));
                         ((StreamSession) javaValue).setId((String) parseJavaValue(parser, String.class));
-                    } else if (javaType.equals(Token.class)) {
-                        javaValue = new Token();
-                        ((Token) javaValue).setValue((String) parseJavaValue(parser, String.class));
                     } else if (javaType.equals(JabberId.class)) {
                         javaValue = JabberIdBuilder.parse(parser.getText());
                         parser.next();

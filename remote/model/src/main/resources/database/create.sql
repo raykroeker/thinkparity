@@ -5,6 +5,14 @@ create table TPSD_EMAIL(
     unique(EMAIL)
 );
 
+create table TPSD_USER_RESERVATION(
+    USERNAME varchar(32) not null,
+    TOKEN varchar(32) not null,
+    EXPIRES_ON timestamp not null,
+    CREATED_ON timestamp not null,
+    primary key (USERNAME),
+    unique (TOKEN)
+);
 create table TPSD_USER(
     USER_ID bigint generated always as identity (start with 7000),
     USERNAME varchar(32) not null,
@@ -13,7 +21,7 @@ create table TPSD_USER(
     SECURITY_ANSWER varchar(64) not null,
     DISABLED char not null,
     TOKEN varchar(32),
-    VCARD varchar(1024) not null,
+    VCARD clob not null,
     primary key(USER_ID),
     unique(USERNAME)
 );

@@ -207,7 +207,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
             // update key data
             final Artifact artifact = read(uniqueId);
             artifactSql.updateDraftOwner(artifact.getId(),
-                    User.THINK_PARITY.getId(), userId, deletedOn);
+                    User.THINKPARITY.getId(), userId, deletedOn);
             // fire notification
             final ArtifactDraftDeletedEvent draftDeleted = new ArtifactDraftDeletedEvent();
             draftDeleted.setUniqueId(artifact.getUniqueId());

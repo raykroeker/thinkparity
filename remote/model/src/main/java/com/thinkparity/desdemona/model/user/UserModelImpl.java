@@ -3,8 +3,7 @@
  */
 package com.thinkparity.desdemona.model.user;
 
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,23 +15,19 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.model.session.Session;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity DesdemonaModel User Model Implementation<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
 class UserModelImpl extends AbstractModelImpl {
-
-    private static final XStreamUtil XSTREAM_UTIL;
-
-    static {
-        XSTREAM_UTIL = XStreamUtil.getInstance();
-    }
 
 	/** User sql io. */
     private final UserSql userSql;
@@ -102,7 +97,7 @@ class UserModelImpl extends AbstractModelImpl {
             final List<User> users = userSql.read();
             FilterManager.filter(users, filter);
             for (final User user : users) {
-                inject(user, readVCard(user.getId(), new UserVCard()));
+                inject(user, readVCard(user.getLocalId(), new UserVCard()));
             }
             return users;
         } catch (final Throwable t) {
@@ -114,7 +109,8 @@ class UserModelImpl extends AbstractModelImpl {
         logApiId();
 		logVariable("userId", userId);
         try {
-            return inject(userSql.read(userId), readVCard(userId, new UserVCard()));
+            final User user = userSql.read(userId);
+            return inject(user, readVCard(user.getLocalId(), new UserVCard()));
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -179,32 +175,49 @@ class UserModelImpl extends AbstractModelImpl {
     }
 
     <T extends com.thinkparity.codebase.model.user.UserVCard> T readVCard(
-            final JabberId userId, final T vcard) {
+            final Long userId, final T vcard) {
         logger.logApiId();
         logger.logVariable("userId", userId);
+        logger.logVariable("vcard", vcard);
         try {
-            final StringReader vcardXMLReader =
-                new StringReader(userSql.readProfileVCard(userId));
-            try {
-                XSTREAM_UTIL.fromXML(vcardXMLReader, vcard);
-                return vcard;
-            } finally {
-                vcardXMLReader.close();
-            }
+            userSql.openVCard(userId, new VCardOpener() {
+                public void open(final InputStream stream) throws IOException {
+                    XSTREAM_UTIL.fromXML(new BufferedReader(
+                            new InputStreamReader(stream),
+                            getDefaultBufferSize()), vcard);
+                }
+            });
+            return vcard;
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
-    void updateVCard(final JabberId userId,
+    void updateVCard(final Long userId,
             final com.thinkparity.codebase.model.user.UserVCard vcard) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("vcard", vcard);
         try {
-            final StringWriter vcardXMLWriter = new StringWriter();
-            XSTREAM_UTIL.toXML(vcard, vcardXMLWriter);
-            userSql.updateProfileVCard(userId, vcardXMLWriter.toString());
+            final File tempVCardFile = session.createTempFile();
+            try {
+                final FileWriter fileWriter = new FileWriter(tempVCardFile);
+                try {
+                    XSTREAM_UTIL.toXML(vcard, fileWriter);
+                    final InputStream vcardStream = new FileInputStream(tempVCardFile);
+                    try {
+                        userSql.updateVCard(userId, vcardStream,
+                                tempVCardFile.length(), getDefaultBufferSize());
+                    } finally {
+                        vcardStream.close();
+                    }
+                } finally {
+                    fileWriter.close();
+                }
+            } finally {
+                // TEMPFILE - UserModelImpl#updateVCard()
+                tempVCardFile.delete();
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }

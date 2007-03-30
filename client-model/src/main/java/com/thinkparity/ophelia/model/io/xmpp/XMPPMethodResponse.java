@@ -3,13 +3,7 @@
  */
 package com.thinkparity.ophelia.model.io.xmpp;
 
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -29,9 +23,10 @@ import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
+import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
-import com.thinkparity.codebase.model.user.Token;
+import com.thinkparity.codebase.model.util.Token;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import org.jivesoftware.smack.packet.IQ;
@@ -196,6 +191,10 @@ public class XMPPMethodResponse extends IQ {
             releases.add((Release) genericRelease);
         }
         return releases;
+    }
+
+    public Reservation readResultReservation(final String name) {
+        return (Reservation) readResult(name);
     }
 
     public List<Resource> readResultResources(final String name) {

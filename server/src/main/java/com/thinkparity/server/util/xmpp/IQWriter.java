@@ -28,10 +28,11 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
-import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.UserVCard;
+import com.thinkparity.codebase.model.util.Token;
 import com.thinkparity.codebase.model.util.dom4j.ElementBuilder;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
@@ -102,6 +103,14 @@ public final class IQWriter implements ServiceResponseWriter {
      * 
      */
     public final void write(final String name, final Release value) {
+        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#write(java.lang.String, com.thinkparity.codebase.model.profile.Reservation)
+     *
+     */
+    public void write(final String name, final Reservation value) {
         ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
     }
 
@@ -374,11 +383,11 @@ public final class IQWriter implements ServiceResponseWriter {
 
     /**
      * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeToken(java.lang.String,
-     *      com.thinkparity.codebase.model.user.Token)
+     *      com.thinkparity.codebase.model.util.Token)
      * 
      */
     public final void writeToken(final String name, final Token value) {
-        ElementBuilder.addElement(iq.getChildElement(), name, value);
+        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
     }
 
     /**

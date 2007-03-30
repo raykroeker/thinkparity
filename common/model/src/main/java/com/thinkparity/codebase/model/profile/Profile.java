@@ -114,6 +114,15 @@ public class Profile extends User {
     }
 
     /**
+     * Obtain the organization country.
+     * 
+     * @return The organization country <code>String</code>.
+     */
+    public String getOrganizationCountry() {
+        return vcard.getOrganizationCountry();
+    }
+
+    /**
      * Obtain phone.
      *
      * @return A phone number <code>String</code>.
@@ -300,6 +309,16 @@ public class Profile extends User {
      */
     public void setOrganizationCountry(final String organizationCountry) {
         vcard.setOrganizationCountry(organizationCountry);
+    }
+
+    /**
+     * Set the organization locale.
+     * 
+     * @param organizationLocale
+     *            The organization <code>Locale</code>.
+     */
+    public void setOrganizationLocale(final Locale organizationLocale) {
+        setOrganizationCountry(organizationLocale.getISO3Country());
     }
 
     /**

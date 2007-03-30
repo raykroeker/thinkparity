@@ -21,6 +21,9 @@ public interface XMPPCore {
     public XMPPMethodResponse execute(final XMPPMethod method);
     public XMPPMethodResponse execute(final XMPPMethod method,
             final Boolean assertResult);
+    public XMPPMethodResponse executeAnonymously(final XMPPMethod method);
+    public XMPPMethodResponse executeAnonymously(final XMPPMethod method,
+            final Boolean assertResult);
     public JabberId getUserId();
     public void handleError(final Throwable t);
     public <T extends XMPPEvent> void handleEvent(final T event);

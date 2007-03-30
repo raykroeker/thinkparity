@@ -4,7 +4,8 @@
 package com.thinkparity.desdemona.wildfire.handler.profile;
 
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.model.user.Token;
+
+import com.thinkparity.codebase.model.util.Token;
 
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;

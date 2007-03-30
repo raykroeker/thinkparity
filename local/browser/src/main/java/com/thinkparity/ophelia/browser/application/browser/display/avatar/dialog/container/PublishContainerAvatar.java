@@ -12,6 +12,11 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.DocumentFilter;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
@@ -543,7 +548,7 @@ public final class PublishContainerAvatar extends Avatar implements
         return ((PublishContainerProvider) contentProvider).readPublishToTeam(
                 getInputContainerId());
     }
-    
+
     /**
      * Reload the comment control. Normally the control is blank and editable.
      * If we are publishing a specific version then load the existing comment
@@ -563,6 +568,11 @@ public final class PublishContainerAvatar extends Avatar implements
             commentJTextArea.setText(null);
             commentJTextArea.setEditable(true);
             commentJTextArea.setFocusable(true);
+            // NOCOMMIT This is here as a stopgap until more general code is in place.
+            final Document document = commentJTextArea.getDocument();
+            if (document instanceof AbstractDocument) {
+                ((AbstractDocument)document).setDocumentFilter(new DocumentSizeFilter(128));
+            }
             break;
         default:
             Assert.assertUnreachable("Unknown publish type.");
@@ -623,9 +633,41 @@ public final class PublishContainerAvatar extends Avatar implements
             namesListModel.addElement(new PublishContainerAvatarUser(contact, Boolean.FALSE));
         }
     }
-    
+
     public enum DataKey { CONTAINER_ID, PUBLISH_TYPE, VERSION_ID }
-    
+
+    // NOCOMMIT This is here as a stopgap to prevent a possible crash in beta, until more general
+    // code is in place to handle max string length (ticket #610). Insert text is truncated if
+    // too long. If replace text is too long it is ignored.
+    private class DocumentSizeFilter extends DocumentFilter {
+        final int maxCharacters;
+
+        public DocumentSizeFilter(final int maxCharacters) {
+            this.maxCharacters = maxCharacters;
+        }
+
+        public void insertString(final FilterBypass fb, final int offs,
+                                 final String str, final AttributeSet a)
+            throws BadLocationException {
+            if ((fb.getDocument().getLength() + str.length()) <= maxCharacters) {
+                super.insertString(fb, offs, str, a);
+            } else {
+                final int length = maxCharacters - fb.getDocument().getLength();
+                super.insertString(fb, offs, str.substring(0, length), a);
+            }
+        }
+
+        public void replace(FilterBypass fb, int offs,
+                            int length, 
+                            String str, AttributeSet a)
+            throws BadLocationException {
+            if ((fb.getDocument().getLength() + str.length()
+                 - length) <= maxCharacters) {
+                super.replace(fb, offs, length, str, a);
+            }
+        }
+    }
+
     public class PublishContainerAvatarUser {
         
         /** The selection status. */

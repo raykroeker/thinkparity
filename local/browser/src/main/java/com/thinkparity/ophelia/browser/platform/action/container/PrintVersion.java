@@ -8,20 +8,23 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.jdesktop.jdic.desktop.DesktopException;
-
+import com.thinkparity.codebase.Constants;
 import com.thinkparity.codebase.FileUtil;
+
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+
+import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.container.ContainerVersionPrinter;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
-import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.container.ContainerVersionPrinter;
+
+import org.jdesktop.jdic.desktop.DesktopException;
 
 /**
  * @author rob_masako@shaw.ca
@@ -61,7 +64,7 @@ public class PrintVersion extends AbstractBrowserAction {
                     public void print(final DocumentVersion version, final InputStream content) {
                         final File file;
                         try {
-                            file = File.createTempFile("", version.getName());
+                            file = File.createTempFile(Constants.File.TEMP_FILE_PREFIX, version.getName());
                             file.deleteOnExit();
                             FileUtil.write(content, file);
                         } catch (final IOException iox) {

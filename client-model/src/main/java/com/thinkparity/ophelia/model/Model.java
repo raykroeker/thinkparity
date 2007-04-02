@@ -36,7 +36,6 @@ import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.artifact.Artifact;
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.session.Credentials;
@@ -63,6 +62,7 @@ import com.thinkparity.ophelia.model.io.handler.ConfigurationIOHandler;
 import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
+import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.util.Base64;
@@ -351,35 +351,6 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertTrue(assertion, isClosed(artifact));
     }
 
-    /**
-     * Assert the user is the key holder. An assertion that the user is online
-     * is also made.
-     * 
-     * @param assertion
-     *            The assertion message.
-     * @param artifactId
-     *            The artifact id.
-     * @see #isKeyHolder(Long)
-     */
-    protected void assertIsKeyHolder(final Object assertion,
-            final Long artifactId) {
-        Assert.assertTrue(assertion, isKeyHolder(artifactId));
-    }
-
-    /**
-     * Assert that the logged in user is not the key holder.
-     * 
-     * @param assertion
-     *            The assertion message.
-     * @param artifactId
-     *            The artifact id.
-     * @see #isKeyHolder(Long)
-     */
-	protected void assertIsNotKeyHolder(final String assertion,
-            final Long artifactId) {
-		Assert.assertNotTrue(assertion, isKeyHolder(artifactId));
-	}
-
 	/**
      * Assert the user id does not match the local user id.
      * 
@@ -409,7 +380,7 @@ public abstract class Model<T extends EventListener> extends
      *            The assertion.
      */
     protected void assertNotIsOnline() {
-        Assert.assertNotTrue("USER IS ONLINE", isOnline());
+        Assert.assertNotTrue("USER IS ONLINE", getSessionModel().isOnline());
     }
 
     /**
@@ -439,28 +410,6 @@ public abstract class Model<T extends EventListener> extends
         final User user = getUserModel().read(userId);
         if (null != user)
             Assert.assertNotTrue(assertion, contains(team, user));
-    }
-
-    /**
-     * Assert the user is online.
-     *
-     */
-    protected void assertOnline() {
-        assertOnline("USER NOT ONLINE");
-    }
-
-	/**
-     * Assert the user is online.
-     *
-     * @param assertion
-     *      The assertion.
-     */
-    protected void assertOnline(final String assertion) {
-        Assert.assertTrue(assertion, isOnline());
-    }
-
-    protected void assertOnline(final StringBuffer api) {
-        assertOnline(api.toString());
     }
 
     /**
@@ -518,6 +467,14 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertTrue(environment.isXMPPReachable(),
                 "XMPP environment {0}:{1} is not reachable.",
                 environment.getXMPPHost(), environment.getXMPPPort());
+    }
+
+    /**
+     * Assert the xmpp session is online.
+     *
+     */
+    protected void assertXMPPOnline() {
+        Assert.assertTrue("XMPP is not online.", getSessionModel().isXMPPOnline());
     }
 
     /**
@@ -736,6 +693,16 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
+     * Assert the session is online. We are throwing a specific error here in
+     * order to allow a client of the model an opportunity to display an
+     * appropriate message.
+     */
+    protected final void ensureOnline() {
+        if (!getSessionModel().isOnline().booleanValue())
+            throw new OfflineException();
+    }
+
+    /**
      * Find the user in a team.
      * 
      * @param team
@@ -938,20 +905,6 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
-     * Check the local flag; as well as the key holder on the server.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @return True if the user is the keyholder; false otherwise.
-     */
-    protected Boolean isKeyHolder(final Long artifactId) {
-        assertOnline("USER NOT ONLINE");
-        final InternalArtifactModel artifactModel = getArtifactModel();
-        return artifactModel.isFlagApplied(artifactId, ArtifactFlag.KEY) &&
-            isRemoteKeyHolder(artifactModel.readUniqueId(artifactId));
-    }
-
-    /**
      * Determine if the user id matched the local user id.
      * 
      * @param userId
@@ -960,15 +913,6 @@ public abstract class Model<T extends EventListener> extends
      */
     protected Boolean isLocalUserId(final JabberId userId) {
         return localUserId().equals(userId);
-    }
-
-    /**
-     * Determine whether or not the user is online.
-     *
-     * @return True if the user is online; false otherwise.
-     */
-    protected Boolean isOnline() {
-        return getSessionModel().isLoggedIn();
     }
 
     protected final Boolean isStreamDownloadComplete(final String streamId,
@@ -1360,18 +1304,6 @@ public abstract class Model<T extends EventListener> extends
     private <U extends User, V extends User> int indexOf(final List<U> users,
             final V user) {
         return USER_UTILS.indexOf(users, user);
-    }
-
-    /**
-     * Determine whether or not the local user is the remote key holder.
-     * 
-     * @param uniqueId
-     *            An artifact unique id.
-     * @return True if the user is the artifact key holder.
-     */
-    private Boolean isRemoteKeyHolder(final UUID uniqueId) {
-        return localUserId().equals(
-                getSessionModel().readKeyHolder(localUserId(), uniqueId));
     }
 
     /**

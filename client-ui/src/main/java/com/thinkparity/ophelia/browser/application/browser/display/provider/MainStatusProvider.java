@@ -18,6 +18,7 @@ import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
+import com.thinkparity.ophelia.model.session.OfflineCode;
 import com.thinkparity.ophelia.model.session.SessionModel;
 
 /**
@@ -70,6 +71,15 @@ public final class MainStatusProvider extends ContentProvider {
         this.containerModel = containerModel;
         this.profileModel = profileModel;
         this.sessionModel = sessionModel;
+    }
+
+    /**
+     * Obtain the session offline code.
+     * 
+     * @return The <code>OfflineCode</code>.
+     */
+    public OfflineCode getOfflineCode() {
+        return sessionModel.getOfflineCode();
     }
 
     /**

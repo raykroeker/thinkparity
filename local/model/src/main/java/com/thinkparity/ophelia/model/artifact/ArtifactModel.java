@@ -5,8 +5,6 @@ package com.thinkparity.ophelia.model.artifact;
 
 import java.util.Set;
 
-import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -50,15 +48,6 @@ public interface ArtifactModel {
 	 * @return True if the flag is applied; false otherwise.
 	 */
 	public Boolean isFlagApplied(final Long artifactId, final ArtifactFlag flag);
-
-    /**
-     * Read the artifact key holder.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @return The artifact key holder.
-     */
-    public JabberId readKeyHolder(final Long artifactId);
 
     /**
      * Read the team for the artifact.

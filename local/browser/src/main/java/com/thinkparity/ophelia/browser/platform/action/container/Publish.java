@@ -15,6 +15,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.monitor.PublishStep;
 import com.thinkparity.ophelia.model.document.CannotLockException;
+import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
@@ -172,6 +173,11 @@ public class Publish extends AbstractBrowserAction {
             try {
                 containerModel.publish(publishMonitor, container.getId(), comment,
                         contacts, teamMembers);
+            } catch (final OfflineException ox) {
+                // TODO implement a "you are offline" notification
+                monitor.reset();
+                publishMonitor = newPublishMonitor();
+                return null;
             } catch (final CannotLockException clx) {
                 try {
                     containerModel.restoreDraft(container.getId());

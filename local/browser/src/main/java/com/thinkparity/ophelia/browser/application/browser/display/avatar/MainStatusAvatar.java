@@ -34,6 +34,7 @@ import com.thinkparity.ophelia.model.events.BackupEvent;
 import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 import com.thinkparity.ophelia.model.events.ProfileEvent;
+import com.thinkparity.ophelia.model.session.OfflineCode;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Images;
@@ -43,7 +44,6 @@ import com.thinkparity.ophelia.browser.application.browser.component.LabelFactor
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
 import com.thinkparity.ophelia.browser.application.browser.display.event.MainStatusDispatcher;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.MainStatusProvider;
-import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
@@ -199,8 +199,11 @@ public class MainStatusAvatar extends Avatar {
      *            A platform connection.
      * @return A localized string.
      */
-    protected String getString(final Connection connection) {
-        return getString(connection.toString());
+    protected String getString(final OfflineCode offlineCode) {
+        final String key = new StringBuilder("CXN.")
+            .append(offlineCode.name())
+            .toString();
+        return getString(key);
     }
 
     /**
@@ -263,6 +266,15 @@ public class MainStatusAvatar extends Avatar {
             ((Data) input).unset(DataKey.LINK);
             return link;
         }
+    }
+    
+    /**
+     * Obtain the session offline code.
+     * 
+     * @return An <code>OfflineCode</code>.
+     */
+    private OfflineCode getOfflineCode() {
+        return ((MainStatusProvider) contentProvider).getOfflineCode();
     }
 
     /**
@@ -540,15 +552,10 @@ public class MainStatusAvatar extends Avatar {
      */
     private void reloadConnection() {
         connectionJLabel.setText("");
-        final String connectionText;
-        if (isOnline()) {
-            connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_ONLINE);
-            connectionText = getString(Connection.ONLINE);
-        } else {
+        if (!isOnline()) {
             connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);
-            connectionText = getString(Connection.OFFLINE);
+            connectionJLabel.setText(getString(getOfflineCode()));
         }
-        connectionJLabel.setText(connectionText);
     }
 
     /**

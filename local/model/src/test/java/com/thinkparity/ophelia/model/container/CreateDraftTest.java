@@ -95,8 +95,7 @@ public class CreateDraftTest extends ContainerTestCase {
                 OpheliaTestUser.JUNIT).isFlagApplied(c.getId(),
                 ArtifactFlag.KEY));
         assertTrue(NAME + " [USER IS NOT KEY HOLDER]",
-                getSessionModel(datum.junit).readKeyHolder(datum.junit.getId(),
-                c.getUniqueId()).equals(datum.junit.getId()));
+                getSessionModel(datum.junit).readKeyHolder(c.getUniqueId()).equals(datum.junit.getId()));
         final InternalDocumentModel documentModel = getDocumentModel(datum.junit);
         for (final Document d : draftRead.getDocuments()) {
             assertTrue("Draft for document \"" + d.getName() + "\" for user \""

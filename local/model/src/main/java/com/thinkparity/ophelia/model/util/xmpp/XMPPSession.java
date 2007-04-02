@@ -216,13 +216,13 @@ public interface XMPPSession {
             final String streamId, final Product product,
             final Release release, final List<Resource> resources);
 
-    public Reservation createProfileReservation(final JabberId userId,
-            final String username, final Calendar reservedOn);
-
     public void createProfile(final JabberId userId,
             final Reservation reservation, final Credentials credentials,
             final Profile profile, final EMail email,
             final String securityQuestion, final String securityAnswer);
+
+    public Reservation createProfileReservation(final JabberId userId,
+            final String username, final Calendar reservedOn);
 
     /**
      * Create a stream.
@@ -395,11 +395,11 @@ public interface XMPPSession {
     public Boolean isEmailAvailable(final JabberId userId, final EMail email);
 
     /**
-     * Determine if the user is logged in.
+     * Determine if the session is online.
      * 
-     * @return True if the user is logged in; false otherwise.
+     * @return True if the connection is established and authenticated.
      */
-    public Boolean isLoggedIn();
+    public Boolean isOnline();
 
     /**
      * Determine if publish is restricted for the user.

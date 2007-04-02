@@ -58,16 +58,11 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * Add an email to the profile.
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#addEmail(com.thinkparity.codebase.email.EMail)
      * 
-     * @param email
-     *            An <code>EMail</code>.
      */
     public void addEmail(final EMail email) {
-        logger.logApiId();
-        logger.logVariable("email", email);
         try {
-            assertOnline("USER NOT ONLINE");
             final Profile profile = read();
             // add email data
             final ProfileEMail profileEMail = new ProfileEMail();
@@ -137,6 +132,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      */
     public void initialize() {
         try {
+            assertXMPPOnline();
             final Profile remoteProfile = getSessionModel().readProfile();
             /*
              * NOTE Only verified emails are downloaded and created in the local
@@ -165,7 +161,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      */
     public Boolean isAvailable(final EMail email) {
         try {
-            assertOnline();
             // check contacts first
             final List<Contact> contacts = getContactModel().read();
             final List<EMail> emails = new ArrayList<EMail>();
@@ -305,16 +300,11 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * Remove an email from a the profile.
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#removeEmail(java.lang.Long)
      * 
-     * @param emailId
-     *            An email id <code>Long</code>.
      */
     public void removeEmail(final Long emailId) {
-        logger.logApiId();
-        logger.logVariable("emailId", emailId);
         try {
-            assertOnline("USER NOT ONLINE");
             final Profile profile = read();
             final ProfileEMail email = profileIO.readEmail(profile.getLocalId(), emailId);
             // remove email data
@@ -438,19 +428,12 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * Verify an email.
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#verifyEmail(java.lang.Long,
+     *      java.lang.String)
      * 
-     * @param email
-     *            An <code>EMail</code>.
-     * @param key
-     *            A verification key <code>String</code>.
      */
     public void verifyEmail(final Long emailId, final String key) {
-        logger.logApiId();
-        logger.logVariable("emailId", emailId);
-        logger.logVariable("key", key);
         try {
-            assertOnline("USER NOT ONLINE");
             final Profile profile = read();
             final ProfileEMail email = profileIO.readEmail(profile.getLocalId(), emailId);
             getSessionModel().verifyProfileEmail(localUserId(), email, key);

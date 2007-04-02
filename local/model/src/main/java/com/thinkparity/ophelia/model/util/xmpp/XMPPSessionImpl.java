@@ -651,7 +651,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     /**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#isLoggedIn()
 	 */
-	public Boolean isLoggedIn() {
+	public Boolean isOnline() {
 		logger.logApiId();
 		return null != xmppConnection
 				&& xmppConnection.isConnected()
@@ -1305,7 +1305,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	    assertXMPPIsReachable(environment);
         Assert.assertTrue(attempt < 4, "Cannot login after 3 failed attempts.");
         try {
-			if (Boolean.TRUE == isLoggedIn())
+			if (Boolean.TRUE == isOnline())
 				logout();
 			// configure socket factory and xmpp
             final SocketFactory socketFactory;

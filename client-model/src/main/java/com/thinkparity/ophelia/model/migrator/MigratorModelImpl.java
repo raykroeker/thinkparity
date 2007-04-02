@@ -122,26 +122,6 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
         }
     }
 
-//    /**
-//     * @see com.thinkparity.ophelia.model.migrator.InternalMigratorModel#initialize(com.thinkparity.ophelia.model.util.ProcessMonitor)
-//     * 
-//     */
-//    public void initialize(final ProcessMonitor monitor) {
-//        try {
-//            if (!isProductInitialized()) {
-//                initializeProduct();
-//            }
-//            if (!isInstalledReleaseInitialized()) {
-//                initializeInstalledRelease();
-//            }
-//            if (!isLatestRelease() && !isLatestReleaseDownloadComplete()) {
-//                startDownloadLatestRelease();
-//            }
-//        } catch (final Throwable t) {
-//            throw panic(t);
-//        }
-//    }
-
     /**
      * @see com.thinkparity.ophelia.model.migrator.InternalMigratorModel#downloadLatestRelease(com.thinkparity.ophelia.model.util.ProcessMonitor)
      * 
@@ -190,6 +170,8 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             // update latest release
             final Product product = migratorIO.readProduct(Constants.Product.NAME);
             migratorIO.updateLatestRelease(product, release);
+            // go offline
+            getSessionModel().notifyClientMaintenance();
             // fire event
             notifyProductReleaseDeployed(event.getProduct(), event.getRelease(),
                     remoteEventGenerator);
@@ -205,6 +187,18 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     public void initialize(final ProcessMonitor monitor) {
         try {
             initializeProduct();
+            initializeInstalledRelease();
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.migrator.MigratorModel#initializeInstalledRelease(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     *
+     */
+    public void initializeInstalledRelease(final ProcessMonitor monitor) {
+        try {
             initializeInstalledRelease();
         } catch (final Throwable t) {
             throw panic(t);
@@ -270,8 +264,21 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
                     "Could not delete file {0}.", download);
             // install release
             migratorIO.updateInstalledRelease(product, latestRelease);
+            migratorIO.updatePreviousRelease(product, installedRelease);
             // fire event
             notifyLatestReleaseInstalled(product, latestRelease, localEventGenerator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.migrator.MigratorModel#isInstalledReleaseInitialized()
+     *
+     */
+    public Boolean isInstalledReleaseInitialized() {
+        try {
+            return migratorIO.isReleaseInitialized(readInstalledRelease());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -461,10 +468,18 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      * 
      */
     private void initializeInstalledRelease() {
-        final Product product = readProduct();
         final Release installedRelease = readInstalledRelease();
+        final Release previousRelease = readPreviousRelease();
 
-        migratorIO.updateInstalledRelease(product, installedRelease);
+        // delete previous release
+        if (null == previousRelease) {
+            logger.logInfo("First installed release {0}.", installedRelease.getName());
+        } else {
+            logger.logInfo("Deleting previous release {0}.", previousRelease.getName());
+            final File previous = new File(installDirectory, previousRelease.getName());
+            FileUtil.deleteTree(previous);
+        }
+
         migratorIO.updateReleaseInitialization(installedRelease);
     }
 
@@ -487,6 +502,8 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
                     latestRelease);
             migratorIO.createRelease(latestRelease, latestReleaseResources);
             migratorIO.updateLatestRelease(product, latestRelease);
+            // go offline
+            getSessionModel().notifyClientMaintenance();
         }
     }
 
@@ -590,6 +607,19 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      */
     private List<Resource> readLatestResources() {
         return migratorIO.readLatestResources(readProduct());
+    }
+
+    /**
+     * Read the previously installed release.
+     * 
+     * @return A <code>Release</code>.
+     */
+    private Release readPreviousRelease() {
+        try {
+            return migratorIO.readPreviousRelease(readProduct());
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**

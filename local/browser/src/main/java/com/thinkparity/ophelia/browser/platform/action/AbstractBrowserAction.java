@@ -24,7 +24,7 @@ public abstract class AbstractBrowserAction extends AbstractAction {
      * @see com.thinkparity.ophelia.browser.platform.action.AbstractAction#invokeAction(com.thinkparity.ophelia.browser.platform.action.Data)
      */
     @Override
-    public void invokeAction(Data data) {
+    public void invokeAction(final Data data) {
         getBrowserApplication().clearStatusLink();
         super.invokeAction(data);
     }

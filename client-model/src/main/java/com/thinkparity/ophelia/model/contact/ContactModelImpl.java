@@ -22,15 +22,7 @@ import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationExtendedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationExtendedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.*;
 
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.contact.monitor.DownloadStep;
@@ -85,12 +77,11 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.contact.ContactModel#acceptIncomingInvitation(java.lang.Long)
+     * @see com.thinkparity.ophelia.model.contact.ContactModel#acceptIncomingEMailInvitation(java.lang.Long)
      * 
      */
     public void acceptIncomingEMailInvitation(final Long invitationId) {
         try {
-            assertOnline();
             final InternalIndexModel indexModel = getIndexModel();
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar acceptedOn = sessionModel.readDateTime();
@@ -163,7 +154,6 @@ public final class ContactModelImpl extends Model<ContactListener>
      */
     public void acceptIncomingUserInvitation(final Long invitationId) {
         try {
-            assertOnline();
             final InternalIndexModel indexModel = getIndexModel();
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar acceptedOn = sessionModel.readDateTime();
@@ -241,7 +231,6 @@ public final class ContactModelImpl extends Model<ContactListener>
      */
     public OutgoingEMailInvitation createOutgoingEMailInvitation(final EMail email) {
         try {
-            assertOnline();
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar createdOn = sessionModel.readDateTime();
 
@@ -273,7 +262,6 @@ public final class ContactModelImpl extends Model<ContactListener>
      */
     public OutgoingUserInvitation createOutgoingUserInvitation(final Long userId) {
         try {
-            assertOnline();
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar createdOn = sessionModel.readDateTime();
             final User invitationUser = getUserModel().read(userId);
@@ -306,7 +294,6 @@ public final class ContactModelImpl extends Model<ContactListener>
      */
     public void declineIncomingEMailInvitation(final Long invitationId) {
         try {
-            assertOnline();
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar declinedOn = sessionModel.readDateTime();
 
@@ -336,7 +323,6 @@ public final class ContactModelImpl extends Model<ContactListener>
      */
     public void declineIncomingUserInvitation(final Long invitationId) {
         try {
-            assertOnline();
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar declinedOn = sessionModel.readDateTime();
 
@@ -366,7 +352,6 @@ public final class ContactModelImpl extends Model<ContactListener>
      */
     public void delete(final JabberId contactId) {
         try {
-            assertOnline();
             final Contact contact = read(contactId);
 
             // delete local and index
@@ -388,7 +373,6 @@ public final class ContactModelImpl extends Model<ContactListener>
      */
     public void deleteOutgoingEMailInvitation(final Long invitationId) {
         try {
-            assertOnline();
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar deletedOn = sessionModel.readDateTime();
 
@@ -419,7 +403,6 @@ public final class ContactModelImpl extends Model<ContactListener>
      */
     public void deleteOutgoingUserInvitation(final Long invitationId) {
         try {
-            assertOnline();
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar deletedOn = sessionModel.readDateTime();
 
@@ -473,7 +456,7 @@ public final class ContactModelImpl extends Model<ContactListener>
      */
     public void download(final ProcessMonitor monitor) {
         try {
-            assertOnline();
+            assertXMPPOnline();
             final InternalSessionModel sessionModel = getSessionModel();
             final List<JabberId> contactIds = sessionModel.readContactIds();
             notifyDetermine(monitor, contactIds.size());
@@ -504,17 +487,11 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
-     * Handle the remote event generated when a contact is deleted.
+     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#handleContactDeleted(com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent)
      * 
-     * @param deletedBy
-     *            By whom the contact was deleted <code>JabberId</code>.
-     * @param deletedOn
-     *            When the contact was deleted <code>Calendar</code>.
      */
     public void handleContactDeleted(final ContactDeletedEvent event) {
         try {
-            assertOnline();
-
             // delete contact and index
             final Contact contact = read(event.getDeletedBy());
             deleteLocal(contact);
@@ -532,7 +509,6 @@ public final class ContactModelImpl extends Model<ContactListener>
      */
     public void handleContactUpdated(final ContactUpdatedEvent event) {
         try {
-            assertOnline();
             final InternalSessionModel sessionModel = getSessionModel();
 
             final Contact local = read(event.getContactId());
@@ -567,8 +543,6 @@ public final class ContactModelImpl extends Model<ContactListener>
     public void handleEMailInvitationDeclined(
             final ContactEMailInvitationDeclinedEvent event) {
         try {
-            assertOnline();
-
             // delete outgoing e-mail invitation
             final OutgoingEMailInvitation outgoingEMailInvitation =
                 contactIO.readOutgoingEMailInvitation(event.getInvitedAs());
@@ -593,7 +567,6 @@ public final class ContactModelImpl extends Model<ContactListener>
     public void handleEMailInvitationDeleted(
             final ContactEMailInvitationDeletedEvent event) {
         try {
-            assertOnline();
             final User deletedBy = getUserModel().read(event.getDeletedBy());
 
             // delete invitation
@@ -621,7 +594,6 @@ public final class ContactModelImpl extends Model<ContactListener>
     public void handleEMailInvitationExtended(
             final ContactEMailInvitationExtendedEvent event) {
         try {
-            assertOnline();
             final InternalUserModel userModel = getUserModel();
             final User extendedBy = userModel.readLazyCreate(event.getInvitedBy());
 
@@ -731,7 +703,6 @@ public final class ContactModelImpl extends Model<ContactListener>
     public void handleUserInvitationDeclined(
             final ContactUserInvitationDeclinedEvent event) {
         try {
-            assertOnline();
             final User declinedBy = getUserModel().read(event.getDeclinedBy());
 
             // delete outgoing user invitation

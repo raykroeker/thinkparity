@@ -23,6 +23,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentModel;
+import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
@@ -198,9 +199,12 @@ public class ContainerBuilder {
         final List<TeamMember> teamMembers = containerModel.readTeam(id);
         final List<Contact> contacts = Collections.emptyList();
         try {
-            containerModel.publish(PUBLISH_MONITOR, id, comment, contacts, teamMembers);
+            containerModel.publish(PUBLISH_MONITOR, id, comment, contacts,
+                    teamMembers);
+        } catch (final OfflineException ox) {
+            throw panic(ox, "User is not online.");
         } catch (final CannotLockException clx) {
-            throw panic(clx, "Cannot lock container {0}", id);
+            throw panic(clx, "Cannot lock container {0}.", id);
         }
         return this;
     }
@@ -224,9 +228,12 @@ public class ContainerBuilder {
         filter(teamMembers, names);
         filter(contacts, names);
         try {
-            containerModel.publish(PUBLISH_MONITOR, id, comment, contacts, teamMembers);
+            containerModel.publish(PUBLISH_MONITOR, id, comment, contacts,
+                    teamMembers);
+        } catch (final OfflineException ox) {
+            throw panic(ox, "User is not online.");
         } catch (final CannotLockException clx) {
-            throw panic(clx, "Cannot lock container {0}", id);
+            throw panic(clx, "Cannot lock container {0}.", id);
         }
         return this;
     }

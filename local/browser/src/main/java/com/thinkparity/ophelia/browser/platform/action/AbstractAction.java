@@ -34,13 +34,17 @@ import com.thinkparity.ophelia.browser.util.ModelFactory;
 import com.thinkparity.ophelia.browser.util.localization.ActionLocalization;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity OpheliaUI Abstract Platform Action<br>
+ * <b>Description:</b>An abstraction of an action to be invoked within the ui
+ * platform.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
 public abstract class AbstractAction implements ActionInvocation {
 
     /** The prefix for the thread name */
-    static final String THREAD_PREFIX = "TPS-OpheliaUI-";
+    private static final String THREAD_PREFIX = "TPS-OpheliaUI-Action-";
 
 	/** Action localization. */
 	protected final ActionLocalization localization;
@@ -73,25 +77,6 @@ public abstract class AbstractAction implements ActionInvocation {
 	private String name;
 
 	/**
-     * Create AbstractAction.
-     * 
-     * @param id
-     *            An action id.
-     */
-    protected AbstractAction(final ActionId id) {
-        super();
-        this.applicationRegistry = new ApplicationRegistry();
-        this.id = id;
-        this.icon = null;
-        this.localization = new ActionLocalization(id.toString());
-        this.logger = new Log4JWrapper(getClass());
-        this.name = localization.getString("NAME");
-        this.menuName = localization.getString("MENUNAME");
-        this.mnemonic = localization.getString("MNEMONIC").substring(0,1);
-        this.accelerator = localization.getString("ACCELERATOR");
-    }
-
-    /**
      * Create AbstractAction. This constructor is used by the plugin action
      * extensions.
      * 
@@ -104,6 +89,25 @@ public abstract class AbstractAction implements ActionInvocation {
         this.id = null;
         this.icon = null;
         this.localization = new ActionLocalization(extension);
+        this.logger = new Log4JWrapper(getClass());
+        this.name = localization.getString("NAME");
+        this.menuName = localization.getString("MENUNAME");
+        this.mnemonic = localization.getString("MNEMONIC").substring(0,1);
+        this.accelerator = localization.getString("ACCELERATOR");
+    }
+
+    /**
+     * Create AbstractAction.
+     * 
+     * @param id
+     *            An action id.
+     */
+    protected AbstractAction(final ActionId id) {
+        super();
+        this.applicationRegistry = new ApplicationRegistry();
+        this.id = id;
+        this.icon = null;
+        this.localization = new ActionLocalization(id.toString());
         this.logger = new Log4JWrapper(getClass());
         this.name = localization.getString("NAME");
         this.menuName = localization.getString("MENUNAME");
@@ -156,31 +160,20 @@ public abstract class AbstractAction implements ActionInvocation {
 	public String getName() { return name; }
 
 	/**
-	 * Invoke the action.
-	 * 
-	 * @param data
-	 *            The action data.
-	 */
-	protected abstract void invoke(final Data data);
-
-	/**
      * @see com.thinkparity.ophelia.browser.platform.action.ActionInvocation#invokeAction(com.thinkparity.ophelia.browser.platform.action.Data)
+     * 
      */
     public void invokeAction(final Data data) {
         final Thread thread = Executors.defaultThreadFactory().newThread(new Runnable() {
-            public void run() { invoke(data); }
+            public void run() {
+                invoke(data);
+            }
         });
         thread.setName(getThreadName());
         thread.start();
     }
 
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.action.ActionInvocation#retryInvokeAction()
-     * 
-     */
-    public void retryInvokeAction() {}
-
-    /**
+	/**
      * Determine if the accelerator is set.
      * 
      * @return True if the accelerator is set; false otherwise.
@@ -188,7 +181,7 @@ public abstract class AbstractAction implements ActionInvocation {
     public Boolean isSetAccelerator() {
         return ((null != accelerator) && (accelerator.charAt(0) != '!'));
     }
-    
+
     /**
      * Determine if the menu name is set.
      * 
@@ -197,7 +190,7 @@ public abstract class AbstractAction implements ActionInvocation {
     public Boolean isSetMenuName() {
         return null != menuName;
     }
-    
+
     /**
      * Determine if the mnemonic is set.
      * 
@@ -206,8 +199,8 @@ public abstract class AbstractAction implements ActionInvocation {
     public Boolean isSetMnemonic() {
         return ((null != mnemonic) && (mnemonic.charAt(0) != '!'));
     }
-
-	/**
+    
+    /**
      * Determine if the name is set.
      * 
      * @return True if the name is set; false otherwise.
@@ -215,6 +208,12 @@ public abstract class AbstractAction implements ActionInvocation {
 	public Boolean isSetName() {
         return null != name;
 	}
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.ActionInvocation#retryInvokeAction()
+     * 
+     */
+    public void retryInvokeAction() {}
 
 	/**
      * Set the accelerator.
@@ -225,8 +224,8 @@ public abstract class AbstractAction implements ActionInvocation {
     public void setAccelerator(final String accelerator) {
         this.accelerator = accelerator;
     }
-    
-    /**
+
+	/**
      * Set the icon.
      * 
      * @param icon
@@ -255,8 +254,8 @@ public abstract class AbstractAction implements ActionInvocation {
     public void setMnemonic(final String mnemonic) {
         this.mnemonic = mnemonic;
     }
-
-	/**
+    
+    /**
 	 * Set the name.
 	 * 
 	 * @param name
@@ -266,7 +265,7 @@ public abstract class AbstractAction implements ActionInvocation {
         this.name = name;
 	}
 
-    /**
+	/**
 	 * Obtain a thinkParity artifact interface.
 	 * 
 	 * @return A <code>ArtifactModel</code>.
@@ -275,7 +274,7 @@ public abstract class AbstractAction implements ActionInvocation {
 		return modelFactory.getArtifactModel(getClass());
 	}
 
-	/**
+    /**
      * Obtain the thinkParity browser application from the registry.
      * 
      * @return The thinkParity browser application.
@@ -284,7 +283,7 @@ public abstract class AbstractAction implements ActionInvocation {
         return (Browser) applicationRegistry.get(ApplicationId.BROWSER);
     }
 
-    /**
+	/**
      * Obtain the contact model api.
      * 
      * @return The contact model api.
@@ -335,7 +334,7 @@ public abstract class AbstractAction implements ActionInvocation {
         for(final Object o : list) { jabberIds.add((JabberId) o); }
         return jabberIds;
     }
-    
+
     /**
      * Convert the data element found at the given key to a list of users.
      * 
@@ -351,17 +350,17 @@ public abstract class AbstractAction implements ActionInvocation {
         final List<User> users = new ArrayList<User>();
         for(final Object o : list) { users.add((User) o); }
         return users;
-    }  
-
-	/**
+    }
+    
+    /**
 	 * Obtain the document model api.
 	 * 
 	 * @return The document model api.
 	 */
 	protected DocumentModel getDocumentModel() {
 		return modelFactory.getDocumentModel(getClass());
-	}   
-    
+	}  
+
 	/**
      * Obtain a thinkParity profile interface.
      * 
@@ -369,8 +368,8 @@ public abstract class AbstractAction implements ActionInvocation {
      */
     protected ProfileModel getProfileModel() {
         return modelFactory.getProfileModel(getClass());
-    }
-
+    }   
+    
 	/**
      * Obtain the parity session interface.
      * 
@@ -379,7 +378,7 @@ public abstract class AbstractAction implements ActionInvocation {
 	protected SessionModel getSessionModel() {
 		return modelFactory.getSessionModel(getClass());
 	}
-    
+
 	/**
 	 * Obtain localized text.
 	 * 
@@ -390,7 +389,7 @@ public abstract class AbstractAction implements ActionInvocation {
 	protected String getString(final String localKey) {
 		return localization.getString(localKey);
 	}
-
+    
 	/**
 	 * Obtain localized text.
 	 * 
@@ -404,15 +403,19 @@ public abstract class AbstractAction implements ActionInvocation {
 		return localization.getString(localKey, arguments);
 	}
 
-    /**
-     * Get the thread name.
+	/**
+     * Obtain the thread name for the action.
+     * 
+     * @return The thread name <code>String</code>.
      */
     protected String getThreadName() {
-        final StringBuffer threadName = new StringBuffer(THREAD_PREFIX).append(id.toString());
-        return threadName.toString();
+        final String threadName = new StringBuilder(THREAD_PREFIX)
+            .append(id.name())
+            .toString();
+        return threadName;
     }
 
-	/**
+    /**
      * Obtain the thinkParity user interface.
      * 
      * @return A thinkParity user interface.
@@ -421,7 +424,7 @@ public abstract class AbstractAction implements ActionInvocation {
         return modelFactory.getUserModel(getClass());
     }
 
-    /**
+	/**
      * Obtain the thinkParity workspace.
      * 
      * @return The thinkParity workspace.
@@ -429,6 +432,14 @@ public abstract class AbstractAction implements ActionInvocation {
     protected Workspace getWorkspace() {
         return modelFactory.getWorkspace(getClass());
     }
+
+    /**
+	 * Invoke the action.
+	 * 
+	 * @param data
+	 *            The action data.
+	 */
+	protected abstract void invoke(final Data data);
 
     /**
      * Translate an error into a browser runtime exception.

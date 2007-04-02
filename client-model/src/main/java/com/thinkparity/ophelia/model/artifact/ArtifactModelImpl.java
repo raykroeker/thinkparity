@@ -63,8 +63,9 @@ public final class ArtifactModelImpl extends Model implements
      */
 	public TeamMember addTeamMember(final Long artifactId, final JabberId userId) {
         try {
-            assertNotTeamMember("TEAM MEMBER ALREADY ADDED", artifactId, userId);
-            assertOnline("USER NOT ONLINE");
+            assertXMPPOnline();
+            assertNotTeamMember("The team member has already been added.",
+                    artifactId, userId);
             // create local user data
             final User user = getUserModel().readLazyCreate(userId);
             // create local team data
@@ -416,20 +417,6 @@ public final class ArtifactModelImpl extends Model implements
     public Long readId(final UUID uniqueId) {
         try {
             return artifactIO.readId(uniqueId);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.artifact.ArtifactModel#readKeyHolder(java.lang.Long)
-     * 
-     */
-    public JabberId readKeyHolder(final Long artifactId) {
-        try {
-            assertOnline();
-            return getSessionModel().readKeyHolder(localUserId(),
-                    readUniqueId(artifactId));
         } catch (final Throwable t) {
             throw panic(t);
         }

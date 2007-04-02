@@ -241,8 +241,8 @@ public class OpheliaTestUser extends User {
         session.registerQueueListener();
         Assert.assertNotNull(session,
                 "User {0}'s session is null.", credentials.getUsername());
-        Assert.assertTrue(session.isLoggedIn(),
-                "User {0} not logged in.", credentials.getUsername());
+        Assert.assertTrue(session.isOnline(),
+                "User {0} not online.", credentials.getUsername());
         session.logout();
     }
 }

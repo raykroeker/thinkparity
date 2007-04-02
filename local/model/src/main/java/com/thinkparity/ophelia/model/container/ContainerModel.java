@@ -22,6 +22,7 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
+import com.thinkparity.ophelia.model.annotation.ThinkParityOnline;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 import com.thinkparity.ophelia.model.events.ContainerListener;
@@ -71,6 +72,7 @@ public interface ContainerModel {
      *            A container id <code>Long</code>.
      */
     @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
+    @ThinkParityOnline
     public void archive(final Long containerId);
 
     /**
@@ -198,15 +200,25 @@ public interface ContainerModel {
             final ContainerVersionPrinter printer);
 
     /**
-     * Publish the container.
+     * Publish a container.
      * 
+     * @param monitor
+     *            A <code>ProgressMonitor</code>.
      * @param containerId
-     *            The container id.
-     * @param teamMembers
-     *            A list of team members to publish to.
+     *            A container id <code>Long</code>.
+     * @param comment
+     *            An optional comment <code>String</code>.
      * @param contacts
-     *            A list of contacts to publish to.
+     *            A <code>List</code> of <code>Contacts</code> to publish
+     *            to.
+     * @param teamMembers
+     *            A <code>List</code> of <code>TeamMembers</code> to publish
+     *            to.
+     * @throws CannotLockException
+     *             if the local files representing the container's documents
+     *             cannot be exclusively locked
      */
+    @ThinkParityOnline
     public void publish(final ProcessMonitor monitor, final Long containerId,
             final String comment, final List<Contact> contacts,
             final List<TeamMember> teamMembers) throws CannotLockException;
@@ -581,6 +593,7 @@ public interface ContainerModel {
      * @param containerId
      *            A container id <code>Long</code>.
      */
+    @ThinkParityOnline
     public void restore(final Long containerId);
 
     /**

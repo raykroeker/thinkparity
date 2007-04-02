@@ -27,6 +27,7 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
 import com.thinkparity.ophelia.model.events.MigratorEvent;
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
@@ -537,6 +538,9 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
             deleteWorkspace();
             end();
         } else {
+            if (!isInstalledReleaseInitialized()) {
+                initializeInstalledRelease();
+            }
             startPlugins();
             startApplications();
             notifyLifeCycleStarted();
@@ -553,8 +557,42 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         eventDispatcher.start();
 
         /* if we are not running the latest release, start a download task */
-        if (!migratorHelper.isLatestRelease())
-            migratorHelper.startDownloadLatestRelease();
+        if (!isLatestRelease())
+            startDownloadLatestRelease();
+    }
+
+    /**
+     * Determine whether or not we are running the latest release.
+     * 
+     * @return True if we are running the latest release.
+     */
+    private boolean isLatestRelease() {
+        return migratorHelper.isLatestRelease();
+    }
+
+    /**
+     * Start the download of the latest release.
+     *
+     */
+    private void startDownloadLatestRelease() {
+        migratorHelper.startDownloadLatestRelease();
+    }
+
+    /**
+     * Determine whether or not the installed release is initialized.
+     * 
+     * @return True if the installed release is initialized.
+     */
+    private boolean isInstalledReleaseInitialized() {
+        return migratorHelper.isInstalledReleaseInitialized();
+    }
+
+    /**
+     * Initialized the installed release.
+     *
+     */
+    private void initializeInstalledRelease() {
+        migratorHelper.initializeInstalledRelease(new ProcessAdapter() {});
     }
 
     /**

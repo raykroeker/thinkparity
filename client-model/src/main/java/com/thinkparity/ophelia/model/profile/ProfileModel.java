@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
+import com.thinkparity.ophelia.model.annotation.ThinkParityOnline;
 import com.thinkparity.ophelia.model.events.ProfileListener;
 
 /**
@@ -33,6 +34,7 @@ public interface ProfileModel {
      * @param email
      *            An <code>EMail</code>.
      */
+    @ThinkParityOnline
 	public void addEmail(final EMail email);
 
     /**
@@ -58,6 +60,7 @@ public interface ProfileModel {
      *            An <code>EMail</code>.
      * @return True if the address is not in use.
      */
+    @ThinkParityOnline
     public Boolean isAvailable(final EMail email);
 
     /**
@@ -117,6 +120,7 @@ public interface ProfileModel {
      * @param emailId
      *            An email id <code>Long</code>.
      */
+    @ThinkParityOnline
 	public void removeEmail(final Long emailId);
 
     /**
@@ -183,5 +187,6 @@ public interface ProfileModel {
      * @param key
      *            A verification key <code>String</code>.
      */
+    @ThinkParityOnline
     public void verifyEmail(final Long emailId, final String key);
 }

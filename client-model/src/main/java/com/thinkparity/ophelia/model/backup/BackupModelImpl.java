@@ -134,7 +134,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
      */
     @Override
     public Boolean isOnline() {
-        return super.isOnline() && isBackupOnline();
+        return getSessionModel().isOnline() && isBackupOnline();
     }
 
     /**

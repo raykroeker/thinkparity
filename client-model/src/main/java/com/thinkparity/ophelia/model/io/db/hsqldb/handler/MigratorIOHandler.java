@@ -30,8 +30,9 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
     /** Sql to create a product. */
     private static final String SQL_CREATE_PRODUCT =
         new StringBuilder("insert into PRODUCT ")
-        .append("(PRODUCT_NAME,INSTALLED_RELEASE_ID,LATEST_RELEASE_ID) ")
-        .append("values (?,?,?)")
+        .append("(PRODUCT_NAME,INSTALLED_RELEASE_ID,LATEST_RELEASE_ID,")
+        .append("PREVIOUS_RELEASE_ID) ")
+        .append("values (?,?,?,?)")
         .toString();
 
     /** Sql to create a release. */
@@ -115,6 +116,15 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
         .append("where P.PRODUCT_ID=?")
         .toString();
 
+    /** Sql to read previous release. */
+    private static final String SQL_READ_PREVIOUS_RELEASE =
+        new StringBuilder("select RELEASE_DATE,RELEASE_ID,RELEASE_NAME,")
+        .append("RELEASE_OS ")
+        .append("from PRODUCT_RELEASE PR ")
+        .append("inner join PRODUCT P on P.PREVIOUS_RELEASE_ID=PR.RELEASE_ID ")
+        .append("where P.PRODUCT_ID=?")
+        .toString();
+
     /** Sql to read a product by its unique key. */
     private static final String SQL_READ_PRODUCT_UK =
         new StringBuilder("select P.PRODUCT_ID,P.PRODUCT_NAME ")
@@ -140,6 +150,13 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
     private static final String SQL_UPDATE_LATEST_RELEASE =
         new StringBuilder("update PRODUCT ")
         .append("set LATEST_RELEASE_ID=? ")
+        .append("where PRODUCT_ID=?")
+        .toString();
+
+    /** Sql to update the previous release. */
+    private static final String SQL_UPDATE_PREVIOUS_RELEASE =
+        new StringBuilder("update PRODUCT ")
+        .append("set PREVIOUS_RELEASE_ID=? ")
         .append("where PRODUCT_ID=?")
         .toString();
 
@@ -175,6 +192,7 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
             session.setString(1, product.getName());
             session.setLong(2, release.getId());
             session.setLong(3, release.getId());
+            session.setLong(4, null);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not create product.");
         } finally {
@@ -346,6 +364,26 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#readPreviousRelease(com.thinkparity.codebase.model.migrator.Product)
+     *
+     */
+    public Release readPreviousRelease(final Product product) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_PREVIOUS_RELEASE);
+            session.setLong(1, product.getId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractRelease(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#readProduct()
      *
      */
@@ -384,7 +422,6 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
         }
     }
 
-    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#updateInstalledRelease(com.thinkparity.codebase.model.migrator.Product, com.thinkparity.codebase.model.migrator.Release)
      *
@@ -403,6 +440,7 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
         }
     }
 
+    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#updateLatestRelease(com.thinkparity.codebase.model.migrator.Product,
      *      com.thinkparity.codebase.model.migrator.Release)
@@ -416,6 +454,24 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
             session.setLong(2, product.getId());
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not update latest release.");
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#updatePreviousRelease(com.thinkparity.codebase.model.migrator.Product, com.thinkparity.codebase.model.migrator.Release)
+     *
+     */
+    public void updatePreviousRelease(final Product product,
+            final Release release) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_PREVIOUS_RELEASE);
+            session.setLong(1, release.getId());
+            session.setLong(2, product.getId());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not update previous release.");
         } finally {
             session.close();
         }

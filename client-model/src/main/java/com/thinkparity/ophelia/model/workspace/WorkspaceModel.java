@@ -159,6 +159,7 @@ public class WorkspaceModel {
         this.environment = environment;
     }
 
+
     /**
      * Close a workspace.
      * 
@@ -173,7 +174,6 @@ public class WorkspaceModel {
             WORKSPACES.remove(workspace.getWorkspaceDirectory());
         }
     }
-
 
     /**
      * Delete a workspace.

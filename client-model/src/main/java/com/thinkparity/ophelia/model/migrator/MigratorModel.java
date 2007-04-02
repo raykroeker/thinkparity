@@ -54,6 +54,19 @@ public interface MigratorModel {
             final File file);
 
     /**
+     * Initialize the installed release.
+     *
+     */
+    public void initializeInstalledRelease(final ProcessMonitor monitor);
+
+    /**
+     * Determine whether or not the installed release has been initialized.
+     * 
+     * @return True if the installed release has been initialized.
+     */
+    public Boolean isInstalledReleaseInitialized();
+
+    /**
      * Determine if the installed release is the latest release.
      * 
      * @return True if the installed release is the latest release.

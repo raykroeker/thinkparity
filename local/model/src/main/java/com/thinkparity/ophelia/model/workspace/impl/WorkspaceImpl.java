@@ -369,8 +369,9 @@ public final class WorkspaceImpl implements Workspace {
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#isDesktop()
-     *
+     * @deprecated
      */
+    @Deprecated
     public Boolean isDesktop() {
         return System.getProperty("thinkparity.product-name").equals("OpheliaProduct");
     }

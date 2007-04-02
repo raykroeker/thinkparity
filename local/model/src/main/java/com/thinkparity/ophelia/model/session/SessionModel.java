@@ -31,10 +31,20 @@ public interface SessionModel {
 	public void addListener(final SessionListener sessionListener);
 
     /**
-	 * Determine whether or not the parity session has been established.
-	 * @return Boolean
-	 */
+     * Obtain an offline explanation.
+     * 
+     * @return An <code>OfflineCode</code>.
+     */
+    public OfflineCode getOfflineCode();
+
 	public Boolean isLoggedIn();
+
+    /**
+     * Determine whether or not the session is online.
+     * 
+     * @return True if the session is online; false otherwise.
+     */
+    public Boolean isOnline();
 
     /**
      * Login.

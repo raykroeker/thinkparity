@@ -106,6 +106,15 @@ public interface MigratorIOHandler {
     public List<Resource> readLatestResources(final Product product);
 
     /**
+     * Read the previous release.
+     * 
+     * @param product
+     *            A <code>Product</code>.
+     * @return A <code>Release</code>.
+     */
+    public Release readPreviousRelease(final Product product);
+
+    /**
      * Read the product.
      * 
      * @param name
@@ -141,6 +150,17 @@ public interface MigratorIOHandler {
      *            A <code>Release</code>.
      */
     public void updateLatestRelease(final Product product, final Release release);
+
+    /**
+     * Update the previous release.
+     * 
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     */
+    public void updatePreviousRelease(final Product product,
+            final Release release);
 
     /**
      * Update the release initialization.

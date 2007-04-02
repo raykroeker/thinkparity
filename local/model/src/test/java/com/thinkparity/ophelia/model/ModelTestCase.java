@@ -52,6 +52,7 @@ import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.script.InternalScriptModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
+import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.util.Opener;
@@ -1466,8 +1467,10 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         }
         try {
             getContainerModel(publishAs).publish(PUBLISH_MONITOR, localContainerId, comment, contacts, teamMembers);
+        } catch (final OfflineException ox) {
+            fail(ox, "Cannot publish container {0}.", c.getName());
         } catch (final CannotLockException clx) {
-            fail("Cannot publish container {0}.", c.getName());
+            fail(clx, "Cannot publish container {0}.", c.getName());
         }
     }
 

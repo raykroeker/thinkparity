@@ -248,7 +248,7 @@ public interface InternalSessionModel extends SessionModel {
     public void deleteInvitation(final OutgoingUserInvitation invitation,
             final Calendar deletedOn);
 
-	/**
+    /**
      * Delete a stream session.
      * 
      * @param session
@@ -256,7 +256,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void deleteStreamSession(final StreamSession session);
 
-    /**
+	/**
      * Deploy a migrator release.
      * 
      * @param release
@@ -268,7 +268,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void deployMigrator(final Product product, final Release release,
             final List<Resource> resources, final String streamId);
-    
+
     /**
      * Handle a remote session error.
      * 
@@ -276,7 +276,7 @@ public interface InternalSessionModel extends SessionModel {
      *            The <code>Throwable</code> cause.
      */
     public void handleSessionError(final Throwable cause);
-
+    
     /**
      * Handle the remote session established event.
      *
@@ -289,7 +289,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void handleSessionTerminated();
 
-	/**
+    /**
      * Determine if the backup is online.
      * 
      * @return True if the backup server is online.
@@ -307,7 +307,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public Boolean isEmailAvailable(final JabberId userId, final EMail email);
 
-    /**
+	/**
      * Determine if publish is restricted to the publish to user.
      * 
      * @param publishTo
@@ -315,6 +315,13 @@ public interface InternalSessionModel extends SessionModel {
      * @return True if publish to the user is restricted.
      */
     public Boolean isPublishRestricted(final JabberId publishTo);
+
+    /**
+     * Determine whether or not the xmpp session is online.
+     * 
+     * @return True if the xmpp session is online.
+     */
+    public Boolean isXMPPOnline();
 
     /**
      * Log an error.
@@ -341,6 +348,12 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void login(final Credentials credentials)
             throws InvalidCredentialsException;
+
+    /**
+     * Fire the client maintenance event.
+     *
+     */
+    public void notifyClientMaintenance();
 
     /**
      * Process the remote event queue.
@@ -555,7 +568,7 @@ public interface InternalSessionModel extends SessionModel {
      * @return The artifact key holder.
      * @throws ParityException
      */
-    public JabberId readKeyHolder(final JabberId userId, final UUID uniqueId);
+    public JabberId readKeyHolder(final UUID uniqueId);
 
     /**
      * Read the latest release.

@@ -70,6 +70,7 @@ import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
 import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
+import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
@@ -243,14 +244,11 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Archive a container.
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#archive(java.lang.Long)
      * 
-     * @param containerId
-     *            A container id <code>Long</code>.
      */
     public void archive(final Long containerId) {
         try {
-            assertOnline("User is not online.");
             assertIsDistributed("Container has not been distributed.", containerId);
 
             if (doesExistDraft(containerId))
@@ -315,25 +313,8 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Create a <code>ContainerDraft</code>. If the container does not yet
-     * exist as an artifact on the server; it will be created. All of the
-     * artifact references that exist in the latest version of the container
-     * will be copied into the draft. A remote call to create draft will also be
-     * made.
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#createDraft(java.lang.Long)
      * 
-     * @param containerId
-     *            The container id.
-     * @return A new <code>ContainerDraft</code>.
-     * @see #createDistributed(Container)
-     * @see #createFirstDraft(Long, TeamMember)
-     * @see #isDistributed(Long)
-     * @see #localTeamMember(Long)
-     * @see #notifyDraftCreated(Container, ContainerDraft,
-     *      ContainerEventGenerator)
-     * @see #read(Long)
-     * @see #readDocuments(Long, Long)
-     * @see #readLatestVersion(Long)
-     * @see InternalSessionModel#createDraft(UUID)
      */
     public ContainerDraft createDraft(final Long containerId) {
         try {
@@ -342,10 +323,11 @@ public final class ContainerModelImpl extends
             if (isFirstDraft(containerId)) {
                 createFirstDraft(containerId, localTeamMember(containerId));
             } else {
+                ensureOnline();
+
                 final Calendar createdOn = getSessionModel().readDateTime();
                 final InternalArtifactModel artifactModel = getArtifactModel();
 
-                assertOnline("The user is not online.");
                 final Container container = read(containerId);
                 if (!isDistributed(container.getId())) {
                     createDistributed(container, createdOn);
@@ -471,7 +453,7 @@ public final class ContainerModelImpl extends
             try {
                 if (doesExistLocalDraft) {
                     if (!isFirstDraft(container.getId())) {
-                        assertOnline("User is not online.");
+                        ensureOnline();
                         assertIsDistributed("Draft has not been distributed.", containerId);
                         final InternalSessionModel sessionModel = getSessionModel();
                         sessionModel.deleteDraft(container.getUniqueId(),
@@ -665,7 +647,7 @@ public final class ContainerModelImpl extends
             if (doRestore) {
                 // restore the draft
                 final JabberId draftOwner = getSessionModel().readKeyHolder(
-                        localUserId(), event.getUniqueId());
+                        event.getUniqueId());
                 doCreateDraft = !draftOwner.equals(User.THINKPARITY.getId());
                 if (doCreateDraft) {
                     final List<TeamMember> team = readTeam(containerId);
@@ -954,21 +936,13 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Publish the container. Publishing involves determining if the working
-     * version of a document differes from the latest version and if so creating
-     * a new version; then sending the latest version to all team members.
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#publish(com.thinkparity.ophelia.model.util.ProcessMonitor,
+     *      java.lang.Long, java.lang.String, java.util.List, java.util.List)
      * 
-     * @param containerId
-     *            The container id.
-     * @param contacts
-     *            A list of contacts to publish to.
-     * @param teamMembers
-     *            A list of team members to publish to.
      */
     public void publish(final ProcessMonitor monitor, final Long containerId,
             final String comment, final List<Contact> contacts,
-            final List<TeamMember> teamMembers) throws CannotLockException {
-        assertOnline("The local user is currently offline.");
+            final List<TeamMember> teamMembers) throws CannotLockException, OfflineException {
         assertDoesNotContain("The local user cannot be published to.", teamMembers, localUser());
         assertDoesExistLocalDraft("A local draft does not exist.", containerId);
         assertLocalDraftIsSaved("The local draft has not been saved.", containerId);
@@ -979,14 +953,20 @@ public final class ContainerModelImpl extends
             final List<Document> documents = draft.getDocuments();
             final Map<Document, DocumentFileLock> locks = lockDocuments(documents);
             try {
-                final Calendar publishedOn = getSessionModel().readDateTime();
+                final InternalSessionModel sessionModel = getSessionModel();
+                final Calendar publishedOn = sessionModel.readDateTime();
                 final Container container = read(containerId);
                 // if the artfiact doesn't exist on the server; create it there
                 if (!isDistributed(container.getId())) {
                     createDistributed(container, publishedOn);
                 }
                 // ensure the user is the key holder
-                assertIsKeyHolder("USER NOT KEY HOLDER", containerId);
+                final JabberId keyHolder = sessionModel.readKeyHolder(container.getUniqueId());
+                Assert.assertTrue("User does not own draft.",
+                        keyHolder.equals(localUserId()));
+                final InternalArtifactModel artifactModel = getArtifactModel();
+                Assert.assertTrue("User does not own draft.",
+                        artifactModel.isFlagApplied(containerId, ArtifactFlag.KEY));
                 // previous version
                 final ContainerVersion previous = readLatestVersion(containerId);
                 // create version
@@ -1032,7 +1012,7 @@ public final class ContainerModelImpl extends
                 containerIO.deleteDraftDocuments(containerId);
                 containerIO.deleteDraft(containerId);
                 // remove key
-                getArtifactModel().removeFlagKey(container.getId());
+                artifactModel.removeFlagKey(container.getId());
                 // build the publish to list
                 final List<User> publishToUsers = new ArrayList<User>();
                 publishToUsers.addAll(contacts);
@@ -1833,7 +1813,6 @@ public final class ContainerModelImpl extends
      */
     public void restore(final Long containerId) {
         try {
-            assertOnline("User is not online.");
             assertIsDistributed("Container has not been distributed.", containerId);
 
             final InternalArtifactModel artifactModel = getArtifactModel();
@@ -1841,7 +1820,7 @@ public final class ContainerModelImpl extends
             // restore the draft if one existed
             final InternalSessionModel sessionModel = getSessionModel();
             final JabberId draftOwner = sessionModel.readKeyHolder(
-                    localUserId(), artifactModel.readUniqueId(containerId));
+                    artifactModel.readUniqueId(containerId));
             if (draftOwner.equals(User.THINKPARITY.getId())) {
                 logger.logInfo("No remote draft exists for {0}.", containerId);
             } else {

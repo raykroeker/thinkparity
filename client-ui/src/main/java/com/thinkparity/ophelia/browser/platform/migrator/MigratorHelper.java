@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.platform.migrator;
 
 import com.thinkparity.ophelia.model.migrator.MigratorModel;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
 import com.thinkparity.ophelia.browser.platform.Platform;
 
@@ -29,6 +30,25 @@ public final class MigratorHelper {
     public MigratorHelper(final Platform platform) {
         super();
         this.model = platform.getModelFactory().getMigratorModel(getClass());
+    }
+
+    /**
+     * Initialize the installed release.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     */
+    public void initializeInstalledRelease(final ProcessMonitor monitor) {
+        model.initializeInstalledRelease(monitor);
+    }
+
+    /**
+     * Determine if the installed release is initialized.
+     * 
+     * @return True if the installed release is initialized.
+     */
+    public Boolean isInstalledReleaseInitialized() {
+        return model.isInstalledReleaseInitialized();
     }
 
     /**

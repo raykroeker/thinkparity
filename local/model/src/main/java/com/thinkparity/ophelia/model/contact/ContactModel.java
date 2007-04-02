@@ -19,6 +19,7 @@ import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
+import com.thinkparity.ophelia.model.annotation.ThinkParityOnline;
 import com.thinkparity.ophelia.model.events.ContactListener;
 
 /**
@@ -37,6 +38,7 @@ public interface ContactModel {
      * @param invitationId
      *            An invitation id.
      */
+    @ThinkParityOnline
     public void acceptIncomingEMailInvitation(final Long invitationId);
 
     /**
@@ -45,6 +47,7 @@ public interface ContactModel {
      * @param invitationId
      *            An invitation id.
      */
+    @ThinkParityOnline
     public void acceptIncomingUserInvitation(final Long invitationId);
 
 	/**
@@ -63,6 +66,7 @@ public interface ContactModel {
      *            An e-mail address.
      * @return The new <code>OutgoingEMailInvitation</code>.
      */
+    @ThinkParityOnline
     public OutgoingEMailInvitation createOutgoingEMailInvitation(
             final EMail email);
 
@@ -73,15 +77,25 @@ public interface ContactModel {
      *            A user id <code>Long</code>.
      * @return The new <code>OutgoingUserInvitation</code>.
      */
+    @ThinkParityOnline
     public OutgoingUserInvitation createOutgoingUserInvitation(final Long userId);
 
     /**
-     * Accept the incoming invitation.
+     * Decline an incoming e-mail invitation.
      * 
      * @param invitationId
-     *            An invitation id.
+     *            An invitation id <code>Long</code>.
      */
+    @ThinkParityOnline
     public void declineIncomingEMailInvitation(final Long invitationId);
+
+    /**
+     * Decline an incoming user invitation.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     */
+    @ThinkParityOnline
     public void declineIncomingUserInvitation(final Long invitationId);
 
 	/**
@@ -91,6 +105,7 @@ public interface ContactModel {
      *            A contact jabber id.
      * @return A contact.
      */
+    @ThinkParityOnline
     public void delete(final JabberId contactId);
 
 	/**
@@ -99,6 +114,7 @@ public interface ContactModel {
      * @param invitationId
      *            An invitation id.
      */
+    @ThinkParityOnline
     public void deleteOutgoingEMailInvitation(final Long invitationId);
 
     /**
@@ -107,6 +123,7 @@ public interface ContactModel {
      * @param invitationId
      *            An invitation id.
      */
+    @ThinkParityOnline
     public void deleteOutgoingUserInvitation(final Long invitationId);
 
     /**

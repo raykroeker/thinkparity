@@ -79,7 +79,7 @@ public class PublishTest extends ContainerTestCase {
         final ContainerDraft draft_y = readContainerDraft(datum.junit_y, c_x.getId());
         assertNull("Draft for container " + c_y.getName() + " for user " + datum.junit_y.getSimpleUsername() + " is not null.", draft_y);
 
-        final JabberId keyHolder = getArtifactModel(datum.junit).readKeyHolder(c.getId());
+        final JabberId keyHolder = getSessionModel(datum.junit).readKeyHolder(c.getUniqueId());
         assertEquals("Local artifact key holder does not match expectation.",
                 User.THINKPARITY.getId(), keyHolder);
         assertTrue("Local key flag is still mistakenly applied.",
@@ -332,7 +332,7 @@ public class PublishTest extends ContainerTestCase {
         final ContainerDraft draft_y = readContainerDraft(datum.junit_y, c_x.getId());
         assertNull("Draft for container " + c_y.getName() + " for user " + datum.junit_y.getSimpleUsername() + " is not null.", draft_y);
 
-        final JabberId keyHolder = getArtifactModel(datum.junit).readKeyHolder(c.getId());
+        final JabberId keyHolder = getSessionModel(datum.junit).readKeyHolder(c.getUniqueId());
         assertEquals("Local artifact key holder does not match expectation.",
                 User.THINKPARITY.getId(), keyHolder);
         assertTrue("Local key flag is still mistakenly applied.",

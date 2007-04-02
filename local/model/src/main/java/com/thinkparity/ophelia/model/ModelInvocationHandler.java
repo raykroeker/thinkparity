@@ -25,6 +25,7 @@ import com.thinkparity.codebase.model.util.jta.Transaction;
 import com.thinkparity.codebase.model.util.jta.TransactionContext;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
+import com.thinkparity.ophelia.model.annotation.ThinkParityOnline;
 import com.thinkparity.ophelia.model.util.jta.TransactionContextImpl;
 import com.thinkparity.ophelia.model.util.jta.XidFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -95,6 +96,10 @@ final class ModelInvocationHandler implements InvocationHandler {
             try {
                 final Object result;
                 try {
+                    /* if the method is annotated as online, ensure that we are
+                     * online */
+                    if (isOnline(method))
+                        model.ensureOnline();
                     model.setInvocationContext(new ModelInvocationContext() {
                         public Object[] getArguments() {
                             return args;
@@ -272,6 +277,17 @@ final class ModelInvocationHandler implements InvocationHandler {
      */
     private Thread getXAThread() {
         return Thread.currentThread();
+    }
+
+    /**
+     * Determine whether or not the method requires online functionality.
+     * 
+     * @param method
+     *            A <code>Method</code>.
+     * @return True if the method requires online functionality.
+     */
+    private boolean isOnline(final Method method) {
+        return method.isAnnotationPresent(ThinkParityOnline.class);
     }
 
     /**

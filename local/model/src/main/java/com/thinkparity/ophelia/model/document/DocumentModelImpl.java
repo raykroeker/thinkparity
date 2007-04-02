@@ -1160,6 +1160,7 @@ public final class DocumentModelImpl extends
      *            A <code>DocumentFileLock</code>.
      */
     private void deleteFile(final DocumentFileLock lock) {
+    	release(lock);
         Assert.assertTrue(lock.getFile().delete(), "Could not delete file {0}.", lock.getFile());
         final File parent = lock.getFile().getParentFile();
         if (0 == parent.list().length)

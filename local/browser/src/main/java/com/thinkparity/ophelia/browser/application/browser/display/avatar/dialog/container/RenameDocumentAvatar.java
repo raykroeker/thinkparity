@@ -318,12 +318,13 @@ public class RenameDocumentAvatar extends Avatar {
     }// GEN-LAST:event_cancelJButtonActionPerformed
 
     private void okJButtonActionPerformed(final java.awt.event.ActionEvent evt) {// GEN-FIRST:event_okJButtonActionPerformed
-        if(isInputValid()) {
+        if (isInputValid()) {
+            final Long containerId = getInputContainerId();
             final Long documentId = getInputDocumentId();
             final String documentName = extractName();
             if (!documentName.equals(getInputDocumentName())) {
                 disposeWindow();
-                getController().runRenameDocument(documentId, documentName);
+                getController().runRenameDocument(containerId, documentId, documentName);
             }
         }
     }// GEN-LAST:event_okJButtonActionPerformed

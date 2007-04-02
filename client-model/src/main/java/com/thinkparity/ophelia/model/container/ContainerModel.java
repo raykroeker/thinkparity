@@ -167,7 +167,7 @@ public interface ContainerModel {
      */
     public Boolean isDistributed(final Long containerId);
 
-	/**
+    /**
      * Determine whether or not a draft is modified.
      * 
      * @param containerId
@@ -186,7 +186,7 @@ public interface ContainerModel {
      */
     public void printDraft(final Long containerId, final ContainerDraftPrinter printer);
 
-    /**
+	/**
      * Print a container version.
      * 
      * @param containerId
@@ -488,7 +488,7 @@ public interface ContainerModel {
      */
     public List<TeamMember> readTeam(final Long containerId);
 
-	/**
+    /**
      * Read a container version.
      * 
      * @param containerId
@@ -500,7 +500,7 @@ public interface ContainerModel {
     public ContainerVersion readVersion(final Long containerId,
             final Long versionId);
 
-    /**
+	/**
      * Read a list of versions for the container.
      * 
      * @param containerId
@@ -586,6 +586,19 @@ public interface ContainerModel {
      *            The new container name.
      */
     public void rename(final Long containerId, final String name);
+
+    /**
+     * Rename a document.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @param name
+     *            The new document name <code>String</code>.
+     */
+    public void renameDocument(final Long containerId, final Long documentId,
+            final String name) throws CannotLockException;
 
     /**
      * Restore a container from an archive.

@@ -1784,24 +1784,41 @@ public final class ContainerModelImpl extends
         super.removeListener(listener);
     }
 
-    
     /**
-     * Rename the container.
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#rename(java.lang.Long,
+     *      java.lang.String)
      * 
-     * @param containerId
-     *            A container id.
-     * @param name
-     *            The new container name.
      */
     public void rename(final Long containerId, final String name) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         logger.logVariable("name", name);
         try {
-            assertIsNotDistributed("CONTAINER HAS BEEN DISTRIBUTED", containerId);
+            assertIsNotDistributed("Container has already been distributed.",
+                    containerId);
             containerIO.updateName(containerId, name);
+            // index
+            getIndexModel().indexContainer(containerId);
             // fire event
             notifyContainerRenamed(read(containerId), localEventGenerator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#renameDocument(java.lang.Long,
+     *      java.lang.Long, java.lang.String)
+     * 
+     */
+    public void renameDocument(final Long containerId, final Long documentId,
+            final String name) throws CannotLockException {
+        try {
+            getDocumentModel().rename(documentId, name);
+            // index
+            getIndexModel().indexDocument(containerId, documentId);
+        } catch (final CannotLockException clx) {
+            throw clx;
         } catch (final Throwable t) {
             throw panic(t);
         }

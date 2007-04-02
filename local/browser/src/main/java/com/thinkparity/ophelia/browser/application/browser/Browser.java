@@ -1351,9 +1351,10 @@ public class Browser extends AbstractApplication {
      * @param documentName
      *            An document name.
      */
-    public void runRenameDocument(final Long documentId,
-            final String documentName) {
-        final Data data = new Data(2);
+    public void runRenameDocument(final Long containerId,
+            final Long documentId, final String documentName) {
+        final Data data = new Data(3);
+        data.set(RenameDocument.DataKey.CONTAINER_ID, containerId);
         data.set(RenameDocument.DataKey.DOCUMENT_ID, documentId);
         data.set(RenameDocument.DataKey.DOCUMENT_NAME, documentName);
         invoke(ActionId.CONTAINER_RENAME_DOCUMENT, data);

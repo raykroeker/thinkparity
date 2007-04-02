@@ -55,7 +55,7 @@ public interface DocumentModel {
 	 */
 	public Document get(final Long documentId);
 
-	/**
+    /**
      * Determine whether or not the draft of the document has been modified by
      * the user.
      * 
@@ -65,7 +65,7 @@ public interface DocumentModel {
      */
     public Boolean isDraftModified(final Long documentId);
 
-    /**
+	/**
 	 * Open a document.
 	 * 
 	 * @param documentId
@@ -107,6 +107,15 @@ public interface DocumentModel {
     public void printVersion(final Long documentId, final Long versionId,
             final Printer printer);
 
+    /**
+     * Read a document.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return A <code>Document</code>.
+     */
+    public Document read(final Long documentId);
+
 	/**
      * Obtain the first available version.
      * 
@@ -145,19 +154,6 @@ public interface DocumentModel {
 	 */
     @ThinkParityTransaction(TransactionType.NEVER)
 	public void removeListener(final DocumentListener listener);
-
-	/**
-     * Rename a document.
-     * 
-     * @param documentId
-     *            A document id.
-     * @param documentName
-     *            A document name.
-     * @throws CannotLockException
-     *             if the document cannot be locked
-     */
-    public void rename(final Long documentId, final String documentName)
-            throws CannotLockException;
 
     /**
      * Update the draft of a document.

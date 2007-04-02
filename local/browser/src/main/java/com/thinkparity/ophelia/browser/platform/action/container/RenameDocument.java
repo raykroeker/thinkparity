@@ -5,13 +5,15 @@
 package com.thinkparity.ophelia.browser.platform.action.container;
 
 
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
+
+import com.thinkparity.ophelia.model.document.CannotLockException;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.document.CannotLockException;
 
 /**
  * RenameDocument is run when the user rename's an artifact.
@@ -29,6 +31,12 @@ public class RenameDocument extends AbstractBrowserAction {
      * input data.
      */
     private Document document;
+
+    /**
+     * The <code>container</code>. Used by invoke and reinvoke to maintain
+     * the input data.
+     */
+    private Container container;
 
 	/**
      * The new document name <code>String</code>. Used by invoke and reinvoke
@@ -55,12 +63,13 @@ public class RenameDocument extends AbstractBrowserAction {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
         final String documentName = (String) data.get(DataKey.DOCUMENT_NAME);
-        final Document document = getDocumentModel().get(documentId);
+        final Container container = getContainerModel().read(containerId);
+        final Document document = getDocumentModel().read(documentId);
 
         if (null == documentName) {
             browser.displayRenameDocumentDialog(containerId, documentId, document.getName());
         } else {
-            invoke(document, documentName);
+            invoke(container, document, documentName);
         }
 	}
 
@@ -70,7 +79,7 @@ public class RenameDocument extends AbstractBrowserAction {
      */
     @Override
     public void retryInvokeAction() {
-        invoke(document, renameTo);
+        invoke(container, document, renameTo);
     }
 
     /**
@@ -81,11 +90,14 @@ public class RenameDocument extends AbstractBrowserAction {
      * @param renameTo
      *            A new name <code>String</code>.
      */
-    private void invoke(final Document document, final String renameTo) {
+    private void invoke(final Container container, final Document document,
+            final String renameTo) {
         this.document = document;
+        this.container = container;
         this.renameTo = renameTo;
         try {
-            getDocumentModel().rename(document.getId(), renameTo);
+            getContainerModel().renameDocument(container.getId(),
+                    document.getId(), renameTo);
             browser.fireDocumentUpdated(document.getId(), Boolean.FALSE);
         } catch (final CannotLockException clx) {
             browser.retry(this, document.getName(), renameTo);

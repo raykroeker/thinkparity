@@ -195,7 +195,7 @@ public interface InternalDocumentModel extends DocumentModel {
     public DocumentDraft readDraft(final DocumentFileLock lock,
             final Long documentId);
 
-	/**
+    /**
      * Obtain the document draft.
      * 
      * @param documentId
@@ -204,7 +204,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public DocumentDraft readDraft(final Long documentId);
 
-    /**
+	/**
      * Read a list of document versions.
      * 
      * @param documentId
@@ -223,7 +223,7 @@ public interface InternalDocumentModel extends DocumentModel {
     public List<DocumentVersion> readVersions(final Long documentId,
             final Comparator<? super ArtifactVersion> comparator);
 
-	/**
+    /**
      * Read the version size.
      * 
      * @param documentId
@@ -234,7 +234,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public Long readVersionSize(final Long documentId, final Long versionId);
 
-    /**
+	/**
      * Remove a document.
      * 
      * @param lock
@@ -243,6 +243,19 @@ public interface InternalDocumentModel extends DocumentModel {
      *            A document id <code>Long</code>.
      */
     public void remove(final DocumentFileLock lock, final Long documentId);
+
+    /**
+     * Rename a document.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param documentName
+     *            A document name.
+     * @throws CannotLockException
+     *             if the document cannot be locked
+     */
+    public void rename(final Long documentId, final String documentName)
+            throws CannotLockException;
 
     /**
      * Revert the document draft to its previous state.

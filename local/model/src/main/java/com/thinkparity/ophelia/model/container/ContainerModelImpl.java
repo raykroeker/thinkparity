@@ -1994,6 +1994,8 @@ public final class ContainerModelImpl extends
             } finally {
                 releaseLock(lock);
             }
+            // create draft document
+            createDraftDocument(containerId, documentId);
             // fire event
             final Container postRevertContainer = read(containerId);        
             final ContainerDraft postRevertDraft = readDraft(containerId);

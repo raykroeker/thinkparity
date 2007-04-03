@@ -132,7 +132,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
      * @see com.thinkparity.ophelia.model.Model#isOnline()
      *
      */
-    @Override
     public Boolean isOnline() {
         return getSessionModel().isOnline() && isBackupOnline();
     }

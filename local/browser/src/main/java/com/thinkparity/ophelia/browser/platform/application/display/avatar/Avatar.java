@@ -9,6 +9,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -438,7 +439,18 @@ public abstract class Avatar extends AbstractJPanel {
     protected String getString(final String localKey) {
     	return localization.getString(localKey);
     }
-    
+
+    /**
+     * Open a localized resource.
+     * 
+     * @param name
+     *            The resource name.
+     * @return An <code>InputStream</code>.
+     */
+    protected final InputStream openResource(final String name) {
+        return localization.openResource(name);
+    }
+
     /**
      * @see JPanelLocalization#getString(String, Object[])
      * 

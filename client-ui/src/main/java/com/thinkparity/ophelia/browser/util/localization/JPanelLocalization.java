@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.util.localization;
 
+import java.io.InputStream;
 import java.util.ResourceBundle;
 
 
@@ -72,6 +73,17 @@ public class JPanelLocalization {
 	public String getString(final String localKey) {
 		return bundleHelper.getString(localKey);
 	}
+
+    /**
+     * Open a localized resource.
+     * 
+     * @param name
+     *            The resource name <code>String</code>.
+     * @return An <code>InputStream</code>.
+     */
+    public final InputStream openResource(final String name) {
+        return ResourceBundleManager.openResource(name);
+    }
 
 	/**
 	 * Obtain the widget text for a named widget.

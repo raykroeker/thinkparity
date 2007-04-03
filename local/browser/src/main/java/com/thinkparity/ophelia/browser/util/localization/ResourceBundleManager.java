@@ -3,8 +3,13 @@
  */
 package com.thinkparity.ophelia.browser.util.localization;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
+
+import com.thinkparity.codebase.ResourceUtil;
 
 /**
  * ResourceBundleManager
@@ -29,22 +34,69 @@ public class ResourceBundleManager {
 		return SINGLETON.doGetBundle(bundleType);
 	}
 
+    /**
+     * Open a localized resource.
+     * 
+     * @param bundleType
+     *            A <code>ResourceBundleType</code>.
+     * @return An <code>InputStream</code>.
+     * @throws IOException
+     *             if an io exception occurs while opening the resource
+     */
+    public static InputStream openResource(final String name) {
+        return SINGLETON.doOpenResource(name);
+    }
+
 	/**
 	 * Create a ResourceBundleManager [Singleton]
 	 * 
 	 */
 	private ResourceBundleManager() { super(); }
 
-	/**
-	 * Obtain a resource bundle for a given resource bundle type.
-	 * 
-	 * @param bundleType
-	 *            The type of bundle to obtain.
-	 * @return The resource bundle.
-	 */
-	private ResourceBundle doGetBundle(final ResourceBundleType bundleType) {
-		return ResourceBundle.getBundle(getBaseName(bundleType), getLocale());
-	}
+    /**
+     * Obtain a resource bundle for a given resource bundle type.
+     * 
+     * @param bundleType
+     *            The type of bundle to obtain.
+     * @return The resource bundle.
+     */
+    private ResourceBundle doGetBundle(final ResourceBundleType bundleType) {
+        return ResourceBundle.getBundle(getBaseName(bundleType), getLocale());
+    }
+
+    /**
+     * Obtain a resource bundle for a given resource bundle type.
+     * 
+     * @param bundleType
+     *            The type of bundle to obtain.
+     * @return The resource bundle.
+     */
+    private InputStream doOpenResource(final String name) {
+        final StringBuilder baseName = new StringBuilder("localization")
+            .append("/").append(name);
+        final Locale locale = getLocale();
+        URL resourceURL = ResourceUtil.getURL(new StringBuilder(baseName.toString())
+                .append("_").append(locale.getLanguage())
+                .append("_").append(locale.getCountry())
+                .append("_").append(locale.getVariant()).toString());
+        if (null == resourceURL) {
+            resourceURL = ResourceUtil.getURL(new StringBuilder(baseName.toString())
+                .append("_").append(locale.getLanguage())
+                .append("_").append(locale.getCountry()).toString());
+        }
+        if (null == resourceURL) {
+            resourceURL = ResourceUtil.getURL(new StringBuilder(baseName.toString())
+                .append("_").append(locale.getLanguage()).toString());
+        }
+        if (null == resourceURL) {
+            resourceURL = ResourceUtil.getURL(baseName.toString());
+        }
+        try {
+            return resourceURL.openStream();
+        } catch (final IOException iox) {
+            return null;
+        }
+    }
 
 	/**
 	 * Build the base NAME for the given resource bundle type.

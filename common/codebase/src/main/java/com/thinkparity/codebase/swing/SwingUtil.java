@@ -5,6 +5,10 @@ package com.thinkparity.codebase.swing;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.MessageFormat;
 
 import javax.swing.JCheckBox;
@@ -14,7 +18,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 /**
  * @author raymond@thinkparity.com
@@ -22,13 +28,13 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public class SwingUtil {
 
-	/** An array of the screen devices. */
+    /** An array of the screen devices. */
     private static GraphicsDevice[] screenDevices;
 
 	/** A singleton instance. */
 	private static final SwingUtil SINGLETON;
 
-    static { SINGLETON = new SwingUtil(); }
+	static { SINGLETON = new SwingUtil(); }
 
     public static BufferedImage createImage(final int width, final int height) {
         initScreenDevices();
@@ -48,20 +54,6 @@ public class SwingUtil {
         } else {
             SwingUtilities.invokeLater(runnable);
         }
-    }
-
-    /**
-     * Get the string width in the context of Graphics.
-     * 
-     * @param text
-     *            The text <code>String</code>.
-     * @param g
-     *            The <code>Graphics</code>.
-     * @return The width <code>int</code>.
-     */
-    public static int getStringWidth(final String text, final Graphics g) {
-        final FontMetrics fontMetrics = g.getFontMetrics();
-        return fontMetrics.stringWidth(text);
     }
 
     /**
@@ -131,6 +123,33 @@ public class SwingUtil {
     public static Rectangle getPrimaryDesktopBounds() {
         return GraphicsEnvironment.getLocalGraphicsEnvironment()
                 .getMaximumWindowBounds();
+    }
+
+    /**
+     * Get the string width in the context of Graphics.
+     * 
+     * @param text
+     *            The text <code>String</code>.
+     * @param g
+     *            The <code>Graphics</code>.
+     * @return The width <code>int</code>.
+     */
+    public static int getStringWidth(final String text, final Graphics g) {
+        final FontMetrics fontMetrics = g.getFontMetrics();
+        return fontMetrics.stringWidth(text);
+    }
+
+    /**
+     * Insert the content of a stream into a text area.
+     * 
+     * @param jTextArea
+     *            A <code>JTextArea</code>.
+     * @param stream
+     *            An <code>InputStream</code>.
+     */
+    public static void insert(final JTextArea jTextArea,
+            final InputStream stream) {
+        SINGLETON.doInsert(jTextArea, stream);
     }
 
     public static void insertWrappable(final JLabel jLabel, final String text) {
@@ -333,6 +352,29 @@ public class SwingUtil {
             }
         }
 	}
+
+    /**
+     * Insert the stream into the text area using the buffer.
+     * 
+     * @param jTextArea
+     *            A <code>JTextArea</code>.
+     * @param stream
+     *            An <code>InputStream</code>.
+     */
+    private void doInsert(final JTextArea jTextArea, final InputStream stream) {
+        try {
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            for (String line = reader.readLine(); line != null;
+                    line = reader.readLine()) {
+                jTextArea.insert(line, jTextArea.getDocument().getLength());
+                jTextArea.insert(Separator.SystemNewLine.toString(),
+                        jTextArea.getDocument().getLength());
+            }
+        } catch (final IOException iox) {
+            new Log4JWrapper().logError(iox, "Could not load text-area {0}.",
+                    jTextArea.getName());
+        }
+    }
 
     private void doInsertWrappable(final JLabel jLabel, final String text) {
         jLabel.setText(MessageFormat.format("<html>{0}</html>", text));

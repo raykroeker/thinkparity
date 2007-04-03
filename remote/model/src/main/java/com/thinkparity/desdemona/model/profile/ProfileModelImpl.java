@@ -176,8 +176,14 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             reservation.setExpiresOn(expiresOn);
             reservation.setToken(newToken());
             reservation.setUsername(username);
-            userSql.createReservation(reservation);
-            return reservation;
+            try {
+                userSql.createReservation(reservation);
+                return reservation;
+            } catch (final Throwable t) {
+                /* NOTE probably not the best way to indicate that a reservation
+                 * cannot be made */
+                return null;
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }

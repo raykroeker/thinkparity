@@ -39,7 +39,7 @@ class DeployTask {
         def configuration = new ConfigurationHelper(properties:properties).extract()
 
         def sessionHelper = new SessionHelper(configuration:configuration)
-        if (!sessionHelper.isLoggedIn())
+        if (!sessionHelper.isOnline())
             sessionHelper.login()
         try {
             def product = new ProductBuilder(configuration:configuration).create()

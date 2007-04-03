@@ -49,9 +49,9 @@ class SessionHelper {
      *
      * @return True if the session is established.
      */
-    Boolean isLoggedIn() {
+    Boolean isOnline() {
         init()
-        return xmppSession.isLoggedIn()
+        return xmppSession.isOnline()
     }
 
     /**

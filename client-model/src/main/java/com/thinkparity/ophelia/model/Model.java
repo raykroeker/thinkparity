@@ -87,6 +87,9 @@ public abstract class Model<T extends EventListener> extends
     /** An instance of <code>ArtifactUtil<code>. */
     protected static final ArtifactUtil ARTIFACT_UTIL;
 
+    /** A set of user utilitiy methods. */
+    protected static final UserUtils USER_UTILS;
+
     /**
 	 * Assertion message to be displayed if the username is not set in the
 	 * parity preferences.
@@ -94,9 +97,6 @@ public abstract class Model<T extends EventListener> extends
 	private static final String ASSERT_IS_SET_USERNAME = new StringBuffer()
 		.append("Before you can create the first parity artifact; you will ")
 		.append("need to establish a parity session.").toString();
-
-    /** A set of user utilitiy methods. */
-    private static final UserUtils USER_UTILS;
 
     static {
         ARTIFACT_UTIL = ArtifactUtil.getInstance();

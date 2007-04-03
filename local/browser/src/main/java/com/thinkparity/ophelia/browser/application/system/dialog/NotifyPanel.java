@@ -309,7 +309,8 @@ public final class NotifyPanel extends SystemPanel {
     }
 
     private boolean isNotification() {
-        return isNextEnabled() || isPreviousEnabled();
+        return notificationIndex >= 0
+                && notificationIndex < NOTIFICATIONS.size();
     }
 
     /**

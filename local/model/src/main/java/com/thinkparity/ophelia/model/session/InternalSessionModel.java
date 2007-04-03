@@ -106,11 +106,10 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void archiveArtifact(final JabberId userId, final UUID uniqueId);
 
-    public void confirmArtifactReceipt(final JabberId userId,
-            final UUID uniqueId, final Long versionId,
-            final JabberId publishedBy, final Calendar publishedOn,
-            final List<JabberId> publishedTo, final JabberId receivedBy,
-            final Calendar receivedOn);
+    public void confirmArtifactReceipt(final UUID uniqueId,
+            final Long versionId, final JabberId publishedBy,
+            final Calendar publishedOn, final List<JabberId> publishedTo,
+            final JabberId receivedBy, final Calendar receivedOn);
 
     /**
      * Send a creation packet to the parity server.

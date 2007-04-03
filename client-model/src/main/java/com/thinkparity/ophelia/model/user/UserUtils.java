@@ -41,6 +41,24 @@ public class UserUtils {
     }
 
     /**
+     * Extract the user's ids into a list.
+     * 
+     * @param <T>
+     *            A user type.
+     * @param users
+     *            A <code>List</code> of <code>T</code>.
+     * @param userIds
+     *            A <code>List</code> to populate.
+     * @return A <code>List</code> of <code>JabberId</code>s.
+     */
+    public <T extends User> List<JabberId> getIds(final List<T> users,
+            final List<JabberId> userIds) {
+        for (final User user : users)
+            userIds.add(user.getId());
+        return userIds;
+    }
+
+    /**
      * Determine if a list contains a user.
      * 
      * @param <U>

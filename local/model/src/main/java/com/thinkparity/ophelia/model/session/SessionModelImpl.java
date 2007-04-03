@@ -192,19 +192,10 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    public void confirmArtifactReceipt(final JabberId userId, final UUID uniqueId,
+    public void confirmArtifactReceipt(final UUID uniqueId,
             final Long versionId, final JabberId publishedBy,
             final Calendar publishedOn, final List<JabberId> publishedTo,
             final JabberId receivedBy, final Calendar receivedOn) {
-	    logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("publishedBy", publishedBy);
-        logger.logVariable("publishedOn", publishedOn);
-        logger.logVariable("publishedTo", publishedTo);
-        logger.logVariable("receivedBy", receivedBy);
-        logger.logVariable("receivedOn", receivedOn);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
     	    synchronized(xmppSession) {

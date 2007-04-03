@@ -778,11 +778,16 @@ public final class ContainerModelImpl extends
             // send confirmation
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar confirmedOn = sessionModel.readDateTime();
-            sessionModel.confirmArtifactReceipt(localUserId(),
-                    container.getUniqueId(), version.getVersionId(),
-                    event.getPublishedBy(), event.getPublishedOn(),
-                    artifactModel.readTeamIds(container.getId()), localUserId(),
-                    confirmedOn);
+            sessionModel.confirmArtifactReceipt(container.getUniqueId(),
+                    version.getVersionId(), event.getPublishedBy(),
+                    event.getPublishedOn(),
+                    /* NOTE this used to read the local team and pass it as a
+                     * parameter; which caused ticket #606
+                     * 
+                     * now the event's published to list is used
+                     */
+                    USER_UTILS.getIds(event.getPublishedTo(), new ArrayList<JabberId>()),
+                    localUserId(), confirmedOn);
             // audit\fire event
             final Container postPublish = read(container.getId());
             final ContainerVersion postPublishVersion = readVersion(

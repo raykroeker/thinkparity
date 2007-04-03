@@ -3,6 +3,8 @@
  */
 package com.thinkparity.codebase.constraint;
 
+import com.thinkparity.codebase.constraint.IllegalValueException.Reason;
+
 /**
  * <b>Title:</b>thinkParity Common Abstract Constraint<br>
  * <b>Description:</b><br>
@@ -69,12 +71,25 @@ public abstract class Constraint<T extends Object> {
     /**
      * Validate the object.
      * 
-     * @param o
-     *            The object to validate.
+     * @param value
+     *            The value to validate.
      */
-    public void validate(final T o) {
+    public void validate(final T value) {
         if (!nullable.booleanValue())
-            if (null == o)
-                throw new IllegalArgumentException();
+            if (null == value)
+                invalidate(Reason.NULL, value);
+    }
+
+    /**
+     * Invalidate the value for the given reason. An illegal value exception is
+     * constructed and thrown.
+     * 
+     * @param reason
+     *            The <code>Reason</code>.
+     * @param value
+     *            The <code>T</code> value.
+     */
+    protected final void invalidate(final Reason reason, final T value) {
+        throw new IllegalValueException(name, value, reason);
     }
 }

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.codebase.constraint;
 
+import com.thinkparity.codebase.constraint.IllegalValueException.Reason;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
 
@@ -28,13 +29,13 @@ public class EMailConstraint extends StringConstraint {
      *
      */
     @Override
-    public void validate(final String o) {
-        super.validate(o);
+    public void validate(final String value) {
+        super.validate(value);
         if (!isNullable().booleanValue()) {
             try {
-                EMailBuilder.parse(o);
+                EMailBuilder.parse(value);
             } catch (final EMailFormatException emfx) {
-                throw new IllegalArgumentException();
+                invalidate(Reason.FORMAT, value);
             }
         }
     }

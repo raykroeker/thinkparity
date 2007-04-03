@@ -5,6 +5,8 @@ package com.thinkparity.codebase.constraint;
 
 import java.util.TimeZone;
 
+import com.thinkparity.codebase.constraint.IllegalValueException.Reason;
+
 /**
  * <b>Title:</b>thinkParity Common TimeZone Constraint<br>
  * <b>Description:</b><br>
@@ -27,12 +29,12 @@ public class TimeZoneConstraint extends Constraint<String> {
      *
      */
     @Override
-    public void validate(final String o) {
-        super.validate(o);
+    public void validate(final String value) {
+        super.validate(value);
         if (!isNullable().booleanValue()) {
-            final TimeZone timeZone = TimeZone.getTimeZone(o);
-            if (!timeZone.getID().equals(o))
-                throw new IllegalArgumentException();
+            final TimeZone timeZone = TimeZone.getTimeZone(value);
+            if (!timeZone.getID().equals(value))
+                invalidate(Reason.FORMAT, value);
         }
     }
 }

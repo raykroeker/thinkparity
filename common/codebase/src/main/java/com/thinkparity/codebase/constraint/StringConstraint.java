@@ -3,6 +3,8 @@
  */
 package com.thinkparity.codebase.constraint;
 
+import com.thinkparity.codebase.constraint.IllegalValueException.Reason;
+
 /**
  * <b>Title:</b>thinkParity Common String Constraint<br>
  * <b>Description:</b><br>
@@ -69,13 +71,13 @@ public class StringConstraint extends Constraint<String> {
      *
      */
     @Override
-    public void validate(final String o) {
-        super.validate(o);
+    public void validate(final String value) {
+        super.validate(value);
         if (!isNullable().booleanValue()) {
-            if (maxLength.intValue() < o.length())
-                throw new IllegalArgumentException();
-            if (minLength.intValue() > o.length())
-                throw new IllegalArgumentException();
+            if (maxLength.intValue() < value.length())
+                invalidate(Reason.TOO_LONG, value);
+            if (minLength.intValue() > value.length())
+                invalidate(Reason.TOO_SHORT, value);
         }
     }
 }

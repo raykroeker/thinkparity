@@ -6,6 +6,7 @@ package com.thinkparity.codebase.constraint;
 import java.util.Locale;
 
 import com.thinkparity.codebase.LocaleUtil;
+import com.thinkparity.codebase.constraint.IllegalValueException.Reason;
 
 /**
  * <b>Title:</b>thinkParity Common Country Constraint<br>
@@ -29,19 +30,19 @@ public class CountryConstraint extends Constraint<String> {
      *
      */
     @Override
-    public void validate(final String o) {
-        super.validate(o);
+    public void validate(final String value) {
+        super.validate(value);
         if (!isNullable().booleanValue()) {
             final Locale[] locales = LocaleUtil.getInstance().getAvailableLocales();
             boolean found = false;
             for (final Locale locale : locales) {
-                if (locale.getISO3Country().equals(o)) {
+                if (locale.getISO3Country().equals(value)) {
                     found = true;
                     break;
                 }
             }
             if (!found)
-                throw new IllegalArgumentException();
+                invalidate(Reason.FORMAT, value);
         }
     }
 }

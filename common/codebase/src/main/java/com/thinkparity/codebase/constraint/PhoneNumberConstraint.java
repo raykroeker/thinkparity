@@ -25,7 +25,7 @@ public class PhoneNumberConstraint extends StringConstraint {
      *
      */
     @Override
-    public void validate(final String o) {
-        super.validate(o);
+    public void validate(final String value) {
+        super.validate(value);
     }
 }

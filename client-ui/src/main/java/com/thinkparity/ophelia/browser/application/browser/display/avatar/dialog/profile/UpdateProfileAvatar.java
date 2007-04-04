@@ -567,7 +567,7 @@ public class UpdateProfileAvatar extends Avatar {
      */
     private Boolean isUnitedStates() {
         if (countryJComboBox.getSelectedIndex() >= 0) {
-            return ((Locale) countryJComboBox.getSelectedItem()).getISO3Country().equals("US");
+            return ((Locale) countryJComboBox.getSelectedItem()).getISO3Country().equals("USA");
         } else {
             return Boolean.FALSE;
         }

@@ -6,10 +6,10 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider.dia
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.contact.ContactModel;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.user.UserModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
@@ -29,17 +29,17 @@ public class UserInfoProvider extends ContentProvider {
     /**
      * Create UserInfoProvider.
      * 
-     * @param profile
-     *            The user's <code>Profile</code>.
+     * @param profileModel
+     *            An instance of <code>ProfileModel</code>.
      * @param userModel
      *            An instance of <code>UserModel</code>.
      * @param contactModel
      *            An instance of <code>ContactModel</code>.
      */
-    public UserInfoProvider(final Profile profile,
+    public UserInfoProvider(final ProfileModel profileModel,
             final UserModel userModel,
             final ContactModel contactModel) {
-        super(profile);
+        super(profileModel);
         this.contactModel = contactModel;
         this.userModel = userModel;
     }
@@ -74,7 +74,7 @@ public class UserInfoProvider extends ContentProvider {
      * @return True if this is the local user; false otherwise.
      */
     public Boolean readIsLocalUser(final User user) {
-        return user.getId().equals(profile.getId());
+        return user.getId().equals(profileModel.read().getId());
     }
 
     /**

@@ -3,7 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider;
 
-import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -14,10 +14,10 @@ public abstract class SingleContentProvider extends ContentProvider {
 	/**
      * Create SingleContentProvider.
      * 
-     * @param profile
-     *            A thinkParity profile.
+     * @param profileModel
+     *            A thinkParity profileModel.
      */
-	protected SingleContentProvider(final Profile profile) { super(profile); }
+	protected SingleContentProvider(final ProfileModel profileModel) { super(profileModel); }
 
 	public abstract Object getElement(final Object input);
 }

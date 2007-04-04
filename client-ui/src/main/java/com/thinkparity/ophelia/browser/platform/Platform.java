@@ -8,6 +8,10 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import com.thinkparity.codebase.email.EMail;
+
+import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
@@ -17,6 +21,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
+import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowRegistry;
@@ -203,6 +208,24 @@ public interface Platform extends ApplicationListener {
 	 *            The application id.
 	 */
 	public void restore(final ApplicationId applicationId);
+
+    /**
+     * Run the create account action.
+     * 
+     * @param listener
+     *            A <code>LifeCycleListener</code>.
+     */
+    public void runCreateAccount(final Reservation reservation,
+            final Credentials credentials, final Profile profile,
+            final EMail email);
+
+    /**
+     * Run the learn more action.
+     * 
+     * @param topic
+     *            The action <code>LearnMore.Topic</code>.
+     */
+    public void runLearnMore(final LearnMore.Topic topic);
 
     /**
      * Run the login action.

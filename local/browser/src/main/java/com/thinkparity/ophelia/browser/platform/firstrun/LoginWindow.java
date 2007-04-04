@@ -36,6 +36,15 @@ public class LoginWindow extends OpheliaJFrame {
     }
 
     /**
+     * Determine if signup was selected.
+     * 
+     * @return true if signup was selected, false otherwise.
+     */
+    public Boolean isSignup() {
+        return loginAvatar.isSignup();
+    }
+
+    /**
      * Initialize the swing components on the window.
      * 
      * @param avatar

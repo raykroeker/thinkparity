@@ -5,8 +5,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.codebase.model.profile.Profile;
-
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
@@ -27,6 +25,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.dial
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.archive.ArchiveTabProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
+import com.thinkparity.ophelia.browser.platform.firstrun.SignupProvider;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
 
 import org.apache.log4j.Logger;
@@ -78,9 +77,6 @@ public class ProviderFactory {
     /** An instance of <code>UserModel</code>. */
     protected final UserModel userModel;
 
-	/** The local user's profile. */
-    private final Profile profile;
-
     /** An instance of <code>ProfileModel</code>. */
     private final ProfileModel profileModel;
 
@@ -101,7 +97,6 @@ public class ProviderFactory {
         this.userModel = modelFactory.getUserModel(getClass());
 
 		this.logger = Logger.getLogger(getClass());
-        this.profile = profileModel.read();
 	}
 
 	/**
@@ -115,37 +110,40 @@ public class ProviderFactory {
         final ContentProvider provider;
         switch(avatarId) {
         case DIALOG_CONTACT_INFO:
-            provider = new UserInfoProvider(profile, userModel, contactModel);
+            provider = new UserInfoProvider(profileModel, userModel, contactModel);
             break;
         case DIALOG_CONTAINER_PUBLISH:
-            provider = new PublishContainerProvider(profile, containerModel, userModel, contactModel);
+            provider = new PublishContainerProvider(profileModel, containerModel, userModel, contactModel);
             break; 
         case DIALOG_CONTAINER_RENAME_DOCUMENT:
-            provider = new RenameDocumentProvider(profile, containerModel);
+            provider = new RenameDocumentProvider(profileModel, containerModel);
             break;     
         case DIALOG_CONTAINER_VERSION_COMMENT:
-            provider = new ContainerVersionProvider(profile, containerModel, userModel);
+            provider = new ContainerVersionProvider(profileModel, containerModel, userModel);
             break;
         case DIALOG_PROFILE_UPDATE:
-            provider = new UpdateProfileProvider(profile, profileModel);
+            provider = new UpdateProfileProvider(profileModel);
             break;
         case MAIN_STATUS:
-            provider = new MainStatusProvider(profile, backupModel, contactModel, containerModel, profileModel, sessionModel);
+            provider = new MainStatusProvider(profileModel, backupModel, contactModel, containerModel, sessionModel);
+            break;
+        case DIALOG_PLATFORM_SIGNUP_ACCOUNT:
+            provider = new SignupProvider(profileModel);
             break;
         case DIALOG_PROFILE_UPDATE_PASSWORD:
-            provider = new UpdatePasswordProvider(profile, profileModel);
+            provider = new UpdatePasswordProvider(profileModel);
             break;
         case DIALOG_PROFILE_VERIFY_EMAIL:
-            provider = new VerifyEMailProvider(profile, profileModel);
+            provider = new VerifyEMailProvider(profileModel);
             break;
         case TAB_ARCHIVE:
-            provider = new ArchiveTabProvider(profile, contactModel, containerModel, documentModel, userModel);
+            provider = new ArchiveTabProvider(profileModel, contactModel, containerModel, documentModel, userModel);
             break;
         case TAB_CONTACT:
-            provider = new ContactProvider(profile, profileModel, contactModel);
+            provider = new ContactProvider(profileModel, contactModel);
             break;
         case TAB_CONTAINER:
-            provider = new ContainerProvider(profile, contactModel, containerModel, documentModel, userModel);
+            provider = new ContainerProvider(profileModel, contactModel, containerModel, documentModel, userModel);
             break;
         default:
             throw Assert.createUnreachable("[UNKNOWN AVATAR ID]");

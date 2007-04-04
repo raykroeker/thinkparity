@@ -4,7 +4,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider;
 
-import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 /**
  * @author rob_masako@shaw.ca - Updated by raymond@thinkparity.com
@@ -15,10 +15,10 @@ public abstract class FlatSingleContentProvider extends ContentProvider {
     /**
      * Create a FlatSingleContentProvider.
      * 
-     * @param profile
-     *            A thinkParity profile.
+     * @param profileModel
+     *            A thinkParity profileModel.
      */
-    protected FlatSingleContentProvider(final Profile profile) { super(profile); }
+    protected FlatSingleContentProvider(final ProfileModel profileModel) { super(profileModel); }
 
     /**
      * Obtain a single element.

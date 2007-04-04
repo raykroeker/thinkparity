@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider.dia
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
@@ -20,20 +19,14 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.Comp
  */
 public class UpdatePasswordProvider extends CompositeSingleContentProvider {
 
-    /** A profile model interface. */
-    private final ProfileModel profileModel;
-
     /**
      * Create UpdatePasswordProvider.
      * 
-     * @param profile
-     *            The local user profile.
      * @param profileModel
      *            A profile model interface.
      */
-    public UpdatePasswordProvider(final Profile profile, final ProfileModel profileModel) {
-        super(profile);
-        this.profileModel = profileModel;
+    public UpdatePasswordProvider(final ProfileModel profileModel) {
+        super(profileModel);
     }
 
     /**
@@ -52,7 +45,7 @@ public class UpdatePasswordProvider extends CompositeSingleContentProvider {
      * @return A username <code>String</code>.
      */
     public String getSimpleUsername() {
-        return profile.getSimpleUsername();
+        return profileModel.read().getSimpleUsername();
     }
 
     /**

@@ -6,13 +6,15 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider.dia
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.browser.application.browser.display.provider.SingleContentProvider;
 import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.user.UserModel;
+
+import com.thinkparity.ophelia.browser.application.browser.display.provider.SingleContentProvider;
 
 /**
  * @author rob_masako@shaw.ca
@@ -27,9 +29,9 @@ public class ContainerVersionProvider extends SingleContentProvider {
     private final UserModel userModel;
     
     /** Create ContainerVersionProvider. */
-    public ContainerVersionProvider(final Profile profile,
+    public ContainerVersionProvider(final ProfileModel profileModel,
             final ContainerModel containerModel, UserModel userModel) {
-        super(profile);
+        super(profileModel);
         this.containerModel = containerModel;
         this.userModel = userModel;
     }

@@ -8,11 +8,13 @@ import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
-import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
+
+import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 
 /**
  * @author rob_masako@shaw.ca
@@ -20,20 +22,14 @@ import com.thinkparity.ophelia.model.profile.ProfileModel;
  */
 public class UpdateProfileProvider extends CompositeFlatSingleContentProvider {
 
-    /** A profile model interface. */
-    private final ProfileModel profileModel;
-
     /**
      * Create UpdateProfileProvider.
      * 
-     * @param profile
-     *            The local user profile.
      * @param profileModel
      *            A profile model interface.
      */
-    public UpdateProfileProvider(final Profile profile, final ProfileModel profileModel) {
-        super(profile);
-        this.profileModel = profileModel;
+    public UpdateProfileProvider(final ProfileModel profileModel) {
+        super(profileModel);
     }
 
     @Override

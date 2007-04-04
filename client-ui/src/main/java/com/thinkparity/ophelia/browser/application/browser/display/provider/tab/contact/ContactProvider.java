@@ -32,14 +32,9 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
     /** A thinkParity <code>ContactModel</code>. */
     private final ContactModel contactModel;
 
-    /** A thinkParity <code>ProfileModel</code>. */
-    private final ProfileModel profileModel;
-
     /**
      * Create ContactProvider.
      * 
-     * @param profile
-     *            A thinkParity user's profile.
      * @param profileModel
      *            A thinkParity profile interface.
      * @param contactModel
@@ -47,11 +42,10 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
      * @param userModel
      *            A thinkParity user interface.
      */
-	public ContactProvider(final Profile profile, final ProfileModel profileModel,
+	public ContactProvider(final ProfileModel profileModel,
             final ContactModel contactModel) {
-		super(profile);
+		super(profileModel);
         this.contactModel = contactModel;
-        this.profileModel = profileModel;
 	}
 
     @Override

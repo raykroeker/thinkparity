@@ -10,15 +10,16 @@ import java.util.List;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.user.UserModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
+
+import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Publish Container Provider<br>
@@ -44,8 +45,8 @@ public class PublishContainerProvider extends ContentProvider {
     /**
      * Create PublishContainerProvider.
      * 
-     * @param profile
-     *            The user's <code>Profile</code>.
+     * @param profileModel
+     *            An instance of <code>ProfileModel</code>.
      * @param containerModel
      *            An instance of <code>ContainerModel</code>.
      * @param userModel
@@ -53,10 +54,10 @@ public class PublishContainerProvider extends ContentProvider {
      * @param contactModel
      *            An instance of <code>ContactModel</code>.
      */
-    public PublishContainerProvider(final Profile profile,
+    public PublishContainerProvider(final ProfileModel profileModel,
             final ContainerModel containerModel, final UserModel userModel,
             final ContactModel contactModel) {
-        super(profile);
+        super(profileModel);
         this.containerModel = containerModel;
         this.contactModel = contactModel;
         this.userModel = userModel;

@@ -20,15 +20,18 @@ public final class BrowserConstants {
 
         /** The colour of the separator for the cells in the main list. */
         public static final Color MAIN_CELL_DEFAULT_BORDER = new Color(207, 207, 207, 255);
-        
+
         /** The colour of the separator for the child cells in the main list. */
         public static final Color MAIN_CELL_DEFAULT_BORDER_CHILD = Color.WHITE;
 
         /** The colour used as a separator between groups. */
         public static final Color MAIN_CELL_DEFAULT_BORDER_GROUP = new Color(207, 207, 207, 255);
-        
+
         /** The error text colour. */
         public static final Color DIALOG_ERROR_TEXT_FG = new Color(255, 0, 0, 255);
+
+        /** The standard text colour. */
+        public static final Color DIALOG_TEXT_FG = Color.BLACK;
     }
 
     /** Browser Fonts */

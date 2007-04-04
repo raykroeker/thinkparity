@@ -3,7 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider;
 
-import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -14,11 +14,11 @@ public abstract class FlatContentProvider extends ContentProvider {
 	/**
      * Create FlatContentProvider.
      * 
-     * @param profile
-     *            A thinkParity profile.
+     * @param profileModel
+     *            A thinkParity profileModel.
      */
-	protected FlatContentProvider(final Profile profile) {
-        super(profile);
+	protected FlatContentProvider(final ProfileModel profileModel) {
+        super(profileModel);
 	}
 
 	/**

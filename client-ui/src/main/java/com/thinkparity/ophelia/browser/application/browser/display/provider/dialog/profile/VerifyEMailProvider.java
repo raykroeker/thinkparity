@@ -4,11 +4,10 @@
 package com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.model.profile.Profile;
 
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.provider.SingleContentProvider;
-import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 /**
  * @author raymond@thinkparity.com
@@ -22,14 +21,12 @@ public class VerifyEMailProvider extends SingleContentProvider {
     /**
      * Create VerifyEMailProvider.
      * 
-     * @param profile
-     *            The user's profile.
      * @param profileModel
      *            A thinkParity profile interface.
      */
-    public VerifyEMailProvider(final Profile profile, final ProfileModel profileModel) {
-        super(profile);
-        this.singleProvider = new SingleContentProvider(profile) {
+    public VerifyEMailProvider(final ProfileModel profileModel) {
+        super(profileModel);
+        this.singleProvider = new SingleContentProvider(profileModel) {
             @Override
             public Object getElement(final Object input) {
                 Assert.assertNotNull("NULL INPUT", input);

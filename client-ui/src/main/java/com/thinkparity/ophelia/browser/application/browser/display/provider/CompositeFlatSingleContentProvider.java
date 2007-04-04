@@ -3,7 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider;
 
-import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 /**
  * Provides multiple flat lists.
@@ -12,15 +12,15 @@ import com.thinkparity.codebase.model.profile.Profile;
  * @version 1.1
  */
 public abstract class CompositeFlatSingleContentProvider extends ContentProvider {
-    
+
 	/**
      * Create CompositeFlatSingleContentProvider.
      * 
-     * @param profile
-     *            A thinkParity profile.
+     * @param profileModel
+     *            A thinkParity profileModel.
      */
-    public CompositeFlatSingleContentProvider(final Profile profile) {
-        super(profile);
+    public CompositeFlatSingleContentProvider(final ProfileModel profileModel) {
+        super(profileModel);
     }
 
     public abstract Object getElement(final Integer index, final Object input);

@@ -39,37 +39,31 @@ public final class MainStatusProvider extends ContentProvider {
     /** An instance of <code>ContainerModel</code>. */
     private final ContainerModel containerModel;
 
-    /** An instance of <code>ProfileModel</code>. */
-    private final ProfileModel profileModel;
-
     /** An instance of <code>SessionModel</code>. */
     private final SessionModel sessionModel;
 
     /**
      * Create MainStatusProvider.
      * 
-     * @param profile
-     *            The user's <code>Profile</code>.
+     * @param profileModel
+     *            An instance of <code>ProfileModel</code>.
      * @param backupModel
      *            An instance of <code>BackupModel</code>.
      * @param contactModel
      *            An instance of <code>ContactModel</code>.
      * @param containerModel
      *            An instance of <code>ContainerModel</code>.
-     * @param profileModel
-     *            An instance of <code>ProfileModel</code>.
      * @param sessionModel
      *            An instance of <code>SessionModel</code>.
      */
-    public MainStatusProvider(final Profile profile,
+    public MainStatusProvider(final ProfileModel profileModel,
             final BackupModel backupModel, final ContactModel contactModel,
             final ContainerModel containerModel,
-            final ProfileModel profileModel, final SessionModel sessionModel) {
-        super(profile);
+            final SessionModel sessionModel) {
+        super(profileModel);
         this.backupModel = backupModel;
         this.contactModel = contactModel;
         this.containerModel = containerModel;
-        this.profileModel = profileModel;
         this.sessionModel = sessionModel;
     }
 

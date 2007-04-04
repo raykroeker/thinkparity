@@ -30,6 +30,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerDraftListener;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.user.UserModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
@@ -67,8 +68,8 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     /**
      * Create ContainerProvider.
      * 
-     * @param profile
-     *            The local user profile.
+     * @param profileModel
+     *            An instance of <code>ProfileModel</code>.
      * @param containerModel
      *            An instance of <code>ContainerModel</code>.
      * @param documentModel
@@ -76,7 +77,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
      * @param userModel
      *            An instance of <code>UserModel</code>.
      */
-    public ContainerProvider(final Profile profile,
+    public ContainerProvider(final ProfileModel profileModel,
             final ContactModel contactModel,
             final ContainerModel containerModel,
             final DocumentModel documentModel, final UserModel userModel) {
@@ -84,26 +85,26 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             public Boolean doFilter(final Artifact o) {
                 return o.isArchived();
             }
-        }, profile, contactModel, containerModel, documentModel, userModel);
+        }, profileModel, contactModel, containerModel, documentModel, userModel);
     }
 
     /**
      * Create ContainerProvider.
      * 
-     * @param profile
-     *            The local user profile.
+     * @param profileModel
+     *            An instance of <code>ProfileModel</code>.
      * @param containerModel
-     *            A thinkParity container interface.
+     *            An instance of <code>ContainerModel</code>.
      * @param documentModel
-     *            A thinkParity document interface.
+     *            An instance of <code>DocumentModel</code>.
      * @param userModel
-     *            A thinkParity user interface.
+     *            An instance of <code>UserModel</code>.
      */
     protected ContainerProvider(final Filter<? super Artifact> filter,
-            final Profile profile, final ContactModel contactModel,
+            final ProfileModel profileModel, final ContactModel contactModel,
             final ContainerModel containerModel,
             final DocumentModel documentModel, final UserModel userModel) {
-        super(profile);
+        super(profileModel);
         this.filter = filter;
         this.contactModel = contactModel;
         this.containerModel = containerModel;
@@ -298,7 +299,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
      * @return A <code>Profile</code>.  
      */
     public Profile readProfile() {
-        return profile;
+        return profileModel.read();
     }
 
     /**

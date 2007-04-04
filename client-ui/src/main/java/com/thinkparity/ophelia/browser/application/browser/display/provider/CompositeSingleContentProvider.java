@@ -3,7 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider;
 
-import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 /**
  * Provides multiple objects.
@@ -16,11 +16,11 @@ public abstract class CompositeSingleContentProvider extends ContentProvider {
     /**
      * Create CompositeSingleContentProvider.
      * 
-     * @param profile
-     *            A thinkParity profile.
+     * @param profileModel
+     *            A thinkParity profileModel.
      */
-    public CompositeSingleContentProvider(final Profile profile) {
-        super(profile);
+    public CompositeSingleContentProvider(final ProfileModel profileModel) {
+        super(profileModel);
     }
 
     public abstract Object getElement(final Integer index, final Object input);

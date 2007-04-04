@@ -3,9 +3,9 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider;
 
-import org.apache.log4j.Logger;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 
-import com.thinkparity.codebase.model.profile.Profile;
+import org.apache.log4j.Logger;
 
 
 /**
@@ -18,17 +18,17 @@ public abstract class ContentProvider {
     protected final Logger logger;
 
     /** A thinkParity profile. */
-    protected final Profile profile;
+    protected final ProfileModel profileModel;
 
     /**
      * Create a ContentProvider.
      * 
-     * @param profile
-     *            A thinkParity profile.
+     * @param profileModel
+     *            A thinkParity profileModel.
      */
-	protected ContentProvider(final Profile profile) {
+	protected ContentProvider(final ProfileModel profileModel) {
         super();
         this.logger = Logger.getLogger(getClass());
-        this.profile = profile;
+        this.profileModel = profileModel;
     }
 }

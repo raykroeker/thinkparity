@@ -52,6 +52,9 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     /** The password. */
     private String password;
 
+    /** Signup flag. */
+    private Boolean signup;
+
     /**
      * Create LoginAvatar.
      *
@@ -128,6 +131,15 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         progressBarJPanel.setVisible(true);
         buttonBarJPanel.setVisible(false);
         validate();
+    }
+
+    /**
+     * Determine if signup was selected.
+     * 
+     * @return true if signup was selected, false otherwise.
+     */
+    public Boolean isSignup() {
+        return signup;
     }
 
     /**
@@ -212,6 +224,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
 
     private void cancelJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_cancelJButtonActionPerformed
         password = username = null;
+        signup = Boolean.FALSE;
         disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
 
@@ -267,11 +280,10 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         errorMessageJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.ErrorBadCredentials"));
         errorMessageJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        nextJButton.setFont(Fonts.DialogButtonFont);
-        nextJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.LoginButton"));
-        nextJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nextJButtonActionPerformed(evt);
+        signUpJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.SignUp"));
+        signUpJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                signUpJLabelMousePressed(evt);
             }
         });
 
@@ -279,6 +291,14 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         forgotPasswordJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 forgotPasswordJLabelMousePressed(evt);
+            }
+        });
+
+        nextJButton.setFont(Fonts.DialogButtonFont);
+        nextJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.LoginButton"));
+        nextJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nextJButtonActionPerformed(evt);
             }
         });
 
@@ -298,8 +318,10 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
                 .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(org.jdesktop.layout.GroupLayout.LEADING, errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
                     .add(buttonBarJPanelLayout.createSequentialGroup()
-                        .add(forgotPasswordJLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 138, Short.MAX_VALUE)
+                        .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(forgotPasswordJLabel)
+                            .add(signUpJLabel))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 28, Short.MAX_VALUE)
                         .add(nextJButton)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(cancelJButton))
@@ -309,13 +331,17 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
 
         buttonBarJPanelLayout.setVerticalGroup(
             buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonBarJPanelLayout.createSequentialGroup()
-                .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(cancelJButton)
-                    .add(nextJButton)
-                    .add(forgotPasswordJLabel))
+            .add(buttonBarJPanelLayout.createSequentialGroup()
+                .add(errorMessageJLabel)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(cancelJButton)
+                        .add(nextJButton))
+                    .add(buttonBarJPanelLayout.createSequentialGroup()
+                        .add(signUpJLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(forgotPasswordJLabel)))
                 .addContainerGap())
         );
 
@@ -359,11 +385,11 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
                     .add(layout.createSequentialGroup()
                         .add(usernameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 103, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(usernameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 253, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(usernameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE))
                     .add(layout.createSequentialGroup()
                         .add(passwordJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 103, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(passwordJPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(passwordJPasswordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -373,8 +399,8 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
 
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap(21, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(28, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(usernameJLabel)
                     .add(usernameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -382,7 +408,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(passwordJLabel)
                     .add(passwordJPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(18, 18, 18)
+                .add(21, 21, 21)
                 .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -421,6 +447,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
             // In that event reload() will be called so the user can have another go.
             username = extractUsername();
             password = extractPassword();
+            signup = Boolean.FALSE;
             nextJButton.setEnabled(false);
             login();
         }
@@ -452,7 +479,13 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         usernameJTextField.setText(username);
     }
 
+    private void signUpJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_signUpJLabelMousePressed
+        password = username = null;
+        signup = Boolean.TRUE;
+        disposeWindow();
+    }//GEN-LAST:event_signUpJLabelMousePressed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+
     private final javax.swing.JPanel buttonBarJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel forgotPasswordJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
@@ -460,6 +493,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     private final javax.swing.JButton nextJButton = ButtonFactory.create();
     private final javax.swing.JPasswordField passwordJPasswordField = TextFactory.createPassword();
     private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel signUpJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JLabel stepJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField usernameJTextField = TextFactory.create();
     // End of variables declaration//GEN-END:variables

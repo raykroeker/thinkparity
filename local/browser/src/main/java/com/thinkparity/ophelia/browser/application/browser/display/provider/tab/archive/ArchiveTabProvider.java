@@ -6,11 +6,11 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider.tab
 import com.thinkparity.codebase.filter.Filter;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
-import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.user.UserModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
@@ -29,8 +29,8 @@ public class ArchiveTabProvider extends ContainerProvider {
     /**
      * Create ArchiveTabProvider.
      * 
-     * @param profile
-     *            The local user profile.
+     * @param profileModel
+     *            An instance of <code>ProfileModel</code>.
      * @param containerModel
      *            An instance of <code>ContainerModel</code>.
      * @param documentModel
@@ -38,7 +38,7 @@ public class ArchiveTabProvider extends ContainerProvider {
      * @param userModel
      *            An instance of <code>UserModel</code>.
      */
-    public ArchiveTabProvider(final Profile profile,
+    public ArchiveTabProvider(final ProfileModel profileModel,
             final ContactModel contactModel,
             final ContainerModel containerModel,
             final DocumentModel documentModel, final UserModel userModel) {
@@ -46,6 +46,6 @@ public class ArchiveTabProvider extends ContainerProvider {
             public Boolean doFilter(final Artifact o) {
                 return Boolean.valueOf(!o.isArchived().booleanValue());
             }
-        }, profile, contactModel, containerModel, documentModel, userModel);
+        }, profileModel, contactModel, containerModel, documentModel, userModel);
     }
 }

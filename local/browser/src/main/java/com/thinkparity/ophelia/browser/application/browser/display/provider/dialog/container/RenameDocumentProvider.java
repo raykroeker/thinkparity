@@ -5,12 +5,14 @@
 package com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.model.document.Document;
-import com.thinkparity.codebase.model.profile.Profile;
 
-import com.thinkparity.ophelia.browser.application.browser.display.provider.FlatContentProvider;
+import com.thinkparity.codebase.model.document.Document;
+
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
+
+import com.thinkparity.ophelia.browser.application.browser.display.provider.FlatContentProvider;
 
 /**
  * @author rob_masako@shaw.ca
@@ -22,9 +24,9 @@ public class RenameDocumentProvider extends FlatContentProvider {
     private final ContainerModel containerModel;
     
     /** Create RenameDocumentProvider. */
-    public RenameDocumentProvider(final Profile profile,
+    public RenameDocumentProvider(final ProfileModel profileModel,
             final ContainerModel containerModel) {
-        super(profile);
+        super(profileModel);
         this.containerModel = containerModel;
     }
 

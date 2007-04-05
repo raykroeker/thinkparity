@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.browser.platform.action;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 
 import javax.swing.Icon;
 
@@ -42,9 +41,6 @@ import com.thinkparity.ophelia.browser.util.localization.ActionLocalization;
  * @version 1.1.2.1
  */
 public abstract class AbstractAction implements ActionInvocation {
-
-    /** The prefix for the thread name */
-    private static final String THREAD_PREFIX = "TPS-OpheliaUI-Action-";
 
 	/** Action localization. */
 	protected final ActionLocalization localization;
@@ -164,13 +160,7 @@ public abstract class AbstractAction implements ActionInvocation {
      * 
      */
     public void invokeAction(final Data data) {
-        final Thread thread = Executors.defaultThreadFactory().newThread(new Runnable() {
-            public void run() {
-                invoke(data);
-            }
-        });
-        thread.setName(getThreadName());
-        thread.start();
+        invoke(data);
     }
 
 	/**
@@ -402,18 +392,6 @@ public abstract class AbstractAction implements ActionInvocation {
 	protected String getString(final String localKey, final Object[] arguments) {
 		return localization.getString(localKey, arguments);
 	}
-
-	/**
-     * Obtain the thread name for the action.
-     * 
-     * @return The thread name <code>String</code>.
-     */
-    protected String getThreadName() {
-        final String threadName = new StringBuilder(THREAD_PREFIX)
-            .append(id.name())
-            .toString();
-        return threadName;
-    }
 
     /**
      * Obtain the thinkParity user interface.

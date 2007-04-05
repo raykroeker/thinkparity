@@ -14,34 +14,17 @@ import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 
-import com.thinkparity.desdemona.model.AbstractModel;
-import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.desdemona.model.annotation.ThinkParityAuthenticate;
+import com.thinkparity.desdemona.util.AuthenticationType;
 
 /**
- * @author raykroeker@gmail.com
+ * <b>Title:</b>thinkParity DesdemonaModel Contact Model<br>
+ * <b>Description:</b>A public contact interface.<br>
+ * 
+ * @author raymond@thinkparity.com
  * @version 1.1.2.7
  */
-public class ContactModel extends AbstractModel<ContactModelImpl> {
-
-    /**
-	 * Obtain a handle to the artifact model.
-	 * 
-	 * @return A handle to the artifact model.
-	 */
-	public static ContactModel getModel(final Session session) {
-		final ContactModel contactModel = new ContactModel(session);
-		return contactModel;
-	}
-
-    /**
-     * Create ContactModel.
-     * 
-     * @param session
-     *            The user's session.
-     */
-	private ContactModel(final Session session) {
-		super(new ContactModelImpl(session));
-	}
+public interface ContactModel {
 
     /**
      * Accept the incoming invitation.
@@ -54,11 +37,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            An accceptance timestamp <code>Calendar</code>.
      */
     public void acceptInvitation(final JabberId userId,
-            final IncomingEMailInvitation invitation, final Calendar acceptedOn) {
-		synchronized (getImplLock()) {
-            getImpl().acceptInvitation(userId, invitation, acceptedOn);
-		}
-	}
+            final IncomingEMailInvitation invitation, final Calendar acceptedOn);
 
     /**
      * Accept the incoming invitation.
@@ -71,11 +50,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            An accceptance timestamp <code>Calendar</code>.
      */
     public void acceptInvitation(final JabberId userId,
-            final IncomingUserInvitation invitation, final Calendar acceptedOn) {
-        synchronized (getImplLock()) {
-            getImpl().acceptInvitation(userId, invitation, acceptedOn);
-        }
-    }
+            final IncomingUserInvitation invitation, final Calendar acceptedOn);
 
 	/**
      * Create an e-mail contact invitation.
@@ -85,12 +60,9 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      * @param invitation
      *            An <code>OutgoingEMailInvitation</code>.
      */
+    @ThinkParityAuthenticate(AuthenticationType.USER)
     public void createInvitation(final JabberId userId,
-            final OutgoingEMailInvitation invitation) {
-        synchronized (getImplLock()) {
-            getImpl().createInvitation(userId, invitation);
-        }
-    }
+            final OutgoingEMailInvitation invitation);
 
     /**
      * Create a contact invitation.
@@ -101,11 +73,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            An <code>OutgoingUserInvitation</code>.
      */
     public void createInvitation(final JabberId userId,
-            final OutgoingUserInvitation invitation) {
-        synchronized (getImplLock()) {
-            getImpl().createInvitation(userId, invitation);
-        }
-    }
+            final OutgoingUserInvitation invitation);
 
     /**
      * Decline an e-mail invitation. Delete the invitation and send a
@@ -121,11 +89,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            When the invitation was declined.
      */
     public void declineInvitation(final JabberId userId,
-            final IncomingEMailInvitation invitation, final Calendar declinedOn) {
-        synchronized (getImplLock()) {
-            getImpl().declineInvitation(userId, invitation, declinedOn);
-        }
-    }
+            final IncomingEMailInvitation invitation, final Calendar declinedOn);
 
     /**
      * Decline an e-mail invitation. Delete the invitation and send a
@@ -141,11 +105,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            When the invitation was declined.
      */
     public void declineInvitation(final JabberId userId,
-            final IncomingUserInvitation invitation, final Calendar declinedOn) {
-        synchronized (getImplLock()) {
-            getImpl().declineInvitation(userId, invitation, declinedOn);
-        }
-    }
+            final IncomingUserInvitation invitation, final Calendar declinedOn);
 
     /**
      * Delete a contact for a user.
@@ -155,11 +115,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      * @param contactId
      *            A contact id <code>JabberId</code>.
      */
-    public void delete(final JabberId userId, final JabberId contactId) {
-        synchronized (getImplLock()) {
-            getImpl().delete(userId, contactId);
-        }
-    }
+    public void delete(final JabberId userId, final JabberId contactId);
 
     /**
      * Delete a user's invitation.
@@ -170,11 +126,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            The <code>Email</code> the invitation was created for.
      */
     public void deleteInvitation(final JabberId userId,
-            final OutgoingEMailInvitation invitation, final Calendar deletedOn) {
-        synchronized (getImplLock()) {
-            getImpl().deleteInvitation(userId, invitation, deletedOn);
-        }
-    }
+            final OutgoingEMailInvitation invitation, final Calendar deletedOn);
 
     /**
      * Delete a user's invitation.
@@ -185,12 +137,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            The <code>Email</code> the invitation was created for.
      */
     public void deleteOutgoingUserInvitation(final JabberId userId,
-            final OutgoingUserInvitation invitation, final Calendar deletedOn) {
-        synchronized (getImplLock()) {
-            getImpl().deleteOutgoingUserInvitation(userId, invitation,
-                    deletedOn);
-        }
-    }
+            final OutgoingUserInvitation invitation, final Calendar deletedOn);
 
     /**
      * Read a user's contacts.
@@ -199,11 +146,7 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            A user id <code>JabberId</code>.
      * @return A <code>List&lt;Contact&gt;</code>.
      */
-	public List<Contact> read(final JabberId userId) {
-		synchronized (getImplLock()) {
-            return getImpl().read(userId);
-		}
-	}
+	public List<Contact> read(final JabberId userId);
 
     /**
      * Read a user's contact.
@@ -214,37 +157,17 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *            A contact id <code>JabberId</code>.
      * @return The contact info.
      */
-	public Contact read(final JabberId userId, final JabberId contactId) {
-		synchronized (getImplLock()) {
-            return getImpl().read(userId, contactId);
-		}
-	}
+	public Contact read(final JabberId userId, final JabberId contactId);
 
     public List<IncomingEMailInvitation> readIncomingEMailInvitations(
-            final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readIncomingEMailInvitations(userId);
-        }
-    }
+            final JabberId userId);
 
     public List<IncomingUserInvitation> readIncomingUserInvitations(
-            final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readIncomingUserInvitations(userId);
-        }
-    }
+            final JabberId userId);
 
     public List<OutgoingEMailInvitation> readOutgoingEMailInvitations(
-            final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readOutgoingEMailInvitations(userId);
-        }
-    }
+            final JabberId userId);
 
 	public List<OutgoingUserInvitation> readOutgoingUserInvitations(
-            final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readOutgoingUserInvitations(userId);
-        }
-    }
+            final JabberId userId);
 }

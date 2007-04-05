@@ -45,27 +45,32 @@ public class EMailBuilder {
      * @throws EMailFormatException
      */
 	protected EMail doParse(final String s) throws EMailFormatException {
-		if (null == s) {
-            throw new EMailFormatException("CODEBASE EMAIL IS NULL");
-		}
+		if (null == s)
+            throw new EMailFormatException("EMail is null.");
 		final int indexOfAt = s.indexOf('@');
-		if (-1 == indexOfAt) {
-            throw new EMailFormatException("CODEBASE EMAIL DOES NOT CONTAIN '@'", s);
-		}
+		if (-1 == indexOfAt)
+            throw new EMailFormatException("EMail does not contain '@'", s);
+        if (0 == indexOfAt)
+            throw new EMailFormatException("EMail does not contain username.", s);
+        final int lastIndexOfAt = s.lastIndexOf('@');
+        if (indexOfAt != lastIndexOfAt)
+            throw new EMailFormatException("EMail contains an extra '@'.", s);
 		final int indexOfDot = s.indexOf('.', indexOfAt);
-		if (-1 == indexOfDot) {
-            throw new EMailFormatException("CODEBASE EMAIL DOES NOT CONTAIN '.'", s);
-		}
-        int indexOfWhitespace = s.length() - 1;
-        for (int i = indexOfDot; i < s.length(); i++) {
-            if (Character.isWhitespace(s.charAt(i))) {
-                indexOfWhitespace = i;
-                break;
-            }
-        }
+		if (-1 == indexOfDot)
+            throw new EMailFormatException("EMail does not contain '.'", s);
+        if (s.length() - 1 == indexOfDot)
+            throw new EMailFormatException("EMail does not contain tld.", s);
+        final int lastIndexOfDot = s.lastIndexOf('.');
+        if (indexOfDot != lastIndexOfDot)
+            throw new EMailFormatException("EMail contains an extra '.'", s);
+		final String username = s.substring(0, indexOfAt);
+		final String domain = s.substring(indexOfAt + 1);
+		if (0 == domain.length())
+            throw new EMailFormatException("EMail does not contain domain.", s);
+
 		final EMail email = new EMail();
-        email.setDomain(s.substring(indexOfAt + 1, indexOfWhitespace + 1));
-        email.setUsername(s.substring(0, indexOfAt));
+        email.setDomain(domain);
+        email.setUsername(username);
 		return email;
 	}
 }

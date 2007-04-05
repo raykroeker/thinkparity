@@ -9,6 +9,10 @@ import com.thinkparity.codebase.model.ThinkParityException;
 
 import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.backup.BackupModelImpl;
+import com.thinkparity.desdemona.model.contact.ContactModel;
+import com.thinkparity.desdemona.model.contact.ContactModelImpl;
+import com.thinkparity.desdemona.model.container.ContainerModel;
+import com.thinkparity.desdemona.model.container.ContainerModelImpl;
 import com.thinkparity.desdemona.model.migrator.MigratorModel;
 import com.thinkparity.desdemona.model.migrator.MigratorModelImpl;
 import com.thinkparity.desdemona.model.profile.ProfileModel;
@@ -65,7 +69,6 @@ public final class ModelFactory {
             throw new ThinkParityException("Cannot instantiate model.", x);
         }
     }
-
     /** The proxy <code>ClassLoader</code>. */
     private final ClassLoader classLoader;
 
@@ -90,6 +93,26 @@ public final class ModelFactory {
     public final BackupModel getBackupModel() {
         return (BackupModel) newModelProxy(
                 BackupModel.class, BackupModelImpl.class);
+    }
+
+    /**
+     * Obtain a contact model.
+     * 
+     * @return An instance of <code>ContactModel</code>.
+     */
+    public final ContactModel getContactModel() {
+        return (ContactModel) newModelProxy(
+                ContactModel.class, ContactModelImpl.class);
+    }
+
+    /**
+     * Obtain a container model.
+     * 
+     * @return An instance of <code>ContainerModel</code>.
+     */
+    public final ContainerModel getContainerModel() {
+        return (ContainerModel) newModelProxy(
+                ContainerModel.class, ContainerModelImpl.class);
     }
 
     /**

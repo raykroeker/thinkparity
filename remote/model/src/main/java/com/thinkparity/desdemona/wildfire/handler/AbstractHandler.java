@@ -124,10 +124,10 @@ public abstract class AbstractHandler extends
                         return modelFactory.getBackupModel();
                     }
                     public ContactModel getContactModel() {
-                        return ContactModel.getModel(session);
+                        return modelFactory.getContactModel();
                     }
                     public ContainerModel getContainerModel() {
-                        return ContainerModel.getModel(session);
+                        return modelFactory.getContainerModel();
                     }
                     public MigratorModel getMigratorModel() {
                         return modelFactory.getMigratorModel();

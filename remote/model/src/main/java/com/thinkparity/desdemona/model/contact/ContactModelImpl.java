@@ -3,10 +3,7 @@
  */
 package com.thinkparity.desdemona.model.contact;
 
-import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -14,30 +11,30 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.ContactVCard;
-import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
-import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
-import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
-import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
+import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.contact.*;
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationExtendedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationExtendedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.*;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
+import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
+import com.thinkparity.desdemona.model.backup.InternalBackupModel;
+import com.thinkparity.desdemona.model.contact.invitation.Attachment;
+import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
 import com.thinkparity.desdemona.model.io.sql.InvitationSql;
-import com.thinkparity.desdemona.model.io.sql.UserSql;
+import com.thinkparity.desdemona.model.profile.InternalProfileModel;
 import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.desdemona.model.stream.InternalStreamModel;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
 import com.thinkparity.desdemona.model.user.UserModel;
 import com.thinkparity.desdemona.util.smtp.MessageFactory;
@@ -50,46 +47,30 @@ import com.thinkparity.desdemona.util.smtp.TransportManager;
  * @author raymond@thinkparity.com
  * @version 1.1.2.5
  */
-final class ContactModelImpl extends AbstractModelImpl {
+public final class ContactModelImpl extends AbstractModelImpl implements
+        ContactModel, InternalContactModel {
 
     /** The thinkParity contact io. */
-	private final ContactSql contactSql;
+	private ContactSql contactSql;
 
     /** The thinkParity invitation io. */
-	private final InvitationSql invitationSql;
+	private InvitationSql invitationSql;
 
-    /** The thinkParity user io. */
-    private final UserSql userSql;
-    
     /**
 	 * Create ContactModelImpl.
 	 * 
-     * @param session
-     *            The user's session.
 	 */
-	ContactModelImpl(final Session session) {
-		super(session);
-		this.contactSql = new ContactSql();
-		this.invitationSql = new InvitationSql();
-        this.userSql = new UserSql();
+	public ContactModelImpl() {
+		super();
 	}
 
     /**
-     * Accept the invitation. Create the contact relationships and notify the
-     * invitor.
+     * @see com.thinkparity.desdemona.model.contact.ContactModel#acceptInvitation(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.model.contact.IncomingEMailInvitation,
+     *      java.util.Calendar)
      * 
-     * @param userId
-     *            The user id <code>JabberId</code>.
-     * @param invitedAs
-     *            The original invitation e-mail address.
-     * @param invitedBy
-     *            The invitor.
-     * @param acceptedBy
-     *            The invitee.
-     * @param acceptedOn
-     *            When the acceptance was made.
      */
-	void acceptInvitation(final JabberId userId,
+	public void acceptInvitation(final JabberId userId,
             final IncomingEMailInvitation invitation, final Calendar acceptedOn) {
 		try {
             assertIsAuthenticatedUser(userId);
@@ -97,12 +78,25 @@ final class ContactModelImpl extends AbstractModelImpl {
             final User user = userModel.read(userId);
             final User invitationUser = userModel.read(invitation.getExtendedBy().getId());
 
-            // delete all invitations
-            deleteAllInvitations(userId, user, invitationUser);
-
             // create contact
             contactSql.create(user, invitationUser, user, acceptedOn);
             contactSql.create(invitationUser, user, user, acceptedOn);
+
+            /* check the outgoing e-mail invitation for any attachments, and
+             * send to the invitation user if they exist
+             */
+            final OutgoingEMailInvitation outgoingEMailInvitation =
+                invitationSql.readOutgoingEMail(invitationUser,
+                        invitation.getInvitationEMail());
+            final List<Attachment> attachments = invitationSql.readAttachments(
+                    outgoingEMailInvitation);
+            for (final Attachment attachment : attachments) {
+                invitationSql.deleteAttachment(attachment);
+                send(invitationUser.getId(), userId, invitation, attachment);
+            }
+
+            // delete all invitations
+            deleteAllInvitations(userId, user, invitationUser);
 
             // fire event
             final ContactInvitationAcceptedEvent event = new ContactInvitationAcceptedEvent();
@@ -110,13 +104,19 @@ final class ContactModelImpl extends AbstractModelImpl {
             event.setAcceptedOn(acceptedOn);
             event.setDate(event.getAcceptedOn());
             enqueueEvent(user.getId(), invitationUser.getId(), event);
-		}
+        }
 		catch(final Throwable t) {
             throw translateError(t);
 		}
 	}
 
-    void acceptInvitation(final JabberId userId,
+    /**
+     * @see com.thinkparity.desdemona.model.contact.ContactModel#acceptInvitation(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.model.contact.IncomingUserInvitation,
+     *      java.util.Calendar)
+     * 
+     */
+    public void acceptInvitation(final JabberId userId,
             final IncomingUserInvitation invitation, final Calendar acceptedOn) {
         try {
             assertIsAuthenticatedUser(userId);
@@ -143,19 +143,45 @@ final class ContactModelImpl extends AbstractModelImpl {
         }
     }
 
-    void createInvitation(final JabberId userId,
+    /**
+     * @see com.thinkparity.desdemona.model.contact.InternalContactModel#createInvitation(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.model.contact.IncomingEMailInvitation)
+     * 
+     */
+    public void createInvitation(final JabberId userId,
+            final JabberId invitationUserId, final IncomingEMailInvitation invitation) {
+        try {
+            final UserModel userModel = getUserModel();
+            final User user = userModel.read(userId);
+            final User invitationUser = userModel.read(invitationUserId);
+            // create invitation
+            invitationSql.create(user, invitation);
+            // fire event
+            final ContactEMailInvitationExtendedEvent event = new ContactEMailInvitationExtendedEvent();
+            event.setInvitedAs(invitation.getInvitationEMail());
+            event.setInvitedBy(invitation.getExtendedBy().getId());
+            event.setInvitedOn(invitation.getCreatedOn());
+            enqueueEvent(invitationUser.getId(), userId, event);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.contact.ContactModel#createInvitation(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.model.contact.OutgoingEMailInvitation)
+     * 
+     */
+    public void createInvitation(final JabberId userId,
             final OutgoingEMailInvitation invitation) {
         try {
-            assertIsAuthenticatedUser(userId);
             final UserModel userModel = getUserModel();
             final User createdBy = userModel.read(invitation.getCreatedBy().getId());
             final User user = userModel.read(userId);
 
             // create outgoing e-mail
-            final OutgoingEMailInvitation outgoingEMail = new OutgoingEMailInvitation();
-            outgoingEMail.setCreatedBy(createdBy);
-            outgoingEMail.setCreatedOn(invitation.getCreatedOn());
-            outgoingEMail.setInvitationEMail(invitation.getInvitationEMail());
+            invitation.setCreatedBy(createdBy);
             invitationSql.create(user, invitation);
 
             final User invitationUser = userModel.read(invitation.getInvitationEMail());
@@ -187,16 +213,10 @@ final class ContactModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Extend an invitation to a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param extendTo
-     *            An extend to user id <code>JabberId</code>.
-     * @param extendedOn
-     *            An extended on <code>Calendar</code>.
+     * @see com.thinkparity.desdemona.model.contact.ContactModel#createInvitation(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.model.contact.OutgoingUserInvitation)
+     *
      */
-    void createInvitation(final JabberId userId,
+    public void createInvitation(final JabberId userId,
             final OutgoingUserInvitation invitation) {
         try {
             assertIsAuthenticatedUser(userId);
@@ -230,19 +250,26 @@ final class ContactModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Decline an e-mail invitation. Delete the invitation and send a
-     * notification (which will delete that invitation).
+     * @see com.thinkparity.desdemona.model.contact.InternalContactModel#createInvitationAttachment(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.desdemona.model.contact.invitation.Attachment)
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param invitedBy
-     *            Who invited the user.
-     * @param invitedAs
-     *            To which <code>EMail</code> the invitation was sent.
-     * @param declinedOn
-     *            When the invitation was declined.
      */
-    void declineInvitation(final JabberId userId,
+    public void createInvitationAttachment(final JabberId userId,
+            final Attachment attachment) {
+        try {
+            invitationSql.createAttachment(attachment);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.contact.ContactModel#declineInvitation(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.model.contact.IncomingEMailInvitation,
+     *      java.util.Calendar)
+     * 
+     */
+    public void declineInvitation(final JabberId userId,
             final IncomingEMailInvitation invitation, final Calendar declinedOn) {
         try {
             assertIsAuthenticatedUser(userId);
@@ -274,7 +301,13 @@ final class ContactModelImpl extends AbstractModelImpl {
         }
     }
 
-    void declineInvitation(final JabberId userId,
+    /**
+     * @see com.thinkparity.desdemona.model.contact.ContactModel#declineInvitation(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.model.contact.IncomingUserInvitation,
+     *      java.util.Calendar)
+     * 
+     */
+    public void declineInvitation(final JabberId userId,
             final IncomingUserInvitation invitation, final Calendar declinedOn) {
         try {
             assertIsAuthenticatedUser(userId);
@@ -304,17 +337,11 @@ final class ContactModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Delete a contact for a user.
+     * @see com.thinkparity.desdemona.model.contact.ContactModel#delete(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.jabber.JabberId)
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param contactId
-     *            A contact id <code>JabberId</code>.
      */
-    void delete(final JabberId userId, final JabberId contactId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("contactId", contactId);
+    public void delete(final JabberId userId, final JabberId contactId) {
         try {
             assertIsAuthenticatedUser(userId);
             final UserModel userModel = getUserModel();
@@ -335,16 +362,12 @@ final class ContactModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Delete a contact e-mail invitation.
+     * @see com.thinkparity.desdemona.model.contact.ContactModel#deleteInvitation(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.model.contact.OutgoingEMailInvitation,
+     *      java.util.Calendar)
      * 
-     * @param userId
-     *            A user id.
-     * @param invitedAs
-     *            The <code>EMail</code> the invitation was sent to.
-     * @param deletedOn
-     *            The deletion date\time <code>Calendar<code>.
      */
-    void deleteInvitation(final JabberId userId,
+    public void deleteInvitation(final JabberId userId,
             final OutgoingEMailInvitation invitation, final Calendar deletedOn) {
         try {
             assertIsAuthenticatedUser(userId);
@@ -353,16 +376,21 @@ final class ContactModelImpl extends AbstractModelImpl {
             final User invitationUser = userModel.read(invitation.getInvitationEMail());
 
             // delete incoming e-mail invitation
-            final IncomingEMailInvitation incomingEMailInvitation =
+            final IncomingEMailInvitation incomingEMail =
                 invitationSql.readIncomingEMail(invitationUser,
                         invitation.getInvitationEMail(), user);
-            invitationSql.delete(incomingEMailInvitation);
+            invitationSql.delete(incomingEMail);
 
-            // delete outgoing e-mail invitation
-            final OutgoingEMailInvitation outgoingEMailInvitation =
+            final OutgoingEMailInvitation outgoingEMail =
                 invitationSql.readOutgoingEMail(user,
                         invitation.getInvitationEMail());
-            invitationSql.delete(outgoingEMailInvitation);
+            // delete attachments
+            final List<Attachment> attachments =
+                invitationSql.readAttachments(outgoingEMail);
+            for (final Attachment attachment : attachments)
+                invitationSql.deleteAttachment(attachment);
+            // delete outgoing e-mail invitation
+            invitationSql.delete(outgoingEMail);
 
             // fire event
             final ContactEMailInvitationDeletedEvent event = new ContactEMailInvitationDeletedEvent();
@@ -377,16 +405,12 @@ final class ContactModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Delete a contact e-mail invitation.
+     * @see com.thinkparity.desdemona.model.contact.ContactModel#deleteOutgoingUserInvitation(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.model.contact.OutgoingUserInvitation,
+     *      java.util.Calendar)
      * 
-     * @param userId
-     *            A user id.
-     * @param invitedAs
-     *            The <code>EMail</code> the invitation was sent to.
-     * @param deletedOn
-     *            The deletion date\time <code>Calendar<code>.
      */
-    void deleteOutgoingUserInvitation(final JabberId userId,
+    public void deleteOutgoingUserInvitation(final JabberId userId,
             final OutgoingUserInvitation invitation, final Calendar deletedOn) {
         try {
             assertIsAuthenticatedUser(userId);
@@ -415,7 +439,11 @@ final class ContactModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<Contact> read(final JabberId userId) {
+    /**
+     * @see com.thinkparity.desdemona.model.contact.ContactModel#read(com.thinkparity.codebase.jabber.JabberId)
+     * 
+     */
+    public List<Contact> read(final JabberId userId) {
 		try {
 		    assertIsAuthenticatedUser(userId);
             final User user = getUserModel().read(userId);
@@ -431,20 +459,29 @@ final class ContactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    Contact read(final JabberId userId, final JabberId contactId) {
+    /**
+     * @see com.thinkparity.desdemona.model.contact.ContactModel#read(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.jabber.JabberId)
+     * 
+     */
+	public Contact read(final JabberId userId, final JabberId contactId) {
 		try {
 		    assertIsAuthenticatedUser(userId);
 
 		    final Contact contact = inject(new Contact(), getUserModel().read(contactId));
             contact.setVCard(getUserModel().readVCard(contact.getLocalId(), new ContactVCard()));
-            contact.addAllEmails(userSql.readEmails(contact.getLocalId(), Boolean.TRUE));
+            contact.addAllEmails(getProfileModel().readEMails(userId, contact));
             return contact;
 	    } catch (final Throwable t) {
             throw panic(t);
         }
 	}
 
-	List<IncomingEMailInvitation> readIncomingEMailInvitations(
+    /**
+     * @see com.thinkparity.desdemona.model.contact.ContactModel#readIncomingEMailInvitations(com.thinkparity.codebase.jabber.JabberId)
+     * 
+     */
+    public List<IncomingEMailInvitation> readIncomingEMailInvitations(
             final JabberId userId) {
         try {
             assertIsAuthenticatedUser(userId);
@@ -456,7 +493,11 @@ final class ContactModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<IncomingUserInvitation> readIncomingUserInvitations(
+    /**
+     * @see com.thinkparity.desdemona.model.contact.ContactModel#readIncomingUserInvitations(com.thinkparity.codebase.jabber.JabberId)
+     * 
+     */
+    public List<IncomingUserInvitation> readIncomingUserInvitations(
             final JabberId userId) {
         try {
             assertIsAuthenticatedUser(userId);
@@ -468,7 +509,25 @@ final class ContactModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<OutgoingEMailInvitation> readOutgoingEMailInvitations(
+    /**
+     * @see com.thinkparity.desdemona.model.contact.InternalContactModel#readInvitationAttachments(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.model.contact.ContactInvitation)
+     * 
+     */
+    public List<Attachment> readInvitationAttachments(final JabberId userId,
+            final ContactInvitation invitation) {
+        try {
+            return invitationSql.readAttachments(invitation);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.contact.ContactModel#readOutgoingEMailInvitations(com.thinkparity.codebase.jabber.JabberId)
+     * 
+     */
+    public List<OutgoingEMailInvitation> readOutgoingEMailInvitations(
             final JabberId userId) {
         try {
             assertIsAuthenticatedUser(userId);
@@ -480,7 +539,25 @@ final class ContactModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<OutgoingUserInvitation> readOutgoingUserInvitations(
+    /**
+     * @see com.thinkparity.desdemona.model.contact.InternalContactModel#readOutgoingEMailInvitations(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.email.EMail)
+     * 
+     */
+    public List<OutgoingEMailInvitation> readOutgoingEMailInvitations(
+            final JabberId userId, final EMail email) {
+        try {
+            return invitationSql.readOutgoingEMail(email);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.contact.ContactModel#readOutgoingUserInvitations(com.thinkparity.codebase.jabber.JabberId)
+     * 
+     */
+    public List<OutgoingUserInvitation> readOutgoingUserInvitations(
             final JabberId userId) {
         try {
             assertIsAuthenticatedUser(userId);
@@ -490,6 +567,27 @@ final class ContactModelImpl extends AbstractModelImpl {
         } catch (final Throwable t) {
             throw panic(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.AbstractModelImpl#initializeModel(com.thinkparity.desdemona.model.session.Session)
+     *
+     */
+    @Override
+    protected void initializeModel(final Session session) {
+        contactSql = new ContactSql();
+        invitationSql = new InvitationSql();
+    }
+
+    /**
+     * Read a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>User</code>.
+     */
+    protected final User readUser(final JabberId userId) {
+        return getUserModel().read(userId);
     }
 
     /**
@@ -505,11 +603,10 @@ final class ContactModelImpl extends AbstractModelImpl {
      */
     private void deleteAllInvitations(final JabberId userId, final User user,
             final User invitationUser) {
-        final InternalUserModel userModel = getUserModel();
-        final List<EMail> userEMails = userModel.readEMails(userId,
-                user.getLocalId());
-        final List<EMail> invitationUserEMails = userModel.readEMails(userId,
-                invitationUser.getLocalId());
+        final InternalProfileModel profileModel = getProfileModel();
+        final List<EMail> userEMails = profileModel.readEMails(userId, user);
+        final List<EMail> invitationUserEMails = profileModel.readEMails(userId,
+                invitationUser);
 
         // delete incoming e-mail invitations
         IncomingEMailInvitation incomingEMailInvitation;
@@ -587,5 +684,100 @@ final class ContactModelImpl extends AbstractModelImpl {
         final Multipart invitation = new MimeMultipart();
         invitation.addBodyPart(invitationBody);
         mimeMessage.setContent(invitation);
+    }
+
+    /**
+     * Send an invitation attachment to a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitation
+     *            A <code>ContactInvitation</code>.
+     * @param attachment
+     *            A <code>Attachment</code>.
+     */
+    private void send(final JabberId sendAs, final JabberId sendTo,
+            final ContactInvitation invitation, final Attachment attachment) {
+        switch (attachment.getReferenceType()) {
+        case CONTAINER_VERSION:
+            final ContainerVersionAttachment containerVersionAttachment =
+                new ContainerVersionAttachment();
+            containerVersionAttachment.setReferenceId(attachment.getReferenceId());
+            send(sendAs, sendTo, invitation, containerVersionAttachment);
+            break;
+        default:
+            Assert.assertUnreachable("Unknown attachment reference type.");
+        }
+    }
+
+    /**
+     * Send a container version invitation attachment to a user.
+     * 
+     * @param sendAs
+     *            A user id <code>JabberId</code>.
+     * @param sendTo
+     *            A user id <code>JabberId</code>.
+     * @param invitation
+     *            A <code>ContactInvitation</code>.
+     * @param attachment
+     *            A <code>ContainerVersionAttachment</code>.
+     */
+    private void send(final JabberId sendAs, final JabberId sendTo,
+            final ContactInvitation invitation,
+            final ContainerVersionAttachment attachment) {
+        final InternalBackupModel backupModel = getBackupModel();
+        // grab from backup
+        final Container container = backupModel.readContainer(attachment.getUniqueId());
+        final ContainerVersion version = backupModel.readContainerVersion(container.getUniqueId(), attachment.getVersionId());
+        final ContainerVersion latestVersion = backupModel.readContainerLatestVersion(container.getUniqueId());
+        final List<DocumentVersion> documentVersions = backupModel.readContainerDocumentVersions(container.getUniqueId(), version.getVersionId());
+        final List<TeamMember> teamMembers = backupModel.readArtifactTeam(container.getUniqueId());
+        // upload documents
+        final Map<DocumentVersion, String> documentVersionStreams =
+            new HashMap<DocumentVersion, String>(documentVersions.size());
+        final InternalStreamModel streamModel = getStreamModel();
+        final StreamSession streamSession = streamModel.createArchiveSession(sendTo);
+        try {
+            String streamId;
+            for (final DocumentVersion documentVersion : documentVersions) {
+                streamId = streamModel.create(sendTo, streamSession.getId());
+                backupModel.uploadDocumentVersion(streamId,
+                        documentVersion.getArtifactUniqueId(),
+                        documentVersion.getVersionId());
+                documentVersionStreams.put(documentVersion, streamId);
+            }
+        } finally {
+            streamModel.deleteSession(sendTo, streamSession.getId());
+        }
+        final JabberId publishedBy = sendAs;
+        final Calendar publishedOn = version.getCreatedOn();
+        // publish to a single user
+        final List<User> publishedToUsers = new ArrayList<User>();
+        publishedToUsers.add(readUser(sendTo));
+        // container published
+        final ContainerPublishedEvent publishedEvent = new ContainerPublishedEvent();
+        publishedEvent.setDocumentVersions(documentVersionStreams);
+        publishedEvent.setPublishedBy(publishedBy);
+        publishedEvent.setPublishedOn(publishedOn);
+        publishedEvent.setPublishedTo(publishedToUsers);
+        publishedEvent.setVersion(version);
+        enqueueEvent(session.getJabberId(), sendTo, publishedEvent);
+        // artifact published
+        final ArtifactPublishedEvent artifactPublishedEvent = new ArtifactPublishedEvent();
+        artifactPublishedEvent.setLatestVersion(version.equals(latestVersion));
+        artifactPublishedEvent.setPublishedBy(publishedBy);
+        artifactPublishedEvent.setPublishedOn(publishedOn);
+        artifactPublishedEvent.setUniqueId(version.getArtifactUniqueId());
+        artifactPublishedEvent.setVersionId(version.getVersionId());
+        final List<JabberId> teamUserIds = USER_UTIL.getIds(teamMembers,
+                new ArrayList<JabberId>(teamMembers.size() + 1));
+        teamUserIds.add(sendTo);
+        artifactPublishedEvent.setTeamUserIds(teamUserIds);
+        enqueueEvent(session.getJabberId(), sendTo, artifactPublishedEvent);
+        // add team member
+        final InternalArtifactModel artifactModel = getArtifactModel();
+        final Artifact artifact = artifactModel.read(version.getArtifactUniqueId());
+        getArtifactModel().addTeamMember(session.getJabberId(),
+                artifact.getId(), readUser(sendTo).getLocalId());
     }
 }

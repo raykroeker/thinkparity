@@ -299,6 +299,7 @@ Local Configuration:                ${localconfig}
                 -->
                 <exclude name="com/thinkparity/model/artifact/Artifact.java"/>
                 <exclude name="com/thinkparity/model/artifact/ArtifactType.java"/>
+                <exclude name="com/thinkparity/desdemona/model/contact/invitation/Attachment.java"/>
                 <exclude name="com/thinkparity/desdemona/wildfire/handler/IQAction.java"/>
                 <exclude name="com/thinkparity/desdemona/util/dom4j/ElementName.java"/>
                 <exclude name="com/thinkparity/desdemona/util/dom4j/NamespaceName.java"/>

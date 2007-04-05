@@ -136,6 +136,18 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#readArtifactTeam(java.lang.Long)
+     *
+     */
+    public List<TeamMember> readArtifactTeam(final UUID uniqueId) {
+        try {
+            return readArtifactTeamImpl(uniqueId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainer(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
      *
      */
@@ -148,6 +160,18 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
                 logger.logWarning("User {0} has no backup feature.", userId);
                 return null;
             }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#readContainer(java.util.UUID)
+     *
+     */
+    public Container readContainer(final UUID uniqueId) {
+        try {
+            return readContainerImpl(uniqueId);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -192,6 +216,31 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#readContainerDocumentVersions(java.lang.Long, java.lang.Long)
+     *
+     */
+    public List<DocumentVersion> readContainerDocumentVersions(
+            final UUID uniqueId, final Long versionId) {
+        try {
+            return readContainerDocumentVersionsImpl(uniqueId, versionId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#readContainerLatestVersion(java.lang.Long)
+     *
+     */
+    public ContainerVersion readContainerLatestVersion(final UUID uniqueId) {
+        try {
+            return readContainerLatestVersionImpl(uniqueId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainerPublishedTo(com.thinkparity.codebase.jabber.JabberId, java.util.UUID, java.lang.Long)
      *
      */
@@ -223,6 +272,19 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
                 logger.logWarning("User {0} has no backup feature.", userId);
                 return Collections.emptyList();
             }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#readContainerVersion(java.util.UUID, java.lang.Long)
+     *
+     */
+    public ContainerVersion readContainerVersion(final UUID uniqueId,
+            final Long versionId) {
+        try {
+            return readContainerVersionImpl(uniqueId, versionId);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -303,6 +365,19 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#uploadDocumentVersion(java.lang.String, java.util.UUID, java.lang.Long)
+     *
+     */
+    public void uploadDocumentVersion(final String streamId,
+            final UUID uniqueId, final Long versionId) {
+        try {
+            uploadDocumentVersionImpl(streamId, uniqueId, versionId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.AbstractModelImpl#initializeModel(com.thinkparity.desdemona.model.session.Session)
      *
      */
@@ -372,10 +447,10 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
                     artifactModel = getModelFactory(user).getArtifactModel();
             final com.thinkparity.ophelia.model.document.InternalDocumentModel
                     documentModel = getModelFactory(user).getDocumentModel();
-    
+
             final Long documentId = artifactModel.readId(uniqueId);
             final Long streamSize = documentModel.readVersionSize(documentId, versionId);
-    
+
             final InternalStreamModel streamModel = getStreamModel();
             final StreamSession streamSession =
                 streamModel.createArchiveSession(readBackupUserId());
@@ -424,6 +499,17 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
         if (0 == artifactSql.readTeamRelCount(artifact.getId())) {
             artifactSql.delete(artifact.getId());
         }
+    }
+
+    /**
+     * Obtain the archive's model factory.
+     * 
+     * @param archiveId
+     *            An archive id <code>JabberId</code>.
+     * @return An archive's <code>ClientModelFactory</code>.
+     */
+    private InternalModelFactory getModelFactory() {
+        return BackupService.getInstance().getModelFactory();
     }
 
     /**
@@ -555,6 +641,28 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     /**
+     * Determine if the container this document belongs to is backed up.
+     * 
+     * @param uniqueId
+     *            A document unique id <code>UUID</code>.
+     * @return True if the user is either a team member of the document's
+     *         container; or has archived the document's container.
+     */
+    private boolean isDocumentBackedUp(final UUID uniqueId) {
+        final com.thinkparity.ophelia.model.artifact.InternalArtifactModel
+                artifactModel = getModelFactory().getArtifactModel();
+        final com.thinkparity.ophelia.model.container.InternalContainerModel
+                containerModel = getModelFactory().getContainerModel();
+        final Long documentId = artifactModel.readId(uniqueId);
+        final List<Container> containers = containerModel.readForDocument(documentId);
+        for (final Container container : containers) {
+            if (isContainerBackedUp(container.getUniqueId()))
+                return true;
+        }
+        return false;
+    }
+
+    /**
      * Determine if the user is a team member.
      * 
      * @param user
@@ -573,6 +681,16 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
                 return true;
         }
         return false;
+    }
+
+    private List<TeamMember> readArtifactTeamImpl(final UUID uniqueId) {
+        if (isContainerBackedUp(uniqueId)) {
+            final Long containerId = getModelFactory().getArtifactModel().readId(uniqueId);
+            return getModelFactory().getArtifactModel().readTeam2(containerId);
+        } else {
+            logger.logWarning("Container {0} is not backed up.", uniqueId);
+            return Collections.emptyList();
+        }
     }
 
     /**
@@ -616,7 +734,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
             return modelFactory.getContainerModel().readDocuments(containerId, versionId);
         } else {
-            logger.logWarning("Container {0} is backed up for user {1}.",
+            logger.logWarning("Container {0} is not backed up for user {1}.",
                     uniqueId, user.getId());
             return Collections.emptyList();
         }
@@ -641,8 +759,19 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
             return modelFactory.getContainerModel().readDocumentVersions(containerId, versionId);
         } else {
-            logger.logWarning("Container {0} is backed up for user {1}.",
+            logger.logWarning("Container {0} is not backed up for user {1}.",
                     uniqueId, user.getId());
+            return Collections.emptyList();
+        }
+    }
+
+    private List<DocumentVersion> readContainerDocumentVersionsImpl(
+            final UUID uniqueId, final Long versionId) {
+        if (isContainerBackedUp(uniqueId)) {
+            final Long containerId = getModelFactory().getArtifactModel().readId(uniqueId);
+            return getModelFactory().getContainerModel().readDocumentVersions(containerId, versionId);
+        } else {
+            logger.logWarning("Container {0} is not backed up.", uniqueId);
             return Collections.emptyList();
         }
     }
@@ -665,8 +794,37 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             applyFlagArchived(user, container);
             return container;
         } else {
-            logger.logWarning("Container {0} is backed up for user {1}.",
+            logger.logWarning("Container {0} is not backed up for user {1}.",
                     uniqueId, user.getId());
+            return null;
+        }
+    }
+
+    private Container readContainerImpl(final UUID uniqueId) {
+        if (isContainerBackedUp(uniqueId)) {
+            final Long containerId = getModelFactory().getArtifactModel().readId(uniqueId);
+            return getModelFactory().getContainerModel().read(containerId);
+        } else {
+            logger.logWarning("Container {0} is not backed up.", uniqueId);
+            return null;
+        }
+    }
+
+    /**
+     * Read the latest container version implementation. Read the container from
+     * the backup.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>ContainerVersion</code>.
+     */
+    private ContainerVersion readContainerLatestVersionImpl(final UUID uniqueId) {
+        if (isContainerBackedUp(uniqueId)) {
+            final InternalModelFactory modelFactory = getModelFactory();
+            final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
+            return modelFactory.getContainerModel().readLatestVersion(containerId);
+        } else {
+            logger.logWarning("Container {0} is not backed up.", uniqueId);
             return null;
         }
     }
@@ -690,7 +848,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
             return modelFactory.getContainerModel().readPublishedTo(containerId, versionId);
         } else {
-            logger.logWarning("Container {0} is backed up for user {1}.",
+            logger.logWarning("Container {0} is not backed up for user {1}.",
                     uniqueId, user.getId());
             return null;
         }
@@ -723,6 +881,28 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     /**
+     * Read a container version implementation. Read the container from the
+     * backup.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>ContainerVersion</code>.
+     */
+    private ContainerVersion readContainerVersionImpl(final UUID uniqueId,
+            final Long versionId) {
+        if (isContainerBackedUp(uniqueId)) {
+            final InternalModelFactory modelFactory = getModelFactory();
+            final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
+            return modelFactory.getContainerModel().readVersion(containerId, versionId);
+        } else {
+            logger.logWarning("Container {0} is not backed up.", uniqueId);
+            return null;
+        }
+    }
+
+    /**
      * Read the container versions implementation. If the user is a member of
      * the team read the versions from the backup.
      * 
@@ -739,7 +919,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
             return modelFactory.getContainerModel().readVersions(containerId);
         } else {
-            logger.logWarning("Container {0} is backed up for user {1}.",
+            logger.logWarning("Container {0} is not backed up for user {1}.",
                     uniqueId, user.getId());
             return null;
         }
@@ -807,7 +987,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             final Long artifactId = modelFactory.getArtifactModel().readId(uniqueId);
             return modelFactory.getArtifactModel().readTeamIds(artifactId);
         } else {
-            logger.logWarning("Container {0} is backed up for user {1}.",
+            logger.logWarning("Container {0} is not backed up for user {1}.",
                     uniqueId, user.getId());
             return Collections.emptyList();
         }
@@ -824,5 +1004,40 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     private void restoreImpl(final User user, final UUID uniqueId) {
         final Artifact artifact = getArtifactModel().read(uniqueId);
         backupSql.deleteArchive(user, artifact);
+    }
+
+    private void uploadDocumentVersionImpl(final String streamId,
+            final UUID uniqueId, final Long versionId) {
+        if (isDocumentBackedUp(uniqueId)) {
+            final com.thinkparity.ophelia.model.artifact.InternalArtifactModel
+                    artifactModel = getModelFactory().getArtifactModel();
+            final com.thinkparity.ophelia.model.document.InternalDocumentModel
+                    documentModel = getModelFactory().getDocumentModel();
+
+            final Long documentId = artifactModel.readId(uniqueId);
+            final Long streamSize = documentModel.readVersionSize(documentId, versionId);
+
+            final InternalStreamModel streamModel = getStreamModel();
+            final StreamSession streamSession =
+                streamModel.createArchiveSession(readBackupUserId());
+            documentModel.uploadVersion(documentId, versionId, new StreamUploader() {
+                public void upload(final InputStream stream) throws IOException {
+                    final InputStream bufferedStream =
+                        new BufferedInputStream(stream, getDefaultBufferSize());
+                    /* NOTE the underlying stream is closed by the document
+                     * io handler through the document model and is thus not
+                     * closed here */
+                    BackupModelImpl.this.upload(new UploadMonitor() {
+                        public void chunkUploaded(final int chunkSize) {
+                            logger.logApiId();
+                            logger.logVariable("chunkSize", chunkSize);
+                        }
+                    }, streamId, streamSession, bufferedStream, streamSize);
+                }
+            });
+            
+        } else {
+            logger.logWarning("Document {0} is not backed up.", uniqueId);
+        }
     }
 }

@@ -7,6 +7,12 @@ import com.thinkparity.codebase.model.Context;
 
 import com.thinkparity.desdemona.model.backup.BackupModelImpl;
 import com.thinkparity.desdemona.model.backup.InternalBackupModel;
+import com.thinkparity.desdemona.model.contact.ContactModelImpl;
+import com.thinkparity.desdemona.model.contact.InternalContactModel;
+import com.thinkparity.desdemona.model.container.ContainerModelImpl;
+import com.thinkparity.desdemona.model.container.InternalContainerModel;
+import com.thinkparity.desdemona.model.profile.InternalProfileModel;
+import com.thinkparity.desdemona.model.profile.ProfileModelImpl;
 import com.thinkparity.desdemona.model.session.Session;
 
 /**
@@ -64,6 +70,36 @@ public final class InternalModelFactory {
     public final InternalBackupModel getBackupModel() {
         return (InternalBackupModel) newModelProxy(
                 InternalBackupModel.class, BackupModelImpl.class);
+    }
+
+    /**
+     * Obtain an internal contact model.
+     * 
+     * @return An instance of <code>InternalContactModel</code>.
+     */
+    public final InternalContactModel getContactModel() {
+        return (InternalContactModel) newModelProxy(
+                InternalContactModel.class, ContactModelImpl.class);
+    }
+
+    /**
+     * Obtain an internal container model.
+     * 
+     * @return An instance of <code>InternalContainerModel</code>.
+     */
+    public final InternalContainerModel getContainerModel() {
+        return (InternalContainerModel) newModelProxy(
+                InternalContainerModel.class, ContainerModelImpl.class);
+    }
+
+    /**
+     * Obtain an internal profile model.
+     * 
+     * @return An instance of <code>InternalProfileModel</code>.
+     */
+    public final InternalProfileModel getProfileModel() {
+        return (InternalProfileModel) newModelProxy(
+                InternalProfileModel.class, ProfileModelImpl.class);
     }
 
     /**

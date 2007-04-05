@@ -29,6 +29,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.UploadMonitor;
 import com.thinkparity.codebase.model.migrator.Error;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -264,6 +265,19 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
             return migratorSql.readProduct(name);
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.migrator.MigratorModel#readProductFeatures(com.thinkparity.codebase.jabber.JabberId, java.lang.String)
+     *
+     */
+    public List<Feature> readProductFeatures(final JabberId userId,
+            final String name) {
+        try {
+            return migratorSql.readProductFeatures(name);   
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 

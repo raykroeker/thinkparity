@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -24,8 +25,11 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.profile.VerificationKey;
@@ -37,6 +41,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants.Product.Ophelia;
+import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
 import com.thinkparity.desdemona.model.io.sql.EMailSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
@@ -54,7 +59,7 @@ import org.jivesoftware.wildfire.auth.UnauthorizedException;
  * @version 1.1
  */
 public final class ProfileModelImpl extends AbstractModelImpl implements
-        ProfileModel {
+        ProfileModel, InternalProfileModel {
 
     /** Contact db io. */
     private ContactSql contactSql;
@@ -242,18 +247,38 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.profile.ProfileModel#readEmails(com.thinkparity.codebase.jabber.JabberId)
+     * @see com.thinkparity.desdemona.model.profile.ProfileModel#readEMails(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
-    public List<EMail> readEmails(final JabberId userId) {
+    public List<ProfileEMail> readEMails(final JabberId userId) {
         try {
             final User user = getUserModel().read(userId);
-            return userSql.readEmails(user.getLocalId(), Boolean.TRUE);
+            return userSql.readEMails(user);
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
+    /**
+     * @see com.thinkparity.desdemona.model.profile.InternalProfileModel#readEMails(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.model.user.User)
+     *
+     */
+    public List<EMail> readEMails(final JabberId userId, final User user) {
+        try {
+            // read only verified e-mails
+            final List<ProfileEMail> profileEMails = userSql.readEMails(user);
+            final List<EMail> emails = new ArrayList<EMail>(profileEMails.size());
+            for (final ProfileEMail profileEMail : profileEMails) {
+                if (profileEMail.isVerified())
+                    emails.add(profileEMail.getEmail());
+            }
+            return emails;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#readFeatures(com.thinkparity.codebase.jabber.JabberId)
      * 
@@ -375,7 +400,21 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             Assert.assertNotNull("VERIFICATION KEY INCORRECT", verifiedEmail);
             Assert.assertTrue("VERIFICATION KEY INCORRECT", email.equals(verifiedEmail));
             userSql.verifyEmail(profile.getLocalId(), verifiedEmail, verifiedKey);
-            // notify all contacts
+            // create invitations
+            final InternalContactModel contactModel = getContactModel();
+            final List<OutgoingEMailInvitation> invitations =
+                contactModel.readOutgoingEMailInvitations(userId, email);
+            IncomingEMailInvitation incomingInvitation;
+            for (final OutgoingEMailInvitation invitation : invitations) {
+                incomingInvitation = new IncomingEMailInvitation();
+                incomingInvitation.setCreatedBy(invitation.getCreatedBy());
+                incomingInvitation.setCreatedOn(invitation.getCreatedOn());
+                incomingInvitation.setExtendedBy(incomingInvitation.getCreatedBy());
+                incomingInvitation.setInvitationEMail(email);
+                contactModel.createInvitation(userId,
+                        invitation.getCreatedBy().getId(), incomingInvitation);
+            }
+            // fire event
             notifyContactUpdated(getUserModel().read(userId));
         } catch (final Throwable t) {
             throw translateError(t);

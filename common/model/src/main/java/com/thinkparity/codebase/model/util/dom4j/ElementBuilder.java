@@ -503,6 +503,18 @@ public class ElementBuilder {
     }
 
     public static final Element addElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final ProfileEMail value) {
+        if (null == value) {
+            return addNullElement(parent, name, ProfileEMail.class);
+        } else {
+            final Element element = addElement(parent, name, value.getClass());
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
+            return element;
+        }
+    }
+
+    public static final Element addElement(final XStreamUtil xstreamUtil,
             final Element parent, final String name, final Release value) {
         if (null == value) {
             return addNullElement(parent, name, Release.class);
@@ -738,15 +750,15 @@ public class ElementBuilder {
         }
     }
 
-    public static final Element addProfileEMailElements(final Element parent,
-            final String parentName, final String name,
-            final List<ProfileEMail> values) {
+    public static final Element addProfileEMailElements(
+            final XStreamUtil xstreamUtil, final Element parent,
+            final String name, final List<ProfileEMail> values) {
         if (values.size() < 1) {
-            return addNullElement(parent, parentName, List.class);
+            return addNullElement(parent, name, List.class);
         } else {
-            final Element element = addElement(parent, parentName, List.class);
+            final Element element = addElement(parent, name, List.class);
             for (final ProfileEMail value : values) {
-                addElement(element, name, value);
+                addElement(xstreamUtil, element, XmlRpc.LIST_ITEM, value);
             }
             return element;
         }

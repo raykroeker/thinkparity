@@ -14,7 +14,7 @@ create table TPSD_USER_RESERVATION(
     unique (TOKEN)
 );
 create table TPSD_USER(
-    USER_ID bigint generated always as identity (start with 7000),
+    USER_ID bigint generated always as identity(start with 7000),
     USERNAME varchar(32) not null,
     PASSWORD varchar(32) not null,
     SECURITY_QUESTION varchar(64) not null,
@@ -60,12 +60,21 @@ create table TPSD_CONTACT(
 );
 
 create table TPSD_CONTACT_INVITATION(
-    CONTACT_INVITATION_ID bigint generated always as identity (start with 8000),
+    CONTACT_INVITATION_ID bigint generated always as identity(start with 8000),
     CREATED_BY bigint not null,
     CREATED_ON timestamp not null,
     primary key(CONTACT_INVITATION_ID),
     foreign key(CREATED_BY) references TPSD_USER(USER_ID)
 );
+create table TPSD_CONTACT_INVITATION_ATTACHMENT(
+    CONTACT_INVITATION_ID bigint not null,
+    ATTACHMENT_REFERENCE_TYPE_ID smallint not null,
+    ATTACHMENT_REFERENCE_ID varchar(264) not null,
+    primary key(CONTACT_INVITATION_ID,ATTACHMENT_REFERENCE_TYPE_ID,ATTACHMENT_REFERENCE_ID),
+    foreign key(CONTACT_INVITATION_ID) references TPSD_CONTACT_INVITATION(CONTACT_INVITATION_ID)
+);
+create index TPSD_CONTACT_INVITATION_ATTACHMENT_XI_0 on TPSD_CONTACT_INVITATION_ATTACHMENT(ATTACHMENT_REFERENCE_TYPE_ID);
+create index TPSD_CONTACT_INVITATION_ATTACHMENT_XI_1 on TPSD_CONTACT_INVITATION_ATTACHMENT(ATTACHMENT_REFERENCE_ID);
 create table TPSD_CONTACT_INVITATION_INCOMING_EMAIL(
     CONTACT_INVITATION_ID bigint not null,
     USER_ID bigint not null,
@@ -110,7 +119,7 @@ create table TPSD_CONTACT_INVITATION_OUTGOING_USER(
 );
 
 create table TPSD_ARTIFACT(
-    ARTIFACT_ID bigint generated always as identity (start with 2000),
+    ARTIFACT_ID bigint generated always as identity(start with 2000),
     ARTIFACT_UNIQUE_ID varchar(256) not null,
     ARTIFACT_DRAFT_OWNER bigint not null,
     CREATED_BY bigint not null,
@@ -132,14 +141,14 @@ create table TPSD_ARTIFACT_TEAM_REL(
 );
 
 create table TPSD_PRODUCT(
-    PRODUCT_ID bigint generated always as identity (start with 1000),
+    PRODUCT_ID bigint generated always as identity(start with 1000),
     PRODUCT_NAME varchar(64) not null,
     primary key(PRODUCT_ID),
     unique(PRODUCT_NAME)
 );
 create table TPSD_PRODUCT_FEATURE(
     PRODUCT_ID bigint not null,
-    FEATURE_ID bigint generated always as identity (start with 6000),
+    FEATURE_ID bigint generated always as identity(start with 6000),
     FEATURE_NAME varchar(16) not null,
     primary key(FEATURE_ID),
     unique(PRODUCT_ID,FEATURE_NAME),
@@ -147,7 +156,7 @@ create table TPSD_PRODUCT_FEATURE(
 );
 create table TPSD_PRODUCT_RELEASE(
     PRODUCT_ID bigint not null,
-    RELEASE_ID bigint generated always as identity (start with 3000),
+    RELEASE_ID bigint generated always as identity(start with 3000),
     RELEASE_NAME varchar(64) not null,
     RELEASE_OS varchar(32) not null,
     RELEASE_DATE timestamp not null,
@@ -156,7 +165,7 @@ create table TPSD_PRODUCT_RELEASE(
     foreign key(PRODUCT_ID) references TPSD_PRODUCT(PRODUCT_ID)
 );
 create table TPSD_PRODUCT_RELEASE_ERROR(
-    ERROR_ID bigint generated always as identity (start with 9000),
+    ERROR_ID bigint generated always as identity(start with 9000),
     RELEASE_ID bigint not null,
     USER_ID bigint not null,
     ERROR_DATE timestamp not null,
@@ -166,7 +175,7 @@ create table TPSD_PRODUCT_RELEASE_ERROR(
     foreign key(RELEASE_ID) references TPSD_PRODUCT_RELEASE(RELEASE_ID)
 );
 create table TPSD_PRODUCT_RELEASE_RESOURCE(
-    RESOURCE_ID bigint generated always as identity (start with 4000),
+    RESOURCE_ID bigint generated always as identity(start with 4000),
     RESOURCE_CHECKSUM varchar(256) not null,
     RESOURCE_CHECKSUM_ALGORITHM varchar(16) not null,
     RESOURCE_SIZE bigint not null,

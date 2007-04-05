@@ -28,6 +28,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.session.Environment;
@@ -40,12 +41,16 @@ import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEve
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
+import com.thinkparity.ophelia.model.user.UserUtils;
+
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
 import com.thinkparity.desdemona.model.backup.InternalBackupModel;
-import com.thinkparity.desdemona.model.contact.ContactModel;
+import com.thinkparity.desdemona.model.contact.InternalContactModel;
+import com.thinkparity.desdemona.model.container.InternalContainerModel;
 import com.thinkparity.desdemona.model.io.sql.ConfigurationSql;
+import com.thinkparity.desdemona.model.profile.InternalProfileModel;
 import com.thinkparity.desdemona.model.queue.InternalQueueModel;
 import com.thinkparity.desdemona.model.queue.QueueModel;
 import com.thinkparity.desdemona.model.session.Session;
@@ -71,6 +76,9 @@ import org.xmpp.packet.JID;
 public abstract class AbstractModelImpl
     extends com.thinkparity.codebase.model.AbstractModelImpl {
 
+    /** A <code>UserUtils</code> utility. */
+    protected static final UserUtils USER_UTIL;
+
     /** A <code>XStreamUtil</code> xml serialization utility. */
     protected static final XStreamUtil XSTREAM_UTIL;
 
@@ -84,6 +92,7 @@ public abstract class AbstractModelImpl
         NO_SESSION = User.THINKPARITY.getId();
         XMPP_IQ_LOGGER = new Log4JWrapper("DESDEMONA_XMPP_DEBUGGER");
         XSTREAM_UTIL = XStreamUtil.getInstance();
+        USER_UTIL = UserUtils.getInstance();
     }
 
     /**
@@ -458,7 +467,7 @@ public abstract class AbstractModelImpl
      * 
      * @return The parity artifact interface.
      */
-	protected InternalArtifactModel getArtifactModel() {
+	protected final InternalArtifactModel getArtifactModel() {
 		return ArtifactModel.getInternalModel(getContext(), session);
 	}
 
@@ -467,7 +476,7 @@ public abstract class AbstractModelImpl
      * 
      * @return An instance of <code>InternalBackupModel</code>.
      */
-    protected InternalBackupModel getBackupModel() {
+    protected final InternalBackupModel getBackupModel() {
         return InternalModelFactory.getInstance(getContext(), session).getBackupModel();
     }
 
@@ -498,13 +507,22 @@ public abstract class AbstractModelImpl
     }
 
     /**
-     * Obtain the parity contact interface.
+     * Obtain an internal contact model.
      * 
-     * @return The parity contact interface.
+     * @return An instance of <code>InternalContactModel</code>.
      */
-	protected ContactModel getContactModel() {
-		return ContactModel.getModel(session);
-	}
+    protected final InternalContactModel getContactModel() {
+        return InternalModelFactory.getInstance(getContext(), session).getContactModel();
+    }
+
+    /**
+     * Obtain an internal container model.
+     * 
+     * @return An instance of <code>InternalContainerModel</code>.
+     */
+    protected final InternalContainerModel getContainerModel() {
+        return InternalModelFactory.getInstance(getContext(), session).getContainerModel();
+    }
 
 	/**
      * Obtain the default buffer size.
@@ -559,15 +577,19 @@ public abstract class AbstractModelImpl
                     t.getMessage());
     }
 
-	protected InternalQueueModel getQueueModel() {
+	protected final InternalProfileModel getProfileModel() {
+        return InternalModelFactory.getInstance(getContext(), session).getProfileModel();
+    }
+
+	protected final InternalQueueModel getQueueModel() {
         return QueueModel.getInternalModel(getContext(), session);
     }
 
-	protected InternalStreamModel getStreamModel() {
+    protected final InternalStreamModel getStreamModel() {
         return StreamModel.getInternalModel(getContext(), session);
     }
 
-    protected InternalUserModel getUserModel() {
+    protected final InternalUserModel getUserModel() {
 		return UserModel.getInternalModel(getContext(), session);
 	}
 
@@ -616,6 +638,7 @@ public abstract class AbstractModelImpl
      *            A user <code>Session</code>.
      */
     protected final void initialize(final Session session) {
+        setContext(new Context());
         this.session = session;
         this.modelConfiguration = ModelConfiguration.getInstance(getClass());
     }

@@ -5,8 +5,9 @@ package com.thinkparity.desdemona.wildfire.handler.profile;
 
 import java.util.List;
 
-import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
@@ -39,9 +40,8 @@ public final class ReadEmails extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        logger.logApiId();
-        writer.writeEMails("emails", "email", readEmails(provider,
-                reader.readJabberId("userId")));
+        writer.writeProfileEMails("emails", readEMails(provider, reader
+                .readJabberId("userId")));
     }
 
     /**
@@ -51,8 +51,8 @@ public final class ReadEmails extends AbstractHandler {
      *            A user id <code>JabberId</code>.
      * @return A <code>List&lt;EMail&gt;</code>.
      */
-    private List<EMail> readEmails(final ServiceModelProvider provider,
+    private List<ProfileEMail> readEMails(final ServiceModelProvider provider,
             final JabberId userId) {
-        return provider.getProfileModel().readEmails(userId);
+        return provider.getProfileModel().readEMails(userId);
     }
 }

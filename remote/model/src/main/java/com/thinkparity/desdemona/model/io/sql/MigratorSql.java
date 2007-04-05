@@ -10,6 +10,7 @@ import java.util.List;
 import com.thinkparity.codebase.OS;
 
 import com.thinkparity.codebase.model.migrator.Error;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -84,6 +85,14 @@ public final class MigratorSql extends AbstractSql {
         .append("inner join TPSD_PRODUCT P on R.PRODUCT_ID=P.PRODUCT_ID ")
         .append("where P.PRODUCT_NAME=? and R.RELEASE_OS=? ")
         .append("order by R.RELEASE_DATE desc")
+        .toString();
+
+    /** Sql to read a product feature list. */
+    private static final String SQL_READ_PRODUCT_FEATURES =
+        new StringBuilder("select PF.PRODUCT_ID,PF.FEATURE_ID,PF.FEATURE_NAME ")
+        .append("from TPSD_PRODUCT_FEATURE PF ")
+        .append("inner join TPSD_PRODUCT P on P.PRODUCT_ID=PF.PRODUCT_ID ")
+        .append("where P.PRODUCT_NAME=?")
         .toString();
 
     /** Sql to read a product by its unique key. */
@@ -396,6 +405,31 @@ public final class MigratorSql extends AbstractSql {
     }
 
     /**
+     * Read a list of product features.
+     * 
+     * @param name
+     *            A product name <code>String</code>.
+     * @return A <code>List</code> of <code>Feature</code>s.
+     */
+    public List<Feature> readProductFeatures(final String name) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_PRODUCT_FEATURES);
+            session.setString(1, name);
+            session.executeQuery();
+            final List<Feature> features = new ArrayList<Feature>();
+            while (session.nextResult()) {
+                features.add(extractProductFeature(session));
+            }
+            return features;
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Read a release.
      * 
      * @param productUniqueId
@@ -523,6 +557,21 @@ public final class MigratorSql extends AbstractSql {
         product.setId(session.getLong("PRODUCT_ID"));
         product.setName(session.getString("PRODUCT_NAME"));
         return product;
+    }
+
+    /**
+     * Extract a product feature from the session.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @return A <code>Feature</code>.
+     */
+    private Feature extractProductFeature(final HypersonicSession session) {
+        final Feature feature = new Feature();
+        feature.setFeatureId(session.getLong("FEATURE_ID"));
+        feature.setName(session.getString("FEATURE_NAME"));
+        feature.setProductId(session.getLong("PRODUCT_ID"));
+        return feature;
     }
 
     /**

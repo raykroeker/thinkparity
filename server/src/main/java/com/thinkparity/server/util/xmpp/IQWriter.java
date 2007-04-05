@@ -28,6 +28,7 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -264,6 +265,15 @@ public final class IQWriter implements ServiceResponseWriter {
      */
     public void writeFeatures(final String name, final List<Feature> values) {
         ElementBuilder.addFeatureElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeProfileEMails(java.lang.String, java.util.List)
+     *
+     */
+    public void writeProfileEMails(final String name,
+            final List<ProfileEMail> values) {
+        ElementBuilder.addProfileEMailElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
     }
 
     /**

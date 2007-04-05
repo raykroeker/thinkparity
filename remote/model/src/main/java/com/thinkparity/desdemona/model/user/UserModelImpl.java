@@ -148,15 +148,6 @@ class UserModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<EMail> readEMails(final JabberId userId, final Long localUserId) {
-        try {
-            assertIsAuthenticatedUser(userId);
-            return userSql.readEmails(localUserId, Boolean.TRUE);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
     /**
      * Read all features for a user.
      * 

@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.desdemona.model.contact.invitation.Attachment;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 
@@ -33,6 +34,14 @@ public class InvitationSql extends AbstractSql {
         new StringBuilder("insert into TPSD_CONTACT_INVITATION ")
         .append("(CREATED_BY,CREATED_ON) ")
         .append("values (?,?)")
+        .toString();
+
+    /** Sql to create an attachment. */
+    private static final String SQL_CREATE_ATTACHMENT =
+        new StringBuilder("insert into TPSD_CONTACT_INVITATION_ATTACHMENT ")
+        .append("(CONTACT_INVITATION_ID,ATTACHMENT_REFERENCE_TYPE_ID,")
+        .append("ATTACHMENT_REFERENCE_ID) ")
+        .append("values (?,?,?)")
         .toString();
 
     /** Sql to create an incoming e-mail invitation. */
@@ -69,6 +78,14 @@ public class InvitationSql extends AbstractSql {
         .append("where CONTACT_INVITATION_ID=?")
         .toString();
 
+    /** Sql to delete an attachment. */
+    private static final String SQL_DELETE_ATTACHMENT =
+        new StringBuilder("delete from TPSD_CONTACT_INVITATION_ATTACHMENT ")
+        .append("where CONTACT_INVITATION_ID=? ")
+        .append("and ATTACHMENT_REFERENCE_TYPE_ID=? ")
+        .append("and ATTACHMENT_REFERENCE_ID=?")
+        .toString();
+
     /** Sql to delete an incoming e-mail. */
     private static final String SQL_DELETE_INCOMING_EMAIL =
         new StringBuilder("delete from TPSD_CONTACT_INVITATION_INCOMING_EMAIL ")
@@ -91,6 +108,14 @@ public class InvitationSql extends AbstractSql {
     private static final String SQL_DELETE_OUTGOING_USER =
         new StringBuilder("delete from TPSD_CONTACT_INVITATION_OUTGOING_USER ")
         .append("where CONTACT_INVITATION_ID=?")
+        .toString();
+
+    /** Sql to read attachments. */
+    private static final String SQL_READ_ATTACHMENTS =
+        new StringBuilder("select CIA.CONTACT_INVITATION_ID,")
+        .append("CIA.ATTACHMENT_REFERENCE_ID,CIA.ATTACHMENT_REFERENCE_TYPE_ID ")
+        .append("from TPSD_CONTACT_INVITATION_ATTACHMENT CIA ")
+        .append("where CIA.CONTACT_INVITATION_ID=?")
         .toString();
 
     /** Sql to read an incoming e-mail invitation. */
@@ -152,6 +177,17 @@ public class InvitationSql extends AbstractSql {
         .append("where CIOE.USER_ID=?")
         .toString();
 
+    /** Sql to read an outgoing e-mail invitations. */
+    private static final String SQL_READ_OUTGOING_EMAIL_BY_EMAIL =
+        new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
+        .append("CIOE.CONTACT_INVITATION_ID,CIOE.USER_ID,E.EMAIL ")
+        .append("from TPSD_CONTACT_INVITATION_OUTGOING_EMAIL CIOE ")
+        .append("inner join TPSD_CONTACT_INVITATION CI ")
+        .append("on CI.CONTACT_INVITATION_ID=CIOE.CONTACT_INVITATION_ID ")
+        .append("inner join TPSD_EMAIL E on E.EMAIL_ID=CIOE.INVITATION_EMAIL_ID ")
+        .append("where E.EMAIL=?")
+        .toString();
+
     /** Sql to read an outgoing e-mail invitation by its unique key. */
     private static final String SQL_READ_OUTGOING_EMAIL_UK =
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
@@ -179,7 +215,7 @@ public class InvitationSql extends AbstractSql {
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
         .append("CIOU.CONTACT_INVITATION_ID,CIOU.USER_ID,")
         .append("CIOU.INVITATION_USER_ID ")
-        .append("from CONTACT_INVITATION_OUTGOING_USER CIOU ")
+        .append("from TPSD_CONTACT_INVITATION_OUTGOING_USER CIOU ")
         .append("inner join CONTACT_INVITATION CI ")
         .append("on CI.CONTACT_INVITATION_ID=CIOU.CONTACT_INVITATION_ID ")
         .append("where CIOU.USER_ID=? and CIOU.INVITATION_USER_ID=?")
@@ -202,7 +238,7 @@ public class InvitationSql extends AbstractSql {
     }
 
     /**
-     * Create an incoming e-mail invitation.
+     * Create an incoming e-mail invitation for a user.
      * 
      * @param user
      *            A <code>User</code>.
@@ -328,6 +364,30 @@ public class InvitationSql extends AbstractSql {
         }
     }
 
+    /**
+     * Create an invitation attachment.
+     * 
+     * @param attachment
+     *            An <code>Attachment</code>.
+     */
+    public void createAttachment(final Attachment attachment) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_ATTACHMENT);
+            session.setLong(1, attachment.getInvitationId());
+            session.setInt(2, attachment.getReferenceType().getId());
+            session.setString(3, attachment.getReferenceId());
+            if (1 != session.executeUpdate())
+                throw panic("Could not create attachment.");
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
     public void delete(final IncomingEMailInvitation invitation) {
         final HypersonicSession session = openSession();
         try {
@@ -412,6 +472,61 @@ public class InvitationSql extends AbstractSql {
         }
     }
 
+    /**
+     * Delete an invitation attachment.
+     * 
+     * @param attachment
+     *            An <code>Attachment</code>.
+     */
+    public void deleteAttachment(final Attachment attachment) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_ATTACHMENT);
+            session.setLong(1, attachment.getInvitationId());
+            session.setInt(2, attachment.getReferenceType().getId());
+            session.setString(3, attachment.getReferenceId());
+            if (1 != session.executeUpdate())
+                throw panic("Could not delete attachment.");
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read the attachments for an invitation.
+     * 
+     * @param invitation
+     *            A <code>ContactInvitation</code>.
+     * @return A <code>List</code> of <code>Attachment</code>s.
+     */
+    public List<Attachment> readAttachments(final ContactInvitation invitation) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_ATTACHMENTS);
+            session.setLong(1, invitation.getId());
+            session.executeQuery();
+            final List<Attachment> attachments = new ArrayList<Attachment>();
+            while (session.nextResult()) {
+                attachments.add(extractAttachment(session));
+            }
+            return attachments;
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read incoming e-mail invitations for a user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return A <code>List</code> of <code>IncomingEMailInvitation</code>s.
+     */
     public List<IncomingEMailInvitation> readIncomingEMail(final User user) {
         final HypersonicSession session = openSession();
         try {
@@ -431,6 +546,18 @@ public class InvitationSql extends AbstractSql {
         }
     }
 
+    /**
+     * Read an incoming e-mail invitation for a user to an e-mail address, from
+     * an invitation user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param email
+     *            An <code>EMail</code> address.
+     * @param invitationUser
+     *            The invitation <code>User</code>.
+     * @return A <code>List</code> of <code>IncomingEMailInvitation</code>s.
+     */
     public IncomingEMailInvitation readIncomingEMail(final User user,
             final EMail email, final User invitationUser) {
         final HypersonicSession session = openSession();
@@ -492,10 +619,27 @@ public class InvitationSql extends AbstractSql {
         }
     }
 
+    public List<OutgoingEMailInvitation> readOutgoingEMail(final EMail email) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_OUTGOING_EMAIL_BY_EMAIL);
+            session.setEMail(1, email);
+            session.executeQuery();
+            final List<OutgoingEMailInvitation> invitations = new ArrayList<OutgoingEMailInvitation>();
+            while (session.nextResult()) {
+                invitations.add(extractOutgoingEMail(session));
+            }
+            return invitations;
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }        
+    }
+
     public List<OutgoingEMailInvitation> readOutgoingEMail(final User user) {
         final HypersonicSession session = openSession();
         try {
-            // read all invitations
             session.prepareStatement(SQL_READ_OUTGOING_EMAIL);
             session.setLong(1, user.getLocalId());
             session.executeQuery();
@@ -679,5 +823,21 @@ public class InvitationSql extends AbstractSql {
         invitation.setCreatedBy(userSql.read(session.getLong("CREATED_BY")));
         invitation.setCreatedOn(session.getCalendar("CREATED_ON"));
         invitation.setId(session.getLong("CONTACT_INVITATION_ID"));
+    }
+
+    /**
+     * Extract an attachment from a session.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @return An <code>Attachment</code>.
+     */
+    private Attachment extractAttachment(final HypersonicSession session) {
+        final Attachment attachment = new Attachment();
+        attachment.setInvitationId(session.getLong("CONTACT_INVITATION_ID"));
+        attachment.setReferenceId(session.getString("ATTACHMENT_REFERENCE_ID"));
+        attachment.setReferenceType(Attachment.ReferenceType.fromId(
+                session.getInteger("ATTACHMENT_REFERENCE_TYPE_ID")));
+        return attachment;
     }
 }

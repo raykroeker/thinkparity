@@ -26,6 +26,7 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -195,6 +196,9 @@ public interface ServiceResponseWriter {
      */
     public void writeOutgoingUserInvitations(final String name,
             final List<OutgoingUserInvitation> values);
+
+    public void writeProfileEMails(final String name,
+            final List<ProfileEMail> values);
 
     /**
      * Write the resources to the query.

@@ -9,6 +9,7 @@ import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.migrator.Error;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -98,6 +99,19 @@ public interface MigratorModel {
      * @return A <code>Product</code>.
      */
     public Product readProduct(final JabberId userId, final String name);
+
+    /**
+     * Read a list of the product features.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param name
+     *            A product name <code>String</code>.
+     * @return A <code>List</code> of <code>Feature</code>s.
+     */
+    @ThinkParityAuthenticate(AuthenticationType.SYSTEM)
+    public List<Feature> readProductFeatures(final JabberId userId,
+            final String name);
 
     /**
      * Read a release.

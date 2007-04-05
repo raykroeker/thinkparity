@@ -15,6 +15,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.profile.VerificationKey;
 import com.thinkparity.codebase.model.session.Credentials;
@@ -135,11 +136,11 @@ public class UserSql extends AbstractSql {
 
     /** Sql to read e-mail addresses. */
     private static final String SQL_READ_EMAILS =
-        new StringBuilder("select E.EMAIL ")
+        new StringBuilder("select E.EMAIL,UE.EMAIL_ID,UE.USER_ID,UE.VERIFIED ")
         .append("from TPSD_USER U ")
         .append("inner join TPSD_USER_EMAIL UE on U.USER_ID=UE.USER_ID ")
         .append("inner join TPSD_EMAIL E on E.EMAIL_ID=UE.EMAIL_ID ")
-        .append("where U.USER_ID=? and UE.VERIFIED=?")
+        .append("where U.USER_ID=?")
         .toString();
 
     /** Read all custom features for the user. */
@@ -581,16 +582,15 @@ public class UserSql extends AbstractSql {
         }
     }
 
-    public List<EMail> readEmails(final Long userId, final Boolean verified) {
+    public List<ProfileEMail> readEMails(final User user) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_EMAILS);
-            session.setLong(1, userId);
-            session.setBoolean(2, verified);
+            session.setLong(1, user.getLocalId());
             session.executeQuery();
-            final List<EMail> emails = new ArrayList<EMail>();
+            final List<ProfileEMail> emails = new ArrayList<ProfileEMail>();
             while (session.nextResult()) {
-                emails.add(EMailBuilder.parse(session.getString("EMAIL")));
+                emails.add(extractEMail(session));
             }
             return emails;
         } finally {
@@ -829,6 +829,22 @@ public class UserSql extends AbstractSql {
         } finally {
             session.close();
         }
+    }
+
+    /**
+     * Extract a profile e-mail address from the session.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @return A <code>ProfileEMail</code>.
+     */
+    private ProfileEMail extractEMail(final HypersonicSession session) {
+        final ProfileEMail email = new ProfileEMail();
+        email.setEmail(session.getEMail("EMAIL"));
+        email.setEmailId(session.getLong("EMAIL_ID"));
+        email.setProfileId(session.getLong("USER_ID"));
+        email.setVerified(session.getBoolean("VERIFIED"));
+        return email;
     }
 
     /**

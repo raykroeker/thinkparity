@@ -11,6 +11,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.session.Credentials;
@@ -28,7 +29,7 @@ import com.thinkparity.desdemona.util.AuthenticationType;
  */
 public interface ProfileModel {
 
-	/**
+    /**
      * Add an email to a user's profile.
      * 
      * @param userId
@@ -39,7 +40,7 @@ public interface ProfileModel {
     @ThinkParityAuthenticate(AuthenticationType.USER)
     public void addEmail(final JabberId userId, final EMail email);
 
-    @ThinkParityAuthenticate(AuthenticationType.SYSTEM)
+	@ThinkParityAuthenticate(AuthenticationType.SYSTEM)
     public void create(final JabberId userId, final Reservation reservation,
             final Credentials credentials, final Profile profile,
             final EMail email, final String securityQuestion,
@@ -86,10 +87,10 @@ public interface ProfileModel {
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @return A <code>List&lt;EMail&gt;</code>.
+     * @return A <code>List</code> of <code>ProfileEMail</code>s.
      */
     @ThinkParityAuthenticate(AuthenticationType.USER)
-    public List<EMail> readEmails(final JabberId userId);
+    public List<ProfileEMail> readEMails(final JabberId userId);
 
     /**
      * Read all features for a user.
@@ -174,12 +175,14 @@ public interface ProfileModel {
             final String newPassword);
 
     /**
-     * Verify an email in a user's profile.
+     * Verify an email in a user's profile. This includes generation of incoming
+     * e-mail invitations for all outgoing e-mail invitations for the e-mail
+     * address.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
      * @param email
-     *            An <code>EMail</code>.
+     *            An <code>EMail</code> address.
      * @param key
      *            A verification code <code>String</code>.
      */

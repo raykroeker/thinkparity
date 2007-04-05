@@ -59,13 +59,9 @@
                                       </Group>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                          <Group type="102" alignment="1" attributes="1">
-                                              <Component id="usernameJTextField" max="32767" attributes="1"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="checkUsernameJButton" min="-2" max="-2" attributes="0"/>
-                                          </Group>
-                                          <Component id="passwordJPasswordField" min="-2" pref="254" max="-2" attributes="1"/>
-                                          <Component id="confirmPasswordJPasswordField" alignment="0" min="-2" pref="254" max="-2" attributes="1"/>
+                                          <Component id="passwordJPasswordField" alignment="0" pref="254" max="32767" attributes="1"/>
+                                          <Component id="confirmPasswordJPasswordField" alignment="0" pref="254" max="32767" attributes="1"/>
+                                          <Component id="usernameJTextField" alignment="0" max="32767" attributes="1"/>
                                       </Group>
                                   </Group>
                               </Group>
@@ -97,7 +93,6 @@
               <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="usernameJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="checkUsernameJButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="usernameJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -112,7 +107,7 @@
               </Group>
               <EmptySpace min="-2" pref="39" max="-2" attributes="0"/>
               <Component id="errorMessageJLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="27" max="32767" attributes="0"/>
+              <EmptySpace pref="30" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -256,23 +251,6 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
-      </AuxValues>
-    </Component>
-    <Component class="javax.swing.JButton" name="checkUsernameJButton">
-      <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogButtonFont" type="code"/>
-        </Property>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="localization/JPanel_Messages.properties" key="SignupAvatar.AccountInfo.CheckUsernameButton" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkUsernameJButtonActionPerformed"/>
-      </Events>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create();"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>

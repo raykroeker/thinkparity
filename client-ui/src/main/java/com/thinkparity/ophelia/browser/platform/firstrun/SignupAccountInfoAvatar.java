@@ -22,7 +22,6 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
-import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
@@ -198,13 +197,11 @@ public class SignupAccountInfoAvatar extends Avatar
 
         errorMessageJLabel.setText(" ");
         if (containsInputErrors()) {
-            errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
             errorMessageJLabel.setText(getInputErrors().get(0));
         }
         if (isSignupDelegateInitialized()) {
             signupDelegate.enableNextButton(!containsInputErrors());
         }
-        checkUsernameJButton.setEnabled(null != username && username.length() >= MINIMUM_USERNAME_LENGTH);
     }
 
     /**
@@ -309,14 +306,6 @@ public class SignupAccountInfoAvatar extends Avatar
 
         usernameJTextField.setFont(Fonts.DialogTextEntryFont);
 
-        checkUsernameJButton.setFont(Fonts.DialogButtonFont);
-        checkUsernameJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.AccountInfo.CheckUsernameButton"));
-        checkUsernameJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkUsernameJButtonActionPerformed(evt);
-            }
-        });
-
         passwordJLabel.setFont(Fonts.DialogFont);
         passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.AccountInfo.PasswordLabel"));
 
@@ -365,12 +354,9 @@ public class SignupAccountInfoAvatar extends Avatar
                                             .addComponent(confirmPasswordJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE))
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                                .addComponent(usernameJTextField)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(checkUsernameJButton))
-                                            .addComponent(passwordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 254, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(confirmPasswordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 254, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                            .addComponent(passwordJPasswordField, javax.swing.GroupLayout.DEFAULT_SIZE, 254, Short.MAX_VALUE)
+                                            .addComponent(confirmPasswordJPasswordField, javax.swing.GroupLayout.DEFAULT_SIZE, 254, Short.MAX_VALUE)
+                                            .addComponent(usernameJTextField))))
                                 .addGap(23, 23, 23)))))
                 .addContainerGap())
         );
@@ -392,7 +378,6 @@ public class SignupAccountInfoAvatar extends Avatar
                 .addGap(14, 14, 14)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(usernameJLabel)
-                    .addComponent(checkUsernameJButton)
                     .addComponent(usernameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -404,13 +389,9 @@ public class SignupAccountInfoAvatar extends Avatar
                     .addComponent(confirmPasswordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(39, 39, 39)
                 .addComponent(errorMessageJLabel)
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addContainerGap(30, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void checkUsernameJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkUsernameJButtonActionPerformed
-        reserveUsername();
-    }//GEN-LAST:event_checkUsernameJButtonActionPerformed
 
     /**
      * Initialize document handlers.
@@ -484,36 +465,25 @@ public class SignupAccountInfoAvatar extends Avatar
      */
     private void reserveUsername() {
         final String username = extractUsername();
-        if (isReserved(username)) {
-            showUsernameReservedMessage(username);
-        } else {
+        if (!isReserved(username)) {
+            SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
+            errorMessageJLabel.setText(getString("CheckingUsername"));
+            errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel.getWidth(), errorMessageJLabel.getHeight());
             final Reservation reservation = ((SignupProvider) contentProvider).readReservation(username);
+            SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
             if (null == reservation) {
                 unacceptableUsername = username;
-                validateInput();
             } else {
                 reservations.add(reservation);
-                showUsernameReservedMessage(username);
             }
+            validateInput();
         }
-    }
-
-    /**
-     * Show the username reserved message.
-     * 
-     * @param username
-     *            The username <code>String</code>.
-     */
-    private void showUsernameReservedMessage(final String username) {
-        errorMessageJLabel.setForeground(Colours.DIALOG_TEXT_FG);
-        errorMessageJLabel.setText(getString("UsernameReservedMessage", new Object[] {username}));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JRadioButton accountTypeBackupJRadioButton = new javax.swing.JRadioButton();
     private final javax.swing.JRadioButton accountTypeGuestJRadioButton = new javax.swing.JRadioButton();
     private final javax.swing.JRadioButton accountTypeStandardJRadioButton = new javax.swing.JRadioButton();
-    private final javax.swing.JButton checkUsernameJButton = ButtonFactory.create();
     private final javax.swing.JPasswordField confirmPasswordJPasswordField = new javax.swing.JPasswordField();
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel learnMoreJLabel = LabelFactory.createLink("",Fonts.DefaultFont);

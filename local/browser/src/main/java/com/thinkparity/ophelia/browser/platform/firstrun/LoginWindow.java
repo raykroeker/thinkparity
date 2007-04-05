@@ -6,6 +6,8 @@
 
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
+import com.thinkparity.codebase.model.session.Credentials;
+
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowPanel;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowTitle;
@@ -42,6 +44,16 @@ public class LoginWindow extends OpheliaJFrame {
      */
     public Boolean isSignup() {
         return loginAvatar.isSignup();
+    }
+
+    /**
+     * Set the credentials.
+     * 
+     * @param credentials
+     *            The <code>Credentials</code>.
+     */
+    public void setCredentials(final Credentials credentials) {
+        loginAvatar.setCredentials(credentials);
     }
 
     /**

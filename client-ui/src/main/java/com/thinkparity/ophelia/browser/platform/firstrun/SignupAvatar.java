@@ -47,6 +47,9 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     /** The <code>Platform</code>. */
     private final Platform platform;
 
+    /** Signup initiated flag <code>Boolean</code>. */
+    private Boolean signupInitiated;
+
     /** The list of <code>SignupPage</code>s. */
     private final List<SignupPage> signupPages;
 
@@ -55,6 +58,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
         super("SignupAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         this.platform = BrowserPlatform.getInstance();
         signupPages = new ArrayList<SignupPage>();
+        signupInitiated = Boolean.FALSE;
         initComponents();
         bindEscapeKey("Cancel", new AbstractAction() {
             private static final long serialVersionUID = 1;
@@ -90,6 +94,15 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     /** @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getState() */
     public State getState() {
         throw Assert.createNotYetImplemented("SignupAvatar#getState");
+    }
+
+    /**
+     * Determine if signup has been initiated (the button pressed).
+     * 
+     * @return true if the signup has been initiated.
+     */
+    public Boolean isSignupInitiated() {
+        return signupInitiated;
     }
 
     /**
@@ -302,6 +315,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
      * Sign up.
      */
     private void signUp() {
+        signupInitiated = Boolean.TRUE;
         disposeWindow();
         final Reservation reservation = (Reservation)((Data)input).get(SignupData.DataKey.RESERVATION);
         final Credentials credentials = (Credentials)((Data)input).get(SignupData.DataKey.CREDENTIALS);

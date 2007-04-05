@@ -4,6 +4,8 @@
  */
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
+import com.thinkparity.codebase.model.session.Credentials;
+
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -35,6 +37,24 @@ public class SignupWindow extends OpheliaJFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         initComponents(signupAvatar);
         pack();
+    }
+
+    /**
+     * Get the credentials.
+     * 
+     * @return The <code>Credentials</code>.
+     */
+    public Credentials getCredentials() {
+        return (Credentials)signupData.get(SignupData.DataKey.CREDENTIALS);
+    }
+
+    /**
+     * Determine if signup has been initiated (the button pressed).
+     * 
+     * @return true if the signup has been initiated.
+     */
+    public Boolean isSignupInitiated() {
+        return signupAvatar.isSignupInitiated();
     }
 
     /**

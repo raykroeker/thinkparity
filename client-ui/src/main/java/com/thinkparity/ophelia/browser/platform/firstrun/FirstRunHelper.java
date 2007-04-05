@@ -34,6 +34,9 @@ public final class FirstRunHelper {
             loginWindow.setVisibleAndWait();
             if (loginWindow.isSignup()) {
                 getSignupWindow().setVisibleAndWait();
+                if (getSignupWindow().isSignupInitiated()) {
+                    loginWindow.setCredentials(getSignupWindow().getCredentials());
+                }
             } else {
                 doneLogin = true;
             }

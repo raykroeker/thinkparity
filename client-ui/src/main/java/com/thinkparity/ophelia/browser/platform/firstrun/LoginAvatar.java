@@ -17,6 +17,8 @@ import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.codebase.model.session.Credentials;
+
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
@@ -85,6 +87,19 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
      */
     public void dispose() {
         disposeWindow();
+    }
+
+    /**
+     * Set the credentials.
+     * 
+     * @param credentials
+     *            The <code>Credentials</code>.
+     */
+    public void setCredentials(final Credentials credentials) {
+        this.validCredentials = Boolean.TRUE;
+        this.username = credentials.getUsername();
+        this.password = credentials.getPassword();
+        reload();
     }
 
     /**

@@ -234,7 +234,9 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      */
     public void ending(final LifeCycleEvent e) {
         // end the event dispatcher
-        eventDispatcher.end();
+        if (isEventDispatcherInitialized()) {
+            eventDispatcher.end();
+        }
         eventDispatcher = null;
     }
 
@@ -734,6 +736,15 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
             logger.logError(t, "Could not invoke action {0} with data {1}.", actionId, data);
             throw new BrowserException("Could not invoke platform action.", t);
         }
+    }
+
+    /**
+     * Determine if the event dispatcher has been initialized.
+     * 
+     * @return True if the event dispatcher has been initialized.
+     */
+    private Boolean isEventDispatcherInitialized() {
+        return (null != eventDispatcher);
     }
 
     /**

@@ -129,13 +129,10 @@ public class SignupProfileInfoAvatar extends Avatar
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
      */
     public void reload() {
+        reloadCountry();
         reloadProvinceLabel();
         reloadPostalCodeLabel();
-        // Don't bother validating input if the signup delegate has not been assigned yet
-        // since the goal is to enable or disable the 'next' button
-        if (null != signupDelegate) {
-            validateInput();
-        }
+        validateInput();
     }
 
     /**
@@ -172,6 +169,9 @@ public class SignupProfileInfoAvatar extends Avatar
         if (isEmpty(profile.getName()) ||
                 isEmpty(profile.getTitle()) ||
                 isEmpty(profile.getOrganization()) ||
+                isEmpty(profile.getAddress()) ||
+                isEmpty(profile.getCity()) ||
+                isEmpty(profile.getProvince()) ||
                 isEmpty(profile.getCountry()) ||
                 isEmpty(extractInputEmail())) {
             addInputError(Separator.Space.toString());
@@ -184,7 +184,10 @@ public class SignupProfileInfoAvatar extends Avatar
         if (containsInputErrors()) {
             errorMessageJLabel.setText(getInputErrors().get(0));
         }
-        signupDelegate.enableNextButton(!containsInputErrors());
+
+        if (isSignupDelegateInitialized()) {
+            signupDelegate.enableNextButton(!containsInputErrors());
+        }
     }
 
     /**
@@ -194,19 +197,6 @@ public class SignupProfileInfoAvatar extends Avatar
      */
     private EMail extractEmail() {
         return EMailBuilder.parse(extractInputEmail());
-    }
-
-    /**
-     * Extract the country from the control.
-     * 
-     * @return The country <code>String</code>.
-     */
-    private String extractInputCountry() {
-        if (countryJComboBox.getSelectedIndex() >= 0) {
-            return ((Locale) countryJComboBox.getSelectedItem()).getISO3Country();
-        } else {
-            return null;
-        }
     }
 
     /**
@@ -225,9 +215,10 @@ public class SignupProfileInfoAvatar extends Avatar
      */
     private Locale extractInputLocale() {
         if (countryJComboBox.getSelectedIndex() >= 0) {
-            return ((Locale) countryJComboBox.getSelectedItem());
+            final Locale locale = ((Locale) countryJComboBox.getSelectedItem());
+            return new Locale(Locale.getDefault().getLanguage(), locale.getCountry());
         } else {
-            return null;
+            return Locale.getDefault();
         }
     }
 
@@ -241,7 +232,7 @@ public class SignupProfileInfoAvatar extends Avatar
         profile.setVCard(new ProfileVCard());
         profile.setAddress(SwingUtil.extract(addressJTextField, Boolean.TRUE));
         profile.setCity(SwingUtil.extract(cityJTextField, Boolean.TRUE));
-        profile.setCountry(extractInputCountry());
+        // Note that setLocale() also sets country and language
         profile.setLocale(extractInputLocale());
         profile.setMobilePhone(SwingUtil.extract(mobilePhoneJTextField, Boolean.TRUE));
         profile.setName(SwingUtil.extract(nameJTextField, Boolean.TRUE));
@@ -551,6 +542,15 @@ public class SignupProfileInfoAvatar extends Avatar
     }
 
     /**
+     * Determine if the signup delegate has been initialized yet.
+     * 
+     * @return true if the signup delegate has been initialized.
+     */
+    private Boolean isSignupDelegateInitialized() {
+        return (null != signupDelegate);
+    }
+
+    /**
      * Determines if the United States is the selected country.
      * 
      * @return true if the United States is selected; false otherwise
@@ -571,6 +571,20 @@ public class SignupProfileInfoAvatar extends Avatar
             postalCodeJLabel.setText(getString("ZipCode"));
         } else {
             postalCodeJLabel.setText(getString("PostalCode"));    
+        }
+    }
+
+    /**
+     * Reload the country from the default locale.
+     */
+    private void reloadCountry() {
+        final Locale defaultLocale = Locale.getDefault();
+        Locale locale;
+        for (int i = 0; i < countryModel.getSize(); i++) {
+            locale = (Locale) countryModel.getElementAt(i);
+            if (locale.getCountry().equals(defaultLocale.getCountry())) {
+                countryModel.setSelectedItem(locale);
+            }
         }
     }
 

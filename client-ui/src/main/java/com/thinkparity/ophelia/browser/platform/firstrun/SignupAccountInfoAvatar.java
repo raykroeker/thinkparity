@@ -144,11 +144,7 @@ public class SignupAccountInfoAvatar extends Avatar
     @Override
     public void reload() {
         reloadAccountTypeRadioButtons();
-        // Don't bother validating input if the signup delegate has not been assigned yet
-        // since the goal is to enable or disable the 'next' button
-        if (null != signupDelegate) {
-            validateInput();
-        }
+        validateInput();
     }
 
     /**
@@ -205,7 +201,9 @@ public class SignupAccountInfoAvatar extends Avatar
             errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
             errorMessageJLabel.setText(getInputErrors().get(0));
         }
-        signupDelegate.enableNextButton(!containsInputErrors());
+        if (isSignupDelegateInitialized()) {
+            signupDelegate.enableNextButton(!containsInputErrors());
+        }
         checkUsernameJButton.setEnabled(null != username && username.length() >= MINIMUM_USERNAME_LENGTH);
     }
 
@@ -443,6 +441,15 @@ public class SignupAccountInfoAvatar extends Avatar
      */
     private Boolean isReserved(final String username) {
         return (null != lookupReservation(username));
+    }
+
+    /**
+     * Determine if the signup delegate has been initialized yet.
+     * 
+     * @return true if the signup delegate has been initialized.
+     */
+    private Boolean isSignupDelegateInitialized() {
+        return (null != signupDelegate);
     }
 
     private void learnMoreJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_learnMoreJLabelMousePressed

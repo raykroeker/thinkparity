@@ -104,11 +104,7 @@ public class SignupLicenseAgreementAvatar extends Avatar
         reloadRadioButtons();
         reloadLicenseAgreementText();
         licenseAgreementJScrollPane.getViewport().setViewPosition(new Point(0,0));
-        // Don't bother validating input if the signup delegate has not been assigned yet
-        // since the goal is to enable or disable the 'next' button
-        if (null != signupDelegate) {
-            validateInput();
-        }
+        validateInput();
     }
 
     /**
@@ -139,7 +135,9 @@ public class SignupLicenseAgreementAvatar extends Avatar
     @Override
     public final void validateInput() {
         super.validateInput();
-        signupDelegate.enableNextButton(acceptJRadioButton.isSelected());
+        if (isSignupDelegateInitialized()) {
+            signupDelegate.enableNextButton(acceptJRadioButton.isSelected());
+        }
     }
 
     private void acceptJRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_acceptJRadioButtonActionPerformed
@@ -234,6 +232,15 @@ public class SignupLicenseAgreementAvatar extends Avatar
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Determine if the signup delegate has been initialized yet.
+     * 
+     * @return true if the signup delegate has been initialized.
+     */
+    private Boolean isSignupDelegateInitialized() {
+        return (null != signupDelegate);
+    }
 
     /**
      * Reload the license agreement text.

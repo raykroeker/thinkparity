@@ -68,6 +68,7 @@ Environment Configuration:
     Groovy Home:                ${env.GROOVY_HOME}
     Launch4J Home:              ${env.LAUNCH4J_HOME}
     NSIS Home:                  ${env.NSIS_HOME}
+    Java Home:                  ${env.JAVA_HOME}
 Build Configuration:
     Build Id:                   ${thinkparity.build-id}
     Compiler Arguments:         ${javac.compilerargs}
@@ -530,14 +531,22 @@ Examples:
                     stayAlive="false"
                     icon="${target.classes.dir}/images/ThinkParity32x32.ico"
                     chdir="${thinkparity.release-name}/lib/${thinkparity.os-platform}">
-                <jre minVersion="1.6.0"
+                <jre path="${thinkparity.release-name}/jre"
                     args="-Dthinkparity-dir=&quot;%EXEDIR%&quot; -Dthinkparity.mode=${thinkparity.mode} -Dthinkparity.environment=${thinkparity.environment}"/>
             </config>
         </launch4j>
     </target>
 
+    <!-- embed-java -->
+    <target name="embed-java" depends="compile">
+        <mkdir dir="${target.package.dir}/${thinkparity.release-name}/jre"/>
+        <copy todir="${target.package.dir}/${thinkparity.release-name}/jre">
+            <fileset dir="${env.JAVA_HOME}"/>
+        </copy>
+    </target>
+
     <!-- package-installer -->
-    <target name="package-installer" depends="package"
+    <target name="package-installer" depends="package,embed-java"
             description="compile a null-soft installer for the package">
         <copy todir="${target.package.dir}" file="${target.classes.dir}/install.nsi"/>
         <exec executable="${env.NSIS_HOME}/makensis.exe" dir="${target.package.dir}">

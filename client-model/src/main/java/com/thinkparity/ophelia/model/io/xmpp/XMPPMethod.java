@@ -738,6 +738,12 @@ public class XMPPMethod extends IQ {
                     parser.next();
                     parser.next();
                     return container;
+                } else if (javaType.equals(ProfileEMail.class)) {
+                    ProfileEMail profileEMail = null;
+                    profileEMail = (ProfileEMail) xstreamUtil.unmarshal(new SmackXppReader(parser), profileEMail);
+                    parser.next();
+                    parser.next();
+                    return profileEMail;
                 } else if (javaType.equals(Feature.class)) {
                     Feature feature = null;
                     feature = (Feature) xstreamUtil.unmarshal(new SmackXppReader(parser), feature);

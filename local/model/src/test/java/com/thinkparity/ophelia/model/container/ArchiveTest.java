@@ -62,7 +62,7 @@ public class ArchiveTest extends ContainerTestCase {
         // create a package; add documents to the package; publish the package
         final Container c_initial_z = createContainer(datum.junit_z, getName());
         addDocuments(datum.junit_z, c_initial_z.getId());
-        publish(datum.junit_z, c_initial_z.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit_z, c_initial_z.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
 
         // archive the package
@@ -123,7 +123,7 @@ public class ArchiveTest extends ContainerTestCase {
         // create a package; add documents to the package; publish the package
         final Container c_initial_z = createContainer(datum.junit_z, getName());
         addDocuments(datum.junit_z, c_initial_z.getId());
-        publish(datum.junit_z, c_initial_z.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit_z, c_initial_z.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
 
         // archive the package
@@ -185,7 +185,7 @@ public class ArchiveTest extends ContainerTestCase {
         // create a package; add documents to the package; publish the package
         final Container c_initial_z = createContainer(datum.junit_z, getName());
         addDocuments(datum.junit_z, c_initial_z.getId());
-        publish(datum.junit_z, c_initial_z.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit_z, c_initial_z.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
 
         // archive the package
@@ -253,7 +253,7 @@ public class ArchiveTest extends ContainerTestCase {
         // create a package; add documents to the package; publish the package
         final Container c_initial_z = createContainer(datum.junit_z, getName());
         addDocuments(datum.junit_z, c_initial_z.getId());
-        publish(datum.junit_z, c_initial_z.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit_z, c_initial_z.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
 
         // archive the package

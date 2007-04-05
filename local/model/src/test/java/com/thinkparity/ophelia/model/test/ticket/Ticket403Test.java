@@ -44,12 +44,12 @@ public class Ticket403Test extends TicketTestCase {
     public void testTicket() {
         final Container c_z = createContainer(datum.junit_z, NAME);
         addDocument(datum.junit_z, c_z.getId(), "JUnitTestFramework.doc");
-        publish(datum.junit_z, c_z.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit_z, c_z.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         createDraft(datum.junit_z, c_z.getId());
         datum.waitForEvents();
         addDocument(datum.junit_z, c_z.getId(), "JUnitTestFramework.odt");
-        publish(datum.junit_z, c_z.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit_z, c_z.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         archive(datum.junit_z, c_z.getId());
         datum.waitForEvents();

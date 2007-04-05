@@ -45,7 +45,7 @@ public class Ticket438Test extends TicketTestCase {
         final Container c_initial = createContainer(datum.junit, NAME);
         addDocuments(datum.junit, c_initial.getId());
         addContainerListener(datum.junit_x, datum.listener_x);
-        publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         removeContainerListener(datum.junit_x, datum.listener_x);
         assertTrue("Container flagged event did not fire.", datum.flagged_x);

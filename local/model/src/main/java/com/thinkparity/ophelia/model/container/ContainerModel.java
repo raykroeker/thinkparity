@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.filter.Filter;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
@@ -208,20 +209,23 @@ public interface ContainerModel {
      *            A container id <code>Long</code>.
      * @param comment
      *            An optional comment <code>String</code>.
+     * @param emails
+     *            A <code>List</code> of <code>EMail</code>s to publish to.
      * @param contacts
-     *            A <code>List</code> of <code>Contacts</code> to publish
+     *            A <code>List</code> of <code>Contact</code>s to publish
      *            to.
      * @param teamMembers
-     *            A <code>List</code> of <code>TeamMembers</code> to publish
-     *            to.
+     *            A <code>List</code> of <code>TeamMember</code>s to
+     *            publish to.
      * @throws CannotLockException
      *             if the local files representing the container's documents
      *             cannot be exclusively locked
      */
     @ThinkParityOnline
     public void publish(final ProcessMonitor monitor, final Long containerId,
-            final String comment, final List<Contact> contacts,
-            final List<TeamMember> teamMembers) throws CannotLockException;
+            final String comment, final List<EMail> emails,
+            final List<Contact> contacts, final List<TeamMember> teamMembers)
+            throws CannotLockException;
 
     /**
      * Publish the container version.
@@ -230,14 +234,18 @@ public interface ContainerModel {
      *            A container id <code>Long</code>.
      * @param versionId
      *            A container version id <code>Long</code>.
+     * @param emails
+     *            A <code>List</code> of <code>EMail</code>s to publish to.
      * @param contacts
      *            A contact <code>List</code>.
      * @param teamMembers
      *            A <code>TeamMember</code> <code>List</code>.
      */
+    @ThinkParityOnline
     public void publishVersion(final ProcessMonitor monitor,
             final Long containerId, final Long versionId,
-            final List<Contact> contacts, final List<TeamMember> teamMembers);
+            final List<EMail> emails, final List<Contact> contacts,
+            final List<TeamMember> teamMembers);
 
     /**
      * Read the containers.

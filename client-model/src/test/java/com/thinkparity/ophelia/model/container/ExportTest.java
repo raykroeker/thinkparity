@@ -36,7 +36,7 @@ public class ExportTest extends ContainerTestCase {
     public void testExport() {
         final Container c = createContainer(datum.junit, NAME);
         final List<Document> d_list = addDocuments(datum.junit, c.getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         createDraft(datum.junit, c.getId());
         datum.waitForEvents();
@@ -45,7 +45,7 @@ public class ExportTest extends ContainerTestCase {
             if (1 == i % 2)
                 removeDocument(datum.junit, c.getId(), d_list.get(i).getId());
         }
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         // re-add half of the documents
         createDraft(datum.junit, c.getId());
@@ -56,7 +56,7 @@ public class ExportTest extends ContainerTestCase {
                 addDocument(datum.junit, c.getId(), inputFileNames[i]);
             }
         }
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         exportContainer(datum.junit, c.getId(),
                 new File(getOutputDirectory(), c.getName() + ".zip"));

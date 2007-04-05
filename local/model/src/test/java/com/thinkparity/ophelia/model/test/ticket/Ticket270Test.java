@@ -40,7 +40,7 @@ public final class Ticket270Test extends TicketTestCase {
         final Container c = createContainer(datum.junit, NAME);
         final Document d_one = addDocument(datum.junit, c.getId(), "JUnitTestFramework.odt");
 
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         final Container c_x = readContainer(datum.junit_x, c.getUniqueId());
         final Container c_y = readContainer(datum.junit_y, c.getUniqueId());
@@ -63,7 +63,7 @@ public final class Ticket270Test extends TicketTestCase {
         modifyDocument(datum.junit, d_one.getId());
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.txt");
 
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         draft = readContainerDraft(datum.junit, c.getId());
         assertNull("Draft for " + datum.junit.getSimpleUsername() + " is not null.", draft);

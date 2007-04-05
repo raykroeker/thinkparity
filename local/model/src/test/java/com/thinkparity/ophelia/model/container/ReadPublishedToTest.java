@@ -35,7 +35,7 @@ public class ReadPublishedToTest extends ContainerTestCase {
     public void testReadPublishedTo() {
         final Container c = createContainer(datum.junit, NAME);
         addDocuments(datum.junit, c.getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity",
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity",
                 "JUnit.Y thinkParity");
         datum.waitForEvents();
         final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());

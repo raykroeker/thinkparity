@@ -25,10 +25,12 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Error;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
@@ -122,7 +124,6 @@ public interface XMPPSession {
     public void addTeamMember(final JabberId userId, final List<JabberId> team,
             final UUID uniqueId, final JabberId teamMemberId);
 
-
     /**
      * Archive an artifact. This will simply apply the archived flag within the
      * backup.
@@ -133,6 +134,7 @@ public interface XMPPSession {
      *            An artifact unique id <code>UUID</code>.
      */
     public void archiveArtifact(final JabberId userId, final UUID uniqueId);
+
 
     /**
      * Clear all xmpp session listeners.
@@ -355,7 +357,7 @@ public interface XMPPSession {
      */
     public void deleteStreamSession(final JabberId userId,
             final StreamSession session);
-    
+
     /**
      * Deploy a migrator release.
      * 
@@ -373,7 +375,7 @@ public interface XMPPSession {
     public void deployMigrator(final JabberId userId, final Product product,
             final Release release, final List<Resource> resources,
             final String streamId);
-
+    
     /**
      * Determine if the backup is online.
      * 
@@ -464,7 +466,8 @@ public interface XMPPSession {
             final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documents,
             final List<TeamMember> teamMembers, final JabberId publishedBy,
-            final Calendar publishedOn, final List<User> publishedTo);
+            final Calendar publishedOn, final List<EMail> publishedToEMails,
+            final List<User> publishedToUsers);
 
     /**
      * Read the archive's containers.
@@ -539,10 +542,10 @@ public interface XMPPSession {
     public List<DocumentVersion> readArchiveDocumentVersions(
             final JabberId userId, final UUID uniqueId, final Long versionId);
 
-	public List<TeamMember> readArchiveTeam(final JabberId userId,
+    public List<TeamMember> readArchiveTeam(final JabberId userId,
             final UUID uniqueId);
 
-    /**
+	/**
      * Read the archive team for a user.
      * 
      * @param userId
@@ -564,6 +567,7 @@ public interface XMPPSession {
      * @return A list of containers.
      */
     public Container readBackupContainer(final JabberId userId, final UUID uniqueId);
+
     /**
      * Read the backup's containers.
      * 
@@ -611,7 +615,6 @@ public interface XMPPSession {
      */
     public List<DocumentVersion> readBackupDocumentVersions(
             final JabberId userId, final UUID uniqueId, final Long versionId);
-
     public List<ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
             final UUID uniqueId, final Long versionId);
 
@@ -670,7 +673,7 @@ public interface XMPPSession {
      */
     public Integer readEventQueueSize(final JabberId userId);
 
-	/**
+    /**
      * Read all incoming e-mail invitations.
      * 
      * @return A <code>List</code> of <code>IncomingInvitation</code>s.
@@ -678,7 +681,7 @@ public interface XMPPSession {
     public List<IncomingEMailInvitation> readIncomingEMailInvitations(
             final JabberId userId);
 
-    /**
+	/**
      * Read all incoming user invitations.
      * 
      * @return A <code>List</code> of <code>IncomingInvitation</code>s.
@@ -717,6 +720,18 @@ public interface XMPPSession {
      * @return A <code>Product</code>.
      */
     public Product readMigratorProduct(final JabberId userId, final String name);
+
+    /**
+     * Read the migrator product features.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param name
+     *            A product name <code>String</code>.
+     * @return A <code>List</code> of <code>Feature</code>.
+     */
+    public List<Feature> readMigratorProductFeatures(final JabberId userId,
+            final String name);
 
     /**
      * Read a migrator release.
@@ -771,9 +786,9 @@ public interface XMPPSession {
     /**
      * Read the user's profile emails addresses.
      * 
-     * @return A list of profile emails addresses.
+     * @return A <code>List</code> of <code>ProfileEMail</code>s.
      */
-    public List<EMail> readProfileEMails();
+    public List<ProfileEMail> readProfileEMails();
 
     /**
      * Read the user profile's security question.

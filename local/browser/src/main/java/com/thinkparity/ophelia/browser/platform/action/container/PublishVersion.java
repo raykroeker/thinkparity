@@ -4,9 +4,13 @@
 package com.thinkparity.ophelia.browser.platform.action.container;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -52,17 +56,20 @@ public class PublishVersion extends AbstractBrowserAction {
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         final Long versionId = (Long) data.get(DataKey.VERSION_ID);
+        final ContainerVersion version = getContainerModel().readVersion(
+                containerId, versionId);
         final List<User> contactsIn = getDataUsers(data, DataKey.CONTACTS);
         final List<User> teamMembersIn = getDataUsers(data, DataKey.TEAM_MEMBERS);
-        
+
         if ((null == contactsIn || contactsIn.isEmpty()) &&
             (null == teamMembersIn || teamMembersIn.isEmpty())) {
                 // Launch publish dialog
                 browser.displayPublishContainerDialog(containerId, versionId);
         } else {
             final Profile profile = getProfileModel().read();
-            final ArrayList<TeamMember> teamMembers = new ArrayList<TeamMember>();
-            final ArrayList<Contact> contacts = new ArrayList<Contact>();
+            final List<EMail> emails = Collections.emptyList();
+            final List<Contact> contacts = new ArrayList<Contact>();
+            final List<TeamMember> teamMembers = new ArrayList<TeamMember>();
             
             // Build team members list, minus the current user
             for (final User teamMemberIn : teamMembersIn) {
@@ -88,7 +95,7 @@ public class PublishVersion extends AbstractBrowserAction {
             final ThinkParitySwingMonitor monitor =
                 (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
             final ThinkParitySwingWorker worker = new PublishVersionWorker(
-                    this, contacts, containerId, versionId, teamMembers);
+                    this, version, emails, contacts, teamMembers);
             worker.setMonitor(monitor);
             worker.start();
         }
@@ -96,36 +103,39 @@ public class PublishVersion extends AbstractBrowserAction {
     
     /** Data keys. */
     public enum DataKey {
-        CONTACTS, CONTAINER_ID, MONITOR, TEAM_MEMBERS, VERSION_ID
+        CONTACTS, CONTAINER_ID, EMAILS, MONITOR, TEAM_MEMBERS, VERSION_ID
     }
     
     /** A publish action worker object. */
     private static class PublishVersionWorker extends ThinkParitySwingWorker<PublishVersion> {
         private final ArtifactModel artifactModel;
         private final List<Contact> contacts;
-        private final Long containerId;
         private final ContainerModel containerModel;
+        private final List<EMail> emails;
         private final ProcessMonitor publishMonitor;
         private final List<TeamMember> teamMembers;
-        private final Long versionId;
+        private final ContainerVersion version;
         private PublishVersionWorker(final PublishVersion publishVersion,
-                final List<Contact> contacts, final Long containerId,
-                final Long versionId, final List<TeamMember> teamMembers) {
+                final ContainerVersion version, final List<EMail> emails,
+                final List<Contact> contacts, final List<TeamMember> teamMembers) {
             super(publishVersion);
-            this.artifactModel = publishVersion.getArtifactModel();
+            this.version = version;
+            this.emails = emails;
             this.contacts = contacts;
-            this.containerId = containerId;
-            this.versionId = versionId;
-            this.containerModel = publishVersion.getContainerModel();
             this.teamMembers = teamMembers;
+
+            this.artifactModel = publishVersion.getArtifactModel();
+            this.containerModel = publishVersion.getContainerModel();
+
             this.publishMonitor = newPublishVersionMonitor();
         }
         @Override
         public Object construct() {
-            containerModel.publishVersion(publishMonitor, containerId,
-                    versionId, contacts, teamMembers);
-            artifactModel.applyFlagSeen(containerId);
-            return containerModel.readVersion(containerId, versionId);
+            containerModel.publishVersion(publishMonitor,
+                    version.getArtifactId(), version.getVersionId(),
+                    emails, contacts, teamMembers);
+            artifactModel.applyFlagSeen(version.getArtifactId());
+            return version;
         }
         /**
          * Create a new publish version monitor.
@@ -137,19 +147,8 @@ public class PublishVersion extends AbstractBrowserAction {
                 private Integer stepIndex;
                 private Integer steps;
                 @Override
-                public void determineSteps(final Integer steps) {
-                    this.stepIndex = 0;
-                    this.steps = steps;
-                    monitor.setSteps(steps);
-                    monitor.setStep(stepIndex);
-                }
-                @Override
                 public void beginProcess() {
                     monitor.monitor();
-                }
-                @Override
-                public void endProcess() {
-                    monitor.complete();
                 }
                 @Override
                 public void beginStep(final Step step,
@@ -161,6 +160,17 @@ public class PublishVersion extends AbstractBrowserAction {
                             monitor.setStep(stepIndex, action.getString("ProgressPublish"));
                         }
                     }
+                }
+                @Override
+                public void determineSteps(final Integer steps) {
+                    this.stepIndex = 0;
+                    this.steps = steps;
+                    monitor.setSteps(steps);
+                    monitor.setStep(stepIndex);
+                }
+                @Override
+                public void endProcess() {
+                    monitor.complete();
                 }
                 @Override
                 public void endStep(final Step step) {

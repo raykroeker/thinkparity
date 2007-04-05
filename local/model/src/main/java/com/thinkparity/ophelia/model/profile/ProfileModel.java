@@ -9,6 +9,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.Reservation;
@@ -51,9 +52,9 @@ public interface ProfileModel {
             final EMail email, final String securityQuestion,
             final String securityAnswer) throws ReservationExpiredException;
 
-	public Reservation createReservation(final String username);
+    public Reservation createReservation(final String username);
 
-    /**
+	/**
      * Determine whether or not an e-mail address is available.
      * 
      * @param email
@@ -106,6 +107,13 @@ public interface ProfileModel {
      * @return A list of email addresses.
      */
     public List<ProfileEMail> readEmails();
+
+    /**
+     * Read a list of available features.
+     * 
+     * @return A <code>List</code> of <code>Feature</code>s.
+     */
+    public List<Feature> readFeatures();
 
 	/**
      * Read the security question.

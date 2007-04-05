@@ -18,6 +18,8 @@ import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
+import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -1353,6 +1355,61 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
+     * Publish to a list of e-mail addresses.
+     * 
+     * @param publishAs
+     *            An <code>OpheliaTestUser</code> to publish as.
+     * @param localContainerId
+     *            A container id <code>Long</code> relative to publish as.
+     * @param emailAddresses
+     *            A list of e-mail address <code>String</code>s.
+     */
+    protected final void publishToEMails(final OpheliaTestUser publishAs,
+            final Long localContainerId, final String... emailAddresses) {
+        publishToEMailsWithComment(publishAs, localContainerId, null,
+                emailAddresses);
+    }
+
+    /**
+     * Publish to a list of e-mail addresses.
+     * 
+     * @param publishAs
+     *            An <code>OpheliaTestUser</code> to publish as.
+     * @param localContainerId
+     *            A container id <code>Long</code> relative to publish as.
+     * @param comment
+     *            An optional commment <code>String</code>.
+     * @param emailAddresses
+     *            A list of e-mail address <code>String</code>s.
+     */
+    protected final void publishToEMailsWithComment(
+            final OpheliaTestUser publishAs, final Long localContainerId,
+            final String comment, final String... emailAddresses) {
+        final List<EMail> emails = new ArrayList<EMail>(emailAddresses.length);
+        for (final String emailAddress : emailAddresses) {
+            emails.add(EMailBuilder.parse(emailAddress));
+        }
+        final List<TeamMember> teamMembers = Collections.emptyList();
+        final List<Contact> contacts = Collections.emptyList();
+
+        final Container c = getContainerModel(publishAs).read(localContainerId);
+        if (0 < emails.size()) {
+            logger.logInfo("Publishing container \"{0}\" as \"{1}\" to emails \"{2}\".",
+                    c.getName(), publishAs.getSimpleUsername(), emails);
+        } else {
+            fail("Cannot publish to nobody.");
+        }
+        try {
+            getContainerModel(publishAs).publish(PUBLISH_MONITOR,
+                    localContainerId, comment, emails, contacts, teamMembers);
+        } catch (final OfflineException ox) {
+            fail(ox, "Cannot publish container {0}.", c.getName());
+        } catch (final CannotLockException clx) {
+            fail(clx, "Cannot publish container {0}.", c.getName());
+        }
+    }
+
+    /**
      * Publish to a discrete set of team members.
      * 
      * @param publishAs
@@ -1363,62 +1420,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *            A <code>String</code> list of <code>TeamMember</code>
      *            names.
      */
-    protected void publish(final OpheliaTestUser publishAs,
+    protected void publishToUsers(final OpheliaTestUser publishAs,
             final Long localContainerId, final String... userNames) {
-        publishWithComment(publishAs, localContainerId, null, userNames);
-    }
-
-    /**
-     * Publish a container version. By providing a list of user names a filtered
-     * list of contacts and team members is created. Only users whose names
-     * match that provided in the list are published to. If no names are
-     * provided; all contacts and all team members are published to; note that
-     * the publishAs user is never published to and that the contacts list will
-     * not include any team members.
-     * 
-     * @param publishAs
-     *            The <code>OpheliaTestUser</code> to publish as.
-     * @param localContainerId
-     *            A container id <code>Long</code> local to publishAs.
-     * @param versionId
-     *            A container version id <code>Long</code>.
-     * @param userNames
-     *            An optional list of user names to filter. The user name can be
-     *            either a contact name or a team member name.
-     */
-    protected void publishVersion(final OpheliaTestUser publishAs,
-            final Long localContainerId, final Long versionId,
-            final String... userNames) {
-        final List<TeamMember> teamMembers = readTeam(publishAs, localContainerId);
-        final List<Contact> contacts = readContacts(publishAs);
-        userUtils.filter(teamMembers, userNames);
-        userUtils.filter(contacts, userNames);
-        filter(contacts, teamMembers);
-        remove(teamMembers, publishAs);
-        final Container c = getContainerModel(publishAs).read(localContainerId);
-        final String teamMemberNames = extractUserNames(teamMembers);
-        final String contactNames = extractUserNames(contacts);
-        if (0 < teamMembers.size()) {
-            if (0 < contacts.size()) {
-                logger.logInfo("Publishing container \"{0}\" version \"{4}\" as \"{1}\" to contacts \"{2}\" and team members \"{3}\".",
-                        c.getName(), publishAs.getSimpleUsername(),
-                        contactNames, teamMemberNames, versionId);
-            } else {
-                logger.logInfo("Publishing container \"{0}\" version \"{3}\" as \"{1}\" to team members \"{2}\".",
-                        c.getName(), publishAs.getSimpleUsername(),
-                        teamMemberNames, versionId);
-            }
-        } else {
-            if (0 < contacts.size()) {
-                logger.logInfo("Publishing container \"{0}\" version \"{3}\" as \"{1}\" to contacts \"{2}\".",
-                        c.getName(), publishAs.getSimpleUsername(),
-                        contactNames, versionId);
-            } else {
-                fail("Cannot publish to nobody.");
-            }
-        }
-        getContainerModel(publishAs).publishVersion(PUBLISH_MONITOR,
-                localContainerId, versionId, contacts, teamMembers);
+        publishToUsersWithComment(publishAs, localContainerId, null, userNames);
     }
 
     /**
@@ -1430,15 +1434,16 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *            A container id <code>Long</code> local to publishAs.
      * @param comment
      *            A publish comment <code>String</code>.
-     * @param teamMemberNames
+     * @param userNames
      *            A <code>String</code> list of <code>TeamMember</code>
-     *            names.
+     *            and/or <code>Contact</code> names.
      */
-    protected void publishWithComment(final OpheliaTestUser publishAs,
+    protected void publishToUsersWithComment(final OpheliaTestUser publishAs,
             final Long localContainerId, final String comment,
             final String... userNames) {
-        final List<TeamMember> teamMembers = readTeam(publishAs, localContainerId);
+        final List<EMail> emails = Collections.emptyList();
         final List<Contact> contacts = readContacts(publishAs);
+        final List<TeamMember> teamMembers = readTeam(publishAs, localContainerId);
         if (0 < userNames.length) {
             userUtils.filter(teamMembers, userNames);
             userUtils.filter(contacts, userNames);
@@ -1466,12 +1471,67 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             }
         }
         try {
-            getContainerModel(publishAs).publish(PUBLISH_MONITOR, localContainerId, comment, contacts, teamMembers);
+            getContainerModel(publishAs).publish(PUBLISH_MONITOR,
+                    localContainerId, comment, emails, contacts, teamMembers);
         } catch (final OfflineException ox) {
             fail(ox, "Cannot publish container {0}.", c.getName());
         } catch (final CannotLockException clx) {
             fail(clx, "Cannot publish container {0}.", c.getName());
         }
+    }
+
+    /**
+     * Publish a container version. By providing a list of user names a filtered
+     * list of contacts and team members is created. Only users whose names
+     * match that provided in the list are published to. If no names are
+     * provided; all contacts and all team members are published to; note that
+     * the publishAs user is never published to and that the contacts list will
+     * not include any team members.
+     * 
+     * @param publishAs
+     *            The <code>OpheliaTestUser</code> to publish as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to publishAs.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param userNames
+     *            An optional list of user names to filter. The user name can be
+     *            either a contact name or a team member name.
+     */
+    protected void publishVersionToUsers(final OpheliaTestUser publishAs,
+            final Long localContainerId, final Long versionId,
+            final String... userNames) {
+        final List<EMail> emails = Collections.emptyList();
+        final List<Contact> contacts = readContacts(publishAs);
+        final List<TeamMember> teamMembers = readTeam(publishAs, localContainerId);
+        userUtils.filter(teamMembers, userNames);
+        userUtils.filter(contacts, userNames);
+        filter(contacts, teamMembers);
+        remove(teamMembers, publishAs);
+        final Container c = getContainerModel(publishAs).read(localContainerId);
+        final String teamMemberNames = extractUserNames(teamMembers);
+        final String contactNames = extractUserNames(contacts);
+        if (0 < teamMembers.size()) {
+            if (0 < contacts.size()) {
+                logger.logInfo("Publishing container \"{0}\" version \"{4}\" as \"{1}\" to contacts \"{2}\" and team members \"{3}\".",
+                        c.getName(), publishAs.getSimpleUsername(),
+                        contactNames, teamMemberNames, versionId);
+            } else {
+                logger.logInfo("Publishing container \"{0}\" version \"{3}\" as \"{1}\" to team members \"{2}\".",
+                        c.getName(), publishAs.getSimpleUsername(),
+                        teamMemberNames, versionId);
+            }
+        } else {
+            if (0 < contacts.size()) {
+                logger.logInfo("Publishing container \"{0}\" version \"{3}\" as \"{1}\" to contacts \"{2}\".",
+                        c.getName(), publishAs.getSimpleUsername(),
+                        contactNames, versionId);
+            } else {
+                fail("Cannot publish to nobody.");
+            }
+        }
+        getContainerModel(publishAs).publishVersion(PUBLISH_MONITOR,
+                localContainerId, versionId, emails, contacts, teamMembers);
     }
 
     /**

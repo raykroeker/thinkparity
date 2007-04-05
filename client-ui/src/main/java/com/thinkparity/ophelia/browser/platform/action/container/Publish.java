@@ -5,6 +5,8 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
@@ -39,11 +41,23 @@ public class Publish extends AbstractBrowserAction {
     /** The <code>Browser</code> application. */
     private final Browser browser;
 
+    /** The comment <code>String</code> used by invoke and retry invoke action. */
 	private String comment;
 
+    /**
+     * The <code>List</code> of <code>Contact</code>s used by invoke and
+     * retry invoke action.
+     */
 	private List<Contact> contacts;
 
+    /** The <code>Container</code> used by invoke and retry invoke action. */
     private Container container;
+
+    /**
+     * The <code>List</code> of <code>EMail</code> addresses used by invoke and
+     * retry invoke action.
+     */
+    private List<EMail> emails;
 
     /**
      * A <code>ThinkParitySwingMonitor</code>.  Used by invoke and retry invoke.
@@ -51,6 +65,10 @@ public class Publish extends AbstractBrowserAction {
      */
     private ThinkParitySwingMonitor monitor;
 
+    /**
+     * The <code>List</code> of <code>TeamMember</code>s used by invoke and
+     * retry invoke action.
+     */
     private List<TeamMember> teamMembers;
 
     /**
@@ -86,6 +104,7 @@ public class Publish extends AbstractBrowserAction {
                     break;
             }
             if (isPublishable) {
+                final List<EMail> emails = data.getList(DataKey.EMAILS);
                 final List<Contact> contacts = data.getList(DataKey.CONTACTS);
                 final List<TeamMember> teamMembers = data.getList(DataKey.TEAM_MEMBERS);
                 if (0 == contacts.size() && teamMembers.size() == 0) {
@@ -93,7 +112,8 @@ public class Publish extends AbstractBrowserAction {
                 } else {
                     final String comment = (String) data.get(DataKey.COMMENT);
                     final ThinkParitySwingMonitor monitor = (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
-                    invoke(monitor, comment, contacts, container, teamMembers);
+                    invoke(monitor, container, comment, emails, contacts,
+                            teamMembers);
                 }
             } else {
                 browser.displayErrorDialog("Publish.NoDocumentToPublish",
@@ -111,7 +131,7 @@ public class Publish extends AbstractBrowserAction {
      */
     @Override
     public void retryInvokeAction() {
-        invoke(monitor, comment, contacts, container, teamMembers);
+        invoke(monitor, container, comment, emails, contacts, teamMembers);
     }
 
 	/**
@@ -121,22 +141,24 @@ public class Publish extends AbstractBrowserAction {
      *            A <code>ThinkParitySwingWorker</code>.
      */
     private void invoke(final ThinkParitySwingMonitor monitor,
-            final String comment, final List<Contact> contacts,
-            final Container container, final List<TeamMember> teamMembers) {
+            final Container container, final String comment,
+            final List<EMail> emails, final List<Contact> contacts,
+            final List<TeamMember> teamMembers) {
         this.monitor = monitor;
-        this.comment = comment;
-        this.contacts = contacts;
         this.container = container;
+        this.comment = comment;
+        this.emails = emails;
+        this.contacts = contacts;
         this.teamMembers = teamMembers;
-        final ThinkParitySwingWorker worker = new PublishWorker(this,
-                    comment, contacts, container, teamMembers);
+        final ThinkParitySwingWorker worker = new PublishWorker(this, container,
+                    comment, emails, contacts, teamMembers);
         worker.setMonitor(monitor);
         worker.start();
     }
 
     /** Data keys. */
 	public enum DataKey {
-        COMMENT, CONTACTS, CONTAINER_ID, MONITOR, TEAM_MEMBERS
+        COMMENT, CONTACTS, CONTAINER_ID, EMAILS, MONITOR, TEAM_MEMBERS
     }
 
     /** A publish action worker object. */
@@ -146,18 +168,22 @@ public class Publish extends AbstractBrowserAction {
         private final List<Contact> contacts;
         private final Container container;
         private final ContainerModel containerModel;
+        private final List<EMail> emails;
         private ProcessMonitor publishMonitor;
         private final List<TeamMember> teamMembers;
-        private PublishWorker(final Publish publish, final String comment,
-                final List<Contact> contacts, final Container container,
-                final List<TeamMember> teamMembers) {
+        private PublishWorker(final Publish publish, final Container container,
+                final String comment, final List<EMail> emails,
+                final List<Contact> contacts, final List<TeamMember> teamMembers) {
             super(publish);
-            this.artifactModel = publish.getArtifactModel();
-            this.comment = comment;
-            this.contacts = contacts;
             this.container = container;
-            this.containerModel = publish.getContainerModel();
+            this.comment = comment;
+            this.emails = emails;
+            this.contacts = contacts;
             this.teamMembers = teamMembers;
+
+            this.artifactModel = publish.getArtifactModel();
+            this.containerModel = publish.getContainerModel();
+            
             this.publishMonitor = newPublishMonitor();
         }
         @Override
@@ -171,8 +197,8 @@ public class Publish extends AbstractBrowserAction {
                 return null;
             }
             try {
-                containerModel.publish(publishMonitor, container.getId(), comment,
-                        contacts, teamMembers);
+                containerModel.publish(publishMonitor, container.getId(),
+                        comment, emails, contacts, teamMembers);
             } catch (final OfflineException ox) {
                 // TODO implement a "you are offline" notification
                 monitor.reset();
@@ -204,19 +230,8 @@ public class Publish extends AbstractBrowserAction {
                 private Integer stepIndex;
                 private Integer steps;
                 @Override
-                public void determineSteps(final Integer steps) {
-                    this.stepIndex = 0;
-                    this.steps = steps;
-                    monitor.setSteps(steps);
-                    monitor.setStep(stepIndex);
-                }
-                @Override
                 public void beginProcess() {
                     monitor.monitor();
-                }
-                @Override
-                public void endProcess() {
-                    monitor.complete();
                 }
                 @Override
                 public void beginStep(final Step step,
@@ -228,6 +243,17 @@ public class Publish extends AbstractBrowserAction {
                             monitor.setStep(stepIndex, action.getString("ProgressPublish"));
                         }
                     }
+                }
+                @Override
+                public void determineSteps(final Integer steps) {
+                    this.stepIndex = 0;
+                    this.steps = steps;
+                    monitor.setSteps(steps);
+                    monitor.setStep(stepIndex);
+                }
+                @Override
+                public void endProcess() {
+                    monitor.complete();
                 }
                 @Override
                 public void endStep(final Step step) {

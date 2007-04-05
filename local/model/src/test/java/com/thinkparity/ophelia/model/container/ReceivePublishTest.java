@@ -32,7 +32,7 @@ public class ReceivePublishTest extends ContainerTestCase {
     public void testReceivePublish() {
         final Container c = createContainer(datum.junit, NAME);
         addDocuments(datum.junit, c.getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
 
         final Container c_x = readContainer(datum.junit_x, c.getUniqueId());

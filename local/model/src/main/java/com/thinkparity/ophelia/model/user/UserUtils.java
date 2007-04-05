@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.user.User;
 /**
  * @author raymond@thinkparity.com
  * @version $Revision$
+ * TODO move to common/model
  */
 public class UserUtils {
 

@@ -50,7 +50,7 @@ public interface ContactModel {
     @ThinkParityOnline
     public void acceptIncomingUserInvitation(final Long invitationId);
 
-	/**
+    /**
      * Add a contact listener.
      * 
      * @param listener
@@ -59,7 +59,7 @@ public interface ContactModel {
     @ThinkParityTransaction(TransactionType.NEVER)
     public void addListener(final ContactListener listener);
 
-    /**
+	/**
      * Create an e-mail contact invitation.
      * 
      * @param email
@@ -98,7 +98,7 @@ public interface ContactModel {
     @ThinkParityOnline
     public void declineIncomingUserInvitation(final Long invitationId);
 
-	/**
+    /**
      * Delete a contact.
      * 
      * @param contactId
@@ -117,7 +117,7 @@ public interface ContactModel {
     @ThinkParityOnline
     public void deleteOutgoingEMailInvitation(final Long invitationId);
 
-    /**
+	/**
      * Delete an outgoing user invitation.
      * 
      * @param invitationId
@@ -125,6 +125,15 @@ public interface ContactModel {
      */
     @ThinkParityOnline
     public void deleteOutgoingUserInvitation(final Long invitationId);
+
+    /**
+     * Determine if a contact exists for an e-mail address.
+     * 
+     * @param email
+     *            An <code>EMail</code>.
+     * @return True if a contact exists.
+     */
+    public Boolean doesExist(final EMail email);
 
     /**
      * Determine if the contact exists.
@@ -200,9 +209,9 @@ public interface ContactModel {
     public IncomingEMailInvitation readIncomingEMailInvitation(
             final Long invitationId);
     public List<IncomingEMailInvitation> readIncomingEMailInvitations();
-    public List<IncomingUserInvitation> readIncomingUserInvitations();
     public IncomingUserInvitation readIncomingUserInvitation(
             final Long invitationId);
+    public List<IncomingUserInvitation> readIncomingUserInvitations();
 
     /**
      * Read an outgoing email invitation.

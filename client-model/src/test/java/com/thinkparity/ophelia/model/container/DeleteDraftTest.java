@@ -31,7 +31,7 @@ public class DeleteDraftTest extends ContainerTestCase {
     public void testDeleteDraft() {
         final Container c = createContainer(OpheliaTestUser.JUNIT, NAME);
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.txt");
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         createDraft(datum.junit, c.getId());
         datum.waitForEvents();

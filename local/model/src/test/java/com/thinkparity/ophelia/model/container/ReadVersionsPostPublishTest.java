@@ -35,7 +35,7 @@ public final class ReadVersionsPostPublishTest extends ContainerTestCase {
     public void testReadVersions() {
         final Container c = createContainer(datum.junit, NAME);
         addDocuments(datum.junit, c.getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         final List<ContainerVersion> cv_list = readContainerVersions(datum.junit, c.getId());
         assertNotNull("Container versions list is null.", cv_list);

@@ -38,10 +38,10 @@ public final class Ticket329Test extends TicketTestCase {
     public void testPublishVersion() {
         final Container c = createContainer(datum.junit, NAME);
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
-        publishVersion(datum.junit, c.getId(), cv_latest.getVersionId(), "JUnit.X thinkParity");
+        publishVersionToUsers(datum.junit, c.getId(), cv_latest.getVersionId(), "JUnit.X thinkParity");
         datum.waitForEvents();
     }
 

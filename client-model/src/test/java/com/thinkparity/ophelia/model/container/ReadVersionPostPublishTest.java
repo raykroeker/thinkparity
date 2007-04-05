@@ -33,7 +33,7 @@ public final class ReadVersionPostPublishTest extends ContainerTestCase {
     public void testReadVersion() {
         final Container c = createContainer(datum.junit, NAME);
         addDocuments(datum.junit, c.getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
         assertNotNull("Latest version is null.", cv_latest);

@@ -39,7 +39,7 @@ public class ExportVersionTest extends ContainerTestCase {
 
         // add documents
         final List<Document> documents = addDocuments(datum.junit, c.getId());
-        publish(OpheliaTestUser.JUNIT, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(OpheliaTestUser.JUNIT, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
 
         // remove half of the documents
@@ -49,7 +49,7 @@ public class ExportVersionTest extends ContainerTestCase {
             if (1 == i % 2)
                 removeDocument(datum.junit, c.getId(), documents.get(i).getId());
         }
-        publish(OpheliaTestUser.JUNIT, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(OpheliaTestUser.JUNIT, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
 
         // re-add half of the documents
@@ -61,7 +61,7 @@ public class ExportVersionTest extends ContainerTestCase {
                 addDocument(datum.junit, c.getId(), inputFileNames[i]);
             }
         }
-        publish(OpheliaTestUser.JUNIT, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(OpheliaTestUser.JUNIT, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
 
         final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());

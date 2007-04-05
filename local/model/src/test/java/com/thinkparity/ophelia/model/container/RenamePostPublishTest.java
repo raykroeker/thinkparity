@@ -32,7 +32,7 @@ public class RenamePostPublishTest extends ContainerTestCase {
         Container c = createContainer(datum.junit, NAME);
         final String c_name = c.getName();
         addDocuments(datum.junit, c.getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         try {
             renameContainer(datum.junit, c.getId(), NAME + "  Renamed.");

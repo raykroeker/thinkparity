@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -18,7 +19,12 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.DocumentFilter;
 
+import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.email.EMailBuilder;
+import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -59,6 +65,7 @@ public final class PublishContainerAvatar extends Avatar implements
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPanel buttonBarJPanel = new javax.swing.JPanel();
     private final javax.swing.JTextArea commentJTextArea = new javax.swing.JTextArea();
+    private final javax.swing.JTextArea emailsJTextArea = new javax.swing.JTextArea();
     private final javax.swing.JList namesJList = new javax.swing.JList();
     private final javax.swing.JScrollPane namesJScrollPane = new javax.swing.JScrollPane();
     private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
@@ -67,7 +74,7 @@ public final class PublishContainerAvatar extends Avatar implements
     private final javax.swing.JLabel statusJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 
-    /** The publish to list model <code>PublishContainerAvatarUserListModel</code>. */
+    /** The publish to list <code>PublishContainerAvatarUserListModel</code>. */
     private final PublishContainerAvatarUserListModel namesListModel;
 
     /**
@@ -78,6 +85,7 @@ public final class PublishContainerAvatar extends Avatar implements
         super("PublishContainerDialog", BrowserConstants.DIALOGUE_BACKGROUND);
         this.namesListModel = new PublishContainerAvatarUserListModel();
         initComponents();
+        addValidationListener(emailsJTextArea);
         bindEscapeKey();
         namesJScrollPane.getViewport().setOpaque(false);
     }
@@ -135,8 +143,15 @@ public final class PublishContainerAvatar extends Avatar implements
      * @return True if the input is valid; false otherwise.
      */
     public Boolean isInputValid() {        
-        final PublishContainerAvatarUserListModel model = (PublishContainerAvatarUserListModel) namesJList.getModel();
-        return (model.isItemSelected());
+        final PublishContainerAvatarUserListModel model =
+            (PublishContainerAvatarUserListModel) namesJList.getModel();
+        if (model.isItemSelected()) {
+            try {
+                extractEMails();
+                return Boolean.TRUE;
+            } catch (final EMailFormatException efx) {}
+        }
+        return Boolean.FALSE;
     }
 
     public void reload() {
@@ -192,6 +207,22 @@ public final class PublishContainerAvatar extends Avatar implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#validateInput()
+     *
+     */
+    @Override
+    protected void validateInput() {
+        super.validateInput();
+        try {
+            extractEMails();
+        } catch (final EMailFormatException efx) {
+            addInputError(Separator.EmptyString.toString());
+        }
+
+        publishJButton.setEnabled(!containsInputErrors());
+    }
+
+    /**
      * Make the escape key behave like cancel.
      */
     private void bindEscapeKey() {
@@ -222,7 +253,28 @@ public final class PublishContainerAvatar extends Avatar implements
     private String extractComment() {
         return SwingUtil.extract(commentJTextArea, Boolean.TRUE);
     }
-    
+
+    /**
+     * Extract the e-mail addresses. The e-mail addresses must be comma
+     * separated.
+     * 
+     * @return A <code>List</code> of <code>EMail</code> addresses.
+     */
+    private List<EMail> extractEMails() {
+        final String text = SwingUtil.extract(emailsJTextArea, Boolean.TRUE);
+        final List<EMail> emails;
+        if (null == text) {
+            emails = Collections.emptyList();
+        } else {
+            final List<String> emailAddresses = StringUtil.tokenize(text, ",",
+                    new ArrayList<String>());
+            emails = new ArrayList<EMail>(emailAddresses.size());
+            for (final String emailAddress : emailAddresses)
+                emails.add(EMailBuilder.parse(emailAddress.trim()));
+        }
+        return emails;
+    }
+
     /**
      * Obtain the input container id.
      *
@@ -291,7 +343,6 @@ public final class PublishContainerAvatar extends Avatar implements
     private void initComponents() {
         final javax.swing.JLabel emailsJLabel = new javax.swing.JLabel();
         final javax.swing.JScrollPane emailsJScrollPane = new javax.swing.JScrollPane();
-        final javax.swing.JTextArea emailsJTextArea = new javax.swing.JTextArea();
         final javax.swing.JLabel commentJLabel = new javax.swing.JLabel();
         final javax.swing.JScrollPane commentJScrollPane = new javax.swing.JScrollPane();
         final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
@@ -390,8 +441,8 @@ public final class PublishContainerAvatar extends Avatar implements
         progressBarJPanel.setLayout(progressBarJPanelLayout);
         progressBarJPanelLayout.setHorizontalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE)
-            .add(statusJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE)
+            .add(publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
+            .add(statusJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
         );
         progressBarJPanelLayout.setVerticalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -410,10 +461,10 @@ public final class PublishContainerAvatar extends Avatar implements
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE)
-                    .add(emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE)
-                    .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE)
-                    .add(commentJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE)
+                    .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
+                    .add(emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
+                    .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
+                    .add(commentJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
                     .add(commentJScrollPane)
                     .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -481,17 +532,23 @@ public final class PublishContainerAvatar extends Avatar implements
         final PublishType publishType = getInputPublishType();
         final Long containerId = getInputContainerId();  
         final PublishContainerAvatarUserListModel model = (PublishContainerAvatarUserListModel) namesJList.getModel();
+        final List<EMail> emails = extractEMails();
         final List<TeamMember> teamMembers = model.getSelectedTeamMembers();
         final List<Contact> contacts = model.getSelectedContacts();
         
         // Publish
-        if (publishType == PublishType.PUBLISH_VERSION) {
+        switch (publishType) {
+        case PUBLISH:
+            getController().runPublishContainer(createMonitor(), containerId,
+                    extractComment(), emails, contacts, teamMembers);
+            break;
+        case PUBLISH_VERSION:
             final Long versionId = getInputVersionId();
             getController().runPublishContainerVersion(createMonitor(),
-                    containerId, versionId, teamMembers, contacts);   
-        } else {
-            getController().runPublishContainer(createMonitor(), containerId,
-                    teamMembers, contacts, extractComment());  
+                    containerId, versionId, emails, contacts, teamMembers);
+            break;
+        default:
+            Assert.assertUnreachable("Unknown publish type.");
         }  
     }
 
@@ -636,38 +693,6 @@ public final class PublishContainerAvatar extends Avatar implements
 
     public enum DataKey { CONTAINER_ID, PUBLISH_TYPE, VERSION_ID }
 
-    // NOCOMMIT This is here as a stopgap to prevent a possible crash in beta, until more general
-    // code is in place to handle max string length (ticket #610). Insert text is truncated if
-    // too long. If replace text is too long it is ignored.
-    private class DocumentSizeFilter extends DocumentFilter {
-        final int maxCharacters;
-
-        public DocumentSizeFilter(final int maxCharacters) {
-            this.maxCharacters = maxCharacters;
-        }
-
-        public void insertString(final FilterBypass fb, final int offs,
-                                 final String str, final AttributeSet a)
-            throws BadLocationException {
-            if ((fb.getDocument().getLength() + str.length()) <= maxCharacters) {
-                super.insertString(fb, offs, str, a);
-            } else {
-                final int length = maxCharacters - fb.getDocument().getLength();
-                super.insertString(fb, offs, str.substring(0, length), a);
-            }
-        }
-
-        public void replace(FilterBypass fb, int offs,
-                            int length, 
-                            String str, AttributeSet a)
-            throws BadLocationException {
-            if ((fb.getDocument().getLength() + str.length()
-                 - length) <= maxCharacters) {
-                super.replace(fb, offs, length, str, a);
-            }
-        }
-    }
-
     public class PublishContainerAvatarUser {
         
         /** The selection status. */
@@ -709,8 +734,48 @@ public final class PublishContainerAvatar extends Avatar implements
             selected = !selected;
         }
     }
+
+    public enum PublishType { PUBLISH, PUBLISH_VERSION }
         
-    public enum PublishType { PUBLISH, PUBLISH_VERSION }    
+    // NOCOMMIT This is here as a stopgap to prevent a possible crash in beta, until more general
+    // code is in place to handle max string length (ticket #610). Insert text is truncated if
+    // too long. If replace text is too long it is ignored.
+    private class DocumentSizeFilter extends DocumentFilter {
+        final int maxCharacters;
+
+        public DocumentSizeFilter(final int maxCharacters) {
+            this.maxCharacters = maxCharacters;
+        }
+        /**
+         * @see javax.swing.text.DocumentFilter#insertString(javax.swing.text.DocumentFilter.FilterBypass,
+         *      int, java.lang.String, javax.swing.text.AttributeSet)
+         * 
+         */
+        public void insertString(final FilterBypass fb, final int offs,
+                                 final String str, final AttributeSet a)
+            throws BadLocationException {
+            if ((fb.getDocument().getLength() + str.length()) <= maxCharacters) {
+                super.insertString(fb, offs, str, a);
+            } else {
+                final int length = maxCharacters - fb.getDocument().getLength();
+                super.insertString(fb, offs, str.substring(0, length), a);
+            }
+        }
+        /**
+         * @see javax.swing.text.DocumentFilter#replace(javax.swing.text.DocumentFilter.FilterBypass,
+         *      int, int, java.lang.String, javax.swing.text.AttributeSet)
+         * 
+         */
+        public void replace(FilterBypass fb, int offs,
+                            int length, 
+                            String str, AttributeSet a)
+            throws BadLocationException {
+            if ((fb.getDocument().getLength() + str.length()
+                 - length) <= maxCharacters) {
+                super.replace(fb, offs, length, str, a);
+            }
+        }
+    }    
     private class PublishContainerAvatarUserListModel extends DefaultListModel {
         
         public PublishContainerAvatarUserListModel() {

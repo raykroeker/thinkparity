@@ -43,20 +43,20 @@ public class ReadVersionsTest extends DocumentTestCase {
 	    final Container c = createContainer(datum.junit, NAME);
         final Document d = addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
         saveDraft(datum.junit, c.getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
 
         createDraft(datum.junit, c.getId());
         datum.waitForEvents();
         modifyDocument(datum.junit, d.getId());
         saveDraft(datum.junit, c.getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
 
         createDraft(datum.junit, c.getId());
         datum.waitForEvents();
         modifyDocument(datum.junit, d.getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
 
         List<DocumentVersion> dv_list = getDocumentModel(datum.junit).readVersions(d.getId());

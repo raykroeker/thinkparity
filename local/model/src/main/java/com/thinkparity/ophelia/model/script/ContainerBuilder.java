@@ -8,6 +8,7 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.contact.Contact;
@@ -196,11 +197,12 @@ public class ContainerBuilder {
         logger.logApiId();
         logger.logVariable("comment", comment);
         final ContainerModel containerModel = getContainerModel();
-        final List<TeamMember> teamMembers = containerModel.readTeam(id);
+        final List<EMail> emails = Collections.emptyList();
         final List<Contact> contacts = Collections.emptyList();
+        final List<TeamMember> teamMembers = containerModel.readTeam(id);
         try {
-            containerModel.publish(PUBLISH_MONITOR, id, comment, contacts,
-                    teamMembers);
+            containerModel.publish(PUBLISH_MONITOR, id, comment, emails,
+                    contacts, teamMembers);
         } catch (final OfflineException ox) {
             throw panic(ox, "User is not online.");
         } catch (final CannotLockException clx) {
@@ -223,13 +225,14 @@ public class ContainerBuilder {
         logger.logVariable("names", names);
         final ContactModel contactModel = getContactModel();
         final ContainerModel containerModel = getContainerModel();
-        final List<TeamMember> teamMembers = containerModel.readTeam(id);
+        final List<EMail> emails = Collections.emptyList();
         final List<Contact> contacts = contactModel.read();
+        final List<TeamMember> teamMembers = containerModel.readTeam(id);
         filter(teamMembers, names);
         filter(contacts, names);
         try {
-            containerModel.publish(PUBLISH_MONITOR, id, comment, contacts,
-                    teamMembers);
+            containerModel.publish(PUBLISH_MONITOR, id, comment, emails,
+                    contacts, teamMembers);
         } catch (final OfflineException ox) {
             throw panic(ox, "User is not online.");
         } catch (final CannotLockException clx) {

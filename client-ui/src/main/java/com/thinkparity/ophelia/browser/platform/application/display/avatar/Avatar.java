@@ -34,6 +34,9 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
+import javax.swing.JTextArea;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 /**
  * <b>Title:</b>thinkParity Browser Avatar<br>
@@ -46,10 +49,10 @@ import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
 public abstract class Avatar extends AbstractJPanel {
 
     /** The avatar's content provider. */
-	protected ContentProvider contentProvider;
+    protected ContentProvider contentProvider;
 
     /** The avatar input. */
-	protected Object input;
+    protected Object input;
 
     /** Localization helper utility. */
     protected final JPanelLocalization localization;
@@ -73,13 +76,13 @@ public abstract class Avatar extends AbstractJPanel {
     private Action F1Action;
     
     /** A list of the avatar's input error messages. */
-	private final List<String> inputErrors;
+    private final List<String> inputErrors;
     
     /** The scaled background image. */
     private BufferedImage scaledBackgroundImage;
 
     /** The avatar's scrolling policy. */
-	private final ScrollPolicy scrollPolicy;
+    private final ScrollPolicy scrollPolicy;
 
     /**
      * Create Avatar.
@@ -350,14 +353,40 @@ public abstract class Avatar extends AbstractJPanel {
 	public abstract void setState(final State state);
 
     /**
-	 * Set an error for display.
-	 * 
-	 * @param error
-	 *            The error.
-	 */
-	protected final void addInputError(final String inputError) {
+     * Set an error for display.
+     *
+     * @param error
+     *            The error.
+     */
+    protected final void addInputError(final String inputError) {
         inputErrors.add(inputError);
-	}
+    }
+
+    /**
+     * Add an avatar validation listener to the text area.
+     *
+     * @param jTextArea A swing <code>JTextArea</code>.
+     */
+    protected final void addValidationListener(final JTextArea jTextArea) {
+        final String listenerId = getId().name() + "#documentListener";
+        DocumentListener listener = (DocumentListener) jTextArea.getClientProperty(listenerId);
+        if (null == listener) {
+            listener = new DocumentListener() {
+                public void changedUpdate(final DocumentEvent e) {
+                    validateInput();
+                }
+                public void insertUpdate(final DocumentEvent e) {
+                    validateInput();
+                }
+                public void removeUpdate(final DocumentEvent e) {
+                    validateInput();
+                }
+            };
+        }
+        jTextArea.putClientProperty(listenerId, listener);
+        jTextArea.getDocument().removeDocumentListener(listener);
+        jTextArea.getDocument().addDocumentListener(listener);
+    }
 
     /**
 	 * Clear all display errors.

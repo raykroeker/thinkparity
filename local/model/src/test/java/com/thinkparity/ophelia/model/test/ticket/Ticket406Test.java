@@ -53,12 +53,12 @@ public class Ticket406Test extends TicketTestCase {
     public void testTicket() {
         final Container c = createContainer(datum.junit, NAME);
         final List<Document> d_list_initial = addDocuments(datum.junit, c.getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         createDraft(datum.junit, c.getId());
         datum.waitForEvents();
         modifyDocument(datum.junit, d_list_initial.get(0).getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
 
         final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());

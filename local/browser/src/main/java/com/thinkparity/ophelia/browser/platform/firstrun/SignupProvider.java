@@ -4,6 +4,9 @@
  */
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
+import java.util.List;
+
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Reservation;
 
 import com.thinkparity.ophelia.model.profile.ProfileModel;
@@ -27,6 +30,15 @@ public class SignupProvider extends ContentProvider {
     }
 
     /**
+     * Read the available features.
+     * 
+     * @return A <code>List</code> of <code>Feature</code>s.
+     */
+    public List<Feature> readFeatures() {
+        return profileModel.readFeatures();
+    }
+
+    /**
      * Read a reservation for a username, if possible.
      * 
      * @param username
@@ -34,12 +46,6 @@ public class SignupProvider extends ContentProvider {
      * @return The <code>Reservation</code>.
      */
     public Reservation readReservation(final String username) {
-        Reservation reservation = null;
-        try {
-            reservation = profileModel.createReservation(username);
-        } catch (final Throwable t) {
-            reservation = null;
-        }
-        return reservation;
+        return profileModel.createReservation(username);
     }
 }

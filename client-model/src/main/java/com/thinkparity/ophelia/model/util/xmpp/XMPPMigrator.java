@@ -9,6 +9,7 @@ import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.migrator.Error;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -146,6 +147,13 @@ final class XMPPMigrator extends AbstractXMPP<MigratorListener> {
         readProduct.setParameter("userId", userId);
         readProduct.setParameter("name", name);
         return execute(readProduct, Boolean.TRUE).readResultProduct("product");
+    }
+
+    List<Feature> readProductFeatures(final JabberId userId, final String name) {
+        final XMPPMethod readProductFeatures = new XMPPMethod("migrator:readproductfeatures");
+        readProductFeatures.setParameter("userId", userId);
+        readProductFeatures.setParameter("name", name);
+        return execute(readProductFeatures, Boolean.TRUE).readResultFeatures("features");
     }
     
     /**

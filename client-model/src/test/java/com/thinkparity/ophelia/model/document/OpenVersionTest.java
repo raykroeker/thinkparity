@@ -52,7 +52,7 @@ public class OpenVersionTest extends DocumentTestCase {
     public void testOpenVersion() {
         final Container c = createContainer(datum.junit, NAME);
         final Document d = addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
 
         final DocumentVersion dv = getDocumentModel(datum.junit).readLatestVersion(d.getId());

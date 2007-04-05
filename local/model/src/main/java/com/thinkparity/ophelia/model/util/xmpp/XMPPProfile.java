@@ -10,6 +10,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.util.Token;
@@ -136,14 +137,12 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         return profile;
     }
 
-    List<EMail> readEMails(final JabberId userId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
+    List<ProfileEMail> readEMails(final JabberId userId) {
         assertIsAuthenticatedUser(userId);
         final XMPPMethod readEMails = new XMPPMethod("profile:reademails");
         readEMails.setParameter("userId", userId);
         final XMPPMethodResponse response = execute(readEMails, Boolean.TRUE);
-        return response.readResultEMails("emails");
+        return response.readResultProfileEMails("emails");
     }
 
     /**

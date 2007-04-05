@@ -27,7 +27,7 @@ public class RevertPostPublishTest extends ContainerTestCase {
     public void testRevert() {
         final Container c = createContainer(datum.junit, NAME);
         final Document d = addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
-        publish(datum.junit, c.getId());
+        publishToUsers(datum.junit, c.getId());
         datum.waitForEvents();
         createContainerDraft(datum.junit, c.getId());
         modifyDocument(datum.junit, d.getId());

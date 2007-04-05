@@ -179,6 +179,7 @@ public class AvatarFactory {
 
         case DIALOG_PLATFORM_SIGNUP:
             avatar = newAvatar(SignupAvatar.class);
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_PLATFORM_SIGNUP_ACCOUNT:
             avatar = newAvatar(SignupAccountInfoAvatar.class);

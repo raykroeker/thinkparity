@@ -16,10 +16,10 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="namesJScrollPane" alignment="0" pref="447" max="32767" attributes="0"/>
-                  <Component id="emailsJLabel" alignment="0" pref="447" max="32767" attributes="0"/>
-                  <Component id="emailsJScrollPane" alignment="0" pref="447" max="32767" attributes="0"/>
-                  <Component id="commentJLabel" alignment="0" pref="447" max="32767" attributes="0"/>
+                  <Component id="namesJScrollPane" alignment="0" pref="449" max="32767" attributes="0"/>
+                  <Component id="emailsJLabel" alignment="0" pref="449" max="32767" attributes="0"/>
+                  <Component id="emailsJScrollPane" alignment="0" pref="449" max="32767" attributes="0"/>
+                  <Component id="commentJLabel" alignment="0" pref="449" max="32767" attributes="0"/>
                   <Component id="commentJScrollPane" alignment="0" max="32767" attributes="0"/>
                   <Component id="buttonBarJPanel" alignment="0" max="32767" attributes="0"/>
                   <Component id="progressBarJPanel" alignment="0" max="32767" attributes="0"/>
@@ -122,8 +122,8 @@
             <Property name="lineWrap" type="boolean" value="true"/>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
-            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
+            <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="addValidationListener(emailsJTextArea);"/>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
           </AuxValues>
         </Component>
       </SubComponents>
@@ -273,8 +273,8 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="publishJProgressBar" alignment="0" pref="447" max="32767" attributes="0"/>
-              <Component id="statusJLabel" alignment="0" pref="447" max="32767" attributes="0"/>
+              <Component id="publishJProgressBar" alignment="0" pref="449" max="32767" attributes="0"/>
+              <Component id="statusJLabel" alignment="0" pref="449" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">

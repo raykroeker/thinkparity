@@ -11,13 +11,7 @@ import javax.sql.DataSource;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.ContactInvitation;
-import com.thinkparity.codebase.model.contact.ContactVCard;
-import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
-import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
-import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
-import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
+import com.thinkparity.codebase.model.contact.*;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
@@ -124,11 +118,31 @@ public final class ContactIOHandler extends AbstractIOHandler implements
         .toString();
 
     /** Sql to determine contact existence. */
+    private static final String SQL_DOES_EXIST_BY_EMAIL =
+        new StringBuilder("select count(C.CONTACT_ID) \"CONTACT_COUNT\" ")
+        .append("from CONTACT C ")
+        .append("inner join CONTACT_EMAIL_REL CER ")
+        .append("on CER.CONTACT_ID=C.CONTACT_ID ")
+        .append("inner join EMAIL E on E.EMAIL_ID=CER.EMAIL_ID ")
+        .append("where E.EMAIL=?")
+        .toString();
+
+    /** Sql to determine contact existence. */
     private static final String SQL_DOES_EXIST_BY_ID =
         new StringBuilder("select COUNT(CONTACT_ID) \"CONTACT_COUNT\" ")
         .append("from CONTACT C ")
         .append("inner join PARITY_USER PU on C.CONTACT_ID=PU.USER_ID ")
         .append("where PU.USER_ID=?")
+        .toString();
+
+    /** Sql to determine the existence of an outgoing e-mail invitation. */
+    private static final String SQL_DOES_EXIST_OEI_EMAIL =
+        new StringBuilder("select count(CI.CONTACT_INVITATION_ID) \"INVITATION_COUNT\" ")
+        .append("from CONTACT_INVITATION CI ")
+        .append("inner join CONTACT_INVITATION_OUTGOING_EMAIL CIOE ")
+        .append("on CI.CONTACT_INVITATION_ID=CIOE.CONTACT_INVITATION_ID ")
+        .append("inner join EMAIL E on E.EMAIL_ID=CIOE.EMAIL_ID ")
+        .append("where E.EMAIL=?")
         .toString();
 
     /** Sql to determine the existence of an outgoing user invitation. */
@@ -542,6 +556,33 @@ public final class ContactIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContactIOHandler#doesExist(com.thinkparity.codebase.email.EMail)
+     *
+     */
+    public Boolean doesExist(final EMail email) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_BY_EMAIL);
+            session.setEMail(1, email);
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int contactCount = session.getInteger("CONTACT_COUNT");
+                if (0 == contactCount) {
+                    return Boolean.FALSE;
+                } else if (1 == contactCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine .");
+                }
+            } else {
+                throw new HypersonicException("Could not determine .");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ContactIOHandler#doesExist(java.lang.Long)
      *
      */
@@ -558,6 +599,33 @@ public final class ContactIOHandler extends AbstractIOHandler implements
                 return Boolean.TRUE;
             } else {
                 throw new HypersonicException("Could not determine contact existence.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContactIOHandler#doesExistOutgoingEMailInvitation(com.thinkparity.codebase.email.EMail)
+     *
+     */
+    public Boolean doesExistOutgoingEMailInvitation(final EMail email) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_OEI_EMAIL);
+            session.setEMail(1, email);
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int invitationCount = session.getInteger("INVITATION_COUNT");
+                if (0 == invitationCount) {
+                    return Boolean.FALSE;
+                } else if (1 == invitationCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine invitation existence.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine invitation existence.");
             }
         } finally {
             session.close();

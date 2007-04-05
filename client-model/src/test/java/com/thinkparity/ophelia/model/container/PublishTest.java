@@ -30,8 +30,11 @@ import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
+ * <b>Title:</b>thinkParity OpheliaModel Publish Container Test<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.23
  */
 public class PublishTest extends ContainerTestCase {
 
@@ -51,7 +54,7 @@ public class PublishTest extends ContainerTestCase {
     public void testPublish() {
         Container c = createContainer(datum.junit, getName());
         final List<Document> documents = addDocuments(datum.junit, c.getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
 
         c  = readContainer(datum.junit, c.getUniqueId());
@@ -148,6 +151,22 @@ public class PublishTest extends ContainerTestCase {
     }
 
     /**
+     * Test the publish to e-mail address api.
+     * 
+     */
+    public void testPublishEMail() {
+        Container c = createContainer(datum.junit, getName());
+        addDocuments(datum.junit, c.getId());
+        final String[] emailAddresses = new String[2];
+        // non-user e-mail
+        emailAddresses[0] = "junit+" + System.currentTimeMillis() + "@thinkparity.com";
+        // non-contact user e-mail
+        emailAddresses[1] = "junit.w@thinkparity.com";
+        publishToEMails(datum.junit, c.getId(), emailAddresses);
+        datum.waitForEvents();
+    }
+
+    /**
      * Create a package; add a series of documents (>1); publish it to 2 users;
      * modify a single document and publish to the same users.
      * 
@@ -157,13 +176,13 @@ public class PublishTest extends ContainerTestCase {
     public void testPublishPostMod() {
         final Container c_initial = createContainer(datum.junit, getName());
         final List<Document> d_list_initial = addDocuments(datum.junit, c_initial.getId());
-        publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c_initial.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         createDraft(datum.junit, c_initial.getId());
         datum.waitForEvents();
         modifyDocument(datum.junit, d_list_initial.get(0).getId());
         saveDraft(datum.junit, c_initial.getId());
-        publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c_initial.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
 
         final Container c = readContainer(datum.junit, c_initial.getUniqueId());
@@ -304,7 +323,7 @@ public class PublishTest extends ContainerTestCase {
     public void testPublishWithComment() {
         Container c = createContainer(datum.junit, getName());
         final List<Document> documents = addDocuments(datum.junit, c.getId());
-        publishWithComment(datum.junit, c.getId(), NAME, "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsersWithComment(datum.junit, c.getId(), NAME, "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
 
         c  = readContainer(datum.junit, c.getUniqueId());

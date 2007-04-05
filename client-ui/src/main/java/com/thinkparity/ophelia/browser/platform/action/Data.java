@@ -5,6 +5,7 @@
 package com.thinkparity.ophelia.browser.platform.action;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -100,10 +101,15 @@ public class Data implements Cloneable {
      */
     @SuppressWarnings("unchecked")
     public <T> List<T> getList(final Enum<?> key) {
-        final List unknownList = (List) data.get(key);
-        final List<T> list = new ArrayList<T>(unknownList.size());
-        for (Iterator i = unknownList.iterator(); i.hasNext(); ) {
-            list.add((T) i.next());
+        final List<T> list;
+        if (data.containsKey(key)) {
+            final List unknownList = (List) data.get(key);
+            list = new ArrayList<T>(unknownList.size());
+            for (Iterator i = unknownList.iterator(); i.hasNext(); ) {
+                list.add((T) i.next());
+            }
+        } else {
+            list = Collections.emptyList();
         }
         return list;
     }

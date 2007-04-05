@@ -226,6 +226,33 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#createLocalOutgoingEMailInvitation(com.thinkparity.codebase.email.EMail,
+     *      java.util.Calendar)
+     * 
+     */
+    public OutgoingEMailInvitation createLocalOutgoingEMailInvitation(
+            final EMail email, final Calendar createdOn) {
+        try {
+            // create outgoing e-mail invitation
+            final OutgoingEMailInvitation outgoingEMailInvitation = new OutgoingEMailInvitation();
+            outgoingEMailInvitation.setCreatedBy(localUser());
+            outgoingEMailInvitation.setCreatedOn(createdOn);
+            outgoingEMailInvitation.setInvitationEMail(email);
+            contactIO.createInvitation(outgoingEMailInvitation);
+
+            // index
+            getIndexModel().indexOutgoingEMailInvitation(outgoingEMailInvitation.getId());
+
+            // fire event
+            notifyOutgoingEMailInvitationCreated(outgoingEMailInvitation,
+                    localEventGenerator);
+            return outgoingEMailInvitation;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.contact.ContactModel#createOutgoingEMailInvitation(com.thinkparity.codebase.email.EMail)
      * 
      */
@@ -427,12 +454,36 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.contact.ContactModel#doesExist(com.thinkparity.codebase.email.EMail)
+     *
+     */
+    public Boolean doesExist(final EMail email) {
+        try {
+            return contactIO.doesExist(email);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.contact.ContactModel#doesExist(com.thinkparity.codebase.jabber.JabberId)
      *
      */
     public Boolean doesExist(final Long contactId) {
         try {
             return contactIO.doesExist(contactId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#doesExistOutgoingEMailInvitation(com.thinkparity.codebase.email.EMail)
+     *
+     */
+    public Boolean doesExistOutgoingEMailInvitation(final EMail email) {
+        try {
+            return contactIO.doesExistOutgoingEMailInvitation(email);
         } catch (final Throwable t) {
             throw panic(t);
         }

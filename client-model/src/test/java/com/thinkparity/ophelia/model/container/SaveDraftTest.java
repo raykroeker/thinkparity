@@ -75,7 +75,7 @@ public class SaveDraftTest extends ContainerTestCase {
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.txt");
         final Document d_unknown = addDocument(datum.junit, c.getId(), "JUnitTestFramework.unknown");
         saveDraft(datum.junit, c.getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         // create second draft
         createDraft(datum.junit, c.getId());
@@ -108,7 +108,7 @@ public class SaveDraftTest extends ContainerTestCase {
         final Document d_txt = addDocument(datum.junit, c.getId(), "JUnitTestFramework.txt");
         final Document d_unknown = addDocument(datum.junit, c.getId(), "JUnitTestFramework.unknown");
         saveDraft(datum.junit, c.getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         // create second draft
         createDraft(datum.junit, c.getId());
@@ -117,7 +117,7 @@ public class SaveDraftTest extends ContainerTestCase {
         removeDocument(datum.junit, c.getId(), d_unknown.getId());
         modifyDocument(datum.junit, d.getId());
         saveDraft(datum.junit, c.getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         // create third draft
         createDraft(datum.junit, c.getId());

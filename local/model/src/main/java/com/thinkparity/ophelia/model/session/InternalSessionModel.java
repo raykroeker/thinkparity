@@ -26,6 +26,7 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Error;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -368,7 +369,8 @@ public interface InternalSessionModel extends SessionModel {
             final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documents,
             final List<TeamMember> teamMembers, final JabberId publishedBy,
-            final Calendar publishedOn, final List<User> publishedTo);
+            final Calendar publishedOn, final List<EMail> publishedToEMails,
+            final List<User> publishedToUsers);
 
     public Container readArchiveContainer(final JabberId userId,
             final UUID uniqueId);
@@ -591,6 +593,15 @@ public interface InternalSessionModel extends SessionModel {
     public Product readMigratorProduct(final String name);
 
     /**
+     * Read a migrator product's features.
+     * 
+     * @param name
+     *            A product name.
+     * @return A <code>List</code> of <code>Feature</code>s.
+     */
+    public List<Feature> readMigratorProductFeatures(final String name);
+
+    /**
      * Read a migrator release.
      * 
      * @param productName
@@ -644,7 +655,7 @@ public interface InternalSessionModel extends SessionModel {
      * 
      * @return A list of profile email addresses.
      */
-    public List<EMail> readProfileEMails();
+    public List<ProfileEMail> readProfileEMails();
 
     /**
      * Read the user profile's security question.

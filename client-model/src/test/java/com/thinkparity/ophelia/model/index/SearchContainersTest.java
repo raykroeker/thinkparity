@@ -42,7 +42,7 @@ public class SearchContainersTest extends IndexTestCase {
         for (final String containerName : datum.containerNames) {
             c = createContainer(datum.junit, containerName);
             addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
-            publish(datum.junit, c.getId(), "JUnit.X thinkParity");
+            publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity");
             datum.waitForEvents();
             c_list.add(c);
         }
@@ -121,7 +121,7 @@ public class SearchContainersTest extends IndexTestCase {
         for (final String containerName : datum.containerNames) {
             c = createContainer(datum.junit, containerName);
             addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
-            publish(datum.junit, c.getId(), "JUnit.X thinkParity");
+            publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity");
             datum.waitForEvents();
             c_list.add(c);
         }
@@ -200,7 +200,7 @@ public class SearchContainersTest extends IndexTestCase {
         for (final String containerName : datum.containerNames) {
             c = createContainer(datum.junit, containerName);
             addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
-            publish(datum.junit, c.getId(), "JUnit.X thinkParity");
+            publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity");
             datum.waitForEvents();
             c_list.add(c);
         }
@@ -279,7 +279,7 @@ public class SearchContainersTest extends IndexTestCase {
         for (final String containerName : datum.containerNames) {
             c = createContainer(datum.junit, containerName);
             addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
-            publish(datum.junit, c.getId(), "JUnit.X thinkParity");
+            publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity");
             datum.waitForEvents();
             c_list.add(c);
         }

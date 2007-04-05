@@ -56,7 +56,7 @@ public class UpdateProfileProvider extends CompositeFlatSingleContentProvider {
      * 
      * @return A list of email addresses.
      */
-    public List<ProfileEMail> readEmails() {
+    public List<ProfileEMail> readEMails() {
         return profileModel.readEmails();
     }
 

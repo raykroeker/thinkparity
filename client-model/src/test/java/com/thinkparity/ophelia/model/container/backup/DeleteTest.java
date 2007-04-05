@@ -44,7 +44,7 @@ public final class DeleteTest extends BackupTestCase {
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.doc");
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.pdf");
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.png");
-        publish(datum.junit_z, c.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit_z, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         deleteContainer(datum.junit_z, c.getId());
         datum.waitForEvents();

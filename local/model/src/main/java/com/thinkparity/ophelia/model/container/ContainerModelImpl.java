@@ -17,6 +17,7 @@ import com.thinkparity.codebase.Pair;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterChain;
@@ -54,6 +55,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
+import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.export.PDFWriter;
 import com.thinkparity.ophelia.model.container.monitor.PublishStep;
 import com.thinkparity.ophelia.model.container.monitor.RestoreBackupStep;
@@ -70,7 +72,6 @@ import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
 import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
-import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
@@ -941,17 +942,33 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Ensure the e-mail address is not already tied to a contact.
+     * 
+     * @param emails
+     *            An <code>EMail</code> address.
+     */
+    private void assertIsNotContact(final List<EMail> emails) {
+        final InternalContactModel contactModel = getContactModel();
+        for (final EMail email : emails) {
+            Assert.assertNotTrue(contactModel.doesExist(email),
+                    "A contact for {0} already exists.", email);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.container.ContainerModel#publish(com.thinkparity.ophelia.model.util.ProcessMonitor,
      *      java.lang.Long, java.lang.String, java.util.List, java.util.List)
      * 
      */
     public void publish(final ProcessMonitor monitor, final Long containerId,
-            final String comment, final List<Contact> contacts,
-            final List<TeamMember> teamMembers) throws CannotLockException, OfflineException {
+            final String comment, final List<EMail> emails,
+            final List<Contact> contacts, final List<TeamMember> teamMembers)
+            throws CannotLockException {
         assertDoesNotContain("The local user cannot be published to.", teamMembers, localUser());
         assertDoesExistLocalDraft("A local draft does not exist.", containerId);
         assertLocalDraftIsSaved("The local draft has not been saved.", containerId);
         assertLocalDraftIsModified("The local draft has not been modified.", containerId);
+        assertIsNotContact(emails);
         try {
             // lock the documents
             final ContainerDraft draft = readDraft(containerId);
@@ -1025,9 +1042,17 @@ public final class ContainerModelImpl extends
                 // create published to list
                 containerIO.createPublishedTo(version.getArtifactId(),
                         version.getVersionId(), publishToUsers, publishedOn);
+                /* the remote publish invocation will potentially generate new
+                 * outgoing e-mail invitations that need to be pre-created */
+                final InternalContactModel contactModel = getContactModel();
+                final List<EMail> publishToEMails = emails;
+                for (final EMail email : emails) {
+                    if (!contactModel.doesExistOutgoingEMailInvitation(email).booleanValue())
+                        contactModel.createLocalOutgoingEMailInvitation(email, publishedOn);
+                }
                 // publish container contents
                 publish(monitor, version, version, localUserId(), publishedOn,
-                        publishToUsers);
+                        publishToEMails, publishToUsers);
                 // fire event
                 final Container postPublish = read(container.getId());
                 final ContainerVersion postPublishVersion = readVersion(
@@ -1059,16 +1084,14 @@ public final class ContainerModelImpl extends
      */
     public void publishVersion(final ProcessMonitor monitor,
             final Long containerId, final Long versionId,
-            final List<Contact> contacts, final List<TeamMember> teamMembers) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("contacts", contacts);
+            final List<EMail> emails, final List<Contact> contacts,
+            final List<TeamMember> teamMembers) {
         try {
             // start monitor
             notifyProcessBegin(monitor);
             final Calendar publishedOn = getSessionModel().readDateTime();
             final ContainerVersion version = readVersion(containerId, versionId);
+            final List<EMail> publishToEMails = emails;
             final List<User> publishToUsers = new ArrayList<User>();
             // build the team ids and the publish to list
             final List<JabberId> teamMemberIds =
@@ -1096,10 +1119,11 @@ public final class ContainerModelImpl extends
             final Container container = read(containerId);
             if (container.isLatest())
                 publish(monitor, version, readLatestVersion(containerId),
-                        version.getCreatedBy(), publishedOn, publishToUsers);
+                        version.getCreatedBy(), publishedOn, publishToEMails,
+                        publishToUsers);
             else
                 publish(monitor, version, null, version.getCreatedBy(),
-                        publishedOn, publishToUsers);
+                        publishedOn, publishToEMails, publishToUsers);
             // fire event
             final Container postPublish = read(containerId);
             final ContainerVersion postPublishVersion =
@@ -3113,23 +3137,21 @@ public final class ContainerModelImpl extends
      *            A <code>ContainerVersion</code>.
      * @param latestVersion
      *            The latest <code>ContainerVersion</code>.
-     * @param contacts
-     *            A <code>List</code> of <code>Contact</code>s.
-     * @param teamMembers
-     *            A <code>List</code> of <code>TeamMember</code>s.
-     * @param emailAddresses
-     *            A <code>List</code> of <code>EMail</code>s.
      * @param publishedBy
      *            A published by user id <code>JabberId</code>.
      * @param publishedOn
      *            A published on <code>Calendar</code>.
+     * @param publishedToEMails
+     *            A <code>List</code> of <code>EMail</code> addresses.
+     * @param publishedToUsers
+     *            A <code>List</code> of <code>User</code>s.
      * @throws IOException
      */
     private void publish(final ProcessMonitor monitor,
             final ContainerVersion version,
             final ContainerVersion latestVersion, final JabberId publishedBy,
-            final Calendar publishedOn, final List<User> publishedTo)
-            throws IOException {
+            final Calendar publishedOn, final List<EMail> publishedToEMails,
+            final List<User> publishedToUsers) throws IOException {
         // grab the document versions
         final List<DocumentVersion> documentVersions = readDocumentVersions(
                 version.getArtifactId(), version.getVersionId(),
@@ -3175,7 +3197,7 @@ public final class ContainerModelImpl extends
         notifyStepBegin(monitor, PublishStep.PUBLISH);
         getSessionModel().publish(version, latestVersion,
                 documentVersionStreamIds, readTeam(version.getArtifactId()),
-                publishedBy, publishedOn, publishedTo);
+                publishedBy, publishedOn, publishedToEMails, publishedToUsers);
         notifyStepEnd(monitor, PublishStep.PUBLISH);
     }
 

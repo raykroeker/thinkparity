@@ -1077,18 +1077,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Run the create outgoing user invitation action.
-     * 
-     * @param userId
-     *            A user id <code>Long</code>.
-     */
-    public void runCreateOutgoingUserInvitation(final Long userId) {
-        final Data data = new Data(1);
-        data.set(CreateOutgoingUserInvitation.DataKey.USER_ID, userId);
-        invoke(ActionId.CONTACT_CREATE_OUTGOING_USER_INVITATION, data);
-    }
-
-    /**
      * Create a draft for the container.
      * 
      * @param containerId
@@ -1098,6 +1086,18 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(CreateDraft.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_CREATE_DRAFT, data);         
+    }
+
+    /**
+     * Run the create outgoing user invitation action.
+     * 
+     * @param userId
+     *            A user id <code>Long</code>.
+     */
+    public void runCreateOutgoingUserInvitation(final Long userId) {
+        final Data data = new Data(1);
+        data.set(CreateOutgoingUserInvitation.DataKey.USER_ID, userId);
+        invoke(ActionId.CONTACT_CREATE_OUTGOING_USER_INVITATION, data);
     }
 
     /**
@@ -1202,28 +1202,33 @@ public class Browser extends AbstractApplication {
     }
     
     /**
-     * Publish the container.
+     * Run the publish container action.
      * 
-     *  @param monitor
-     *              The monitor.
-     *  @param containerId
-     *              The container id.
-     *  @param teamMembers
-     *              The team members. 
-     *  @param contacts
-     *              The contacts. 
-     *  @param comment
-     *              The comment.                                          
+     * @param monitor
+     *            A <code>ThinkParitySwingMonitor</code> for updating the
+     *            dialogue for the long-running action.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param comment
+     *            An optional comment <code>String</code>.
+     * @param emails
+     *            A <code>List</code> of <code>EMail</code> addresses.
+     * @param contacts
+     *            A <code>List</code> of <code>Contact</code>s.
+     * @param teamMembers
+     *            A <code>List</code> of <code>TeamMember</code>s.
      */
     public void runPublishContainer(final ThinkParitySwingMonitor monitor,
-            final Long containerId, final List<TeamMember> teamMembers,
-            final List<Contact> contacts, final String comment) {
-        final Data data = new Data(5);
+            final Long containerId, final String comment,
+            final List<EMail> emails, final List<Contact> contacts,
+            final List<TeamMember> teamMembers) {
+        final Data data = new Data(6);
         data.set(Publish.DataKey.CONTAINER_ID, containerId);
         data.set(Publish.DataKey.CONTACTS, contacts);
         if (null != comment) {
             data.set(Publish.DataKey.COMMENT, comment);
         }
+        data.set(Publish.DataKey.EMAILS, emails);
         data.set(Publish.DataKey.MONITOR, monitor);
         data.set(Publish.DataKey.TEAM_MEMBERS, teamMembers);
         SwingUtilities.invokeLater(new Runnable() {
@@ -1232,33 +1237,39 @@ public class Browser extends AbstractApplication {
             }
         });
     }
-    
+
     /**
-     * Publish the container version (ie. forward).
+     * Run the publish container version action.
      * 
-     *  @param monitor
-     *              The monitor.
-     *  @param containerId
-     *              The container id.
-     *  @param versionId
-     *              The version id.            
-     *  @param teamMembers
-     *              The team members. 
-     *  @param contacts
-     *              The contacts. 
-     *  @param comment
-     *              The comment.                             
+     * @param monitor
+     *            A <code>ThinkParitySwingMonitor</code> for updating the
+     *            dialogue for the long-running action.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param emails
+     *            A <code>List</code> of <code>EMail</code> addresses.
+     * @param contacts
+     *            A <code>List</code> of <code>Contact</code>s.
+     * @param teamMembers
+     *            A <code>List</code> of <code>TeamMember</code>s.
      */
-    public void runPublishContainerVersion(final ThinkParitySwingMonitor monitor, final Long containerId, final Long versionId,
-            final List<TeamMember> teamMembers, final List<Contact> contacts) {
-        final Data data = new Data(5);
-        data.set(PublishVersion.DataKey.CONTAINER_ID, containerId);
-        data.set(PublishVersion.DataKey.VERSION_ID, versionId);
+    public void runPublishContainerVersion(
+            final ThinkParitySwingMonitor monitor, final Long containerId,
+            final Long versionId, final List<EMail> emails,
+            final List<Contact> contacts, final List<TeamMember> teamMembers) {
+        final Data data = new Data(6);
         data.set(PublishVersion.DataKey.CONTACTS, contacts);
+        data.set(PublishVersion.DataKey.CONTAINER_ID, containerId);
+        data.set(PublishVersion.DataKey.EMAILS, emails);
         data.set(PublishVersion.DataKey.MONITOR, monitor);
         data.set(PublishVersion.DataKey.TEAM_MEMBERS, teamMembers);
+        data.set(PublishVersion.DataKey.VERSION_ID, versionId);
         SwingUtilities.invokeLater(new Runnable() {
-            public void run() { invoke(ActionId.CONTAINER_PUBLISH_VERSION, data); }
+            public void run() {
+                invoke(ActionId.CONTAINER_PUBLISH_VERSION, data);
+            }
         });
     }
     

@@ -29,6 +29,7 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Error;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -494,7 +495,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteInvitation(com.thinkparity.codebase.model.contact.OutgoingUserInvitation,
      *      java.util.Calendar)
      * 
@@ -512,7 +513,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * Delete a stream session.
      * 
      * @param session
@@ -814,7 +815,7 @@ public final class SessionModelImpl extends Model<SessionListener>
 		}
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#notifyClientMaintenance()
      *
      */
@@ -849,32 +850,25 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#publish(com.thinkparity.codebase.model.container.ContainerVersion,
-     *      com.thinkparity.codebase.model.container.ContainerVersion,
-     *      java.util.Map, java.util.List,
-     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
-     *      java.util.List)
-     * 
-     */
-    public void publish(final ContainerVersion version,
+	public void publish(final ContainerVersion version,
             final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documents,
             final List<TeamMember> teamMembers, final JabberId publishedBy,
-            final Calendar publishedOn, final List<User> publishedTo) {
+            final Calendar publishedOn, final List<EMail> publishedToEMails,
+            final List<User> publishedToUsers) {
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 xmppSession.publish(localUserId(), version, latestVersion,
                         documents, teamMembers, publishedBy, publishedOn,
-                        publishedTo);
+                        publishedToEMails, publishedToUsers);
             }
         } catch(final Throwable t) {
             throw panic(t);
         }
     }
 
-	public Container readArchiveContainer(final JabberId userId, final UUID uniqueId) {
+    public Container readArchiveContainer(final JabberId userId, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
@@ -888,7 +882,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * Read the archived containers.
      * 
      * @param userId
@@ -1046,7 +1040,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	public List<TeamMember> readArchiveTeam(final JabberId userId,
+    public List<TeamMember> readArchiveTeam(final JabberId userId,
             final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -1060,8 +1054,8 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-    
-    /**
+
+	/**
      * Read the archive team.
      * 
      * @param userId
@@ -1097,7 +1091,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
+    
     /**
      * Read the backup containers.
      * 
@@ -1201,7 +1195,6 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-
     public List<ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
         try {
@@ -1214,6 +1207,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
+
 
     /**
      * Read the backup team.
@@ -1362,6 +1356,28 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorProductFeatures(java.lang.String)
+     *
+     */
+    public List<Feature> readMigratorProductFeatures(final String name) {
+        try {
+            assertXMPPOffline();
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                authenticateAsSystem(xmppSession);
+                try {
+                    return xmppSession.readMigratorProductFeatures(
+                            User.THINKPARITY.getId(), name);
+                } finally {
+                    unauthenticate(xmppSession);
+                }
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorRelease(java.lang.String,
      *      java.lang.String, com.thinkparity.codebase.OS)
      * 
@@ -1449,7 +1465,7 @@ public final class SessionModelImpl extends Model<SessionListener>
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readProfileEMails()
      * 
      */
-    public List<EMail> readProfileEMails() {
+    public List<ProfileEMail> readProfileEMails() {
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {

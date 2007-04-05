@@ -57,14 +57,14 @@ public class Ticket442Test extends TicketTestCase {
         // create a container; add a document; publish
         final Container c_initial = createContainer(datum.junit, NAME);
         final Document d_txt = addDocument(datum.junit, c_initial.getId(), "JUnitTestFramework.txt");
-        publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         // create a draft; modify a document publish
         createDraft(datum.junit, c_initial.getId());
         datum.waitForEvents();
         modifyDocument(datum.junit, d_txt.getId());
         addContainerListener(datum.junit_x, datum.listener_x);
-        publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         removeContainerListener(datum.junit_x, datum.listener_x);
         assertTrue("Draft deleted event was never fired.", datum.notify_x);

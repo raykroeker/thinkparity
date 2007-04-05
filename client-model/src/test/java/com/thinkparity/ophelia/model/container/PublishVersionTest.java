@@ -31,12 +31,12 @@ public class PublishVersionTest extends ContainerTestCase {
     public void testPublishVersion() {
         final Container c = createContainer(datum.junit, NAME);
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
 
         final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
         addContainerListener(datum.junit, datum.listener);
-        publishVersion(datum.junit, c.getId(), cv_latest.getVersionId(), "JUnit.Y thinkParity");
+        publishVersionToUsers(datum.junit, c.getId(), cv_latest.getVersionId(), "JUnit.Y thinkParity");
         datum.waitForEvents();
         removeContainerListener(datum.junit, datum.listener);
         assertTrue("The draft published event was not fired.", datum.published);

@@ -72,7 +72,7 @@ public final class BackupTest extends BackupTestCase {
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.doc");
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.pdf");
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.png");
-        publish(datum.junit_z, c.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit_z, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         // ensure created
         final Container c_local = readContainer(datum.junit_z, c.getUniqueId());

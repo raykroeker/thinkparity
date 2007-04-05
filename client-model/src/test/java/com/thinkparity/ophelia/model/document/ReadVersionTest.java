@@ -37,7 +37,7 @@ public class ReadVersionTest extends DocumentTestCase {
 	public void testGetVersion() {
         final Container c = createContainer(datum.junit, NAME);
         final Document d = addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
 
         final DocumentVersion dv_latest = getDocumentModel(datum.junit).readLatestVersion(d.getId());

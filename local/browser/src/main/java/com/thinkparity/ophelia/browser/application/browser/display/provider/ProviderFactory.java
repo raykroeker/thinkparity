@@ -121,20 +121,23 @@ public class ProviderFactory {
         case DIALOG_CONTAINER_VERSION_COMMENT:
             provider = new ContainerVersionProvider(profileModel, containerModel, userModel);
             break;
-        case DIALOG_PROFILE_UPDATE:
-            provider = new UpdateProfileProvider(profileModel);
-            break;
-        case MAIN_STATUS:
-            provider = new MainStatusProvider(profileModel, backupModel, contactModel, containerModel, sessionModel);
+        case DIALOG_PLATFORM_SIGNUP:
+            provider = new SignupProvider(profileModel);
             break;
         case DIALOG_PLATFORM_SIGNUP_ACCOUNT:
             provider = new SignupProvider(profileModel);
+            break;
+        case DIALOG_PROFILE_UPDATE:
+            provider = new UpdateProfileProvider(profileModel);
             break;
         case DIALOG_PROFILE_UPDATE_PASSWORD:
             provider = new UpdatePasswordProvider(profileModel);
             break;
         case DIALOG_PROFILE_VERIFY_EMAIL:
             provider = new VerifyEMailProvider(profileModel);
+            break;
+        case MAIN_STATUS:
+            provider = new MainStatusProvider(profileModel, backupModel, contactModel, containerModel, sessionModel);
             break;
         case TAB_ARCHIVE:
             provider = new ArchiveTabProvider(profileModel, contactModel, containerModel, documentModel, userModel);

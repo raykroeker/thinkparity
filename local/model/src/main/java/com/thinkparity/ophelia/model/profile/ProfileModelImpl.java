@@ -24,6 +24,7 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
+import com.thinkparity.ophelia.model.Constants;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.Constants.Product.Features;
 import com.thinkparity.ophelia.model.events.ProfileEvent;
@@ -101,6 +102,8 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             final EMail email, final String securityQuestion,
             final String securityAnswer) throws ReservationExpiredException {
         try {
+            assertIsValid(profile);
+
             final long now = currentDateTime().getTimeInMillis();
             if (now > reservation.getExpiresOn().getTimeInMillis())
                 throw new ReservationExpiredException(reservation.getExpiresOn());
@@ -134,20 +137,16 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         try {
             assertXMPPOnline();
             final Profile remoteProfile = getSessionModel().readProfile();
-            /*
-             * NOTE Only verified emails are downloaded and created in the local
-             * profile.
-             */
-            final List<EMail> remoteEmails =
-                    getSessionModel().readProfileEMails();
+            final List<ProfileEMail> remoteEMails =
+                getSessionModel().readProfileEMails();
             profileIO.create(remoteProfile);
-            ProfileEMail profileEmail;
-            for (final EMail remoteEmail : remoteEmails) {
-                profileEmail = new ProfileEMail();
-                profileEmail.setEmail(remoteEmail);
-                profileEmail.setProfileId(remoteProfile.getLocalId());
-                profileEmail.setVerified(Boolean.TRUE);
-                profileIO.createEmail(remoteProfile.getLocalId(), profileEmail);
+            ProfileEMail localEMail;
+            for (final ProfileEMail remoteEMail : remoteEMails) {
+                localEMail = new ProfileEMail();
+                localEMail.setEmail(remoteEMail.getEmail());
+                localEMail.setProfileId(remoteProfile.getLocalId());
+                localEMail.setVerified(remoteEMail.isVerified());
+                profileIO.createEmail(remoteProfile.getLocalId(), localEMail);
             }
             getIndexModel().indexProfile();
         } catch (final Throwable t) {
@@ -268,7 +267,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         }
     }
 
-
     /**
      * Read a list of profile email addresses.
      * 
@@ -279,6 +277,19 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         try {
             final Profile profile = read();
             return profileIO.readEmails(profile.getLocalId());
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#readFeatures()
+     *
+     */
+    public List<Feature> readFeatures() {
+        try {
+            return getSessionModel().readMigratorProductFeatures(Constants.Product.NAME);
         } catch (final Throwable t) {
             throw panic(t);
         }

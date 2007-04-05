@@ -70,7 +70,7 @@ public class RemoveDocumentTest extends ContainerTestCase {
     public void testRemoveModifiedPostPublish() {
         final Container c_initial = createContainer(datum.junit, NAME);
         final Document d_initial = addDocument(datum.junit, c_initial.getId(), "JUnitTestFramework.doc");
-        publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         createDraft(datum.junit, c_initial.getId());
         datum.waitForEvents();
@@ -96,7 +96,7 @@ public class RemoveDocumentTest extends ContainerTestCase {
     public void testRemoveNone() {
         final Container c_initial = createContainer(datum.junit, NAME);
         final Document d_initial = addDocument(datum.junit, c_initial.getId(), "JUnitTestFramework.doc");
-        publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         createDraft(datum.junit, c_initial.getId());
         datum.waitForEvents();
@@ -121,7 +121,7 @@ public class RemoveDocumentTest extends ContainerTestCase {
     public void testRemoveRemoved() {
         final Container c_initial = createContainer(datum.junit, NAME);
         final Document d_initial = addDocument(datum.junit, c_initial.getId(), "JUnitTestFramework.doc");
-        publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         createDraft(datum.junit, c_initial.getId());
         // remove

@@ -95,7 +95,7 @@ public interface ContactIOHandler {
      *            An <code>OutgoingEMailInvitation</code>.
      */
     public void deleteInvitation(final OutgoingEMailInvitation invitation);
-    
+
     /**
      * Delete an outgoing user invitation.
      * 
@@ -103,6 +103,15 @@ public interface ContactIOHandler {
      *            An <code>OutgoingUserInvitation</code>.
      */
     public void deleteInvitation(final OutgoingUserInvitation invitation);
+    
+    /**
+     * Determine if a contact exists for an e-mail address.
+     * 
+     * @param email
+     *            An <code>EMail</code> address.
+     * @return True if a contact exists.
+     */
+    public Boolean doesExist(final EMail email);
 
     /**
      * Determine whether or not a contact exists.
@@ -114,11 +123,20 @@ public interface ContactIOHandler {
     public Boolean doesExist(final Long contactId);
 
     /**
-     * Determine whether or not a contact exists.
+     * Determine whether or not an outgoing e-mail invitation exists.
+     * 
+     * @param email
+     *            An <code>EMail</code> address.
+     * @return True if the invitation does exist.
+     */
+    public Boolean doesExistOutgoingEMailInvitation(final EMail email);
+
+    /**
+     * Determine whether or not an outgoing user invitation exists.
      * 
      * @param userId
      *            A user id <code>Long</code>.
-     * @return True if the contact does exist.
+     * @return True if the invitation does exist.
      */
     public Boolean doesExistOutgoingUserInvitation(final Long userId);
 

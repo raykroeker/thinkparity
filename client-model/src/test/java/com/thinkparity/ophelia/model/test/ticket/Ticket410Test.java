@@ -57,7 +57,7 @@ public class Ticket410Test extends TicketTestCase {
         // create a container; add a document; publish to first user
         final Container c_initial = createContainer(datum.junit, NAME);
         final Document d_initial = addDocument(datum.junit, c_initial.getId(), "JUnitTestFramework.doc");
-        publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
 
         // ensure the container; the container version; the documents; the document streams; the document versions; the document version streams; the delta info and the published to info are similar
@@ -142,7 +142,7 @@ public class Ticket410Test extends TicketTestCase {
         createDraft(datum.junit, c_initial.getId());
         datum.waitForEvents();
         modifyDocument(datum.junit, d_initial.getId());
-        publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
+        publishToUsers(datum.junit, c_initial.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
 
         // ensure the container; the container version; the documents; the document streams; the document versions; the document version streams and the delta information are similar
@@ -227,7 +227,7 @@ public class Ticket410Test extends TicketTestCase {
         createDraft(datum.junit, c_initial.getId());
         datum.waitForEvents();
         modifyDocument(datum.junit, d_initial.getId());
-        publish(datum.junit, c_initial.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c_initial.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
 
         // ensure the container; the container version; the documents; the document streams; the document versions; the document version streams and the delta information are similar

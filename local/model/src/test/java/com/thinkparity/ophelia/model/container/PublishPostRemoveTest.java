@@ -41,7 +41,7 @@ public final class PublishPostRemoveTest extends ContainerTestCase {
     public void testPublish() {
         final Container c = createContainer(datum.junit, NAME);
         addDocuments(datum.junit, c.getId());
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         // ensure the document we want to remove exists
         ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
@@ -57,7 +57,7 @@ public final class PublishPostRemoveTest extends ContainerTestCase {
         createDraft(datum.junit, c.getId());
         datum.waitForEvents();
         removeDocuments(datum.junit, c.getId(), "JUnitTestFramework.txt");
-        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
 
         cv_latest = readContainerLatestVersion(datum.junit, c.getId());

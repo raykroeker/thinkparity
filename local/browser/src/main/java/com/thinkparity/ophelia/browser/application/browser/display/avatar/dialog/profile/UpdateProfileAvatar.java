@@ -21,9 +21,10 @@ import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
@@ -97,7 +98,7 @@ public class UpdateProfileAvatar extends Avatar {
 
     public void reload() {
         this.profile = readProfile();
-        this.emails = readEmails();
+        this.emails = readEMails();
         reload(nameJTextField, profile.getName());
         reload(titleJTextField, profile.getTitle());
         reload(organizationJTextField, profile.getOrganization());
@@ -108,11 +109,12 @@ public class UpdateProfileAvatar extends Avatar {
         reload(provinceJTextField, profile.getProvince());
         reloadCountry(profile);
         reload(postalCodeJTextField, profile.getPostalCode());
-        reload(emailJTextField, getEmailString());
+        reload(emailJTextField, getEMailString());
         reloadProvinceLabel();
         reloadPostalCodeLabel();
         reloadErrorMessage();
-        okJButton.setEnabled(Boolean.FALSE);
+        reloadEMailVerification();
+        saveJButton.setEnabled(Boolean.FALSE);
     }
 
     public void setState(final State state) {
@@ -175,15 +177,25 @@ public class UpdateProfileAvatar extends Avatar {
     }
 
     /**
-     * Get the main email in String form.
+     * Obtain the profile e-mail address.
      * 
-     * @return The email <code>String</code>.
+     * @return A <code>ProfileEMail</code>.
      */
-    private String getEmailString() {
-        if (emails.size() > 0) {
-            return emails.get(0).getEmail().toString();
-        } else {
+    private ProfileEMail getEMail() {
+        return 0 < emails.size() ? emails.get(0) : null;
+    }
+
+    /**
+     * Obtain the profile e-mail address as a string.
+     * 
+     * @return A profile e-mail address <code>String</code>.
+     */
+    private String getEMailString() {
+        final ProfileEMail email = getEMail();
+        if (null == email) {
             return null;
+        } else {
+            return email.getEmail().toString();
         }
     }
 
@@ -205,21 +217,104 @@ public class UpdateProfileAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
-
-        final javax.swing.JButton cancelJButton = ButtonFactory.create();
-        final javax.swing.JPanel headingsJPanel = new javax.swing.JPanel();
+        verifyJButton = new javax.swing.JButton();
         final javax.swing.JLabel phoneJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel mobilePhoneJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel addressJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel cityJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel addressJLabel = new javax.swing.JLabel();
+        verificationKeyJLabel = new javax.swing.JLabel();
+        verificationKeyJTextField = new javax.swing.JTextField();
+        final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
-        okJButton.setFont(Fonts.DialogButtonFont);
-        okJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.OK"));
-        okJButton.addActionListener(new java.awt.event.ActionListener() {
+        verifyJButton.setFont(Fonts.DialogButtonFont);
+        verifyJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Verify"));
+        verifyJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                okJButtonActionPerformed(evt);
+                verifyJButtonActionPerformed(evt);
+            }
+        });
+
+        countryJLabel.setFont(Fonts.DialogFont);
+        countryJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Country"));
+
+        nameJLabel.setFont(Fonts.DialogFont);
+        nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Name"));
+
+        nameJTextField.setFont(Fonts.DialogTextEntryFont);
+        nameJTextField.setText("John McClean");
+
+        emailJTextField.setFont(Fonts.DialogTextEntryFont);
+        emailJTextField.setText("john@nypd.org");
+
+        titleJLabel.setFont(Fonts.DialogFont);
+        titleJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.UserTitle"));
+
+        emailJLabel.setFont(Fonts.DialogFont);
+        emailJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Email"));
+
+        titleJTextField.setFont(Fonts.DialogTextEntryFont);
+        titleJTextField.setText("Over The Hill Cop");
+
+        countryJComboBox.setFont(Fonts.DialogTextEntryFont);
+        countryJComboBox.setModel(countryModel);
+        countryJComboBox.setRenderer(new LocaleRenderer(getController().getLocale()));
+
+        organizationJLabel.setFont(Fonts.DialogFont);
+        organizationJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Organization"));
+
+        organizationJTextField.setFont(Fonts.DialogTextEntryFont);
+        organizationJTextField.setText("NYPD");
+
+        phoneJLabel.setFont(Fonts.DialogFont);
+        phoneJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Phone"));
+
+        postalCodeJTextField.setFont(Fonts.DialogTextEntryFont);
+        postalCodeJTextField.setText("90210");
+
+        postalCodeJLabel.setFont(Fonts.DialogFont);
+        postalCodeJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.PostalCode"));
+
+        phoneJTextField.setFont(Fonts.DialogTextEntryFont);
+        phoneJTextField.setText("555-555-1111");
+
+        mobilePhoneJLabel.setFont(Fonts.DialogFont);
+        mobilePhoneJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.MobilePhone"));
+
+        mobilePhoneJTextField.setFont(Fonts.DialogTextEntryFont);
+        mobilePhoneJTextField.setText("555-555-1111");
+
+        provinceJLabel.setFont(Fonts.DialogFont);
+        provinceJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Province"));
+
+        provinceJTextField.setFont(Fonts.DialogTextEntryFont);
+        provinceJTextField.setText("NY");
+
+        cityJLabel.setFont(Fonts.DialogFont);
+        cityJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.City"));
+
+        cityJTextField.setFont(Fonts.DialogTextEntryFont);
+        cityJTextField.setText("NYC");
+
+        addressJLabel.setFont(Fonts.DialogFont);
+        addressJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Address"));
+
+        addressJTextField.setFont(Fonts.DialogTextEntryFont);
+        addressJTextField.setText("1234 5th Street");
+
+        verificationKeyJLabel.setFont(Fonts.DialogFont);
+        verificationKeyJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.VerificationKey"));
+
+        verificationKeyJTextField.setText("102-2394-29-2439-1");
+
+        errorMessageJLabel.setFont(Fonts.DialogFont);
+        errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
+        errorMessageJLabel.setText("!Error Message!");
+
+        saveJButton.setFont(Fonts.DialogButtonFont);
+        saveJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.OK"));
+        saveJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveJButtonActionPerformed(evt);
             }
         });
 
@@ -231,206 +326,141 @@ public class UpdateProfileAvatar extends Avatar {
             }
         });
 
-        nameJTextField.setFont(Fonts.DialogTextEntryFont);
-
-        titleJTextField.setFont(Fonts.DialogTextEntryFont);
-
-        organizationJTextField.setFont(Fonts.DialogTextEntryFont);
-
-        phoneJTextField.setFont(Fonts.DialogTextEntryFont);
-
-        mobilePhoneJTextField.setFont(Fonts.DialogTextEntryFont);
-
-        addressJTextField.setFont(Fonts.DialogTextEntryFont);
-
-        cityJTextField.setFont(Fonts.DialogTextEntryFont);
-
-        provinceJTextField.setFont(Fonts.DialogTextEntryFont);
-
-        countryJComboBox.setFont(Fonts.DialogTextEntryFont);
-        countryJComboBox.setModel(countryModel);
-        countryJComboBox.setRenderer(new LocaleRenderer(getController().getLocale()));
-
-        postalCodeJTextField.setFont(Fonts.DialogTextEntryFont);
-
-        emailJTextField.setFont(Fonts.DialogTextEntryFont);
-
-        errorMessageJLabel.setFont(Fonts.DialogFont);
-        errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
-        errorMessageJLabel.setText("!Error Message!");
-
-        headingsJPanel.setLayout(new java.awt.GridBagLayout());
-
-        headingsJPanel.setOpaque(false);
-        nameJLabel.setFont(Fonts.DialogFont);
-        nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Name"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
-        headingsJPanel.add(nameJLabel, gridBagConstraints);
-
-        titleJLabel.setFont(Fonts.DialogFont);
-        titleJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.UserTitle"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
-        headingsJPanel.add(titleJLabel, gridBagConstraints);
-
-        organizationJLabel.setFont(Fonts.DialogFont);
-        organizationJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Organization"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
-        headingsJPanel.add(organizationJLabel, gridBagConstraints);
-
-        phoneJLabel.setFont(Fonts.DialogFont);
-        phoneJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Phone"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
-        headingsJPanel.add(phoneJLabel, gridBagConstraints);
-
-        mobilePhoneJLabel.setFont(Fonts.DialogFont);
-        mobilePhoneJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.MobilePhone"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
-        headingsJPanel.add(mobilePhoneJLabel, gridBagConstraints);
-
-        addressJLabel.setFont(Fonts.DialogFont);
-        addressJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Address"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
-        headingsJPanel.add(addressJLabel, gridBagConstraints);
-
-        cityJLabel.setFont(Fonts.DialogFont);
-        cityJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.City"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
-        headingsJPanel.add(cityJLabel, gridBagConstraints);
-
-        provinceJLabel.setFont(Fonts.DialogFont);
-        provinceJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Province"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 7;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
-        headingsJPanel.add(provinceJLabel, gridBagConstraints);
-
-        countryJLabel.setFont(Fonts.DialogFont);
-        countryJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Country"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 8;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
-        headingsJPanel.add(countryJLabel, gridBagConstraints);
-
-        postalCodeJLabel.setFont(Fonts.DialogFont);
-        postalCodeJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.PostalCode"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 9;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
-        headingsJPanel.add(postalCodeJLabel, gridBagConstraints);
-
-        emailJLabel.setFont(Fonts.DialogFont);
-        emailJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Email"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 10;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
-        headingsJPanel.add(emailJLabel, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 11;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 90, 0, 0);
-        headingsJPanel.add(fillerJLabel, gridBagConstraints);
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(headingsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(titleJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
-                            .addComponent(organizationJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
-                            .addComponent(phoneJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
-                            .addComponent(mobilePhoneJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
-                            .addComponent(emailJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
-                            .addComponent(postalCodeJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
-                            .addComponent(provinceJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
-                            .addComponent(cityJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
-                            .addComponent(addressJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
-                            .addComponent(countryJComboBox, 0, 215, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(nameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE))))
-                    .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
+                            .addComponent(emailJLabel)
+                            .addComponent(verificationKeyJLabel)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(12, 12, 12)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(organizationJLabel)
+                            .addComponent(titleJLabel)
+                            .addComponent(nameJLabel)
+                            .addComponent(phoneJLabel)
+                            .addComponent(countryJLabel))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(organizationJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                    .addComponent(phoneJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                    .addComponent(mobilePhoneJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                    .addComponent(addressJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                    .addComponent(cityJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                    .addComponent(provinceJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                    .addComponent(postalCodeJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                    .addComponent(countryJComboBox, 0, 291, Short.MAX_VALUE)
+                    .addComponent(emailJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                    .addComponent(titleJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(nameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(okJButton)
+                        .addComponent(verificationKeyJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cancelJButton)))
+                        .addComponent(verifyJButton)))
+                .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addComponent(mobilePhoneJLabel)
+                .addContainerGap(328, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addComponent(addressJLabel)
+                .addContainerGap(362, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addComponent(cityJLabel)
+                .addContainerGap(388, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addComponent(provinceJLabel)
+                .addContainerGap(361, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addComponent(postalCodeJLabel)
+                .addContainerGap(339, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(273, Short.MAX_VALUE)
+                .addComponent(saveJButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cancelJButton)
+                .addGap(12, 12, 12))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 404, Short.MAX_VALUE)
                 .addContainerGap())
         );
-
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cancelJButton, okJButton});
-
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(nameJLabel)
+                    .addComponent(nameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(titleJLabel)
+                    .addComponent(titleJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(35, 35, 35)
-                        .addComponent(nameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(titleJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(organizationJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(phoneJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(mobilePhoneJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(addressJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cityJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(provinceJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(countryJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(postalCodeJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(emailJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(33, 33, 33)
-                        .addComponent(headingsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)))
-                .addGap(17, 17, 17)
+                    .addComponent(organizationJLabel)
+                    .addComponent(organizationJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(phoneJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(phoneJLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(mobilePhoneJLabel)
+                    .addComponent(mobilePhoneJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(addressJLabel)
+                    .addComponent(addressJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cityJLabel)
+                    .addComponent(cityJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(provinceJLabel)
+                    .addComponent(provinceJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(postalCodeJLabel)
+                    .addComponent(postalCodeJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(countryJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(countryJLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(emailJLabel)
+                    .addComponent(emailJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(verificationKeyJLabel)
+                    .addComponent(verifyJButton)
+                    .addComponent(verificationKeyJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(errorMessageJLabel)
-                .addGap(15, 15, 15)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cancelJButton)
-                    .addComponent(okJButton))
+                    .addComponent(saveJButton))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void verifyJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_verifyJButtonActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_verifyJButtonActionPerformed
 
     /**
      * Initialize the list of countries for the country picklist.
@@ -502,7 +532,7 @@ public class UpdateProfileAvatar extends Avatar {
             isChanged(extractInputProvince(), profile.getProvince()) ||
             isChanged(extractInputCountry(), profile.getCountry()) ||
             isChanged(extractInputPostalCode(), profile.getPostalCode()) ||
-            isChanged(extractInputEmail(), getEmailString())) {
+            isChanged(extractInputEmail(), getEMailString())) {
             return Boolean.TRUE;
         } else {
             return Boolean.FALSE;
@@ -516,7 +546,7 @@ public class UpdateProfileAvatar extends Avatar {
      */
     private Boolean isInputEmailAvailable() {
         final String inputEmail = extractInputEmail();
-        if (isChanged(inputEmail, getEmailString())) {
+        if (isChanged(inputEmail, getEMailString())) {
             final EMail newEmail = EMailBuilder.parse(inputEmail);
             final Boolean available = readIsEmailAvailable(newEmail);
             if (!available) {
@@ -579,7 +609,7 @@ public class UpdateProfileAvatar extends Avatar {
      * @param evt
      *            An <code>ActionEvent</code>.
      */
-    private void okJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
+    private void saveJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveJButtonActionPerformed
         if (isInputValid() && isInputEmailAvailable()) {
             disposeWindow();
             updateProfile();
@@ -587,9 +617,9 @@ public class UpdateProfileAvatar extends Avatar {
         } else {
             // This is done because we may learn the email is unavailable for the first time here.
             reloadErrorMessage();
-            okJButton.setEnabled(isInputValid());
+            saveJButton.setEnabled(isInputValid());
         }
-    }//GEN-LAST:event_okJButtonActionPerformed
+    }//GEN-LAST:event_saveJButtonActionPerformed
 
     /**
      * Determine whether or not an e-mail address is available.
@@ -616,8 +646,8 @@ public class UpdateProfileAvatar extends Avatar {
      * 
      * @return A <code>List&lt;ProfileEMail&gt;</code>.
      */
-    private List<ProfileEMail> readEmails() {
-        return ((UpdateProfileProvider) contentProvider).readEmails();
+    private List<ProfileEMail> readEMails() {
+        return ((UpdateProfileProvider) contentProvider).readEMails();
     }
 
     /**
@@ -667,7 +697,7 @@ public class UpdateProfileAvatar extends Avatar {
             errorMessageJLabel.setText(getString("ErrorEmailInvalid"));
         } else if (!isInputEmailAvailableQuick()) {
             errorMessageJLabel.setText(getString("ErrorEmailNotAvailable"));
-        } else if (isChanged(extractInputEmail(), getEmailString())) {
+        } else if (isChanged(extractInputEmail(), getEMailString())) {
             errorMessageJLabel.setText(getString("ErrorEmailChanged"));
         } else {
             // NOTE The space ensures the dialog leaves room for this control.
@@ -698,10 +728,26 @@ public class UpdateProfileAvatar extends Avatar {
     }
 
     /**
+     * Reload the e-mail verification controls.
+     *
+     */
+    private void reloadEMailVerification() {
+        verificationKeyJLabel.setVisible(false);
+        verificationKeyJTextField.setVisible(false);
+        verifyJButton.setVisible(false);
+        final ProfileEMail email = getEMail();
+        if (null != email && !email.isVerified()) {
+            verificationKeyJLabel.setVisible(true);
+            verificationKeyJTextField.setVisible(true);
+            verifyJButton.setVisible(true);
+        }
+    }
+
+    /**
      * Update the email address.
      */
     private void updateEmail() {
-        if (isChanged(extractInputEmail(), getEmailString())) {
+        if (isChanged(extractInputEmail(), getEMailString())) {
             final EMail newEmail = EMailBuilder.parse(extractInputEmail());
             getController().runAddProfileEmail(newEmail);
             getController().runRemoveProfileEmail(emails.get(0).getEmailId());
@@ -743,10 +789,10 @@ public class UpdateProfileAvatar extends Avatar {
         }
         private void checkInput() {
             if (isInputValid() && isInputChanged()) {
-                okJButton.setEnabled(Boolean.TRUE);
+                saveJButton.setEnabled(Boolean.TRUE);
             }
             else {
-                okJButton.setEnabled(Boolean.FALSE);
+                saveJButton.setEnabled(Boolean.FALSE);
             }
             reloadErrorMessage();
         }
@@ -763,7 +809,6 @@ public class UpdateProfileAvatar extends Avatar {
     private final javax.swing.JTextField mobilePhoneJTextField = new javax.swing.JTextField();
     private final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
-    private final javax.swing.JButton okJButton = ButtonFactory.create();
     private final javax.swing.JLabel organizationJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField organizationJTextField = new javax.swing.JTextField();
     private final javax.swing.JTextField phoneJTextField = new javax.swing.JTextField();
@@ -771,7 +816,11 @@ public class UpdateProfileAvatar extends Avatar {
     private final javax.swing.JTextField postalCodeJTextField = new javax.swing.JTextField();
     private final javax.swing.JLabel provinceJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField provinceJTextField = new javax.swing.JTextField();
+    private final javax.swing.JButton saveJButton = ButtonFactory.create();
     private final javax.swing.JLabel titleJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField titleJTextField = new javax.swing.JTextField();
+    private javax.swing.JLabel verificationKeyJLabel;
+    private javax.swing.JTextField verificationKeyJTextField;
+    private javax.swing.JButton verifyJButton;
     // End of variables declaration//GEN-END:variables
 }

@@ -112,7 +112,7 @@ final class ModelInvocationHandler implements InvocationHandler {
                 } finally {
                     model.notifyListeners();
                 }
-                return result;
+                return LOGGER.logVariable("result", result);
             } catch (final InvocationTargetException itx) {
                 rollbackXA(transaction, transactionContext);
                 throw itx.getTargetException();

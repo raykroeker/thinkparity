@@ -4,17 +4,14 @@
  */
 package com.thinkparity.ophelia.model.contact;
 
+import java.util.Calendar;
+
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationExtendedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationExtendedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.*;
 
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
@@ -26,6 +23,26 @@ import com.thinkparity.ophelia.model.util.ProcessMonitor;
  */
 @ThinkParityTransaction(TransactionType.REQUIRED)
 public interface InternalContactModel extends ContactModel {
+
+    /**
+     * Create a local outgoing e-mail invitation. As a result of a publish to an
+     * e-mail, an outgoing e-mail invitation will be created.
+     * 
+     * @param email
+     *            An <code>EMail</code> address.
+     * @return A <code>OutgoingEMailInvitation</code>.
+     */
+    public OutgoingEMailInvitation createLocalOutgoingEMailInvitation(
+            final EMail email, final Calendar createdOn);
+
+    /**
+     * Determine whether or not an outgoing e-mail invitation exists.
+     * 
+     * @param email
+     *            An <code>EMail</code> address.
+     * @return True if an outgoing e-mail invitation exists for this address.
+     */
+    public Boolean doesExistOutgoingEMailInvitation(final EMail email);
 
     /**
      * Download the contacts from the server and create local contacts.

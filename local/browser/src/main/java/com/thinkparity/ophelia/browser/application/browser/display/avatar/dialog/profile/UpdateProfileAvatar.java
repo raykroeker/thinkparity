@@ -96,6 +96,24 @@ public class UpdateProfileAvatar extends Avatar {
         }
     }
 
+    /**
+     * Determine if the verification input is valid.
+     * 
+     * @return True if the verification input is valid.
+     */
+    private Boolean isVerifyInputValid() {
+        return null != extractVerificationKey();
+    }
+
+    /**
+     * Extract the verification key.
+     * 
+     * @return The verification key <code>String</code>.
+     */
+    private String extractVerificationKey() {
+        return SwingUtil.extract(verificationKeyJTextField, Boolean.TRUE);
+    }
+
     public void reload() {
         this.profile = readProfile();
         this.emails = readEMails();
@@ -113,7 +131,7 @@ public class UpdateProfileAvatar extends Avatar {
         reloadProvinceLabel();
         reloadPostalCodeLabel();
         reloadErrorMessage();
-        reloadEMailVerification();
+        reloadVerify();
         saveJButton.setEnabled(Boolean.FALSE);
     }
 
@@ -304,7 +322,7 @@ public class UpdateProfileAvatar extends Avatar {
         verificationKeyJLabel.setFont(Fonts.DialogFont);
         verificationKeyJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.VerificationKey"));
 
-        verificationKeyJTextField.setText("102-2394-29-2439-1");
+        verificationKeyJTextField.setFont(Fonts.DialogTextEntryFont);
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
@@ -458,8 +476,21 @@ public class UpdateProfileAvatar extends Avatar {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void verifyEMail() {
+        final Long emailId = getEMail().getEmailId();
+        final String verificationKey = extractVerificationKey();
+        getController().runVerifyProfileEmail(emailId, verificationKey);
+    }
+
     private void verifyJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_verifyJButtonActionPerformed
-// TODO add your handling code here:
+        if (isVerifyInputValid()) {
+            disposeWindow();
+            verifyEMail();
+        } else {
+            // This is done because we may learn the email is unavailable for the first time here.
+            reloadErrorMessage();
+            saveJButton.setEnabled(isInputValid());
+        }
     }//GEN-LAST:event_verifyJButtonActionPerformed
 
     /**
@@ -486,6 +517,28 @@ public class UpdateProfileAvatar extends Avatar {
         provinceJTextField.getDocument().addDocumentListener(new ChangeHandler());
         titleJTextField.getDocument().addDocumentListener(new ChangeHandler());
         countryJComboBox.addItemListener(new ChangeHandler());
+        emailJTextField.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(final DocumentEvent e) {
+                reloadVerify();
+            }
+            public void insertUpdate(final DocumentEvent e) {
+                reloadVerify();
+            }
+            public void removeUpdate(final DocumentEvent e) {
+                reloadVerify();
+            }
+        });
+        verificationKeyJTextField.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(final DocumentEvent e) {
+                reloadVerify();
+            }
+            public void insertUpdate(DocumentEvent e) {
+                reloadVerify();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                reloadVerify();
+            }
+        });
     }
 
     /**
@@ -731,16 +784,18 @@ public class UpdateProfileAvatar extends Avatar {
      * Reload the e-mail verification controls.
      *
      */
-    private void reloadEMailVerification() {
+    private void reloadVerify() {
         verificationKeyJLabel.setVisible(false);
         verificationKeyJTextField.setVisible(false);
         verifyJButton.setVisible(false);
         final ProfileEMail email = getEMail();
-        if (null != email && !email.isVerified()) {
+        if (null != email && !email.isVerified()
+                && email.getEmail().toString().equals(extractInputEmail())) {
             verificationKeyJLabel.setVisible(true);
             verificationKeyJTextField.setVisible(true);
             verifyJButton.setVisible(true);
         }
+        verifyJButton.setEnabled(isVerifyInputValid());
     }
 
     /**

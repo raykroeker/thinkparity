@@ -150,6 +150,7 @@ public class SignupAccountInfoAvatar extends Avatar
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#saveData()
      */
     public void saveData() {
+        ((Data) input).set(SignupData.DataKey.FEATURE_SET, extractFeatureSet());
         ((Data) input).set(SignupData.DataKey.CREDENTIALS, extractCredentials());
         ((Data) input).set(SignupData.DataKey.RESERVATION, lookupReservation(extractUsername()));
     }
@@ -225,6 +226,22 @@ public class SignupAccountInfoAvatar extends Avatar
         return credentials;
     }
 
+    /**
+     * Extract the feature set based upon the account type selection.
+     * 
+     * @return A <code>FeatureSet</code>.
+     */
+    private FeatureSet extractFeatureSet() {
+        if (accountTypeGuestJRadioButton.isSelected()) {
+            return FeatureSet.FREE;
+        } else if (accountTypeStandardJRadioButton.isSelected()) {
+            return FeatureSet.STANDARD;
+        } else if (accountTypeBackupJRadioButton.isSelected()) {
+            return FeatureSet.PREMIUM;
+        } else {
+            throw Assert.createUnreachable("Unknown account type selected.");
+        }
+    }
     /**
      * Extract the password from the control.
      * 

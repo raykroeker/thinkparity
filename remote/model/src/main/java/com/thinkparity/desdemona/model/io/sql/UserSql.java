@@ -101,7 +101,7 @@ public class UserSql extends AbstractSql {
         .append("from TPSD_USER U ")
         .append("inner join TPSD_USER_EMAIL UE on UE.USER_ID=U.USER_ID ")
         .append("inner join TPSD_EMAIL E on E.EMAIL_ID=UE.EMAIL_ID ")
-        .append("where E.EMAIL=?")
+        .append("where E.EMAIL=? and UE.VERIFIED=?")
         .toString();
 
     /** Sql to read a user. */
@@ -490,6 +490,7 @@ public class UserSql extends AbstractSql {
         try {
             session.prepareStatement(SQL_READ_BY_EMAIL);
             session.setString(1, email.toString());
+            session.setBoolean(2, Boolean.TRUE);
             session.executeQuery();
             if (session.nextResult()) {
                 return extract(session);

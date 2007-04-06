@@ -154,7 +154,6 @@ public final class ContactModelImpl extends AbstractModelImpl implements
         try {
             final UserModel userModel = getUserModel();
             final User user = userModel.read(userId);
-            final User invitationUser = userModel.read(invitationUserId);
             // create invitation
             invitationSql.create(user, invitation);
             // fire event
@@ -162,7 +161,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
             event.setInvitedAs(invitation.getInvitationEMail());
             event.setInvitedBy(invitation.getExtendedBy().getId());
             event.setInvitedOn(invitation.getCreatedOn());
-            enqueueEvent(invitationUser.getId(), userId, event);
+            enqueueEvent(userId, userId, event);
         } catch (final Throwable t) {
             throw panic(t);
         }

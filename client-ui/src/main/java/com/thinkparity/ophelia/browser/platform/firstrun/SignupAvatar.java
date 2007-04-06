@@ -17,9 +17,12 @@ import javax.swing.AbstractAction;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.session.Credentials;
+
+import com.thinkparity.ophelia.model.Constants.Product;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -30,6 +33,7 @@ import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.ophelia.browser.platform.firstrun.SignupData.DataKey;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
@@ -317,10 +321,27 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     private void signUp() {
         signupInitiated = Boolean.TRUE;
         disposeWindow();
-        final Reservation reservation = (Reservation)((Data)input).get(SignupData.DataKey.RESERVATION);
-        final Credentials credentials = (Credentials)((Data)input).get(SignupData.DataKey.CREDENTIALS);
-        final Profile profile = (Profile)((Data)input).get(SignupData.DataKey.PROFILE);
-        final EMail email = (EMail)((Data)input).get(SignupData.DataKey.EMAIL);
+        final Credentials credentials = (Credentials)((Data)input).get(DataKey.CREDENTIALS);
+        final EMail email = (EMail)((Data)input).get(DataKey.EMAIL);
+        final FeatureSet featureSet = (FeatureSet) ((Data) input).get(DataKey.FEATURE_SET);
+        final Profile profile = (Profile)((Data)input).get(DataKey.PROFILE);
+        final Reservation reservation = (Reservation)((Data)input).get(DataKey.RESERVATION);
+        final List<Feature> allFeatures = ((SignupProvider) contentProvider).readFeatures();
+        final List<Feature> features = new ArrayList<Feature>();
+        switch (featureSet) {
+        case FREE:
+            break;
+        case STANDARD:
+            for (final Feature feature : allFeatures)
+                if (feature.getName().equals(Product.Features.CORE))
+                    features.add(feature);
+            break;
+        case PREMIUM:
+            for (final Feature feature : allFeatures)
+                features.add(feature);
+            break;
+        }
+        profile.setFeatures(features);
         platform.runCreateAccount(reservation, credentials, profile, email);
     }
 

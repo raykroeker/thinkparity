@@ -204,6 +204,22 @@ public class SignupProfileInfoAvatar extends Avatar
     }
 
     /**
+     * Create the account.
+     */
+    private void createAccount() {
+        final Reservation reservation = (Reservation)((Data)input).get(SignupData.DataKey.RESERVATION);
+        final Credentials credentials = (Credentials)((Data)input).get(SignupData.DataKey.CREDENTIALS);
+        final EMail email = extractEmail();
+        final Profile profile = extractProfile();
+        try {
+            profile.setFeatures(extractFeatures());
+            platform.runCreateAccount(reservation, credentials, profile, email);
+        } catch (final BrowserException bex) {
+            addInputError(getString("ErrorCreateAccount"));
+        }
+    }
+
+    /**
      * Extract the email from the control.
      * 
      * @return The <code>EMail</code>.
@@ -607,6 +623,17 @@ public class SignupProfileInfoAvatar extends Avatar
     }
 
     /**
+     * Determine whether or not an e-mail address is available.
+     * 
+     * @param email
+     *            An <code>EMail</code>.
+     * @return True if the address is not in use.
+     */
+    private Boolean readIsEmailAvailable(final EMail email) {
+        return ((SignupProvider) contentProvider).readIsEmailAvailable(email);
+    }
+
+    /**
      * Reload the postal code (ie. postal code or zip code) label.
      */
     private void reloadPostalCodeLabel() {
@@ -646,19 +673,12 @@ public class SignupProfileInfoAvatar extends Avatar
      * Sign up.
      */
     private void signUp() {
-        final Reservation reservation = (Reservation)((Data)input).get(SignupData.DataKey.RESERVATION);
-        final Credentials credentials = (Credentials)((Data)input).get(SignupData.DataKey.CREDENTIALS);
-        final EMail email = extractEmail();
-        final Profile profile = extractProfile();
         SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
         errorMessageJLabel.setText(getString("SigningUp"));
         errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel.getWidth(), errorMessageJLabel.getHeight());
-        try {
-            profile.setFeatures(extractFeatures());
-            platform.runCreateAccount(reservation, credentials, profile, email);
-            errorMessageJLabel.setText(" ");
-        } catch (final BrowserException bex) {
-            addInputError(getString("ErrorSignup"));
+        createAccount();
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors()) {
             errorMessageJLabel.setText(getInputErrors().get(0));
         }
         SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);

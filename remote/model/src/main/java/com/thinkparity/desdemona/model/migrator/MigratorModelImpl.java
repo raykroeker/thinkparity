@@ -142,8 +142,6 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
             final Release release, final List<Resource> resources,
             final String streamId) {
         try {
-            assertIsSystemUser(userId);
-
             // find/create the product
             final Product deployProduct = readProduct(product.getName());
 

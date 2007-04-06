@@ -23,6 +23,7 @@ import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl;
+import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
@@ -53,6 +54,9 @@ public class OpheliaTestUser extends User {
     /** An initialize <code>ProcessMonitor</code>. */
     private static final ProcessMonitor INITIALIZE_MONITOR;
 
+    /** An <code>InitializeMediator</code>. */
+    private static final InitializeMediator INITIALIZE_MEDIATOR;
+
     /** An apache <code>Log4JWrapper</code>. */
     private static final Log4JWrapper LOGGER;
 
@@ -60,6 +64,14 @@ public class OpheliaTestUser extends User {
     private static final String PASSWORD;
 
 	static {
+        INITIALIZE_MEDIATOR = new InitializeMediator() {
+            public Boolean confirmRestorePremium() {
+                return Boolean.TRUE;
+            }
+            public Boolean confirmRestoreStandard() {
+                return Boolean.TRUE;
+            }
+        };
         INITIALIZE_MONITOR = new ProcessMonitor() {
             public void beginProcess() {
                 LOGGER.logInfo("Begin workspace initialize process.");
@@ -213,7 +225,8 @@ public class OpheliaTestUser extends User {
         final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
         if (!workspaceModel.isInitialized(workspace)) {
             try {
-                workspaceModel.initialize(INITIALIZE_MONITOR, workspace, credentials);
+                workspaceModel.initialize(INITIALIZE_MONITOR,
+                        INITIALIZE_MEDIATOR, workspace, credentials);
             } catch (final InvalidCredentialsException icx) {
                 LOGGER.logFatal("Could not login with credentials {0}.", credentials);
             }

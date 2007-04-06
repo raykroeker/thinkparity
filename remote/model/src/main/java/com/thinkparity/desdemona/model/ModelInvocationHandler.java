@@ -66,7 +66,7 @@ final class ModelInvocationHandler implements InvocationHandler {
                 if (isAuthenticateUser(method))
                     model.assertIsAuthenticatedUser((JabberId) args[0]);
                 else if (isAuthenticateSystem(method))
-                    model.assertIsSystemUser((JabberId) args[0]);
+                    model.assertIsSystemUser();
                 return LOGGER.logVariable("result", method.invoke(model, args));
             } catch (final InvocationTargetException itx) {
                 throw itx.getTargetException();

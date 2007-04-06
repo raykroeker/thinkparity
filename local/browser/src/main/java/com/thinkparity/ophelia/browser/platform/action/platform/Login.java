@@ -10,6 +10,12 @@ import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.util.Step;
+import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.ophelia.model.workspace.monitor.InitializeStep;
+
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -17,11 +23,6 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
 import com.thinkparity.ophelia.browser.util.localization.ActionLocalization;
-import com.thinkparity.ophelia.model.util.ProcessAdapter;
-import com.thinkparity.ophelia.model.util.ProcessMonitor;
-import com.thinkparity.ophelia.model.util.Step;
-import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.monitor.InitializeStep;
 
 /**
  * @author rob_masako@shaw.ca
@@ -108,6 +109,8 @@ public class Login extends AbstractAction {
                         monitor.reset();
                     }
                 });
+            } finally {
+                monitor.complete();
             }
             return null;
         }

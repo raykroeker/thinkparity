@@ -31,6 +31,7 @@ import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.ophelia.model.events.MigratorEvent;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
@@ -388,8 +389,15 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     public void initializeWorkspace(final ProcessMonitor monitor,
             final Workspace workspace, final Credentials credentials)
             throws InvalidCredentialsException {
-        WorkspaceModel.getInstance(environment).initialize(monitor, workspace,
-                credentials);
+        WorkspaceModel.getInstance(environment).initialize(monitor,
+                new InitializeMediator() {
+                    public Boolean confirmRestorePremium() {
+                        return Boolean.FALSE;
+                    }
+                    public Boolean confirmRestoreStandard() {
+                        return Boolean.FALSE;
+                    }
+        },workspace, credentials);
     }
 
 	/** @see com.thinkparity.ophelia.browser.platform.Platform#isDevelopmentMode() */

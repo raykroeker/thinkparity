@@ -219,15 +219,15 @@ public abstract class AbstractModelImpl
 	}
 
     /**
-     * Assert that the user id matches that of a system user.
+     * Assert that the session user id matches that of a system user.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
      * @see #isSystemUser(JabberId)
      */
-    protected void assertIsSystemUser(final JabberId userId) {
-        Assert.assertTrue(isSystemUser(userId),
-                "User {0} is not a system user.", userId);
+    protected void assertIsSystemUser() {
+        Assert.assertTrue(isSystemUser(session.getJabberId()),
+                "User {0} is not a system user.", session.getJabberId());
     }
 
 	/**

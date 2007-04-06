@@ -24,6 +24,7 @@ import com.thinkparity.ophelia.model.script.Script;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
+import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
@@ -35,10 +36,21 @@ import com.thinkparity.ophelia.browser.profile.ProfileManager;
  */
 public final class Scenario {
 
+    /** An <code>InitializeMediator</code>. */
+    private static final InitializeMediator INITIALIZE_MEDIATOR;
+
     /** An initialize <code>ProcessMonitor</code> for the workspace. */
     private static final ProcessMonitor INITIALIZE_MONITOR;
 
     static {
+        INITIALIZE_MEDIATOR = new InitializeMediator() {
+            public Boolean confirmRestorePremium() {
+                return Boolean.FALSE;
+            }
+            public Boolean confirmRestoreStandard() {
+                return Boolean.FALSE;
+            }
+        };
         INITIALIZE_MONITOR = new ProcessMonitor() {
             public void beginProcess() {}
             public void beginStep(final Step step, final Object data) {}
@@ -113,6 +125,9 @@ public final class Scenario {
                 initializeWorkspace(script);
             } catch (final InvalidCredentialsException icx) {
                 monitor.notifyScriptError(script, icx);
+                break;
+            } catch (final InvalidLocationException ilx) {
+                monitor.notifyScriptError(script, ilx);
                 break;
             }
             logout(script);
@@ -278,10 +293,11 @@ public final class Scenario {
      *            A <code>Script</code>.
      */
     private void initializeWorkspace(final Script script)
-            throws InvalidCredentialsException {
+            throws InvalidCredentialsException, InvalidLocationException {
         final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
         final Workspace workspace = workspaceModel.getWorkspace(profiles.get(script));
-        workspaceModel.initialize(INITIALIZE_MONITOR, workspace, credentials.get(script));
+        workspaceModel.initialize(INITIALIZE_MONITOR, INITIALIZE_MEDIATOR,
+                workspace, credentials.get(script));
         workspaces.put(script, workspace);
     }
 

@@ -350,6 +350,15 @@ public interface InternalSessionModel extends SessionModel {
             throws InvalidCredentialsException;
 
     /**
+     * Determine whether or not this is the first login.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return True if this is the first login.
+     */
+    public Boolean isFirstLogin(final JabberId userId);
+
+    /**
      * Fire the client maintenance event.
      *
      */
@@ -657,6 +666,13 @@ public interface InternalSessionModel extends SessionModel {
      * @return A list of profile email addresses.
      */
     public List<ProfileEMail> readProfileEMails();
+
+    /**
+     * Read a user's profile features.
+     * 
+     * @return A <code>List</code> of <code>Feature</code>s.
+     */
+    public List<Feature> readProfileFeatures(final JabberId userId);
 
     /**
      * Read the user profile's security question.

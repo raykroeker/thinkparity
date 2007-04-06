@@ -646,6 +646,28 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isFirstLogin(com.thinkparity.codebase.jabber.JabberId)
+     *
+     */
+    public Boolean isFirstLogin(final JabberId userId) {
+        try {
+            assertXMPPOffline();
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                authenticateAsSystem(xmppSession);
+                try {
+                    final Token token = xmppSession.readToken(userId);
+                    return null == token;
+                } finally {
+                    unauthenticate(xmppSession);
+                }
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
 	 * Determine whether or not a user is logged in.
 	 * 
 	 * @return True if the user is logged in, false otherwise.
@@ -815,7 +837,7 @@ public final class SessionModelImpl extends Model<SessionListener>
 		}
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#notifyClientMaintenance()
      *
      */
@@ -835,7 +857,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#processQueue(com.thinkparity.ophelia.model.util.ProcessMonitor)
      * 
      */
@@ -877,7 +899,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readArchiveContainer(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.UUID)
      * 
@@ -896,7 +918,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * Read the archived containers.
      * 
      * @param userId
@@ -1054,7 +1076,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    public List<TeamMember> readArchiveTeam(final JabberId userId,
+	public List<TeamMember> readArchiveTeam(final JabberId userId,
             final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -1068,8 +1090,8 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
-	/**
+    
+    /**
      * Read the archive team.
      * 
      * @param userId
@@ -1105,7 +1127,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-    
+
     /**
      * Read the backup containers.
      * 
@@ -1209,6 +1231,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
+
     public List<ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
         try {
@@ -1221,7 +1244,6 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
 
     /**
      * Read the backup team.
@@ -1391,7 +1413,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorRelease(java.lang.String,
      *      java.lang.String, com.thinkparity.codebase.OS)
      * 
@@ -1409,7 +1431,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorResources(java.lang.String,
      *      java.lang.String, com.thinkparity.codebase.OS)
      * 
@@ -1427,6 +1449,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
+    
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readOutgoingEMailInvitations()
      *
@@ -1441,7 +1464,6 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
     
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readOutgoingUserInvitations()
@@ -1457,14 +1479,12 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-    
+
     /**
-     * Read the logged in user's profile.
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readProfile()
      * 
-     * @return A profile.
      */
     public Profile readProfile() {
-        logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -1491,6 +1511,27 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readProfileFeatures(com.thinkparity.codebase.jabber.JabberId)
+     * 
+     */
+    public List<Feature> readProfileFeatures(final JabberId userId) {
+        try {
+            assertXMPPOffline();
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                authenticateAsSystem(xmppSession);
+                try {
+                    return xmppSession.readProfileFeatures(userId);
+                } finally {
+                    unauthenticate(xmppSession);
+                }
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+	/**
      * Read the user profile's security question.
      * 
      * @param userId
@@ -1510,7 +1551,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	public Integer readQueueSize() {
+    public Integer readQueueSize() {
         logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();

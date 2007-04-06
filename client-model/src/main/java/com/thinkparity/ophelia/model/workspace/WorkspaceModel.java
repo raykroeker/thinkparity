@@ -5,20 +5,25 @@ package com.thinkparity.ophelia.model.workspace;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.ThinkParityException;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
+import com.thinkparity.ophelia.model.Constants.Product;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookNames;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookPriorities;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
@@ -236,8 +241,8 @@ public class WorkspaceModel {
      *            The user's login <code>Credentials</code>.
      */
     public void initialize(final ProcessMonitor monitor,
-            final Workspace workspace, final Credentials credentials)
-            throws InvalidCredentialsException {
+            final InitializeMediator mediator, final Workspace workspace,
+            final Credentials credentials) throws InvalidCredentialsException {
         final WorkspaceImpl workspaceImpl = findImpl(workspace);
         notifyProcessBegin(monitor);
         notifyDetermine(monitor, 3);
@@ -250,7 +255,35 @@ public class WorkspaceModel {
             final InternalSessionModel sessionModel = modelFactory.getSessionModel();
             // login
             notifyStepBegin(monitor, InitializeStep.SESSION_LOGIN);
-            sessionModel.login(credentials);
+            final JabberId userId = JabberIdBuilder.build(
+                    credentials.getUsername(), environment.getXMPPService(),
+                    credentials.getResource());
+            if (sessionModel.isFirstLogin(userId)) {
+                sessionModel.login(credentials);
+            } else {
+                final List<Feature> features = sessionModel.readProfileFeatures(userId);
+                boolean backupEnabled = false;
+                boolean coreEnabled = false;
+                for (final Feature feature : features) {
+                    if (feature.getName().equals(Product.Features.CORE))
+                        coreEnabled = true;
+                    else if (feature.getName().equals(Product.Features.BACKUP))
+                        backupEnabled = true;
+                }
+                final boolean confirmContinue;
+                if (backupEnabled) {
+                    confirmContinue = mediator.confirmRestorePremium();
+                } else if (coreEnabled) {
+                    confirmContinue = mediator.confirmRestoreStandard();
+                } else {
+                    confirmContinue = true;
+                }
+                if (confirmContinue) {
+                    sessionModel.login(credentials);
+                } else {
+                    return;
+                }
+            }
             notifyStepEnd(monitor, InitializeStep.SESSION_LOGIN);
             // initialize migrator
             if (workspace.isDesktop())

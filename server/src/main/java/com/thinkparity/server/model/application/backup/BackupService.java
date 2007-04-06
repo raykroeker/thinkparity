@@ -18,6 +18,7 @@ import com.thinkparity.codebase.model.session.InvalidLocationException;
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.Step;
+import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
@@ -230,6 +231,13 @@ public final class BackupService {
                         public void endProcess() {}
                         @Override
                         public void endStep(final Step step) {}
+                    }, new InitializeMediator() {
+                        public Boolean confirmRestorePremium() {
+                            throw new BackupException("Cannot initialize backup workspace.  Backup workspace has already been initialized.");
+                        }
+                        public Boolean confirmRestoreStandard() {
+                            throw new BackupException("Cannot initialize backup workspace.  Backup workspace has already been initialized.");
+                        }
                     }, workspace, credentials);
                 } catch (final InvalidCredentialsException icx) {
                     throw new BackupException(icx, "Cannot initialize backup workspace.");

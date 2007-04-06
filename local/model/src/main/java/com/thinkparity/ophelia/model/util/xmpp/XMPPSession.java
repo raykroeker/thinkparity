@@ -135,12 +135,12 @@ public interface XMPPSession {
      */
     public void archiveArtifact(final JabberId userId, final UUID uniqueId);
 
-
     /**
      * Clear all xmpp session listeners.
      *
      */
     public void clearListeners();
+
 
     public void confirmArtifactReceipt(final JabberId userId,
             final UUID uniqueId, final Long versionId,
@@ -375,7 +375,7 @@ public interface XMPPSession {
     public void deployMigrator(final JabberId userId, final Product product,
             final Release release, final List<Resource> resources,
             final String streamId);
-    
+
     /**
      * Determine if the backup is online.
      * 
@@ -384,7 +384,7 @@ public interface XMPPSession {
      * @return True if the backup is online.
      */
     public Boolean isBackupOnline(final JabberId userId);
-
+    
     /**
      * Determine the availability of an e-mail address.
      * 
@@ -461,7 +461,6 @@ public interface XMPPSession {
     public void processEventQueue(final ProcessMonitor monitor,
             final JabberId userId);
 
-
     /**
      * Publish a container version. The latest version is optional and required
      * when publishing a new version only, the received by list is required when
@@ -499,6 +498,7 @@ public interface XMPPSession {
             final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
             final Calendar publishedOn, final List<EMail> publishedToEMails,
             final List<User> publishedToUsers);
+
 
     /**
      * Read the archive's containers.
@@ -576,7 +576,7 @@ public interface XMPPSession {
     public List<TeamMember> readArchiveTeam(final JabberId userId,
             final UUID uniqueId);
 
-	/**
+    /**
      * Read the archive team for a user.
      * 
      * @param userId
@@ -588,7 +588,7 @@ public interface XMPPSession {
     public List<JabberId> readArchiveTeamIds(final JabberId userId,
             final UUID uniqueId);
 
-    /**
+	/**
      * Read the backup's containers.
      * 
      * @param userId
@@ -607,6 +607,7 @@ public interface XMPPSession {
      * @return A <code>List&lt;Container&gt;</code>.
      */
     public List<Container> readBackupContainers(final JabberId userId);
+
     /**
      * Read the backup containers versions.
      * 
@@ -648,7 +649,6 @@ public interface XMPPSession {
             final JabberId userId, final UUID uniqueId, final Long versionId);
     public List<ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
             final UUID uniqueId, final Long versionId);
-
     /**
      * Read the backup's team for a user.
      * 
@@ -712,7 +712,7 @@ public interface XMPPSession {
     public List<IncomingEMailInvitation> readIncomingEMailInvitations(
             final JabberId userId);
 
-	/**
+    /**
      * Read all incoming user invitations.
      * 
      * @return A <code>List</code> of <code>IncomingInvitation</code>s.
@@ -720,7 +720,7 @@ public interface XMPPSession {
     public List<IncomingUserInvitation> readIncomingUserInvitations(
             final JabberId userId);
 
-    /**
+	/**
      * Read the artifact key holder.
      * 
      * @param uniqueId
@@ -793,13 +793,13 @@ public interface XMPPSession {
      */
     public List<Resource> readMigratorResources(final JabberId userId,
             final String productName, final String releaseName, final OS os);
+
     /**
      * Read all outgoing e-mail invitations.
      * 
      * @return A <code>List</code> of <code>OutgoingEMailInvitation</code>s.
      */
     public List<OutgoingEMailInvitation> readOutgoingEMailInvitations(final JabberId userId);
-
     /**
      * Read all outgoing user invitations.
      * 
@@ -820,6 +820,15 @@ public interface XMPPSession {
      * @return A <code>List</code> of <code>ProfileEMail</code>s.
      */
     public List<ProfileEMail> readProfileEMails();
+
+    /**
+     * Read a profile's features.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List</code> of <code>Feature</code>s.
+     */
+    public List<Feature> readProfileFeatures(final JabberId userId);
 
     /**
      * Read the user profile's security question.

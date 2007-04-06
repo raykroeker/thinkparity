@@ -9,6 +9,7 @@ import java.util.List;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.Reservation;
@@ -143,6 +144,12 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         readEMails.setParameter("userId", userId);
         final XMPPMethodResponse response = execute(readEMails, Boolean.TRUE);
         return response.readResultProfileEMails("emails");
+    }
+
+    List<Feature> readFeatures(final JabberId userId) {
+        final XMPPMethod readFeatures = new XMPPMethod("profile:readfeatures");
+        readFeatures.setParameter("userId", userId);
+        return execute(readFeatures, Boolean.TRUE).readResultFeatures("features");
     }
 
     /**

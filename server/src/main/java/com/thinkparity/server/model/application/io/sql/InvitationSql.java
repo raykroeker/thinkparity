@@ -86,6 +86,12 @@ public class InvitationSql extends AbstractSql {
         .append("and ATTACHMENT_REFERENCE_ID=?")
         .toString();
 
+    /** Sql to delete an attachment. */
+    private static final String SQL_DELETE_ATTACHMENTS =
+        new StringBuilder("delete from TPSD_CONTACT_INVITATION_ATTACHMENT ")
+        .append("where CONTACT_INVITATION_ID=?")
+        .toString();
+
     /** Sql to delete an incoming e-mail. */
     private static final String SQL_DELETE_INCOMING_EMAIL =
         new StringBuilder("delete from TPSD_CONTACT_INVITATION_INCOMING_EMAIL ")
@@ -487,6 +493,27 @@ public class InvitationSql extends AbstractSql {
             session.setString(3, attachment.getReferenceId());
             if (1 != session.executeUpdate())
                 throw panic("Could not delete attachment.");
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Delete all invitation attachments.
+     * 
+     * @param invitation
+     *            A <code>ContactInvitation</code>.
+     */
+    public void deleteAttachments(final ContactInvitation invitation) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_ATTACHMENTS);
+            session.setLong(1, invitation.getId());
+            session.executeUpdate();
+
             session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);

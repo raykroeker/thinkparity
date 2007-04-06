@@ -286,6 +286,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
             final OutgoingEMailInvitation outgoingEMailInvitation =
                 invitationSql.readOutgoingEMail(invitationUser,
                         invitation.getInvitationEMail());
+            invitationSql.deleteAttachments(outgoingEMailInvitation);
             invitationSql.delete(outgoingEMailInvitation);
 
             // fire event
@@ -627,14 +628,18 @@ public final class ContactModelImpl extends AbstractModelImpl implements
         for (final EMail email : invitationUserEMails) {
             outgoingEMailInvitation = invitationSql.readOutgoingEMail(user,
                     email);
-            if (null != outgoingEMailInvitation)
+            if (null != outgoingEMailInvitation) {
+                invitationSql.deleteAttachments(outgoingEMailInvitation);
                 invitationSql.delete(outgoingEMailInvitation);
+            }
         }
         for (final EMail email : userEMails) {
             outgoingEMailInvitation = invitationSql.readOutgoingEMail(
                     invitationUser, email);
-            if (null != outgoingEMailInvitation)
+            if (null != outgoingEMailInvitation) {
+                invitationSql.deleteAttachments(outgoingEMailInvitation);
                 invitationSql.delete(outgoingEMailInvitation);
+            }
         }
 
         // delete incoming user invitations

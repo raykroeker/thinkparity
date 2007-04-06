@@ -198,6 +198,15 @@ public class XMPPMethod extends IQ {
         return childElementXML.toString();
     }
 
+    public final void setArtifactReceiptParameter(final String name,
+            final List<ArtifactReceipt> values) {
+        final List<XMPPMethodParameter> parameters = new ArrayList<XMPPMethodParameter>(values.size());
+        for (final ArtifactReceipt value : values) {
+            parameters.add(new XMPPMethodParameter(XmlRpc.LIST_ITEM, value.getClass(), value));
+        }
+        this.parameters.add(new XMPPMethodParameter(name, List.class, parameters));
+    }
+
     public final void setContactsParameter(final String name,
             final List<Contact> value) {
         setListParameter(name, value);
@@ -519,6 +528,10 @@ public class XMPPMethod extends IQ {
             return parameter.javaValue.toString();
         } else if (parameter.javaType.equals(UUID.class)) {
             return parameter.javaValue.toString();
+        } else if (ArtifactReceipt.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
         } else if (Error.class.isAssignableFrom(parameter.javaType)) {
             final StringWriter xmlWriter = new StringWriter();
             XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);

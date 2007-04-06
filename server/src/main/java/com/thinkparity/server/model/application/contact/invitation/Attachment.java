@@ -3,7 +3,7 @@
  */
 package com.thinkparity.desdemona.model.contact.invitation;
 
-import com.thinkparity.codebase.HashcodeUtil;
+import com.thinkparity.codebase.HashCodeUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 /**
@@ -86,7 +86,7 @@ public class Attachment {
      */
     @Override
     public int hashCode() {
-        return HashcodeUtil.hashcode(invitationId, referenceId, referenceType);
+        return HashCodeUtil.hashCode(invitationId, referenceId, referenceType);
     }
 
     /**

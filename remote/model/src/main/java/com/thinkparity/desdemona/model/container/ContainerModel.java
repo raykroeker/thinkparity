@@ -10,6 +10,7 @@ import java.util.Map;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -41,6 +42,10 @@ public interface ContainerModel {
      *            belonging to version.
      * @param teamMembers
      *            A <code>List</code> of <code>TeamMember</code>s.
+     * @param receivedBy
+     *            An optional <code>List</code> of
+     *            <code>ArtifactReceipt</code>s where the recipient has
+     *            already received the artifact.
      * @param publishedBy
      *            A published by user id <code>JabberId</code>.
      * @param publishedOn
@@ -56,7 +61,8 @@ public interface ContainerModel {
     public void publish(final JabberId userId, final ContainerVersion version,
             final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documentVersions,
-            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final List<TeamMember> teamMembers,
+            final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
             final Calendar publishedOn, final List<EMail> publishedToEMails,
             final List<User> publishedToUsers);
 }

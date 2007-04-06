@@ -732,14 +732,17 @@ public final class HypersonicSession {
      * @param resultSet
      *            A <code>ResultSet</code>
      */
-	private void close(final ResultSet resultSet) {
-		try {
-            if (null != resultSet)
+	private void close(ResultSet resultSet) {
+        if (null != resultSet) {
+            try {
                 resultSet.close();
-		} catch (final SQLException sqlx) {
-            throw panic(sqlx);
-		}
-	}
+            } catch (final SQLException sqlx) {
+                throw panic(sqlx);
+            } finally {
+                resultSet = null;
+            }
+        }
+    }
 
     /**
      * Close a statement.
@@ -747,13 +750,16 @@ public final class HypersonicSession {
      * @param statement
      *            A <code>Statement</code>.
      */
-	private void close(final Statement statement) {
-		try {
-            if(null != statement)
-                statement.close();
-		} catch (final SQLException sqlx) {
-            throw panic(sqlx);
-		}
+	private void close(Statement statement) {
+        if (null != statement) {
+    		try {
+    		    statement.close();
+    		} catch (final SQLException sqlx) {
+                throw panic(sqlx);
+    		} finally {
+    		    statement = null;      
+            }
+        }
 	}
 
     /**
@@ -768,8 +774,11 @@ public final class HypersonicSession {
      * @see HypersonicSession#close(ResultSet)
      */
 	private void close(final Statement statement, final ResultSet resultSet) {
-		close(statement);
-		close(resultSet);
+		try {
+            close(statement);
+        } finally {
+            close(resultSet);
+        }
 	}
 
 	/**

@@ -12,6 +12,7 @@ import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
@@ -38,6 +39,8 @@ import com.thinkparity.codebase.model.user.User;
  * @version 1.1.2.1
  */
 public interface ServiceRequestReader {
+
+    public List<ArtifactReceipt> readArtifactReceipts(final String name);
 
     /**
      * Read a calendar.

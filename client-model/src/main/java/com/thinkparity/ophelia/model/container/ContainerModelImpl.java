@@ -570,20 +570,9 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Handle the remote draft created event. A
-     * <code>ContainerDraft</code is created;
-     * and the created by <code>JabberId</code> is set as the owner; and a 
-     * notification is fired.
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handleDraftCreated(java.lang.Long,
+     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
      * 
-     * @param containerId
-     *            The container id <code>Long</code>.
-     * @param createdBy
-     *            The creation user <code>JabberId</code>.
-     * @param createdOn
-     *            The creation date <code>Calendar</code>.
-     *            
-     * @see #notifyDraftCreated(Container, ContainerDraft, ContainerEventGenerator)
-     * @see #readTeam(Long)
      */
     public void handleDraftCreated(final Long containerId,
             final JabberId createdBy, final Calendar createdOn) {
@@ -756,6 +745,23 @@ public final class ContainerModelImpl extends
             containerIO.createPublishedTo(container.getId(),
                     version.getVersionId(), publishedToUsers,
                     event.getPublishedOn());
+            // update the local published to list for the received by list
+            ArtifactReceipt localReceipt;
+            User receivedBy;
+            for (final ArtifactReceipt receipt : event.getReceivedBy()) {
+                receivedBy = userModel.readLazyCreate(receipt.getUser().getId());
+                localReceipt = containerIO.readPublishedToReceipt(
+                    container.getId(), version.getVersionId(),
+                    event.getPublishedOn(), receivedBy);
+                if (null == localReceipt) {
+                    containerIO.createPublishedTo(container.getId(),
+                            version.getVersionId(), receivedBy,
+                            receipt.getPublishedOn());
+                }
+                containerIO.updatePublishedTo(container.getId(),
+                        version.getVersionId(), receipt.getPublishedOn(),
+                        receivedBy.getId(), receipt.getReceivedOn());
+            }
             // calculate differences
             final ContainerVersion previous = readPreviousVersion(container.getId(), version.getVersionId());
             final ContainerVersion next = readNextVersion(container.getId(), version.getVersionId());
@@ -787,8 +793,14 @@ public final class ContainerModelImpl extends
                      * parameter; which caused ticket #606
                      * 
                      * now the event's published to list is used
+                     * 
+                     * this also causes a publish of an existing version not to
+                     * propogate the distribution chain #555 therefore it was
+                     * changed to use the local published to list
                      */
-                    USER_UTILS.getIds(event.getPublishedTo(), new ArrayList<JabberId>()),
+                    USER_UTILS.getIds(containerIO.readPublishedTo(
+                            container.getId(), version.getVersionId()),
+                            new ArrayList<JabberId>()),
                     localUserId(), confirmedOn);
             // audit\fire event
             final Container postPublish = read(container.getId());
@@ -1068,9 +1080,12 @@ public final class ContainerModelImpl extends
                     if (!contactModel.doesExistOutgoingEMailInvitation(email).booleanValue())
                         contactModel.createLocalOutgoingEMailInvitation(email, publishedOn);
                 }
+                /* build artifact receipts - new version therefore no-one has
+                 * received it yet */
+                final List<ArtifactReceipt> receivedBy = Collections.emptyList();
                 // publish container contents
-                publish(monitor, version, version, localUserId(), publishedOn,
-                        publishToEMails, publishToUsers);
+                publish(monitor, version, version, receivedBy, localUserId(),
+                        publishedOn, publishToEMails, publishToUsers);
                 // fire event
                 final Container postPublish = read(container.getId());
                 final ContainerVersion postPublishVersion = readVersion(
@@ -1132,16 +1147,26 @@ public final class ContainerModelImpl extends
                     containerIO.createPublishedTo(containerId, versionId,
                             publishToUser, publishedOn);
             }
+            // include the users who have already received the package
+            final List<ArtifactReceipt> receivedBy =
+                containerIO.readPublishedToReceipts(containerId, versionId);
+            final Iterator<ArtifactReceipt> iReceivedBy = receivedBy.iterator();
+            while (iReceivedBy.hasNext()) {
+                if (!iReceivedBy.next().isSetReceivedOn().booleanValue())
+                    iReceivedBy.remove();
+            }
             // HACK the client code should not be able to dictate the latest
             // version which is essentially happening here.
             final Container container = read(containerId);
-            if (container.isLatest())
+            if (container.isLatest()) {
                 publish(monitor, version, readLatestVersion(containerId),
+                        receivedBy, version.getCreatedBy(), publishedOn,
+                        publishToEMails, publishToUsers);
+            } else {
+                publish(monitor, version, null, receivedBy,
                         version.getCreatedBy(), publishedOn, publishToEMails,
                         publishToUsers);
-            else
-                publish(monitor, version, null, version.getCreatedBy(),
-                        publishedOn, publishToEMails, publishToUsers);
+            }
             // fire event
             final Container postPublish = read(containerId);
             final ContainerVersion postPublishVersion =
@@ -3157,6 +3182,9 @@ public final class ContainerModelImpl extends
      *            The latest <code>ContainerVersion</code>.
      * @param publishedBy
      *            A published by user id <code>JabberId</code>.
+     * @param receivedBy
+     *            An <code>List</code> of <code>ArtifactReceipt</code>s who
+     *            have already received the version.
      * @param publishedOn
      *            A published on <code>Calendar</code>.
      * @param publishedToEMails
@@ -3167,7 +3195,8 @@ public final class ContainerModelImpl extends
      */
     private void publish(final ProcessMonitor monitor,
             final ContainerVersion version,
-            final ContainerVersion latestVersion, final JabberId publishedBy,
+            final ContainerVersion latestVersion,
+            final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
             final Calendar publishedOn, final List<EMail> publishedToEMails,
             final List<User> publishedToUsers) throws IOException {
         // grab the document versions
@@ -3215,7 +3244,8 @@ public final class ContainerModelImpl extends
         notifyStepBegin(monitor, PublishStep.PUBLISH);
         getSessionModel().publish(version, latestVersion,
                 documentVersionStreamIds, readTeam(version.getArtifactId()),
-                publishedBy, publishedOn, publishedToEMails, publishedToUsers);
+                receivedBy, publishedBy, publishedOn, publishedToEMails,
+                publishedToUsers);
         notifyStepEnd(monitor, PublishStep.PUBLISH);
     }
 

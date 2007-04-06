@@ -5,6 +5,9 @@ package com.thinkparity.codebase.model.artifact;
 
 import java.util.Calendar;
 
+import com.thinkparity.codebase.HashCodeUtil;
+import com.thinkparity.codebase.StringUtil;
+
 import com.thinkparity.codebase.model.user.User;
 
 /**
@@ -30,6 +33,23 @@ public class ArtifactReceipt {
     }
 
     /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     *
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj)
+            return true;
+        if (null == obj)
+            return false;
+        if (obj.getClass() != getClass())
+            return false;
+        return ((ArtifactReceipt) obj).artifactId.equals(artifactId)
+                && ((ArtifactReceipt) obj).publishedOn.equals(publishedOn)
+                && ((ArtifactReceipt) obj).user.equals(user);
+    }
+
+    /**
      * Obtain the artifactId
      *
      * @return The Long.
@@ -37,6 +57,7 @@ public class ArtifactReceipt {
     public Long getArtifactId() {
         return artifactId;
     }
+
 
     /**
      * Obtain publishedOn.
@@ -63,6 +84,15 @@ public class ArtifactReceipt {
      */
     public User getUser() {
         return user;
+    }
+
+    /**
+     * @see java.lang.Object#hashCode()
+     *
+     */
+    @Override
+    public int hashCode() {
+        return HashCodeUtil.hashCode(artifactId, publishedOn, user);
     }
 
     public Boolean isSetReceivedOn() {
@@ -104,5 +134,16 @@ public class ArtifactReceipt {
      */
     public void setUser(final User user) {
         this.user = user;
+    }
+
+    /**
+     * @see java.lang.Object#toString()
+     *
+     */
+    @Override
+    public String toString() {
+        return StringUtil.toString(getClass(), "artifactId", artifactId,
+                "publishedOn", publishedOn, "receivedOn", receivedOn, "user",
+                user);
     }
 }

@@ -17,6 +17,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.ThinkParityException;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
@@ -87,6 +88,28 @@ public final class IQReader implements ServiceRequestReader {
     public IQReader(final IQ iq) {
         super();
         this.iq = iq;
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readArtifactReceipts(java.lang.String)
+     *
+     */
+    public List<ArtifactReceipt> readArtifactReceipts(final String name) {
+        final Element element = iq.getChildElement().element(name);
+        final Iterator iChildren = element.elementIterator(XmlRpc.LIST_ITEM);
+        final List<ArtifactReceipt> artifactReceipts = new ArrayList<ArtifactReceipt>();
+        Dom4JReader dom4JReader;
+        while (iChildren.hasNext()) {
+            dom4JReader = new Dom4JReader((Element) iChildren.next());
+            try {
+                dom4JReader.moveDown();
+                artifactReceipts.add((ArtifactReceipt) XSTREAM_UTIL.unmarshal(dom4JReader, new ArtifactReceipt()));
+            } finally {
+                dom4JReader.moveUp();
+                dom4JReader.close();
+            }
+        }
+        return artifactReceipts;
     }
 
     /**

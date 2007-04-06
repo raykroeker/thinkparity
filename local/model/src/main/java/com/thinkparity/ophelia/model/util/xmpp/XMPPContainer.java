@@ -10,6 +10,7 @@ import java.util.Map;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -42,13 +43,14 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
     void publish(final JabberId userId, final ContainerVersion version,
             final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documentVersions,
-            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final List<TeamMember> teamMembers,
+            final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
             final Calendar publishedOn, final List<EMail> publishedToEMails,
             final List<User> publishedToUsers) {
         if (null == latestVersion) {
             /* publish an existing version - does not require latest version */
             publishVersion(userId, version, documentVersions, teamMembers,
-                    publishedBy, publishedOn, publishedToEMails,
+                    receivedBy, publishedBy, publishedOn, publishedToEMails,
                     publishedToUsers);
         } else {
             /* publish a new version - requires latest version */
@@ -58,6 +60,7 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
             publish.setParameter("latestVersion", latestVersion);
             publish.setDocumentVersionsStreamIdsParameter("documentVersions", documentVersions);
             publish.setTeamMembersParameter("teamMembers", teamMembers);
+            publish.setArtifactReceiptParameter("receivedBy", receivedBy);
             publish.setParameter("publishedBy", publishedBy);
             publish.setParameter("publishedOn", publishedOn);
             publish.setEMailsParameter("publishedToEMails", publishedToEMails);
@@ -70,7 +73,8 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
     private void publishVersion(final JabberId userId,
             final ContainerVersion version,
             final Map<DocumentVersion, String> documentVersions,
-            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final List<TeamMember> teamMembers,
+            final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
             final Calendar publishedOn, final List<EMail> publishedToEMails,
             final List<User> publishedToUsers) {
         final XMPPMethod publish = new XMPPMethod("container:publishversion");
@@ -78,6 +82,7 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
         publish.setParameter("version", version);
         publish.setDocumentVersionsStreamIdsParameter("documentVersions", documentVersions);
         publish.setTeamMembersParameter("teamMembers", teamMembers);
+        publish.setArtifactReceiptParameter("receivedBy", receivedBy);
         publish.setParameter("publishedBy", publishedBy);
         publish.setParameter("publishedOn", publishedOn);
         publish.setEMailsParameter("publishedToEMails", publishedToEMails);

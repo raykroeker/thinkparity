@@ -13,6 +13,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
@@ -61,7 +62,8 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
     public void publish(final JabberId userId, final ContainerVersion version,
             final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documentVersions,
-            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final List<TeamMember> teamMembers,
+            final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
             final Calendar publishedOn, final List<EMail> publishedToEMails,
             final List<User> publishedToUsers) {
         try {
@@ -81,6 +83,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             publishedEvent.setPublishedBy(publishedBy);
             publishedEvent.setPublishedOn(publishedOn);
             publishedEvent.setPublishedTo(publishedToUsers);
+            publishedEvent.setReceivedBy(receivedBy);
             publishedEvent.setVersion(version);
             enqueueEvent(session.getJabberId(), publishedToIds, publishedEvent);
 

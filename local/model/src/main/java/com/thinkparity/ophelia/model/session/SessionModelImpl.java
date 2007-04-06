@@ -850,24 +850,38 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#publish(com.thinkparity.codebase.model.container.ContainerVersion,
+     *      com.thinkparity.codebase.model.container.ContainerVersion,
+     *      java.util.Map, java.util.List, java.util.List,
+     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
+     *      java.util.List, java.util.List)
+     * 
+     */
 	public void publish(final ContainerVersion version,
             final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documents,
-            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final List<TeamMember> teamMembers,
+            final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
             final Calendar publishedOn, final List<EMail> publishedToEMails,
             final List<User> publishedToUsers) {
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 xmppSession.publish(localUserId(), version, latestVersion,
-                        documents, teamMembers, publishedBy, publishedOn,
-                        publishedToEMails, publishedToUsers);
+                        documents, teamMembers, receivedBy, publishedBy,
+                        publishedOn, publishedToEMails, publishedToUsers);
             }
         } catch(final Throwable t) {
             throw panic(t);
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readArchiveContainer(com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.UUID)
+     * 
+     */
     public Container readArchiveContainer(final JabberId userId, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);

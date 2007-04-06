@@ -461,11 +461,42 @@ public interface XMPPSession {
     public void processEventQueue(final ProcessMonitor monitor,
             final JabberId userId);
 
-    // TODO-javadoc XMPPSession#publish
+
+    /**
+     * Publish a container version. The latest version is optional and required
+     * when publishing a new version only, the received by list is required when
+     * publishing an existing version only.
+     * 
+     * @param userId
+     *            The session user id <code>JabberId</code>.
+     * @param version
+     *            The <code>ContainerVersion</code> to publish.
+     * @param latestVersion
+     *            The optional latest <code>ContainerVersion</code>.
+     * @param documents
+     *            A <code>Map</code> of <code>DocumentVersion</code>s to
+     *            their corresponding stream id <code>String</code>s.
+     * @param teamMembers
+     *            A <code>List</code> of <code>TeamMember</code>s.
+     * @param receivedBy
+     *            An optional <code>List</code> of
+     *            <code>ArtifactReceipt</code>s where the recipient has
+     *            already received the artifact.
+     * @param publishedBy
+     *            A published by user id <code>JabberId</code>.
+     * @param publishedOn
+     *            A published on <code>Calendar</code>.
+     * @param publishedToEMails
+     *            A <code>List</code> of <code>EMail</code> addresses to
+     *            publish to.
+     * @param publishedToUsers
+     *            A <code>List</code> of <code>User</code>s to publish to.
+     */
     public void publish(final JabberId userId, final ContainerVersion version,
             final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documents,
-            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final List<TeamMember> teamMembers,
+            final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
             final Calendar publishedOn, final List<EMail> publishedToEMails,
             final List<User> publishedToUsers);
 

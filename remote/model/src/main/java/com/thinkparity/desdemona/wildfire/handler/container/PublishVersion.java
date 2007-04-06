@@ -10,6 +10,7 @@ import java.util.Map;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -48,6 +49,7 @@ public final class PublishVersion extends AbstractHandler {
                 reader.readContainerVersion("version"),
                 reader.readDocumentVersionsStreamIds("documentVersions"),
                 reader.readTeamMembers("teamMembers"),
+                reader.readArtifactReceipts("receivedBy"),
                 reader.readJabberId("publishedBy"),
                 reader.readCalendar("publishedOn"),
                 reader.readEMails("publishedToEMails"),
@@ -57,11 +59,12 @@ public final class PublishVersion extends AbstractHandler {
     private void publish(final ServiceModelProvider provider,
             final JabberId userId, final ContainerVersion version,
             final Map<DocumentVersion, String> documentVersions,
-            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final List<TeamMember> teamMembers,
+            final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
             final Calendar publishedOn, final List<EMail> publishedToEMails,
             final List<User> publishedToUsers) {
         provider.getContainerModel().publish(userId, version, null,
-                documentVersions, teamMembers, publishedBy, publishedOn,
-                publishedToEMails, publishedToUsers);
+                documentVersions, teamMembers, receivedBy, publishedBy,
+                publishedOn, publishedToEMails, publishedToUsers);
     }
 }

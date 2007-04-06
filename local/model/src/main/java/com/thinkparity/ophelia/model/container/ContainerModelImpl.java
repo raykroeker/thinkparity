@@ -47,6 +47,7 @@ import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.user.UserFlag;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
@@ -956,6 +957,21 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Ensure that the users can be published to.
+     * 
+     * @param users
+     *            A <code>List</code> of <code>User</code>s.
+     */
+    private void assertIsNotRestricted(final List<? extends User> users) {
+        final InternalUserModel userModel = getUserModel();
+        for (final User user : users) {
+            Assert.assertNotTrue(userModel.readFlags(user).contains(
+                    UserFlag.CONTAINER_PUBLISH_RESTRICTED),
+                    "Cannot publish to user {0}.", user.getName());
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.container.ContainerModel#publish(com.thinkparity.ophelia.model.util.ProcessMonitor,
      *      java.lang.Long, java.lang.String, java.util.List, java.util.List)
      * 
@@ -969,6 +985,8 @@ public final class ContainerModelImpl extends
         assertLocalDraftIsSaved("The local draft has not been saved.", containerId);
         assertLocalDraftIsModified("The local draft has not been modified.", containerId);
         assertIsNotContact(emails);
+        assertIsNotRestricted(contacts);
+        assertIsNotRestricted(teamMembers);
         try {
             // lock the documents
             final ContainerDraft draft = readDraft(containerId);

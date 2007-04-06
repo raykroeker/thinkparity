@@ -27,6 +27,9 @@ public class User {
     /** The thinkParity backup <code>User</code>. */
     public static final User THINKPARITY_BACKUP;
 
+    /** The thinkParity backup <code>User</code>. */
+    public static final User THINKPARITY_SUPPORT;
+
     static final String NAME_SEP = " ";
 
 	static {
@@ -34,6 +37,8 @@ public class User {
         THINKPARITY.setId(JabberIdBuilder.parseUsername("thinkparity"));
         THINKPARITY_BACKUP = new User();
         THINKPARITY_BACKUP.setId(JabberIdBuilder.parseUsername("thinkparity-backup"));
+        THINKPARITY_SUPPORT = new User();
+        THINKPARITY_SUPPORT.setId(JabberIdBuilder.parseUsername("thinkparity-support"));
     }
 
     /** A list of all applied <code>UserFlag</code>s. */

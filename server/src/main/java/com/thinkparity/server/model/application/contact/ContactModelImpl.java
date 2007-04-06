@@ -144,6 +144,23 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.contact.InternalContactModel#create(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.model.user.User, com.thinkparity.codebase.model.user.User)
+     *
+     */
+    public void create(final JabberId userId, final User user,
+            final User contact) {
+        try {
+            final User createdBy = getUserModel().read(userId);
+            final Calendar createdOn = currentDateTime();
+            // create a contact
+            contactSql.create(user, contact, createdBy, createdOn);
+            contactSql.create(contact, user, createdBy, createdOn);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.contact.InternalContactModel#createInvitation(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.contact.IncomingEMailInvitation)

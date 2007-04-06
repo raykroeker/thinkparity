@@ -152,6 +152,10 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             // remove username reservation
             userSql.deleteReservation(reservation.getToken());
 
+            // add support contact
+            getContactModel().create(userId, profile,
+                    getUserModel().read(User.THINKPARITY_SUPPORT.getId()));
+
             // send verification email
             final MimeMessage mimeMessage = MessageFactory.createMimeMessage();
             createVerification(mimeMessage, email, key);

@@ -63,6 +63,18 @@ public final class UserModelImpl extends Model implements UserModel,
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.user.InternalUserModel#readFlags(com.thinkparity.codebase.model.user.User)
+     *
+     */
+    public List<UserFlag> readFlags(final User user) {
+        try {
+            return userIO.readFlags(user.getLocalId());
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.user.InternalUserModel#readLazyCreate(com.thinkparity.codebase.jabber.JabberId)
      * 
      */

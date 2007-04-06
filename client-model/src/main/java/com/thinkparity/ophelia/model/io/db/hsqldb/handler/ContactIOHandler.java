@@ -162,6 +162,14 @@ public final class ContactIOHandler extends AbstractIOHandler implements
         .append("inner join PARITY_USER U on C.CONTACT_ID=U.USER_ID ")
         .toString();
 
+    /** Sql to read a contact by its email. */
+    private static final String SQL_READ_BY_EMAIL =
+        new StringBuilder(SQL_READ)
+        .append("inner join CONTACT_EMAIL_REL CER on CER.CONTACT_ID=C.CONTACT_ID ")
+        .append("inner join EMAIL E on E.EMAIL_ID=CER.EMAIL_ID ")
+        .append("where E.EMAIL=?")
+        .toString();
+
     /** Sql to read a contact by its id. */
     private static final String SQL_READ_BY_ID =
         new StringBuilder(SQL_READ)
@@ -656,11 +664,6 @@ public final class ContactIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.ContactIOHandler#deleteOutgoingUserInvitation(java.lang.Long)
-     * 
-     */
-
-    /**
      * @see com.thinkparity.ophelia.model.io.handler.ContactIOHandler#read()
      */
     public List<Contact> read() {
@@ -673,6 +676,31 @@ public final class ContactIOHandler extends AbstractIOHandler implements
                 contacts.add(extractContact(session));
             }
             return contacts;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContactIOHandler#deleteOutgoingUserInvitation(java.lang.Long)
+     * 
+     */
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContactIOHandler#read(com.thinkparity.codebase.email.EMail)
+     *
+     */
+    public Contact read(EMail email) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_BY_EMAIL);
+            session.setEMail(1, email);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractContact(session);
+            } else {
+                return null;
+            }
         } finally {
             session.close();
         }

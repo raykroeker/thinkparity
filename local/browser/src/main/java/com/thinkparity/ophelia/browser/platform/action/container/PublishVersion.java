@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.monitor.PublishStep;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
@@ -110,6 +111,7 @@ public class PublishVersion extends AbstractBrowserAction {
     private static class PublishVersionWorker extends ThinkParitySwingWorker<PublishVersion> {
         private final ArtifactModel artifactModel;
         private final List<Contact> contacts;
+        private final ContactModel contactModel;
         private final ContainerModel containerModel;
         private final List<EMail> emails;
         private final ProcessMonitor publishMonitor;
@@ -125,12 +127,25 @@ public class PublishVersion extends AbstractBrowserAction {
             this.teamMembers = teamMembers;
 
             this.artifactModel = publishVersion.getArtifactModel();
+            this.contactModel = publishVersion.getContactModel();
             this.containerModel = publishVersion.getContainerModel();
 
             this.publishMonitor = newPublishVersionMonitor();
         }
         @Override
         public Object construct() {
+            /* if any e-mail addresses are contact e-mails, convert them to
+             * contact references */
+            Contact contact;
+            for (final EMail email : emails) {
+                if (contactModel.doesExist(email)) {
+                    contact = contactModel.read(email);
+                    if (!contacts.contains(contact)) {
+                        contacts.add(contact);
+                        emails.remove(email);
+                    }
+                }
+            }
             containerModel.publishVersion(publishMonitor,
                     version.getArtifactId(), version.getVersionId(),
                     emails, contacts, teamMembers);

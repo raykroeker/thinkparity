@@ -103,7 +103,7 @@ public interface ContactIOHandler {
      *            An <code>OutgoingUserInvitation</code>.
      */
     public void deleteInvitation(final OutgoingUserInvitation invitation);
-    
+
     /**
      * Determine if a contact exists for an e-mail address.
      * 
@@ -112,7 +112,7 @@ public interface ContactIOHandler {
      * @return True if a contact exists.
      */
     public Boolean doesExist(final EMail email);
-
+    
     /**
      * Determine whether or not a contact exists.
      * 
@@ -146,6 +146,15 @@ public interface ContactIOHandler {
      * @return A list of contacts.
      */
     public List<Contact> read();
+
+    /**
+     * Read a contact.
+     * 
+     * @param email
+     *            An <code>EMail</code> address.
+     * @return A <code>Contact</code>.
+     */
+    public Contact read(final EMail email);
 
     /**
      * Read a contact.

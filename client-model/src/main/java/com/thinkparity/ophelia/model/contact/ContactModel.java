@@ -182,6 +182,15 @@ public interface ContactModel {
             final Filter<? super Contact> filter);
 
     /**
+     * Read a contact.
+     * 
+     * @param email
+     *            An <code>EMail</code> address.
+     * @return A <code>Contact</code>.
+     */
+    public Contact read(final EMail email);
+
+    /**
      * Read a list of contacts.
      * 
      * @param filter

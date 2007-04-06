@@ -878,6 +878,18 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.contact.ContactModel#read(com.thinkparity.codebase.email.EMail)
+     *
+     */
+    public Contact read(final EMail email) {
+        try {
+            return contactIO.read(email);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Read a list of contacts.
      * 
      * @param filter

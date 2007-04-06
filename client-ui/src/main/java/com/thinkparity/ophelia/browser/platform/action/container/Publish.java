@@ -13,6 +13,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.monitor.PublishStep;
@@ -167,6 +168,7 @@ public class Publish extends AbstractBrowserAction {
         private final String comment;
         private final List<Contact> contacts;
         private final Container container;
+        private final ContactModel contactModel;
         private final ContainerModel containerModel;
         private final List<EMail> emails;
         private ProcessMonitor publishMonitor;
@@ -182,12 +184,25 @@ public class Publish extends AbstractBrowserAction {
             this.teamMembers = teamMembers;
 
             this.artifactModel = publish.getArtifactModel();
+            this.contactModel = publish.getContactModel();
             this.containerModel = publish.getContainerModel();
             
             this.publishMonitor = newPublishMonitor();
         }
         @Override
         public Object construct() {
+            /* if any e-mail addresses are contact e-mails, convert them to
+             * contact references */
+            Contact contact;
+            for (final EMail email : emails) {
+                if (contactModel.doesExist(email)) {
+                    contact = contactModel.read(email);
+                    if (!contacts.contains(contact)) {
+                        contacts.add(contact);
+                        emails.remove(email);
+                    }
+                }
+            }
             try {
                 containerModel.saveDraft(container.getId());
             } catch (final CannotLockException clx) {

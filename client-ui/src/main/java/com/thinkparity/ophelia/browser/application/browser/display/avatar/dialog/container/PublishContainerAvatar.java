@@ -754,7 +754,7 @@ public final class PublishContainerAvatar extends Avatar implements
         public void insertString(final FilterBypass fb, final int offs,
                                  final String str, final AttributeSet a)
             throws BadLocationException {
-            if ((fb.getDocument().getLength() + str.length()) <= maxCharacters) {
+            if (null == str || (fb.getDocument().getLength() + str.length()) <= maxCharacters) {
                 super.insertString(fb, offs, str, a);
             } else {
                 final int length = maxCharacters - fb.getDocument().getLength();
@@ -770,12 +770,13 @@ public final class PublishContainerAvatar extends Avatar implements
                             int length, 
                             String str, AttributeSet a)
             throws BadLocationException {
-            if ((fb.getDocument().getLength() + str.length()
-                 - length) <= maxCharacters) {
+            if (null == str || (fb.getDocument().getLength() + str.length()
+                    - length) <= maxCharacters) {
                 super.replace(fb, offs, length, str, a);
             }
         }
-    }    
+    }
+
     private class PublishContainerAvatarUserListModel extends DefaultListModel {
         
         public PublishContainerAvatarUserListModel() {

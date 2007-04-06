@@ -187,9 +187,11 @@ public class AvatarFactory {
             break;
         case DIALOG_PLATFORM_SIGNUP_AGREEMENT:
             avatar = newAvatar(SignupLicenseAgreementAvatar.class);
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_PLATFORM_SIGNUP_PROFILE:
             avatar = newAvatar(SignupProfileInfoAvatar.class);
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
 
         case DIALOG_PROFILE_UPDATE:

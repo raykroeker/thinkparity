@@ -38,6 +38,16 @@ public class LoginWindow extends OpheliaJFrame {
     }
 
     /**
+     * Enable or disable signup.
+     * 
+     * @param enable
+     *            The signup <code>Boolean</code>.
+     */
+    public void enableSignup(final Boolean enable) {
+        loginAvatar.enableSignup(enable);
+    }
+
+    /**
      * Determine if signup was selected.
      * 
      * @return true if signup was selected, false otherwise.

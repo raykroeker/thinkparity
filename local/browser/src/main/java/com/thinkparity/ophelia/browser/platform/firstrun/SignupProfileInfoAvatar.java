@@ -8,6 +8,8 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -22,9 +24,15 @@ import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
+import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.session.Credentials;
 
+import com.thinkparity.ophelia.model.Constants.Product;
+
+import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -34,6 +42,7 @@ import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.ophelia.browser.platform.firstrun.SignupData.DataKey;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
@@ -122,7 +131,11 @@ public class SignupProfileInfoAvatar extends Avatar
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isNextOk()
      */
     public Boolean isNextOk() {
-        return isInputValid();
+        if (!isInputValid()) {
+            return Boolean.FALSE;
+        }
+        signUp();
+        return (!containsInputErrors());
     }
 
     /**
@@ -200,6 +213,31 @@ public class SignupProfileInfoAvatar extends Avatar
     }
 
     /**
+     * Extract the features.
+     * 
+     * @return A list of <code>Feature</code>.
+     */
+    private List<Feature> extractFeatures() {
+        final FeatureSet featureSet = (FeatureSet) ((Data) input).get(DataKey.FEATURE_SET);
+        final List<Feature> allFeatures = ((SignupProvider) contentProvider).readFeatures();
+        final List<Feature> features = new ArrayList<Feature>();
+        switch (featureSet) {
+        case FREE:
+            break;
+        case STANDARD:
+            for (final Feature feature : allFeatures)
+                if (feature.getName().equals(Product.Features.CORE))
+                    features.add(feature);
+            break;
+        case PREMIUM:
+            for (final Feature feature : allFeatures)
+                features.add(feature);
+            break;
+        }
+        return features;
+    }
+
+    /**
      * Extract the input email string from the control.
      * 
      * @return The email <code>String</code>.
@@ -264,12 +302,17 @@ public class SignupProfileInfoAvatar extends Avatar
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        titleJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel titleJLabel = new javax.swing.JLabel();
         final javax.swing.JPanel headingsJPanel = new javax.swing.JPanel();
+        final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel userTitleJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel organizationJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel phoneJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel mobilePhoneJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel addressJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel cityJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel countryJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel emailJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
 
         setOpaque(false);
@@ -599,26 +642,42 @@ public class SignupProfileInfoAvatar extends Avatar
         }
     }
 
+    /**
+     * Sign up.
+     */
+    private void signUp() {
+        final Reservation reservation = (Reservation)((Data)input).get(SignupData.DataKey.RESERVATION);
+        final Credentials credentials = (Credentials)((Data)input).get(SignupData.DataKey.CREDENTIALS);
+        final EMail email = extractEmail();
+        final Profile profile = extractProfile();
+        SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
+        errorMessageJLabel.setText(getString("SigningUp"));
+        errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel.getWidth(), errorMessageJLabel.getHeight());
+        try {
+            profile.setFeatures(extractFeatures());
+            platform.runCreateAccount(reservation, credentials, profile, email);
+            errorMessageJLabel.setText(" ");
+        } catch (final BrowserException bex) {
+            addInputError(getString("ErrorSignup"));
+            errorMessageJLabel.setText(getInputErrors().get(0));
+        }
+        SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JTextField addressJTextField = new javax.swing.JTextField();
     private final javax.swing.JTextField cityJTextField = new javax.swing.JTextField();
     private final javax.swing.JComboBox countryJComboBox = new javax.swing.JComboBox();
-    private final javax.swing.JLabel countryJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel emailJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField emailJTextField = new javax.swing.JTextField();
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField mobilePhoneJTextField = new javax.swing.JTextField();
-    private final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
-    private final javax.swing.JLabel organizationJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField organizationJTextField = new javax.swing.JTextField();
     private final javax.swing.JTextField phoneJTextField = new javax.swing.JTextField();
     private final javax.swing.JLabel postalCodeJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField postalCodeJTextField = new javax.swing.JTextField();
     private final javax.swing.JLabel provinceJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField provinceJTextField = new javax.swing.JTextField();
-    private javax.swing.JLabel titleJLabel;
-    private final javax.swing.JLabel userTitleJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField userTitleJTextField = new javax.swing.JTextField();
     // End of variables declaration//GEN-END:variables
     

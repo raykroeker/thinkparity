@@ -15,25 +15,13 @@ import java.util.List;
 import javax.swing.AbstractAction;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.email.EMail;
-
-import com.thinkparity.codebase.model.migrator.Feature;
-import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.profile.Reservation;
-import com.thinkparity.codebase.model.session.Credentials;
-
-import com.thinkparity.ophelia.model.Constants.Product;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
-import com.thinkparity.ophelia.browser.platform.Platform;
-import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.browser.platform.firstrun.SignupData.DataKey;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
@@ -48,11 +36,8 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     /** The current <code>SignupPage</code>. */
     private SignupPage currentPage;
 
-    /** The <code>Platform</code>. */
-    private final Platform platform;
-
-    /** Signup initiated flag <code>Boolean</code>. */
-    private Boolean signupInitiated;
+    /** Signup completed flag <code>Boolean</code>. */
+    private Boolean signupCompleted;
 
     /** The list of <code>SignupPage</code>s. */
     private final List<SignupPage> signupPages;
@@ -60,9 +45,8 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     /** Creates new form SignupAvatar */
     public SignupAvatar() {
         super("SignupAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
-        this.platform = BrowserPlatform.getInstance();
         signupPages = new ArrayList<SignupPage>();
-        signupInitiated = Boolean.FALSE;
+        signupCompleted = Boolean.FALSE;
         initComponents();
         bindEscapeKey("Cancel", new AbstractAction() {
             private static final long serialVersionUID = 1;
@@ -101,12 +85,12 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     }
 
     /**
-     * Determine if signup has been initiated (the button pressed).
+     * Determine if signup has been completed (the button pressed).
      * 
-     * @return true if the signup has been initiated.
+     * @return true if the signup has been completed.
      */
-    public Boolean isSignupInitiated() {
-        return signupInitiated;
+    public Boolean isSignupCompleted() {
+        return signupCompleted;
     }
 
     /**
@@ -263,7 +247,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
         if (currentPage.isNextOk()) {
             currentPage.saveData();
             if (currentPage.isLastPage()) {
-                signUp();
+                signupComplete();
             } else {
                 setPage(lookupPage(currentPage.getNextPageName()));
             }
@@ -318,31 +302,9 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     /**
      * Sign up.
      */
-    private void signUp() {
-        signupInitiated = Boolean.TRUE;
+    private void signupComplete() {
+        signupCompleted = Boolean.TRUE;
         disposeWindow();
-        final Credentials credentials = (Credentials)((Data)input).get(DataKey.CREDENTIALS);
-        final EMail email = (EMail)((Data)input).get(DataKey.EMAIL);
-        final FeatureSet featureSet = (FeatureSet) ((Data) input).get(DataKey.FEATURE_SET);
-        final Profile profile = (Profile)((Data)input).get(DataKey.PROFILE);
-        final Reservation reservation = (Reservation)((Data)input).get(DataKey.RESERVATION);
-        final List<Feature> allFeatures = ((SignupProvider) contentProvider).readFeatures();
-        final List<Feature> features = new ArrayList<Feature>();
-        switch (featureSet) {
-        case FREE:
-            break;
-        case STANDARD:
-            for (final Feature feature : allFeatures)
-                if (feature.getName().equals(Product.Features.CORE))
-                    features.add(feature);
-            break;
-        case PREMIUM:
-            for (final Feature feature : allFeatures)
-                features.add(feature);
-            break;
-        }
-        profile.setFeatures(features);
-        platform.runCreateAccount(reservation, credentials, profile, email);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

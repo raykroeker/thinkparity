@@ -49,12 +49,12 @@ public class SignupWindow extends OpheliaJFrame {
     }
 
     /**
-     * Determine if signup has been initiated (the button pressed).
+     * Determine if signup has been completed (the button pressed).
      * 
-     * @return true if the signup has been initiated.
+     * @return true if the signup has been completed.
      */
-    public Boolean isSignupInitiated() {
-        return signupAvatar.isSignupInitiated();
+    public Boolean isSignupCompleted() {
+        return signupAvatar.isSignupCompleted();
     }
 
     /**

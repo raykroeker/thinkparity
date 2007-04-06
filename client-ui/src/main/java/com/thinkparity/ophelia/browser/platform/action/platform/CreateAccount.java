@@ -11,8 +11,6 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.session.Credentials;
 
-import com.thinkparity.ophelia.model.profile.ReservationExpiredException;
-
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -44,12 +42,11 @@ public class CreateAccount extends AbstractAction {
         try {
             getProfileModel().create(reservation, credentials, profile, email,
                     securityQuestion, securityAnswer);
-        } catch (final ReservationExpiredException rex) {
-            // TODO Have to figure out how to handle this error.
-            //browser.displayErrorDialog("ErrorCreateAccountReservationExpired");
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
-    
+
     /** The data keys. */
     public enum DataKey { CREDENTIALS, EMAIL, PROFILE, RESERVATION }
 }

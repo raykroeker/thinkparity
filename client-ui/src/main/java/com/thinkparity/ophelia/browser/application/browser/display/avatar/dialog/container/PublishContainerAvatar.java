@@ -514,7 +514,7 @@ public final class PublishContainerAvatar extends Avatar implements
     }
 
     private void namesJListMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_namesJListMousePressed
-        if (e.getButton() == MouseEvent.BUTTON1) {
+        if (e.getButton() == MouseEvent.BUTTON1 && !namesListModel.isEmpty()) {
             PublishContainerAvatarUser user = (PublishContainerAvatarUser)((JList) e.getSource()).getSelectedValue();
             user.toggleSelected();
             final int listModelIndex = namesListModel.indexOf(user);

@@ -6,20 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.event;
 import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.events.BackupAdapter;
-import com.thinkparity.ophelia.model.events.BackupEvent;
-import com.thinkparity.ophelia.model.events.BackupListener;
-import com.thinkparity.ophelia.model.events.ContactAdapter;
-import com.thinkparity.ophelia.model.events.ContactEvent;
-import com.thinkparity.ophelia.model.events.ContactListener;
-import com.thinkparity.ophelia.model.events.ContainerAdapter;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
-import com.thinkparity.ophelia.model.events.ContainerListener;
-import com.thinkparity.ophelia.model.events.ProfileAdapter;
-import com.thinkparity.ophelia.model.events.ProfileEvent;
-import com.thinkparity.ophelia.model.events.ProfileListener;
-import com.thinkparity.ophelia.model.events.SessionAdapter;
-import com.thinkparity.ophelia.model.events.SessionListener;
+import com.thinkparity.ophelia.model.events.*;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 
@@ -106,6 +93,18 @@ public final class MainStatusDispatcher implements
             backupModel.addListener(backupListener);
         }
         profileListener = new ProfileAdapter() {
+            @Override
+            public void emailAdded(final ProfileEvent e) {
+                avatar.fireProfileEMailEvent(e);
+            }
+            @Override
+            public void emailRemoved(final ProfileEvent e) {
+                avatar.fireProfileEMailEvent(e);
+            }
+            @Override
+            public void emailVerified(final ProfileEvent e) {
+                avatar.fireProfileEMailEvent(e);
+            }
             @Override
             public void profileUpdated(final ProfileEvent e) {
                 avatar.fireProfileEvent(e);

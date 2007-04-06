@@ -124,6 +124,9 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     /** The thinkParity <code>Environment</code>. */
     private final Environment environment;
 
+    /** A platform <code>EventDispatcher</code>. */
+    private EventDispatcher eventDispatcher;
+
     /** The platform's first run helper. */
     private final FirstRunHelper firstRunHelper;
 
@@ -136,7 +139,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     /** The platform <code>MigratorHelper</code>. */
     private final MigratorHelper migratorHelper;
 
-    /** A thinkParity <code>Mode</code>. */
+	/** A thinkParity <code>Mode</code>. */
     private final Mode mode;
 
 	/** The parity model factory. */
@@ -148,10 +151,10 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
 	/** The platform settings. */
 	private final BrowserPlatformPersistence persistence;
 
-	/** The platform <code>PluginHelper</code>. */
+    /** The platform <code>PluginHelper</code>. */
     private final PluginHelper pluginHelper;
 
-    /** The thinkParity <code>WindowRegistry</code>. */
+	/** The thinkParity <code>WindowRegistry</code>. */
 	private final WindowRegistry windowRegistry;
 
 	/** A thinkParity <code>Workspace</code>. */
@@ -196,7 +199,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         listenerHelper.addListener(listener);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#createTempFile(java.lang.String)
      * 
      */
@@ -214,7 +217,6 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         endPlugins();
         closeWorkspace();
         notifyLifeCycleEnded();
-
         // remove the platform as its own lifecycle listener
         removeListener(this);
     }
@@ -225,18 +227,13 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      */
     public void ended(final LifeCycleEvent e) {}
 
-    /** A platform <code>EventDispatcher</code>. */
-    private EventDispatcher eventDispatcher;
-
     /**
      * @see com.thinkparity.ophelia.browser.platform.event.LifeCycleListener#ending(com.thinkparity.ophelia.browser.platform.event.LifeCycleEvent)
      *
      */
     public void ending(final LifeCycleEvent e) {
         // end the event dispatcher
-        if (isEventDispatcherInitialized()) {
-            eventDispatcher.end();
-        }
+        eventDispatcher.end();
         eventDispatcher = null;
     }
 
@@ -314,7 +311,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         return environment;
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getLocale()
      *
      */
@@ -322,7 +319,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         return persistence.getLocale();
     }
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getLogger(java.lang.Class)
 	 * 
 	 */
@@ -336,7 +333,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
 	 */
 	public ModelFactory getModelFactory() { return modelFactory; }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getPersistence()
 	 * 
 	 */
@@ -344,7 +341,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
 		return persistence;
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getPluginRegistry()
      */
     public PluginRegistry getPluginRegistry() {
@@ -352,7 +349,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         return null;
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getReleaseName()
      *
      */
@@ -360,7 +357,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         return Version.getReleaseName();
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getTimeZone()
      *
      */
@@ -368,7 +365,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         return persistence.getTimeZone();
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getWindowRegistry()
 	 * 
 	 */
@@ -409,12 +406,12 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         }
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.Platform#isOnline() */
+	/** @see com.thinkparity.ophelia.browser.platform.Platform#isOnline() */
     public Boolean isOnline() {
         return onlineHelper.isOnline();
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#isSignUpAvailable()
      */
     @Deprecated
@@ -436,7 +433,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         }
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#isWorkspaceInitialized(com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
@@ -444,7 +441,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         return WorkspaceModel.getInstance(environment).isInitialized(workspace);
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyEnd(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */
@@ -453,7 +450,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         logVariable("application", application);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyHibernate(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */
@@ -462,7 +459,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         logVariable("application", application);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyRestore(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */
@@ -471,7 +468,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         logger.logVariable("application", application);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyStart(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */
@@ -480,7 +477,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         logger.logVariable("application", application);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#removeListener(com.thinkparity.ophelia.browser.platform.event.LifeCycleListener)
      */
     public void removeListener(final LifeCycleListener listener) {
@@ -495,7 +492,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         restart(null);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#restore(com.thinkparity.ophelia.browser.platform.application.ApplicationId)
      * 
      */
@@ -566,7 +563,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         } 
         if (!isWorkspaceInitialized()) {
             deleteWorkspace();
-            end();
+            terminate();
         } else {
             if (!isInstalledReleaseInitialized()) {
                 initializeInstalledRelease();
@@ -592,46 +589,12 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     }
 
     /**
-     * Determine whether or not we are running the latest release.
-     * 
-     * @return True if we are running the latest release.
-     */
-    private boolean isLatestRelease() {
-        return migratorHelper.isLatestRelease();
-    }
-
-    /**
-     * Start the download of the latest release.
-     *
-     */
-    private void startDownloadLatestRelease() {
-        migratorHelper.startDownloadLatestRelease();
-    }
-
-    /**
-     * Determine whether or not the installed release is initialized.
-     * 
-     * @return True if the installed release is initialized.
-     */
-    private boolean isInstalledReleaseInitialized() {
-        return migratorHelper.isInstalledReleaseInitialized();
-    }
-
-    /**
-     * Initialized the installed release.
-     *
-     */
-    private void initializeInstalledRelease() {
-        migratorHelper.initializeInstalledRelease(new ProcessAdapter() {});
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.platform.event.LifeCycleListener#starting(com.thinkparity.ophelia.browser.platform.event.LifeCycleEvent)
      *
      */
     public void starting(final LifeCycleEvent e) {}
 
-	protected final void logApiId() {
+    protected final void logApiId() {
         logger.logApiId();
     }
 
@@ -676,7 +639,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
                 modelFactory.getWorkspace(getClass()));
     }
 
-    /**
+	/**
      * End all applications.
      *
      */
@@ -714,6 +677,14 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     }
 
     /**
+     * Initialized the installed release.
+     *
+     */
+    private void initializeInstalledRelease() {
+        migratorHelper.initializeInstalledRelease(new ProcessAdapter() {});
+    }
+
+    /**
      * Perform first run initialization.
      * 
      */
@@ -739,12 +710,21 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     }
 
     /**
-     * Determine if the event dispatcher has been initialized.
+     * Determine whether or not the installed release is initialized.
      * 
-     * @return True if the event dispatcher has been initialized.
+     * @return True if the installed release is initialized.
      */
-    private Boolean isEventDispatcherInitialized() {
-        return (null != eventDispatcher);
+    private boolean isInstalledReleaseInitialized() {
+        return migratorHelper.isInstalledReleaseInitialized();
+    }
+
+    /**
+     * Determine whether or not we are running the latest release.
+     * 
+     * @return True if we are running the latest release.
+     */
+    private boolean isLatestRelease() {
+        return migratorHelper.isLatestRelease();
     }
 
     /**
@@ -766,7 +746,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         });
     }
 
-	private void notifyLifeCycleEnding() {
+    private void notifyLifeCycleEnding() {
         final LifeCycleEvent e = listenerHelper.createEvent();
         listenerHelper.notifyListeners(new EventNotifier<LifeCycleListener>() {
             public void notifyListener(final LifeCycleListener listener) {
@@ -784,7 +764,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         });
     }
 
-    private void notifyLifeCycleStarting() {
+	private void notifyLifeCycleStarting() {
         final LifeCycleEvent e = listenerHelper.createEvent();
         listenerHelper.notifyListeners(new EventNotifier<LifeCycleListener>() {
             public void notifyListener(final LifeCycleListener listener) {
@@ -838,10 +818,30 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     }
 
     /**
+     * Start the download of the latest release.
+     *
+     */
+    private void startDownloadLatestRelease() {
+        migratorHelper.startDownloadLatestRelease();
+    }
+
+    /**
      * Start all plugins.
      *
      */
     private void startPlugins() {
         pluginHelper.start();
+    }
+
+    /**
+     * Terminate the browser platform with prejudice.
+     *
+     */
+    private void terminate() {
+        endApplications();
+        endPlugins();
+        closeWorkspace();
+        // remove the platform as its own lifecycle listener
+        removeListener(this);
     }
 }

@@ -5,11 +5,36 @@ package com.thinkparity.codebase.model.profile;
 
 import com.thinkparity.codebase.email.EMail;
 
+import com.thinkparity.codebase.model.util.codec.MD5Util;
+
 /**
+ * <b>Title:</b>thinkParity CommonModel Verification Key<br>
+ * <b>Description:</b>A profile e-mail address verification key.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 public class VerificationKey {
+
+    /** A verification key seed <code>Long</code>. */
+    private static final Long SEED;
+
+    static {
+        SEED = Long.valueOf(System.currentTimeMillis());
+    }
+
+    /**
+     * Create a verfication key.
+     * 
+     * @param key
+     *            A key <code>String</code>.
+     * @return A <code>VerificationKey</code>.
+     */
+    public static VerificationKey create(final String key) {
+        final VerificationKey verificationKey = new VerificationKey();
+        verificationKey.setKey(key);
+        return verificationKey;
+    }
 
     /**
      * Generate a verification code for an <code>EMail</code>.
@@ -19,15 +44,23 @@ public class VerificationKey {
      * @return A <code>VerificationCode</code>.
      */
     public static VerificationKey generate(final EMail email) {
-        final VerificationKey verificationCode = new VerificationKey();
-        verificationCode.setKey(email.toString());
-        return verificationCode;
+        final StringBuilder code = new StringBuilder(75);
+        code.append(email.getDomain()).append("-")
+            .append(SEED).append("-")
+            .append(email.getUsername()).append("-")
+            .append(System.currentTimeMillis());
+        final VerificationKey key = new VerificationKey();
+        key.setKey(MD5Util.md5Hex(code.toString()));
+        return key;
     }
 
     /** The verification key <code>String</code>. */
     private String key;
 
-    /** Create VerificationCode. */
+    /**
+     * Create VerificationKey.
+     *
+     */
     private VerificationKey() {
         super();
     }

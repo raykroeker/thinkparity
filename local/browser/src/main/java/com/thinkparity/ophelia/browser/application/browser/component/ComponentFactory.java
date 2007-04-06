@@ -13,12 +13,13 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
-
-import org.apache.log4j.Logger;
+import javax.swing.JPopupMenu;
 
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -62,6 +63,11 @@ abstract class ComponentFactory {
 	protected void applyFont(final Component component, final Font font) {
 		component.setFont(font);
 	}
+
+    protected final void applyJPopupMenu(final JComponent component,
+            final JPopupMenu jPopupMenu) {
+        component.setComponentPopupMenu(jPopupMenu);
+    }
 
 	/**
 	 * Apply a foreground color to a component.

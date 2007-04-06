@@ -3,8 +3,10 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.filter.Filter;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
@@ -13,6 +15,7 @@ import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
@@ -150,5 +153,22 @@ public final class MainStatusProvider extends ContentProvider {
                 return Boolean.valueOf(o.isSeen().booleanValue());
             }
         });
+    }
+
+    /**
+     * Read a list of <code>EMail</code> addresses that have not yet been
+     * verified.
+     * 
+     * @return A <code>List</code> of <code>EMail</code> addresses.
+     */
+    public List<EMail> readUnverifiedEMails() {
+        // TODO use a filter
+        final List<ProfileEMail> emails = profileModel.readEmails();
+        final List<EMail> unverified = new ArrayList<EMail>(emails.size());
+        for (final ProfileEMail email : emails) {
+            if (!email.isVerified().booleanValue())
+                unverified.add(email.getEmail());
+        }
+        return unverified;
     }
 }

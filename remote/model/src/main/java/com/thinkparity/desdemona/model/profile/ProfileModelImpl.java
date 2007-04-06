@@ -394,7 +394,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         try {
             final Profile profile = read(userId);
 
-            final VerificationKey verifiedKey = VerificationKey.generate(email);
+            final VerificationKey verifiedKey = VerificationKey.create(key);
             final EMail verifiedEmail = userSql.readEmail(profile.getLocalId(),
                     email, verifiedKey);
             Assert.assertNotNull("VERIFICATION KEY INCORRECT", verifiedEmail);

@@ -213,23 +213,19 @@
     </Component>
     <Component class="javax.swing.JTextField" name="nameJTextField">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogTextEntryFont" type="code"/>
-        </Property>
         <Property name="text" type="java.lang.String" value="John McClean"/>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="emailJTextField">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogTextEntryFont" type="code"/>
-        </Property>
         <Property name="text" type="java.lang.String" value="john@nypd.org"/>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -261,12 +257,10 @@
     </Component>
     <Component class="javax.swing.JTextField" name="titleJTextField">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogTextEntryFont" type="code"/>
-        </Property>
         <Property name="text" type="java.lang.String" value="Over The Hill Cop"/>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -301,12 +295,10 @@
     </Component>
     <Component class="javax.swing.JTextField" name="organizationJTextField">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogTextEntryFont" type="code"/>
-        </Property>
         <Property name="text" type="java.lang.String" value="NYPD"/>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -326,12 +318,10 @@
     </Component>
     <Component class="javax.swing.JTextField" name="postalCodeJTextField">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogTextEntryFont" type="code"/>
-        </Property>
         <Property name="text" type="java.lang.String" value="90210"/>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -350,12 +340,10 @@
     </Component>
     <Component class="javax.swing.JTextField" name="phoneJTextField">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogTextEntryFont" type="code"/>
-        </Property>
         <Property name="text" type="java.lang.String" value="555-555-1111"/>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -375,12 +363,10 @@
     </Component>
     <Component class="javax.swing.JTextField" name="mobilePhoneJTextField">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogTextEntryFont" type="code"/>
-        </Property>
         <Property name="text" type="java.lang.String" value="555-555-1111"/>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -399,12 +385,10 @@
     </Component>
     <Component class="javax.swing.JTextField" name="provinceJTextField">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogTextEntryFont" type="code"/>
-        </Property>
         <Property name="text" type="java.lang.String" value="NY"/>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -424,12 +408,10 @@
     </Component>
     <Component class="javax.swing.JTextField" name="cityJTextField">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogTextEntryFont" type="code"/>
-        </Property>
         <Property name="text" type="java.lang.String" value="NYC"/>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -449,12 +431,10 @@
     </Component>
     <Component class="javax.swing.JTextField" name="addressJTextField">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogTextEntryFont" type="code"/>
-        </Property>
         <Property name="text" type="java.lang.String" value="1234 5th Street"/>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -469,11 +449,9 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="verificationKeyJTextField">
-      <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogTextEntryFont" type="code"/>
-        </Property>
-      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="errorMessageJLabel">
       <Properties>

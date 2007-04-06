@@ -1,9 +1,6 @@
 /*
- * UpdateProfileAvatar.java
- *
  * Created on January 31, 2007, 3:14 PM
  */
-
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile;
 
 import java.awt.event.ActionEvent;
@@ -30,6 +27,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
+import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.UpdateProfileProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.dialog.profile.LocaleRenderer;
@@ -37,14 +35,14 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
- *
- * @author  user
+ * <b>Title:</b>thinkParity OpheliaUI Update Profile Avatar<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
 public class UpdateProfileAvatar extends Avatar {
 
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
-    
     /** Unavailable email. */
     private String unavailableEmail = null;
 
@@ -241,7 +239,7 @@ public class UpdateProfileAvatar extends Avatar {
         final javax.swing.JLabel cityJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel addressJLabel = new javax.swing.JLabel();
         verificationKeyJLabel = new javax.swing.JLabel();
-        verificationKeyJTextField = new javax.swing.JTextField();
+        verificationKeyJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
         final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
         verifyJButton.setFont(Fonts.DialogButtonFont);
@@ -258,10 +256,8 @@ public class UpdateProfileAvatar extends Avatar {
         nameJLabel.setFont(Fonts.DialogFont);
         nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Name"));
 
-        nameJTextField.setFont(Fonts.DialogTextEntryFont);
         nameJTextField.setText("John McClean");
 
-        emailJTextField.setFont(Fonts.DialogTextEntryFont);
         emailJTextField.setText("john@nypd.org");
 
         titleJLabel.setFont(Fonts.DialogFont);
@@ -270,7 +266,6 @@ public class UpdateProfileAvatar extends Avatar {
         emailJLabel.setFont(Fonts.DialogFont);
         emailJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Email"));
 
-        titleJTextField.setFont(Fonts.DialogTextEntryFont);
         titleJTextField.setText("Over The Hill Cop");
 
         countryJComboBox.setFont(Fonts.DialogTextEntryFont);
@@ -280,49 +275,40 @@ public class UpdateProfileAvatar extends Avatar {
         organizationJLabel.setFont(Fonts.DialogFont);
         organizationJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Organization"));
 
-        organizationJTextField.setFont(Fonts.DialogTextEntryFont);
         organizationJTextField.setText("NYPD");
 
         phoneJLabel.setFont(Fonts.DialogFont);
         phoneJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Phone"));
 
-        postalCodeJTextField.setFont(Fonts.DialogTextEntryFont);
         postalCodeJTextField.setText("90210");
 
         postalCodeJLabel.setFont(Fonts.DialogFont);
         postalCodeJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.PostalCode"));
 
-        phoneJTextField.setFont(Fonts.DialogTextEntryFont);
         phoneJTextField.setText("555-555-1111");
 
         mobilePhoneJLabel.setFont(Fonts.DialogFont);
         mobilePhoneJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.MobilePhone"));
 
-        mobilePhoneJTextField.setFont(Fonts.DialogTextEntryFont);
         mobilePhoneJTextField.setText("555-555-1111");
 
         provinceJLabel.setFont(Fonts.DialogFont);
         provinceJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Province"));
 
-        provinceJTextField.setFont(Fonts.DialogTextEntryFont);
         provinceJTextField.setText("NY");
 
         cityJLabel.setFont(Fonts.DialogFont);
         cityJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.City"));
 
-        cityJTextField.setFont(Fonts.DialogTextEntryFont);
         cityJTextField.setText("NYC");
 
         addressJLabel.setFont(Fonts.DialogFont);
         addressJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.Address"));
 
-        addressJTextField.setFont(Fonts.DialogTextEntryFont);
         addressJTextField.setText("1234 5th Street");
 
         verificationKeyJLabel.setFont(Fonts.DialogFont);
         verificationKeyJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdateProfileDialog.VerificationKey"));
-
-        verificationKeyJTextField.setFont(Fonts.DialogTextEntryFont);
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
@@ -854,26 +840,26 @@ public class UpdateProfileAvatar extends Avatar {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JTextField addressJTextField = new javax.swing.JTextField();
-    private final javax.swing.JTextField cityJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField addressJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
+    private final javax.swing.JTextField cityJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JComboBox countryJComboBox = new javax.swing.JComboBox();
     private final javax.swing.JLabel countryJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel emailJLabel = new javax.swing.JLabel();
-    private final javax.swing.JTextField emailJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField emailJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
-    private final javax.swing.JTextField mobilePhoneJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField mobilePhoneJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
-    private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField nameJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JLabel organizationJLabel = new javax.swing.JLabel();
-    private final javax.swing.JTextField organizationJTextField = new javax.swing.JTextField();
-    private final javax.swing.JTextField phoneJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField organizationJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
+    private final javax.swing.JTextField phoneJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JLabel postalCodeJLabel = new javax.swing.JLabel();
-    private final javax.swing.JTextField postalCodeJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField postalCodeJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JLabel provinceJLabel = new javax.swing.JLabel();
-    private final javax.swing.JTextField provinceJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField provinceJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JButton saveJButton = ButtonFactory.create();
     private final javax.swing.JLabel titleJLabel = new javax.swing.JLabel();
-    private final javax.swing.JTextField titleJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField titleJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private javax.swing.JLabel verificationKeyJLabel;
     private javax.swing.JTextField verificationKeyJTextField;
     private javax.swing.JButton verifyJButton;

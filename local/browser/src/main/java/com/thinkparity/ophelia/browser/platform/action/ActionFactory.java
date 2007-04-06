@@ -101,9 +101,6 @@ public class ActionFactory extends AbstractFactory {
         case CONTACT_COLLAPSE:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.Collapse(getBrowser());
             break;
-        case CONTACT_CREATE_OUTGOING_EMAIL_INVITATION:
-            action = new com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingEMailInvitation(getBrowser());
-            break;
         case CONTACT_CREATE_OUTGOING_USER_INVITATION:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingUserInvitation(getBrowser());
             break;

@@ -41,7 +41,6 @@ public class BrowserPopupDelegate extends DefaultPopupDelegate {
      */
     private void prepareMenu() {  
         add(ActionId.CONTAINER_CREATE, Data.emptyData());
-        add(ActionId.CONTACT_CREATE_OUTGOING_EMAIL_INVITATION, Data.emptyData());
 
         if (isOnline()) {
             addSeparator();
@@ -53,8 +52,6 @@ public class BrowserPopupDelegate extends DefaultPopupDelegate {
             final Data updateProfileData = new Data(1);
             updateProfileData.set(UpdatePassword.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
             add(ActionId.PROFILE_UPDATE_PASSWORD, updateProfileData);
-            
-            // TODO Add the sign up / manage account menu
         }
     }
 

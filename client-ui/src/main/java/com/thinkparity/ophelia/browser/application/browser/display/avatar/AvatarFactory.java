@@ -11,7 +11,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorDetailsAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.FileChooserAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.CreateInvitationAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.UserInfoAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ContainerVersionCommentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
@@ -150,9 +149,6 @@ public class AvatarFactory {
             avatar = newAvatar(FileChooserAvatar.class);
             break;
 
-        case DIALOG_CONTACT_CREATE_OUTGOING_INVITATION:
-            avatar = newAvatar(CreateInvitationAvatar.class);
-            break;
         case DIALOG_CONTACT_INFO:
             avatar = newAvatar(UserInfoAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));

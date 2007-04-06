@@ -279,14 +279,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Display the invite dialogue.
-     *
-     */   
-    public void displayContactCreateInvitation() {
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTACT_CREATE_OUTGOING_INVITATION);
-    }
-
-    /**
      * Display the contact info dialogue.
      *
      * @param contactId
@@ -1007,27 +999,6 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
     }
   
-	/**
-     * Run the add contact action.
-     *
-     */
-    public void runCreateContactOutgoingEMailInvitation() {
-        runCreateContactOutgoingEMailInvitation(null);
-    }
-
-    /**
-     * Run the add contact action.
-     * 
-     * @param newContactEmail
-     *              New contact email.
-     */
-    public void runCreateContactOutgoingEMailInvitation(final EMail email) {
-        final Data data = new Data(1);
-        if(null != email)
-            data.set(CreateOutgoingEMailInvitation.DataKey.CONTACT_EMAIL, email);
-        invoke(ActionId.CONTACT_CREATE_OUTGOING_EMAIL_INVITATION, data);
-    }
-
     /**
      * Run the create container (package) action. The user will
      * determine the container name.

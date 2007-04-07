@@ -17,6 +17,7 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
@@ -134,14 +135,17 @@ public interface Platform extends ApplicationListener {
     /**
      * Initialize a workspace.
      * 
-     * @param workspace
-     *            A thinkParity <code>Workspace</code>.
      * @param loginMonitor
      *            A <code>LoginMonitor</code>.
+     * @param mediator
+     *            A <code>InitializeMediator</code>.        
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>.
      * @param credentials
      *            A user's <code>Credentials</code>.
      */
     public void initializeWorkspace(final ProcessMonitor monitor,
+            final InitializeMediator mediator,
             final Workspace workspace, final Credentials credentials)
             throws InvalidCredentialsException;
 
@@ -236,9 +240,12 @@ public interface Platform extends ApplicationListener {
      *            The password <code>String</code>.
      * @param monitor
      *            A <code>ThinkParitySwingMonitor</code>.
+     * @param mediator
+     *            A <code>InitializeMediator</code>.   
      */
     public void runLogin(final String username, final String password,
-            final ThinkParitySwingMonitor monitor);
+            final ThinkParitySwingMonitor monitor,
+            final InitializeMediator mediator);
 
     /**
      * Run the reset password action.

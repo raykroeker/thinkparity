@@ -19,6 +19,8 @@ import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.session.Credentials;
 
+import com.thinkparity.ophelia.model.workspace.InitializeMediator;
+
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
@@ -56,6 +58,9 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
 
     /** Signup flag. */
     private Boolean signup;
+
+    /** The <code>InitializeMediator </code>. */
+    private InitializeMediator initializeMediator;
 
     /**
      * Create LoginAvatar.
@@ -111,6 +116,16 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         this.password = credentials.getPassword();
         forgotPasswordJLabel.setVisible(false);
         reload();
+    }
+
+    /**
+     * Set the initialize mediator.
+     * 
+     * @param initializeMediator
+     *            The <code>InitializeMediator</code>.
+     */
+    public void setInitializeMediator(final InitializeMediator initializeMediator) {
+        this.initializeMediator = initializeMediator;
     }
 
     /**
@@ -482,7 +497,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
      * Perform the login.
      */
     private void login() {
-        platform.runLogin(extractUsername(), extractPassword(), createMonitor());
+        platform.runLogin(extractUsername(), extractPassword(), createMonitor(), initializeMediator);
     }
 
     private void nextJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_nextJButtonActionPerformed

@@ -8,6 +8,8 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
 
 import com.thinkparity.codebase.model.session.Credentials;
 
+import com.thinkparity.ophelia.model.workspace.InitializeMediator;
+
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowPanel;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowTitle;
@@ -64,6 +66,16 @@ public class LoginWindow extends OpheliaJFrame {
      */
     public void setCredentials(final Credentials credentials) {
         loginAvatar.setCredentials(credentials);
+    }
+
+    /**
+     * Set the initialize mediator.
+     * 
+     * @param initializeMediator
+     *            The <code>InitializeMediator</code>.
+     */
+    public void setInitializeMediator(final InitializeMediator initializeMediator) {
+        loginAvatar.setInitializeMediator(initializeMediator);
     }
 
     /**

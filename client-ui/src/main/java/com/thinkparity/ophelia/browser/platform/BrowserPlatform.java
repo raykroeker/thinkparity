@@ -380,27 +380,20 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
 		applicationRegistry.get(applicationId).hibernate(this);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#initializeWorkspace(com.thinkparity.ophelia.model.util.ProcessMonitor,
+     *      com.thinkparity.ophelia.model.workspace.InitializeMediator,
      *      com.thinkparity.ophelia.model.workspace.Workspace,
      *      com.thinkparity.codebase.model.session.Credentials)
-     * 
      */
     public void initializeWorkspace(final ProcessMonitor monitor,
-            final Workspace workspace, final Credentials credentials)
-            throws InvalidCredentialsException {
-        WorkspaceModel.getInstance(environment).initialize(monitor,
-                new InitializeMediator() {
-                    public Boolean confirmRestorePremium() {
-                        return Boolean.FALSE;
-                    }
-                    public Boolean confirmRestoreStandard() {
-                        return Boolean.FALSE;
-                    }
-        },workspace, credentials);
+            final InitializeMediator mediator, final Workspace workspace,
+            final Credentials credentials) throws InvalidCredentialsException {
+        WorkspaceModel.getInstance(environment).initialize(monitor, mediator,
+                workspace, credentials);
     }
 
-	/** @see com.thinkparity.ophelia.browser.platform.Platform#isDevelopmentMode() */
+    /** @see com.thinkparity.ophelia.browser.platform.Platform#isDevelopmentMode() */
 	public Boolean isDevelopmentMode() {
         switch (mode) {
         case DEMO:
@@ -537,13 +530,15 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#runLogin(java.lang.String,
      *      java.lang.String,
-     *      com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor)
-     * 
+     *      com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor,
+     *      com.thinkparity.ophelia.model.workspace.InitializeMediator)
      */
     public void runLogin(final String username, final String password,
-            final ThinkParitySwingMonitor monitor) {
-        final Data data = new Data(3);
+            final ThinkParitySwingMonitor monitor,
+            final InitializeMediator initializeMediator) {
+        final Data data = new Data(4);
         data.set(Login.DataKey.MONITOR, monitor);
+        data.set(Login.DataKey.INITIALIZE_MEDIATOR, initializeMediator);
         data.set(Login.DataKey.PASSWORD, password);
         data.set(Login.DataKey.USERNAME, username);
         invoke(ActionId.PLATFORM_LOGIN, data);

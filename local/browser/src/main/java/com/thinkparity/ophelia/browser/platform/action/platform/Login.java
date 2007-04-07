@@ -13,6 +13,7 @@ import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
+import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.monitor.InitializeStep;
 
@@ -48,23 +49,25 @@ public class Login extends AbstractAction {
      * @see com.thinkparity.ophelia.browser.platform.action.AbstractAction#invoke(com.thinkparity.ophelia.browser.platform.action.Data)
      */
     public void invoke(Data data) {
+        final InitializeMediator initializeMediator = (InitializeMediator) data.get(DataKey.INITIALIZE_MEDIATOR);
         final ThinkParitySwingMonitor monitor = (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
         final String password = (String) data.get(DataKey.PASSWORD);
         final String username = (String) data.get(DataKey.USERNAME);
-        invoke(username, password, monitor);
+        invoke(username, password, monitor, initializeMediator);
     }
 
-    public void invoke(final String username, final String password, final ThinkParitySwingMonitor monitor) {
+    public void invoke(final String username, final String password,
+            final ThinkParitySwingMonitor monitor, final InitializeMediator initializeMediator) {
         final Credentials credentials = new Credentials();
         credentials.setPassword(password);
         credentials.setUsername(username);
-        final ThinkParitySwingWorker worker = new LoginWorker(this, platform, localization, credentials);
+        final ThinkParitySwingWorker worker = new LoginWorker(this, platform, localization, credentials, initializeMediator);
         worker.setMonitor(monitor);
         worker.start();
     }
 
     /** Data keys. */
-    public enum DataKey {MONITOR, PASSWORD, USERNAME}
+    public enum DataKey {INITIALIZE_MEDIATOR, MONITOR, PASSWORD, USERNAME}
 
     /** A login action worker object. */
     private static class LoginWorker extends ThinkParitySwingWorker<Login> {
@@ -74,6 +77,9 @@ public class Login extends AbstractAction {
 
         /** Action localization. */
         private final ActionLocalization localization;
+
+        /** The <code>InitializeMediator</code>. */
+        private final InitializeMediator initializeMediator;
 
         /** The login <code>ProcessMonitor</code>. */
         private final ProcessMonitor loginMonitor;
@@ -87,11 +93,13 @@ public class Login extends AbstractAction {
         private LoginWorker(final Login login,
                 final Platform platform,
                 final ActionLocalization localization,
-                final Credentials credentials) {
+                final Credentials credentials,
+                final InitializeMediator initializeMediator) {
             super(login);
-            this.credentials = credentials;
             this.platform = platform;
             this.localization = localization;
+            this.credentials = credentials;
+            this.initializeMediator = initializeMediator;
             this.loginMonitor = newLoginMonitor();
             this.workspace = platform.getModelFactory().getWorkspace(getClass());
         }
@@ -102,7 +110,7 @@ public class Login extends AbstractAction {
         @Override
         public Object construct() {
             try {
-                platform.initializeWorkspace(loginMonitor, workspace, credentials);
+                platform.initializeWorkspace(loginMonitor, initializeMediator, workspace, credentials);
             } catch (final InvalidCredentialsException icx) {
                 SwingUtil.ensureDispatchThread(new Runnable() {
                     public void run() {

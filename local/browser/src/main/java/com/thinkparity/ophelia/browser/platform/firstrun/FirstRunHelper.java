@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
+import com.thinkparity.ophelia.model.workspace.InitializeMediator;
+
 import com.thinkparity.ophelia.browser.platform.Platform;
 
 /**
@@ -28,7 +30,9 @@ public final class FirstRunHelper {
      * Execute first run functionality for the browser platform.
      */
     public void firstRun() {
+        final InitializeMediator initializeMediator = new ConfirmSynchronizeWindow();
         final LoginWindow loginWindow = new LoginWindow();
+        loginWindow.setInitializeMediator(initializeMediator);
         boolean doneLogin = false;
         while (!doneLogin) {
             loginWindow.setVisibleAndWait();

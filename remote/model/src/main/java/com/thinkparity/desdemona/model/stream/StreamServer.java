@@ -91,12 +91,13 @@ final class StreamServer {
             if (null == inetAddress) {
                 return session;
             } else {
+                // HACK insecure
                 if (inetAddress.equals(sessionAddress)) {
                     return session;
                 } else {
-                    logger.logFatal("Session address {0} does not match original.",
+                    logger.logWarning("Session address {0} does not match original.",
                             sessionAddress);
-                    return null;
+                    return session;
                 }
             }
         }

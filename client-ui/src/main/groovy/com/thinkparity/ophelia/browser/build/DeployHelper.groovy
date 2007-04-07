@@ -3,7 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.build
 
-import com.thinkparity.codebase.ZipUtil
+import com.thinkparity.codebase.BytesFormat
 import com.thinkparity.codebase.jabber.JabberId
 
 import com.thinkparity.codebase.model.migrator.Product
@@ -26,6 +26,9 @@ import com.thinkparity.ophelia.model.util.xmpp.XMPPSession
  * @version 1.1.2.1
  */
 class DeployHelper {
+
+    /** An <code>AntBuilder</code>. */
+    AntBuilder ant
 
     /** A build task configuration <code>Map</code>. */
     Map configuration
@@ -67,9 +70,10 @@ class DeployHelper {
         final File imageArchiveFile = configuration["thinkparity.target.package.image.archive-file"]
         if (imageArchiveFile.exists())
             imageArchiveFile.delete()
-        ZipUtil.createZipFile(imageArchiveFile, imageDir,
-            configuration["thinkparity.buffer"])
+        println "Archiving release ${imageArchiveFile.getName()}"
+        ant.zip(destfile:imageArchiveFile,basedir:imageDir,level:9)
         // deploy
+        println "Deploying release ${imageArchiveFile.getName()}"
         deploy(configuration["thinkparity.userid"], product, release, resources, upload(imageArchiveFile))
     }
 
@@ -153,6 +157,7 @@ class DeployHelper {
         stream.reset()
         long skipped = stream.skip(offset)
         while (skipped < offset && 0 < skipped) {
+            println "Skipping ${offset}"
             skipped += stream.skip(offset.longValue() - skipped)
         }
         final Long actualOffset
@@ -192,11 +197,16 @@ class DeployStreamMonitor implements StreamMonitor {
 
     Long totalChunks = 0;
 
+    Long lastPrint = 0;
+
     public void chunkReceived(final int chunkSize) {}
 
     public void chunkSent(final int chunkSize) {
         totalChunks += chunkSize;
-        println "Uploaded ${totalChunks}/${size}."
+        if (totalChunks - lastPrint > (1024 * 1024)) {
+            lastPrint = totalSize
+            println "${BytesFormat.format(totalSize)}/${BytesFormat.format(size)}."
+        }
     }
 
     public void headerReceived(final String header) {}
@@ -204,6 +214,7 @@ class DeployStreamMonitor implements StreamMonitor {
     public void headerSent(final String header) {}
 
     public void streamError(final StreamException error) {
+        println "Stream error ${error}"
         if (error.isRecoverable()) {
             if (recoverChunkOffset <= totalChunks) {
                 // attempt to resume the upload

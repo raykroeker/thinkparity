@@ -45,7 +45,7 @@ class DeployTask {
             def product = new ProductBuilder(configuration:configuration).create()
             def release = new ReleaseBuilder(configuration:configuration).create()
             def resources = new ResourceBuilder(configuration:configuration,product:product,release:release).create()
-            new DeployHelper(configuration:configuration).deploy(product, release, resources)
+            new DeployHelper(ant:ant,configuration:configuration).deploy(product, release, resources)
         } catch (final Throwable t) {
             sessionHelper.logout()
             ant.fail(t.getMessage())

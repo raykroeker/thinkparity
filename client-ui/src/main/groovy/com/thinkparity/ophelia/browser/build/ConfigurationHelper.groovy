@@ -67,6 +67,7 @@ class ConfigurationHelper {
         configuration["thinkparity.image.core-dirname"] = extractImageCoreDirname()
         configuration["thinkparity.image.lib-dirname"] = extractImageLibDirname()
         configuration["thinkparity.image.lib.native-dirname"] = extractImageLibNativeDirname()
+        configuration["thinkparity.jre-dir"] = extractJreDir()
         configuration["thinkparity.userid"] = extractUserId()
         configuration["thinkparity.now"] = extractNow()
         configuration["thinkparity.os"] = extractOs()
@@ -80,6 +81,7 @@ class ConfigurationHelper {
         configuration["thinkparity.target.package.image.core-dir"] = extractTargetPackageImageCoreDir()
         configuration["thinkparity.target.package.image.lib-dir"] = extractTargetPackageImageLibDir()
         configuration["thinkparity.target.package.image.lib.native-dir"] = extractTargetPackageImageLibNativeDir()
+        configuration["thinkparity.target.package.jre-dir"] = extractTargetPackageImageJreDir()
         configuration["thinkparity.target.workspace-dir"] = extractTargetWorkspaceDir()
 
         return configuration
@@ -161,6 +163,15 @@ class ConfigurationHelper {
      */
     String extractImageLibDirname() {
         return "lib"
+    }
+
+    /**
+     * Extract the jre directory name.
+     *
+     * @return The directory name <code>String</code>.
+     */
+    String extractImageJreDirname() {
+        return "jre"
     }
 
     /**
@@ -264,6 +275,15 @@ class ConfigurationHelper {
     }
 
     /**
+     * Extract the jre directory.
+     *
+     * @return A package jre directory <code>File</code>.
+     */
+    File extractTargetPackageImageJreDir() {
+        return new File(extractTargetPackageImageDir(), extractImageJreDirname())
+    }
+
+    /**
      * Extract the product name.  Look at the
      * <code>"thinkparity.product-name"</code> property.
      *
@@ -303,5 +323,15 @@ class ConfigurationHelper {
      */
     File extractTargetWorkspaceDir() {
         return new File(properties["thinkparity.target.workspace-dir"])
+    }
+ 
+    /**
+     * Extract the jre directory.  Look at the
+     * <code>"thinkparity.jre-dir"</code> property.
+     *
+     * @return A jre directory <code>File</code>.
+     */
+    File extractJreDir() {
+        return new File(properties["thinkparity.jre-dir"])
     }
 }

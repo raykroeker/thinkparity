@@ -511,6 +511,7 @@ Examples:
         <property name="thinkparity.target.classes-dir" value="${target.classes.dir}"/>
         <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
         <property name="thinkparity.target.workspace-dir" value="${target.dir}/workspace"/>
+        <property name="thinkparity.jre-dir" value="${antx.vendor-dir}/i686/${thinkparity.os-platform}/sun.com/jre1.6.0"/>
         <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="groovy.classpath"/>
         <groovy src="${basedir}/local/browser/src/main/groovy/PackageImageTask.groovy"/>
     </target>
@@ -520,6 +521,7 @@ Examples:
         <property name="thinkparity.target.classes-dir" value="${target.classes.dir}"/>
         <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
         <property name="thinkparity.target.workspace-dir" value="${target.dir}/workspace"/>
+        <property name="thinkparity.jre-dir" value="${antx.vendor-dir}/i686/${thinkparity.os-platform}/sun.com/jre1.6.0"/>
         <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="groovy.classpath"/>
         <groovy src="${basedir}/local/browser/src/main/groovy/PackageTask.groovy"/>
         <groovy src="${basedir}/local/browser/src/main/groovy/PackageImageTask.groovy"/>
@@ -537,16 +539,8 @@ Examples:
         </launch4j>
     </target>
 
-    <!-- embed-java -->
-    <target name="embed-java" depends="compile">
-        <mkdir dir="${target.package.dir}/${thinkparity.release-name}/jre"/>
-        <copy todir="${target.package.dir}/${thinkparity.release-name}/jre">
-            <fileset dir="${env.JAVA_HOME}"/>
-        </copy>
-    </target>
-
     <!-- package-installer -->
-    <target name="package-installer" depends="package,embed-java"
+    <target name="package-installer" depends="package"
             description="compile a null-soft installer for the package">
         <copy todir="${target.package.dir}" file="${target.classes.dir}/install.nsi"/>
         <exec executable="${env.NSIS_HOME}/makensis.exe" dir="${target.package.dir}">

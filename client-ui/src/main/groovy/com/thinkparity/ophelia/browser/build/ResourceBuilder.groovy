@@ -118,7 +118,7 @@ class ResourceBuilder {
         def resource = new Resource()
         resource.setChecksum(checksum(file))
         resource.setChecksumAlgorithm(Constants.ChecksumAlgorithm.MD5.name())
-        resource.setPath(FileUtil.getRelativePath(imageDir, file))
+        resource.setPath(FileUtil.getRelativePath(imageDir, file, '/' as char))
         resource.setSize(file.length())
         return resource
     }

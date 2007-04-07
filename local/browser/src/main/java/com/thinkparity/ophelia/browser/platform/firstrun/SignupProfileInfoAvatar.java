@@ -623,17 +623,6 @@ public class SignupProfileInfoAvatar extends Avatar
     }
 
     /**
-     * Determine whether or not an e-mail address is available.
-     * 
-     * @param email
-     *            An <code>EMail</code>.
-     * @return True if the address is not in use.
-     */
-    private Boolean readIsEmailAvailable(final EMail email) {
-        return ((SignupProvider) contentProvider).readIsEmailAvailable(email);
-    }
-
-    /**
      * Reload the postal code (ie. postal code or zip code) label.
      */
     private void reloadPostalCodeLabel() {

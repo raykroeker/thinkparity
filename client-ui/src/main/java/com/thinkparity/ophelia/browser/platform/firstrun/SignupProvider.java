@@ -6,8 +6,6 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
 
 import java.util.List;
 
-import com.thinkparity.codebase.email.EMail;
-
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Reservation;
 
@@ -29,17 +27,6 @@ public class SignupProvider extends ContentProvider {
      */
     public SignupProvider(final ProfileModel profileModel) {
         super(profileModel);
-    }
-
-    /**
-     * Determine whether or not an e-mail address is available.
-     * 
-     * @param email
-     *            An <code>EMail</code>.
-     * @return True if the address is not in use.
-     */
-    public Boolean readIsEmailAvailable(final EMail email) {
-        return profileModel.isAvailable(email);
     }
 
     /**

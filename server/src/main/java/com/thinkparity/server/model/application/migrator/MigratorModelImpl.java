@@ -85,7 +85,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                     Resource localResource;
                     for (final Resource resource : resources) {
                         localResource = migratorSql.readResource(localRelease,
-                                resource.getChecksum());
+                                resource.getPath());
                         final OutputStream resourceOutput =
                             new FileOutputStream(streamFileSystem.createFile(
                                     resource.getPath()));
@@ -143,9 +143,9 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
             final String streamId) {
         try {
             // find/create the product
-            final Product deployProduct = readProduct(product.getName());
+            final Product localProduct = readProduct(product.getName());
 
-            Assert.assertNotTrue(doesExistRelease(deployProduct.getId(),
+            Assert.assertNotTrue(doesExistRelease(localProduct.getId(),
                     release.getName(), release.getOs()),
                     "Release {0} for product {1} on {0} already exists.",
                     release.getName(), product.getName(), release.getOs());
@@ -169,9 +169,10 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                                 tempFileSystem.getRoot(), buffer);
                     }
                     // create
-                    createRelease(deployProduct, release, resources, tempFileSystem);
+                    createRelease(localProduct, release, readPreviousRelease(
+                            localProduct, release), resources, tempFileSystem);
                     // notify
-                    notifyProductReleaseDeployed(deployProduct, release, resources);
+                    notifyProductReleaseDeployed(localProduct, release, resources);
                 } finally {
                     tempFileSystem.deleteTree();
                 }
@@ -181,6 +182,21 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * Read the previous release.
+     * 
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     * @return A <code>Release</code>.
+     */
+    private Release readPreviousRelease(final Product product,
+            final Release release) {
+        return migratorSql.readPreviousRelease(product.getName(),
+                release.getDate(), release.getOs());
     }
 
     /**
@@ -315,12 +331,12 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
      */
     @Override
     protected void initializeModel(final Session session) {
-        this.migratorSql = new MigratorSql();
+        migratorSql = new MigratorSql();
     }
 
     /**
      * Create a release. This will create the release then examine the resources
-     * by name version and checksum to see if they already exist. If no such
+     * by name release name and path to see if they already exist. If no such
      * resource exists it will be created otherwise simply a reference between
      * the release and the resource is created.
      * 
@@ -328,6 +344,8 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
      *            A <code>Product</code>.
      * @param release
      *            A <code>Release</code>.
+     * @param previousRelease
+     *            The previous <code>Release</code>.
      * @param resources
      *            A <code>List</code> of <code>Resource</code>s.
      * @param releaseFileSystem
@@ -335,27 +353,32 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
      * @throws IOException
      */
     private void createRelease(final Product product, final Release release,
-            final List<Resource> resources, final FileSystem releaseFileSystem)
-            throws IOException {
+            final Release previousRelease, final List<Resource> resources,
+            final FileSystem releaseFileSystem) throws IOException {
         migratorSql.createRelease(product, release);
         InputStream stream;
-        Resource localResource;
+        Resource previousReleaseResource;
         for (final Resource resource : resources) {
-            /* if the resource does not exist, create it then add a relationship
-             * to the release */
-            if (migratorSql.doesExistResource(resource.getChecksum()).booleanValue()) {
-                localResource = migratorSql.readResource(resource.getChecksum());
-            } else {
-                stream = new FileInputStream(releaseFileSystem.findFile(resource.getPath()));
-                try {
-                    migratorSql.createResource(resource, stream, getDefaultBufferSize());
-                } finally {
-                    stream.close();
+            /* if the resource exists in the previous release and it has not
+             * changed re-use it */
+            if (null != previousRelease && migratorSql.doesExistResource(
+                    previousRelease, resource.getPath()).booleanValue()) {
+                previousReleaseResource = migratorSql.readResource(previousRelease, resource.getPath());
+                if (resource.getChecksumAlgorithm().equals(previousReleaseResource.getChecksumAlgorithm())
+                        && resource.getChecksum().equals(previousReleaseResource.getChecksum())) {
+                    migratorSql.addResource(release, previousReleaseResource);
+                    break;
                 }
-                localResource = migratorSql.readResource(resource.getChecksum());
             }
-            localResource.setPath(resource.getPath());
-            migratorSql.addResource(release, localResource);
+            // create the resource
+            stream = new FileInputStream(releaseFileSystem.findFile(resource.getPath()));
+            try {
+                migratorSql.createResource(resource, stream, getDefaultBufferSize());
+            } finally {
+                stream.close();
+            }
+            // add to the release
+            migratorSql.addResource(release, resource);
         }
     }
 

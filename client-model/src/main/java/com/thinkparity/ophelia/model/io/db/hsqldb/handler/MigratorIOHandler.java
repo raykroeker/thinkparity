@@ -89,7 +89,7 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_INSTALLED_RESOURCES =
         new StringBuilder("select PRR.RESOURCE_CHECKSUM,")
         .append("PRR.RESOURCE_CHECKSUM_ALGORITHM,PRR.RESOURCE_ID,")
-        .append("PRR.RESOURCE_PATH,PRR.RESOURCE_SIZE ")
+        .append("PRR.RESOURCE_PATH,PRR.RESOURCE_SIZE,PR.RELEASE_NAME ")
         .append("from PRODUCT_RELEASE_RESOURCE PRR ")
         .append("inner join PRODUCT_RELEASE PR on PR.RELEASE_ID=PRR.RELEASE_ID ")
         .append("inner join PRODUCT P on P.INSTALLED_RELEASE_ID=PR.RELEASE_ID ")
@@ -109,7 +109,7 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_LATEST_RESOURCES =
         new StringBuilder("select PRR.RESOURCE_CHECKSUM,")
         .append("PRR.RESOURCE_CHECKSUM_ALGORITHM,PRR.RESOURCE_ID,")
-        .append("PRR.RESOURCE_PATH,PRR.RESOURCE_SIZE ")
+        .append("PRR.RESOURCE_PATH,PRR.RESOURCE_SIZE,PR.RELEASE_NAME ")
         .append("from PRODUCT_RELEASE_RESOURCE PRR ")
         .append("inner join PRODUCT_RELEASE PR on PR.RELEASE_ID=PRR.RELEASE_ID ")
         .append("inner join PRODUCT P on P.LATEST_RELEASE_ID=PR.RELEASE_ID ")
@@ -564,6 +564,7 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
         resource.setChecksumAlgorithm(session.getString("RESOURCE_CHECKSUM_ALGORITHM"));
         resource.setId(session.getLong("RESOURCE_ID"));
         resource.setPath(session.getString("RESOURCE_PATH"));
+        resource.setReleaseName(session.getString("RELEASE_NAME"));
         resource.setSize(session.getLong("RESOURCE_SIZE"));
         return resource;
     }

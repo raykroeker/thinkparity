@@ -332,6 +332,7 @@ class ConfigurationHelper {
      * @return A jre directory <code>File</code>.
      */
     File extractJreDir() {
-        return new File(properties["thinkparity.jre-dir"])
+        // HACK
+        return new File("${properties["antx.vendor-dir"]}/i686/${properties["thinkparity.os-platform"].toLowerCase()}/sun.com/jre1.6.0")
     }
 }

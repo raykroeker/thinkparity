@@ -5,6 +5,7 @@ package com.thinkparity.desdemona.model.io.sql;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import com.thinkparity.codebase.OS;
@@ -27,6 +28,47 @@ import com.thinkparity.desdemona.model.migrator.ResourceOpener;
  * @version 1.1.2.1
  */
 public final class MigratorSql extends AbstractSql {
+
+    /**
+     * Delete all resources not referenced by the latest release.
+     * 
+     * @param resources
+     *            A <code>List</code> of <code>Resource</code>.
+     */
+    public void deleteResources(final List<Resource> resources) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_RESOURCE_REL);
+            for (final Resource resource : resources) {
+                session.setLong(1, resource.getId());
+                session.executeUpdate();
+            }
+            session.prepareStatement(SQL_DELETE_RESOURCE);
+            for (final Resource resource : resources) {
+                session.setLong(1, resource.getId());
+                if (1 != session.executeUpdate())
+                    throw panic("Could not delete resource {0}:{1}.",
+                            resource.getReleaseName(), resource.getPath());
+            }
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /** Delete all resource relationships where the resource is specified. */
+    private static final String SQL_DELETE_RESOURCE_REL =
+        new StringBuilder("delete from TPSD_PRODUCT_RELEASE_RESOURCE_REL ")
+        .append("where RESOURCE_ID=?")
+        .toString();
+
+    /** Delete all resource relationships where the resource is specified. */
+    private static final String SQL_DELETE_RESOURCE =
+        new StringBuilder("delete from TPSD_PRODUCT_RELEASE_RESOURCE ")
+        .append("where RESOURCE_ID=?")
+        .toString();
 
     /** Sql to create an error. */
     private static final String SQL_CREATE_ERROR =
@@ -66,9 +108,9 @@ public final class MigratorSql extends AbstractSql {
 
     /** Sql to determine resource existence by unique key. */
     private static final String SQL_DOES_EXIST_RESOURCE_UK =
-        new StringBuilder("select count(PRR.RESOURCE_ID) \"RESOURCE_COUNT\" ")
-        .append("from TPSD_PRODUCT_RELEASE_RESOURCE PRR ")
-        .append("where PRR.RESOURCE_CHECKSUM=?")
+        new StringBuilder("select count(PRRR.RESOURCE_ID) \"RESOURCE_COUNT\" ")
+        .append("from TPSD_PRODUCT_RELEASE_RESOURCE_REL PRRR ")
+        .append("where PRRR.RELEASE_ID=? and PRRR.RESOURCE_PATH=?")
         .toString();
 
     /** Sql to open a resource by its unique key. */
@@ -112,37 +154,41 @@ public final class MigratorSql extends AbstractSql {
         .append("and R.RELEASE_OS=?")
         .toString();
 
+    /** Sql to read a release. */
+    private static final String SQL_READ_PREVIOUS_RELEASES =
+        new StringBuilder("select R.RELEASE_ID,R.RELEASE_NAME,R.RELEASE_OS,")
+        .append("R.RELEASE_DATE,P.PRODUCT_NAME ")
+        .append("from TPSD_PRODUCT_RELEASE R ")
+        .append("inner join TPSD_PRODUCT P on R.PRODUCT_ID=P.PRODUCT_ID ")
+        .append("where P.PRODUCT_NAME=? and R.RELEASE_OS=? ")
+        .append("and R.RELEASE_DATE<? ")
+        .append("order by R.RELEASE_DATE desc")
+        .toString();
+
     /** Read a release resource by its unique key. */
     private static final String SQL_READ_RELEASE_RESOURCE_UK =
         new StringBuilder("select PRR.RESOURCE_CHECKSUM,")
         .append("PRR.RESOURCE_CHECKSUM_ALGORITHM,PRR.RESOURCE_ID,")
-        .append("PRR.RESOURCE_SIZE,PRRR.RESOURCE_PATH ")
+        .append("PRR.RESOURCE_SIZE,PRRR.RESOURCE_PATH,PR.RELEASE_NAME ")
         .append("from TPSD_PRODUCT_RELEASE_RESOURCE PRR ")
         .append("inner join TPSD_PRODUCT_RELEASE_RESOURCE_REL PRRR ")
         .append("on PRRR.RESOURCE_ID=PRR.RESOURCE_ID ")
-        .append("where PRRR.RELEASE_ID=? and PRR.RESOURCE_CHECKSUM=?")
+        .append("inner join TPSD_PRODUCT_RELEASE PR ")
+        .append("on PR.RELEASE_ID=PRRR.RELEASE_ID ")
+        .append("where PRRR.RELEASE_ID=? and PRRR.RESOURCE_PATH=?")
         .toString();
 
     /** Sql to read resources by the release primary key. */
     private static final String SQL_READ_RELEASE_RESOURCES_PK =
         new StringBuilder("select PRR.RESOURCE_CHECKSUM,")
         .append("PRR.RESOURCE_CHECKSUM_ALGORITHM,PRR.RESOURCE_ID,")
-        .append("PRRR.RESOURCE_PATH,PRR.RESOURCE_SIZE ")
+        .append("PRRR.RESOURCE_PATH,PRR.RESOURCE_SIZE,PR.RELEASE_NAME ")
         .append("from TPSD_PRODUCT_RELEASE_RESOURCE PRR ")
         .append("inner join TPSD_PRODUCT_RELEASE_RESOURCE_REL PRRR on ")
         .append("PRRR.RESOURCE_ID=PRR.RESOURCE_ID ")
         .append("inner join TPSD_PRODUCT_RELEASE PR on  ")
         .append("PR.RELEASE_ID=PRRR.RELEASE_ID ")
         .append("where PR.RELEASE_ID=?")
-        .toString();
-
-    /** Read a resource by its unique key. */
-    private static final String SQL_READ_RESOURCE_UK =
-        new StringBuilder("select PRR.RESOURCE_CHECKSUM,")
-        .append("PRR.RESOURCE_CHECKSUM_ALGORITHM,PRR.RESOURCE_ID,")
-        .append("PRR.RESOURCE_SIZE ")
-        .append("from TPSD_PRODUCT_RELEASE_RESOURCE PRR ")
-        .append("where PRR.RESOURCE_CHECKSUM=?")
         .toString();
 
     /**
@@ -296,11 +342,12 @@ public final class MigratorSql extends AbstractSql {
      * 
      * @return True if the release exists.
      */
-    public Boolean doesExistResource(final String checksum) {
+    public Boolean doesExistResource(final Release release, final String path) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_DOES_EXIST_RESOURCE_UK);
-            session.setString(1, checksum);
+            session.setLong(1, release.getId());
+            session.setString(2, path);
             session.executeQuery();
             if (session.nextResult()) {
                 final int resourceCount = session.getInteger("RESOURCE_COUNT");
@@ -343,6 +390,38 @@ public final class MigratorSql extends AbstractSql {
                 }
             } else {
                 opener.open(null);
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read the previous release.
+     * 
+     * @param productName
+     *            An existing product name <code>String</code>.
+     * @param releaseName
+     *            An existing release name <code>String</code>.
+     * @param os
+     *            An <code>OS</code>.
+     * @return A <code>Release</code>.
+     */
+    public Release readPreviousRelease(final String productName,
+            final Calendar releaseDate, final OS os) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_PREVIOUS_RELEASES);
+            session.setString(1, productName);
+            session.setString(2, os.name());
+            session.setCalendar(3, releaseDate);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractRelease(session);
+            } else {
+                return null;
             }
         } catch (final Throwable t) {
             throw translateError(session, t);
@@ -461,33 +540,15 @@ public final class MigratorSql extends AbstractSql {
         }
     }
 
-    public Resource readResource(final Release release, final String checksum) {
+    public Resource readResource(final Release release, final String path) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_RELEASE_RESOURCE_UK);
             session.setLong(1, release.getId());
-            session.setString(2, checksum);
+            session.setString(2, path);
             session.executeQuery();
             if (session.nextResult()) {
                 return extractResource(session);
-            } else {
-                return null;
-            }
-        } catch (final Throwable t) {
-            throw translateError(session, t);
-        } finally {
-            session.close();
-        }
-    }
-
-    public Resource readResource(final String checksum) {
-        final HypersonicSession session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_RESOURCE_UK);
-            session.setString(1, checksum);
-            session.executeQuery();
-            if (session.nextResult()) {
-                return extractResourceNoPath(session);
             } else {
                 return null;
             }
@@ -603,22 +664,7 @@ public final class MigratorSql extends AbstractSql {
         resource.setChecksumAlgorithm(session.getString("RESOURCE_CHECKSUM_ALGORITHM"));
         resource.setId(session.getLong("RESOURCE_ID"));
         resource.setPath(session.getString("RESOURCE_PATH"));
-        resource.setSize(session.getLong("RESOURCE_SIZE"));
-        return resource;
-    }
-
-    /**
-     * Extract a resource from a session omitting the path.
-     * 
-     * @param session
-     *            A <code>HypersonicSession</code>.
-     * @return A <code>Resource</code>.
-     */
-    private Resource extractResourceNoPath(final HypersonicSession session) {
-        final Resource resource = new Resource();
-        resource.setChecksum(session.getString("RESOURCE_CHECKSUM"));
-        resource.setChecksumAlgorithm(session.getString("RESOURCE_CHECKSUM_ALGORITHM"));
-        resource.setId(session.getLong("RESOURCE_ID"));
+        resource.setReleaseName(session.getString("RELEASE_NAME"));
         resource.setSize(session.getLong("RESOURCE_SIZE"));
         return resource;
     }

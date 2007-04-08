@@ -3,6 +3,8 @@
  */
 package com.thinkparity.codebase.model.migrator;
 
+import com.thinkparity.codebase.HashCodeUtil;
+
 /**
  * <b>Title:</b>thinkParity Resource<br>
  * <b>Description:</b><br>
@@ -23,6 +25,9 @@ public final class Resource {
 
     /** A resource path <code>String</code>. */
     private String path;
+
+    /** The release name <code>String</code>. */
+    private String releaseName;
 
     /** A resource size <code>Long</code>. */
     private Long size;
@@ -47,7 +52,8 @@ public final class Resource {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        return ((Resource) obj).checksum.equals(checksum);
+        return ((Resource) obj).releaseName.equals(releaseName)
+                && ((Resource) obj).path.equals(path);
     }
 
     /**
@@ -88,6 +94,15 @@ public final class Resource {
     }
 
     /**
+     * Obtain releaseName.
+     *
+     * @return A String.
+     */
+    public String getReleaseName() {
+        return releaseName;
+    }
+
+    /**
      * Obtain size.
      *
      * @return A Long.
@@ -102,7 +117,7 @@ public final class Resource {
      */
     @Override
     public int hashCode() {
-        return checksum.hashCode();
+        return HashCodeUtil.hashCode(releaseName, path);
     }
 
     /**
@@ -143,6 +158,16 @@ public final class Resource {
      */
     public void setPath(final String path) {
         this.path = path;
+    }
+
+    /**
+     * Set releaseName.
+     *
+     * @param releaseName
+     *		A String.
+     */
+    public void setReleaseName(final String releaseName) {
+        this.releaseName = releaseName;
     }
 
     /**

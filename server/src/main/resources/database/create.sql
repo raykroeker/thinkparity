@@ -162,8 +162,11 @@ create table TPSD_PRODUCT_RELEASE(
     RELEASE_DATE timestamp not null,
     primary key(RELEASE_ID),
     unique(PRODUCT_ID,RELEASE_NAME,RELEASE_OS),
+    unique(PRODUCT_ID,RELEASE_OS,RELEASE_DATE),
     foreign key(PRODUCT_ID) references TPSD_PRODUCT(PRODUCT_ID)
 );
+create index TPSD_PRODUCT_RELEASE_IX_0 on TPSD_PRODUCT_RELEASE(RELEASE_DATE);
+
 create table TPSD_PRODUCT_RELEASE_ERROR(
     ERROR_ID bigint generated always as identity(start with 9000),
     RELEASE_ID bigint not null,
@@ -180,8 +183,7 @@ create table TPSD_PRODUCT_RELEASE_RESOURCE(
     RESOURCE_CHECKSUM_ALGORITHM varchar(16) not null,
     RESOURCE_SIZE bigint not null,
     RESOURCE blob not null,
-    primary key(RESOURCE_ID),
-    unique(RESOURCE_CHECKSUM)
+    primary key(RESOURCE_ID)
 );
 create table TPSD_PRODUCT_RELEASE_RESOURCE_REL(
     RELEASE_ID bigint not null,

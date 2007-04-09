@@ -50,6 +50,7 @@ import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.container.InternalContainerModel;
 import com.thinkparity.desdemona.model.io.sql.ConfigurationSql;
+import com.thinkparity.desdemona.model.migrator.InternalMigratorModel;
 import com.thinkparity.desdemona.model.profile.InternalProfileModel;
 import com.thinkparity.desdemona.model.queue.InternalQueueModel;
 import com.thinkparity.desdemona.model.queue.QueueModel;
@@ -470,6 +471,10 @@ public abstract class AbstractModelImpl
 	protected final InternalArtifactModel getArtifactModel() {
 		return ArtifactModel.getInternalModel(getContext(), session);
 	}
+
+    protected final InternalMigratorModel getMigratorModel() {
+        return InternalModelFactory.getInstance(getContext(), session).getMigratorModel();
+    }
 
     /**
      * Obtain an internal backup model.

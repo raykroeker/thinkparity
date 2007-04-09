@@ -7,13 +7,8 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import com.thinkparity.codebase.Application;
-import com.thinkparity.codebase.email.EMail;
-
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.model.util.http.Link;
-import com.thinkparity.codebase.model.util.http.LinkFactory;
 
 /**
  * @author raymond@thinkparity.com
@@ -24,12 +19,6 @@ public class InvitationText {
     /** The inviting user. */
     private final User invitedBy;
 
-    /** The invitee e-mail address. */
-    private final EMail invitee;
-
-    /** The invitation link factory. */
-    private final LinkFactory linkFactory;
-
     /** The resource bundle. */
     private final ResourceBundle resourceBundle;
 
@@ -38,19 +27,15 @@ public class InvitationText {
      * 
      * @param locale
      *            The invitee locale
-     * @param invitee
-     *            The invitee e-mail address.
-     * @param inviter
-     *            The inviter user.
+     * @param invitedBy
+     *            The invited by user.
      */
     InvitationText(final Environment environment, final Locale locale,
-            final EMail invitee, final User invitedBy) {
+            final User invitedBy) {
         super();
-        this.invitee = invitee;
         this.invitedBy = invitedBy;
         this.resourceBundle = ResourceBundle.getBundle(
                 "localization.Invitation_Messages", locale);
-        this.linkFactory = LinkFactory.getInstance(Application.DESDEMONA, environment);
     }
 
     /**
@@ -61,17 +46,12 @@ public class InvitationText {
      * @return The invitation body.
      */
     public String getBody() {
-        final Link acceptContactInvitation = linkFactory.create("contact/invitation/accept");
-        acceptContactInvitation.addParameter("JabberId", invitedBy.getId().getQualifiedJabberId());
-
-        final Link createAccount = linkFactory.create("user/create");
-        createAccount.addParameter("Email", invitee.toString());
-        createAccount.addParameter("JabberId", invitedBy.getId().getQualifiedJabberId());
-        createAccount.addParameter("PostCompletion", "AcceptInvitation");
-
+        /* NOCOMMIT - InvitationText#getBody() - Use the migrator to reference
+         * the release name */
+        final String download = "http://download.thinkparity.net/en/thinkParity-v1_0-BETA-20070409.exe";
         return MessageFormat.format(
                 resourceBundle.getString("body"),
-                getSubject(), acceptContactInvitation, createAccount);
+                getSubject(), download);
     }
 
     /**

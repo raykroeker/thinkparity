@@ -696,7 +696,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
 	private void inject(final MimeMessage mimeMessage, final EMail email,
             final User invitedBy) throws MessagingException {
         final InvitationText text = new InvitationText(getEnvironment(),
-                Locale.getDefault(), email, invitedBy);
+                Locale.getDefault(), invitedBy);
 	    mimeMessage.setSubject(text.getSubject());
 
         final MimeBodyPart invitationBody = new MimeBodyPart();

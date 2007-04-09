@@ -11,6 +11,8 @@ import com.thinkparity.desdemona.model.contact.ContactModelImpl;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.container.ContainerModelImpl;
 import com.thinkparity.desdemona.model.container.InternalContainerModel;
+import com.thinkparity.desdemona.model.migrator.InternalMigratorModel;
+import com.thinkparity.desdemona.model.migrator.MigratorModelImpl;
 import com.thinkparity.desdemona.model.profile.InternalProfileModel;
 import com.thinkparity.desdemona.model.profile.ProfileModelImpl;
 import com.thinkparity.desdemona.model.session.Session;
@@ -90,6 +92,16 @@ public final class InternalModelFactory {
     public final InternalContainerModel getContainerModel() {
         return (InternalContainerModel) newModelProxy(
                 InternalContainerModel.class, ContainerModelImpl.class);
+    }
+
+    /**
+     * Obtain an internal migrator model.
+     * 
+     * @return An instance of <code>IntegernalMigratorModel</code>.
+     */
+    public final InternalMigratorModel getMigratorModel() {
+        return (InternalMigratorModel) newModelProxy(
+                InternalMigratorModel.class, MigratorModelImpl.class);
     }
 
     /**

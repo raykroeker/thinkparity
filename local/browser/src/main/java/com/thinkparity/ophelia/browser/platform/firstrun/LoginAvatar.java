@@ -314,6 +314,11 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         usernameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.UsernameLabel"));
 
         usernameJTextField.setFont(Fonts.DialogTextEntryFont);
+        usernameJTextField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent e) {
+                usernameJTextFieldFocusLost(e);
+            }
+        });
 
         passwordJLabel.setFont(Fonts.DialogFont);
         passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.PasswordLabel"));
@@ -328,31 +333,31 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
 
         signUpJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.SignUp"));
         signUpJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                signUpJLabelMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                signUpJLabelMousePressed(e);
             }
         });
 
         forgotPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.ForgotPassword"));
         forgotPasswordJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                forgotPasswordJLabelMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                forgotPasswordJLabelMousePressed(e);
             }
         });
 
         nextJButton.setFont(Fonts.DialogButtonFont);
         nextJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.LoginButton"));
         nextJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nextJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                nextJButtonActionPerformed(e);
             }
         });
 
         cancelJButton.setFont(Fonts.DialogButtonFont);
         cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.CancelButton"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelJButtonActionPerformed(e);
             }
         });
 
@@ -366,7 +371,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
             buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonBarJPanelLayout.createSequentialGroup()
                 .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, errorMessageJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 325, Short.MAX_VALUE)
                     .add(buttonBarJPanelLayout.createSequentialGroup()
                         .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(forgotPasswordJLabel)
@@ -419,8 +424,8 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         progressBarJPanel.setLayout(progressBarJPanelLayout);
         progressBarJPanelLayout.setHorizontalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, stepJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-            .add(loginJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, stepJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
+            .add(loginJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
         );
         progressBarJPanelLayout.setVerticalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -473,6 +478,15 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
                 .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void usernameJTextFieldFocusLost(final java.awt.event.FocusEvent e) {//GEN-FIRST:event_usernameJTextFieldFocusLost
+        final String username = SwingUtil.extract(usernameJTextField, Boolean.TRUE);
+        if (null != username) {
+            // TODO - LoginAvatar#usernameJTextFieldFocusLost - Add SwingUtil.insert().
+            // HACK - LoginAvatar#usernameJTextFieldFocusLost - Username should not be case sensitive.
+            usernameJTextField.setText(username.toLowerCase());
+        }
+    }//GEN-LAST:event_usernameJTextFieldFocusLost
 
     /**
      *  Initialize the document handler for the username and password fields.

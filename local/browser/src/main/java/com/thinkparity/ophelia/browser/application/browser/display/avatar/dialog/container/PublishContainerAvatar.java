@@ -125,7 +125,7 @@ public final class PublishContainerAvatar extends Avatar implements
     public State getState() {
         return null;
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerSwingDisplay#installProgressBar(java.lang.Long)
      *
@@ -136,7 +136,7 @@ public final class PublishContainerAvatar extends Avatar implements
         buttonBarJPanel.setVisible(false);
         validate();
     }
-    
+
     /**
      * Determine whether the user input for the dialog is valid.
      * 
@@ -150,6 +150,11 @@ public final class PublishContainerAvatar extends Avatar implements
                 extractEMails();
                 return Boolean.TRUE;
             } catch (final EMailFormatException efx) {}
+        } else {
+            try {
+                final List<EMail> emails = extractEMails();
+                return 0 < emails.size();
+            } catch (final EMailFormatException efx) {}
         }
         return Boolean.FALSE;
     }
@@ -157,7 +162,8 @@ public final class PublishContainerAvatar extends Avatar implements
     public void reload() {
         reloadProgressBar();
         if (input != null) { 
-            reloadPublishTo();           
+            reloadPublishTo();
+            reloadEMails();
             reloadComment();
             publishJButton.setEnabled(isInputValid());
             namesJScrollPane.getViewport().setViewPosition(new Point(0,0));
@@ -227,10 +233,10 @@ public final class PublishContainerAvatar extends Avatar implements
      */
     private void bindEscapeKey() {
         bindEscapeKey("Cancel", new AbstractAction() {
-            /** @see java.io.Serializable */
-            private static final long serialVersionUID = 1;
-
-            /** @see javax.swing.ActionListener#actionPerformed(java.awt.event.ActionEvent) */
+            /**
+             * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+             * 
+             */
             public void actionPerformed(final ActionEvent e) {
                 cancelJButtonActionPerformed(e);
             }
@@ -281,7 +287,7 @@ public final class PublishContainerAvatar extends Avatar implements
      * @return A container id.
      */
     private Long getInputContainerId() {
-        if (input!=null) {
+        if (input != null) {
             return (Long) ((Data) input).get(DataKey.CONTAINER_ID);
         } else {
             return null;
@@ -294,7 +300,7 @@ public final class PublishContainerAvatar extends Avatar implements
      * @return A PublishType.
      */
     private PublishType getInputPublishType() {
-        if (input!=null) {
+        if (input != null) {
             return (PublishType) ((Data) input).get(DataKey.PUBLISH_TYPE);
         } else {
             return null;
@@ -307,7 +313,7 @@ public final class PublishContainerAvatar extends Avatar implements
      * @return A version id.
      */
     private Long getInputVersionId() {
-        if (input!=null) {
+        if (input != null) {
             return (Long) ((Data) input).get(DataKey.VERSION_ID);
         } else {
             return null;
@@ -535,7 +541,7 @@ public final class PublishContainerAvatar extends Avatar implements
         final List<EMail> emails = extractEMails();
         final List<TeamMember> teamMembers = model.getSelectedTeamMembers();
         final List<Contact> contacts = model.getSelectedContacts();
-        
+
         // Publish
         switch (publishType) {
         case PUBLISH:
@@ -604,6 +610,14 @@ public final class PublishContainerAvatar extends Avatar implements
     private List<TeamMember> readTeamMembers() {
         return ((PublishContainerProvider) contentProvider).readPublishToTeam(
                 getInputContainerId());
+    }
+
+    /**
+     * Reload the e-mail addresses text area.
+     *
+     */
+    private void reloadEMails() {
+        emailsJTextArea.setText(null);
     }
 
     /**
@@ -743,7 +757,7 @@ public final class PublishContainerAvatar extends Avatar implements
     private class DocumentSizeFilter extends DocumentFilter {
         final int maxCharacters;
 
-        public DocumentSizeFilter(final int maxCharacters) {
+        private DocumentSizeFilter(final int maxCharacters) {
             this.maxCharacters = maxCharacters;
         }
         /**
@@ -779,11 +793,11 @@ public final class PublishContainerAvatar extends Avatar implements
 
     private class PublishContainerAvatarUserListModel extends DefaultListModel {
         
-        public PublishContainerAvatarUserListModel() {
+        private PublishContainerAvatarUserListModel() {
             super();
         }
         
-        public List<Contact> getSelectedContacts() {
+        private List<Contact> getSelectedContacts() {
             List<Contact> selectedContacts = new ArrayList<Contact>();
             for (int index = 0; index < getSize(); index++) {
                 PublishContainerAvatarUser user = (PublishContainerAvatarUser)getElementAt(index);
@@ -791,11 +805,10 @@ public final class PublishContainerAvatar extends Avatar implements
                     selectedContacts.add((Contact)user.getUser());
                 }                
             }
-
             return selectedContacts;
         }
         
-        public List<TeamMember> getSelectedTeamMembers() {
+        private List<TeamMember> getSelectedTeamMembers() {
             List<TeamMember> selectedTeamMembers = new ArrayList<TeamMember>();
             for (int index = 0; index < getSize(); index++) {
                 PublishContainerAvatarUser user = (PublishContainerAvatarUser)getElementAt(index);
@@ -803,20 +816,19 @@ public final class PublishContainerAvatar extends Avatar implements
                     selectedTeamMembers.add((TeamMember)user.getUser());
                 }                
             }
-            
             return selectedTeamMembers;
         }
         
-        public Boolean isItemSelected() {
+        private Boolean isItemSelected() {
             for (int index = 0; index < getSize(); index++) {
                 PublishContainerAvatarUser user = (PublishContainerAvatarUser)getElementAt(index);
                 if (user.isSelected()) {
                     return Boolean.TRUE;
                 }
             }
-            
             return Boolean.FALSE;
         }
     }
+
     private enum PublishTypeSpecific { PUBLISH_FIRST_TIME, PUBLISH_NOT_FIRST_TIME, PUBLISH_VERSION }
 }

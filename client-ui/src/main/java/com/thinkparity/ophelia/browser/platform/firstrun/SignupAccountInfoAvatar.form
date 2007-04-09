@@ -27,7 +27,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="accountTypeTitleJLabel" pref="424" max="32767" attributes="0"/>
+                      <Component id="accountTypeTitleJLabel" pref="433" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="36" max="-2" attributes="0"/>
@@ -44,7 +44,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="loginInfoTitleJLabel" alignment="0" pref="424" max="32767" attributes="0"/>
+                          <Component id="loginInfoTitleJLabel" alignment="0" pref="433" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="1" max="-2" attributes="0">
@@ -250,7 +250,11 @@
           <Connection code="Fonts.DialogTextEntryFont" type="code"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="usernameJTextFieldFocusLost"/>
+      </Events>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -275,6 +279,7 @@
         </Property>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.createPassword();"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -299,6 +304,7 @@
         </Property>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.createPassword();"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>

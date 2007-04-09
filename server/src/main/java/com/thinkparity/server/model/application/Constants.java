@@ -16,7 +16,7 @@ public interface Constants {
     public static final class Internet {
         /** Internet Mail Constants. */
         public static final class Mail {
-            public static final String BCC_ADDRESS = "raykroeker+bcc@thinkparity.com";
+            public static final String BCC_ADDRESS = "raymond+bcc@thinkparity.com";
             public static final String BCC_PERSONAL = "thinkParity BCC";
             public static final String FROM_ADDRESS = "thinkparity.noreply@thinkparity.com";
             public static final String FROM_PERSONAL = "thinkParity Team";

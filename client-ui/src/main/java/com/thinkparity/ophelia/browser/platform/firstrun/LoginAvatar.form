@@ -75,6 +75,9 @@
           <Connection code="Fonts.DialogTextEntryFont" type="code"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="usernameJTextFieldFocusLost"/>
+      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
@@ -121,7 +124,7 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
                   <Group type="103" groupAlignment="1" attributes="0">
-                      <Component id="errorMessageJLabel" alignment="0" pref="289" max="32767" attributes="0"/>
+                      <Component id="errorMessageJLabel" alignment="0" pref="325" max="32767" attributes="0"/>
                       <Group type="102" alignment="1" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="forgotPasswordJLabel" min="-2" max="-2" attributes="0"/>
@@ -277,8 +280,8 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="stepJLabel" alignment="1" pref="360" max="32767" attributes="0"/>
-              <Component id="loginJProgressBar" alignment="0" pref="360" max="32767" attributes="0"/>
+              <Component id="stepJLabel" alignment="1" pref="412" max="32767" attributes="0"/>
+              <Component id="loginJProgressBar" alignment="0" pref="412" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">

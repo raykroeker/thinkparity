@@ -23,6 +23,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
+import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
@@ -310,8 +311,8 @@ public class SignupAccountInfoAvatar extends Avatar
 
         learnMoreJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.AccountInfo.LearnMore"));
         learnMoreJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                learnMoreJLabelMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                learnMoreJLabelMousePressed(e);
             }
         });
 
@@ -322,6 +323,11 @@ public class SignupAccountInfoAvatar extends Avatar
         usernameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.AccountInfo.UsernameLabel"));
 
         usernameJTextField.setFont(Fonts.DialogTextEntryFont);
+        usernameJTextField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent e) {
+                usernameJTextFieldFocusLost(e);
+            }
+        });
 
         passwordJLabel.setFont(Fonts.DialogFont);
         passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.AccountInfo.PasswordLabel"));
@@ -345,7 +351,7 @@ public class SignupAccountInfoAvatar extends Avatar
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(accountTypeTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE))
+                        .addComponent(accountTypeTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(36, 36, 36)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -358,7 +364,7 @@ public class SignupAccountInfoAvatar extends Avatar
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(loginInfoTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
+                            .addComponent(loginInfoTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(27, 27, 27)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -409,6 +415,15 @@ public class SignupAccountInfoAvatar extends Avatar
                 .addContainerGap(30, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void usernameJTextFieldFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_usernameJTextFieldFocusLost
+        final String username = SwingUtil.extract(usernameJTextField, Boolean.TRUE);
+        if (null != username) {
+            // TODO - SignupAccountInfoAvatar#usernameJTextFieldFocusLost - Add SwingUtil.insert().
+            // HACK - SignupAccountInfoAvatar#usernameJTextFieldFocusLost - Username should not be case sensitive.
+            usernameJTextField.setText(username.toLowerCase());
+        }
+    }//GEN-LAST:event_usernameJTextFieldFocusLost
 
     /**
      * Initialize document handlers.
@@ -501,11 +516,11 @@ public class SignupAccountInfoAvatar extends Avatar
     private final javax.swing.JRadioButton accountTypeBackupJRadioButton = new javax.swing.JRadioButton();
     private final javax.swing.JRadioButton accountTypeGuestJRadioButton = new javax.swing.JRadioButton();
     private final javax.swing.JRadioButton accountTypeStandardJRadioButton = new javax.swing.JRadioButton();
-    private final javax.swing.JPasswordField confirmPasswordJPasswordField = new javax.swing.JPasswordField();
+    private final javax.swing.JPasswordField confirmPasswordJPasswordField = TextFactory.createPassword();
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel learnMoreJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JPasswordField passwordJPasswordField = new javax.swing.JPasswordField();
-    private final javax.swing.JTextField usernameJTextField = new javax.swing.JTextField();
+    private final javax.swing.JPasswordField passwordJPasswordField = TextFactory.createPassword();
+    private final javax.swing.JTextField usernameJTextField = TextFactory.create();
     // End of variables declaration//GEN-END:variables
     
 }

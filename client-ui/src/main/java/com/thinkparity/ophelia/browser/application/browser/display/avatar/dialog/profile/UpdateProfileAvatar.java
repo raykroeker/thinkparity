@@ -776,17 +776,18 @@ public class UpdateProfileAvatar extends Avatar {
      *
      */
     private void reloadVerify() {
-        verificationKeyJLabel.setVisible(false);
-        verificationKeyJTextField.setVisible(false);
-        verifyJButton.setVisible(false);
         final ProfileEMail email = getEMail();
         if (null != email && !email.isVerified()
                 && email.getEmail().toString().equals(extractInputEmail())) {
             verificationKeyJLabel.setVisible(true);
             verificationKeyJTextField.setVisible(true);
             verifyJButton.setVisible(true);
+            verifyJButton.setEnabled(isVerifyInputValid());
+        } else {
+            verificationKeyJLabel.setVisible(false);
+            verificationKeyJTextField.setVisible(false);
+            verifyJButton.setVisible(false);            
         }
-        verifyJButton.setEnabled(isVerifyInputValid());
     }
 
     /**

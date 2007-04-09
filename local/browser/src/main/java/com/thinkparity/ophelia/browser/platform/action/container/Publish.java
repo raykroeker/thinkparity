@@ -108,7 +108,8 @@ public class Publish extends AbstractBrowserAction {
                 final List<EMail> emails = data.getList(DataKey.EMAILS);
                 final List<Contact> contacts = data.getList(DataKey.CONTACTS);
                 final List<TeamMember> teamMembers = data.getList(DataKey.TEAM_MEMBERS);
-                if (0 == contacts.size() && teamMembers.size() == 0) {
+                if (0 == emails.size() && 0 == contacts.size()
+                        && teamMembers.size() == 0) {
                     browser.displayPublishContainerDialog(containerId);
                 } else {
                     final String comment = (String) data.get(DataKey.COMMENT);

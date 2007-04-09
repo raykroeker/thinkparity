@@ -115,6 +115,9 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         try {
             assertIsValid(profile.getVCard());
 
+            // HACK - ProfileModelImpl#create() - usernames should not be case sensitive
+            credentials.setUsername(credentials.getUsername().toLowerCase());
+
             // delete expired reservations
             userSql.deleteExpiredReservations(currentDateTime());
             Assert.assertTrue(userSql.doesExistReservation(
@@ -184,7 +187,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             reservation.setCreatedOn(reservedOn);
             reservation.setExpiresOn(expiresOn);
             reservation.setToken(newToken());
-            reservation.setUsername(username);
+            // HACK - ProfileModelImpl#createReservation - usernames should not be case sensitive
+            reservation.setUsername(username.toLowerCase());
             try {
                 userSql.createReservation(reservation);
                 return reservation;

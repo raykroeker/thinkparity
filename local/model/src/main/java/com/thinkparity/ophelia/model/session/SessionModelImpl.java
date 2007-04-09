@@ -1971,20 +1971,24 @@ public final class SessionModelImpl extends Model<SessionListener>
                 }
                 if (run) {
                     try {
-                        if (impl.isXMPPOnline()) {
+                        if (run && impl.isXMPPOnline()) {
                             final Calendar now = impl.readDateTime();
-                            if (null == now) {
+                            if (run && null == now) {
                                 impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
                                 impl.handleSessionTerminated();
                             }
                         } else {
-                            impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
-                            impl.handleSessionTerminated();
+                            if (run) {
+                                impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                                impl.handleSessionTerminated();
+                            }
                         }
                     } catch (final Throwable t) {
-                        impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
-                        impl.handleSessionError(t);
-                        impl.handleSessionTerminated();
+                        if (run) {
+                            impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                            impl.handleSessionError(t);
+                            impl.handleSessionTerminated();
+                        }
                     }
                 }
             }

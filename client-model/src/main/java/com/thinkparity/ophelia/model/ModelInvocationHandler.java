@@ -94,25 +94,19 @@ final class ModelInvocationHandler implements InvocationHandler {
             final TransactionContext transactionContext = newXAContext(method);
             beginXA(transaction, transactionContext);
             try {
-                final Object result;
-                try {
-                    /* if the method is annotated as online, ensure that we are
-                     * online */
-                    if (isOnline(method))
-                        model.ensureOnline();
-                    model.setInvocationContext(new ModelInvocationContext() {
-                        public Object[] getArguments() {
-                            return args;
-                        }
-                        public Method getMethod() {
-                            return method;
-                        }
-                    });
-                    result = method.invoke(model, args);
-                } finally {
-                    model.notifyListeners();
-                }
-                return LOGGER.logVariable("result", result);
+                /* if the method is annotated as online, ensure that we are
+                 * online */
+                if (isOnline(method))
+                    model.ensureOnline();
+                model.setInvocationContext(new ModelInvocationContext() {
+                    public Object[] getArguments() {
+                        return args;
+                    }
+                    public Method getMethod() {
+                        return method;
+                    }
+                });
+                return LOGGER.logVariable("result", method.invoke(model, args));
             } catch (final InvocationTargetException itx) {
                 rollbackXA(transaction, transactionContext);
                 throw itx.getTargetException();
@@ -215,6 +209,7 @@ final class ModelInvocationHandler implements InvocationHandler {
             } else {
                 XA_LOGGER.logInfo("Committing transaction-{0}.", context);
                 transaction.commit();
+                model.notifyListeners();
             }
         } else {
             switch (context.getType()) {

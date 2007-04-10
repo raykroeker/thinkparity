@@ -5,27 +5,26 @@
 package com.thinkparity.ophelia.browser.profile;
 
 
-import javax.swing.JFrame;
-
-import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder;
 import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
+import com.thinkparity.ophelia.browser.util.swing.OpheliaJFrame;
 
 /**
- *
+ * <b>Title:</b>thinkParity OpheliaUI Profile Manager Window<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @revision $Revision$
+ * @version 1.1.2.7
  */
-class ProfileManagerWindow extends AbstractJFrame {
+final class ProfileManagerWindow extends OpheliaJFrame {
 
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
-
-    /** Create ProfileManagerWindow. */
+    /**
+     * Create ProfileManagerWindow.
+     *
+     */
     ProfileManagerWindow() {
         super("ProfileManagerWindow");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setIconImage(com.thinkparity.ophelia.browser.Constants.Images.WINDOW_ICON_IMAGE);
         setResizable(false);
         setUndecorated(true);

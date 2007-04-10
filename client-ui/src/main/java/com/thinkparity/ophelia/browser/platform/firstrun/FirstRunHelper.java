@@ -30,9 +30,15 @@ public final class FirstRunHelper {
      * Execute first run functionality for the browser platform.
      */
     public void firstRun() {
-        final InitializeMediator initializeMediator = new ConfirmSynchronizeWindow();
         final LoginWindow loginWindow = new LoginWindow();
-        loginWindow.setInitializeMediator(initializeMediator);
+        loginWindow.setInitializeMediator(new InitializeMediator() {
+            public Boolean confirmRestorePremium() {
+                return new ConfirmSynchronizeWindow().confirmRestorePremium();
+            }
+            public Boolean confirmRestoreStandard() {
+                return new ConfirmSynchronizeWindow().confirmRestoreStandard();
+            }
+        });
         boolean doneLogin = false;
         while (!doneLogin) {
             loginWindow.setVisibleAndWait();

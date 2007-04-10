@@ -9,8 +9,11 @@ package com.thinkparity.ophelia.browser.mode.demo;
 import com.thinkparity.ophelia.browser.util.swing.OpheliaJFrame;
 
 /**
+ * <b>Title:</b>thinkParity OpheliaUI Demo Manager Window<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.4
  */
 public final class DemoManagerWindow extends OpheliaJFrame {
     
@@ -18,9 +21,12 @@ public final class DemoManagerWindow extends OpheliaJFrame {
     private com.thinkparity.ophelia.browser.mode.demo.DemoManagerPanel demoManagerPanel;
     // End of variables declaration//GEN-END:variables
 
-    /** Create ScenarioManagerWindow. */
+    /**
+     * Create DemoManagerWindow.
+     * 
+     */
     public DemoManagerWindow() {
-        super(null);
+        super("DemoManagerWindow");
         initComponents();
     }
 
@@ -62,13 +68,11 @@ public final class DemoManagerWindow extends OpheliaJFrame {
     private void initComponents() {
         demoManagerPanel = new com.thinkparity.ophelia.browser.mode.demo.DemoManagerPanel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(demoManagerPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE)
+            .add(demoManagerPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 352, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)

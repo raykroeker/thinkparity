@@ -24,8 +24,9 @@ public abstract class SystemFrame extends AbstractJDialog {
     private final FrameAnimator frameAnimator;
 
     /**
-     * Create AnimatedFrame.
-     * 
+     * Create SystemFrame.
+     *
+     * @throws AWTException
      */
     protected SystemFrame() throws AWTException {
         super(null, Boolean.FALSE, "");

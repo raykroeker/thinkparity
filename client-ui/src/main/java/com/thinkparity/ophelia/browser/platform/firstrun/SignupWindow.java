@@ -14,10 +14,13 @@ import com.thinkparity.ophelia.browser.platform.application.window.WindowTitle;
 import com.thinkparity.ophelia.browser.util.swing.OpheliaJFrame;
 
 /**
- * @author rob_masako@shaw.ca
+ * <b>Title:</b>thinkParity OpheliaUI Sign-Up Window<br>
+ * <b>Description:</b><br>
+ * 
+ * @author robert@thinkparity.com
  * @version $Revision$
  */
-public class SignupWindow extends OpheliaJFrame {
+public final class SignupWindow extends OpheliaJFrame {
 
     /** The signup avatar. */
     private SignupAvatar signupAvatar;
@@ -28,13 +31,15 @@ public class SignupWindow extends OpheliaJFrame {
     /** The panel onto which all displays are dropped. */
     private WindowPanel windowPanel;
 
-    /** Creates new form LoginWindow */
+    /**
+     * Create SignupWindow.
+     * 
+     */
     public SignupWindow() {
-        super(null);
+        super("SignupWindow");
         initSignupAvatar();
         windowPanel = new WindowPanel();
         windowPanel.getWindowTitle().setBorderType(WindowTitle.BorderType.WINDOW_BORDER2);
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         initComponents(signupAvatar);
         pack();
     }

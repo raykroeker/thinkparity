@@ -1,9 +1,6 @@
 /*
- * ConfirmWindow.java
- *
- * Created on October 18, 2006, 6:44 PM
+ * Created On: October 18, 2006, 6:44 PM
  */
-
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
 import com.thinkparity.ophelia.model.workspace.InitializeMediator;
@@ -15,10 +12,14 @@ import com.thinkparity.ophelia.browser.platform.firstrun.ConfirmSynchronizeAvata
 import com.thinkparity.ophelia.browser.util.swing.OpheliaJFrame;
 
 /**
- *
- * @author  raymond
+ * <b>Title:</b>thinkParity OpheliaUI Confirm Synchronize Window<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.3
  */
-public class ConfirmSynchronizeWindow extends OpheliaJFrame implements InitializeMediator {
+public final class ConfirmSynchronizeWindow extends OpheliaJFrame implements
+        InitializeMediator {
 
     /** The confirm synchronize avatar. */
     private ConfirmSynchronizeAvatar confirmSynchronizeAvatar;
@@ -26,13 +27,15 @@ public class ConfirmSynchronizeWindow extends OpheliaJFrame implements Initializ
     /** The panel onto which all displays are dropped. */
     private WindowPanel windowPanel;
 
-    /** Creates new ConfirmSynchronizeWindow */
+    /**
+     * Create ConfirmSynchronizeWindow.
+     * 
+     */
     public ConfirmSynchronizeWindow() {
-        super(null);
+        super("ConfirmSynchronizeWindow");
         confirmSynchronizeAvatar = new ConfirmSynchronizeAvatar();
         windowPanel = new WindowPanel();
         windowPanel.getWindowTitle().setBorderType(WindowTitle.BorderType.WINDOW_BORDER2);
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         initComponents(confirmSynchronizeAvatar);
         confirmSynchronizeAvatar.reload();
         pack();

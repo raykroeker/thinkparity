@@ -10,16 +10,26 @@ import java.io.IOException;
 
 import com.thinkparity.codebase.swing.AbstractJDialog;
 import com.thinkparity.codebase.swing.AbstractJFrame;
-import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
+
 import com.thinkparity.ophelia.model.script.Script;
 
+import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
+
 /**
- *
- * @author  raymond
+ * <b>Title:</b>thinkParity OpheliaUI Demo Error Window<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.3
  */
 public class DemoErrorWindow extends AbstractJDialog {
     
-    /** Creates new form DemoErrorWindow */
+    /**
+     * Create DemoErrorWindow.
+     * 
+     * @param owner
+     *            An owner <code>AbstractJFrame</code>.
+     */
     public DemoErrorWindow(final AbstractJFrame owner) {
         super(owner, Boolean.TRUE, null);
         initComponents();
@@ -47,8 +57,6 @@ public class DemoErrorWindow extends AbstractJDialog {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         demoErrorPanel = new com.thinkparity.ophelia.browser.mode.demo.DemoErrorPanel();
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

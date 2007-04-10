@@ -15,6 +15,7 @@ import com.thinkparity.codebase.swing.SwingWorker;
 
 import com.thinkparity.ophelia.browser.Constants.Colors.Browser;
 import com.thinkparity.ophelia.browser.util.Swing;
+import com.thinkparity.ophelia.browser.util.swing.OpheliaJFrame;
 
 /**
  * <b>Title:</b>thinkParity Progress Bar UI Test<br>
@@ -24,8 +25,7 @@ import com.thinkparity.ophelia.browser.util.Swing;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ThinkParityProgressBarUIStub extends
-        javax.swing.JFrame {
+public final class ThinkParityProgressBarUIStub extends OpheliaJFrame {
 
     static {
         Swing.init();
@@ -42,6 +42,7 @@ public final class ThinkParityProgressBarUIStub extends
      *
      */
     public ThinkParityProgressBarUIStub() {
+        super("ThinkParityProgressBarUIStub");
         initComponents();
     }
 
@@ -114,11 +115,10 @@ public final class ThinkParityProgressBarUIStub extends
         jProgressBar1 = new javax.swing.JProgressBar();
         goIndeterminateJButton = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         goDeterminateJButton.setText("Go Determinate");
         goDeterminateJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                goDeterminateJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                goDeterminateJButtonActionPerformed(e);
             }
         });
 
@@ -126,8 +126,8 @@ public final class ThinkParityProgressBarUIStub extends
 
         goIndeterminateJButton.setText("Go Indeterminate");
         goIndeterminateJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                goIndeterminateJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                goIndeterminateJButtonActionPerformed(e);
             }
         });
 

@@ -9,8 +9,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 
-import javax.swing.JDialog;
-
 import com.thinkparity.codebase.swing.AbstractJDialog;
 import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.border.MovableDropShadowBorder;
@@ -65,7 +63,6 @@ public abstract class Window extends AbstractJDialog {
         this.localization = new JFrameLocalization(l18nContext);
         this.windowSize = new WindowSize();
         setTitle(getString("Title"));
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setUndecorated(true);
     }
 

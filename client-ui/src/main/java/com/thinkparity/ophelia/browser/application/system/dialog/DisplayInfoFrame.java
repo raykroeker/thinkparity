@@ -135,7 +135,6 @@ public class DisplayInfoFrame extends SystemFrame {
      */
     private void initComponents() {
         panel = new DisplayInfoPanel(systemApplication);
-        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setAlwaysOnTop(true);
         setUndecorated(true);
         setLayout(new GridBagLayout());

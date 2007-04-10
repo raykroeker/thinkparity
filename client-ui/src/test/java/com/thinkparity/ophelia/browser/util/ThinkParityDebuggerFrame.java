@@ -1,9 +1,6 @@
 /*
- * ThinkParityDebuggerFrame.java
- *
  * Created on December 2, 2006, 9:14 AM
  */
-
 package com.thinkparity.ophelia.browser.util;
 
 import java.util.ArrayList;
@@ -11,17 +8,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import javax.swing.JFrame;
 import javax.swing.table.DefaultTableModel;
 
-import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.TableSorter;
 
+import com.thinkparity.ophelia.browser.util.swing.OpheliaJFrame;
+
 /**
+ * <b>Title:</b>thinkParity OpheliaUI ThinkParity Debugger Frame<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ThinkParityDebuggerFrame extends AbstractJFrame {
+public final class ThinkParityDebuggerFrame extends OpheliaJFrame {
 
     /** The <code>ThinkParityDebuggerFrame</code>. */
     private static ThinkParityDebuggerFrame frame;
@@ -92,7 +92,6 @@ public class ThinkParityDebuggerFrame extends AbstractJFrame {
         this.thinkParityPropertiesModel.addColumn("Value");
         this.thinkParityPropertiesSorter = new TableSorter(thinkParityPropertiesModel);
         initComponents();
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     /**
@@ -140,7 +139,6 @@ public class ThinkParityDebuggerFrame extends AbstractJFrame {
         swingInspectorJPanel = new javax.swing.JPanel();
         swingInspectorReloadJButton = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("thinkParity Debugger");
         setName("thinkParityDebuggerJFrame");
         systemPropertiesJTable.setModel(systemPropertiesSorter);
@@ -149,8 +147,8 @@ public class ThinkParityDebuggerFrame extends AbstractJFrame {
 
         reloadSystemPropertiesJButton.setText("Reload");
         reloadSystemPropertiesJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                reloadSystemPropertiesJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                reloadSystemPropertiesJButtonActionPerformed(e);
             }
         });
 
@@ -159,7 +157,7 @@ public class ThinkParityDebuggerFrame extends AbstractJFrame {
         systemPropertiesJPanelLayout.setHorizontalGroup(
             systemPropertiesJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, systemPropertiesJPanelLayout.createSequentialGroup()
-                .addContainerGap(495, Short.MAX_VALUE)
+                .addContainerGap(482, Short.MAX_VALUE)
                 .add(reloadSystemPropertiesJButton)
                 .addContainerGap())
             .add(systemPropertiesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 570, Short.MAX_VALUE)
@@ -179,8 +177,8 @@ public class ThinkParityDebuggerFrame extends AbstractJFrame {
 
         thinkParityPropertiesReloadJButton.setText("Reload");
         thinkParityPropertiesReloadJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                thinkParityPropertiesReloadJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                thinkParityPropertiesReloadJButtonActionPerformed(e);
             }
         });
 
@@ -189,7 +187,7 @@ public class ThinkParityDebuggerFrame extends AbstractJFrame {
         thinkParityPropertiesJPanelLayout.setHorizontalGroup(
             thinkParityPropertiesJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, thinkParityPropertiesJPanelLayout.createSequentialGroup()
-                .addContainerGap(495, Short.MAX_VALUE)
+                .addContainerGap(482, Short.MAX_VALUE)
                 .add(thinkParityPropertiesReloadJButton)
                 .addContainerGap())
             .add(thinkParityJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 570, Short.MAX_VALUE)
@@ -209,8 +207,8 @@ public class ThinkParityDebuggerFrame extends AbstractJFrame {
         swingInspectorEnableJRadioButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         swingInspectorEnableJRadioButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         swingInspectorEnableJRadioButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                swingInspectorEnableJRadioButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                swingInspectorEnableJRadioButtonActionPerformed(e);
             }
         });
 
@@ -220,15 +218,15 @@ public class ThinkParityDebuggerFrame extends AbstractJFrame {
         swingInspectorDisableJRadioButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         swingInspectorDisableJRadioButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         swingInspectorDisableJRadioButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                swingInspectorDisableJRadioButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                swingInspectorDisableJRadioButtonActionPerformed(e);
             }
         });
 
         swingInspectorReloadJButton.setText("Reload");
         swingInspectorReloadJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                swingInspectorReloadJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                swingInspectorReloadJButtonActionPerformed(e);
             }
         });
 
@@ -241,7 +239,7 @@ public class ThinkParityDebuggerFrame extends AbstractJFrame {
                 .add(swingInspectorEnableJRadioButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(swingInspectorDisableJRadioButton)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 379, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 342, Short.MAX_VALUE)
                 .add(swingInspectorReloadJButton)
                 .addContainerGap())
         );

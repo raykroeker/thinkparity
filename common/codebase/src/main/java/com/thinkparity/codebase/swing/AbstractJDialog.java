@@ -11,7 +11,6 @@ import java.awt.RenderingHints;
 import java.awt.Toolkit;
 
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -32,20 +31,20 @@ public abstract class AbstractJDialog extends JDialog {
 	protected final Logger logger;
 
 	/**
-	 * Create a AbstractJFrame.
-	 * 
-	 * @param l18Context
-	 *            The localization context.
-	 */
+     * Create a AbstractJDialog.
+     * 
+     * @param owner
+     *            The owner <code>AbstractJFrame</code>.
+     * @param modal
+     *            Whether or not to display the dialog in a modal fashion.
+     * @param l18nContext
+     *            A localization context <code>String</code>.
+     */
 	protected AbstractJDialog(final AbstractJFrame owner, final Boolean modal,
 			final String l18Context) {
-		this((JFrame) owner, modal, l18Context);
-	}
-
-	protected AbstractJDialog(final JFrame owner, final Boolean modal,
-			final String l18nContext) {
 		super(owner, modal);
         this.logger = Logger.getLogger(getClass());
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 	}
 
     /**

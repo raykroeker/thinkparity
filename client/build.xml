@@ -262,9 +262,9 @@ Local Configuration:            ${localconfig}
     </target>
 
     <!-- debug package -->
-    <target name="debug-package" depends="package">
+    <target name="debug-package">
         <java jar="${target.package.dir}/thinkParity.jar"
-                dir="${target.package.dir}" fork="true">
+                dir="${target.package.dir}/${thinkparity.release-name}/lib/win32" fork="true">
             <jvmarg line="${java.jvmarg-debug} -Dthinkparity-dir=&quot;${target.package.dir}&quot; -Dthinkparity.mode=DEVELOPMENT -Dthinkparity.environment=${thinkparity.environment}"/>
         </java>
     </target>

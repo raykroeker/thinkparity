@@ -14,8 +14,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.log4j.Log4JWrapper;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
@@ -44,7 +42,6 @@ import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.Token;
-
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.events.SessionAdapter;
@@ -795,6 +792,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 try {
                     xmppSession.login(environment, credentials);
                 } catch (final InvalidCredentialsException icx) {
+                    xmppSession.logout();
                     throw icx;
                 }
                 // ensure environment integrity
@@ -805,7 +803,6 @@ public final class SessionModelImpl extends Model<SessionListener>
                     xmppSession.processEventQueue(monitor, localUserId());
                     xmppSession.registerQueueListener();
                 } else {
-                    logger.logError("Cannot login from more than one location.");
                     xmppSession.logout();
                     throw new InvalidLocationException();
                 }
@@ -1897,7 +1894,7 @@ public final class SessionModelImpl extends Model<SessionListener>
      *
      */
     private void startIsOnlineMonitor() {
-        final IsOnline isOnline = new IsOnline(this, logger);
+        final IsOnline isOnline = new IsOnline(this, getSessionModel());
         isOnline.start();
         workspace.setAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_THREAD, isOnline);
     }
@@ -1936,27 +1933,28 @@ public final class SessionModelImpl extends Model<SessionListener>
     private static class IsOnline extends Thread {
 
         /** An instance of <code>SessionModelImpl</code>. */
-        private final SessionModelImpl impl;
+    	private final SessionModelImpl impl;
 
-        /** A <code>Log4JWrapper</code>. */
-        private final Log4JWrapper logger;
+    	/** An instance of <code>InternalSessionModel</code>. */
+        private final InternalSessionModel model;
 
         /** A run <code>boolean</code>. */
         private boolean run;
 
         /**
-         * Create IsOnline.
-         * 
-         * @param impl
-         *            An instance of <code>SessionModelImpl</code>.
-         * @param logger
-         *            A <code>Log4JWrapper</code>.
-         */
-        private IsOnline(final SessionModelImpl impl, final Log4JWrapper logger) {
+		 * Create IsOnline.
+		 * 
+		 * @param impl
+		 *            An instance of <code>SessionModelImpl</code>.
+		 * @param model
+		 *            An instace of <code>InternalSessionModel</code>.
+		 */
+        private IsOnline(final SessionModelImpl impl,
+				final InternalSessionModel model) {
             // THREAD - SessionModelImpl#IsOnline()#<init>
             super("TPS-OpheliaModel-IsOnline");
             this.impl = impl;
-            this.logger = logger;
+            this.model = model;
             this.run = true;
         }
 
@@ -1970,27 +1968,27 @@ public final class SessionModelImpl extends Model<SessionListener>
                 try {
                     sleep(TIMEOUT_IS_ONLINE);
                 } catch (final InterruptedException ix) {
-                    logger.logInfo("{0} has been interruped.", getName());
+                    impl.logger.logInfo("{0} has been interruped.", getName());
                 }
                 if (run) {
                     try {
-                        if (run && impl.isXMPPOnline()) {
-                            final Calendar now = impl.readDateTime();
+                        if (run && model.isXMPPOnline()) {
+                            final Calendar now = model.readDateTime();
                             if (run && null == now) {
-                                impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
-                                impl.handleSessionTerminated();
+                            	impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                            	model.handleSessionTerminated();
                             }
                         } else {
                             if (run) {
                                 impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
-                                impl.handleSessionTerminated();
+                                model.handleSessionTerminated();
                             }
                         }
                     } catch (final Throwable t) {
                         if (run) {
                             impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
-                            impl.handleSessionError(t);
-                            impl.handleSessionTerminated();
+                            model.handleSessionError(t);
+                            model.handleSessionTerminated();
                         }
                     }
                 }

@@ -367,7 +367,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                 if (resource.getChecksumAlgorithm().equals(previousReleaseResource.getChecksumAlgorithm())
                         && resource.getChecksum().equals(previousReleaseResource.getChecksum())) {
                     migratorSql.addResource(release, previousReleaseResource);
-                    break;
+                    continue;
                 }
             }
             // create the resource

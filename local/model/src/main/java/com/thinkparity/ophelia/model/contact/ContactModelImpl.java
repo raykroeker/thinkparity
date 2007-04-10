@@ -243,9 +243,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             // index
             getIndexModel().indexOutgoingEMailInvitation(outgoingEMailInvitation.getId());
 
-            // fire event
-            notifyOutgoingEMailInvitationCreated(outgoingEMailInvitation,
-                    localEventGenerator);
+            // HACK - OutgoingEMailInvitation#createLocalOutgoingEMailInvitation - Do not fire event
             return outgoingEMailInvitation;
         } catch (final Throwable t) {
             throw panic(t);

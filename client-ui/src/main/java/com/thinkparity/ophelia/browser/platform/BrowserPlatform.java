@@ -841,9 +841,8 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      *
      */
     private void terminate() {
-        endApplications();
-        endPlugins();
         closeWorkspace();
+        notifyLifeCycleEnded();
         // remove the platform as its own lifecycle listener
         removeListener(this);
     }

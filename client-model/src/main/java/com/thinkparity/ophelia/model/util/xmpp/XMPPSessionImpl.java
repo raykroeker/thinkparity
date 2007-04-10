@@ -103,8 +103,8 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
             @Override
             public void endStep(final Step step) {}
         };
-        // TIMEOUT - XMPPSessionImpl#<cinit> - 7s
-        SmackConfiguration.setKeepAliveInterval(7000);
+        // TIMEOUT - XMPPSessionImpl#<cinit> - -1
+        SmackConfiguration.setKeepAliveInterval(-1);
         logger.logInfo("Smack v{0}", SmackConfiguration.getVersion());
         // register a custom packet creator for remote events.
         ProviderManager.addIQProvider("query",

@@ -5,6 +5,9 @@
 package com.thinkparity.ophelia.model.container;
 
 
+import java.util.List;
+
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -70,7 +73,27 @@ class ContainerEventGenerator {
     ContainerEvent generate(final Container container,
             final ContainerDraft draft, final ContainerVersion previousVersion,
             final ContainerVersion version, final TeamMember teamMember) {
-        return new ContainerEvent(source, container, draft, previousVersion, version, teamMember);
+        return new ContainerEvent(source, container, draft, previousVersion,
+                version, teamMember);
+    }
+
+    /**
+     * Generate a container event for a container; draft and version.
+     * 
+     * @param container
+     *            A container.
+     * @param draft
+     *            A container draft.
+     * @param version
+     *            A container version.
+     * @return A container event.
+     */
+    ContainerEvent generate(final Container container,
+            final ContainerDraft draft, final ContainerVersion previousVersion,
+            final ContainerVersion version, final TeamMember teamMember,
+            final List<OutgoingEMailInvitation> outgoingEMailInvitations) {
+        return new ContainerEvent(source, container, draft, previousVersion,
+                version, teamMember, outgoingEMailInvitations);
     }
 
     /**

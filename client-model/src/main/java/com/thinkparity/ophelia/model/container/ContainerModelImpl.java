@@ -32,6 +32,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerDraftDocument;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -955,35 +956,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Ensure the e-mail address is not already tied to a contact.
-     * 
-     * @param emails
-     *            An <code>EMail</code> address.
-     */
-    private void assertIsNotContact(final List<EMail> emails) {
-        final InternalContactModel contactModel = getContactModel();
-        for (final EMail email : emails) {
-            Assert.assertNotTrue(contactModel.doesExist(email),
-                    "A contact for {0} already exists.", email);
-        }
-    }
-
-    /**
-     * Ensure that the users can be published to.
-     * 
-     * @param users
-     *            A <code>List</code> of <code>User</code>s.
-     */
-    private void assertIsNotRestricted(final List<? extends User> users) {
-        final InternalUserModel userModel = getUserModel();
-        for (final User user : users) {
-            Assert.assertNotTrue(userModel.readFlags(user).contains(
-                    UserFlag.CONTAINER_PUBLISH_RESTRICTED),
-                    "Cannot publish to user {0}.", user.getName());
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.container.ContainerModel#publish(com.thinkparity.ophelia.model.util.ProcessMonitor,
      *      java.lang.Long, java.lang.String, java.util.List, java.util.List)
      * 
@@ -1076,9 +1048,12 @@ public final class ContainerModelImpl extends
                  * outgoing e-mail invitations that need to be pre-created */
                 final InternalContactModel contactModel = getContactModel();
                 final List<EMail> publishToEMails = emails;
+                final List<OutgoingEMailInvitation> invitations = new ArrayList<OutgoingEMailInvitation>();
                 for (final EMail email : emails) {
                     if (!contactModel.doesExistOutgoingEMailInvitation(email).booleanValue())
-                        contactModel.createLocalOutgoingEMailInvitation(email, publishedOn);
+                        invitations.add(
+                                contactModel.createLocalOutgoingEMailInvitation(
+                                        email, publishedOn));
                 }
                 /* build artifact receipts - new version therefore no-one has
                  * received it yet */
@@ -1092,7 +1067,7 @@ public final class ContainerModelImpl extends
                         version.getArtifactId(), version.getVersionId());
                 notifyContainerPublished(postPublish, draft, previous,
                         postPublishVersion, localTeamMember(container.getId()),
-                        localEventGenerator);
+                        invitations, localEventGenerator);
             } finally {
                 releaseLocks(locks.values());
             }
@@ -2296,6 +2271,20 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Ensure the e-mail address is not already tied to a contact.
+     * 
+     * @param emails
+     *            An <code>EMail</code> address.
+     */
+    private void assertIsNotContact(final List<EMail> emails) {
+        final InternalContactModel contactModel = getContactModel();
+        for (final EMail email : emails) {
+            Assert.assertNotTrue(contactModel.doesExist(email),
+                    "A contact for {0} already exists.", email);
+        }
+    }
+
+    /**
      * Assert that the container has been distributed.
      * 
      * @param assertion
@@ -2306,6 +2295,21 @@ public final class ContainerModelImpl extends
     private void assertIsNotDistributed(final Object assertion,
             final Long containerId) {
         Assert.assertNotTrue(assertion, isDistributed(containerId));
+    }
+
+    /**
+     * Ensure that the users can be published to.
+     * 
+     * @param users
+     *            A <code>List</code> of <code>User</code>s.
+     */
+    private void assertIsNotRestricted(final List<? extends User> users) {
+        final InternalUserModel userModel = getUserModel();
+        for (final User user : users) {
+            Assert.assertNotTrue(userModel.readFlags(user).contains(
+                    UserFlag.CONTAINER_PUBLISH_RESTRICTED),
+                    "Cannot publish to user {0}.", user.getName());
+        }
     }
 
     /**
@@ -2991,6 +2995,32 @@ public final class ContainerModelImpl extends
             public void notifyListener(final ContainerListener listener) {
                 listener.containerPublished(eventGenerator.generate(container,
                         draft, previousVersion, version, teamMember));
+            }
+        });
+    }
+
+    /**
+     * Fire a container published event.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param eventGenerator
+     *            A <code>ContainerEventGenerator</code>.
+     */
+    private void notifyContainerPublished(final Container container,
+            final ContainerDraft draft, final ContainerVersion previousVersion,
+            final ContainerVersion version, final TeamMember teamMember,
+            final List<OutgoingEMailInvitation> outgoingEMailInvitations,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerPublished(eventGenerator.generate(container,
+                        draft, previousVersion, version, teamMember,
+                        outgoingEMailInvitations));
             }
         });
     }

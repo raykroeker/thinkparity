@@ -13,6 +13,7 @@ import com.thinkparity.ophelia.model.session.SessionModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.archive.ArchiveTabDispatcher;
+import com.thinkparity.ophelia.browser.application.browser.display.event.tab.contact.ContactTabDispatcher;
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.container.ContainerTabDispatcher;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.EventDispatcher;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
@@ -85,6 +86,9 @@ public class EventDispatcherFactory {
         switch (avatarId) {
         case TAB_ARCHIVE:
             eventDispatcher = new ArchiveTabDispatcher(containerModel);
+            break;
+        case TAB_CONTACT:
+            eventDispatcher = new ContactTabDispatcher(containerModel);
             break;
         case TAB_CONTAINER:
             eventDispatcher = new ContainerTabDispatcher(containerModel);

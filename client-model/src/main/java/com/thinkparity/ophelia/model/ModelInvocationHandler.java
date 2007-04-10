@@ -106,7 +106,9 @@ final class ModelInvocationHandler implements InvocationHandler {
                         return method;
                     }
                 });
-                return LOGGER.logVariable("result", method.invoke(model, args));
+                final Object result = method.invoke(model, args);
+                model.notifyListeners();
+                return LOGGER.logVariable("result", result);
             } catch (final InvocationTargetException itx) {
                 rollbackXA(transaction, transactionContext);
                 throw itx.getTargetException();
@@ -209,7 +211,6 @@ final class ModelInvocationHandler implements InvocationHandler {
             } else {
                 XA_LOGGER.logInfo("Committing transaction-{0}.", context);
                 transaction.commit();
-                model.notifyListeners();
             }
         } else {
             switch (context.getType()) {

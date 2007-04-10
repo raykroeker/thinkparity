@@ -754,6 +754,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 try {
                     xmppSession.login(environment, credentials);
                 } catch (final InvalidCredentialsException icx) {
+                    xmppSession.logout();
                     throw icx;
                 }
                 // this was the first login
@@ -1906,12 +1907,14 @@ public final class SessionModelImpl extends Model<SessionListener>
      *
      */
     private void stopIsOnlineMonitor() {
-        final IsOnline online = (IsOnline) workspace.getAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_THREAD);
-        online.run = false;
-        synchronized (online) {
-            online.notifyAll();
+        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_THREAD)) {
+            final IsOnline online = (IsOnline) workspace.getAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_THREAD);
+            online.run = false;
+            synchronized (online) {
+                online.notifyAll();
+            }
+            workspace.removeAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_THREAD);
         }
-        workspace.removeAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_THREAD);
     }
 
     /**

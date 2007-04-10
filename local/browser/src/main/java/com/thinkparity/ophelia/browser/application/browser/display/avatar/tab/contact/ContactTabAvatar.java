@@ -3,14 +3,21 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+
+import com.thinkparity.ophelia.model.events.ContainerEvent;
+
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.event.tab.contact.ContactTabDispatcher;
 
 
 /**
@@ -30,6 +37,13 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
         model.setLocalization(getLocalization());
         model.setSession(getSession());
         setFilterDelegate(model);
+        addPropertyChangeListener("eventDispatcher",
+                new PropertyChangeListener() {
+            public void propertyChange(final PropertyChangeEvent e) {
+                ((ContactTabDispatcher) getEventDispatcher())
+                    .addListeners(ContactTabAvatar.this);
+            }
+        });
     }
 
     /**
@@ -58,6 +72,23 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
                 showPanel(new ContactPanelId(contactId), true);
             }
         });
+    }
+
+    /**
+     * Fire a container published event.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void firePublished(final ContainerEvent e) {
+        // HACK - ContactTabAvatar#firePublished
+        for (final OutgoingEMailInvitation oei : e.getOutgoingEMailInvitations()) {
+            ensureDispatchThread(new Runnable() {
+                public void run() {
+                    model.syncOutgoingEMailInvitation(oei.getId(), e.isRemote());
+                }
+            });
+        }
     }
 
     /**
@@ -193,6 +224,16 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
                 model.syncProfile(remote);
             }
         });
+    }
+
+    /**
+     * Ensure the runnable executes on the swing dispatch thread.
+     * 
+     * @param runnable
+     *            A <code>Runnable</code>.
+     */
+    private void ensureDispatchThread(final Runnable runnable) {
+        SwingUtil.ensureDispatchThread(runnable);
     }
 
     /**

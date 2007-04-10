@@ -393,10 +393,14 @@ public final class ContactModelImpl extends AbstractModelImpl implements
             final User invitationUser = userModel.read(invitation.getInvitationEMail());
 
             // delete incoming e-mail invitation
-            final IncomingEMailInvitation incomingEMail =
-                invitationSql.readIncomingEMail(invitationUser,
-                        invitation.getInvitationEMail(), user);
-            invitationSql.delete(incomingEMail);
+            if (null == invitationUser) {
+                logger.logInfo("No inivation user exists.");
+            } else {
+                final IncomingEMailInvitation incomingEMail =
+                    invitationSql.readIncomingEMail(invitationUser,
+                            invitation.getInvitationEMail(), user);
+                invitationSql.delete(incomingEMail);
+            }
 
             final OutgoingEMailInvitation outgoingEMail =
                 invitationSql.readOutgoingEMail(user,
@@ -410,12 +414,17 @@ public final class ContactModelImpl extends AbstractModelImpl implements
             invitationSql.delete(outgoingEMail);
 
             // fire event
-            final ContactEMailInvitationDeletedEvent event = new ContactEMailInvitationDeletedEvent();
-            event.setDate(deletedOn);
-            event.setDeletedBy(user.getId());
-            event.setDeletedOn(event.getDate());
-            event.setInvitedAs(invitation.getInvitationEMail());
-            enqueueEvent(user.getId(), invitationUser.getId(), event);
+            // delete incoming e-mail invitation
+            if (null == invitationUser) {
+                logger.logInfo("No inivation user exists.");
+            } else {
+                final ContactEMailInvitationDeletedEvent event = new ContactEMailInvitationDeletedEvent();
+                event.setDate(deletedOn);
+                event.setDeletedBy(user.getId());
+                event.setDeletedOn(event.getDate());
+                event.setInvitedAs(invitation.getInvitationEMail());
+                enqueueEvent(user.getId(), invitationUser.getId(), event);
+            }
         } catch(final Throwable t) {
             throw translateError(t);
         }

@@ -134,6 +134,7 @@ public class AvatarFactory {
         case TAB_CONTACT:
             avatar = newAvatar(ContactTabAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
+            avatar.setEventDispatcher(EventDispatcherFactory.getDispatcher(id));
 			break;
 
         case DIALOG_CONFIRM:

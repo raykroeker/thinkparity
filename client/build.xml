@@ -396,8 +396,9 @@ Examples:
             <fileset dir="${basedir}/local/browser/src/main/filters"/>
             <filterset begintoken="$${" endtoken="}">
                 <filter token="pom.version" value="${release.version}"/>
-                <filter token="com.thinkparity.parity.buildId" value="${thinkparity.build-id}"/>
-                <filter token="com.thinkparity.parity.mode" value="${thinkparity.mode}"/>
+                <filter token="thinkparity.build-id" value="${thinkparity.build-id}"/>
+                <filter token="thinkparity.product-name" value="${thinkparity.product-name}"/>
+                <filter token="thinkparity.release-name" value="${thinkparity.release-name}"/>
                 <filtersfile file="${basedir}/build.filters"/>
                 <filtersfile file="${basedir}/local/browser/build.filters"/>
             </filterset>

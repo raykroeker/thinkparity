@@ -99,18 +99,20 @@ public final class ErrorDetailsAvatar extends Avatar {
         });
 
         detailsJTextArea.setColumns(20);
+        detailsJTextArea.setLineWrap(true);
         detailsJTextArea.setRows(5);
+        detailsJTextArea.setWrapStyleWord(true);
         detailsJScrollPane.setViewportView(detailsJTextArea);
 
         javax.swing.GroupLayout detailsJPanelLayout = new javax.swing.GroupLayout(detailsJPanel);
         detailsJPanel.setLayout(detailsJPanelLayout);
         detailsJPanelLayout.setHorizontalGroup(
             detailsJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(detailsJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE)
+            .addComponent(detailsJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
         );
         detailsJPanelLayout.setVerticalGroup(
             detailsJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(detailsJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 22, Short.MAX_VALUE)
+            .addComponent(detailsJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -128,9 +130,9 @@ public final class ErrorDetailsAvatar extends Avatar {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(copyDetailsJButton))
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
                                 .addGap(235, 235, 235)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
                         .addComponent(closeJButton)))
                 .addContainerGap())
         );

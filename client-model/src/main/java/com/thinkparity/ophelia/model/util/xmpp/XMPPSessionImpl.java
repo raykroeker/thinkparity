@@ -1393,6 +1393,9 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         } catch (final XMPPException xmppx) {
             if ("SASL authentication failed".equals(xmppx.getMessage())) {
                 throw new InvalidCredentialsException();
+            } else if ("No response from the server.".equals(xmppx.getMessage())) {
+                logError(xmppx, "Login attempt {0} failed.", attempt);
+                login(attempt + 1, environment, credentials);
             } else {
                 throw panic(xmppx);
             }

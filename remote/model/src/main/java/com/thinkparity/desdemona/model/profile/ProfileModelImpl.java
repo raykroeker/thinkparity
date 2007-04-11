@@ -118,6 +118,10 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             // HACK - ProfileModelImpl#create() - usernames should not be case sensitive
             credentials.setUsername(credentials.getUsername().toLowerCase());
 
+            // HACK - ProfileModelImpl#create()
+            final String sq = "";
+            final String sa = "";
+
             // delete expired reservations
             userSql.deleteExpiredReservations(currentDateTime());
             Assert.assertTrue(userSql.doesExistReservation(
@@ -132,8 +136,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                     final InputStream vcardStream = new FileInputStream(tempVCardFile);
                     try {
                         profile.setLocalId(userSql.create(credentials,
-                                securityQuestion, securityAnswer, vcardStream,
-                                tempVCardFile.length(), getDefaultBufferSize()));
+                                sq, sa, vcardStream, tempVCardFile.length(),
+                                getDefaultBufferSize()));
                     } finally {
                         vcardStream.close();
                     }

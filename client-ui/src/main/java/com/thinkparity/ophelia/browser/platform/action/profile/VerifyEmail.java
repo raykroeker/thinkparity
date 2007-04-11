@@ -17,6 +17,9 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  */
 public class VerifyEmail extends AbstractBrowserAction {
 
+    /** The browser application. */
+    private final Browser browser;
+
     /**
      * Create VerifyEmail.
      * 
@@ -25,6 +28,7 @@ public class VerifyEmail extends AbstractBrowserAction {
      */
     public VerifyEmail(final Browser browser) {
         super(ActionId.PROFILE_VERIFY_EMAIL);
+        this.browser = browser;
     }
 
     /**
@@ -40,7 +44,12 @@ public class VerifyEmail extends AbstractBrowserAction {
             final Long emailId = (Long) data.get(DataKey.EMAIL_ID);
             final String key = (String) data.get(DataKey.KEY);
             final ProfileModel profileModel = getProfileModel();
-            profileModel.verifyEmail(emailId, key);
+            // HACK Should handle incorrect key in a better way. This is a temporary fix for the beta to avoid crash.
+            try {
+                profileModel.verifyEmail(emailId, key);
+            } catch (final Throwable t) {
+                browser.displayErrorDialog("VerifyEmail.ErrorVerifyKeyNotCorrect");
+            }
         }
     }
 

@@ -26,7 +26,7 @@ public class AcceptIncomingUserInvitation extends AbstractBrowserAction {
      *            The thinkParity <code>Browser</code> application.
      */
 	public AcceptIncomingUserInvitation(final Browser browser) {
-		super(ActionId.CONTACT_ACCEPT_INCOMING_EMAIL_INVITATION);
+		super(ActionId.CONTACT_ACCEPT_INCOMING_USER_INVITATION);
 	}
 
     /**

@@ -1,0 +1,2 @@
+select U.USERNAME,U.PASSWORD
+from TPSD_USER U

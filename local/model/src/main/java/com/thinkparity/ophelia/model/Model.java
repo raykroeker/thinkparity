@@ -1011,20 +1011,22 @@ public abstract class Model<T extends EventListener> extends
 	@Override
     protected ThinkParityException panic(final Throwable t) {
         final ThinkParityException tpx = super.panic(t);
-        /* NOTE An attempt is made to log the error that has just occured on the
-         * server.  In order to prevent recursion; a check is made to determine
-         * if a remote error logging attempt is in progress before performing
-         * the operation. */
-        final Object workspaceLock = workspace.getAttribute("panicLock");
-        if (null == workspaceLock) {
-            workspace.setAttribute("panicLock", DateUtil.getInstance());
-            try {
-                getMigratorModel().logError(tpx, invocationContext.getMethod(),
-                        invocationContext.getArguments());
-            } catch (final Throwable t2) {
-                logger.logError(t2, "Could not log error.");
-            } finally {
-                workspace.removeAttribute("panicLock");
+        if (workspace.isDesktop()) {
+            /* NOTE An attempt is made to log the error that has just occured on the
+             * server.  In order to prevent recursion; a check is made to determine
+             * if a remote error logging attempt is in progress before performing
+             * the operation. */
+            final Object workspaceLock = workspace.getAttribute("panicLock");
+            if (null == workspaceLock) {
+                workspace.setAttribute("panicLock", DateUtil.getInstance());
+                try {
+                    getMigratorModel().logError(tpx, invocationContext.getMethod(),
+                            invocationContext.getArguments());
+                } catch (final Throwable t2) {
+                    logger.logError(t2, "Could not log error.");
+                } finally {
+                    workspace.removeAttribute("panicLock");
+                }
             }
         }
         return tpx;

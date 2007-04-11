@@ -1,6 +1,6 @@
-select PU.USER_ID "user id",PU.USERNAME "user",PUC.USER_ID "contact id",
-    PUC.USERNAME "contact"
-from CONTACT C
-    inner join PARITY_USER PU on PU.USER_ID=C.USER_ID
-    inner join PARITY_USER PUC on PUC.USER_ID=C.CONTACT_ID
-order by PU.USER_ID asc,PUC.USER_ID asc
+select U.USER_ID "user id",U.USERNAME "user",UC.USER_ID "contact id",
+    UC.USERNAME "contact"
+from TPSD_CONTACT C
+    inner join TPSD_USER U on U.USER_ID=C.USER_ID
+    inner join TPSD_USER UC on UC.USER_ID=C.CONTACT_ID
+order by U.USER_ID asc,UC.USER_ID asc

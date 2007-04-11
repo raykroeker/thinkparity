@@ -47,7 +47,7 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         logger.logVariable("team", team);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("teamMemberId", teamMemberId);
-        final XMPPMethod addTeamMember = new XMPPMethod("artifact:addteammember");
+        final XMPPMethod addTeamMember = xmppCore.createMethod("artifact:addteammember");
         addTeamMember.setParameter("userId", userId);
         addTeamMember.setParameter("team", "teamMember", team);
         addTeamMember.setParameter("uniqueId", uniqueId);
@@ -78,7 +78,7 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         logger.logVariable("publishedTo", publishedTo);
         logger.logVariable("receivedBy", receivedBy);
         logger.logVariable("receivedOn", receivedOn);
-        final XMPPMethod confirmReceipt = new XMPPMethod("artifact:confirmreceipt");
+        final XMPPMethod confirmReceipt = xmppCore.createMethod("artifact:confirmreceipt");
         confirmReceipt.setParameter("userId", userId);
         confirmReceipt.setParameter("uniqueId", uniqueId);
         confirmReceipt.setParameter("versionId", versionId);
@@ -102,7 +102,7 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
             final Calendar createdOn) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod create = new XMPPMethod("artifact:create");
+        final XMPPMethod create = xmppCore.createMethod("artifact:create");
         create.setParameter("userId", userId);
         create.setParameter("uniqueId", uniqueId);
         create.setParameter("createdOn", createdOn);
@@ -121,7 +121,7 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         logger.logVariable("userId", userId);
         logger.logVariable("team", team);
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod createDraft = new XMPPMethod("artifact:createdraft");
+        final XMPPMethod createDraft = xmppCore.createMethod("artifact:createdraft");
         createDraft.setParameter("userId", userId);
         createDraft.setParameter("team", "teamMember", team);
         createDraft.setParameter("uniqueId", uniqueId);
@@ -138,7 +138,7 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
     void delete(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod delete = new XMPPMethod("artifact:delete");
+        final XMPPMethod delete = xmppCore.createMethod("artifact:delete");
         delete.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
         execute(delete);
     }
@@ -156,7 +156,7 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         logger.logVariable("team", team);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("deletedOn", deletedOn);
-        final XMPPMethod deleteDraft = new XMPPMethod("artifact:deletedraft");
+        final XMPPMethod deleteDraft = xmppCore.createMethod("artifact:deletedraft");
         deleteDraft.setParameter("userId", userId);
         deleteDraft.setParameter("team", "teamMember", team);
         deleteDraft.setParameter("uniqueId", uniqueId);
@@ -172,7 +172,7 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
      * @return A jabber id.
      */
     JabberId readKeyHolder(final JabberId userId, final UUID uniqueId) {
-        final XMPPMethod method = new XMPPMethod("artifact:readkeyholder");
+        final XMPPMethod method = xmppCore.createMethod("artifact:readkeyholder");
         method.setParameter("userId", userId);
         method.setParameter("uniqueId", uniqueId);
         return execute(method, Boolean.TRUE).readResultJabberId("keyHolder");
@@ -193,7 +193,7 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         logger.logVariable("team", team);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("teamMemberId", teamMemberId);
-        final XMPPMethod removeTeamMember = new XMPPMethod("artifact:removeteammember");
+        final XMPPMethod removeTeamMember = xmppCore.createMethod("artifact:removeteammember");
         removeTeamMember.setParameter("userId", userId);
         removeTeamMember.setParameter("team", "teamMember", team);
         removeTeamMember.setParameter("uniqueId", uniqueId);

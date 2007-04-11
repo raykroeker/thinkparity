@@ -40,7 +40,7 @@ final class XMPPRules extends AbstractXMPP {
      */
     Boolean isPublishRestricted(final JabberId userId,
             final JabberId publishFrom, final JabberId publishTo) {
-        final XMPPMethod isPublishRestricted = new XMPPMethod("rules:ispublishrestricted");
+        final XMPPMethod isPublishRestricted = xmppCore.createMethod("rules:ispublishrestricted");
         isPublishRestricted.setParameter("userId", userId);
         isPublishRestricted.setParameter("publishFrom", publishFrom);
         isPublishRestricted.setParameter("publishTo", publishTo);

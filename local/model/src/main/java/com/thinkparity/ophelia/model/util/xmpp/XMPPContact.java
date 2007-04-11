@@ -49,7 +49,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      */
     void acceptInvitation(final JabberId userId,
             final IncomingEMailInvitation invitation, final Calendar acceptedOn) {
-        final XMPPMethod accept = new XMPPMethod("contact:acceptincomingemailinvitation");
+        final XMPPMethod accept = xmppCore.createMethod("contact:acceptincomingemailinvitation");
         accept.setParameter("userId", userId);
         accept.setParameter("invitation", invitation);
         accept.setParameter("acceptedOn", acceptedOn);
@@ -68,7 +68,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      */
     void acceptInvitation(final JabberId userId,
             final IncomingUserInvitation invitation, final Calendar acceptedOn) {
-        final XMPPMethod accept = new XMPPMethod("contact:acceptincominguserinvitation");
+        final XMPPMethod accept = xmppCore.createMethod("contact:acceptincominguserinvitation");
         accept.setParameter("userId", userId);
         accept.setParameter("invitation", invitation);
         accept.setParameter("acceptedOn", acceptedOn);
@@ -83,7 +83,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      */
     void createInvitation(final JabberId userId,
             final OutgoingEMailInvitation invitation) {
-        final XMPPMethod extendInvitation = new XMPPMethod("contact:createoutgoingemailinvitation");
+        final XMPPMethod extendInvitation = xmppCore.createMethod("contact:createoutgoingemailinvitation");
         extendInvitation.setParameter("userId", userId);
         extendInvitation.setParameter("invitation", invitation);
         execute(extendInvitation);
@@ -97,7 +97,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      */
     void createInvitation(final JabberId userId,
             final OutgoingUserInvitation invitation) {
-        final XMPPMethod extendInvitation = new XMPPMethod("contact:createoutgoinguserinvitation");
+        final XMPPMethod extendInvitation = xmppCore.createMethod("contact:createoutgoinguserinvitation");
         extendInvitation.setParameter("userId", userId);
         extendInvitation.setParameter("invitation", invitation);
         execute(extendInvitation);
@@ -115,7 +115,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      */
     void declineInvitation(final JabberId userId,
             final IncomingEMailInvitation invitation, final Calendar declinedOn) {
-        final XMPPMethod decline = new XMPPMethod("contact:declineincomingemailinvitation");
+        final XMPPMethod decline = xmppCore.createMethod("contact:declineincomingemailinvitation");
         decline.setParameter("userId", userId);
         decline.setParameter("invitation", invitation);
         decline.setParameter("declinedOn", declinedOn);
@@ -134,7 +134,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      */
     void declineInvitation(final JabberId userId,
             final IncomingUserInvitation invitation, final Calendar declinedOn) {
-        final XMPPMethod decline = new XMPPMethod("contact:declineincominguserinvitation");
+        final XMPPMethod decline = xmppCore.createMethod("contact:declineincominguserinvitation");
         decline.setParameter("userId", userId);
         decline.setParameter("invitation", invitation);
         decline.setParameter("declinedOn", declinedOn);
@@ -150,7 +150,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      *            A contact id <code>JabberId</code>.
      */
     void delete(final JabberId userId, final JabberId contactId) {
-        final XMPPMethod delete = new XMPPMethod("contact:delete");
+        final XMPPMethod delete = xmppCore.createMethod("contact:delete");
         delete.setParameter("userId", userId);
         delete.setParameter("contactId", contactId);
         execute(delete);
@@ -168,7 +168,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      */
     void deleteInvitation(final JabberId userId,
             final OutgoingEMailInvitation invitation, final Calendar deletedOn) {
-        final XMPPMethod deleteInvitation = new XMPPMethod("contact:deleteoutgoingemailinvitation");
+        final XMPPMethod deleteInvitation = xmppCore.createMethod("contact:deleteoutgoingemailinvitation");
         deleteInvitation.setParameter("userId", userId);
         deleteInvitation.setParameter("invitation", invitation);
         deleteInvitation.setParameter("deletedOn", deletedOn);
@@ -187,7 +187,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      */
     void deleteInvitation(final JabberId userId,
             final OutgoingUserInvitation invitation, final Calendar deletedOn) {
-        final XMPPMethod deleteInvitation = new XMPPMethod("contact:deleteoutgoinguserinvitation");
+        final XMPPMethod deleteInvitation = xmppCore.createMethod("contact:deleteoutgoinguserinvitation");
         deleteInvitation.setParameter("userId", userId);
         deleteInvitation.setParameter("invitation", invitation);
         deleteInvitation.setParameter("deletedOn", deletedOn);
@@ -204,7 +204,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
         logger.logVariable("userId", userId);
         assertIsAuthenticatedUser(userId);
 
-		final XMPPMethod readIds = new XMPPMethod("contact:readids");
+		final XMPPMethod readIds = xmppCore.createMethod("contact:readids");
         readIds.setParameter("userId", userId);
         final XMPPMethodResponse response = execute(readIds, Boolean.TRUE);
         final List<JabberId> contactIds = response.readResultJabberIds("contactIds");
@@ -225,7 +225,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
         logger.logVariable("userId", userId);
         assertIsAuthenticatedUser(userId);
 
-        final XMPPMethod read = new XMPPMethod("contact:read");
+        final XMPPMethod read = xmppCore.createMethod("contact:read");
         read.setParameter("userId", userId);
         read.setParameter("contactId", contactId);
         final XMPPMethodResponse response = execute(read, Boolean.TRUE);
@@ -241,33 +241,33 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
     }
 
     List<JabberId> readIds(final JabberId userId) {
-        final XMPPMethod readIds = new XMPPMethod("contact:readids");
+        final XMPPMethod readIds = xmppCore.createMethod("contact:readids");
         readIds.setParameter("userId", userId);
         return execute(readIds, Boolean.TRUE).readResultJabberIds("contactIds");
     }
 
     List<IncomingEMailInvitation> readIncomingEMailInvitations(
             final JabberId userId) {
-        final XMPPMethod readIncomingInvitations = new XMPPMethod("contact:readincomingemailinvitations");
+        final XMPPMethod readIncomingInvitations = xmppCore.createMethod("contact:readincomingemailinvitations");
         readIncomingInvitations.setParameter("userId", userId);
         return execute(readIncomingInvitations, Boolean.TRUE).readResultContactInvitations("invitations");
     }
 
     List<IncomingUserInvitation> readIncomingUserInvitations(
             final JabberId userId) {
-        final XMPPMethod readIncomingInvitations = new XMPPMethod("contact:readincominguserinvitations");
+        final XMPPMethod readIncomingInvitations = xmppCore.createMethod("contact:readincominguserinvitations");
         readIncomingInvitations.setParameter("userId", userId);
         return execute(readIncomingInvitations, Boolean.TRUE).readResultContactInvitations("invitations");
     }
 
 	List<OutgoingEMailInvitation> readOutgoingEMailInvitations(final JabberId userId) {
-        final XMPPMethod readIncomingInvitations = new XMPPMethod("contact:readoutgoingemailinvitations");
+        final XMPPMethod readIncomingInvitations = xmppCore.createMethod("contact:readoutgoingemailinvitations");
         readIncomingInvitations.setParameter("userId", userId);
         return execute(readIncomingInvitations, Boolean.TRUE).readResultContactInvitations("invitations");
     }
 
     List<OutgoingUserInvitation> readOutgoingUserInvitations(final JabberId userId) {
-        final XMPPMethod readIncomingInvitations = new XMPPMethod("contact:readoutgoinguserinvitations");
+        final XMPPMethod readIncomingInvitations = xmppCore.createMethod("contact:readoutgoinguserinvitations");
         readIncomingInvitations.setParameter("userId", userId);
         return execute(readIncomingInvitations, Boolean.TRUE).readResultContactInvitations("invitations");
     }

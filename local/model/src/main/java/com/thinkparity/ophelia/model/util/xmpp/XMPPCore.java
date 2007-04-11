@@ -4,9 +4,7 @@
 package com.thinkparity.ophelia.model.util.xmpp;
 
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
-
 import com.thinkparity.ophelia.model.io.xmpp.XMPPException;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
@@ -18,6 +16,7 @@ import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
  * @version 1.1
  */
 public interface XMPPCore {
+	public XMPPMethod createMethod(final String name);
     public XMPPMethodResponse execute(final XMPPMethod method);
     public XMPPMethodResponse execute(final XMPPMethod method,
             final Boolean assertResult);

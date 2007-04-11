@@ -55,7 +55,7 @@ final class XMPPUser extends AbstractXMPP<UserListener> {
     User read(final JabberId userId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
-        final XMPPMethod read = new XMPPMethod("user:read");
+        final XMPPMethod read = xmppCore.createMethod("user:read");
         read.setParameter("userId", userId);
         final XMPPMethodResponse response = execute(read, Boolean.TRUE);
         return logger.logVariable("user", extract(response));

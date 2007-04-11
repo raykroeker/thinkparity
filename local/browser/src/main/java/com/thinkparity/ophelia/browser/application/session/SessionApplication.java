@@ -6,21 +6,18 @@ package com.thinkparity.ophelia.browser.application.session;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.thinkparity.codebase.assertion.Assert;
+import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.session.InvalidLocationException;
-
-import com.thinkparity.ophelia.model.util.ProcessAdapter;
-import com.thinkparity.ophelia.model.util.Step;
-
 import com.thinkparity.ophelia.browser.Constants.Session;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
-
-import org.apache.log4j.Logger;
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
+import com.thinkparity.ophelia.model.util.Step;
 
 /**
  * The session application is responsible for creating and maintaining the
@@ -217,18 +214,13 @@ public class SessionApplication extends AbstractApplication {
         connectTimer.schedule(new TimerTask() {
             public void run() {
                 try {
-                    logVariable("isOnline()", isOnline());
-                    if (isOnline()) {
-                        if (Connection.OFFLINE == getConnection()) {
-                            connect();
-                        } else {
-                            logWarn("User already online.");
-                        }
+                    if (isXMPPHostReachable()) {
+                    	connect();
                     } else {
-                        logWarn("Server not online.");
+                        logger.logWarning("Remote xmpp host is not reachable.");
                     }
                 } catch (final Throwable t) {
-                    logError(t, "Error connecting to session.");
+                    logger.logError(t, "Error connecting to session.");
                 }
             }
         }, delay, Session.CONNECT_TIMER_PERIOD);
@@ -252,11 +244,11 @@ public class SessionApplication extends AbstractApplication {
     }
 
     /**
-     * Determine if the platform is online.
+     * Determine if remote xmpp host is reachable.
      * 
-     * @return True if the platform is online; false otherwise.
+     * @return True if the xmpp host is reachable.
      */
-    private Boolean isOnline() {
+    private Boolean isXMPPHostReachable() {
         return getPlatform().isOnline();
     }
 }

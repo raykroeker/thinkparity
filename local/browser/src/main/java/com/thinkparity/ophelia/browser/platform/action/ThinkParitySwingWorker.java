@@ -57,4 +57,31 @@ public abstract class ThinkParitySwingWorker<T extends AbstractAction> extends S
     public void setMonitor(final ThinkParitySwingMonitor monitor) {
         this.monitor = monitor;
     }
+
+    /**
+     * @see com.thinkparity.codebase.swing.SwingWorker#construct()
+     * 
+     */
+	@Override
+	public final Object construct() {
+		try {
+			return run();
+		} catch (final Throwable t) {
+			getErrorHandler(t).run();
+			return null;
+		}
+	}
+
+	/**
+	 * Run the swing worker.
+	 * 
+	 */
+	public abstract Object run();
+
+	/**
+	 * Obtain an error handler.
+	 * 
+	 * @return A <code>Runnable</code>.
+	 */
+	public abstract Runnable getErrorHandler(final Throwable t);
 }

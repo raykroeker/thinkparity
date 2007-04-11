@@ -54,7 +54,7 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         logger.logVariable("userId", userId);
         logger.logVariable("email", email);
         assertIsAuthenticatedUser(userId);
-        final XMPPMethod addEmail = new XMPPMethod("profile:addemail");
+        final XMPPMethod addEmail = xmppCore.createMethod("profile:addemail");
         addEmail.setParameter("userId", userId);
         addEmail.setParameter("email", email);
         execute(addEmail);
@@ -64,7 +64,7 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
             final Credentials credentials, final Profile profile,
             final EMail email, final String securityQuestion,
             final String securityAnswer) {
-        final XMPPMethod create = new XMPPMethod("profile:create");
+        final XMPPMethod create = xmppCore.createMethod("profile:create");
         create.setParameter("userId", userId);
         create.setParameter("reservation", reservation);
         create.setParameter("credentials", credentials);
@@ -77,7 +77,7 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
 
     Reservation createReservation(final JabberId userId, final String username,
             final Calendar reservedOn) {
-        final XMPPMethod createReservation = new XMPPMethod("profile:createreservation");
+        final XMPPMethod createReservation = xmppCore.createMethod("profile:createreservation");
         createReservation.setParameter("userId", userId);
         createReservation.setParameter("username", username);
         createReservation.setParameter("reservedOn", reservedOn);
@@ -92,7 +92,7 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
      * @return A <code>Token</code>.
      */
     Token createToken(final JabberId userId) {
-        final XMPPMethod createToken = new XMPPMethod("profile:createtoken");
+        final XMPPMethod createToken = xmppCore.createMethod("profile:createtoken");
         createToken.setParameter("userId", userId);
         return execute(createToken, Boolean.TRUE).readResultToken("token");
     }
@@ -110,7 +110,7 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("email", email);
-        final XMPPMethod isEmailAvailable = new XMPPMethod("profile:isemailavailable");
+        final XMPPMethod isEmailAvailable = xmppCore.createMethod("profile:isemailavailable");
         isEmailAvailable.setParameter("userId", userId);
         isEmailAvailable.setParameter("email", email);
         return execute(isEmailAvailable, Boolean.TRUE).readResultBoolean("isAvailable");
@@ -125,7 +125,7 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         assertIsAuthenticatedUser(userId);
-        final XMPPMethod read = new XMPPMethod("profile:read");
+        final XMPPMethod read = xmppCore.createMethod("profile:read");
         read.setParameter("userId", userId);
         final XMPPMethodResponse response = execute(read, Boolean.TRUE);
         final Profile profile = new Profile();
@@ -140,14 +140,14 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
 
     List<ProfileEMail> readEMails(final JabberId userId) {
         assertIsAuthenticatedUser(userId);
-        final XMPPMethod readEMails = new XMPPMethod("profile:reademails");
+        final XMPPMethod readEMails = xmppCore.createMethod("profile:reademails");
         readEMails.setParameter("userId", userId);
         final XMPPMethodResponse response = execute(readEMails, Boolean.TRUE);
         return response.readResultProfileEMails("emails");
     }
 
     List<Feature> readFeatures(final JabberId userId) {
-        final XMPPMethod readFeatures = new XMPPMethod("profile:readfeatures");
+        final XMPPMethod readFeatures = xmppCore.createMethod("profile:readfeatures");
         readFeatures.setParameter("userId", userId);
         return execute(readFeatures, Boolean.TRUE).readResultFeatures("features");
     }
@@ -163,7 +163,7 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         assertIsAuthenticatedUser(userId);
-        final XMPPMethod resetCredentials = new XMPPMethod("profile:readsecurityquestion");
+        final XMPPMethod resetCredentials = xmppCore.createMethod("profile:readsecurityquestion");
         resetCredentials.setParameter("userId", userId);
         final XMPPMethodResponse response = execute(resetCredentials, Boolean.TRUE);
         return response.readResultString("securityQuestion");
@@ -177,7 +177,7 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
      * @return A <code>Token</code>.
      */
     Token readToken(final JabberId userId) {
-        final XMPPMethod readToken = new XMPPMethod("profile:readtoken");
+        final XMPPMethod readToken = xmppCore.createMethod("profile:readtoken");
         readToken.setParameter("userId", userId);
         return execute(readToken, Boolean.TRUE).readResultToken("token");
         
@@ -196,7 +196,7 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         logger.logVariable("userId", userId);
         logger.logVariable("email", email);
         assertIsAuthenticatedUser(userId);
-        final XMPPMethod addEmail = new XMPPMethod("profile:removeemail");
+        final XMPPMethod addEmail = xmppCore.createMethod("profile:removeemail");
         addEmail.setParameter("userId", userId);
         addEmail.setParameter("email", email);
         execute(addEmail);
@@ -213,7 +213,7 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         logger.logVariable("userId", userId);
         logger.logVariable("securityAnswer", "XXXXX");
         assertIsAuthenticatedUser(userId);
-        final XMPPMethod resetCredentials = new XMPPMethod("profile:resetpassword");
+        final XMPPMethod resetCredentials = xmppCore.createMethod("profile:resetpassword");
         resetCredentials.setParameter("userId", userId);
         resetCredentials.setParameter("securityAnswer", securityAnswer);
         final XMPPMethodResponse response = execute(resetCredentials, Boolean.TRUE);
@@ -233,7 +233,7 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         logger.logVariable("profile", profile);
         assertIsAuthenticatedUser(userId);
 
-        final XMPPMethod update = new XMPPMethod("profile:update");
+        final XMPPMethod update = xmppCore.createMethod("profile:update");
         update.setParameter("userId", userId);
         update.setParameter("name", profile.getName());
         update.setParameter("organization", profile.getOrganization());
@@ -254,7 +254,7 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         logger.logVariable("password", "XXXX");
         logger.logVariable("newPassword", "XXXX");
         assertIsAuthenticatedUser(userId);
-        final XMPPMethod updatePassword = new XMPPMethod("profile:updatepassword");
+        final XMPPMethod updatePassword = xmppCore.createMethod("profile:updatepassword");
         updatePassword.setParameter("userId", userId);
         updatePassword.setParameter("password", password);
         updatePassword.setParameter("newPassword", newPassword);
@@ -277,7 +277,7 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         logger.logVariable("email", email);
         logger.logVariable("key", key);
         assertIsAuthenticatedUser(userId);
-        final XMPPMethod verifyEmail = new XMPPMethod("profile:verifyemail");
+        final XMPPMethod verifyEmail = xmppCore.createMethod("profile:verifyemail");
         verifyEmail.setParameter("userId", userId);
         verifyEmail.setParameter("email", email);
         verifyEmail.setParameter("key", key);

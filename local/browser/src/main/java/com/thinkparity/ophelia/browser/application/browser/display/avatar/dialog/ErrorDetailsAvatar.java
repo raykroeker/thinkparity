@@ -169,8 +169,9 @@ public final class ErrorDetailsAvatar extends Avatar {
      * @return A string.
      */
     private String getInputErrorLocalizedMessage() {
-        if(null == input) { return null; }
-        else {
+        if (null == input) {
+        	return null;
+        } else {
             final Throwable t = (Throwable) ((Data) input).get(DataKey.ERROR);
             if (null == t) {
                 return null;

@@ -7,9 +7,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
-
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.xmpp.event.SystemListener;
@@ -44,7 +42,7 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         synchronized (queueLock) {
-            final XMPPMethod readQueueEvents = new XMPPMethod("system:readqueueevents");
+            final XMPPMethod readQueueEvents = xmppCore.createMethod("system:readqueueevents");
             readQueueEvents.setParameter("userId", userId);
             final List<XMPPEvent> queue =
                 execute(readQueueEvents, Boolean.TRUE).readResultEvents("events");
@@ -65,7 +63,7 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
      */
     Calendar readDateTime(final JabberId userId) {
         assertIsAuthenticatedUser(userId);
-        final XMPPMethod remoteDateTime = new XMPPMethod("system:readdatetime");
+        final XMPPMethod remoteDateTime = xmppCore.createMethod("system:readdatetime");
         remoteDateTime.setParameter("userId", userId);
         return execute(remoteDateTime).readResultCalendar("datetime");
     }
@@ -76,7 +74,7 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
      * @return The size of the event queue.
      */
     Integer readEventQueueSize(final JabberId userId) {
-        final XMPPMethod readQueueEvents = new XMPPMethod("system:readqueueevents");
+        final XMPPMethod readQueueEvents = xmppCore.createMethod("system:readqueueevents");
         readQueueEvents.setParameter("userId", userId);
         return execute(readQueueEvents, Boolean.TRUE).readResultEvents("events").size();
     }
@@ -88,7 +86,7 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
      */
     String readVersion() {
         logger.logApiId();
-        final XMPPMethod readVersion = new XMPPMethod("system:readversion");
+        final XMPPMethod readVersion = xmppCore.createMethod("system:readversion");
         return execute(readVersion, Boolean.TRUE).readResultString("version");
     }
 
@@ -101,7 +99,7 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
      *            An event id <code>String</code>.
      */
     private void deleteQueueEvent(final JabberId userId, final String eventId) {
-        final XMPPMethod deleteEvent = new XMPPMethod("system:deletequeueevent");
+        final XMPPMethod deleteEvent = xmppCore.createMethod("system:deletequeueevent");
         deleteEvent.setParameter("userId", userId);
         deleteEvent.setParameter("eventId", eventId);
         execute(deleteEvent);

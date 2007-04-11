@@ -5,17 +5,8 @@
 package com.thinkparity.ophelia.browser.platform.action.platform;
 
 import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
-
-import com.thinkparity.ophelia.model.util.ProcessAdapter;
-import com.thinkparity.ophelia.model.util.ProcessMonitor;
-import com.thinkparity.ophelia.model.util.Step;
-import com.thinkparity.ophelia.model.workspace.InitializeMediator;
-import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.monitor.InitializeStep;
-
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -23,6 +14,12 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
 import com.thinkparity.ophelia.browser.util.localization.ActionLocalization;
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.util.Step;
+import com.thinkparity.ophelia.model.workspace.InitializeMediator;
+import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.ophelia.model.workspace.monitor.InitializeStep;
 
 /**
  * @author rob_masako@shaw.ca
@@ -107,7 +104,7 @@ public class Login extends AbstractAction {
          * @see com.thinkparity.codebase.swing.SwingWorker#construct()
          */
         @Override
-        public Object construct() {
+        public Object run() {
             try {
                 platform.initializeWorkspace(loginMonitor, initializeMediator,
                         workspace, credentials);
@@ -199,5 +196,13 @@ public class Login extends AbstractAction {
                 }
             };
         }
+		@Override
+		public Runnable getErrorHandler(final Throwable t) {
+			return new Runnable() {
+				public void run() {
+					// TODO display an error dialog
+				}
+			};
+		}
     }
 }

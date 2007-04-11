@@ -8,14 +8,12 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
-
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.util.xmpp.event.ArchiveListener;
 
@@ -34,7 +32,7 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod readArchive = new XMPPMethod("archive:readcontainer");
+        final XMPPMethod readArchive = xmppCore.createMethod("archive:readcontainer");
         readArchive.setParameter("userId", userId);
         readArchive.setParameter("uniqueId", uniqueId);
         return execute(readArchive, Boolean.TRUE).readResultContainer("container");
@@ -43,7 +41,7 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
     List<Container> readContainers(final JabberId userId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
-        final XMPPMethod readContainers = new XMPPMethod("archive:readcontainers");
+        final XMPPMethod readContainers = xmppCore.createMethod("archive:readcontainers");
         readContainers.setParameter("userId", userId);
         return execute(readContainers, Boolean.TRUE).readResultContainers("containers");
     }
@@ -53,7 +51,7 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod readContainerVersions = new XMPPMethod("archive:readcontainerversions");
+        final XMPPMethod readContainerVersions = xmppCore.createMethod("archive:readcontainerversions");
         readContainerVersions.setParameter("userId", userId);
         readContainerVersions.setParameter("uniqueId", uniqueId);
         return execute(readContainerVersions, Boolean.TRUE).readResultContainerVersions("containerVersions");
@@ -65,7 +63,7 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        final XMPPMethod readDocuments = new XMPPMethod("archive:readdocuments");
+        final XMPPMethod readDocuments = xmppCore.createMethod("archive:readdocuments");
         readDocuments.setParameter("userId", userId);
         readDocuments.setParameter("uniqueId", uniqueId);
         readDocuments.setParameter("versionId", versionId);
@@ -80,7 +78,7 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("documentUniqueId", documentUniqueId);
         logger.logVariable("documentVersionId", documentVersionId);
-        final XMPPMethod readDocumentVersion = new XMPPMethod("archive:readdocumentversion");
+        final XMPPMethod readDocumentVersion = xmppCore.createMethod("archive:readdocumentversion");
         readDocumentVersion.setParameter("userId", userId);
         readDocumentVersion.setParameter("uniqueId", uniqueId);
         readDocumentVersion.setParameter("documentUniqueId", documentUniqueId);
@@ -96,7 +94,7 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("compareVersionId", compareVersionId);
-        final XMPPMethod readDocumentVersions = new XMPPMethod("archive:readdocumentversiondeltas");
+        final XMPPMethod readDocumentVersions = xmppCore.createMethod("archive:readdocumentversiondeltas");
         readDocumentVersions.setParameter("userId", userId);
         readDocumentVersions.setParameter("uniqueId", uniqueId);
         readDocumentVersions.setParameter("compareVersionId", compareVersionId);
@@ -111,7 +109,7 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("compareVersionId", compareVersionId);
         logger.logVariable("compareToVersionId", compareToVersionId);
-        final XMPPMethod readDocumentVersions = new XMPPMethod("archive:readdocumentversiondeltas");
+        final XMPPMethod readDocumentVersions = xmppCore.createMethod("archive:readdocumentversiondeltas");
         readDocumentVersions.setParameter("userId", userId);
         readDocumentVersions.setParameter("uniqueId", uniqueId);
         readDocumentVersions.setParameter("compareVersionId", compareVersionId);
@@ -125,7 +123,7 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        final XMPPMethod readDocumentVersions = new XMPPMethod("archive:readdocumentversions");
+        final XMPPMethod readDocumentVersions = xmppCore.createMethod("archive:readdocumentversions");
         readDocumentVersions.setParameter("userId", userId);
         readDocumentVersions.setParameter("uniqueId", uniqueId);
         readDocumentVersions.setParameter("versionId", versionId);
@@ -136,7 +134,7 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod readTeam = new XMPPMethod("archive:readteam");
+        final XMPPMethod readTeam = xmppCore.createMethod("archive:readteam");
         readTeam.setParameter("userId", userId);
         readTeam.setParameter("uniqueId", uniqueId);
         return execute(readTeam, Boolean.TRUE).readResultTeamMembers("team");
@@ -146,7 +144,7 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod readTeam = new XMPPMethod("archive:readteamids");
+        final XMPPMethod readTeam = xmppCore.createMethod("archive:readteamids");
         readTeam.setParameter("userId", userId);
         readTeam.setParameter("uniqueId", uniqueId);
         return execute(readTeam, Boolean.TRUE).readResultJabberIds("teamIds");

@@ -40,7 +40,7 @@ final class XMPPMigrator extends AbstractXMPP<MigratorListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("product", product);
-        final XMPPMethod createProduct = new XMPPMethod("migrator:createproduct");
+        final XMPPMethod createProduct = xmppCore.createMethod("migrator:createproduct");
         createProduct.setParameter("userId", userId);
         createProduct.setParameter("product", product);
         execute(createProduct);
@@ -49,7 +49,7 @@ final class XMPPMigrator extends AbstractXMPP<MigratorListener> {
     void createStream(final JabberId userId, final String streamId,
             final Product product, final Release release,
             final List<Resource> resources) {
-        final XMPPMethod createStream = new XMPPMethod("migrator:createstream");
+        final XMPPMethod createStream = xmppCore.createMethod("migrator:createstream");
         createStream.setParameter("userId", userId);
         createStream.setParameter("streamId", streamId);
         createStream.setParameter("product", product);
@@ -81,7 +81,7 @@ final class XMPPMigrator extends AbstractXMPP<MigratorListener> {
         logger.logVariable("release", release);
         logger.logVariable("resources", resources);
         logger.logVariable("streamId", streamId);
-        final XMPPMethod deployRelease = new XMPPMethod("migrator:deploy");
+        final XMPPMethod deployRelease = xmppCore.createMethod("migrator:deploy");
         deployRelease.setParameter("userId", userId);
         deployRelease.setParameter("product", product);
         deployRelease.setParameter("release", release);
@@ -104,7 +104,7 @@ final class XMPPMigrator extends AbstractXMPP<MigratorListener> {
      */
     void logError(final JabberId userId, final Product product,
             final Release release, final Error error) {
-        final XMPPMethod xmppMethod = new XMPPMethod("migrator:logerror");
+        final XMPPMethod xmppMethod = xmppCore.createMethod("migrator:logerror");
         xmppMethod.setParameter("userId", userId);
         xmppMethod.setParameter("product", product);
         xmppMethod.setParameter("release", release);
@@ -123,7 +123,7 @@ final class XMPPMigrator extends AbstractXMPP<MigratorListener> {
      */
     Release readLatestRelease(final JabberId userId,
             final String productName, final OS os) {
-        final XMPPMethod readRelease = new XMPPMethod("migrator:readlatestrelease");
+        final XMPPMethod readRelease = xmppCore.createMethod("migrator:readlatestrelease");
         readRelease.setParameter("userId", userId);
         readRelease.setParameter("productName", productName);
         readRelease.setParameter("os", os);
@@ -143,14 +143,14 @@ final class XMPPMigrator extends AbstractXMPP<MigratorListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("name", name);
-        final XMPPMethod readProduct = new XMPPMethod("migrator:readproduct");
+        final XMPPMethod readProduct = xmppCore.createMethod("migrator:readproduct");
         readProduct.setParameter("userId", userId);
         readProduct.setParameter("name", name);
         return execute(readProduct, Boolean.TRUE).readResultProduct("product");
     }
 
     List<Feature> readProductFeatures(final JabberId userId, final String name) {
-        final XMPPMethod readProductFeatures = new XMPPMethod("migrator:readproductfeatures");
+        final XMPPMethod readProductFeatures = xmppCore.createMethod("migrator:readproductfeatures");
         readProductFeatures.setParameter("userId", userId);
         readProductFeatures.setParameter("name", name);
         return execute(readProductFeatures, Boolean.TRUE).readResultFeatures("features");
@@ -171,7 +171,7 @@ final class XMPPMigrator extends AbstractXMPP<MigratorListener> {
      */
     Release readRelease(final JabberId userId, final String productName,
             final String name, final OS os) {
-        final XMPPMethod readRelease = new XMPPMethod("migrator:readrelease");
+        final XMPPMethod readRelease = xmppCore.createMethod("migrator:readrelease");
         readRelease.setParameter("userId", userId);
         readRelease.setParameter("productName", productName);
         readRelease.setParameter("name", name);
@@ -197,7 +197,7 @@ final class XMPPMigrator extends AbstractXMPP<MigratorListener> {
         logger.logVariable("productName", productName);
         logger.logVariable("releaseName", releaseName);
         logger.logVariable("os", os);
-        final XMPPMethod readResources = new XMPPMethod("migrator:readresources");
+        final XMPPMethod readResources = xmppCore.createMethod("migrator:readresources");
         readResources.setParameter("userId", userId);
         readResources.setParameter("productName", productName);
         readResources.setParameter("releaseName", releaseName);

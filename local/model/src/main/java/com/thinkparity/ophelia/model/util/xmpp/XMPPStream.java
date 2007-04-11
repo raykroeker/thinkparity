@@ -38,7 +38,7 @@ final class XMPPStream extends AbstractXMPP<StreamListener> {
      * @return A stream id <code>String</code>.
      */
     String create(final JabberId userId, final StreamSession session) {
-        final XMPPMethod create = new XMPPMethod("stream:create");
+        final XMPPMethod create = xmppCore.createMethod("stream:create");
         create.setParameter("userId", userId);
         create.setParameter("sessionId", session.getId());
         return execute(create, Boolean.TRUE).readResultString("streamId");
@@ -52,7 +52,7 @@ final class XMPPStream extends AbstractXMPP<StreamListener> {
      * @return A <code>StreamSession</code>.
      */
     StreamSession createSession(final JabberId userId) {
-        final XMPPMethod createSession = new XMPPMethod("stream:createsession");
+        final XMPPMethod createSession = xmppCore.createMethod("stream:createsession");
         createSession.setParameter("userId", userId);
         return execute(createSession, Boolean.TRUE).readResultStreamSession("session");
     }
@@ -69,7 +69,7 @@ final class XMPPStream extends AbstractXMPP<StreamListener> {
      */
     void delete(final JabberId userId, final StreamSession session,
             final String streamId) {
-        final XMPPMethod delete = new XMPPMethod("stream:delete");
+        final XMPPMethod delete = xmppCore.createMethod("stream:delete");
         delete.setParameter("userId", userId);
         delete.setParameter("sessionId", session.getId());
         delete.setParameter("streamId", streamId);
@@ -83,14 +83,14 @@ final class XMPPStream extends AbstractXMPP<StreamListener> {
      *            A stream <code>Session</code>.
      */
     void deleteSession(final JabberId userId, final StreamSession session) {
-        final XMPPMethod deleteSession = new XMPPMethod("stream:deletesession");
+        final XMPPMethod deleteSession = xmppCore.createMethod("stream:deletesession");
         deleteSession.setParameter("userId", userId);
         deleteSession.setParameter("sessionId", session.getId());
         execute(deleteSession);
     }
 
     StreamSession readSession(final JabberId userId, final String sessionId) {
-        final XMPPMethod readSession = new XMPPMethod("stream:readsession");
+        final XMPPMethod readSession = xmppCore.createMethod("stream:readsession");
         readSession.setParameter("userId", userId);
         readSession.setParameter("sessionId", sessionId);
         return execute(readSession, Boolean.TRUE).readResultStreamSession("session");

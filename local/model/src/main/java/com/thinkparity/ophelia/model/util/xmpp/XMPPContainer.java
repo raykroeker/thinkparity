@@ -54,7 +54,7 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
                     publishedToUsers);
         } else {
             /* publish a new version - requires latest version */
-            final XMPPMethod publish = new XMPPMethod("container:publish");
+            final XMPPMethod publish = xmppCore.createMethod("container:publish");
             publish.setParameter("userId", userId);
             publish.setParameter("version", version);
             publish.setParameter("latestVersion", latestVersion);
@@ -77,7 +77,7 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
             final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
             final Calendar publishedOn, final List<EMail> publishedToEMails,
             final List<User> publishedToUsers) {
-        final XMPPMethod publish = new XMPPMethod("container:publishversion");
+        final XMPPMethod publish = xmppCore.createMethod("container:publishversion");
         publish.setParameter("userId", userId);
         publish.setParameter("version", version);
         publish.setDocumentVersionsStreamIdsParameter("documentVersions", documentVersions);

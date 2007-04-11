@@ -47,7 +47,7 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod archive = new XMPPMethod("backup:archive");
+        final XMPPMethod archive = xmppCore.createMethod("backup:archive");
         archive.setParameter("userId", userId);
         archive.setParameter("uniqueId", uniqueId);
         execute(archive);
@@ -60,7 +60,7 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         logger.logVariable("streamId", streamId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        final XMPPMethod createStream = new XMPPMethod("backup:createstream");
+        final XMPPMethod createStream = xmppCore.createMethod("backup:createstream");
         createStream.setParameter("userId", userId);
         createStream.setParameter("streamId", streamId);
         createStream.setParameter("uniqueId", uniqueId);
@@ -80,7 +80,7 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod delete = new XMPPMethod("backup:delete");
+        final XMPPMethod delete = xmppCore.createMethod("backup:delete");
         delete.setParameter("userId", userId);
         delete.setParameter("uniqueId", uniqueId);
         execute(delete);
@@ -94,13 +94,13 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
      * @return True if the backup is online.
      */
     Boolean isOnline(final JabberId userId) {
-        final XMPPMethod isOnline = new XMPPMethod("backup:isonline");
+        final XMPPMethod isOnline = xmppCore.createMethod("backup:isonline");
         isOnline.setParameter("userId", userId);
         return execute(isOnline, Boolean.TRUE).readResultBoolean("online");
     }
 
     Statistics readStatistics(final JabberId userId) {
-        final XMPPMethod readStatistics = new XMPPMethod("backup:readstatistics");
+        final XMPPMethod readStatistics = xmppCore.createMethod("backup:readstatistics");
         readStatistics.setParameter("userId", userId);
         return execute(readStatistics, Boolean.TRUE).readResultStatistics("statistics");
     }
@@ -109,7 +109,7 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod readContainer = new XMPPMethod("backup:readcontainer");
+        final XMPPMethod readContainer = xmppCore.createMethod("backup:readcontainer");
         readContainer.setParameter("userId", userId);
         readContainer.setParameter("uniqueId", uniqueId);
         return execute(readContainer, Boolean.TRUE).readResultContainer("container");
@@ -118,7 +118,7 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
     List<Container> readContainers(final JabberId userId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
-        final XMPPMethod readContainers = new XMPPMethod("backup:readcontainers");
+        final XMPPMethod readContainers = xmppCore.createMethod("backup:readcontainers");
         readContainers.setParameter("userId", userId);
         return execute(readContainers, Boolean.TRUE).readResultContainers("containers");
     }
@@ -128,7 +128,7 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod readContainerVersions = new XMPPMethod("backup:readcontainerversions");
+        final XMPPMethod readContainerVersions = xmppCore.createMethod("backup:readcontainerversions");
         readContainerVersions.setParameter("userId", userId);
         readContainerVersions.setParameter("uniqueId", uniqueId);
         return execute(readContainerVersions, Boolean.TRUE).readResultContainerVersions("containerVersions");
@@ -138,7 +138,7 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("unqueId", uniqueId);
-        final XMPPMethod readDocument = new XMPPMethod("backup:readdocument");
+        final XMPPMethod readDocument = xmppCore.createMethod("backup:readdocument");
         readDocument.setParameter("userId", userId);
         readDocument.setParameter("uniqueId", uniqueId);
         return execute(readDocument, Boolean.TRUE).readResultDocument("document");
@@ -150,7 +150,7 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        final XMPPMethod readDocuments = new XMPPMethod("backup:readdocuments");
+        final XMPPMethod readDocuments = xmppCore.createMethod("backup:readdocuments");
         readDocuments.setParameter("userId", userId);
         readDocuments.setParameter("uniqueId", uniqueId);
         readDocuments.setParameter("versionId", versionId);
@@ -163,7 +163,7 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        final XMPPMethod readDocumentVersions = new XMPPMethod("backup:readdocumentversions");
+        final XMPPMethod readDocumentVersions = xmppCore.createMethod("backup:readdocumentversions");
         readDocumentVersions.setParameter("userId", userId);
         readDocumentVersions.setParameter("uniqueId", uniqueId);
         readDocumentVersions.setParameter("versionId", versionId);
@@ -176,7 +176,7 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        final XMPPMethod readDocumentVersions = new XMPPMethod("backup:readpublishedto");
+        final XMPPMethod readDocumentVersions = xmppCore.createMethod("backup:readpublishedto");
         readDocumentVersions.setParameter("userId", userId);
         readDocumentVersions.setParameter("uniqueId", uniqueId);
         readDocumentVersions.setParameter("versionId", versionId);
@@ -187,7 +187,7 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod readTeam = new XMPPMethod("backup:readteamids");
+        final XMPPMethod readTeam = xmppCore.createMethod("backup:readteamids");
         readTeam.setParameter("userId", userId);
         readTeam.setParameter("uniqueId", uniqueId);
         return execute(readTeam, Boolean.TRUE).readResultJabberIds("teamIds");
@@ -206,7 +206,7 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod archive = new XMPPMethod("backup:restore");
+        final XMPPMethod archive = xmppCore.createMethod("backup:restore");
         archive.setParameter("userId", userId);
         archive.setParameter("uniqueId", uniqueId);
         execute(archive);

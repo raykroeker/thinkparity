@@ -11,8 +11,27 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.UUID;
 import java.util.Map.Entry;
+
+import org.jivesoftware.smack.PacketCollector;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.filter.PacketIDFilter;
+import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.provider.IQProvider;
+import org.jivesoftware.smack.provider.ProviderManager;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.ErrorHelper;
@@ -25,7 +44,6 @@ import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -56,20 +74,11 @@ import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.Token;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
-
 import com.thinkparity.ophelia.model.Constants.Xml;
 import com.thinkparity.ophelia.model.Constants.Xml.Service;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse.Result;
+import com.thinkparity.ophelia.model.util.xmpp.XMPPNetworkUtil;
 import com.thinkparity.ophelia.model.util.xstream.SmackXppReader;
-
-import org.jivesoftware.smack.PacketCollector;
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.filter.PacketIDFilter;
-import org.jivesoftware.smack.packet.IQ;
-import org.jivesoftware.smack.provider.IQProvider;
-import org.jivesoftware.smack.provider.ProviderManager;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * <b>Title:</b>thinkParity XMPP Method<br>
@@ -83,533 +92,7 @@ import org.xmlpull.v1.XmlPullParserException;
 @SuppressWarnings("unchecked")
 public class XMPPMethod extends IQ {
 
-    /** The local <code>Locale</code>. */
-    private static final Locale LOCALE;
-
-    /** An apache LOGGER. */
-    private static final Log4JWrapper LOGGER;
-
-    /** The local <code>TimeZone</code>. */
-    private static final TimeZone TIME_ZONE;
-
-    /** The universal <code>DateFormat</code>. */
-    private static final DateFormat UNIVERSAL_FORMAT;
-
-    /** The universal <code>DateImage</code>. */
-    private static final DateImage UNIVERSAL_IMAGE;
-
-    /** A <code>TimeZone</code>. */
-    private static final TimeZone UNIVERSAL_TIME_ZONE;
-
-    /** An <code>XStreamUtil</code> instance. */
-    private static final XStreamUtil XSTREAM_UTIL;
-
-    static {
-        LOCALE = Locale.getDefault();
-        LOGGER = new Log4JWrapper();
-        TIME_ZONE = TimeZone.getDefault();
-        UNIVERSAL_IMAGE = DateImage.ISO;
-        UNIVERSAL_TIME_ZONE = TimeZone.getTimeZone("Universal"); 
-        final String universalPattern = UNIVERSAL_IMAGE.toString();
-        UNIVERSAL_FORMAT = new SimpleDateFormat(universalPattern);
-        UNIVERSAL_FORMAT.setTimeZone(UNIVERSAL_TIME_ZONE);
-        XSTREAM_UTIL = XStreamUtil.getInstance();
-
-        ProviderManager.addIQProvider(Xml.Service.NAME, Xml.Service.NAMESPACE_RESPONSE, new XMPPMethodResponseProvider());
-    }
-
-    /** A map of remote method parameters to their values. */
-    protected final List<XMPPMethodParameter> parameters;
-
-    /** The remote method name. */
-    private final String name;
-
-    /**
-     * Create RemoteMethod.
-     *
-     * @param name
-     *      A method name.
-     */
-    public XMPPMethod(final String name) {
-        super();
-        this.parameters = new LinkedList<XMPPMethodParameter>();
-        this.name = name;
-    }
-
-    /**
-     * Execute this method on the give connection.
-     * 
-     * @param xmppConnection
-     *            An xmpp connection.
-     * @return An xmpp method response.
-     */
-    public XMPPMethodResponse execute(final XMPPConnection xmppConnection) {
-        LOGGER.logVariable("name", name);
-        // add an executed on parameter
-        setParameter(Xml.All.EXECUTED_ON, DateUtil.getInstance());
-
-        // create a collector for the response
-        final PacketCollector idCollector = createPacketCollector(xmppConnection);
-
-        // TIME This is a local timestamp.
-        LOGGER.logVariable("preSendPacket", DateUtil.getInstance());
-        xmppConnection.sendPacket(this);
-        // TIME This is a local timestamp.
-        LOGGER.logVariable("postSendPacket", DateUtil.getInstance());
-
-        // this sleep has been inserted because when packets are sent within
-        // x milliseconds of each other, they tend to get swallowed by the
-        // smack library
-        try { Thread.sleep(75); }
-        catch(final InterruptedException ix) {}
-
-        // the timeout is used because the timeout is not expected to be long;
-        // and it helps debug non-implemented responses
-        LOGGER.logVariable("preResponseCollected", DateUtil.getInstance());
-        try {
-            final XMPPMethodResponse response =
-//                (XMPPMethodResponse) idCollector.nextResult(7 * 1000);
-                (XMPPMethodResponse) idCollector.nextResult();
-            return response;
-        } catch (final Throwable t) {
-            final String errorId = new ErrorHelper().getErrorId(t);
-            LOGGER.logError(t, errorId);
-            LOGGER.logError("name:{0}", name);
-            LOGGER.logError("xmppConnection:{0}", xmppConnection);
-            throw new XMPPException(errorId);
-        } finally {
-            // re-set the parameters post execution
-            LOGGER.logVariable("postResponseCollected", DateUtil.getInstance());
-            parameters.clear();
-        }
-    }
-
-    /**
-     * @see org.jivesoftware.smack.packet.IQ#getChildElementXML()
-     *
-     */
-    public String getChildElementXML() {
-        final StringBuffer childElementXML = new StringBuffer()
-            .append("<query xmlns=\"jabber:iq:parity:").append(name).append("\">")
-            .append(getParametersXML())
-            .append("</query>");
-        LOGGER.logVariable("childElementXML.length()", childElementXML.length());
-        LOGGER.logVariable("childElementXML", childElementXML);
-        return childElementXML.toString();
-    }
-
-    public final void setArtifactReceiptParameter(final String name,
-            final List<ArtifactReceipt> values) {
-        final List<XMPPMethodParameter> parameters = new ArrayList<XMPPMethodParameter>(values.size());
-        for (final ArtifactReceipt value : values) {
-            parameters.add(new XMPPMethodParameter(XmlRpc.LIST_ITEM, value.getClass(), value));
-        }
-        this.parameters.add(new XMPPMethodParameter(name, List.class, parameters));
-    }
-
-    public final void setContactsParameter(final String name,
-            final List<Contact> value) {
-        setListParameter(name, value);
-    }
-
-    public final void setDocumentVersionsStreamIdsParameter(final String name,
-            final Map<DocumentVersion, String> value) {
-        setMapParameter(name, value);
-    }
-
-    public final void setEMailsParameter(final String name,
-            final List<EMail> value) {
-        setListParameter(name, value);
-    }
-
-    /**
-     * Set a list of jabber id parameters.
-     * 
-     * @param listName
-     *            The list name.
-     * @param name
-     *            The list item names.
-     * @param values
-     *            The list values.
-     */
-    public final void setJabberIdParameters(final String listName, final String name,
-            final List<JabberId> values) {
-        final List<XMPPMethodParameter> parameters = new LinkedList<XMPPMethodParameter>();
-        for(final JabberId value : values) {
-            parameters.add(new XMPPMethodParameter(name, JabberId.class, value));
-        }
-        this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
-    }
-
-    public final void setLongParameters(final String listName, final String name,
-            final List<Long> values) {
-        final List<XMPPMethodParameter> parameters = new LinkedList<XMPPMethodParameter>();
-        for(final Long value : values)
-            parameters.add(new XMPPMethodParameter(name, Long.class, value));
-
-        this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
-    }
-
-    public final void setParameter(final String name, final ArtifactType value) {
-        parameters.add(new XMPPMethodParameter(name, ArtifactType.class, value));
-    }
-
-    public final void setParameter(final String name, final Calendar value) {
-        parameters.add(new XMPPMethodParameter(name, Calendar.class, value));
-    }
-
-    public final void setParameter(final String name, final Credentials value) {
-        parameters.add(new XMPPMethodParameter(name, Credentials.class, value));
-    }
-
-    public final void setParameter(final String name, final EMail value) {
-        parameters.add(new XMPPMethodParameter(name, EMail.class, value));
-    }
-
-    public final void setParameter(final String name, final Error value) {
-        parameters.add(new XMPPMethodParameter(name, Error.class, value));
-    }
-
-    public final void setParameter(final String name, final Integer value) {
-        parameters.add(new XMPPMethodParameter(name, Integer.class, value));
-    }
-
-    public final void setParameter(final String name, final JabberId value) {
-        parameters.add(new XMPPMethodParameter(name, JabberId.class, value));
-    }
-
-    public final void setParameter(final String name, final Locale value) {
-        parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
-    }
-
-    /**
-     * Set a named parameter.
-     * 
-     * @param name
-     *            The parameter name.
-     * @param value
-     *            The parameter value.
-     */
-    public final void setParameter(final String name, final Long value) {
-        parameters.add(new XMPPMethodParameter(name, Long.class, value));
-    }
-
-    public final void setParameter(final String name, final OS value) {
-        parameters.add(new XMPPMethodParameter(name, OS .class, value));
-    }
-
-    public final void setParameter(final String name, final Product value) {
-        parameters.add(new XMPPMethodParameter(name, Product.class, value));
-    }
-
-    public final void setParameter(final String name, final Profile value) {
-        parameters.add(new XMPPMethodParameter(name, Profile.class, value));
-    }
-
-    public final void setParameter(final String name, final ProfileEMail value) {
-        parameters.add(new XMPPMethodParameter(name, ProfileEMail.class, value));
-    }
-
-    public final void setParameter(final String name, final Release value) {
-        parameters.add(new XMPPMethodParameter(name, Release.class, value));
-    }
-
-    public final void setParameter(final String name, final Reservation value) {
-        parameters.add(new XMPPMethodParameter(name, Reservation.class, value));
-    }
-
-    /**
-     * Set a named parameter.
-     * 
-     * @param name
-     *            The parameter name.
-     * @param value
-     *            The parameter value.
-     */
-    public final void setParameter(final String name, final String value) {
-        parameters.add(new XMPPMethodParameter(name, String.class, value));
-    }
-
-    /**
-     * Set a list of jabber id parameters.
-     * 
-     * @param listName
-     *            The list parameter name.
-     * @param itemName
-     *            The item parameter name.
-     * @param value
-     *            The item value.
-     */
-    public final void setParameter(final String listName,
-            final String itemName, final List<JabberId> values) {
-        final List<XMPPMethodParameter> parameters = new ArrayList<XMPPMethodParameter>(values.size());
-        for (final JabberId value : values) {
-            parameters.add(new XMPPMethodParameter(itemName, JabberId.class, value));
-        }
-        this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
-    }
-
-    public final <T extends ArtifactVersion> void setParameter(
-            final String name, final T value) {
-        parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
-    }
-
-    public final <T extends ContactInvitation> void setParameter(
-            final String name, final T value) {
-        parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
-    }
-
-    public final <T extends TimeZone> void setParameter(
-            final String name, final T value) {
-        parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
-    }
-
-    public final void setParameter(final String name, final UserVCard value) {
-        parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
-    }
-
-    /**
-     * Set a named parameter.
-     * 
-     * @param name
-     *            The parameter name.
-     * @param value
-     *            The parameter value.
-     */
-    public final void setParameter(final String name, final UUID value) {
-        parameters.add(new XMPPMethodParameter(name, UUID.class, value));
-    }
-    
-    public final void setResourceParameters(final String name,
-            final List<Resource> values) {
-        final List<XMPPMethodParameter> parameters = new LinkedList<XMPPMethodParameter>();
-        for(final Resource value : values)
-            parameters.add(new XMPPMethodParameter(XmlRpc.LIST_ITEM, Resource.class, value));
-        this.parameters.add(new XMPPMethodParameter(name, List.class, parameters));
-    }
-
-    public final void setTeamMembersParameter(final String name,
-            final List<TeamMember> value) {
-        setListParameter(name, value);
-    }
-
-    public final void setUsersParameter(final String name,
-            final List<User> value) {
-        /* NOTE i'm not using the generic setListParameter here because i want
-         * to force slicing the value to a user object instead
-         * of contact/profile/team member. */
-        final List<XMPPMethodParameter> parameters = new LinkedList<XMPPMethodParameter>();
-        for(final User element : value) {
-            parameters.add(new XMPPMethodParameter("element", User.class, (User) element));
-        }
-        this.parameters.add(new XMPPMethodParameter(name, List.class, parameters));
-    }
-
-    /**
-     * Create a packet collector that will filter on packets with the same
-     * query id.
-     *
-     * @param iq
-     *      The internet query.
-     * @return A packet collector.
-     */
-    protected PacketCollector createPacketCollector(
-            final XMPPConnection xmppConnection) {
-        return xmppConnection.createPacketCollector(
-                new PacketIDFilter(getPacketID()));
-    }
-
-    /**
-     * Flush the internal parameter map.
-     *
-     * @return A buffer of xml containing the parameters.
-     */
-    protected String getParametersXML() {
-        final StringBuffer xml = new StringBuffer();
-
-        for(final XMPPMethodParameter parameter : parameters)
-            xml.append(getParameterXML(parameter));
-
-        return xml.toString();
-    }
-    
-    private String getParameterXML(final XMPPMethodParameter parameter) {
-        final StringBuffer xml = new StringBuffer();
-        xml.append("<").append(parameter.name).append(" javaType=\"")
-                .append(parameter.javaType.getName())
-                .append("\"");
-        if (null == parameter.javaValue) {
-            xml.append("/>");
-        } else {
-            xml.append(">").append(getParameterXMLValue(parameter))
-                .append("</").append(parameter.name).append(">");
-        }
-        return xml.toString();
-    }
-
-    private String getParameterXMLValue(final Calendar value) {
-        final Calendar universalCalendar = (Calendar) value.clone();
-        universalCalendar.setTimeZone(UNIVERSAL_TIME_ZONE);
-        return ((DateFormat) UNIVERSAL_FORMAT).format(universalCalendar.getTime());
-    }
-
-    private String getParameterXMLValue(final XMPPMethodParameter parameter) {
-        if (parameter.javaType.equals(ArtifactType.class)) {
-            return parameter.javaValue.toString();
-        } else if (parameter.javaType.equals(Calendar.class)) {
-            return getParameterXMLValue((Calendar) parameter.javaValue);
-        } else if (parameter.javaType.equals(DocumentVersionContent.class)) {
-            final DocumentVersionContent dvc = (DocumentVersionContent) parameter.javaValue;
-            return new StringBuffer("")
-                    .append(getParameterXML(new XMPPMethodParameter("uniqueId", UUID.class, dvc.getVersion().getArtifactUniqueId())))
-                    .append(getParameterXML(new XMPPMethodParameter("versionId", Long.class, dvc.getVersion().getVersionId())))
-                    .append(getParameterXML(new XMPPMethodParameter("bytes", byte[].class, dvc.getContent())))
-                    .toString();
-        } else if (parameter.javaType.equals(EMail.class)) {
-            return parameter.javaValue.toString();
-        } else if (parameter.javaType.equals(Contact.class)
-                || parameter.javaType.equals(User.class)
-                || parameter.javaType.equals(TeamMember.class)
-                || parameter.javaType.equals(Profile.class)) {
-            final StringWriter xmlWriter = new StringWriter();
-            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
-            return xmlWriter.toString();
-        } else if (parameter.javaType.equals(ContainerVersion.class)) {
-            final StringWriter xmlWriter = new StringWriter();
-            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
-            return xmlWriter.toString();
-        } else if (parameter.javaType.equals(DocumentVersion.class)) {
-            final StringWriter xmlWriter = new StringWriter();
-            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
-            return xmlWriter.toString();
-        } else if (parameter.javaType.equals(TimeZone.class)) {
-            final StringWriter xmlWriter = new StringWriter();
-            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
-            return xmlWriter.toString();
-        } else if (parameter.javaType.equals(Locale.class)) {
-            final StringWriter xmlWriter = new StringWriter();
-            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
-            return xmlWriter.toString();
-        } else if (parameter.javaType.equals(Credentials.class)) {
-            final StringWriter xmlWriter = new StringWriter();
-            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
-            return xmlWriter.toString();
-        } else if (parameter.javaType.equals(EMail.class)) {
-            return parameter.javaValue.toString();
-        } else if (parameter.javaType.equals(Integer.class)) {
-            return parameter.javaValue.toString();
-        } else if (parameter.javaType.equals(JabberId.class)) {
-            return ((JabberId) parameter.javaValue).getQualifiedJabberId();
-        } else if (parameter.javaType.equals(Long.class)) {
-            return parameter.javaValue.toString();
-        } else if (parameter.javaType.equals(List.class)) {
-            final List<XMPPMethodParameter> listItems = (List<XMPPMethodParameter>) parameter.javaValue;
-            final StringBuffer xmlValue = new StringBuffer("");
-            if (null != listItems && 0 < listItems.size()) {
-                for(final XMPPMethodParameter listItem : listItems) {
-                    xmlValue.append(getParameterXML(listItem));
-                }
-            }
-            return xmlValue.toString();
-        } else if (parameter.javaType.equals(Map.class)) {
-            final Map<XMPPMethodParameter, XMPPMethodParameter> map =
-                (Map<XMPPMethodParameter, XMPPMethodParameter>) parameter.javaValue;
-            final StringBuffer xmlValue = new StringBuffer("");
-            if (null != map && 0 < map.size()) {
-                for (final Entry<XMPPMethodParameter, XMPPMethodParameter> entry : map.entrySet()) {
-                    xmlValue.append(getParameterXML(entry.getKey()));
-                    xmlValue.append(getParameterXML(entry.getValue()));
-                }
-            }
-            return xmlValue.toString();
-        } else if (parameter.javaType.equals(OS.class)) {
-            return ((OS) parameter.javaValue).name();
-        } else if (parameter.javaType.equals(String.class)) {
-            return parameter.javaValue.toString();
-        } else if (parameter.javaType.equals(UUID.class)) {
-            return parameter.javaValue.toString();
-        } else if (ArtifactReceipt.class.isAssignableFrom(parameter.javaType)) {
-            final StringWriter xmlWriter = new StringWriter();
-            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
-            return xmlWriter.toString();
-        } else if (Error.class.isAssignableFrom(parameter.javaType)) {
-            final StringWriter xmlWriter = new StringWriter();
-            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
-            return xmlWriter.toString();
-        } else if (ContactInvitation.class.isAssignableFrom(parameter.javaType)) {
-            final StringWriter xmlWriter = new StringWriter();
-            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
-            return xmlWriter.toString();
-        } else if (Reservation.class.isAssignableFrom(parameter.javaType)) {
-            final StringWriter xmlWriter = new StringWriter();
-            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
-            return xmlWriter.toString();
-        } else if (Product.class.isAssignableFrom(parameter.javaType)) {
-            final StringWriter xmlWriter = new StringWriter();
-            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
-            return xmlWriter.toString();
-        } else if (Release.class.isAssignableFrom(parameter.javaType)) {
-            final StringWriter xmlWriter = new StringWriter();
-            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
-            return xmlWriter.toString();
-        } else if (Resource.class.isAssignableFrom(parameter.javaType)) {
-            final StringWriter xmlWriter = new StringWriter();
-            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
-            return xmlWriter.toString();
-        } else if (UserVCard.class.isAssignableFrom(parameter.javaType)) {
-            final StringWriter xmlWriter = new StringWriter();
-            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
-            return xmlWriter.toString();
-        } else {
-            final String assertion =
-                MessageFormat.format("[XMPP METHOD] [GET PARAMTER XML VALUE] [UNKNOWN JAVA TYPE] [{0}]",
-                        parameter.javaType.getName());
-            throw new XMPPException(assertion);
-        }
-    }
-
-    /**
-     * Set a list parameter.
-     * 
-     * @param <T>
-     *            A <code>List</code> type.
-     * @param name
-     *            A parameter name <code>String</code>.
-     * @param value
-     *            A parameter value <code>List</code>.
-     */
-    private final <T extends Object> void setListParameter(final String name,
-            final List<T> value) {
-        final List<XMPPMethodParameter> parameters = new LinkedList<XMPPMethodParameter>();
-        for(final T element : value) {
-            parameters.add(new XMPPMethodParameter("element", element.getClass(), element));
-        }
-        this.parameters.add(new XMPPMethodParameter(name, List.class, parameters));
-    }
-
-    /**
-     * Set a map parameter.
-     * 
-     * @param <T>
-     *            A <code>Map</code> key type.
-     * @param <U>
-     *            A <code>Map</code> value type.
-     * @param name
-     *            A parameter name <code>String</code>.
-     * @param value
-     *            A parameter value <code>Map</code>.
-     */
-    private final <T extends Object, U extends Object> void setMapParameter(
-            final String name, final Map<T, U> value) {
-        final Map<XMPPMethodParameter, XMPPMethodParameter> parameters = new HashMap<XMPPMethodParameter, XMPPMethodParameter>();
-        for(final Entry<T, U> entry : value.entrySet()) {
-            parameters.put(new XMPPMethodParameter("key", entry.getKey().getClass(), entry.getKey()),
-                    new XMPPMethodParameter("value", entry.getValue().getClass(), entry.getValue()));
-        }
-        this.parameters.add(new XMPPMethodParameter(name, Map.class, parameters));
-    }
-
-    /** A remote result reader. */
+	/** A remote result reader. */
     private static class XMPPMethodResponseProvider implements IQProvider {
 
         private final XStreamUtil xstreamUtil;
@@ -617,18 +100,6 @@ public class XMPPMethod extends IQ {
         private XMPPMethodResponseProvider() {
             super();
             this.xstreamUtil = XStreamUtil.getInstance();
-        }
-
-        /**
-         * @see org.jivesoftware.smack.provider.IQProvider#parseIQ(org.xmlpull.v1.XmlPullParser)
-         */
-        public IQ parseIQ(final XmlPullParser parser) throws Exception {
-            try {
-                return doParseIQ(parser);
-            } catch (final Throwable t) {
-                LOGGER.logFatal(t, "Could not parse remote method response.");
-                throw new XMPPException(t);
-            }
         }
 
         /**
@@ -662,6 +133,18 @@ public class XMPPMethod extends IQ {
                 }
             }
             return response;
+        }
+
+        /**
+         * @see org.jivesoftware.smack.provider.IQProvider#parseIQ(org.xmlpull.v1.XmlPullParser)
+         */
+        public IQ parseIQ(final XmlPullParser parser) throws Exception {
+            try {
+                return doParseIQ(parser);
+            } catch (final Throwable t) {
+                LOGGER.logFatal(t, "Could not parse remote method response.");
+                throw new XMPPException(t);
+            }
         }
 
         /**
@@ -944,5 +427,585 @@ public class XMPPMethod extends IQ {
             result.javaValue = parseJavaValue(parser, result.javaType);
             return result;
         }
+    }
+
+    /** The local <code>Locale</code>. */
+    private static final Locale LOCALE;
+
+    /** A <code>Log4JWrapper</code>. */
+    private static final Log4JWrapper LOGGER;
+
+    /** The local <code>TimeZone</code>. */
+    private static final TimeZone TIME_ZONE;
+
+    /** An empty <code>XMPPMethodResponse</code> used when execute times out. */
+	private static final XMPPMethodResponse TIMEOUT_RESPONSE;
+
+    /** The universal <code>DateFormat</code>. */
+    private static final DateFormat UNIVERSAL_FORMAT;
+
+    /** The universal <code>DateImage</code>. */
+    private static final DateImage UNIVERSAL_IMAGE;
+
+    /** A <code>TimeZone</code>. */
+    private static final TimeZone UNIVERSAL_TIME_ZONE;
+
+    /** An <code>XStreamUtil</code> instance. */
+    private static final XStreamUtil XSTREAM_UTIL;
+
+    static {
+    	TIMEOUT_RESPONSE = new XMPPMethodResponse();
+        LOCALE = Locale.getDefault();
+        LOGGER = new Log4JWrapper();
+        TIME_ZONE = TimeZone.getDefault();
+        UNIVERSAL_IMAGE = DateImage.ISO;
+        UNIVERSAL_TIME_ZONE = TimeZone.getTimeZone("Universal"); 
+        final String universalPattern = UNIVERSAL_IMAGE.toString();
+        UNIVERSAL_FORMAT = new SimpleDateFormat(universalPattern);
+        UNIVERSAL_FORMAT.setTimeZone(UNIVERSAL_TIME_ZONE);
+        XSTREAM_UTIL = XStreamUtil.getInstance();
+
+        ProviderManager.addIQProvider(Xml.Service.NAME, Xml.Service.NAMESPACE_RESPONSE, new XMPPMethodResponseProvider());
+    }
+
+    /** The number of milliseconds it took to execute the method. */
+    private Long executionTime;
+
+    /** The remote method name. */
+    private final String name;
+
+    /**
+	 * An <code>XMPPNetworkUtil</code> used to calculate the execution
+	 * timeout.
+	 */
+    private final XMPPNetworkUtil networkUtil;
+
+    /** A map of remote method parameters to their values. */
+    protected final List<XMPPMethodParameter> parameters;
+
+    /** The parameter xml serialization time. */
+    private Long serializationTime;
+
+    /**
+	 * Create XMPPMethod.
+	 * 
+	 * @param name
+	 *            A method name.
+	 * @param timeout
+	 *            A number of milliseconds to wait before timing out.
+	 */
+    public XMPPMethod(final String name) {
+    	this(name, null);
+    }
+
+    /**
+	 * Create XMPPMethod.  Create method instance that will not time out.
+	 * 
+	 * @param name
+	 *            A method name.
+	 */
+    public XMPPMethod(final String name, final XMPPNetworkUtil networkUtil) {
+    	super();
+        this.parameters = new LinkedList<XMPPMethodParameter>();
+        this.name = name;
+        this.networkUtil = networkUtil;
+    }
+
+    /**
+     * Create a packet collector that will filter on packets with the same
+     * query id.
+     *
+     * @param iq
+     *      The internet query.
+     * @return A packet collector.
+     */
+    protected PacketCollector createPacketCollector(
+            final XMPPConnection xmppConnection) {
+        return xmppConnection.createPacketCollector(
+                new PacketIDFilter(getPacketID()));
+    }
+
+    /**
+     * Execute this method on the give connection.
+     * 
+     * @param xmppConnection
+     *            An xmpp connection.
+     * @return An xmpp method response.
+     */
+    public XMPPMethodResponse execute(final XMPPConnection xmppConnection) {
+        // add an executed on parameter
+        setParameter(Xml.All.EXECUTED_ON, DateUtil.getInstance());
+        // create a collector for the response
+        final PacketCollector idCollector = createPacketCollector(xmppConnection);
+    	final long start = System.currentTimeMillis();
+        xmppConnection.sendPacket(this);
+        // this sleep has been inserted because when packets are sent within
+        // x milliseconds of each other, they tend to get swallowed by the
+        // smack library
+        try {
+        	Thread.sleep(75);
+        } catch (final InterruptedException ix) {}
+        try {
+    		final Long timeout = null == networkUtil
+    				? null : networkUtil.calculateTimeout(this);
+    		XMPPMethodResponse response = null == timeout
+    				? (XMPPMethodResponse) idCollector.nextResult()
+					: (XMPPMethodResponse) idCollector.nextResult(timeout);
+            if (null == response && null != timeout) {
+            	response = TIMEOUT_RESPONSE;
+        		LOGGER.logWarning("XMPP method {0} has timed out.  Execution time is {1} ms and timeout was calculated to be {2}.",
+        				name, executionTime, timeout);
+            }
+        	executionTime = Long.valueOf(System.currentTimeMillis() - start);
+    		LOGGER.logInfo("XMPP method {0} has executed in {0} ms.", name,
+					executionTime);
+            return response;
+        } catch (final Throwable t) {
+            final String errorId = new ErrorHelper().getErrorId(t);
+            LOGGER.logError(t, errorId);
+            LOGGER.logError("name:{0}", name);
+            LOGGER.logError("xmppConnection:{0}", xmppConnection);
+            throw new XMPPException(errorId);
+        } finally {
+            // re-set the parameters post execution
+            LOGGER.logVariable("postResponseCollected", DateUtil.getInstance());
+            parameters.clear();
+        }
+    }
+
+    /**
+     * @see org.jivesoftware.smack.packet.IQ#getChildElementXML()
+     *
+     */
+    public String getChildElementXML() {
+    	final long start = System.currentTimeMillis();
+        final String childElementXML = new StringBuilder()
+            .append("<query xmlns=\"jabber:iq:parity:").append(name).append("\">")
+            .append(getParametersXML())
+            .append("</query>")
+            .toString();
+        serializationTime = Long.valueOf(System.currentTimeMillis() - start);
+        LOGGER.logVariable("childElementXML.length()", childElementXML.length());
+        LOGGER.logVariable("childElementXML", childElementXML);
+        return childElementXML;
+    }
+
+    /**
+	 * Obtain the number of milliseconds to execute the method.
+	 * 
+	 * @return A number of milliseconds <code>Long</code>.
+	 */
+    public Long getExecutionTime() {
+    	return executionTime;
+    }
+
+    public Integer getParameterSize() {
+    	return parameters.size();
+    }
+
+    /**
+     * Flush the internal parameter map.
+     *
+     * @return A buffer of xml containing the parameters.
+     */
+    protected String getParametersXML() {
+        final StringBuffer xml = new StringBuffer();
+
+        for(final XMPPMethodParameter parameter : parameters)
+            xml.append(getParameterXML(parameter));
+
+        return xml.toString();
+    }
+
+    private String getParameterXML(final XMPPMethodParameter parameter) {
+        final StringBuffer xml = new StringBuffer();
+        xml.append("<").append(parameter.name).append(" javaType=\"")
+                .append(parameter.javaType.getName())
+                .append("\"");
+        if (null == parameter.javaValue) {
+            xml.append("/>");
+        } else {
+            xml.append(">").append(getParameterXMLValue(parameter))
+                .append("</").append(parameter.name).append(">");
+        }
+        return xml.toString();
+    }
+
+    private String getParameterXMLValue(final Calendar value) {
+        final Calendar universalCalendar = (Calendar) value.clone();
+        universalCalendar.setTimeZone(UNIVERSAL_TIME_ZONE);
+        return ((DateFormat) UNIVERSAL_FORMAT).format(universalCalendar.getTime());
+    }
+
+    private String getParameterXMLValue(final XMPPMethodParameter parameter) {
+        if (parameter.javaType.equals(ArtifactType.class)) {
+            return parameter.javaValue.toString();
+        } else if (parameter.javaType.equals(Calendar.class)) {
+            return getParameterXMLValue((Calendar) parameter.javaValue);
+        } else if (parameter.javaType.equals(DocumentVersionContent.class)) {
+            final DocumentVersionContent dvc = (DocumentVersionContent) parameter.javaValue;
+            return new StringBuffer("")
+                    .append(getParameterXML(new XMPPMethodParameter("uniqueId", UUID.class, dvc.getVersion().getArtifactUniqueId())))
+                    .append(getParameterXML(new XMPPMethodParameter("versionId", Long.class, dvc.getVersion().getVersionId())))
+                    .append(getParameterXML(new XMPPMethodParameter("bytes", byte[].class, dvc.getContent())))
+                    .toString();
+        } else if (parameter.javaType.equals(EMail.class)) {
+            return parameter.javaValue.toString();
+        } else if (parameter.javaType.equals(Contact.class)
+                || parameter.javaType.equals(User.class)
+                || parameter.javaType.equals(TeamMember.class)
+                || parameter.javaType.equals(Profile.class)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (parameter.javaType.equals(ContainerVersion.class)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (parameter.javaType.equals(DocumentVersion.class)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (parameter.javaType.equals(TimeZone.class)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (parameter.javaType.equals(Locale.class)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (parameter.javaType.equals(Credentials.class)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (parameter.javaType.equals(EMail.class)) {
+            return parameter.javaValue.toString();
+        } else if (parameter.javaType.equals(Integer.class)) {
+            return parameter.javaValue.toString();
+        } else if (parameter.javaType.equals(JabberId.class)) {
+            return ((JabberId) parameter.javaValue).getQualifiedJabberId();
+        } else if (parameter.javaType.equals(Long.class)) {
+            return parameter.javaValue.toString();
+        } else if (parameter.javaType.equals(List.class)) {
+            final List<XMPPMethodParameter> listItems = (List<XMPPMethodParameter>) parameter.javaValue;
+            final StringBuffer xmlValue = new StringBuffer("");
+            if (null != listItems && 0 < listItems.size()) {
+                for(final XMPPMethodParameter listItem : listItems) {
+                    xmlValue.append(getParameterXML(listItem));
+                }
+            }
+            return xmlValue.toString();
+        } else if (parameter.javaType.equals(Map.class)) {
+            final Map<XMPPMethodParameter, XMPPMethodParameter> map =
+                (Map<XMPPMethodParameter, XMPPMethodParameter>) parameter.javaValue;
+            final StringBuffer xmlValue = new StringBuffer("");
+            if (null != map && 0 < map.size()) {
+                for (final Entry<XMPPMethodParameter, XMPPMethodParameter> entry : map.entrySet()) {
+                    xmlValue.append(getParameterXML(entry.getKey()));
+                    xmlValue.append(getParameterXML(entry.getValue()));
+                }
+            }
+            return xmlValue.toString();
+        } else if (parameter.javaType.equals(OS.class)) {
+            return ((OS) parameter.javaValue).name();
+        } else if (parameter.javaType.equals(String.class)) {
+            return parameter.javaValue.toString();
+        } else if (parameter.javaType.equals(UUID.class)) {
+            return parameter.javaValue.toString();
+        } else if (ArtifactReceipt.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (Error.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (ContactInvitation.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (Reservation.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (Product.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (Release.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (Resource.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (UserVCard.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else {
+            final String assertion =
+                MessageFormat.format("[XMPP METHOD] [GET PARAMTER XML VALUE] [UNKNOWN JAVA TYPE] [{0}]",
+                        parameter.javaType.getName());
+            throw new XMPPException(assertion);
+        }
+    }
+
+    /**
+	 * Obtain the number of milliseconds to serialize the parameters/results.
+	 * 
+	 * @return A number of milliseconds <code>Long</code>.
+	 */
+    public Long getSerializationTime() {
+    	return serializationTime;
+    }
+
+    public final void setArtifactReceiptParameter(final String name,
+            final List<ArtifactReceipt> values) {
+        final List<XMPPMethodParameter> parameters = new ArrayList<XMPPMethodParameter>(values.size());
+        for (final ArtifactReceipt value : values) {
+            parameters.add(new XMPPMethodParameter(XmlRpc.LIST_ITEM, value.getClass(), value));
+        }
+        this.parameters.add(new XMPPMethodParameter(name, List.class, parameters));
+    }
+
+    public final void setContactsParameter(final String name,
+            final List<Contact> value) {
+        setListParameter(name, value);
+    }
+
+    public final void setDocumentVersionsStreamIdsParameter(final String name,
+            final Map<DocumentVersion, String> value) {
+        setMapParameter(name, value);
+    }
+
+    public final void setEMailsParameter(final String name,
+            final List<EMail> value) {
+        setListParameter(name, value);
+    }
+
+    /**
+     * Set a list of jabber id parameters.
+     * 
+     * @param listName
+     *            The list name.
+     * @param name
+     *            The list item names.
+     * @param values
+     *            The list values.
+     */
+    public final void setJabberIdParameters(final String listName, final String name,
+            final List<JabberId> values) {
+        final List<XMPPMethodParameter> parameters = new LinkedList<XMPPMethodParameter>();
+        for(final JabberId value : values) {
+            parameters.add(new XMPPMethodParameter(name, JabberId.class, value));
+        }
+        this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
+    }
+
+    /**
+     * Set a list parameter.
+     * 
+     * @param <T>
+     *            A <code>List</code> type.
+     * @param name
+     *            A parameter name <code>String</code>.
+     * @param value
+     *            A parameter value <code>List</code>.
+     */
+    private final <T extends Object> void setListParameter(final String name,
+            final List<T> value) {
+        final List<XMPPMethodParameter> parameters = new LinkedList<XMPPMethodParameter>();
+        for(final T element : value) {
+            parameters.add(new XMPPMethodParameter("element", element.getClass(), element));
+        }
+        this.parameters.add(new XMPPMethodParameter(name, List.class, parameters));
+    }
+
+    public final void setLongParameters(final String listName, final String name,
+            final List<Long> values) {
+        final List<XMPPMethodParameter> parameters = new LinkedList<XMPPMethodParameter>();
+        for(final Long value : values)
+            parameters.add(new XMPPMethodParameter(name, Long.class, value));
+
+        this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
+    }
+
+    /**
+     * Set a map parameter.
+     * 
+     * @param <T>
+     *            A <code>Map</code> key type.
+     * @param <U>
+     *            A <code>Map</code> value type.
+     * @param name
+     *            A parameter name <code>String</code>.
+     * @param value
+     *            A parameter value <code>Map</code>.
+     */
+    private final <T extends Object, U extends Object> void setMapParameter(
+            final String name, final Map<T, U> value) {
+        final Map<XMPPMethodParameter, XMPPMethodParameter> parameters = new HashMap<XMPPMethodParameter, XMPPMethodParameter>();
+        for(final Entry<T, U> entry : value.entrySet()) {
+            parameters.put(new XMPPMethodParameter("key", entry.getKey().getClass(), entry.getKey()),
+                    new XMPPMethodParameter("value", entry.getValue().getClass(), entry.getValue()));
+        }
+        this.parameters.add(new XMPPMethodParameter(name, Map.class, parameters));
+    }
+
+    public final void setParameter(final String name, final ArtifactType value) {
+        parameters.add(new XMPPMethodParameter(name, ArtifactType.class, value));
+    }
+
+    public final void setParameter(final String name, final Calendar value) {
+        parameters.add(new XMPPMethodParameter(name, Calendar.class, value));
+    }
+
+    public final void setParameter(final String name, final Credentials value) {
+        parameters.add(new XMPPMethodParameter(name, Credentials.class, value));
+    }
+
+    public final void setParameter(final String name, final EMail value) {
+        parameters.add(new XMPPMethodParameter(name, EMail.class, value));
+    }
+
+    public final void setParameter(final String name, final Error value) {
+        parameters.add(new XMPPMethodParameter(name, Error.class, value));
+    }
+
+    public final void setParameter(final String name, final Integer value) {
+        parameters.add(new XMPPMethodParameter(name, Integer.class, value));
+    }
+
+    public final void setParameter(final String name, final JabberId value) {
+        parameters.add(new XMPPMethodParameter(name, JabberId.class, value));
+    }
+
+    public final void setParameter(final String name, final Locale value) {
+        parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
+    }
+
+    /**
+     * Set a named parameter.
+     * 
+     * @param name
+     *            The parameter name.
+     * @param value
+     *            The parameter value.
+     */
+    public final void setParameter(final String name, final Long value) {
+        parameters.add(new XMPPMethodParameter(name, Long.class, value));
+    }
+
+    public final void setParameter(final String name, final OS value) {
+        parameters.add(new XMPPMethodParameter(name, OS .class, value));
+    }
+
+    public final void setParameter(final String name, final Product value) {
+        parameters.add(new XMPPMethodParameter(name, Product.class, value));
+    }
+
+    public final void setParameter(final String name, final Profile value) {
+        parameters.add(new XMPPMethodParameter(name, Profile.class, value));
+    }
+
+    public final void setParameter(final String name, final ProfileEMail value) {
+        parameters.add(new XMPPMethodParameter(name, ProfileEMail.class, value));
+    }
+
+    public final void setParameter(final String name, final Release value) {
+        parameters.add(new XMPPMethodParameter(name, Release.class, value));
+    }
+    
+    public final void setParameter(final String name, final Reservation value) {
+        parameters.add(new XMPPMethodParameter(name, Reservation.class, value));
+    }
+
+    /**
+     * Set a named parameter.
+     * 
+     * @param name
+     *            The parameter name.
+     * @param value
+     *            The parameter value.
+     */
+    public final void setParameter(final String name, final String value) {
+        parameters.add(new XMPPMethodParameter(name, String.class, value));
+    }
+
+    /**
+     * Set a list of jabber id parameters.
+     * 
+     * @param listName
+     *            The list parameter name.
+     * @param itemName
+     *            The item parameter name.
+     * @param value
+     *            The item value.
+     */
+    public final void setParameter(final String listName,
+            final String itemName, final List<JabberId> values) {
+        final List<XMPPMethodParameter> parameters = new ArrayList<XMPPMethodParameter>(values.size());
+        for (final JabberId value : values) {
+            parameters.add(new XMPPMethodParameter(itemName, JabberId.class, value));
+        }
+        this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
+    }
+
+    public final <T extends ArtifactVersion> void setParameter(
+            final String name, final T value) {
+        parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
+    }
+
+    public final <T extends ContactInvitation> void setParameter(
+            final String name, final T value) {
+        parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
+    }
+    
+    public final <T extends TimeZone> void setParameter(
+            final String name, final T value) {
+        parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
+    }
+
+    public final void setParameter(final String name, final UserVCard value) {
+        parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
+    }
+
+    /**
+     * Set a named parameter.
+     * 
+     * @param name
+     *            The parameter name.
+     * @param value
+     *            The parameter value.
+     */
+    public final void setParameter(final String name, final UUID value) {
+        parameters.add(new XMPPMethodParameter(name, UUID.class, value));
+    }
+
+    public final void setResourceParameters(final String name,
+            final List<Resource> values) {
+        final List<XMPPMethodParameter> parameters = new LinkedList<XMPPMethodParameter>();
+        for(final Resource value : values)
+            parameters.add(new XMPPMethodParameter(XmlRpc.LIST_ITEM, Resource.class, value));
+        this.parameters.add(new XMPPMethodParameter(name, List.class, parameters));
+    }
+
+    public final void setTeamMembersParameter(final String name,
+            final List<TeamMember> value) {
+        setListParameter(name, value);
+    }
+
+    public final void setUsersParameter(final String name,
+            final List<User> value) {
+        /* NOTE i'm not using the generic setListParameter here because i want
+         * to force slicing the value to a user object instead
+         * of contact/profile/team member. */
+        final List<XMPPMethodParameter> parameters = new LinkedList<XMPPMethodParameter>();
+        for(final User element : value) {
+            parameters.add(new XMPPMethodParameter("element", User.class, (User) element));
+        }
+        this.parameters.add(new XMPPMethodParameter(name, List.class, parameters));
     }
 }

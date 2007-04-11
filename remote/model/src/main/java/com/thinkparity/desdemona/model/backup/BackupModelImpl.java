@@ -872,9 +872,19 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
         final com.thinkparity.ophelia.model.artifact.InternalArtifactModel
                 artifactModel = getModelFactory(user).getArtifactModel();
         Long containerId;
+        Container container;
         for (final UUID backedUpContainerId : backedUpContainerIds) {
             containerId = artifactModel.readId(backedUpContainerId);
-            backedUpContainers.add(containerModel.read(containerId));
+            if (null == containerId) {
+                logger.logWarning("Container {0} no longer exists in the backup.", backedUpContainerId);
+            } else {
+                container = containerModel.read(containerId);
+                if (null == container) {
+                    logger.logWarning("Container {0} no longer exists in the backup.", containerId);
+                } else {
+                    backedUpContainers.add(containerModel.read(containerId));
+                }
+            }
         }
         applyFlagArchived(user, backedUpContainers);
         return backedUpContainers;

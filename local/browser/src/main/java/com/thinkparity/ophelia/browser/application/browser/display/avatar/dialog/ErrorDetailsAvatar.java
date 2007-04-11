@@ -66,7 +66,6 @@ public final class ErrorDetailsAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        toggleDetailsJButton = new javax.swing.JButton();
         final javax.swing.JButton closeJButton = ButtonFactory.create();
         detailsJPanel = new javax.swing.JPanel();
         detailsJScrollPane = new javax.swing.JScrollPane();
@@ -75,13 +74,6 @@ public final class ErrorDetailsAvatar extends Avatar {
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setText("An error has occured.");
         errorMessageJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-
-        toggleDetailsJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ErrorDetailsDialog.ShowDetailsButton"));
-        toggleDetailsJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                toggleDetailsJButtonActionPerformed(e);
-            }
-        });
 
         copyDetailsJButton.setFont(Fonts.DialogButtonFont);
         copyDetailsJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ErrorDetailsDialog.CopyDetailsButton"));
@@ -122,11 +114,9 @@ public final class ErrorDetailsAvatar extends Avatar {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(detailsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(toggleDetailsJButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(copyDetailsJButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 144, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 266, Short.MAX_VALUE)
                         .addComponent(closeJButton))
                     .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE))
                 .addContainerGap())
@@ -141,18 +131,10 @@ public final class ErrorDetailsAvatar extends Avatar {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(closeJButton)
-                    .addComponent(toggleDetailsJButton)
                     .addComponent(copyDetailsJButton))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void toggleDetailsJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_toggleDetailsJButtonActionPerformed
-        detailsJPanel.setVisible(!detailsJPanel.isVisible());
-        if (detailsJPanel.isVisible())
-            toggleDetailsJButton.setText(getString(""));
-        validate();
-    }//GEN-LAST:event_toggleDetailsJButtonActionPerformed
 
     private void closeJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
         disposeWindow();
@@ -264,7 +246,6 @@ public final class ErrorDetailsAvatar extends Avatar {
     private javax.swing.JScrollPane detailsJScrollPane;
     private javax.swing.JTextArea detailsJTextArea;
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
-    private javax.swing.JButton toggleDetailsJButton;
     // End of variables declaration//GEN-END:variables
 
     /** Data keys. */

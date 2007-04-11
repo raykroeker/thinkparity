@@ -99,9 +99,7 @@ public final class ErrorDetailsAvatar extends Avatar {
         });
 
         detailsJTextArea.setColumns(20);
-        detailsJTextArea.setLineWrap(true);
         detailsJTextArea.setRows(5);
-        detailsJTextArea.setWrapStyleWord(true);
         detailsJScrollPane.setViewportView(detailsJTextArea);
 
         javax.swing.GroupLayout detailsJPanelLayout = new javax.swing.GroupLayout(detailsJPanel);

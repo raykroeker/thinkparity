@@ -15,6 +15,7 @@ import com.thinkparity.codebase.swing.ClipboardUtils;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
+import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -69,13 +70,13 @@ public final class ErrorDetailsAvatar extends Avatar {
         final javax.swing.JButton closeJButton = ButtonFactory.create();
         detailsJPanel = new javax.swing.JPanel();
         detailsJScrollPane = new javax.swing.JScrollPane();
-        detailsJTextArea = new javax.swing.JTextArea();
+        detailsJTextArea = TextFactory.createArea(Fonts.DialogTextEntryFont);
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setText("An error has occured.");
         errorMessageJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        toggleDetailsJButton.setText("Show Details");
+        toggleDetailsJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ErrorDetailsDialog.ShowDetailsButton"));
         toggleDetailsJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 toggleDetailsJButtonActionPerformed(e);
@@ -122,16 +123,12 @@ public final class ErrorDetailsAvatar extends Avatar {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(detailsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(toggleDetailsJButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(copyDetailsJButton))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
-                                .addGap(235, 235, 235)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
-                        .addComponent(closeJButton)))
+                        .addComponent(toggleDetailsJButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(copyDetailsJButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 144, Short.MAX_VALUE)
+                        .addComponent(closeJButton))
+                    .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -151,7 +148,9 @@ public final class ErrorDetailsAvatar extends Avatar {
     }// </editor-fold>//GEN-END:initComponents
 
     private void toggleDetailsJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_toggleDetailsJButtonActionPerformed
-        detailsJPanel.setVisible(detailsJPanel.isVisible());
+        detailsJPanel.setVisible(!detailsJPanel.isVisible());
+        if (detailsJPanel.isVisible())
+            toggleDetailsJButton.setText(getString(""));
         validate();
     }//GEN-LAST:event_toggleDetailsJButtonActionPerformed
 

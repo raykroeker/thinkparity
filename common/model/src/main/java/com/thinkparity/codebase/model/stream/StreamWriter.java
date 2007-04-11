@@ -42,6 +42,15 @@ public final class StreamWriter extends StreamClient {
     }
 
     /**
+	 * Determine whether or not the stream writer is open.
+	 * 
+	 * @return True if the stream writer is open.
+	 */
+    public Boolean isOpen() {
+    	return super.isOpen();
+    }
+
+    /**
      * Open the stream writer.
      * 
      */

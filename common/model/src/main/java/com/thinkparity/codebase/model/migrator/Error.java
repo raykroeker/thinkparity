@@ -16,7 +16,7 @@ import java.util.Calendar;
 public class Error {
 
     /** The method arguments <code>Object[]</code>. */
-    private Object[] arguments;
+    private transient Object[] arguments;
 
     /** The cause <code>Throwable</code>. */
     private Throwable cause;

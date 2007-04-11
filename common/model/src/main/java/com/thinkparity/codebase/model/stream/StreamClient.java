@@ -17,7 +17,6 @@ import javax.net.ssl.SSLException;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
 import com.thinkparity.codebase.model.session.Environment;
 
 /**
@@ -35,6 +34,9 @@ import com.thinkparity.codebase.model.session.Environment;
  * @see StreamWriter
  */
 abstract class StreamClient {
+
+    /** An enumeration of the client type. */
+    protected enum Type { DOWNSTREAM, UPSTREAM }
 
     /** A default <code>StreamMonitor</code>. */
     private static final StreamMonitor DEFAULT_MONITOR;
@@ -195,6 +197,78 @@ abstract class StreamClient {
     }
 
     /**
+     * Connect the stream client.
+     * 
+     * @throws IOException
+     */
+    private void doConnect() throws IOException {
+        socket = socketFactory.createSocket(
+                socketAddress.getAddress(), socketAddress.getPort());
+        input = socket.getInputStream();
+        output = socket.getOutputStream();
+    }
+
+    /**
+     * Notiry the client monitor that a chunk has been received.
+     * 
+     * @param chunkSize
+     *            The <code>int</code> chunk size.
+     */
+    private void fireChunkReceived(final int chunkSize) {
+        try {
+            monitor.chunkReceived(chunkSize);
+        } catch (final Throwable t) {
+            // do nothing; this is a client monitor issue
+            LOGGER.logError(t, "Stream monitor error:  {0}", session);
+        }
+    }
+
+    /**
+     * Notify the client monitor that a chunk has been sent.
+     * 
+     * @param chunkSize
+     *            The <code>int</code> size of the chunk.
+     */
+    private void fireChunkSent(final int chunkSize) {
+        try {
+            monitor.chunkSent(chunkSize);
+        } catch (final Throwable t) {
+            // do nothing; this is a client monitor issue
+            LOGGER.logError(t, "Stream monitor error:  {0}", session);
+        }
+    }
+
+    /**
+     * Notify the client monitor that a header has been sent.
+     * 
+     * @param header
+     *            The <code>StreamHeader</code>.
+     */
+    private void fireHeaderSent(final StreamHeader header) {
+        try {
+            monitor.headerSent(header.toHeader());
+        } catch (final Throwable t) {
+            // do nothing; this is a client monitor issue
+            LOGGER.logError(t, "Stream monitor error:  {0}", session);
+        }
+    }
+
+    /**
+     * Notify the client monitor that a stream error has occured.
+     * 
+     * @param error
+     *            The <code>StreamException</code>.
+     */
+    private void fireStreamError(final StreamException error) {
+        try {
+            monitor.streamError(error);
+        } catch (final Throwable t) {
+            // do nothing; this is a client monitor issue
+            LOGGER.logError(t, "Stream monitor error:  {0}", session);
+        }
+    }
+
+    /**
      * Initialize the read operation. This will write the stream headers.
      * 
      * @param streamId
@@ -253,6 +327,97 @@ abstract class StreamClient {
                 }                
             }
         }.start();
+    }
+
+    /**
+     * Determine if the stream client is connected.
+     * 
+     * @return True if the stream client is connected.
+     */
+    private boolean isConnected() {
+        return null != socket && socket.isConnected();
+    }
+
+    /**
+	 * Determine whether or not the stream client is open.
+	 * 
+	 * @return True if the stream client is open.
+	 */
+    protected Boolean isOpen() {
+    	return isConnected();
+    }
+
+    /**
+     * Determine whether or not a stream error is recoverable. The criteria for
+     * being able to recover are:
+     * <ul>
+     * <li>Being able to create a socket connection to the socket address.
+     * </ul>
+     * 
+     * @return True if the stream host is reachable.
+     */
+    private boolean isResumable() {
+        Socket socket = null;
+        try {
+            socket = socketFactory.createSocket(
+                socketAddress.getAddress(), socketAddress.getPort());
+            return true;
+        } catch (final Throwable t) {
+            return false;
+        } finally {
+            if (null != socket) {
+                if (socket.isConnected()) {
+                    try {
+                        socket.close();
+                    } catch (final IOException iox) {
+                        throw panic(iox);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Determine whether or not a stream error is recoverable. The criteria for
+     * being able to recover are:
+     * <ul>
+     * <li>Being able to create a socket connection to the socket address.
+     * <li>Subsequent bytes being avaialbe on stream.
+     * </ul>
+     * 
+     * @param stream
+     *            A stream <code>InputStream</code>.
+     * @return True if the stream host is reachable.
+     */
+    private boolean isResumable(final InputStream stream) {
+        Socket socket = null;
+        try {
+            socket = socketFactory.createSocket(
+                socketAddress.getAddress(), socketAddress.getPort());
+            return 0 < stream.available();
+        } catch (final Throwable t) {
+            return false;
+        } finally {
+            if (null != socket) {
+                if (socket.isConnected()) {
+                    try {
+                        socket.close();
+                    } catch (final IOException iox) {
+                        throw panic(iox);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Panic. Check if the error is one that can be recovered from; and create
+     * the appropriate stream error response.
+     * 
+     * @return A <code>StreamException</code>.
+     */
+    private StreamException panic(final Throwable t) {
+        return new StreamException(Boolean.FALSE, t);
     }
 
     /**
@@ -350,160 +515,6 @@ abstract class StreamClient {
     }
 
     /**
-     * Connect the stream client.
-     * 
-     * @throws IOException
-     */
-    private void doConnect() throws IOException {
-        socket = socketFactory.createSocket(
-                socketAddress.getAddress(), socketAddress.getPort());
-        input = socket.getInputStream();
-        output = socket.getOutputStream();
-    }
-
-    /**
-     * Notiry the client monitor that a chunk has been received.
-     * 
-     * @param chunkSize
-     *            The <code>int</code> chunk size.
-     */
-    private void fireChunkReceived(final int chunkSize) {
-        try {
-            monitor.chunkReceived(chunkSize);
-        } catch (final Throwable t) {
-            // do nothing; this is a client monitor issue
-            LOGGER.logError(t, "Stream monitor error:  {0}", session);
-        }
-    }
-
-    /**
-     * Notify the client monitor that a chunk has been sent.
-     * 
-     * @param chunkSize
-     *            The <code>int</code> size of the chunk.
-     */
-    private void fireChunkSent(final int chunkSize) {
-        try {
-            monitor.chunkSent(chunkSize);
-        } catch (final Throwable t) {
-            // do nothing; this is a client monitor issue
-            LOGGER.logError(t, "Stream monitor error:  {0}", session);
-        }
-    }
-
-    /**
-     * Notify the client monitor that a header has been sent.
-     * 
-     * @param header
-     *            The <code>StreamHeader</code>.
-     */
-    private void fireHeaderSent(final StreamHeader header) {
-        try {
-            monitor.headerSent(header.toHeader());
-        } catch (final Throwable t) {
-            // do nothing; this is a client monitor issue
-            LOGGER.logError(t, "Stream monitor error:  {0}", session);
-        }
-    }
-
-    /**
-     * Notify the client monitor that a stream error has occured.
-     * 
-     * @param error
-     *            The <code>StreamException</code>.
-     */
-    private void fireStreamError(final StreamException error) {
-        try {
-            monitor.streamError(error);
-        } catch (final Throwable t) {
-            // do nothing; this is a client monitor issue
-            LOGGER.logError(t, "Stream monitor error:  {0}", session);
-        }
-    }
-
-    /**
-     * Determine if the stream client is connected.
-     * 
-     * @return True if the stream client is connected.
-     */
-    private boolean isConnected() {
-        return null != socket && socket.isConnected();
-    }
-
-    /**
-     * Determine whether or not a stream error is recoverable. The criteria for
-     * being able to recover are:
-     * <ul>
-     * <li>Being able to create a socket connection to the socket address.
-     * </ul>
-     * 
-     * @return True if the stream host is reachable.
-     */
-    private boolean isResumable() {
-        Socket socket = null;
-        try {
-            socket = socketFactory.createSocket(
-                socketAddress.getAddress(), socketAddress.getPort());
-            return true;
-        } catch (final Throwable t) {
-            return false;
-        } finally {
-            if (null != socket) {
-                if (socket.isConnected()) {
-                    try {
-                        socket.close();
-                    } catch (final IOException iox) {
-                        throw panic(iox);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Determine whether or not a stream error is recoverable. The criteria for
-     * being able to recover are:
-     * <ul>
-     * <li>Being able to create a socket connection to the socket address.
-     * <li>Subsequent bytes being avaialbe on stream.
-     * </ul>
-     * 
-     * @param stream
-     *            A stream <code>InputStream</code>.
-     * @return True if the stream host is reachable.
-     */
-    private boolean isResumable(final InputStream stream) {
-        Socket socket = null;
-        try {
-            socket = socketFactory.createSocket(
-                socketAddress.getAddress(), socketAddress.getPort());
-            return 0 < stream.available();
-        } catch (final Throwable t) {
-            return false;
-        } finally {
-            if (null != socket) {
-                if (socket.isConnected()) {
-                    try {
-                        socket.close();
-                    } catch (final IOException iox) {
-                        throw panic(iox);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Panic. Check if the error is one that can be recovered from; and create
-     * the appropriate stream error response.
-     * 
-     * @return A <code>StreamException</code>.
-     */
-    private StreamException panic(final Throwable t) {
-        return new StreamException(Boolean.FALSE, t);
-    }
-
-    /**
      * Write a stream header.
      * 
      * @param streamHeader
@@ -531,7 +542,4 @@ abstract class StreamClient {
         output.write(message.getBytes(session.getCharset().name()));
         output.flush();
     }
-
-    /** An enumeration of the client type. */
-    protected enum Type { DOWNSTREAM, UPSTREAM }
 }

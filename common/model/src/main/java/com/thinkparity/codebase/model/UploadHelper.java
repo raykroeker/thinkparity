@@ -6,8 +6,8 @@ package com.thinkparity.codebase.model;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
 import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
@@ -20,6 +20,12 @@ import com.thinkparity.codebase.model.stream.StreamWriter;
  * @version 1.1.2.1
  */
 class UploadHelper {
+
+    private static final int MAX_ATTEMPT_OPEN;
+
+    static {
+    	MAX_ATTEMPT_OPEN = 7;
+    }
 
     /** An apache <code>Log4JWrapper</code>. */
     private final Log4JWrapper logger;
@@ -39,6 +45,55 @@ class UploadHelper {
         super();
         this.model = model;
         this.logger = logger;
+    }
+
+    /**
+     * Upload a stream to the stream server using an existing session.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     * @param iStream
+     *            A <code>Iterable</code> series of <code>InputStream</code>.
+     * @throws IOException
+     */
+    private final void upload(final UploadMonitor uploadMonitor,
+            final StreamMonitor streamMonitor, final String streamId,
+            final StreamSession session, final InputStream stream,
+            final Long streamSize, final Long streamOffset) throws IOException {
+        stream.reset();
+        long skipped = stream.skip(streamOffset);
+        while (skipped < streamOffset && 0 < skipped) {
+            skipped += stream.skip(streamOffset.longValue() - skipped);
+        }
+        final Long actualStreamOffset;
+        if (skipped == streamOffset.longValue()) {
+            logger.logInfo("Resuming upload for {0} at {1}.",
+                    streamId, streamOffset);
+            actualStreamOffset = streamOffset;
+        } else {
+            logger.logWarning("Could not resume upload for {0} at {1}.  Starting over.",
+                    streamId, streamOffset);
+            actualStreamOffset = 0L;
+        }
+        final StreamWriter writer = new StreamWriter(streamMonitor, session);
+        /* attempt to open a stream writer - if the underlying network topology
+         * is bad, many attempts can be made */
+        int attempt = 1;
+        while (attempt < MAX_ATTEMPT_OPEN && !writer.isOpen().booleanValue()) {
+	        try {
+	        	attempt++;
+		        writer.open();
+	        } catch (final IOException iox) {
+	        	logger.logWarning("{0} of {1} Could not open stream writer.{2}  {3}",
+						attempt - 1, MAX_ATTEMPT_OPEN, Separator.SystemNewLine,
+						iox.getMessage());
+	        }
+        }
+        try {
+            writer.write(streamId, stream, streamSize, actualStreamOffset);
+        } finally {
+            writer.close();
+        }
     }
 
     /**
@@ -100,42 +155,5 @@ class UploadHelper {
         stream.mark(stream.available());
         upload(uploadMonitor, streamMonitor, streamId, session, stream,
                 streamSize, 0L);
-    }
-
-    /**
-     * Upload a stream to the stream server using an existing session.
-     * 
-     * @param session
-     *            A <code>StreamSession</code>.
-     * @param iStream
-     *            A <code>Iterable</code> series of <code>InputStream</code>.
-     * @throws IOException
-     */
-    private final void upload(final UploadMonitor uploadMonitor,
-            final StreamMonitor streamMonitor, final String streamId,
-            final StreamSession session, final InputStream stream,
-            final Long streamSize, final Long streamOffset) throws IOException {
-        stream.reset();
-        long skipped = stream.skip(streamOffset);
-        while (skipped < streamOffset && 0 < skipped) {
-            skipped += stream.skip(streamOffset.longValue() - skipped);
-        }
-        final Long actualStreamOffset;
-        if (skipped == streamOffset.longValue()) {
-            logger.logInfo("Resuming upload for {0} at {1}.",
-                    streamId, streamOffset);
-            actualStreamOffset = streamOffset;
-        } else {
-            logger.logWarning("Could not resume upload for {0} at {1}.  Starting over.",
-                    streamId, streamOffset);
-            actualStreamOffset = 0L;
-        }
-        final StreamWriter writer = new StreamWriter(streamMonitor, session);
-        writer.open();
-        try {
-            writer.write(streamId, stream, streamSize, actualStreamOffset);
-        } finally {
-            writer.close();
-        }
     }
 }

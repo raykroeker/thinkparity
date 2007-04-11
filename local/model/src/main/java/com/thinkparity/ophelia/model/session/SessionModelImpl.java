@@ -14,6 +14,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
@@ -42,6 +43,7 @@ import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.Token;
+
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.events.SessionAdapter;
@@ -679,7 +681,7 @@ public final class SessionModelImpl extends Model<SessionListener>
      */
     public Boolean isOnline() {
         try {
-            if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES)) {
+            if (workspace.isDesktop() && workspace.isSetAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES)) {
                 return Boolean.FALSE;
             } else {
                 return isXMPPOnline();

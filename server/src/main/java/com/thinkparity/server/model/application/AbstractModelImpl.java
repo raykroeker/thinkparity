@@ -31,6 +31,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.ThinkParityException;
+import com.thinkparity.codebase.model.annotation.ThinkParityBackupEvent;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
@@ -885,12 +886,16 @@ public abstract class AbstractModelImpl
         }
 
         // create the backup event in the database
-        createEvent(userId, backupUserId, event);
-        if (isOnline(backupUserId)) {
-            // send the backup user a notification that an event is pending
-            sendQueueUpdated(backupUserId);
+        if (event.getClass().isAnnotationPresent(ThinkParityBackupEvent.class)) {
+            createEvent(userId, backupUserId, event);
+            if (isOnline(backupUserId)) {
+                // send the backup user a notification that an event is pending
+                sendQueueUpdated(backupUserId);
+            } else {
+                logWarning("Backup service is not online.");
+            }
         } else {
-            logWarning("Backup service is not online.");
+            logInfo("Event {0} cannot be backed up.", event.getClass());
         }
     }
 

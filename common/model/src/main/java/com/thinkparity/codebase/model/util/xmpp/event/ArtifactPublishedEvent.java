@@ -11,12 +11,15 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityBackupEvent;
+
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
+@ThinkParityBackupEvent
 public final class ArtifactPublishedEvent extends XMPPEvent {
 
     /** The latest version flag <code>Boolean</code>. */

@@ -4,11 +4,14 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityBackupEvent;
+
 /**
  * <b>Title:</b>thinkparity XMPP Artifact Handle Team Member Added Query<br>
  * <b>Description:</b>Provides a wrapper for the team member added remote
  * event data.<br>
  */
+@ThinkParityBackupEvent
 public final class ArtifactTeamMemberAddedEvent extends XMPPEvent {
 
     /** The team member jabber id. */

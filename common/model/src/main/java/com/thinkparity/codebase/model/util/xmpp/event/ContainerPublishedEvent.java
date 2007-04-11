@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityBackupEvent;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
@@ -23,6 +24,7 @@ import com.thinkparity.codebase.model.user.User;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
+@ThinkParityBackupEvent
 public final class ContainerPublishedEvent extends XMPPEvent {
 
     /**

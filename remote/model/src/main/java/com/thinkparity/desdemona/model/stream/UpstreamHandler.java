@@ -91,6 +91,7 @@ public final class UpstreamHandler extends AbstractStreamHandler implements
             this.output.flush();
             LOGGER.logDebug("{0}  Upstream session complete.", streamId);
         } catch (final IOException iox) {
+            LOGGER.logError(iox, "{0}  Upstream transfer error.", streamId);
             throw new StreamException(iox);
         }
     }

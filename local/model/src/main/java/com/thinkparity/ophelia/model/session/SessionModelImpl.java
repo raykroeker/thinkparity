@@ -824,7 +824,8 @@ public final class SessionModelImpl extends Model<SessionListener>
      */
     public void logout() {
 		try {
-            stopIsOnlineMonitor();
+            if (workspace.isDesktop())
+                stopIsOnlineMonitor();
 
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -1772,7 +1773,7 @@ public final class SessionModelImpl extends Model<SessionListener>
     @Override
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
-        if (!workspace.isSetAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_LISTENER).booleanValue()) {
+        if (workspace.isDesktop() && !workspace.isSetAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_LISTENER).booleanValue()) {
             final SessionListener listener = new SessionAdapter() {
                 @Override
                 public void sessionEstablished() {

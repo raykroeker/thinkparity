@@ -1,9 +1,6 @@
 /*
- * ErrorDetailsAvatar.java
- *
  * Created on January 23, 2007, 12:20 PM
  */
-
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog;
 
 import java.awt.event.ActionEvent;
@@ -24,15 +21,18 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
- *
- * @author  user
+ * <b>Title:</b>thinkParity OpheliaUI Error Dialog<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class ErrorDetailsAvatar extends Avatar {
+public final class ErrorDetailsAvatar extends Avatar {
     
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
-    
-    /** Creates new form ErrorDetailsAvatar */
+    /**
+     * Create ErrorDetailsAvatar.
+     * 
+     */
     public ErrorDetailsAvatar() {
         super("ErrorDetailsDialog", BrowserConstants.DIALOGUE_BACKGROUND);
         bindEscapeKey("Cancel", new AbstractAction() {
@@ -42,7 +42,7 @@ public class ErrorDetailsAvatar extends Avatar {
         });
         initComponents();
     }
-    
+
     public AvatarId getId() { return AvatarId.DIALOG_ERROR_DETAILS; }
 
     public State getState() { return null; }
@@ -65,46 +65,72 @@ public class ErrorDetailsAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        toggleDetailsJButton = new javax.swing.JButton();
         final javax.swing.JButton closeJButton = ButtonFactory.create();
+        detailsJPanel = new javax.swing.JPanel();
+        detailsJScrollPane = new javax.swing.JScrollPane();
+        detailsJTextArea = new javax.swing.JTextArea();
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
-        errorMessageJLabel.setText("Default Error Message:  This text should not be seen.");
+        errorMessageJLabel.setText("An error has occured.");
         errorMessageJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        errorJTextArea.setColumns(20);
-        errorJTextArea.setEditable(false);
-        errorJTextArea.setFont(Fonts.DialogTextEntryFont);
-        errorJTextArea.setRows(5);
-        errorJScrollPane.setViewportView(errorJTextArea);
+        toggleDetailsJButton.setText("Show Details");
+        toggleDetailsJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                toggleDetailsJButtonActionPerformed(e);
+            }
+        });
 
         copyDetailsJButton.setFont(Fonts.DialogButtonFont);
         copyDetailsJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ErrorDetailsDialog.CopyDetailsButton"));
         copyDetailsJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                copyDetailsJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                copyDetailsJButtonActionPerformed(e);
             }
         });
 
         closeJButton.setFont(Fonts.DialogButtonFont);
         closeJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ErrorDetailsDialog.Ok"));
         closeJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                closeJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                closeJButtonActionPerformed(e);
             }
         });
+
+        detailsJTextArea.setColumns(20);
+        detailsJTextArea.setRows(5);
+        detailsJScrollPane.setViewportView(detailsJTextArea);
+
+        javax.swing.GroupLayout detailsJPanelLayout = new javax.swing.GroupLayout(detailsJPanel);
+        detailsJPanel.setLayout(detailsJPanelLayout);
+        detailsJPanelLayout.setHorizontalGroup(
+            detailsJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(detailsJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE)
+        );
+        detailsJPanelLayout.setVerticalGroup(
+            detailsJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(detailsJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 22, Short.MAX_VALUE)
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(errorJScrollPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
-                    .addComponent(errorMessageJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addComponent(copyDetailsJButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 374, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(detailsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(toggleDetailsJButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(copyDetailsJButton))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(235, 235, 235)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(closeJButton)))
                 .addContainerGap())
         );
@@ -114,21 +140,27 @@ public class ErrorDetailsAvatar extends Avatar {
                 .addContainerGap()
                 .addComponent(errorMessageJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(errorJScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
+                .addComponent(detailsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(copyDetailsJButton)
-                    .addComponent(closeJButton))
+                    .addComponent(closeJButton)
+                    .addComponent(toggleDetailsJButton)
+                    .addComponent(copyDetailsJButton))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void toggleDetailsJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_toggleDetailsJButtonActionPerformed
+        detailsJPanel.setVisible(detailsJPanel.isVisible());
+        validate();
+    }//GEN-LAST:event_toggleDetailsJButtonActionPerformed
 
     private void closeJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
         disposeWindow();
     }//GEN-LAST:event_closeJButtonActionPerformed
 
     private void copyDetailsJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyDetailsJButtonActionPerformed
-        ClipboardUtils.copy(errorJTextArea);
+        ClipboardUtils.copy(detailsJTextArea);
     }//GEN-LAST:event_copyDetailsJButtonActionPerformed
     
     /**
@@ -195,17 +227,11 @@ public class ErrorDetailsAvatar extends Avatar {
      *
      */
     private void reloadError() {
-        errorJTextArea.setText("");
+        detailsJTextArea.setText("");
         final String error = getInputError();
         if (null != error) {
-            errorJScrollPane.setVisible(true);
-            copyDetailsJButton.setVisible(true);
-
-            errorJTextArea.setText(error);
-            errorJTextArea.setCaretPosition(0);
-        } else {
-            errorJScrollPane.setVisible(false);
-            copyDetailsJButton.setVisible(false);
+            detailsJTextArea.setText(error);
+            detailsJTextArea.setCaretPosition(0);
         }
     }
 
@@ -235,9 +261,11 @@ public class ErrorDetailsAvatar extends Avatar {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JButton copyDetailsJButton = ButtonFactory.create();
-    private final javax.swing.JScrollPane errorJScrollPane = new javax.swing.JScrollPane();
-    private final javax.swing.JTextArea errorJTextArea = new javax.swing.JTextArea();
+    private javax.swing.JPanel detailsJPanel;
+    private javax.swing.JScrollPane detailsJScrollPane;
+    private javax.swing.JTextArea detailsJTextArea;
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
+    private javax.swing.JButton toggleDetailsJButton;
     // End of variables declaration//GEN-END:variables
 
     /** Data keys. */

@@ -470,7 +470,7 @@ public class UpdateProfileAvatar extends Avatar {
     private void verifyEMail() {
         final Long emailId = getEMail().getEmailId();
         final String verificationKey = extractVerificationKey();
-        getController().runVerifyProfileEmail(emailId, verificationKey);
+        getController().runVerifyEmail(emailId, verificationKey);
     }
 
     private void verifyJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_verifyJButtonActionPerformed

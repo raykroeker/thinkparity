@@ -48,7 +48,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameDocumentAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
@@ -542,15 +541,9 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Display the verify profile email dialog.
-     * 
-     * @param emailId
-     *            An email id <code>Long</code>.
+     * Display the verify email dialog.
      */
-    public void displayVerifyProfileEmailDialog(final Long emailId) {
-        final Data input = new Data(1);
-        input.set(VerifyEMailAvatar.DataKey.EMAIL_ID, emailId);
-        setInput(AvatarId.DIALOG_PROFILE_VERIFY_EMAIL, input);
+    public void displayVerifyEmailDialog() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_VERIFY_EMAIL);        
     }
 
@@ -1440,29 +1433,20 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Run the profile's verify email action.  Since no key is specified; this
-     * will display a dialog.
-     *
-     */
-    public void runVerifyProfileEmail(final Long emailId) {
-        runVerifyProfileEmail(emailId, null);
-    }
-    
-    /**
-     * Run the profile's verify email action.
+     * Run the verify email action.
      * 
      * @param emailId
      *            An email id <code>Long</code>.
      * @param key
      *            An email verification key <code>String</code>.
      */
-    public void runVerifyProfileEmail(final Long emailId, final String key) {
+    public void runVerifyEmail(final Long emailId, final String key) {
         final Data data = new Data(3);
-        data.set(VerifyEmail.DataKey.EMAIL_ID, emailId);
-        if (null == key) {
+        if (null == emailId || null == key) {
             data.set(VerifyEmail.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
         } else {
             data.set(VerifyEmail.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
+            data.set(VerifyEmail.DataKey.EMAIL_ID, emailId);
             data.set(VerifyEmail.DataKey.KEY, key);
         }
         invoke(ActionId.PROFILE_VERIFY_EMAIL, data);

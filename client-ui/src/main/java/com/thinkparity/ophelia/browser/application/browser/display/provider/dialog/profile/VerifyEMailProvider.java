@@ -3,44 +3,36 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile;
 
-import com.thinkparity.codebase.assertion.Assert;
+import java.util.List;
+
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 
-import com.thinkparity.ophelia.browser.application.browser.display.provider.SingleContentProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class VerifyEMailProvider extends SingleContentProvider {
-
-    /** An array of single content providers. */
-    private final SingleContentProvider singleProvider;
+public class VerifyEMailProvider extends ContentProvider {
 
     /**
      * Create VerifyEMailProvider.
      * 
      * @param profileModel
-     *            A thinkParity profile interface.
+     *            An instance of <code>ProfileModel</code>.
      */
     public VerifyEMailProvider(final ProfileModel profileModel) {
         super(profileModel);
-        this.singleProvider = new SingleContentProvider(profileModel) {
-            @Override
-            public Object getElement(final Object input) {
-                Assert.assertNotNull("NULL INPUT", input);
-                Assert.assertOfType("INPUT OF WRONG TYPE", Long.class, input);
-                return profileModel.readEmail((Long) input);
-            }
-        };
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.provider.SingleContentProvider#getElement(java.lang.Object)
+     * Read emails.
+     * 
+     * @return A list of email addresses.
      */
-    @Override
-    public Object getElement(final Object input) {
-        return singleProvider.getElement(input);
+    public List<ProfileEMail> readEMails() {
+        return profileModel.readEmails();
     }
 }

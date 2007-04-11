@@ -12,7 +12,7 @@
     <property name="javac.compilerargs" value="-Xlint:deprecation -Xlint:unchecked"/>
     <property name="javac.debug" value="true"/>
     <property name="javac.debug-level" value="lines,vars,source"/>
-    <property name="java.jvmarg-debug" value="-Xdebug -Xint -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"/>
+    <property name="java.jvmarg-debug" value="-XX:+PrintConcurrentLocks -Xdebug -Xint -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"/>
 
     <!-- local configuration  -->
     <property name="localconfig" value="local.properties"/>

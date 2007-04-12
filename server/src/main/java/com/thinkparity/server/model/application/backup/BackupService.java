@@ -221,6 +221,27 @@ public final class BackupService {
             getModelFactory().getSessionModel().addListener(new SessionListener() {
                 public void sessionError(final Throwable cause) {
                     logger.logError(cause, "Backup session has generated an error.");
+                    if (!getModelFactory().getSessionModel().isOnline().booleanValue()) {
+                        logger.logInfo("Backup session has been terminated.  Attempting to re-establish.");
+                        try {
+                            getModelFactory().getSessionModel().login(new ProcessAdapter() {
+                                @Override
+                                public void beginProcess() {}
+                                @Override
+                                public void beginStep(final Step step, final Object data) {}
+                                @Override
+                                public void determineSteps(final Integer steps) {}
+                                @Override
+                                public void endProcess() {}
+                                @Override
+                                public void endStep(final Step step) {}
+                            });
+                        } catch (final InvalidCredentialsException icx) {
+                            throw new BackupException(icx, "Cannot login backup.");
+                        } catch (final InvalidLocationException ilx) {
+                            throw new BackupException(ilx, "Cannot login backup.");
+                        }
+                    }
                 }
                 public void sessionEstablished() {
                     logger.logInfo("Backup session has been established.");

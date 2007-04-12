@@ -103,9 +103,6 @@ public class Browser extends AbstractApplication {
 	 */
 	private final Map<AvatarId, Object> avatarInputMap;
 
-	/** The browser's connection. */
-    private Connection connection;
-
 	/** The browser controller's display helper. */
     private final BrowserDisplayHelper displayHelper;
 
@@ -635,10 +632,9 @@ public class Browser extends AbstractApplication {
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#getConnection()
-     * 
      */
     public Connection getConnection() {
-        return connection;
+        return isOnline() ? Connection.ONLINE : Connection.OFFLINE;
     }
 
     /**
@@ -776,6 +772,15 @@ public class Browser extends AbstractApplication {
 	/** @see com.thinkparity.ophelia.browser.platform.application.Application#isDevelopmentMode() */
     public Boolean isDevelopmentMode() { 
         return getPlatform().isDevelopmentMode();
+    }
+
+    /**
+     * Determine whether or not the platform is online.
+     * 
+     * @return True if the platform is online.
+     */
+    public Boolean isOnline() {
+        return getPlatform().isOnline();
     }
 
     /**
@@ -1573,9 +1578,6 @@ public class Browser extends AbstractApplication {
 		assertStatusChange(ApplicationStatus.STARTING);
         setStatus(ApplicationStatus.STARTING);
 
-        connection = getSessionModel().isLoggedIn() ?
-                Connection.ONLINE : Connection.OFFLINE;
-
 		ed = new EventDispatcher(this);
 		ed.start();
 
@@ -1708,22 +1710,6 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.MAIN_TITLE, input);
         displayTitle(AvatarId.MAIN_TITLE);
 	}
-
-    /**
-     * Fire a connection offline event.
-     *
-     */
-    void fireConnectionOffline() {
-        connection = Connection.OFFLINE;
-    }
-
-    /**
-     * Fire a connection online event.
-     *
-     */
-    void fireConnectionOnline() {
-        connection = Connection.ONLINE;
-    }
 
     /**
 	 * Obtain the input for an avatar.

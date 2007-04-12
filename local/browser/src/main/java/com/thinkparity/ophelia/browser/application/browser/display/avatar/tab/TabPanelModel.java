@@ -22,7 +22,6 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
-import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
@@ -162,7 +161,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      * @return True if the user is online.
      */
     public Boolean isOnline() {
-        return browser.getConnection() == Connection.ONLINE;
+        return browser.isOnline();
     }
 
     /**

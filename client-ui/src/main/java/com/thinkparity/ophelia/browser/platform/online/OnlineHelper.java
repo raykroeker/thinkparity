@@ -10,6 +10,8 @@ import java.net.UnknownHostException;
 
 import com.thinkparity.codebase.model.session.Environment;
 
+import com.thinkparity.ophelia.model.session.SessionModel;
+
 import com.thinkparity.ophelia.browser.platform.Platform;
 
 /**
@@ -20,6 +22,9 @@ public class OnlineHelper {
 
     /** The <code>Platform</code>. */
     private final Platform platform;
+    
+    /** An instance of <code>SessionModel</code>. */
+    private final SessionModel model;
 
     /**
      * Create OnlineHelper.
@@ -30,14 +35,24 @@ public class OnlineHelper {
     public OnlineHelper(final Platform platform) {
         super();
         this.platform = platform;
+        this.model = platform.getModelFactory().getSessionModel(getClass());
+    }
+
+    /**
+     * Determine whether or not the platform is online.
+     * 
+     * @return True if the platform is online.
+     */
+    public Boolean isOnline() {
+        return model.isOnline();
     }
 
     /**
      * Determine whether or not the platform has online capability.
      * 
-     * @return True if the platform is online.
+     * @return True if the platform has online capability.
      */
-    public Boolean isOnline() {
+    public Boolean isXMPPHostReachable() {
         final Environment environment = platform.getEnvironment();
         Socket socket;
         try {

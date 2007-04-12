@@ -46,9 +46,6 @@ public final class SystemApplication extends AbstractApplication {
 	/** The application registry. */
     private final ApplicationRegistry applicationRegistry;
 
-	/** The system application's connection. */
-    private Connection connection;
-
 	/** The event dispatcher. */
 	private EventDispatcher ed;
 
@@ -96,7 +93,8 @@ public final class SystemApplication extends AbstractApplication {
      *
 	 */
     public Connection getConnection() {
-        return connection;
+        return getSessionModel().isLoggedIn() ?
+                Connection.ONLINE : Connection.OFFLINE;
     }
 
 	/**
@@ -260,9 +258,6 @@ public final class SystemApplication extends AbstractApplication {
 	public void start(final Platform platform) {
         logApiId();
 
-        connection = getSessionModel().isLoggedIn() ?
-                Connection.ONLINE : Connection.OFFLINE;
-
 		impl = new SystemApplicationImpl(this);
 		impl.start();
 
@@ -295,8 +290,7 @@ public final class SystemApplication extends AbstractApplication {
      *
      */
     void fireConnectionOffline() {
-        connection = Connection.OFFLINE;
-        impl.reloadConnectionStatus(connection);
+        impl.reloadConnectionStatus(Connection.OFFLINE);
     }
 
     /**
@@ -304,8 +298,7 @@ public final class SystemApplication extends AbstractApplication {
      *
      */
     void fireConnectionOnline() {
-        connection = Connection.ONLINE;
-        impl.reloadConnectionStatus(connection);
+        impl.reloadConnectionStatus(Connection.ONLINE);
     }
 
     /**

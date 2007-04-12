@@ -400,7 +400,9 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         }
     }
 
-	/** @see com.thinkparity.ophelia.browser.platform.Platform#isOnline() */
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#isOnline()
+     */
     public Boolean isOnline() {
         return onlineHelper.isOnline();
     }
@@ -433,6 +435,13 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      */
     public Boolean isWorkspaceInitialized(final Workspace workspace) {
         return WorkspaceModel.getInstance(environment).isInitialized(workspace);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#isXMPPHostReachable()
+     */
+    public Boolean isXMPPHostReachable() {
+        return onlineHelper.isXMPPHostReachable();
     }
 
     /**

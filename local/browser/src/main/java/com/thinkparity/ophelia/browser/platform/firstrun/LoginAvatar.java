@@ -144,7 +144,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     @Override
     protected void validateInput() {
         super.validateInput();
-        online = platform.isOnline();
+        online = platform.isXMPPHostReachable();
         if (Boolean.FALSE == online)
             addInputError(getString("ErrorOffline"));
         final String username = extractUsername();

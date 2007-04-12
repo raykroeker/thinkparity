@@ -6,18 +6,21 @@ package com.thinkparity.ophelia.browser.application.session;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.session.InvalidLocationException;
+
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
+import com.thinkparity.ophelia.model.util.Step;
+
 import com.thinkparity.ophelia.browser.Constants.Session;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
-import com.thinkparity.ophelia.model.util.ProcessAdapter;
-import com.thinkparity.ophelia.model.util.Step;
+
+import org.apache.log4j.Logger;
 
 /**
  * The session application is responsible for creating and maintaining the
@@ -214,11 +217,7 @@ public class SessionApplication extends AbstractApplication {
         connectTimer.schedule(new TimerTask() {
             public void run() {
                 try {
-                    if (isXMPPHostReachable()) {
-                    	connect();
-                    } else {
-                        logger.logWarning("Remote xmpp host is not reachable.");
-                    }
+                    connect();
                 } catch (final Throwable t) {
                     logger.logError(t, "Error connecting to session.");
                 }
@@ -241,14 +240,5 @@ public class SessionApplication extends AbstractApplication {
      */
     private Boolean isConnected() {
         return getSessionModel().isLoggedIn();
-    }
-
-    /**
-     * Determine if remote xmpp host is reachable.
-     * 
-     * @return True if the xmpp host is reachable.
-     */
-    private Boolean isXMPPHostReachable() {
-        return getPlatform().isOnline();
     }
 }

@@ -14,7 +14,6 @@ import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
-import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
@@ -37,9 +36,6 @@ public abstract class TabModel implements TabDelegate {
 
     /** The thinkParity <code>ApplicationRegistry</code>. */
     private final ApplicationRegistry applicationRegistry;
-
-    /** The connection status. */
-    private Connection connection;
 
     /**
      * A flag indictating whether or not the model has been initialized.
@@ -85,14 +81,6 @@ public abstract class TabModel implements TabDelegate {
      * 
      */
     public void toggleExpansion(final TabPanel tabPanel) {}
-
-    /**
-     * Notify the tab of changed connection status (offline, online).
-     * 
-     * @param connection
-     *            A <code>Connection</code>.
-     */
-    protected void applyConnection(final Connection connection) {}
 
     /**
      * Apply a filter on the panel.
@@ -202,7 +190,6 @@ public abstract class TabModel implements TabDelegate {
      */
     protected final void reload() {
         if (initialized) {
-            reloadConnection();
             reloadSearch();
             return;
         } else {
@@ -251,19 +238,6 @@ public abstract class TabModel implements TabDelegate {
     protected abstract void synchronizeImpl();
 
     /**
-     * Obtain the input connection.
-     * 
-     * @return A platform connection.
-     */
-    private Connection getInputConnection() {
-        if (null == input) {
-            return null;
-        } else {
-            return (Connection) ((Data) input).get(TabAvatar.DataKey.CONNECTION);
-        }
-    }
-
-    /**
      * Obtain the input search expression.
      * 
      * @return A search expression <code>String</code>.
@@ -273,32 +247,6 @@ public abstract class TabModel implements TabDelegate {
             return null;
         } else {
             return (String) ((Data) input).get(TabAvatar.DataKey.SEARCH_EXPRESSION);
-        }
-    }
-
-    /**
-     * Determine if the input connection is set.
-     * 
-     * @return true if the input connection is set, false otherwise.
-     */
-    private boolean isSetInputConnection() {
-        return (null != getInputConnection());
-    }
-
-    /**
-     * Reload connection. If connection status has changed then alert the tab.
-     */
-    private void reloadConnection() {
-        if (isSetInputConnection()) {
-            final Connection connection = getInputConnection();
-            if (null==this.connection || !connection.equals(this.connection)) {
-                this.connection = connection;
-                SwingUtil.ensureDispatchThread(new Runnable() {
-                    public void run() {
-                        applyConnection(connection);    
-                    }
-                });
-            }
         }
     }
 

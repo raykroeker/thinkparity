@@ -29,7 +29,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactTabPanel;
-import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 
 /**
  * <b>Title:</b>thinkParity Contact Tab Model<br>
@@ -82,19 +81,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
      */
     public Boolean isFilterApplied() {
         return Boolean.FALSE;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applyConnection(com.thinkparity.ophelia.browser.platform.Platform.Connection)
-     */
-    @Override
-    protected void applyConnection(final Connection connection) {
-        for (final TabPanel panel : panels) {
-            final ContactTabPanel contactPanel = (ContactTabPanel) panel;
-            if (contactPanel.isSetIncomingEMail() || contactPanel.isSetIncomingUser()) {
-                contactPanel.applyConnection(connection);
-            }
-        }
     }
 
     /**
@@ -254,7 +240,20 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     ContactTabPopupDelegate getPopupDelegate() {
         return popupDelegate;
     }
-    
+
+    /**
+     * Reload the connection.
+     */
+    void reloadConnection() {
+        final Boolean online = isOnline();
+        for (final TabPanel panel : panels) {
+            final ContactTabPanel contactPanel = (ContactTabPanel) panel;
+            if (contactPanel.isSetIncomingEMail() || contactPanel.isSetIncomingUser()) {
+                contactPanel.reloadConnection(online);
+            }
+        }
+    }
+
     void syncContact(final JabberId contactId, final Boolean remote) {
         checkThread();
         debug();

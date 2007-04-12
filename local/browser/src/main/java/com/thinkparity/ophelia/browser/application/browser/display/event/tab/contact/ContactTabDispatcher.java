@@ -9,6 +9,9 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.events.ContainerAdapter;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 import com.thinkparity.ophelia.model.events.ContainerListener;
+import com.thinkparity.ophelia.model.events.SessionAdapter;
+import com.thinkparity.ophelia.model.events.SessionListener;
+import com.thinkparity.ophelia.model.session.SessionModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactTabAvatar;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.EventDispatcher;
@@ -29,13 +32,21 @@ public final class ContactTabDispatcher implements
     /** An instance of <code>ContainerModel</code>. */
     private final ContainerModel containerModel;
 
+    /** A <code>SessionListener</code>. */
+    private SessionListener sessionListener;
+
+    /** An instance of <code>SessionModel</code>. */
+    private final SessionModel sessionModel;
+
     /**
      * Create ContactTabDispatcher.
      *
      */
-    public ContactTabDispatcher(final ContainerModel containerModel) {
+    public ContactTabDispatcher(final ContainerModel containerModel,
+            final SessionModel sessionModel) {
         super();
         this.containerModel = containerModel;
+        this.sessionModel = sessionModel;
     }
 
     /**
@@ -52,6 +63,17 @@ public final class ContactTabDispatcher implements
             }
         };
         containerModel.addListener(containerListener);
+        sessionListener = new SessionAdapter() {
+            @Override
+            public void sessionEstablished() {
+                avatar.fireSessionEvent();
+            }
+            @Override
+            public void sessionTerminated() {
+                avatar.fireSessionEvent();
+            }
+        };
+        sessionModel.addListener(sessionListener);
     }
 
     /**

@@ -101,5 +101,5 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         return Boolean.FALSE;
     }
 
-    public enum DataKey { CONNECTION, SEARCH_EXPRESSION }
+    public enum DataKey { SEARCH_EXPRESSION }
 }

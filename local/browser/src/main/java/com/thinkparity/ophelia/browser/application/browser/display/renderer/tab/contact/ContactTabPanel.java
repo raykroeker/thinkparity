@@ -34,7 +34,6 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
-import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 
 /**
@@ -122,30 +121,6 @@ public class ContactTabPanel extends DefaultTabPanel {
         this.innerJPanelConstraints.weightx = this.innerJPanelConstraints.weighty = 1.0F;
         this.localization = new MainCellL18n("ContactTabPanel");
         initComponents();
-    }
-
-    /**
-     * Apply the current connection. If the connection is offline; the accept
-     * decline links for the invitations will be made invisible.
-     * 
-     * @param connection
-     *            The <code>Connection</code>.
-     */
-    public void applyConnection(final Connection connection) {
-        if (isSetIncomingEMail() || isSetIncomingUser()) {
-            switch(connection) {
-            case OFFLINE:
-                incomingInvitationAcceptJLabel.setVisible(false);
-                incomingInvitationDeclineJLabel.setVisible(false);
-                break;
-            case ONLINE:
-                incomingInvitationAcceptJLabel.setVisible(true);
-                incomingInvitationDeclineJLabel.setVisible(true);
-                break;
-            default:
-                Assert.assertUnreachable("Unknown connection id.");
-            }
-        }
     }
 
     /**
@@ -330,6 +305,20 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     public Boolean isSetProfile() {
         return null != profile;
+    }
+
+    /**
+     * Apply the current connection. If the connection is offline; the accept
+     * decline links for the invitations will be made invisible.
+     * 
+     * @param online
+     *            The online <code>Boolean</code>.
+     */
+    public void reloadConnection(final Boolean online) {
+        if (isSetIncomingEMail() || isSetIncomingUser()) {
+            incomingInvitationAcceptJLabel.setVisible(online);
+            incomingInvitationDeclineJLabel.setVisible(online);
+        }
     }
 
     /**

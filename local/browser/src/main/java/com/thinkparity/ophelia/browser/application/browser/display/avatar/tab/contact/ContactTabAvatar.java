@@ -92,6 +92,18 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
     }
 
     /**
+     * Fire a session event.
+     *
+     */
+    public void fireSessionEvent() {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.reloadConnection();
+            }
+        });
+    }
+
+    /**
      * Show the contact invitation (select the panel and scroll so it visible).
      * 
      * @param invitationIds

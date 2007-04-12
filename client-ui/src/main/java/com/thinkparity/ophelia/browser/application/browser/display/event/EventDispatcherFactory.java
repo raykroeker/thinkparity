@@ -88,7 +88,7 @@ public class EventDispatcherFactory {
             eventDispatcher = new ArchiveTabDispatcher(containerModel);
             break;
         case TAB_CONTACT:
-            eventDispatcher = new ContactTabDispatcher(containerModel);
+            eventDispatcher = new ContactTabDispatcher(containerModel, sessionModel);
             break;
         case TAB_CONTAINER:
             eventDispatcher = new ContainerTabDispatcher(containerModel);

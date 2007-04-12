@@ -14,6 +14,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
@@ -42,10 +43,12 @@ import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.Token;
+
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.events.SessionAdapter;
 import com.thinkparity.ophelia.model.events.SessionListener;
+import com.thinkparity.ophelia.model.io.xmpp.XMPPTimeoutException;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -59,78 +62,6 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  */
 public final class SessionModelImpl extends Model<SessionListener>
         implements SessionModel, InternalSessionModel {
-
-    /**
-     * <b>Title:</b>thinkParity OpheliaModel Session Model Online Thread<br>
-     * <b>Description:</b>A specialized thread that simply issues remote
-     * invocations on the underlying xmpp session at preset intervals.<br>
-     * 
-     */
-    private static class IsOnline extends Thread {
-
-        /** An instance of <code>SessionModelImpl</code>. */
-    	private final SessionModelImpl impl;
-
-    	/** An instance of <code>InternalSessionModel</code>. */
-        private final InternalSessionModel model;
-
-        /** A run <code>boolean</code>. */
-        private boolean run;
-
-        /**
-		 * Create IsOnline.
-		 * 
-		 * @param impl
-		 *            An instance of <code>SessionModelImpl</code>.
-		 * @param model
-		 *            An instace of <code>InternalSessionModel</code>.
-		 */
-        private IsOnline(final SessionModelImpl impl,
-				final InternalSessionModel model) {
-            // THREAD - SessionModelImpl#IsOnline()#<init>
-            super("TPS-OpheliaModel-IsOnline");
-            this.impl = impl;
-            this.model = model;
-            this.run = true;
-        }
-
-        /**
-         * @see java.lang.Thread#run()
-         *
-         */
-        @Override
-        public void run() {
-            while (run) {
-                try {
-                    sleep(TIMEOUT_IS_ONLINE);
-                } catch (final InterruptedException ix) {
-                    impl.logger.logInfo("{0} has been interruped.", getName());
-                }
-                if (run) {
-                    try {
-                        if (run && model.isXMPPOnline()) {
-                            final Calendar now = impl.readDateTime();
-                            if (run && null == now) {
-                            	impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
-                            	model.handleSessionTerminated();
-                            }
-                        } else {
-                            if (run) {
-                                impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
-                                model.handleSessionTerminated();
-                            }
-                        }
-                    } catch (final Throwable t) {
-                        if (run) {
-                            impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
-                            model.handleSessionError(t);
-                            model.handleSessionTerminated();
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     /** An is online timeout <code>Long</code>. */
     private static final Long TIMEOUT_IS_ONLINE;
@@ -259,47 +190,6 @@ public final class SessionModelImpl extends Model<SessionListener>
             }
         } catch (final Throwable t) {
             throw panic(t);
-        }
-    }
-
-    /**
-     * Assert that the xmpp session is offline.
-     *
-     */
-    private void assertXMPPOffline() {
-        Assert.assertNotTrue(isXMPPOnline(), "XMPP session is not offline.");
-    }
-
-    /**
-     * Authenticate as the system user.
-     * 
-     * @param xmppSession
-     *            An <code>XMPPSession</code>.
-     */
-    private void authenticateAsSystem(final XMPPSession xmppSession)
-            throws InvalidCredentialsException {
-        final Credentials systemCredentials = new Credentials();
-        systemCredentials.setPassword("parity");
-        systemCredentials.setUsername(User.THINKPARITY.getSimpleUsername());
-        // login as the system user
-        xmppSession.login(environment, systemCredentials);
-    }
-
-    /**
-     * Clear all offline codes.
-     * 
-     */
-    @SuppressWarnings("unchecked")
-    private void clearOfflineCodes() {
-        final Stack<OfflineCode> offlineCodes;
-        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES)) {
-            offlineCodes = (Stack<OfflineCode>) workspace.getAttribute(
-                    WS_ATTRIBUTE_KEY_OFFLINE_CODES);
-        } else {
-            offlineCodes = new Stack<OfflineCode>();
-        }
-        synchronized (offlineCodes) {
-            offlineCodes.clear();
         }
     }
 
@@ -553,7 +443,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteArtifact(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
      *
      */
@@ -623,7 +513,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * Delete a stream session.
      * 
      * @param session
@@ -725,32 +615,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
-     *
-     */
-    @Override
-    protected void initializeModel(final Environment environment,
-            final Workspace workspace) {
-        if (workspace.isDesktop() && !workspace.isSetAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_LISTENER).booleanValue()) {
-            final SessionListener listener = new SessionAdapter() {
-                @Override
-                public void sessionEstablished() {
-                    startIsOnlineMonitor();
-                }
-                @Override
-                public void sessionTerminated() {
-                    stopIsOnlineMonitor();
-                }
-            };
-            if (isOnline()) {
-                startIsOnlineMonitor();
-            }
-            workspace.setAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_LISTENER, listener);
-            addListener(listener);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isBackupOnline()
      *
      */
@@ -844,7 +708,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isXMPPOnline()
      * 
      */
@@ -904,7 +768,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.SessionModel#login(com.thinkparity.ophelia.model.util.ProcessMonitor)
      * 
      */
@@ -975,7 +839,7 @@ public final class SessionModelImpl extends Model<SessionListener>
 		}
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#notifyClientMaintenance()
      *
      */
@@ -993,42 +857,6 @@ public final class SessionModelImpl extends Model<SessionListener>
         } catch (final Throwable t) {
             throw panic(t);
         }
-    }
-
-    /**
-     * Fire a session error event.
-     *
-     */
-    private void notifySessionError(final Throwable cause) {
-        notifyListeners(new EventNotifier<SessionListener>() {
-            public void notifyListener(final SessionListener listener) {
-                listener.sessionError(cause);
-            }
-        });
-    }
-
-    /**
-     * Fire a session established event.
-     * 
-     */
-    private void notifySessionEstablished() {
-        notifyListeners(new EventNotifier<SessionListener>() {
-            public void notifyListener(final SessionListener listener) {
-                listener.sessionEstablished();
-            }
-        });
-    }
-
-    /**
-     * Fire a session terminated event.
-     *
-     */
-    private void notifySessionTerminated() {
-        notifyListeners(new EventNotifier<SessionListener>() {
-            public void notifyListener(final SessionListener listener) {
-                listener.sessionTerminated();
-            }
-        });
     }
 
     /**
@@ -1074,27 +902,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
 	/**
-     * Push an offline code to the top of the stack.
-     * 
-     * @param offlineCode
-     *            An <code>OfflineCode</code>.
-     */
-    @SuppressWarnings("unchecked")
-    private void pushOfflineCode(final OfflineCode offlineCode) {
-        final Stack<OfflineCode> offlineCodes;
-        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES)) {
-            offlineCodes = (Stack<OfflineCode>) workspace.getAttribute(
-                    WS_ATTRIBUTE_KEY_OFFLINE_CODES);
-        } else {
-            offlineCodes = new Stack<OfflineCode>();
-            workspace.setAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES, offlineCodes);
-        }
-        synchronized (offlineCodes) {
-            offlineCodes.push(offlineCode);
-        }
-    }
-    
-    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readArchiveContainer(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.UUID)
      * 
@@ -1112,7 +919,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-    
+
     /**
      * Read the archived containers.
      * 
@@ -1222,7 +1029,6 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-
     public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
             final JabberId userId, final UUID uniqueId,
             final Long compareVersionId, final Long compareToVersionId) {
@@ -1272,7 +1078,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    public List<TeamMember> readArchiveTeam(final JabberId userId,
+	public List<TeamMember> readArchiveTeam(final JabberId userId,
             final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -1286,7 +1092,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
+    
     /**
      * Read the archive team.
      * 
@@ -1309,7 +1115,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
+    
     public Container readBackupContainer(final JabberId userId, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -1427,6 +1233,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
+
     public List<ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
         try {
@@ -1478,7 +1285,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readContactIds()
      *
      */
@@ -1571,7 +1378,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorProduct(java.lang.String)
      *
      */
@@ -1626,7 +1433,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorResources(java.lang.String,
      *      java.lang.String, com.thinkparity.codebase.OS)
      * 
@@ -1725,7 +1532,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * Read the user profile's security question.
      * 
      * @param userId
@@ -1899,41 +1706,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Start the is online monitor.
-     *
-     */
-    private void startIsOnlineMonitor() {
-        final IsOnline isOnline = new IsOnline(this, getSessionModel());
-        isOnline.start();
-        workspace.setAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_THREAD, isOnline);
-    }
-
-    /**
-     * Stop the online monitor.
-     *
-     */
-    private void stopIsOnlineMonitor() {
-        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_THREAD)) {
-            final IsOnline online = (IsOnline) workspace.getAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_THREAD);
-            online.run = false;
-            synchronized (online) {
-                online.notifyAll();
-            }
-            workspace.removeAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_THREAD);
-        }
-    }
-
-    /**
-     * Remove the session authentication.
-     * 
-     * @param xmppSession
-     *            An <code>XMPPSession</code>.
-     */
-    private void unauthenticate(final XMPPSession xmppSession) {
-        xmppSession.logout();
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#updateProfile(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.profile.Profile)
      * 
@@ -1993,6 +1765,244 @@ public final class SessionModelImpl extends Model<SessionListener>
             }
         } catch (final Throwable t) {
             throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
+     *
+     */
+    @Override
+    protected void initializeModel(final Environment environment,
+            final Workspace workspace) {
+        if (workspace.isDesktop() && !workspace.isSetAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_LISTENER).booleanValue()) {
+            final SessionListener listener = new SessionAdapter() {
+                @Override
+                public void sessionEstablished() {
+                    startIsOnlineMonitor();
+                }
+                @Override
+                public void sessionTerminated() {
+                    stopIsOnlineMonitor();
+                }
+            };
+            if (isOnline()) {
+                startIsOnlineMonitor();
+            }
+            workspace.setAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_LISTENER, listener);
+            addListener(listener);
+        }
+    }
+
+    /**
+     * Assert that the xmpp session is offline.
+     *
+     */
+    private void assertXMPPOffline() {
+        Assert.assertNotTrue(isXMPPOnline(), "XMPP session is not offline.");
+    }
+
+    /**
+     * Authenticate as the system user.
+     * 
+     * @param xmppSession
+     *            An <code>XMPPSession</code>.
+     */
+    private void authenticateAsSystem(final XMPPSession xmppSession)
+            throws InvalidCredentialsException {
+        final Credentials systemCredentials = new Credentials();
+        systemCredentials.setPassword("parity");
+        systemCredentials.setUsername(User.THINKPARITY.getSimpleUsername());
+        // login as the system user
+        xmppSession.login(environment, systemCredentials);
+    }
+
+    /**
+     * Clear all offline codes.
+     * 
+     */
+    @SuppressWarnings("unchecked")
+    private void clearOfflineCodes() {
+        final Stack<OfflineCode> offlineCodes;
+        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES)) {
+            offlineCodes = (Stack<OfflineCode>) workspace.getAttribute(
+                    WS_ATTRIBUTE_KEY_OFFLINE_CODES);
+        } else {
+            offlineCodes = new Stack<OfflineCode>();
+        }
+        synchronized (offlineCodes) {
+            offlineCodes.clear();
+        }
+    }
+
+    /**
+     * Fire a session error event.
+     *
+     */
+    private void notifySessionError(final Throwable cause) {
+        notifyListeners(new EventNotifier<SessionListener>() {
+            public void notifyListener(final SessionListener listener) {
+                listener.sessionError(cause);
+            }
+        });
+    }
+
+    /**
+     * Fire a session established event.
+     * 
+     */
+    private void notifySessionEstablished() {
+        notifyListeners(new EventNotifier<SessionListener>() {
+            public void notifyListener(final SessionListener listener) {
+                listener.sessionEstablished();
+            }
+        });
+    }
+
+    /**
+     * Fire a session terminated event.
+     *
+     */
+    private void notifySessionTerminated() {
+        notifyListeners(new EventNotifier<SessionListener>() {
+            public void notifyListener(final SessionListener listener) {
+                listener.sessionTerminated();
+            }
+        });
+    }
+
+    /**
+     * Push an offline code to the top of the stack.
+     * 
+     * @param offlineCode
+     *            An <code>OfflineCode</code>.
+     */
+    @SuppressWarnings("unchecked")
+    private void pushOfflineCode(final OfflineCode offlineCode) {
+        final Stack<OfflineCode> offlineCodes;
+        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES)) {
+            offlineCodes = (Stack<OfflineCode>) workspace.getAttribute(
+                    WS_ATTRIBUTE_KEY_OFFLINE_CODES);
+        } else {
+            offlineCodes = new Stack<OfflineCode>();
+            workspace.setAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES, offlineCodes);
+        }
+        synchronized (offlineCodes) {
+            offlineCodes.push(offlineCode);
+        }
+    }
+
+    /**
+     * Start the is online monitor.
+     *
+     */
+    private void startIsOnlineMonitor() {
+        final IsOnline isOnline = new IsOnline(this, getSessionModel());
+        isOnline.start();
+        workspace.setAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_THREAD, isOnline);
+    }
+
+    /**
+     * Stop the online monitor.
+     *
+     */
+    private void stopIsOnlineMonitor() {
+        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_THREAD)) {
+            final IsOnline online = (IsOnline) workspace.getAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_THREAD);
+            online.run = false;
+            synchronized (online) {
+                online.notifyAll();
+            }
+            workspace.removeAttribute(WS_ATTRIBUTE_KEY_IS_ONLINE_THREAD);
+        }
+    }
+
+    /**
+     * Remove the session authentication.
+     * 
+     * @param xmppSession
+     *            An <code>XMPPSession</code>.
+     */
+    private void unauthenticate(final XMPPSession xmppSession) {
+        xmppSession.logout();
+    }
+
+    /**
+     * <b>Title:</b>thinkParity OpheliaModel Session Model Online Thread<br>
+     * <b>Description:</b>A specialized thread that simply issues remote
+     * invocations on the underlying xmpp session at preset intervals.<br>
+     * 
+     */
+    private static class IsOnline extends Thread {
+
+        /** An instance of <code>SessionModelImpl</code>. */
+    	private final SessionModelImpl impl;
+
+    	/** An instance of <code>InternalSessionModel</code>. */
+        private final InternalSessionModel model;
+
+        /** A run <code>boolean</code>. */
+        private boolean run;
+
+        /**
+		 * Create IsOnline.
+		 * 
+		 * @param impl
+		 *            An instance of <code>SessionModelImpl</code>.
+		 * @param model
+		 *            An instace of <code>InternalSessionModel</code>.
+		 */
+        private IsOnline(final SessionModelImpl impl,
+				final InternalSessionModel model) {
+            // THREAD - SessionModelImpl#IsOnline()#<init>
+            super("TPS-OpheliaModel-IsOnline");
+            this.impl = impl;
+            this.model = model;
+            this.run = true;
+        }
+
+        /**
+         * @see java.lang.Thread#run()
+         *
+         */
+        @Override
+        public void run() {
+            while (run) {
+                try {
+                    sleep(TIMEOUT_IS_ONLINE);
+                } catch (final InterruptedException ix) {
+                    impl.logger.logInfo("{0} has been interruped.", getName());
+                }
+                if (run) {
+                    try {
+                        if (run && model.isXMPPOnline()) {
+                            try {
+                                final Calendar now = impl.readDateTime();
+                                if (run && null == now) {
+                                    impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                                    model.handleSessionTerminated();
+                                }
+                            } catch (final XMPPTimeoutException xmpptx) {
+                                if (run) {
+                                    impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                                    model.handleSessionTerminated();
+                                }
+                            }
+                        } else {
+                            if (run) {
+                                impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                                model.handleSessionTerminated();
+                            }
+                        }
+                    } catch (final Throwable t) {
+                        if (run) {
+                            impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                            model.handleSessionError(t);
+                            model.handleSessionTerminated();
+                        }
+                    }
+                }
+            }
         }
     }
 }

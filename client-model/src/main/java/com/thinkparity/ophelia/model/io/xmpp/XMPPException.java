@@ -4,6 +4,8 @@
  */
 package com.thinkparity.ophelia.model.io.xmpp;
 
+import java.text.MessageFormat;
+
 /**
  * An xmpp io layer error.
  *
@@ -11,17 +13,6 @@ package com.thinkparity.ophelia.model.io.xmpp;
  * @version $Revision$
  */
 public class XMPPException extends RuntimeException {
-
-	/** @see java.io.Serializable */
-	private static final long serialVersionUID = 1;
-
-    /**
-     * Create XMPPException.
-     * 
-     * @param cause
-     *        The cause of the xmpp error.
-     */
-    public XMPPException(final Throwable cause) { super(cause); }
 
     /**
      * Create XMPPException.
@@ -33,11 +24,33 @@ public class XMPPException extends RuntimeException {
         super(null == message ? null : message.toString(), cause);
     }
 
-	/**
-	 * Create XMPPException.
+    /**
+     * Create XMPPException.
      *
-	 * @param message
+     * @param message
      *      The xmpp error message.
-	 */
-	public XMPPException(final String message) { super(message); }
+     */
+    public XMPPException(final String message) {
+        super(message);
+    }
+
+    /**
+     * Create XMPPException.
+     * 
+     * @param pattern
+     *            The xmpp error message pattern <code>String</code>.
+     * @param arguments
+     *            The xmpp error message arguments <code>Object[]</code>.
+     */
+    public XMPPException(final String pattern, final Object...arguments) {
+        super(MessageFormat.format(pattern, arguments));
+    }
+
+    /**
+     * Create XMPPException.
+     * 
+     * @param cause
+     *        The cause of the xmpp error.
+     */
+    public XMPPException(final Throwable cause) { super(cause); }
 }

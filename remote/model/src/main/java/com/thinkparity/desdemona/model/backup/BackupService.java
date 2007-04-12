@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.session.InvalidLocationException;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
+import com.thinkparity.ophelia.model.events.SessionListener;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.workspace.InitializeMediator;
@@ -217,6 +218,35 @@ public final class BackupService {
             Assert.assertNotNull(credentials, "Backup credentials not yet initialized.");
             Assert.assertNotNull(environment, "Backup environment not yet initialized.");
             Assert.assertNotNull(workspace, "Backup workspace not yet initialized.");
+            modelFactory.getSessionModel().addListener(new SessionListener() {
+                public void sessionError(final Throwable cause) {
+                    logger.logError(cause, "Backup session has generated an error.");
+                }
+                public void sessionEstablished() {
+                    logger.logInfo("Backup session has been established.");
+                }
+                public void sessionTerminated() {
+                    logger.logInfo("Backup session has been terminated.  Attempting to re-establish.");
+                    try {
+                        getModelFactory().getSessionModel().login(new ProcessAdapter() {
+                            @Override
+                            public void beginProcess() {}
+                            @Override
+                            public void beginStep(final Step step, final Object data) {}
+                            @Override
+                            public void determineSteps(final Integer steps) {}
+                            @Override
+                            public void endProcess() {}
+                            @Override
+                            public void endStep(final Step step) {}
+                        });
+                    } catch (final InvalidCredentialsException icx) {
+                        throw new BackupException(icx, "Cannot login backup.");
+                    } catch (final InvalidLocationException ilx) {
+                        throw new BackupException(ilx, "Cannot login backup.");
+                    }
+                }
+            });
             final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
             if (!workspaceModel.isInitialized(workspace)) {
                 try {

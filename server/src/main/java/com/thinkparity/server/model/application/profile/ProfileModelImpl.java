@@ -161,7 +161,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
 
             // send verification email
             final MimeMessage mimeMessage = MessageFactory.createMimeMessage();
-            createVerification(mimeMessage, email, key);
+            createFirstVerification(mimeMessage, email, key);
             addRecipient(mimeMessage, email);
             TransportManager.deliver(mimeMessage);
         } catch (final Throwable t) {
@@ -510,6 +510,32 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             final EMail email, final VerificationKey key)
             throws MessagingException {
         final VerificationText text = new VerificationText(Locale.getDefault(), email, key);
+        mimeMessage.setSubject(text.getSubject());
+
+        final MimeBodyPart verificationBody = new MimeBodyPart();
+        verificationBody.setContent(text.getBody(), text.getBodyType());
+
+        final Multipart verification = new MimeMultipart();
+        verification.addBodyPart(verificationBody);
+        mimeMessage.setContent(verification);
+    }
+
+    /**
+     * Create a verification message and attach it to the mime message.
+     * 
+     * @param mimeMessage
+     *            A <code>MimeMessage</code>.
+     * @param email
+     *            An <code>EMail</code>.
+     * @param key
+     *            A <code>VerificationKey</code>.
+     * @throws MessagingException
+     */
+    private void createFirstVerification(final MimeMessage mimeMessage,
+            final EMail email, final VerificationKey key)
+            throws MessagingException {
+        final FirstVerificationText text = new FirstVerificationText(
+                Locale.getDefault(), email, key);
         mimeMessage.setSubject(text.getSubject());
 
         final MimeBodyPart verificationBody = new MimeBodyPart();

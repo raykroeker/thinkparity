@@ -9,6 +9,7 @@ import java.util.ResourceBundle;
 
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.user.UserNameTokenizer;
 
 /**
  * @author raymond@thinkparity.com
@@ -21,6 +22,9 @@ public class InvitationText {
 
     /** The resource bundle. */
     private final ResourceBundle resourceBundle;
+
+    /** A <code>UserNameTokenizer</code>. */
+    private final UserNameTokenizer userNameTokenizer;
 
     /**
      * Create InvitationText.
@@ -36,6 +40,7 @@ public class InvitationText {
         this.invitedBy = invitedBy;
         this.resourceBundle = ResourceBundle.getBundle(
                 "localization.Invitation_Messages", locale);
+        this.userNameTokenizer = new UserNameTokenizer(invitedBy.getName());
     }
 
     /**
@@ -46,12 +51,10 @@ public class InvitationText {
      * @return The invitation body.
      */
     public String getBody() {
-        /* NOCOMMIT - InvitationText#getBody() - Use the migrator to reference
-         * the release name */
-        final String download = "http://download.thinkparity.net/en/thinkParity-v1_0-BETA-20070409.exe";
-        return MessageFormat.format(
-                resourceBundle.getString("body"),
-                getSubject(), download);
+        final String linkDisplay = "http://www.thinkparity.com";
+        return MessageFormat.format(resourceBundle.getString("body"),
+                getSubject(), invitedBy.getName(), userNameTokenizer.getGiven(),
+                linkDisplay);
     }
 
     /**
@@ -69,7 +72,7 @@ public class InvitationText {
      * @return The invitation subject.
      */
     public String getSubject() {
-        return MessageFormat.format(
-                resourceBundle.getString("subject"), invitedBy.getName());
+        return MessageFormat.format(resourceBundle.getString("subject"),
+                invitedBy.getName());
     }
 }

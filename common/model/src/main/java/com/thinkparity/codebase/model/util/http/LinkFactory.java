@@ -88,4 +88,13 @@ public class LinkFactory {
         link.addContext(action);
         return link;
     }
+
+    /**
+     * Create the display portion of the link.
+     * 
+     * @return The display portion of the link.
+     */
+    public String createDisplay() {
+        return new StringBuilder(webHost).toString();
+    }
 }

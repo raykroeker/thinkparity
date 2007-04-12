@@ -33,6 +33,9 @@ final class BackupMonitor implements Runnable {
         LOGGER = new Log4JWrapper();
     }
 
+    /** The backup monitor period <code>Long</code>. */
+    private final long period;
+
     /** A run <code>boolean</code> indicator. */
     private boolean run;
 
@@ -41,9 +44,6 @@ final class BackupMonitor implements Runnable {
 
     /** A <code>SessionModel</code>. */
     private final SessionModel sessionModel;
-
-    /** The backup monitor period <code>Long</code>. */
-    private final long period;
 
     /**
      * Create BackupMonitor.
@@ -101,8 +101,12 @@ final class BackupMonitor implements Runnable {
                         });
                     } catch (final InvalidCredentialsException icx) {
                         LOGGER.logFatal(icx, "Backup session cannot be established.");
+                        run = false;
                     } catch (final InvalidLocationException ilx) {
                         LOGGER.logFatal(ilx, "Backup session cannot be established.");
+                        run = false;
+                    } catch (final Throwable t) {
+                        LOGGER.logError(t, "Backup session login error.");
                     }
                 }
             }

@@ -83,11 +83,21 @@ class UploadHelper {
 	        try {
 	        	attempt++;
 		        writer.open();
-	        } catch (final IOException iox) {
+	        } catch (final StreamException sx) {
+	        	try {
+	        		writer.close();
+	        	} catch (final IOException iox) {}
 	        	logger.logWarning("{0} of {1} Could not open stream writer.{2}  {3}",
 						attempt - 1, MAX_ATTEMPT_OPEN, Separator.SystemNewLine,
-						iox.getMessage());
-	        }
+						sx.getMessage());
+            } catch (final IOException iox) {
+	        	try {
+	        		writer.close();
+	        	} catch (final IOException iox2) {}
+                logger.logWarning("{0} of {1} Could not open stream writer.{2}  {3}",
+					attempt - 1, MAX_ATTEMPT_OPEN, Separator.SystemNewLine,
+					iox.getMessage());
+            }
         }
         try {
             writer.write(streamId, stream, streamSize, actualStreamOffset);

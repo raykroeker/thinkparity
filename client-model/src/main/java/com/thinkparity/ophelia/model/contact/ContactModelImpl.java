@@ -570,6 +570,9 @@ public final class ContactModelImpl extends Model<ContactListener>
                 // update contact
                 local.setEMails(remote.getEmails());
                 local.setId(remote.getId());
+                local.setName(remote.getName());
+                local.setOrganization(remote.getOrganization());
+                local.setTitle(remote.getTitle());
                 local.setVCard(remote.getVCard());
                 contactIO.update(local);
 

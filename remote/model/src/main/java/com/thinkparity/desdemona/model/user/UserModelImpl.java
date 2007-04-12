@@ -167,9 +167,6 @@ class UserModelImpl extends AbstractModelImpl {
 
     <T extends com.thinkparity.codebase.model.user.UserVCard> T readVCard(
             final Long userId, final T vcard) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("vcard", vcard);
         try {
             userSql.openVCard(userId, new VCardOpener() {
                 public void open(final InputStream stream) throws IOException {
@@ -186,24 +183,23 @@ class UserModelImpl extends AbstractModelImpl {
 
     void updateVCard(final Long userId,
             final com.thinkparity.codebase.model.user.UserVCard vcard) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("vcard", vcard);
         try {
             final File tempVCardFile = session.createTempFile();
             try {
+                // write the vcard to the temp file
                 final FileWriter fileWriter = new FileWriter(tempVCardFile);
                 try {
                     XSTREAM_UTIL.toXML(vcard, fileWriter);
-                    final InputStream vcardStream = new FileInputStream(tempVCardFile);
-                    try {
-                        userSql.updateVCard(userId, vcardStream,
-                                tempVCardFile.length(), getDefaultBufferSize());
-                    } finally {
-                        vcardStream.close();
-                    }
                 } finally {
                     fileWriter.close();
+                }
+                // update the database vcard from the temp file
+                final InputStream vcardStream = new FileInputStream(tempVCardFile);
+                try {
+                    userSql.updateVCard(userId, vcardStream,
+                            tempVCardFile.length(), getDefaultBufferSize());
+                } finally {
+                    vcardStream.close();
                 }
             } finally {
                 // TEMPFILE - UserModelImpl#updateVCard()

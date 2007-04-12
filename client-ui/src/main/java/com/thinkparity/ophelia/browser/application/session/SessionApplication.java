@@ -210,7 +210,7 @@ public class SessionApplication extends AbstractApplication {
      */
     private void connectLater(final Long delay) {
         logApiId();
-        connectTimer = new Timer("TPS-OpheliaUI-SessionConnect", Boolean.FALSE);
+        connectTimer = new Timer("TPS-OpheliaUI-SessionConnect", Boolean.TRUE);
         connectTimer.schedule(new TimerTask() {
             public void run() {
                 try {

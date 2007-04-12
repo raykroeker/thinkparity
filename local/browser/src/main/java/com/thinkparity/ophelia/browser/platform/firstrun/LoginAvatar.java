@@ -47,20 +47,26 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     /** The <code>Platform</code>. */
     private final Platform platform;
 
-    /** The valid credentials flag. */
-    private Boolean validCredentials;
+    /** The <code>InitializeMediator </code>. */
+    private InitializeMediator initializeMediator;
 
-    /** The username. */
-    private String username;
+    /** Online flag. */
+    private Boolean online;
 
     /** The password. */
     private String password;
 
-    /** Signup flag. */
+    /** Signup flag (true when selected by user) */
     private Boolean signup;
 
-    /** The <code>InitializeMediator </code>. */
-    private InitializeMediator initializeMediator;
+    /** Signup enabled flag (indicates the link is enabled) */
+    private Boolean signupEnabled;
+
+    /** The username. */
+    private String username;
+
+    /** The valid credentials flag. */
+    private Boolean validCredentials;
 
     /**
      * Create LoginAvatar.
@@ -69,6 +75,8 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     public LoginAvatar() {
         super("LoginAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         this.validCredentials = Boolean.TRUE;
+        this.signupEnabled = Boolean.TRUE;
+        this.online = Boolean.TRUE;
         this.password = this.username = null;
         this.platform = BrowserPlatform.getInstance();
         initComponents();
@@ -97,11 +105,12 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     /**
      * Enable or disable signup.
      * 
-     * @param enable
+     * @param signupEnabled
      *            The signup <code>Boolean</code>.
      */
-    public void enableSignup(final Boolean enable) {
-        signUpJLabel.setVisible(enable.booleanValue());
+    public void enableSignup(final Boolean signupEnabled) {
+        this.signupEnabled = signupEnabled;
+        reload();
     }
 
     /**
@@ -135,7 +144,8 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     @Override
     protected void validateInput() {
         super.validateInput();
-        if (Boolean.FALSE == platform.isOnline())
+        online = platform.isOnline();
+        if (Boolean.FALSE == online)
             addInputError(getString("ErrorOffline"));
         final String username = extractUsername();
         final String password = extractPassword();
@@ -148,6 +158,8 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         if (containsInputErrors())
             errorMessageJLabel.setText(getInputErrors().get(0));
         nextJButton.setEnabled(!containsInputErrors());
+        reloadForgotPassword();
+        reloadSignup();
     }
 
     /**
@@ -208,6 +220,8 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     public void reload() {
         reloadUsername(username);
         reloadPassword(password);
+        reloadForgotPassword();
+        reloadSignup();
         reloadError(validCredentials);
         reloadProgressBar();
         usernameJTextField.requestFocusInWindow();
@@ -535,6 +549,10 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         }
     }
 
+    private void reloadForgotPassword() {
+        forgotPasswordJLabel.setVisible(online.booleanValue());
+    }
+
     private void reloadPassword(final String password) {
         passwordJPasswordField.setText(password);
     }
@@ -546,6 +564,10 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
          * order to maintain vertical spacing. */
         stepJLabel.setText(" ");
         validate();
+    }
+
+    private void reloadSignup() {
+        signUpJLabel.setVisible(signupEnabled.booleanValue() && online.booleanValue());
     }
 
     private void reloadUsername(final String username) {

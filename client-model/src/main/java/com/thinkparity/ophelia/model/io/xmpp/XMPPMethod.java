@@ -597,6 +597,10 @@ public class XMPPMethod extends IQ {
     	return executionTime;
     }
 
+    public final String getName() {
+    	return name;
+    }
+
     public Integer getParameterSize() {
     	return parameters.size();
     }
@@ -911,11 +915,11 @@ public class XMPPMethod extends IQ {
     public final void setParameter(final String name, final ProfileEMail value) {
         parameters.add(new XMPPMethodParameter(name, ProfileEMail.class, value));
     }
-
+    
     public final void setParameter(final String name, final Release value) {
         parameters.add(new XMPPMethodParameter(name, Release.class, value));
     }
-    
+
     public final void setParameter(final String name, final Reservation value) {
         parameters.add(new XMPPMethodParameter(name, Reservation.class, value));
     }
@@ -955,12 +959,12 @@ public class XMPPMethod extends IQ {
             final String name, final T value) {
         parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
     }
-
+    
     public final <T extends ContactInvitation> void setParameter(
             final String name, final T value) {
         parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
     }
-    
+
     public final <T extends TimeZone> void setParameter(
             final String name, final T value) {
         parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
@@ -1005,5 +1009,19 @@ public class XMPPMethod extends IQ {
             parameters.add(new XMPPMethodParameter("element", User.class, (User) element));
         }
         this.parameters.add(new XMPPMethodParameter(name, List.class, parameters));
+    }
+
+    private Float timeoutFudge;
+
+    public Boolean isSetTimeoutFudge() {
+    	return null != timeoutFudge;
+    }
+
+    public Float getTimeoutFudge() { 
+    	return timeoutFudge;
+    }
+
+    public void setTimeoutFudge(final Float timeoutFudge) {
+    	this.timeoutFudge = timeoutFudge;
     }
 }

@@ -57,12 +57,19 @@ public final class XMPPNetworkUtil {
 	 * @return A timeout number of milliseconds <code>Long</code>.
 	 */
 	public Long calculateTimeout(final XMPPMethod method) {
+		final float fudge;
+		if (method.isSetTimeoutFudge()) {
+			// custom fudge
+			fudge = method.getTimeoutFudge();
+		} else {
+			// fudge 25%
+			fudge = 1.25F;
+		}
 		// the baseline execution duration
 		long timeout = executionTime - serializationTime;
 		// the serialization of parameters
 		timeout += (serializationTime * method.getParameterSize());
-		// fudge 25%
-		return Long.valueOf((long) (timeout * 1.25));
+		return Long.valueOf((long) (timeout * fudge));
 	}
 
 	/**

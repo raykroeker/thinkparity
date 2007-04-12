@@ -421,7 +421,13 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
     public XMPPMethod createMethod(final String name) {
-		return new XMPPMethod(name, xmppNetworkUtil);
+    	if ("container:publish".equals(name)
+				|| "container:publish".equals(name)
+				|| "system:readqueueevents".equals(name)) {
+    		return new XMPPMethod(name);
+    	} else {
+    		return new XMPPMethod(name, xmppNetworkUtil);
+    	}
 	}
 
     /**

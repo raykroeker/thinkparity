@@ -218,7 +218,7 @@ public final class BackupService {
             Assert.assertNotNull(credentials, "Backup credentials not yet initialized.");
             Assert.assertNotNull(environment, "Backup environment not yet initialized.");
             Assert.assertNotNull(workspace, "Backup workspace not yet initialized.");
-            modelFactory.getSessionModel().addListener(new SessionListener() {
+            getModelFactory().getSessionModel().addListener(new SessionListener() {
                 public void sessionError(final Throwable cause) {
                     logger.logError(cause, "Backup session has generated an error.");
                 }

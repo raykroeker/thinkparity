@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
+ * <b>Title:</b>thinkParity CommonModel Stream Writer<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */

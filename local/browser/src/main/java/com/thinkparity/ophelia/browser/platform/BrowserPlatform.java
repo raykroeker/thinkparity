@@ -12,29 +12,21 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.apache.log4j.Logger;
+
+import com.thinkparity.ThinkParity;
 import com.thinkparity.codebase.JVMUtil;
 import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-import com.thinkparity.codebase.sort.StringComparator;
-
-import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
-
-import com.thinkparity.ophelia.model.events.MigratorEvent;
-import com.thinkparity.ophelia.model.util.ProcessAdapter;
-import com.thinkparity.ophelia.model.util.ProcessMonitor;
-import com.thinkparity.ophelia.model.workspace.InitializeMediator;
-import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
-
+import com.thinkparity.codebase.sort.StringComparator;
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.Constants.Directories;
@@ -46,7 +38,6 @@ import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
 import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
-import com.thinkparity.ophelia.browser.platform.action.platform.CreateAccount;
 import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
 import com.thinkparity.ophelia.browser.platform.action.platform.Login;
 import com.thinkparity.ophelia.browser.platform.application.Application;
@@ -63,10 +54,12 @@ import com.thinkparity.ophelia.browser.platform.plugin.PluginHelper;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.profile.Profile;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
-
-import org.apache.log4j.Logger;
-
-import com.thinkparity.ThinkParity;
+import com.thinkparity.ophelia.model.events.MigratorEvent;
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.workspace.InitializeMediator;
+import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Platform Implementation<br>
@@ -502,21 +495,6 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         logger.logVariable("applicationId", applicationId);
 		applicationRegistry.get(applicationId).restore(this);
 	}
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.Platform#runCreateAccount(com.thinkparity.codebase.model.profile.Reservation, com.thinkparity.codebase.model.session.Credentials, com.thinkparity.codebase.model.profile.Profile, com.thinkparity.codebase.email.EMail)
-     */
-    public void runCreateAccount(final Reservation reservation,
-            final Credentials credentials,
-            final com.thinkparity.codebase.model.profile.Profile profile,
-            final EMail email) {
-        final Data data = new Data(4);
-        data.set(CreateAccount.DataKey.CREDENTIALS, credentials);
-        data.set(CreateAccount.DataKey.EMAIL, email);
-        data.set(CreateAccount.DataKey.PROFILE, profile);
-        data.set(CreateAccount.DataKey.RESERVATION, reservation);
-        invoke(ActionId.PLATFORM_CREATE_ACCOUNT, data);
-    }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#runLearnMore(com.thinkparity.ophelia.browser.platform.action.platform.LearnMore.Topic)

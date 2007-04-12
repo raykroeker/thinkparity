@@ -90,17 +90,9 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         super.addListener(listener);
     }
 
-    /**
-     * @see com.thinkparity.ophelia.model.profile.ProfileModel#create(com.thinkparity.codebase.model.session.Credentials,
-     *      com.thinkparity.codebase.model.profile.Profile,
-     *      com.thinkparity.codebase.email.EMail, java.lang.String,
-     *      java.lang.String)
-     * 
-     */
     public void create(final Reservation reservation,
-            final Credentials credentials, final Profile profile,
-            final EMail email, final String securityQuestion,
-            final String securityAnswer) throws ReservationExpiredException {
+			final Credentials credentials, final Profile profile,
+			final EMail email) throws ReservationExpiredException {
         try {
             assertIsValid(profile);
 
@@ -108,8 +100,9 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             if (now > reservation.getExpiresOn().getTimeInMillis())
                 throw new ReservationExpiredException(reservation.getExpiresOn());
 
+            // HACK - ProfileModelImpl#create()
             getSessionModel().createProfile(reservation, credentials, profile,
-                    email, securityQuestion, securityAnswer);
+                    email, "", "");
         } catch (final ReservationExpiredException rex) {
             throw rex;
         } catch (final Throwable t) {

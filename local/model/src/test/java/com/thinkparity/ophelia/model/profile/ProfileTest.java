@@ -90,11 +90,9 @@ public final class ProfileTest extends ProfileTestCase {
         profile.setTitle("Title");
         final String emailInjection = "+" + String.valueOf(System.currentTimeMillis());
         final EMail email = EMailBuilder.parse("junit" + emailInjection + "@thinkparity.com");
-        final String securityQuestion = "What is my username?";
-        final String securityAnswer = credentials.getUsername();
         try {
-            getModel(datum.junit).create(reservation, credentials, profile, email,
-                    securityQuestion, securityAnswer);
+            getModel(datum.junit).create(reservation, credentials, profile,
+					email);
         } catch (final ReservationExpiredException rex) {
             fail(rex, "Profile reservation has expired.");
         }

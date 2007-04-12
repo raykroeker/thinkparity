@@ -438,9 +438,6 @@ public class XMPPMethod extends IQ {
     /** The local <code>TimeZone</code>. */
     private static final TimeZone TIME_ZONE;
 
-    /** An empty <code>XMPPMethodResponse</code> used when execute times out. */
-	private static final XMPPMethodResponse TIMEOUT_RESPONSE;
-
     /** The universal <code>DateFormat</code>. */
     private static final DateFormat UNIVERSAL_FORMAT;
 
@@ -454,7 +451,6 @@ public class XMPPMethod extends IQ {
     private static final XStreamUtil XSTREAM_UTIL;
 
     static {
-    	TIMEOUT_RESPONSE = new XMPPMethodResponse();
         LOCALE = Locale.getDefault();
         LOGGER = new Log4JWrapper();
         TIME_ZONE = TimeZone.getDefault();
@@ -552,9 +548,10 @@ public class XMPPMethod extends IQ {
     				? (XMPPMethodResponse) idCollector.nextResult()
 					: (XMPPMethodResponse) idCollector.nextResult(timeout);
             if (null == response && null != timeout) {
-            	response = TIMEOUT_RESPONSE;
-        		LOGGER.logWarning("XMPP method {0} has timed out.  Execution time is {1} ms and timeout was calculated to be {2}.",
-        				name, executionTime, timeout);
+        		LOGGER.logWarning("XMPP method {0} has timed out after {1}.",
+        				name, timeout);
+        		throw new XMPPException("Method " + name +
+        				" has timed out after " + timeout + "ms.");
             }
         	executionTime = Long.valueOf(System.currentTimeMillis() - start);
     		LOGGER.logInfo("XMPP method {0} has executed in {0} ms.", name,

@@ -22,17 +22,12 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.session.Credentials;
-
-import com.thinkparity.ophelia.model.Constants.Product;
-
-import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -44,6 +39,8 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.firstrun.SignupData.DataKey;
 import com.thinkparity.ophelia.browser.platform.util.State;
+import com.thinkparity.ophelia.model.Constants.Product;
+import com.thinkparity.ophelia.model.profile.ReservationExpiredException;
 
 /**
  *
@@ -213,8 +210,11 @@ public class SignupProfileInfoAvatar extends Avatar
         final Profile profile = extractProfile();
         try {
             profile.setFeatures(extractFeatures());
-            platform.runCreateAccount(reservation, credentials, profile, email);
-        } catch (final BrowserException bex) {
+            ((SignupProvider) contentProvider).createProfile(reservation,
+					credentials, profile, email);
+        } catch (final ReservationExpiredException rex) {
+        	addInputError(getString("ErrorReservationExpired"));
+        } catch (final Throwable t) {
             addInputError(getString("ErrorCreateAccount"));
         }
     }

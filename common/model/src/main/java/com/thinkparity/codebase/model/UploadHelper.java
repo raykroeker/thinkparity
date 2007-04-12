@@ -138,9 +138,8 @@ class UploadHelper {
                         // attempt to resume the upload
                         recoverChunkOffset = totalChunks;
                         try {
-                            upload(uploadMonitor, this, streamId, session,
-                                    stream, streamSize,
-                                    Long.valueOf(recoverChunkOffset));
+                            upload(uploadMonitor, streamId, session, stream,
+									streamSize);
                         } catch (final IOException iox) {
                             throw model.panic(iox);
                         }

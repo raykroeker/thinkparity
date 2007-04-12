@@ -80,6 +80,7 @@ abstract class StreamClient {
         RECOVERABLE_MESSAGES.add("Received fatal alert: handshake_failure");
         RECOVERABLE_MESSAGES.add("Socket closed");
         RECOVERABLE_MESSAGES.add("Software caused connection abort: socket write error");
+        RECOVERABLE_MESSAGES.add("Connection reset by peer: socket write error");
     }
 
     /** The stream's <code>InputStream</code>. */
@@ -323,6 +324,10 @@ abstract class StreamClient {
                         }
                     }
                 } catch (final IOException iox) {
+                    synchronized (StreamClient.this) {
+                        writeInProgress = false;
+                        StreamClient.this.notifyAll();
+                    }
                     throw panic(iox);
                 }                
             }

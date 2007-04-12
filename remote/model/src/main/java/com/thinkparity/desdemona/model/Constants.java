@@ -34,6 +34,7 @@ public interface Constants {
 
     /** Jive Messenger Property Names */
     public static final class JivePropertyNames {
+        public static final String THINKPARITY_BACKUP_MONITOR_PERIOD = "thinkparity.backup.monitor-period";
         public static final String THINKPARITY_BACKUP_ROOT = "thinkparity.backup.root";
         public static final String THINKPARITY_ENVIRONMENT = "thinkparity.environment";
         public static final String THINKPARITY_STREAM_ROOT = "thinkparity.stream.root";

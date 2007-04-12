@@ -4,6 +4,7 @@
 package com.thinkparity.desdemona.model.backup;
 
 import java.io.File;
+import java.util.concurrent.Executors;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.assertion.Assert;
@@ -16,7 +17,6 @@ import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.session.InvalidLocationException;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
-import com.thinkparity.ophelia.model.events.SessionListener;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.workspace.InitializeMediator;
@@ -38,10 +38,14 @@ import org.jivesoftware.util.JiveProperties;
  */
 public final class BackupService {
 
+    /** A default period <code>Long</code> for the backup monitor. */
+    private static final Long DEFAULT_MONITOR_PERIOD;
+
     /** A singleton instance of the <code>BackupService</code>. */
     private static final BackupService SINGLETON;
 
     static {
+        DEFAULT_MONITOR_PERIOD = Long.valueOf(30 * 60 * 1000);  // TIMEOUT 30m
         SINGLETON = new BackupService();
     }
 
@@ -53,6 +57,9 @@ public final class BackupService {
     public static BackupService getInstance() {
         return SINGLETON;
     }
+
+    /** The <code>BackupMonitor</code>.*/
+    private BackupMonitor backupMonitor;
 
     /** The backup user's <code>Credentials</code>. */
     private Credentials credentials;
@@ -149,6 +156,24 @@ public final class BackupService {
     }
 
     /**
+     * Obtain a configuration property.
+     * 
+     * @param name
+     *            A property name <code>String</code>.
+     * @param defaultValue
+     *            A default value <code>String</code>.
+     * @return A property value <code>String</code>.
+     */
+    private String getJiveProperty(final String name, final String defaultValue) {
+        final String value = (String) jiveProperties.get(name);
+        if (null == value) {
+            return defaultValue;
+        } else {
+            return value;
+        }
+    }
+
+    /**
      * Determine if the service is online.
      * 
      * @return True if the backup service is online.
@@ -218,56 +243,6 @@ public final class BackupService {
             Assert.assertNotNull(credentials, "Backup credentials not yet initialized.");
             Assert.assertNotNull(environment, "Backup environment not yet initialized.");
             Assert.assertNotNull(workspace, "Backup workspace not yet initialized.");
-            getModelFactory().getSessionModel().addListener(new SessionListener() {
-                public void sessionError(final Throwable cause) {
-                    logger.logError(cause, "Backup session has generated an error.");
-                    if (!getModelFactory().getSessionModel().isOnline().booleanValue()) {
-                        logger.logInfo("Backup session has been terminated.  Attempting to re-establish.");
-                        try {
-                            getModelFactory().getSessionModel().login(new ProcessAdapter() {
-                                @Override
-                                public void beginProcess() {}
-                                @Override
-                                public void beginStep(final Step step, final Object data) {}
-                                @Override
-                                public void determineSteps(final Integer steps) {}
-                                @Override
-                                public void endProcess() {}
-                                @Override
-                                public void endStep(final Step step) {}
-                            });
-                        } catch (final InvalidCredentialsException icx) {
-                            throw new BackupException(icx, "Cannot login backup.");
-                        } catch (final InvalidLocationException ilx) {
-                            throw new BackupException(ilx, "Cannot login backup.");
-                        }
-                    }
-                }
-                public void sessionEstablished() {
-                    logger.logInfo("Backup session has been established.");
-                }
-                public void sessionTerminated() {
-                    logger.logInfo("Backup session has been terminated.  Attempting to re-establish.");
-                    try {
-                        getModelFactory().getSessionModel().login(new ProcessAdapter() {
-                            @Override
-                            public void beginProcess() {}
-                            @Override
-                            public void beginStep(final Step step, final Object data) {}
-                            @Override
-                            public void determineSteps(final Integer steps) {}
-                            @Override
-                            public void endProcess() {}
-                            @Override
-                            public void endStep(final Step step) {}
-                        });
-                    } catch (final InvalidCredentialsException icx) {
-                        throw new BackupException(icx, "Cannot login backup.");
-                    } catch (final InvalidLocationException ilx) {
-                        throw new BackupException(ilx, "Cannot login backup.");
-                    }
-                }
-            });
             final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
             if (!workspaceModel.isInitialized(workspace)) {
                 try {
@@ -313,6 +288,14 @@ public final class BackupService {
                     throw new BackupException(ilx, "Cannot login backup.");
                 }
             }
+            backupMonitor = new BackupMonitor(getModelFactory().getSessionModel(),
+                    Long.valueOf(getJiveProperty(
+                            JivePropertyNames.THINKPARITY_BACKUP_MONITOR_PERIOD,
+                            DEFAULT_MONITOR_PERIOD.toString())));
+            final Thread backupMonitorThread =
+                Executors.defaultThreadFactory().newThread(backupMonitor);
+            backupMonitorThread.setName("TPS-DesdemonaModel-BackupMonitor");
+            backupMonitorThread.start();
             logger.logInfo("Backup service is online.");
         } catch (final Throwable t) {
             throw new BackupException(t, "Failed to start backup service.");
@@ -326,6 +309,7 @@ public final class BackupService {
     private void stopImpl() {
         logger.logInfo("Stopping backup service .");
         try {
+            backupMonitor.stopMonitor();
             getModelFactory().getSessionModel().logout();
 
             final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);

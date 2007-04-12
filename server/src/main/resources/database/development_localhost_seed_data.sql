@@ -5,12 +5,12 @@ insert into jiveProperty(NAME,PROPVALUE) values('xmpp.socket.plain.port','5226')
 insert into jiveProperty(NAME,PROPVALUE) values('xmpp.socket.ssl.active','true');
 insert into jiveProperty(NAME,PROPVALUE) values('xmpp.socket.ssl.keypass','password');
 insert into jiveProperty(NAME,PROPVALUE) values('xmpp.socket.ssl.port','5227');
+insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.backup.monitor-period','1800000');
 insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.environment','DEVELOPMENT_LOCALHOST');
 insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.mode','DEVELOPMENT');
 insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.product-name','DesdemonaProduct');
 insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.release-name','20070308');
 insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.migrator.logerror.notify','false');
-
 
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('thinkparity','parity','What is my username?','thinkparity','0','<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>thinkParity Services Inc.</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');

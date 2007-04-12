@@ -160,9 +160,6 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      */
     private PacketListenerWrapper queueListener;
 
-    /** An unauthenticated xmpp connection. */
-    private XMPPConnection xmppAnonymousConnection;
-
     /** The archive xmpp interface. */
     private final XMPPArchive xmppArchive;
 
@@ -649,28 +646,6 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPCore#executeAnonymously(com.thinkparity.ophelia.model.io.xmpp.XMPPMethod)
-     *
-     */
-    public XMPPMethodResponse executeAnonymously(final XMPPMethod method) {
-        return executeAnonymously(method, Boolean.FALSE);
-    }
-
-    /**
-     * Execute the method using an anonymous connection.
-     * 
-     * @param method
-     *            An <code>XMPPMethod</code>.
-     * @param assertResponse
-     *            A <code>Boolean</code> flag indicating whether or not to
-     *            asssert the response contains values.
-     */
-    public XMPPMethodResponse executeAnonymously(final XMPPMethod method,
-            final Boolean assertResponse) {
-        return execute(method, xmppAnonymousConnection, assertResponse);
-    }
-
-    /**
      * Obtain the connection's jabber id.
      * 
      * @return A jabber id.
@@ -774,10 +749,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		logger.logApiId();
 		return null != xmppConnection
 				&& xmppConnection.isConnected()
-				&& xmppConnection.isAuthenticated()
-                && null != xmppAnonymousConnection
-                && xmppAnonymousConnection.isConnected()
-                && xmppAnonymousConnection.isAuthenticated();
+				&& xmppConnection.isAuthenticated();
 	}
 
     /**
@@ -872,8 +844,6 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
             } else {
                 socketFactory = com.thinkparity.codebase.net.SocketFactory.getInstance();
             }
-            // establish anonymous connection
-            xmppAnonymousConnection = new XMPPConnection(configuration, socketFactory);
             // establish connection
             xmppConnection = new XMPPConnection(configuration, socketFactory);
             // register a connection listener
@@ -886,9 +856,15 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
 			    }
 			});
             // login anonymously
-            xmppAnonymousConnection.loginAnonymously();
-            if (!credentials.isSetResource())
-                setResource(credentials);
+            if (!credentials.isSetResource()) {
+                final XMPPConnection xmppAnonymousConnection = new XMPPConnection(
+                		configuration, socketFactory);
+            	xmppAnonymousConnection.loginAnonymously();
+                final XMPPMethod createResource = new XMPPMethod("system:createresource");
+                credentials.setResource(execute(createResource,
+                		xmppAnonymousConnection, Boolean.TRUE).readResultString(
+                				"resource"));
+            }
             // login
             xmppConnection.login(credentials.getUsername(),
                     credentials.getPassword(), credentials.getResource());
@@ -929,9 +905,6 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      */
 	public void logout() {
         clearListeners();
-        xmppAnonymousConnection.close();
-        xmppAnonymousConnection = null;
-
         xmppConnection.close();
         xmppConnection = null;
 
@@ -1441,18 +1414,6 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      */
     public void restoreArtifact(final JabberId userId, final UUID uniqueId) {
         xmppBackup.restore(userId, uniqueId);
-    }
-
-    /**
-     * Query the server for a new resource; and set the value within the
-     * credentials.
-     * 
-     * @param credentials
-     *            A user's <code>Credentials</code>.
-     */
-    private void setResource(final Credentials credentials) {
-        final XMPPMethod createResource = new XMPPMethod("system:createresource");
-        credentials.setResource(executeAnonymously(createResource, Boolean.TRUE).readResultString("resource"));
     }
 
     /**

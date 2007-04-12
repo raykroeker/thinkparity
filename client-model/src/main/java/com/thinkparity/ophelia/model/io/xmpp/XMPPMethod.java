@@ -548,10 +548,11 @@ public class XMPPMethod extends IQ {
     				? (XMPPMethodResponse) idCollector.nextResult()
 					: (XMPPMethodResponse) idCollector.nextResult(timeout);
             if (null == response && null != timeout) {
-        		LOGGER.logWarning("XMPP method {0} has timed out after {1}.",
-        				name, timeout);
+        		LOGGER.logWarning("XMPP method {0} has timed out after {1}ms execution time {2}ms serialization time.",
+        				name, timeout, serializationTime);
         		throw new XMPPException("Method " + name +
-        				" has timed out after " + timeout + "ms.");
+        				" has timed out after " + timeout + "ms execution time " +
+        				serializationTime + "ms serialization time.");
             }
         	executionTime = Long.valueOf(System.currentTimeMillis() - start);
     		LOGGER.logInfo("XMPP method {0} has executed in {0} ms.", name,

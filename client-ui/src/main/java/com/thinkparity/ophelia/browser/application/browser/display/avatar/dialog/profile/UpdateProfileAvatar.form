@@ -28,28 +28,22 @@
                           <Component id="postalCodeJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="countryJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="emailJLabel" alignment="0" min="-2" pref="32" max="-2" attributes="0"/>
-                          <Component id="verificationKeyJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="organizationJTextField" alignment="0" pref="339" max="32767" attributes="2"/>
-                          <Component id="phoneJTextField" alignment="0" pref="339" max="32767" attributes="0"/>
-                          <Component id="mobilePhoneJTextField" alignment="0" pref="339" max="32767" attributes="0"/>
-                          <Component id="addressJTextField" alignment="0" pref="339" max="32767" attributes="0"/>
-                          <Component id="cityJTextField" alignment="0" pref="339" max="32767" attributes="0"/>
-                          <Component id="provinceJTextField" alignment="0" pref="339" max="32767" attributes="0"/>
-                          <Component id="postalCodeJTextField" alignment="0" pref="339" max="32767" attributes="0"/>
-                          <Component id="countryJComboBox" alignment="0" pref="339" max="32767" attributes="0"/>
-                          <Component id="emailJTextField" alignment="0" pref="339" max="32767" attributes="0"/>
-                          <Component id="titleJTextField" alignment="0" pref="339" max="32767" attributes="2"/>
+                          <Component id="organizationJTextField" alignment="0" pref="277" max="32767" attributes="2"/>
+                          <Component id="phoneJTextField" alignment="0" pref="277" max="32767" attributes="0"/>
+                          <Component id="mobilePhoneJTextField" alignment="0" pref="277" max="32767" attributes="0"/>
+                          <Component id="addressJTextField" alignment="0" pref="277" max="32767" attributes="0"/>
+                          <Component id="cityJTextField" alignment="0" pref="277" max="32767" attributes="0"/>
+                          <Component id="provinceJTextField" alignment="0" pref="277" max="32767" attributes="0"/>
+                          <Component id="postalCodeJTextField" alignment="0" pref="277" max="32767" attributes="0"/>
+                          <Component id="countryJComboBox" alignment="0" pref="277" max="32767" attributes="0"/>
+                          <Component id="emailJTextField" alignment="0" pref="277" max="32767" attributes="0"/>
+                          <Component id="titleJTextField" alignment="0" pref="277" max="32767" attributes="2"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="nameJTextField" pref="339" max="32767" attributes="2"/>
+                              <Component id="nameJTextField" pref="277" max="32767" attributes="2"/>
                               <EmptySpace max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="1" attributes="0">
-                              <Component id="verificationKeyJTextField" pref="268" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="verifyJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -61,7 +55,7 @@
                       <EmptySpace min="12" pref="12" max="12" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="errorMessageJLabel" pref="420" max="32767" attributes="0"/>
+                      <Component id="errorMessageJLabel" pref="358" max="32767" attributes="0"/>
                       <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -126,15 +120,9 @@
                   <Component id="emailJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="emailJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="verifyJButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="verificationKeyJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="verificationKeyJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
               <Component id="errorMessageJLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="19" max="32767" attributes="0"/>
+              <EmptySpace pref="16" max="32767" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="cancelJButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="saveJButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -145,22 +133,6 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JButton" name="verifyJButton">
-      <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogButtonFont" type="code"/>
-        </Property>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="localization/JPanel_Messages.properties" key="UpdateProfileDialog.Verify" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="verifyJButtonActionPerformed"/>
-      </Events>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create();"/>
-      </AuxValues>
-    </Component>
     <Component class="javax.swing.JLabel" name="countryJLabel">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
@@ -412,24 +384,6 @@
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
-      </AuxValues>
-    </Component>
-    <Component class="javax.swing.JLabel" name="verificationKeyJLabel">
-      <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogFont" type="code"/>
-        </Property>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="localization/JPanel_Messages.properties" key="UpdateProfileDialog.VerificationKey" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
-        </Property>
-      </Properties>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
-      </AuxValues>
-    </Component>
-    <Component class="javax.swing.JTextField" name="verificationKeyJTextField">
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="errorMessageJLabel">

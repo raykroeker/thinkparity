@@ -545,7 +545,7 @@ public abstract class AbstractModelImpl
      * @return A buffer size <code>Integer</code>.
      */
     protected final Integer getDefaultBufferSize() {
-        return 1024 * 1024 * 8; // BUFFER 8MB  - AbstractModelImpl#getDefaultBufferSize()
+        return 1024 * 1024 * 2; // BUFFER 2MB  - AbstractModelImpl#getDefaultBufferSize()
     }
 
     /**

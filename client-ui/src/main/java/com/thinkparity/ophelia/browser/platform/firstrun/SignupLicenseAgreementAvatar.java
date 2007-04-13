@@ -8,24 +8,17 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
 
 import java.awt.Point;
 
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
  *
  * @author  user
  */
-public class SignupLicenseAgreementAvatar extends Avatar
-        implements SignupPage {
-
-    /** The  <code>SignupDelegate</code>. */
-    private SignupDelegate signupDelegate;
+public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
 
     /** Creates new form SignupLicenseAgreementAvatar */
     public SignupLicenseAgreementAvatar() {
@@ -45,14 +38,7 @@ public class SignupLicenseAgreementAvatar extends Avatar
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getNextPageName()
      */
     public String getNextPageName() {
-        return SignupPageId.ACCOUNT_INFORMATION.toString();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getPageName()
-     */
-    public String getPageName() {
-        return getSignupPageId().toString();
+        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_ACCOUNT);
     }
 
     /**
@@ -62,38 +48,11 @@ public class SignupLicenseAgreementAvatar extends Avatar
         return null;
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getState() */
-    public State getState() {
-        throw Assert.createNotYetImplemented("SignupAvatar.LicenseAgreement#getState");
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isAvatarBackgroundImage()
-     */
-    @Override
-    public Boolean isAvatarBackgroundImage() {
-        return Boolean.FALSE;
-    }
-
     /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isFirstPage()
      */
     public Boolean isFirstPage() {
         return Boolean.TRUE;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isLastPage()
-     */
-    public Boolean isLastPage() {
-        return Boolean.FALSE;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isNextOk()
-     */
-    public Boolean isNextOk() {
-        return isInputValid();
     }
 
     /**
@@ -111,21 +70,6 @@ public class SignupLicenseAgreementAvatar extends Avatar
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#saveData()
      */
     public void saveData() {
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#setSignupDelegate(com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate)
-     */
-    public void setSignupDelegate(final SignupDelegate signupDelegate) {
-        this.signupDelegate = signupDelegate;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.ophelia.browser.platform.util.State)
-     * 
-     */
-    public void setState(final State state) {
-        throw Assert.createNotYetImplemented("SignupAvatar.LicenseAgreement#setState");
     }
 
     /**
@@ -149,15 +93,6 @@ public class SignupLicenseAgreementAvatar extends Avatar
         declineJRadioButton.setSelected(true);
         validateInput();
     }//GEN-LAST:event_declineJRadioButtonActionPerformed
-
-    /**
-     * Get the signup page id.
-     * 
-     * @return A <code>SignupPageId</code>.
-     */
-    private SignupPageId getSignupPageId() {
-        return SignupPageId.LICENSE_AGREEMENT;
-    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -232,15 +167,6 @@ public class SignupLicenseAgreementAvatar extends Avatar
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    /**
-     * Determine if the signup delegate has been initialized yet.
-     * 
-     * @return true if the signup delegate has been initialized.
-     */
-    private Boolean isSignupDelegateInitialized() {
-        return (null != signupDelegate);
-    }
 
     /**
      * Reload the license agreement text.

@@ -18,50 +18,40 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.thinkparity.codebase.StringUtil.Separator;
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.session.Credentials;
-import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.ophelia.model.Constants.Product;
+import com.thinkparity.ophelia.model.profile.ReservationExpiredException;
+
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.dialog.profile.LocaleRenderer;
-import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
-import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.firstrun.SignupData.DataKey;
-import com.thinkparity.ophelia.browser.platform.util.State;
-import com.thinkparity.ophelia.model.Constants.Product;
-import com.thinkparity.ophelia.model.profile.ReservationExpiredException;
 
 /**
  *
  * @author  user
  */
-public class SignupProfileInfoAvatar extends Avatar
-        implements SignupPage {
+public class SignupProfileInfoAvatar extends DefaultSignupPage {
 
     /** The country <code>DefaultComboBoxModel</code>. */
     private final DefaultComboBoxModel countryModel;
 
-    /** The <code>Platform</code>. */
-    private final Platform platform;
-
-    /** The  <code>SignupDelegate</code>. */
-    private SignupDelegate signupDelegate;
-
     /** Creates new form SignupProfileInfoAvatar */
     public SignupProfileInfoAvatar() {
         super("SignupAvatar.ProfileInfo", BrowserConstants.DIALOGUE_BACKGROUND);
-        this.platform = BrowserPlatform.getInstance();
         this.countryModel = new DefaultComboBoxModel();
         initCountryModel();
         initComponents();
@@ -84,37 +74,17 @@ public class SignupProfileInfoAvatar extends Avatar
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getPageName()
-     */
-    public String getPageName() {
-        return getSignupPageId().toString();
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getPreviousPageName()
      */
     public String getPreviousPageName() {
-        return SignupPageId.ACCOUNT_INFORMATION.toString();
-    }
-
-    /** @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getState() */
-    public State getState() {
-        throw Assert.createNotYetImplemented("SignupAvatar.ProfileInfo#getState");
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isAvatarBackgroundImage()
-     */
-    @Override
-    public Boolean isAvatarBackgroundImage() {
-        return Boolean.FALSE;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isFirstPage()
-     */
-    public Boolean isFirstPage() {
-        return Boolean.FALSE;
+        final FeatureSet featureSet = (FeatureSet) ((Data) input).get(DataKey.FEATURE_SET);
+        if (featureSet == FeatureSet.FREE) {
+            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_ACCOUNT);
+        } else {
+            // TODO When ready, hook in payment tab.
+            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_ACCOUNT);
+            //return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT);
+        }
     }
 
     /**
@@ -151,21 +121,6 @@ public class SignupProfileInfoAvatar extends Avatar
     public void saveData() {
         ((Data) input).set(SignupData.DataKey.EMAIL, extractEmail());
         ((Data) input).set(SignupData.DataKey.PROFILE, extractProfile());
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#setSignupDelegate(com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate)
-     */
-    public void setSignupDelegate(final SignupDelegate signupDelegate) {
-        this.signupDelegate = signupDelegate;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.ophelia.browser.platform.util.State)
-     * 
-     */
-    public void setState(final State state) {
-        throw Assert.createNotYetImplemented("SignupAvatar.ProfileInfo#setState");
     }
 
     /**
@@ -300,15 +255,6 @@ public class SignupProfileInfoAvatar extends Avatar
         return profile;
     }
 
-    /**
-     * Get the signup page id.
-     * 
-     * @return A <code>SignupPageId</code>.
-     */
-    private SignupPageId getSignupPageId() {
-        return SignupPageId.PROFILE_INFORMATION;
-    }
-
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -332,6 +278,7 @@ public class SignupProfileInfoAvatar extends Avatar
         final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
 
         setOpaque(false);
+        titleJLabel.setFont(Fonts.DialogFont);
         titleJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.ProfileInfo.Title"));
 
         headingsJPanel.setLayout(new java.awt.GridBagLayout());
@@ -571,17 +518,6 @@ public class SignupProfileInfoAvatar extends Avatar
     }
 
     /**
-     * Determine if the string is empty.
-     * 
-     * @param text
-     *            A <code>String</code>.
-     * @return true if the string is null or blank; false otherwise.
-     */
-    private Boolean isEmpty(final String text) {
-        return (null==text || 0==text.length() ? Boolean.TRUE : Boolean.FALSE);
-    }
-
-    /**
      * Determine if the input email is valid.
      * 
      * @return True if the input email is valid; false otherwise.
@@ -598,15 +534,6 @@ public class SignupProfileInfoAvatar extends Avatar
                 return Boolean.FALSE;
             }
         }
-    }
-
-    /**
-     * Determine if the signup delegate has been initialized yet.
-     * 
-     * @return true if the signup delegate has been initialized.
-     */
-    private Boolean isSignupDelegateInitialized() {
-        return (null != signupDelegate);
     }
 
     /**

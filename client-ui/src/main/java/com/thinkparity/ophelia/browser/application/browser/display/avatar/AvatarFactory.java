@@ -31,6 +31,7 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.firstrun.SignupAccountInfoAvatar;
 import com.thinkparity.ophelia.browser.platform.firstrun.SignupAvatar;
 import com.thinkparity.ophelia.browser.platform.firstrun.SignupLicenseAgreementAvatar;
+import com.thinkparity.ophelia.browser.platform.firstrun.SignupPaymentInfoAvatar;
 import com.thinkparity.ophelia.browser.platform.firstrun.SignupProfileInfoAvatar;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
@@ -184,6 +185,10 @@ public class AvatarFactory {
             break;
         case DIALOG_PLATFORM_SIGNUP_AGREEMENT:
             avatar = newAvatar(SignupLicenseAgreementAvatar.class);
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
+            break;
+        case DIALOG_PLATFORM_SIGNUP_PAYMENT:
+            avatar = newAvatar(SignupPaymentInfoAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_PLATFORM_SIGNUP_PROFILE:

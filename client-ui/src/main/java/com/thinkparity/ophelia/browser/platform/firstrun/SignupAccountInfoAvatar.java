@@ -25,19 +25,14 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
-import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
-import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
  *
  * @author  user
  */
-public class SignupAccountInfoAvatar extends Avatar
-        implements SignupPage {
+public class SignupAccountInfoAvatar extends DefaultSignupPage {
 
     /** The minimum password length. */
     private static final int MINIMUM_PASSWORD_LENGTH;
@@ -53,19 +48,12 @@ public class SignupAccountInfoAvatar extends Avatar
     /** The most recent unacceptable username <code>String</code>. */
     private String unacceptableUsername;
 
-    /** The <code>Platform</code>. */
-    private final Platform platform;
-
     /** The list of <code>Reservation</code>s. */
     private final List<Reservation> reservations;
-
-    /** The  <code>SignupDelegate</code>. */
-    private SignupDelegate signupDelegate;
 
     /** Creates new form SignupAccountInfoAvatar */
     public SignupAccountInfoAvatar() {
         super("SignupAvatar.AccountInfo", BrowserConstants.DIALOGUE_BACKGROUND);
-        this.platform = BrowserPlatform.getInstance();
         this.reservations = new ArrayList<Reservation>();
         initComponents();
         initDocumentHandlers();
@@ -83,48 +71,21 @@ public class SignupAccountInfoAvatar extends Avatar
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getNextPageName()
      */
     public String getNextPageName() {
-        return SignupPageId.PROFILE_INFORMATION.toString();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getPageName()
-     */
-    public String getPageName() {
-        return getSignupPageId().toString();
+        final FeatureSet featureSet = extractFeatureSet();
+        if (featureSet == FeatureSet.FREE) {
+            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PROFILE);
+        } else {
+            // TODO when ready, hook in payment tab.
+            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PROFILE);
+            //return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT);
+        }
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getPreviousPageName()
      */
     public String getPreviousPageName() {
-        return SignupPageId.LICENSE_AGREEMENT.toString();
-    }
-
-    /** @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getState() */
-    public State getState() {
-        throw Assert.createNotYetImplemented("SignupAvatar.AccountInfo#getState");
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isAvatarBackgroundImage()
-     */
-    @Override
-    public Boolean isAvatarBackgroundImage() {
-        return Boolean.FALSE;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isFirstPage()
-     */
-    public Boolean isFirstPage() {
-        return Boolean.FALSE;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isLastPage()
-     */
-    public Boolean isLastPage() {
-        return Boolean.FALSE;
+        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_AGREEMENT);
     }
 
     /**
@@ -154,21 +115,6 @@ public class SignupAccountInfoAvatar extends Avatar
         ((Data) input).set(SignupData.DataKey.FEATURE_SET, extractFeatureSet());
         ((Data) input).set(SignupData.DataKey.CREDENTIALS, extractCredentials());
         ((Data) input).set(SignupData.DataKey.RESERVATION, lookupReservation(extractUsername()));
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#setSignupDelegate(com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate)
-     */
-    public void setSignupDelegate(final SignupDelegate signupDelegate) {
-        this.signupDelegate = signupDelegate;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.ophelia.browser.platform.util.State)
-     * 
-     */
-    public void setState(final State state) {
-        throw Assert.createNotYetImplemented("SignupAvatar.AccountInfo#setState");
     }
 
     /**
@@ -259,15 +205,6 @@ public class SignupAccountInfoAvatar extends Avatar
      */
     private String extractUsername() {
         return SwingUtil.extract(usernameJTextField, Boolean.TRUE);
-    }
-
-    /**
-     * Get the signup page id.
-     * 
-     * @return A <code>SignupPageId</code>.
-     */
-    private SignupPageId getSignupPageId() {
-        return SignupPageId.ACCOUNT_INFORMATION;
     }
 
     /** This method is called from within the constructor to
@@ -454,15 +391,6 @@ public class SignupAccountInfoAvatar extends Avatar
      */
     private Boolean isReserved(final String username) {
         return (null != lookupReservation(username));
-    }
-
-    /**
-     * Determine if the signup delegate has been initialized yet.
-     * 
-     * @return true if the signup delegate has been initialized.
-     */
-    private Boolean isSignupDelegateInitialized() {
-        return (null != signupDelegate);
     }
 
     private void learnMoreJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_learnMoreJLabelMousePressed

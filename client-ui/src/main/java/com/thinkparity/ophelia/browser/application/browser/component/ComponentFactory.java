@@ -95,6 +95,9 @@ abstract class ComponentFactory {
 			public void mouseExited(final MouseEvent e) {
                 SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
 			}
+            public void mousePressed(final MouseEvent e) {
+                SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
+            }
 		});
 	}
 

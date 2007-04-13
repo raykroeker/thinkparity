@@ -38,9 +38,12 @@ class PackageTask {
         def baseDir = configuration["ant.base-dir"]
         def classesDir = configuration["thinkparity.target.classes-dir"]
         def packageDir = configuration["thinkparity.target.package-dir"]
+        def packageJreDir = configuration["thinkparity.target.package.jre-dir"]
+        def jreDir = configuration["thinkparity.jre-dir"]
 
         ant.sequential {
             mkdir(dir:packageDir)
+            mkdir(dir:packageJreDir)
 
             // $/thinkParity.jar
             jar(destfile:new File(packageDir,"thinkParity.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
@@ -60,6 +63,10 @@ class PackageTask {
                     include(name:"LICENSE.txt")
                     include(name:"README.txt")
                 }
+            }
+            // /jre/*
+            copy(todir:packageJreDir) {
+                fileset(dir:jreDir)
             }
         }
 

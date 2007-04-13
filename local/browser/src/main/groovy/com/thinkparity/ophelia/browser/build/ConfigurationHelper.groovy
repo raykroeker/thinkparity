@@ -171,7 +171,7 @@ class ConfigurationHelper {
      * @return The directory name <code>String</code>.
      */
     String extractImageJreDirname() {
-        return "jre"
+        return "jre1.6.0_01"
     }
 
     /**
@@ -280,7 +280,7 @@ class ConfigurationHelper {
      * @return A package jre directory <code>File</code>.
      */
     File extractTargetPackageImageJreDir() {
-        return new File(extractTargetPackageImageDir(), extractImageJreDirname())
+        return new File(extractTargetPackageDir(), extractImageJreDirname())
     }
 
     /**

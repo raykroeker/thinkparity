@@ -42,15 +42,12 @@ class PackageImageTask {
         def imageCoreDir = configuration["thinkparity.target.package.image.core-dir"]
         def imageLibDir = configuration["thinkparity.target.package.image.lib-dir"]
         def imageLibNativeDir = configuration["thinkparity.target.package.image.lib.native-dir"]
-        def imageJreDir = configuration["thinkparity.target.package.jre-dir"]
-        def jreDir = configuration["thinkparity.jre-dir"]
 
         ant.sequential {
             mkdir(dir:imageDir)
             mkdir(dir:imageCoreDir)
             mkdir(dir:imageLibDir)
             mkdir(dir:imageLibNativeDir)
-            mkdir(dir:imageJreDir)
 
             // /LICENSE.txt
             // /README.txt
@@ -104,10 +101,6 @@ class PackageImageTask {
             copy(todir:imageLibNativeDir) {
                 fileset(refid:"runtime.dependencies-native")
                 mapper(type:"flatten")
-            }
-            // /jre/*
-            copy(todir:imageJreDir) {
-                fileset(dir:jreDir)
             }
         }
         // /thinkParityImage.properties

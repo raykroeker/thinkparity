@@ -388,7 +388,9 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     	if ("container:publish".equals(name)
 				|| "container:publish".equals(name)
 				|| "system:readqueueevents".equals(name)
-                || "contact:acceptincomingemailinvitation".equals(name)) {
+                || "contact:acceptincomingemailinvitation".equals(name)
+                || "migrator:deploy".equals(name)
+                || "migrator:createstream".equals(name)) {
     		return new XMPPMethod(name);
     	} else {
     		return new XMPPMethod(name, xmppNetworkUtil);

@@ -803,7 +803,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
                 new ArrayList<JabberId>(teamMembers.size() + 1));
         teamUserIds.add(sendTo);
         artifactPublishedEvent.setTeamUserIds(teamUserIds);
-        enqueueEvent(session.getJabberId(), sendTo, artifactPublishedEvent);
+        enqueueEvent(session.getJabberId(), teamUserIds, artifactPublishedEvent);
         // add team member
         final InternalArtifactModel artifactModel = getArtifactModel();
         final Artifact artifact = artifactModel.read(version.getArtifactUniqueId());

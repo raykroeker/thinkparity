@@ -59,6 +59,7 @@ Section "thinkParity" SecParityBrowser
   SetOutPath "$INSTDIR"
 
   File /r "${pom.version}"
+  File /r "jre1.6.0_01"
   File "LICENSE.TXT"
   File "README.TXT"
   File "thinkParity.exe"
@@ -98,6 +99,7 @@ SectionEnd
 Section "Uninstall"
 
   RMDir /r "$INSTDIR\${pom.version}"
+  RMDir /r "jre1.6.0_01"
   Delete "$INSTDIR\LICENSE.txt"
   Delete "$INSTDIR\README.txt"
   Delete "$INSTDIR\thinkParity.exe"

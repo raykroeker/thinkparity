@@ -534,7 +534,7 @@ Examples:
                     stayAlive="false"
                     icon="${target.classes.dir}/images/ThinkParity32x32.ico"
                     chdir="${thinkparity.release-name}/lib/${thinkparity.os-platform}">
-                <jre path="${thinkparity.release-name}/jre"
+                <jre path="${target.package.dir}/jre1.6.0_01"
                     args="-Dthinkparity-dir=&quot;%EXEDIR%&quot; -Dthinkparity.mode=${thinkparity.mode} -Dthinkparity.environment=${thinkparity.environment}"/>
             </config>
         </launch4j>

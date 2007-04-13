@@ -57,7 +57,6 @@ public class DisplayInfoFrame extends SystemFrame {
                 throw new BrowserException("Could not instantiate Display Info dialogue.", awtx);
             }
         }
-        frame.doDisplay();
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 if (frame.isVisible())
@@ -83,7 +82,6 @@ public class DisplayInfoFrame extends SystemFrame {
                 throw new BrowserException("Could not instantiate Display Info dialogue.", awtx);
             }
         }
-        frame.doDisplay();
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 if (frame.isVisible()) {
@@ -121,13 +119,6 @@ public class DisplayInfoFrame extends SystemFrame {
     @Override
     protected int getAnimationAdjustmentY() {
         return ANIMATION_Y_LOCATION_ADJUSTMENT;
-    }
-
-    /**
-     * Reload the panel.
-     */
-    private void doDisplay() {
-        panel.reload();
     }
 
     /**

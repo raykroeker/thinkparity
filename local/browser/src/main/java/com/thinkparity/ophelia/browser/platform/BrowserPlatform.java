@@ -351,6 +351,10 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         return Version.getReleaseName();
     }
 
+    public String getBuildId() {
+        return Version.getBuildId();
+    }
+
 	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getTimeZone()
      *

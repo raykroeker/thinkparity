@@ -115,6 +115,15 @@ public final class SystemApplication extends AbstractApplication {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getBuildId()
+     *
+     */
+    @Override
+    public String getBuildId() {
+        return super.getBuildId();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getString(java.lang.String)
      * 
      */

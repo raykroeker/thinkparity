@@ -388,6 +388,15 @@ public abstract class AbstractApplication implements Application {
         return platform.getReleaseName();
     }
 
+    /**
+     * Obtain the build id.
+     * 
+     * @return The build id <code>String</code>.
+     */
+    protected String getBuildId() {
+        return platform.getBuildId();
+    }
+
     protected String getString(final String localKey) {
 		return l18n.getString(localKey);
 	}

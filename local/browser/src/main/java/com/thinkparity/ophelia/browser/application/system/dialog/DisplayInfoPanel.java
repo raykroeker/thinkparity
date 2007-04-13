@@ -13,16 +13,17 @@ import javax.swing.Icon;
 
 import com.thinkparity.codebase.StringUtil;
 
-import com.thinkparity.codebase.model.util.http.Link;
-
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.system.SystemApplication;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
 /**
- *
- * @author  user
+ * <b>Title:</b>thinkParity OpheliaUI Display Info Panel<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
 public class DisplayInfoPanel extends SystemPanel {
 
@@ -53,39 +54,11 @@ public class DisplayInfoPanel extends SystemPanel {
     }
 
     /**
-     * Reload the display info panel.
-     */
-    public void reload() {
-        reloadVersion();
-        reloadWebPage();
-    }
-
-    /**
      * Close the panel.
      *
      */
     private void closeDisplayInfoPanel() {
         disposeWindow();
-    }
-
-    /**
-     * Obtain localised text.
-     *
-     * @param localKey
-     *      The local context key.
-     * @return Localised text.
-     */
-    private String getString(final String localKey, final Object[] arguments) {
-        return systemApplication.getString(localKey, arguments);
-    }
-
-    /**
-     * Get the web page.
-     * 
-     * @return The web page <code>Link</code>.
-     */
-    private Link getWebPage() {
-        return systemApplication.getWebPage();
     }
 
     /** This method is called from within the constructor to
@@ -96,13 +69,17 @@ public class DisplayInfoPanel extends SystemPanel {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
+        javax.swing.JLabel versionJLabel;
 
         final javax.swing.JButton closeJButton = new javax.swing.JButton();
         final javax.swing.JLabel logoJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel copyrightJLabel = new javax.swing.JLabel();
-        final javax.swing.JPanel webPageJPanel = new javax.swing.JPanel();
-        final javax.swing.JLabel fillLeftJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel fillRightJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel thinkParityJLabel = LabelFactory.create("", Fonts.DialogFontBold);
+        final javax.swing.JLabel copyrightJLabel = LabelFactory.create("", Fonts.DialogFont);
+        versionJLabel = LabelFactory.create("", Fonts.DialogFontBold);
+        webPageJPanel = new javax.swing.JPanel();
+        fillWestJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel webPageJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+        fillEastJLabel = new javax.swing.JLabel();
 
         closeJButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Dialog_CloseButton.png")));
         closeJButton.setBorderPainted(false);
@@ -113,16 +90,16 @@ public class DisplayInfoPanel extends SystemPanel {
         closeJButton.setMinimumSize(new java.awt.Dimension(14, 14));
         closeJButton.setPreferredSize(new java.awt.Dimension(14, 14));
         closeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                closeJButtonMouseEntered(evt);
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                closeJButtonMouseEntered(e);
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                closeJButtonMouseExited(evt);
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                closeJButtonMouseExited(e);
             }
         });
         closeJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                closeJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                closeJButtonActionPerformed(e);
             }
         });
 
@@ -130,43 +107,34 @@ public class DisplayInfoPanel extends SystemPanel {
         logoJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/thinkParityLogo.png")));
         logoJLabel.setFocusable(false);
 
-        versionJLabel.setFont(Fonts.DialogFontBold);
-        versionJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        versionJLabel.setText(java.util.ResourceBundle.getBundle("localization/Application_Messages").getString("SystemApplication.DisplayInfoPanel.Version"));
+        thinkParityJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        thinkParityJLabel.setText(java.util.ResourceBundle.getBundle("localization/Application_Messages").getString("SystemApplication.DisplayInfoPanel.thinkParity"));
 
-        copyrightJLabel.setFont(Fonts.DialogFont);
         copyrightJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         copyrightJLabel.setText(java.util.ResourceBundle.getBundle("localization/Application_Messages").getString("SystemApplication.DisplayInfoPanel.Copyright"));
+
+        versionJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        versionJLabel.setText(java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("localization/Application_Messages").getString("SystemApplication.DisplayInfoPanel.Version"), systemApplication.getReleaseName()));
 
         webPageJPanel.setLayout(new java.awt.GridBagLayout());
 
         webPageJPanel.setOpaque(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 0.5;
-        gridBagConstraints.weighty = 1.0;
-        webPageJPanel.add(fillLeftJLabel, gridBagConstraints);
+        webPageJPanel.add(fillWestJLabel, new java.awt.GridBagConstraints());
 
         webPageJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        webPageJLabel.setText("!www.thinkparity.com!");
+        webPageJLabel.setText(StringUtil.removeBefore(systemApplication.getWebPage().toString(), "//"));
         webPageJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                webPageJLabelMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                webPageJLabelMousePressed(e);
             }
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.weighty = 1.0;
         webPageJPanel.add(webPageJLabel, gridBagConstraints);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 0.5;
-        gridBagConstraints.weighty = 1.0;
-        webPageJPanel.add(fillRightJLabel, gridBagConstraints);
+        webPageJPanel.add(fillEastJLabel, new java.awt.GridBagConstraints());
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -176,10 +144,11 @@ public class DisplayInfoPanel extends SystemPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(closeJButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(logoJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-                    .addComponent(versionJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-                    .addComponent(webPageJPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-                    .addComponent(copyrightJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE))
+                    .addComponent(logoJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
+                    .addComponent(thinkParityJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
+                    .addComponent(versionJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
+                    .addComponent(webPageJPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
+                    .addComponent(copyrightJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -190,12 +159,14 @@ public class DisplayInfoPanel extends SystemPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(logoJLabel)
                 .addGap(20, 20, 20)
-                .addComponent(versionJLabel)
+                .addComponent(thinkParityJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(versionJLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(copyrightJLabel)
-                .addGap(14, 14, 14)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(webPageJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -212,23 +183,13 @@ public class DisplayInfoPanel extends SystemPanel {
         closeDisplayInfoPanel();
     }//GEN-LAST:event_closeJButtonActionPerformed
 
-    private void reloadVersion() {
-        versionJLabel.setText(getString("DisplayInfoPanel.Version",
-                new Object[] {systemApplication.getReleaseName()}));
-    }
-
-    private void reloadWebPage() {
-        // Display the web page string with "http:/" stripped off
-        final String webPage = StringUtil.removeBefore(getWebPage().toString(), "//");
-        webPageJLabel.setText(getString("DisplayInfoPanel.WebPage", new Object[] {webPage}));
-    }
-
     private void webPageJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_webPageJLabelMousePressed
         systemApplication.runOpenWebsite();
     }//GEN-LAST:event_webPageJLabelMousePressed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel versionJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel webPageJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private javax.swing.JLabel fillEastJLabel;
+    private javax.swing.JLabel fillWestJLabel;
+    private javax.swing.JPanel webPageJPanel;
     // End of variables declaration//GEN-END:variables
 }

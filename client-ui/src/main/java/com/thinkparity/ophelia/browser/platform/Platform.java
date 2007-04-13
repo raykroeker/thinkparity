@@ -8,11 +8,14 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.workspace.InitializeMediator;
+import com.thinkparity.ophelia.model.workspace.Workspace;
+
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
@@ -22,9 +25,8 @@ import com.thinkparity.ophelia.browser.platform.application.window.WindowRegistr
 import com.thinkparity.ophelia.browser.platform.event.LifeCycleListener;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
-import com.thinkparity.ophelia.model.util.ProcessMonitor;
-import com.thinkparity.ophelia.model.workspace.InitializeMediator;
-import com.thinkparity.ophelia.model.workspace.Workspace;
+
+import org.apache.log4j.Logger;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Platform<br>
@@ -76,6 +78,13 @@ public interface Platform extends ApplicationListener {
     public AvatarRegistry getAvatarRegistry();
 
     /**
+     * Obtain the build id.
+     * 
+     * @return A build id <code>String</code>.
+     */
+    public String getBuildId();
+
+    /**
      * Obtain the environment.
      * 
      * @return The <code>Environment</code>.
@@ -93,7 +102,7 @@ public interface Platform extends ApplicationListener {
 
     public ModelFactory getModelFactory();
 
-    public BrowserPlatformPersistence getPersistence();
+	public BrowserPlatformPersistence getPersistence();
 
 	/**
      * Obtain the plugin registry for the platform.
@@ -102,7 +111,7 @@ public interface Platform extends ApplicationListener {
      */
     public PluginRegistry getPluginRegistry();
 
-	/**
+    /**
      * Obtain the release name.
      * 
      * @return The platform release name <code>String</code>.

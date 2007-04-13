@@ -102,6 +102,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
         Thread.currentThread().setContextClassLoader(pluginClassLoader.getClassLoader());
 
         // start database
+        System.setProperty("thinkparity.datasource-driver", JiveGlobals.getXMLProperty("database.defaultProvider.driver"));
         System.setProperty("thinkparity.datasource-url", JiveGlobals.getXMLProperty("database.defaultProvider.serverURL"));
         System.setProperty("thinkparity.datasource-user", JiveGlobals.getXMLProperty("database.defaultProvider.username"));
         System.setProperty("thinkparity.datasource-password", JiveGlobals.getXMLProperty("database.defaultProvider.password"));

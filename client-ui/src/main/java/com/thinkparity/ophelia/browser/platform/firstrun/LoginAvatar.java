@@ -10,6 +10,8 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -81,6 +83,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         this.platform = BrowserPlatform.getInstance();
         initComponents();
         initDocumentHandlers();
+        initAncestorListener();
         bindEscapeKey("Cancel", new AbstractAction() {
             private static final long serialVersionUID = 1;
             public void actionPerformed(final ActionEvent e) {
@@ -224,7 +227,8 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         reloadSignup();
         reloadError(validCredentials);
         reloadProgressBar();
-        usernameJTextField.requestFocusInWindow();
+        validateInput();
+        reloadFocus();
     }
 
     /**
@@ -306,6 +310,20 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
      */
     private String getStepJLabelText() {
         return getString("LoginAvatar.progressBarJPanel.stepJLabel");
+    }
+
+    /**
+     * Add an ancestor listener. This ensures the focus is correct
+     * when the login avatar appears.
+     */
+    private void initAncestorListener() {
+        addAncestorListener(new AncestorListener() {
+            public void ancestorAdded(final AncestorEvent event) {
+                reloadFocus();
+            }
+            public void ancestorMoved(final AncestorEvent event) {}
+            public void ancestorRemoved(final AncestorEvent event) {}
+        });
     }
 
     /** This method is called from within the constructor to
@@ -522,6 +540,17 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     }
 
     /**
+     * Determine if the string is empty.
+     * 
+     * @param text
+     *            A <code>String</code>.
+     * @return true if the string is null or blank; false otherwise.
+     */
+    private Boolean isEmpty(final String text) {
+        return (null==text || 0==text.length() ? Boolean.TRUE : Boolean.FALSE);
+    }
+
+    /**
      * Perform the login.
      */
     private void login() {
@@ -546,6 +575,14 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
             nextJButton.setEnabled(Boolean.FALSE);
         } else {
             validateInput();
+        }
+    }
+
+    private void reloadFocus() {
+        if (isEmpty(username)) {
+            usernameJTextField.requestFocusInWindow();
+        } else {
+            nextJButton.requestFocusInWindow();
         }
     }
 

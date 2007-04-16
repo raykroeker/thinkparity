@@ -123,7 +123,6 @@ public final class Constants {
     /** Dimension constants. */
     public static final class Dimensions {
         public static final class BrowserWindow {
-            public static final int CORNER_SIZE = 9;
             public static final Point DEFAULT_LOCATION = new Point(100, 100);
             public static final Dimension DEFAULT_SIZE = new Dimension(700, 400);
             public static final Dimension MIN_SIZE = new Dimension(500, 300);
@@ -136,10 +135,7 @@ public final class Constants {
             public static final Integer MINIMUM_WIDTH = 135;
         }
     }
-    public static final class Files {
-        public static final File JAR = new File(Directories.ThinkParity.DIR,
-                "thinkParity.jar");
-    }
+
     /** thinkParity directories. */
     public static final class Directories {
         /** A user's data directory <code>File</code>. */
@@ -187,6 +183,10 @@ public final class Constants {
     public static final class FileExtensions {
         public static final String JAR = ".jar";
         public static final String PAR = ".par";
+    }
+    public static final class Files {
+        public static final File JAR = new File(Directories.ThinkParity.DIR,
+                "thinkParity.jar");
     }
     /** thinkParity icons. */
     public static final class Icons {
@@ -249,7 +249,6 @@ public final class Constants {
         public static final Float LEVEL_1 = 2.0F;
         public static final Float LEVEL_2 = 4.0F;
     }
-
     /** Lookup keys. */
     public static final class Keys {
         public static final class Persistence {
@@ -276,12 +275,12 @@ public final class Constants {
     public static final class Resize {
         public static final Integer EDGE_PIXEL_BUFFER = 6;
     }
-    
+
     /** Scrollbar constants. */
     public static final class ScrollBar {
         public static final Integer UNIT_INCREMENT = 25;
     }
-
+    
     public static final class Search {
         public static final Integer ACTIVATION_DELAY = 500; // Milliseconds
     }
@@ -289,5 +288,12 @@ public final class Constants {
     public static final class Session {
         public static final Long CONNECT_TIMER_PERIOD = 1 * 60 * 1000L;
         public static final Long RECONNECT_DELAY = 1 * 60 * 1000L;
+    }
+
+    public static final class WindowUtil {
+        public static final Integer BROWSER_WINDOW_SIZE = 9;
+        public static final Integer DIALOG_WINDOW_SIZE = 9;
+        public static final Integer DEFAULT_SIZE = 5;
+        public static final Integer NOTIFICATION_WINDOW_SIZE = 9;
     }
 }

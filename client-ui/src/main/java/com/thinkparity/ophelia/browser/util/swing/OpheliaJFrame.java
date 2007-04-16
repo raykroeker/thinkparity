@@ -12,15 +12,23 @@ import javax.swing.SwingUtilities;
 import com.thinkparity.codebase.swing.AbstractJFrame;
 
 import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.Constants.Dimensions;
+import com.thinkparity.ophelia.browser.Constants;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2;
-import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
+import com.thinkparity.ophelia.browser.util.window.WindowUtil;
+import com.thinkparity.ophelia.browser.util.window.WindowUtilProvider;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 public abstract class OpheliaJFrame extends AbstractJFrame {
+
+    /** An instance of <code>WindowUtil</code>. */
+    private static final WindowUtil WINDOW_UTIL;
+
+    static {
+        WINDOW_UTIL = WindowUtilProvider.getInstance().getWindowUtil();
+    }
 
     /**
      * Create OpheliaJFrame
@@ -48,7 +56,7 @@ public abstract class OpheliaJFrame extends AbstractJFrame {
     @Override
     public void setVisible(boolean b) {
         if (b) {
-            new NativeSkin().roundCorners(this, Dimensions.BrowserWindow.CORNER_SIZE);
+            WINDOW_UTIL.applyRoundedEdges(this, Constants.WindowUtil.DIALOG_WINDOW_SIZE);
             setLocation(calculateLocation());
         }
         super.setVisible(b);

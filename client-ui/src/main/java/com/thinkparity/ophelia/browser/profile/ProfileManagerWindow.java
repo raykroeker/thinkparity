@@ -7,7 +7,6 @@ package com.thinkparity.ophelia.browser.profile;
 
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder;
-import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
 import com.thinkparity.ophelia.browser.util.swing.OpheliaJFrame;
 
 /**
@@ -43,7 +42,6 @@ final class ProfileManagerWindow extends OpheliaJFrame {
         pack();
         avatar.reload();
         setLocation(calculateLocation());
-        new NativeSkin().roundCorners(this);
         setVisible(true);
     }
 }

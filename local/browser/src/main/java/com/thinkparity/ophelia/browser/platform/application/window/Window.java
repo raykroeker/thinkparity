@@ -14,11 +14,13 @@ import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.border.MovableDropShadowBorder;
 
 import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.ophelia.browser.Constants;
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowId;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
 import com.thinkparity.ophelia.browser.util.localization.JFrameLocalization;
+import com.thinkparity.ophelia.browser.util.window.WindowUtil;
+import com.thinkparity.ophelia.browser.util.window.WindowUtilProvider;
 
 /**
  * @author raykroeker@gmail.com
@@ -29,22 +31,29 @@ public abstract class Window extends AbstractJDialog {
 	/** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
 
-    /** Whether or not to display title text. */
-    private final Boolean titleText;
+    /** An instance of <code>WindowUtil</code>. */
+    private static final WindowUtil WINDOW_UTIL;
 
-	/** The panel onto which all displays are dropped. */
+	static {
+        WINDOW_UTIL = WindowUtilProvider.getInstance().getWindowUtil();
+    }
+
+	/** Resource bundle based localziation. */
+    protected final JFrameLocalization localization;
+    
+    /** The panel onto which all displays are dropped. */
 	protected WindowPanel windowPanel;
 
-	/** A lookup for window sizes. */
-	private final WindowSize windowSize;
-    
     /** The border. */
     private MovableDropShadowBorder border = null;
 
-    /** Resource bundle based localziation. */
-    protected final JFrameLocalization localization;
+    /** Whether or not to display title text. */
+    private final Boolean titleText;
 
-    /**
+    /** A lookup for window sizes. */
+	private final WindowSize windowSize;
+   
+	/**
      * Create a parity Window.
      * 
      * @param owner
@@ -72,8 +81,8 @@ public abstract class Window extends AbstractJDialog {
 	 * @return The window id.
 	 */
 	public abstract WindowId getId();
-   
-	/**
+
+    /**
      * Open an avatar in the window.
      * 
      * @param avatar
@@ -95,11 +104,38 @@ public abstract class Window extends AbstractJDialog {
         setVisible(true);
 	}
 
+    /**
+     * @see java.awt.Component#setBounds(java.awt.Rectangle)
+     */
+    @Override
+    public void setBounds(final Rectangle r) {
+        getBorder().settingBounds(r);
+        super.setBounds(r);
+    }
+
+    /**
+     * @see java.awt.Component#setLocation(int, int)
+     */
+    @Override
+    public void setLocation(final int x, final int y) {
+        getBorder().settingLocation(x, y);    
+        super.setLocation(x, y);
+    }
+
+    /**
+     * @see java.awt.Component#setSize(int, int)
+     */
+    @Override
+    public void setSize(int width, int height) {
+        getBorder().settingSize(width, height);
+        super.setSize(width, height);
+    }
+
     /** Apply an escape listener that will dispose of the window. */
     protected void applyEscapeListener() {
         new WindowCustodian().applyEscapeListener(this);
     }
-
+    
     /**
 	 * Calculate the location for the window based upon its owner and its size.
 	 * 
@@ -133,6 +169,22 @@ public abstract class Window extends AbstractJDialog {
     protected void disposeWindow() { dispose(); }
 
     /**
+     * @see JFrameLocalization#getString(String)
+     * 
+     */
+    protected String getString(final String localKey) {
+    	return localization.getString(localKey);
+    }
+    
+    /**
+     * @see JFrameLocalization#getString(String, Object[])
+     * 
+     */
+    protected String getString(final String localKey, final Object[] arguments) {
+    	return localization.getString(localKey, arguments);
+    }
+        
+    /**
      * Initialize the swing components on the window.
      * 
      * @param avatar
@@ -149,29 +201,6 @@ public abstract class Window extends AbstractJDialog {
     }
 
     /**
-     * @see JFrameLocalization#getString(String)
-     * 
-     */
-    protected String getString(final String localKey) {
-    	return localization.getString(localKey);
-    }
-
-    /**
-     * @see JFrameLocalization#getString(String, Object[])
-     * 
-     */
-    protected String getString(final String localKey, final Object[] arguments) {
-    	return localization.getString(localKey, arguments);
-    }
-    
-    /**
-     * Make the corners round.
-     */
-    private void roundCorners() {
-    	new NativeSkin().roundCorners(this);
-    }
-    
-    /**
      * Get the border.
      */
     private MovableDropShadowBorder getBorder() {
@@ -187,7 +216,7 @@ public abstract class Window extends AbstractJDialog {
         }
         return border;
     }
-        
+
     /**
      * Initialize the border. This should be done just
      * before the dialog is made visible.
@@ -197,29 +226,9 @@ public abstract class Window extends AbstractJDialog {
     }
 
     /**
-     * @see java.awt.Component#setLocation(int, int)
+     * Make the corners round.
      */
-    @Override
-    public void setLocation(final int x, final int y) {
-        getBorder().settingLocation(x, y);    
-        super.setLocation(x, y);
-    }
-
-    /**
-     * @see java.awt.Component#setBounds(java.awt.Rectangle)
-     */
-    @Override
-    public void setBounds(final Rectangle r) {
-        getBorder().settingBounds(r);
-        super.setBounds(r);
-    }
-
-    /**
-     * @see java.awt.Component#setSize(int, int)
-     */
-    @Override
-    public void setSize(int width, int height) {
-        getBorder().settingSize(width, height);
-        super.setSize(width, height);
+    private void roundCorners() {
+        WINDOW_UTIL.applyRoundedEdges(this, Constants.WindowUtil.DEFAULT_SIZE);
     }
 }

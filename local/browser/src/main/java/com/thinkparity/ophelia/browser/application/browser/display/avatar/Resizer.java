@@ -27,10 +27,12 @@ import javax.swing.event.AncestorListener;
 
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.ophelia.browser.Constants;
 import com.thinkparity.ophelia.browser.Constants.Resize;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserWindow;
-import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
+import com.thinkparity.ophelia.browser.util.window.WindowUtil;
+import com.thinkparity.ophelia.browser.util.window.WindowUtilProvider;
 
 /**
  * @author rob_masako@shaw.ca
@@ -38,53 +40,60 @@ import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
  */
 public class Resizer {
 
+    /** The original component position when start a move. */
+    private static Point moveComponentOrigin;
+
+    /** Flag to indicate if currently movement dragging. */
+    private static Boolean moveDragging = Boolean.FALSE;
+
+    /** The original mouse position when start a move. */
+    private static Point moveMouseOrigin;
+
+    /** Flag to indicate if currently resize dragging. */
+    private static Boolean resizeDragging = Boolean.FALSE;
+
+    /** The resize offset size in the x direction. */
+    private static int resizeOffsetX;
+
+    /** The resize offset size in the y direction. */
+    private static int resizeOffsetY;
+
+    /** An instance of <code>WindowUtil</code>. */
+    private static final WindowUtil WINDOW_UTIL;
+
+    static {
+        WINDOW_UTIL = WindowUtilProvider.getInstance().getWindowUtil();
+    }
+
+    /** A map of JComponent to AncestorListener. */
+    private final Map<JComponent, AncestorListener> ancestorListeners;
+
     /** Browser */
     private final Browser browser;
 
     /** Component */
     private final Component component;
 
-    /** Flag to indicate if dragging the centre of the control will cause moving */
-    private final Boolean supportMouseMove;
-
-    /** Resize edges */
-    private final ResizeEdges resizeEdges;
-
-    /** Flag to indicate if currently resize dragging. */
-    private static Boolean resizeDragging = Boolean.FALSE;
-
-    /** Flag to indicate if currently movement dragging. */
-    private static Boolean moveDragging = Boolean.FALSE;
+    /** Flag to indicate if the resizer is enabled or not. */
+    private Boolean enabled = Boolean.TRUE;    
 
     /** Flag to indicate if initialized. */
     private Boolean initialized = Boolean.FALSE;
 
-    /** Flag to indicate if the resizer is enabled or not. */
-    private Boolean enabled = Boolean.TRUE;
-
-    /** The original mouse position when start a move. */
-    private static Point moveMouseOrigin;
-
-    /** The original component position when start a move. */
-    private static Point moveComponentOrigin;
-
-    /** Resize mode. */
-    private ResizeDirection resizeDirection = ResizeDirection.NONE;
-
-    /** The resize offset size in the x direction. */
-    private static int resizeOffsetX;    
-
-    /** The resize offset size in the y direction. */
-    private static int resizeOffsetY;
+    /** A map of components to mouse adapters. */
+    private final Map<Component, MouseAdapter> mouseAdapters;
 
     /** A map of components to mouse motion adapters. */
     private final Map<Component, MouseMotionAdapter> mouseMotionAdapters;
 
-    /** A map of components to mouse adapters. */
-    private final Map<Component, MouseAdapter> mouseAdapters;
+    /** Resize mode. */
+    private ResizeDirection resizeDirection = ResizeDirection.NONE;
 
-    /** A map of JComponent to AncestorListener. */
-    private final Map<JComponent, AncestorListener> ancestorListeners;
+    /** Resize edges */
+    private final ResizeEdges resizeEdges;
+
+    /** Flag to indicate if dragging the centre of the control will cause moving */
+    private final Boolean supportMouseMove;
 
     /** A map of Window to WindowStateListener. */
     private final Map<Window, WindowStateListener> windowStateListeners;
@@ -142,6 +151,13 @@ public class Resizer {
         installWindowStateListener(window);
         setEnabled(!SwingUtil.isInMaximizedWindow(window));
     }
+    /**
+     * These get and set methods are used by classes that intend to do
+     * their own resizing. (For example, the bottom right resize control.)
+     */
+    public Boolean isResizeDragging() {
+        return resizeDragging;
+    }
 
     /**
      * Remove all listeners for this resizer.
@@ -161,52 +177,91 @@ public class Resizer {
         }
     }
 
-    /**
-     * These get and set methods are used by classes that intend to do
-     * their own resizing. (For example, the bottom right resize control.)
-     */
-    public Boolean isResizeDragging() {
-        return resizeDragging;
-    }
     public void setResizeDragging(final Boolean resizeDragging) {
         Resizer.resizeDragging = resizeDragging;
     }
 
-    private void initResize(final java.awt.event.MouseEvent e, final Component component) {
-        final Point p = e.getPoint();
-        final Dimension d = component.getSize();
-        final Boolean lowX = (p.getX() < Resize.EDGE_PIXEL_BUFFER);
-        final Boolean highX = (p.getX() >= d.getWidth() - Resize.EDGE_PIXEL_BUFFER);
-        final Boolean lowY = (p.getY() < Resize.EDGE_PIXEL_BUFFER);
-        final Boolean highY = (p.getY() >= d.getHeight() - Resize.EDGE_PIXEL_BUFFER);
-        
-        if (lowX && lowY) {
-            resizeDirection = ResizeDirection.NW;
-        } else if (highX && lowY) {
-            resizeDirection = ResizeDirection.NE;
-        } else if (lowX && highY) {
-            resizeDirection = ResizeDirection.SW;
-        } else if (highX && highY) {
-            resizeDirection = ResizeDirection.SE;
-        } else if (lowX) {
-            resizeDirection = ResizeDirection.W;
-        } else if (highX) {
-            resizeDirection = ResizeDirection.E;
-        } else if (lowY) {
-            resizeDirection = ResizeDirection.N;
-        } else if (highY) {
-            resizeDirection = ResizeDirection.S;
-        } else {
-            resizeDirection = ResizeDirection.NONE;
+    private void adjustCursor(final ResizeDirection resizeDirection, final Component component) {       
+        switch (resizeDirection) {
+        case NW:
+            SwingUtil.setCursor(component, java.awt.Cursor.NW_RESIZE_CURSOR);
+            break;
+        case NE:
+            SwingUtil.setCursor(component, java.awt.Cursor.NE_RESIZE_CURSOR);
+            break;
+        case SW:
+            SwingUtil.setCursor(component, java.awt.Cursor.SW_RESIZE_CURSOR);
+            break;
+        case SE:
+            SwingUtil.setCursor(component, java.awt.Cursor.SE_RESIZE_CURSOR);
+            break;
+        case W:
+            SwingUtil.setCursor(component, java.awt.Cursor.W_RESIZE_CURSOR);
+            break;
+        case E:
+            SwingUtil.setCursor(component, java.awt.Cursor.E_RESIZE_CURSOR);
+            break;
+        case N:
+            SwingUtil.setCursor(component, java.awt.Cursor.N_RESIZE_CURSOR);
+            break;
+        case S:
+            SwingUtil.setCursor(component, java.awt.Cursor.S_RESIZE_CURSOR);
+            break;
+        default:
+            SwingUtil.setCursor(component, java.awt.Cursor.DEFAULT_CURSOR);
+            break;
+        }
+    }
+
+    /**
+     * Adjust size to account for minimum size.
+     * 
+     * @param component
+     *          The component to resize.
+     * @param size
+     *          The size.
+     *          
+     * @return The adjusted size.
+     */
+    private Dimension adjustForMinimumSize(final Component component, final Dimension size) {
+        Dimension adjustedSize = new Dimension(size);
+        Dimension minSize = component.getMinimumSize();
+        if (size.getWidth() < minSize.getWidth()) {
+            adjustedSize.width = (int)minSize.getWidth();
+        }
+        if (size.getHeight() < minSize.getHeight()) {
+            adjustedSize.height = (int)minSize.getHeight();
         }
         
-        // Don't allow resize in certain directions for components.
-        // The borders should always allow resize in all directions.
-        if (!(component instanceof JDialog) && !(component instanceof BrowserWindow)) {
-            resizeDirection = filterAllowedDirections(resizeDirection);
+        return adjustedSize;
+    }
+
+    /**
+     * Adjust size and move to account for minimum size.
+     * 
+     * @param component
+     *          The component to resize and move.
+     * @param sizeAndLocation
+     *          The rectangle representing size and location.
+     *          
+     * @return The adjusted size and location.
+     */
+    private Rectangle adjustForMinimumSize(final Component component, final Rectangle sizeAndLocation) {
+        Rectangle adjustedSizeAndLocation = new Rectangle(sizeAndLocation);
+        Dimension minSize = component.getMinimumSize();
+        if (sizeAndLocation.getWidth() < minSize.getWidth()) {
+            if (sizeAndLocation.x != component.getLocation().x) {
+                adjustedSizeAndLocation.x += (sizeAndLocation.getWidth() - minSize.getWidth());
+            }
+            adjustedSizeAndLocation.width = (int)minSize.getWidth();
         }
-        
-        adjustCursor(resizeDirection, component);
+        if (sizeAndLocation.getHeight() < minSize.getHeight()) {
+            if (sizeAndLocation.y != component.getLocation().y) {
+                adjustedSizeAndLocation.y += (sizeAndLocation.getHeight() - minSize.getHeight());
+            }
+            adjustedSizeAndLocation.height = (int)minSize.getHeight();
+        }
+        return adjustedSizeAndLocation;
     }
 
     private ResizeDirection filterAllowedDirections(final ResizeDirection rd) {
@@ -255,35 +310,11 @@ public class Resizer {
         return newDirection;
     }
 
-    private void adjustCursor(final ResizeDirection resizeDirection, final Component component) {       
-        switch (resizeDirection) {
-        case NW:
-            SwingUtil.setCursor(component, java.awt.Cursor.NW_RESIZE_CURSOR);
-            break;
-        case NE:
-            SwingUtil.setCursor(component, java.awt.Cursor.NE_RESIZE_CURSOR);
-            break;
-        case SW:
-            SwingUtil.setCursor(component, java.awt.Cursor.SW_RESIZE_CURSOR);
-            break;
-        case SE:
-            SwingUtil.setCursor(component, java.awt.Cursor.SE_RESIZE_CURSOR);
-            break;
-        case W:
-            SwingUtil.setCursor(component, java.awt.Cursor.W_RESIZE_CURSOR);
-            break;
-        case E:
-            SwingUtil.setCursor(component, java.awt.Cursor.E_RESIZE_CURSOR);
-            break;
-        case N:
-            SwingUtil.setCursor(component, java.awt.Cursor.N_RESIZE_CURSOR);
-            break;
-        case S:
-            SwingUtil.setCursor(component, java.awt.Cursor.S_RESIZE_CURSOR);
-            break;
-        default:
-            SwingUtil.setCursor(component, java.awt.Cursor.DEFAULT_CURSOR);
-            break;
+    private void formMouseDragged(final java.awt.event.MouseEvent evt, final Component component) {
+        if (moveDragging) {
+            formMouseDraggedMove(evt, component);
+        } else if (resizeDragging) {
+            formMouseDraggedResize(evt, component);
         }
     }
 
@@ -369,159 +400,8 @@ public class Resizer {
         }
     }
 
-    /**
-     * Resize the component.
-     * 
-     * @param component
-     *          The component to resize.
-     * @param resizeOffset
-     *          The amount to resize.
-     */
-    private void resize(final Window window, final Dimension resizeOffset) {
-        if ((resizeOffset.width != 0) || (resizeOffset.height != 0)) {
-            if (window instanceof BrowserWindow) {
-                if (null!=browser) {
-                    browser.resizeBrowserWindow(resizeOffset);
-                }
-            } else {
-                Dimension size = window.getSize();
-                size.width += resizeOffset.width;
-                size.height += resizeOffset.height;
-                size = adjustForMinimumSize(window, size);
-                if (!window.getSize().equals(size)) {
-                	window.setSize(size);
-                    roundCorners(window);
-                    window.validate();
-                }
-            }
-        }
-    }
-
-    /**
-     * Resize and move the component.
-     * 
-     * @param component
-     *          The component to resize.
-     * @param resizeOffset
-     *          The amount to resize.
-     * @param moveOffset
-     *          The amount to move.
-     */
-    private void resizeAndMove(final Window window,
-			final Dimension resizeOffset, final Point moveOffset) {
-        if ((resizeOffset.width!=0) || (resizeOffset.height!=0) ||
-            (moveOffset.x != 0 ) || (moveOffset.y != 0 )) {        
-            if (window instanceof BrowserWindow) {
-                if (null!=browser) {
-                    browser.moveAndResizeBrowserWindow(moveOffset, resizeOffset);
-                }
-            } else {
-                Rectangle sizeAndLocation = window.getBounds();
-                sizeAndLocation.width += resizeOffset.width;
-                sizeAndLocation.height += resizeOffset.height;
-                sizeAndLocation.x += moveOffset.x;
-                sizeAndLocation.y += moveOffset.y;
-                sizeAndLocation = adjustForMinimumSize(window, sizeAndLocation);
-                if (!window.getBounds().equals(sizeAndLocation)) {
-                	window.setBounds(sizeAndLocation);
-                    roundCorners(window);
-                    window.validate();
-                }
-            }
-        }
-    }
-
-    /**
-     * Make the corners round.
-     */
-    private void roundCorners(final Window window) {
-    	new NativeSkin().roundCorners(window);
-    }
-
-    /**
-     * Move the component.
-     * 
-     * @param component
-     *          The component to resize.
-     * @param moveOffset
-     *          The amount to move.
-     */    
-    private void move(final Component component, final Point moveOffset) {
-        if ((moveOffset.x != 0 ) || (moveOffset.y != 0 )) {
-            final Point location = component.getLocation();
-            location.x += moveOffset.x;
-            location.y += moveOffset.y;
-            component.setLocation(location.x, location.y);
-        }
-    }
-
-    /**
-     * Adjust size to account for minimum size.
-     * 
-     * @param component
-     *          The component to resize.
-     * @param size
-     *          The size.
-     *          
-     * @return The adjusted size.
-     */
-    private Dimension adjustForMinimumSize(final Component component, final Dimension size) {
-        Dimension adjustedSize = new Dimension(size);
-        Dimension minSize = component.getMinimumSize();
-        if (size.getWidth() < minSize.getWidth()) {
-            adjustedSize.width = (int)minSize.getWidth();
-        }
-        if (size.getHeight() < minSize.getHeight()) {
-            adjustedSize.height = (int)minSize.getHeight();
-        }
-        
-        return adjustedSize;
-    }
-
-    /**
-     * Adjust size and move to account for minimum size.
-     * 
-     * @param component
-     *          The component to resize and move.
-     * @param sizeAndLocation
-     *          The rectangle representing size and location.
-     *          
-     * @return The adjusted size and location.
-     */
-    private Rectangle adjustForMinimumSize(final Component component, final Rectangle sizeAndLocation) {
-        Rectangle adjustedSizeAndLocation = new Rectangle(sizeAndLocation);
-        Dimension minSize = component.getMinimumSize();
-        if (sizeAndLocation.getWidth() < minSize.getWidth()) {
-            if (sizeAndLocation.x != component.getLocation().x) {
-                adjustedSizeAndLocation.x += (sizeAndLocation.getWidth() - minSize.getWidth());
-            }
-            adjustedSizeAndLocation.width = (int)minSize.getWidth();
-        }
-        if (sizeAndLocation.getHeight() < minSize.getHeight()) {
-            if (sizeAndLocation.y != component.getLocation().y) {
-                adjustedSizeAndLocation.y += (sizeAndLocation.getHeight() - minSize.getHeight());
-            }
-            adjustedSizeAndLocation.height = (int)minSize.getHeight();
-        }
-        return adjustedSizeAndLocation;
-    }
-
-    private void formMouseDragged(final java.awt.event.MouseEvent evt, final Component component) {
-        if (moveDragging) {
-            formMouseDraggedMove(evt, component);
-        } else if (resizeDragging) {
-            formMouseDraggedResize(evt, component);
-        }
-    }
-
     private void formMouseEntered(final java.awt.event.MouseEvent evt, final Component component) {
         if (enabled &&(!resizeDragging) && (!moveDragging) && (resizeEdges!=ResizeEdges.NO_EDGE)) {
-            initResize(evt, component);
-        }
-    }
-
-    private void formMouseMoved(final java.awt.event.MouseEvent evt, final Component component) {
-        if (enabled && (!resizeDragging) && (!moveDragging) && (resizeEdges!=ResizeEdges.NO_EDGE)) {
             initResize(evt, component);
         }
     }
@@ -531,7 +411,13 @@ public class Resizer {
             resizeDirection = ResizeDirection.NONE;
             SwingUtil.setCursor(component, java.awt.Cursor.DEFAULT_CURSOR);
         }
-    }    
+    }
+
+    private void formMouseMoved(final java.awt.event.MouseEvent evt, final Component component) {
+        if (enabled && (!resizeDragging) && (!moveDragging) && (resizeEdges!=ResizeEdges.NO_EDGE)) {
+            initResize(evt, component);
+        }
+    }
 
     private void formMousePressed(final java.awt.event.MouseEvent evt, final Component component) {
         if (enabled) {
@@ -545,7 +431,7 @@ public class Resizer {
                 resizeDragging = Boolean.TRUE;
             }
         }
-    }   
+    }
 
     private void formMouseReleased(final java.awt.event.MouseEvent evt, final Component component) {
         resizeDragging = Boolean.FALSE;
@@ -558,6 +444,23 @@ public class Resizer {
         // mouse exit event.
         resizeDirection = ResizeDirection.NONE;
         SwingUtil.setCursor(component, java.awt.Cursor.DEFAULT_CURSOR);
+    }
+
+    /**
+     * Get the component ancestor.
+     * 
+     * @param jComponent
+     *            The <code>JComponent</code>.
+     * @return The ancestor <code>Window</code>.
+     */
+    private Window getComponentAncestor(final Component component) {
+        final Window ancestor;
+        if ((component instanceof JDialog) || (component instanceof BrowserWindow)) {
+            ancestor = (Window) component;
+        } else {
+            ancestor = SwingUtilities.getWindowAncestor(component);
+        }
+        return ancestor;
     }
 
     private void initComponents() {
@@ -627,22 +530,42 @@ public class Resizer {
         }
     }
 
-    /**
-     * Get the component ancestor.
-     * 
-     * @param jComponent
-     *            The <code>JComponent</code>.
-     * @return The ancestor <code>Window</code>.
-     */
-    private Window getComponentAncestor(final Component component) {
-        final Window ancestor;
-        if ((component instanceof JDialog) || (component instanceof BrowserWindow)) {
-            ancestor = (Window) component;
+    private void initResize(final java.awt.event.MouseEvent e, final Component component) {
+        final Point p = e.getPoint();
+        final Dimension d = component.getSize();
+        final Boolean lowX = (p.getX() < Resize.EDGE_PIXEL_BUFFER);
+        final Boolean highX = (p.getX() >= d.getWidth() - Resize.EDGE_PIXEL_BUFFER);
+        final Boolean lowY = (p.getY() < Resize.EDGE_PIXEL_BUFFER);
+        final Boolean highY = (p.getY() >= d.getHeight() - Resize.EDGE_PIXEL_BUFFER);
+        
+        if (lowX && lowY) {
+            resizeDirection = ResizeDirection.NW;
+        } else if (highX && lowY) {
+            resizeDirection = ResizeDirection.NE;
+        } else if (lowX && highY) {
+            resizeDirection = ResizeDirection.SW;
+        } else if (highX && highY) {
+            resizeDirection = ResizeDirection.SE;
+        } else if (lowX) {
+            resizeDirection = ResizeDirection.W;
+        } else if (highX) {
+            resizeDirection = ResizeDirection.E;
+        } else if (lowY) {
+            resizeDirection = ResizeDirection.N;
+        } else if (highY) {
+            resizeDirection = ResizeDirection.S;
         } else {
-            ancestor = SwingUtilities.getWindowAncestor(component);
+            resizeDirection = ResizeDirection.NONE;
         }
-        return ancestor;
-    }
+        
+        // Don't allow resize in certain directions for components.
+        // The borders should always allow resize in all directions.
+        if (!(component instanceof JDialog) && !(component instanceof BrowserWindow)) {
+            resizeDirection = filterAllowedDirections(resizeDirection);
+        }
+        
+        adjustCursor(resizeDirection, component);
+    }    
 
     /**
      * Install a window state listener on the ancestor of the component.
@@ -672,7 +595,7 @@ public class Resizer {
         } else {
             installWindowStateListener(window);
         }
-    }
+    }   
 
     /**
      * Install a window state listener.
@@ -704,6 +627,92 @@ public class Resizer {
     }
 
     /**
+     * Move the component.
+     * 
+     * @param component
+     *          The component to resize.
+     * @param moveOffset
+     *          The amount to move.
+     */    
+    private void move(final Component component, final Point moveOffset) {
+        if ((moveOffset.x != 0 ) || (moveOffset.y != 0 )) {
+            final Point location = component.getLocation();
+            location.x += moveOffset.x;
+            location.y += moveOffset.y;
+            component.setLocation(location.x, location.y);
+        }
+    }
+
+    /**
+     * Resize the component.
+     * 
+     * @param component
+     *          The component to resize.
+     * @param resizeOffset
+     *          The amount to resize.
+     */
+    private void resize(final Window window, final Dimension resizeOffset) {
+        if ((resizeOffset.width != 0) || (resizeOffset.height != 0)) {
+            if (window instanceof BrowserWindow) {
+                if (null!=browser) {
+                    browser.resizeBrowserWindow(resizeOffset);
+                }
+            } else {
+                Dimension size = window.getSize();
+                size.width += resizeOffset.width;
+                size.height += resizeOffset.height;
+                size = adjustForMinimumSize(window, size);
+                if (!window.getSize().equals(size)) {
+                	window.setSize(size);
+                    roundCorners(window);
+                    window.validate();
+                }
+            }
+        }
+    }
+
+    /**
+     * Resize and move the component.
+     * 
+     * @param component
+     *          The component to resize.
+     * @param resizeOffset
+     *          The amount to resize.
+     * @param moveOffset
+     *          The amount to move.
+     */
+    private void resizeAndMove(final Window window,
+			final Dimension resizeOffset, final Point moveOffset) {
+        if ((resizeOffset.width!=0) || (resizeOffset.height!=0) ||
+            (moveOffset.x != 0 ) || (moveOffset.y != 0 )) {        
+            if (window instanceof BrowserWindow) {
+                if (null!=browser) {
+                    browser.moveAndResizeBrowserWindow(moveOffset, resizeOffset);
+                }
+            } else {
+                Rectangle sizeAndLocation = window.getBounds();
+                sizeAndLocation.width += resizeOffset.width;
+                sizeAndLocation.height += resizeOffset.height;
+                sizeAndLocation.x += moveOffset.x;
+                sizeAndLocation.y += moveOffset.y;
+                sizeAndLocation = adjustForMinimumSize(window, sizeAndLocation);
+                if (!window.getBounds().equals(sizeAndLocation)) {
+                	window.setBounds(sizeAndLocation);
+                    roundCorners(window);
+                    window.validate();
+                }
+            }
+        }
+    }
+
+    /**
+     * Make the corners round.
+     */
+    private void roundCorners(final Window window) {
+    	WINDOW_UTIL.applyRoundedEdges(window, Constants.WindowUtil.DEFAULT_SIZE);
+    }
+
+    /**
      * Enable or disable the resizer (affects both moving and resizing)
      * 
      * @param enabled
@@ -713,6 +722,6 @@ public class Resizer {
         this.enabled = enabled;
     }
 
+    public enum ResizeEdges { ALL_EDGES, BOTTOM, LEFT, MIDDLE, NO_EDGE, RIGHT, TOP }
     private enum ResizeDirection { E, N, NE, NONE, NW, S, SE, SW, W }
-    public enum ResizeEdges { NO_EDGE, ALL_EDGES, TOP, MIDDLE, BOTTOM, LEFT, RIGHT }
 }

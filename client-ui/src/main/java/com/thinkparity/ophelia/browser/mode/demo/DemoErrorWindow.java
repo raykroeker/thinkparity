@@ -13,7 +13,9 @@ import com.thinkparity.codebase.swing.AbstractJFrame;
 
 import com.thinkparity.ophelia.model.script.Script;
 
-import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
+import com.thinkparity.ophelia.browser.Constants;
+import com.thinkparity.ophelia.browser.util.window.WindowUtil;
+import com.thinkparity.ophelia.browser.util.window.WindowUtilProvider;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Demo Error Window<br>
@@ -23,6 +25,13 @@ import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
  * @version 1.1.2.3
  */
 public class DemoErrorWindow extends AbstractJDialog {
+
+    /** An instance of <code>WindowUtil</code>. */
+    private static final WindowUtil WINDOW_UTIL;
+
+    static {
+        WINDOW_UTIL = WindowUtilProvider.getInstance().getWindowUtil();
+    }
     
     /**
      * Create DemoErrorWindow.
@@ -33,7 +42,7 @@ public class DemoErrorWindow extends AbstractJDialog {
     public DemoErrorWindow(final AbstractJFrame owner) {
         super(owner, Boolean.TRUE, null);
         initComponents();
-        new NativeSkin().roundCorners(this);
+        WINDOW_UTIL.applyRoundedEdges(this, Constants.WindowUtil.DEFAULT_SIZE);
         setLocation(calculateLocation());
     }
 

@@ -15,14 +15,22 @@ import javax.swing.Timer;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
-import com.thinkparity.ophelia.browser.Constants.Dimensions;
-import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
+import com.thinkparity.ophelia.browser.Constants;
+import com.thinkparity.ophelia.browser.util.window.WindowUtil;
+import com.thinkparity.ophelia.browser.util.window.WindowUtilProvider;
 
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
 public final class FrameAnimator {
+
+    /** An instance of <code>WindowUtil</code>. */
+    private static final WindowUtil WINDOW_UTIL;
+
+    static {
+        WINDOW_UTIL = WindowUtilProvider.getInstance().getWindowUtil();
+    }
 
     /** The working <code>Timer</code>. */
     private Timer animator;
@@ -33,17 +41,17 @@ public final class FrameAnimator {
     /** The <code>JDialog</code>. */
     private final JDialog jDialog;
 
-    /** The JDialog current size <code>Dimension</code>. */
-    private Dimension jDialogSize;
-
     /** The JDialog current location <code>Point</code>. */
     private Point jDialogLocation;
+
+    /** The JDialog original location <code>Point</code>. */
+    private final Point jDialogOriginalLocation;
 
     /** The JDialog original size <code>Dimension</code>. */
     private final Dimension jDialogOriginalSize;
 
-    /** The JDialog original location <code>Point</code>. */
-    private final Point jDialogOriginalLocation;
+    /** The JDialog current size <code>Dimension</code>. */
+    private Dimension jDialogSize;
 
     /** An apache logger wrapper. */
     private Log4JWrapper logger;
@@ -195,8 +203,8 @@ public final class FrameAnimator {
      *            The <code>Dimension</code> dialog size.
      */
     private void maybeRoundCorners(final Dimension size) {
-        if (size.height > 2*Dimensions.BrowserWindow.CORNER_SIZE) {
-            new NativeSkin().roundCorners(jDialog, Dimensions.BrowserWindow.CORNER_SIZE);
+        if (size.height > 2 * Constants.WindowUtil.NOTIFICATION_WINDOW_SIZE) {
+            WINDOW_UTIL.applyRoundedEdges(jDialog, Constants.WindowUtil.NOTIFICATION_WINDOW_SIZE);
         }
     }
 

@@ -234,7 +234,7 @@ Local Configuration:            ${localconfig}
             <classpath refid="compile.classpath"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
-        <javah class="com.thinkparity.ophelia.browser.util.window.WindowUtil"
+        <javah class="com.thinkparity.ophelia.browser.util.window.win32.Win32WindowUtil"
                 destdir="${target.include.dir}" implementation="sun">
             <classpath refid="compile.classpath"/>
         </javah>

@@ -246,7 +246,7 @@ Local Configuration:            ${localconfig}
         <!-- setup msbuild environment -->
         <!-- rebuild solution -->
         <exec executable="${env.ComSpec}" os="Windows XP" failonerror="true">
-            <arg line="/C &quot;${env.VS_HOME}\VC\vcvarsall.bat&quot; &amp; MSBuild.exe ophelia.sln /nologo /noautoresponse /t:Rebuild /p:Configuration=Release"/>
+            <arg line="/C &quot;${env.VS_HOME}\VC\vcvarsall.bat&quot; &amp; MSBuild.exe ophelia.sln /nologo /noautoresponse /t:Build /p:Configuration=Release"/>
         </exec>
     </target>
 

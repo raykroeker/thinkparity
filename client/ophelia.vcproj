@@ -42,7 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\Java\jdk1.6.0\include&quot;;&quot;C:\Program Files\Java\jdk1.6.0\include\win32&quot;;C:\Projects\thinkParity\ophelia\target\include;&quot;C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Include&quot;"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Include&quot;;&quot;C:\Program Files\Java\jdk1.6.0_01\include&quot;;&quot;C:\Program Files\Java\jdk1.6.0_01\include\win32&quot;;&quot;$(ProjectDir)\target\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OPHELIA_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -71,7 +71,7 @@
 				AdditionalDependencies="jawt.lib User32.lib Gdi32.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)\win32$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\Java\jdk1.6.0\lib&quot;;&quot;C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Lib&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\Java\jdk1.6.0_01\lib&quot;;&quot;C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Lib&quot;"
 				GenerateManifest="false"
 				ManifestFile=""
 				IgnoreAllDefaultLibraries="true"
@@ -135,7 +135,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\Java\jdk1.6.0\include&quot;;&quot;C:\Program Files\Java\jdk1.6.0\include\win32&quot;;C:\Projects\thinkParity\ophelia\target\include;&quot;C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Include&quot;"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Include&quot;;&quot;C:\Program Files\Java\jdk1.6.0_01\include&quot;;&quot;C:\Program Files\Java\jdk1.6.0_01\include\win32&quot;;&quot;$(ProjectDir)\target\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OPHELIA_EXPORTS"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
@@ -162,7 +162,7 @@
 				AdditionalDependencies="jawt.lib User32.lib Gdi32.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)\win32$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\Java\jdk1.6.0\lib&quot;;&quot;C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Lib&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\Java\jdk1.6.0_01\lib&quot;;&quot;C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Lib&quot;"
 				GenerateManifest="false"
 				ManifestFile=""
 				IgnoreAllDefaultLibraries="true"

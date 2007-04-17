@@ -38,6 +38,7 @@ class PackageImageTask {
         def baseDir = configuration["ant.base-dir"]
 
         def classesDir = configuration["thinkparity.target.classes-dir"]
+        def nativeDir = configuration["thinkparity.target.native-dir"]
         def imageDir = configuration["thinkparity.target.package.image-dir"]
         def imageCoreDir = configuration["thinkparity.target.package.image.core-dir"]
         def imageLibDir = configuration["thinkparity.target.package.image.lib-dir"]
@@ -100,6 +101,13 @@ class PackageImageTask {
             // /lib/${native}/*
             copy(todir:imageLibNativeDir) {
                 fileset(refid:"runtime.dependencies-native")
+                mapper(type:"flatten")
+            }
+            // /lib/${native}/*
+            copy(todir:imageLibNativeDir) {
+                fileset(dir:nativeDir) {
+                    include(name:"win32WindowUtil.dll")
+                }
                 mapper(type:"flatten")
             }
         }

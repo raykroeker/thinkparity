@@ -115,6 +115,7 @@ Local Configuration:            ${localconfig}
     <property name="target.classes.dir" value="${target.dir}/classes"/>
     <property name="target.include.dir" value="${target.dir}/include"/>
     <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
+    <property name="target.native.dir" value="${target.dir}/i686/${thinkparity.os-platform}"/>
     <property name="target.test-javadoc.dir" value="${target.dir}/test-docs/api"/>
     <property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
     <property name="target.test-report.dir" value="${target.dir}/test-report"/>
@@ -143,8 +144,6 @@ Local Configuration:            ${localconfig}
         path="swing-layout/1.0/swing-layout.jar"/>
     <antx:dependency type="java" scope="compile" provider="jivesoftware.org" version="2.2.1"
         path="smack/2.2.1/smack.jar"/>
-    <antx:dependency type="java" scope="compile" provider="l2fprod.com" version="6.7"
-        path="nativeskin/6.7/nativeskin.jar"/>
     <antx:dependency type="java" scope="compile" provider="objectweb.org" version="2.0.10"
         path="jotm/2.0.10/jta-spec1_0_1.jar"/>
     <antx:dependency type="java" scope="compile" provider="objectweb.org" version="2.0.10"
@@ -170,8 +169,6 @@ Local Configuration:            ${localconfig}
     <antx:dependency type="java" scope="runtime" provider="objectweb.org" version="2.0.10"
         path="jotm/2.0.10/howl.jar"/>
     <!-- runtime native dependencies -->
-    <antx:dependency type="native" scope="runtime" provider="l2fprod.com" version="6.7"
-        path="i686/${thinkparity.os-platform}/nativeskin/6.7"/>
     <antx:dependency type="native" scope="runtime" provider="java.net" version="0.9.1"
         path="i686/${thinkparity.os-platform}/jdic/0.9.1"/>
 
@@ -516,6 +513,7 @@ Examples:
     <!-- package-image -->
     <target name="package-image" depends="compile">
         <property name="thinkparity.target.classes-dir" value="${target.classes.dir}"/>
+        <property name="thinkparity.target.native-dir" value="${target.native.dir}"/>
         <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
         <property name="thinkparity.target.workspace-dir" value="${target.dir}/workspace"/>
         <property name="thinkparity.jre-dir" value="${antx.vendor-dir}/i686/${thinkparity.os-platform}/sun.com/jre1.6.0"/>
@@ -526,6 +524,7 @@ Examples:
     <!-- package -->
     <target name="package" depends="compile">
         <property name="thinkparity.target.classes-dir" value="${target.classes.dir}"/>
+        <property name="thinkparity.target.native-dir" value="${target.native.dir}"/>
         <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
         <property name="thinkparity.target.workspace-dir" value="${target.dir}/workspace"/>
         <property name="thinkparity.jre-dir" value="${antx.vendor-dir}/i686/${thinkparity.os-platform}/sun.com/jre1.6.0"/>
@@ -538,8 +537,7 @@ Examples:
                     outfile="${target.package.dir}/thinkParity.exe"
                     errTitle="thinkParity - Error" customProcName="true"
                     stayAlive="false"
-                    icon="${target.classes.dir}/images/ThinkParity32x32.ico"
-                    chdir="${thinkparity.release-name}/lib/${thinkparity.os-platform}">
+                    icon="${target.classes.dir}/images/ThinkParity32x32.ico">
                 <jre path="jre1.6.0_01"
                     args="-Dthinkparity-dir=&quot;%EXEDIR%&quot; -Dthinkparity.mode=${thinkparity.mode} -Dthinkparity.environment=${thinkparity.environment}"/>
             </config>

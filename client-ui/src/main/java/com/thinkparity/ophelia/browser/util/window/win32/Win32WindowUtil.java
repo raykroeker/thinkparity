@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.browser.util.window.win32;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.Window;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -18,9 +19,6 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
  */
 public final class Win32WindowUtil implements
         com.thinkparity.ophelia.browser.util.window.WindowUtil {
-
-    /** The java awt native library name <code>String</code>. */
-    private static final String JAWT_LIBNAME;
 
     /**
      * A <code>boolean</code> flag indicating whether or not the window util
@@ -36,16 +34,16 @@ public final class Win32WindowUtil implements
 
     static {
         LOGGER = new Log4JWrapper();
-
-        /* NOTE we have to load the java awt library first because it is a
-         * dependency within the window util library - it is used to grab the
-         * window handle */
-        JAWT_LIBNAME = "jawt";
         WINDOW_UTIL_LIBNAME = "win32WindowUtil";
 
         loaded = false;
         try {
-            System.loadLibrary(JAWT_LIBNAME);
+            /* NOTE we have to load the java awt library first because it is a
+             * dependency within the window util library - it is used to grab the
+             * window handle */
+            final Toolkit toolkit = Toolkit.getDefaultToolkit();
+            toolkit.sync();
+
             System.loadLibrary(WINDOW_UTIL_LIBNAME);
             loaded = true;
         } catch (final Throwable t) {

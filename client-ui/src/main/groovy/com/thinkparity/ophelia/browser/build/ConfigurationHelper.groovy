@@ -75,6 +75,7 @@ class ConfigurationHelper {
         configuration["thinkparity.product-name"] = extractProductName()
         configuration["thinkparity.release-name"] = extractReleaseName()
         configuration["thinkparity.target.classes-dir"] = extractTargetClassesDir()
+        configuration["thinkparity.target.native-dir"] = extractTargetNativeDir()
         configuration["thinkparity.target.package-dir"] = extractTargetPackageDir()
         configuration["thinkparity.target.package.image-dir"] = extractTargetPackageImageDir()
         configuration["thinkparity.target.package.image.archive-file"] = extractTargetPackageImageArchiveFile()
@@ -218,6 +219,15 @@ class ConfigurationHelper {
      */
     File extractTargetClassesDir() {
         return new File(properties["thinkparity.target.classes-dir"])
+    }
+
+    /**
+     * Extract the classes directory.
+     *
+     * @return A classes directory <code>File</code>.
+     */
+    File extractTargetNativeDir() {
+        return new File(properties["thinkparity.target.native-dir"])
     }
 
     /**

@@ -33,11 +33,13 @@ http://ant.apache.org
             </not>
         </condition>
 Local configuration ${localconfig} does not exist.  Please create:
-    scm.credentials             Source control credentials.     username:password
-    thinkparity.environment     Environment                     com.thinkparity.codebase.model.session.Environment
-    thinkparity.mode            Mode                            com.thinkparity.codebase.Mode
-    thinkparity.os              Operating System                com.thinkparity.codebase.OS
-    thinkparity.os-platform     Operating System Platform       com.thinkparity.codebase.Platform
+    antx.vendor-dir             Ant eXtensions vendor directory.    /home/username/Projects/thinkParity/vendor
+                                                                    C\:\\Documents and Settings\\username\\Projects\\thinkParity\\vendor
+    scm.credentials             Source control credentials.         username:password
+    thinkparity.environment     Environment                         com.thinkparity.codebase.model.session.Environment
+    thinkparity.mode            Mode                                com.thinkparity.codebase.Mode
+    thinkparity.os              Operating System                    com.thinkparity.codebase.OS
+    thinkparity.os-platform     Operating System Platform           com.thinkparity.codebase.Platform
     thinkparity.product-name    Product Name
     thinkparity.release-name    Release Name
     </fail>
@@ -69,6 +71,7 @@ Environment Configuration:
     Launch4J Home:              ${env.LAUNCH4J_HOME}
     NSIS Home:                  ${env.NSIS_HOME}
     Java Home:                  ${env.JAVA_HOME}
+    Visual Studio Home:         ${env.VS_HOME}
 Build Configuration:
     Build Id:                   ${thinkparity.build-id}
     Compiler Arguments:         ${javac.compilerargs}
@@ -231,10 +234,20 @@ Local Configuration:            ${localconfig}
             <classpath refid="compile.classpath"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
+    </target>
+
+    <!-- compile.win32 -->
+    <target name="compile-win32">
+        <!-- generate header files -->
         <javah class="com.thinkparity.ophelia.browser.util.window.win32.Win32WindowUtil"
                 destdir="${target.include.dir}" implementation="sun">
             <classpath refid="compile.classpath"/>
         </javah>
+        <!-- setup msbuild environment -->
+        <!-- rebuild solution -->
+        <exec executable="${env.ComSpec}" os="Windows XP" failonerror="true">
+            <arg line="/C &quot;${env.VS_HOME}\VC\vcvarsall.bat&quot; &amp; MSBuild.exe ophelia.sln /nologo /noautoresponse /t:Rebuild /p:Configuration=Release"/>
+        </exec>
     </target>
 
     <!-- run -->

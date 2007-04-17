@@ -102,12 +102,17 @@ public final class Win32WindowUtil implements
      */
     private void applyRectangleEdges(final Window window,
             final Rectangle rectangle) {
-        if (loaded)
-            SetWindowRgn(GetWindowHandle(window), CreateRectRgn(rectangle.x,
-                    rectangle.y, rectangle.x + rectangle.width ,
-                    rectangle.y + rectangle.height), true);
-        else
+        if (loaded) {
+            if (window.isVisible()) {
+                SetWindowRgn(GetWindowHandle(window), CreateRectRgn(rectangle.x,
+                        rectangle.y, rectangle.x + rectangle.width ,
+                        rectangle.y + rectangle.height), true);
+            } else {
+                LOGGER.logWarning("Window {0} is not yet visible.", window.getName());
+            }
+        } else {
             LOGGER.logWarning("Win32WindowUtil had not been loaded.");
+        }
     }
 
     /**
@@ -122,13 +127,18 @@ public final class Win32WindowUtil implements
      */
     private void applyRoundedEdges(final Window window,
             final Rectangle rectangle, final Dimension ellipseDimension) {
-        if (loaded)
-            SetWindowRgn(GetWindowHandle(window), CreateRoundRectRgn(rectangle.x,
-                    rectangle.y, rectangle.x + rectangle.width,
-                    rectangle.y + rectangle.height, ellipseDimension.width,
-                    ellipseDimension.height), true);
-        else
+        if (loaded) {
+            if (window.isVisible()) {
+                SetWindowRgn(GetWindowHandle(window), CreateRoundRectRgn(rectangle.x,
+                        rectangle.y, rectangle.x + rectangle.width,
+                        rectangle.y + rectangle.height, ellipseDimension.width,
+                        ellipseDimension.height), true);
+            } else {
+                LOGGER.logWarning("Window {0} is not yet visible.", window.getName());
+            }
+        } else {
             LOGGER.logWarning("Win32WindowUtil had not been loaded.");
+        }
     }
 
     /**

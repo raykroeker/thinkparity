@@ -144,9 +144,6 @@ public class BrowserWindow extends AbstractJFrame {
         setSize(getMainWindowSize());
 		initComponents();
         bindF1Key();
-        if (!maximized) {
-            roundCorners();
-        }
         installWindowStateListener();
 
         // Set up the semi-transparent JPanel
@@ -257,6 +254,15 @@ public class BrowserWindow extends AbstractJFrame {
             // Move only
             setLocation(pFinal);
             mainWindowLocation.setLocation(pFinal);
+        }
+    }
+
+    public void setVisible(final boolean b) {
+        super.setVisible(b);
+        if (b) {
+            if (!persistence.get("maximized", Boolean.FALSE)) {
+                roundCorners();
+            }
         }
     }
 

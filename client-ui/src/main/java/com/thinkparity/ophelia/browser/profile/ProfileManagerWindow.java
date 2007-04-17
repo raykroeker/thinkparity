@@ -5,9 +5,10 @@
 package com.thinkparity.ophelia.browser.profile;
 
 
+import com.thinkparity.codebase.swing.AbstractJFrame;
+
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder;
-import com.thinkparity.ophelia.browser.util.swing.OpheliaJFrame;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Profile Manager Window<br>
@@ -16,7 +17,7 @@ import com.thinkparity.ophelia.browser.util.swing.OpheliaJFrame;
  * @author raymond@thinkparity.com
  * @version 1.1.2.7
  */
-final class ProfileManagerWindow extends OpheliaJFrame {
+final class ProfileManagerWindow extends AbstractJFrame {
 
     /**
      * Create ProfileManagerWindow.

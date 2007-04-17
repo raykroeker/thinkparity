@@ -56,10 +56,12 @@ public abstract class OpheliaJFrame extends AbstractJFrame {
     @Override
     public void setVisible(boolean b) {
         if (b) {
-            WINDOW_UTIL.applyRoundedEdges(this, Constants.WindowUtil.DIALOG_WINDOW_SIZE);
             setLocation(calculateLocation());
         }
         super.setVisible(b);
+        if (b) {
+            WINDOW_UTIL.applyRoundedEdges(this, Constants.WindowUtil.DIALOG_WINDOW_SIZE);
+        }
     }
 
     /**

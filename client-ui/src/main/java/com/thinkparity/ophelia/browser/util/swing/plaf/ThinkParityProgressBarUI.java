@@ -10,6 +10,8 @@ import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicProgressBarUI;
 
+import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
 /**
@@ -22,6 +24,9 @@ import com.thinkparity.ophelia.browser.util.ImageIOUtil;
  * @version 1.1.2.1
  */
 public class ThinkParityProgressBarUI extends BasicProgressBarUI {
+
+    /** A <code>Log4JWrapper</code>. */
+    private static final Log4JWrapper LOGGER;
 
     /** Transparent colour. */
     private static final Color COLOR_TRANSPARENT;
@@ -81,6 +86,8 @@ public class ThinkParityProgressBarUI extends BasicProgressBarUI {
     private BufferedImage scaledProgressBarTop;
 
     static {
+        LOGGER = new Log4JWrapper();
+
         COLOR_TRANSPARENT = new Color(0, 0, 0, 0);
         COLOR_BOTTOM = new Color(212, 221, 231, 255);
         COLOR_TOP = new Color(244, 245, 245, 255);
@@ -160,7 +167,12 @@ public class ThinkParityProgressBarUI extends BasicProgressBarUI {
     protected void paintIndeterminate(final Graphics g, final JComponent c) {
         paintBackground(g, c);
         final Graphics2D g2 = (Graphics2D) g;
-        final Rectangle rect = getBox(boxRect);
+        Rectangle rect = null;
+        try {
+            rect = getBox(boxRect);
+        } catch (final NullPointerException npx) {
+            LOGGER.logWarning("A null pointer error has occured within the basic progress bar ui get box implementation.");
+        }
         if (rect != null) {
             // Draw the indeterminate box. Limit how far left and right it is allowed
             // to draw to account for borders on left and right.

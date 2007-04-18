@@ -219,7 +219,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             addSeparator();
         }
         
-        // Publish, delete draft
+        // publish
         boolean needSeparator = false;
         if (isOnline() && isLocalDraftModified(container.getId())) {
             final Data publishData = new Data(1);
@@ -239,19 +239,19 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             needSeparator = true;
         }
 
-        // Separator, maybe
+        // separator
         if (needSeparator) {
             addSeparator();
             needSeparator = false;
         }
 
-        // Add document
+        // add document
         final Data addDocumentData = new Data(2);
         addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, draft.getContainerId());
         addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
         add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
 
-        // Rename document
+        // rename document
         for (final Document document : documents) {
             if (ArtifactState.ADDED == draft.getState(document)) {
                 final Data renameData = new Data(2);
@@ -261,7 +261,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             }
         }
         
-        // Discard changes
+        // revert
         for (final Document document : documents) {
             if (ArtifactState.MODIFIED == draft.getState(document)) {
                 final Data revertData = new Data(2);
@@ -271,7 +271,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             }
         }
         
-        // Undelete
+        // undelete
         for (final Document document : documents) {
             if (ArtifactState.REMOVED == draft.getState(document)) {
                 final Data undeleteData = new Data(2);
@@ -281,7 +281,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             }
         }
         
-        // Remove document
+        // remove document
         for (final Document document : documents) {
             if (ArtifactState.REMOVED != draft.getState(document)) {
                 final Data removeData = new Data(2);
@@ -293,7 +293,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
 
         addSeparator();
 
-        // Print
+        // print
         final List<Document> documentsNotDeleted = getDocumentsNotDeleted(draft);
         if (documentsNotDeleted.size() > 1) {
             final Data printData = new Data(1);
@@ -302,13 +302,14 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             addSeparator(ActionId.DOCUMENT_PRINT_DRAFT);           
         }
 
+        // print
         for (final Document document : documentsNotDeleted) {
             final Data documentPrintData = new Data(1);
             documentPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintDraft.DataKey.DOCUMENT_ID, document.getId());
             add(ActionId.DOCUMENT_PRINT_DRAFT, document.getName(), documentPrintData);     
         }
 
-        // Collapse
+        // collapse
         if (documentsNotDeleted.size() > 0) {
             addSeparator();
         }

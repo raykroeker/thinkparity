@@ -2015,7 +2015,10 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Revert a document to it's pre-draft state.
+     * Revert a document to it's pre-draft state. A document must either be
+     * modified or removed in order to be reverted. If a document has been
+     * modified we simply overwrite the changes made with the content from the
+     * latest version, if it has been removed, we restore it.
      * 
      * @param documentId
      *            A document id <code>Long</code>.
@@ -2027,27 +2030,27 @@ public final class ContainerModelImpl extends
         try {
             assertContainerDraftExists(containerId,
                     "Draft for {0} does not exist.", containerId);
-            assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
+            assertDraftArtifactStateTransition("Invalid document state.",
                     containerId, documentId, ContainerDraft.ArtifactState.NONE);
-            assertDoesExistLatestVersion("LATEST VERSION DOES NOT EXIST", containerId);
+            assertDoesExistLatestVersion("Latest version does not exist.", containerId);
             final ContainerDraft draft = readDraft(containerId);
-            final Document document = draft.getDocument(documentId);
-            final DocumentFileLock lock = lockDocument(document);
-            try {
-                containerIO.deleteDraftArtifactRel(containerId, document.getId());
-                containerIO.createDraftArtifactRel(containerId, document.getId(),
-                        ContainerDraft.ArtifactState.NONE);
-                getDocumentModel().revertDraft(lock, documentId);
-            } finally {
-                releaseLock(lock);
+            switch (draft.getState(documentId)) {
+            case MODIFIED:
+                revertModifiedDocument(draft, containerId, documentId);
+                break;
+            case REMOVED:
+                revertRemovedDocument(draft, containerId, documentId);
+                break;
+            default:
+                Assert.assertUnreachable(
+                        "Cannot revert a document once it has been {0}.",
+                        draft.getState(documentId));
             }
-            // create draft document
-            createDraftDocument(containerId, documentId);
             // fire event
             final Container postRevertContainer = read(containerId);        
             final ContainerDraft postRevertDraft = readDraft(containerId);
             notifyDocumentReverted(postRevertContainer, postRevertDraft,
-                    document,localEventGenerator);
+                    draft.getDocument(documentId), localEventGenerator);
         } catch (final CannotLockException clx) {
             throw clx;
         } catch (final Throwable t) {
@@ -2198,7 +2201,9 @@ public final class ContainerModelImpl extends
                 Assert.assertUnreachable(assertion);
                 break;
             case REMOVED:   // valid state
-            case NONE:      // valid state
+                break;
+            case NONE:
+                Assert.assertUnreachable(assertion);
                 break;
             default:
                 Assert.assertUnreachable("UNKNOWN STATE");
@@ -3041,7 +3046,7 @@ public final class ContainerModelImpl extends
             }
         });
     }
-    
+
     /**
      * Fire a container renamed event.
      * 
@@ -3075,7 +3080,7 @@ public final class ContainerModelImpl extends
             }
         });
     }
-
+    
     /**
      * Fire a document added notification.
      * 
@@ -3503,6 +3508,60 @@ public final class ContainerModelImpl extends
             logger.logTrace("Container version has been restored.");
         }
         getIndexModel().indexContainer(container.getId());
+    }
+
+    /**
+     * Revert a modified document. The document content is over-written.
+     * 
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @throws CannotLockException
+     * @throws IOException
+     */
+    private void revertModifiedDocument(final ContainerDraft draft,
+            final Long containerId, final Long documentId)
+            throws CannotLockException, IOException {
+        final Document document = draft.getDocument(documentId);
+        final DocumentFileLock lock = lockDocument(document);
+        try {
+            getDocumentModel().revertDraft(lock, documentId);
+        } finally {
+            releaseLock(lock);
+        }
+    }
+
+    /**
+     * Revert a removed document. The draft/document relationship is
+     * re-established and the draft document is created.
+     * 
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @throws CannotLockException
+     * @throws IOException
+     */
+    private void revertRemovedDocument(final ContainerDraft draft,
+            final Long containerId, final Long documentId)
+            throws CannotLockException, IOException {
+        final Document document = draft.getDocument(documentId);
+        final DocumentFileLock lock = lockDocument(document);
+        try {
+            containerIO.deleteDraftArtifactRel(containerId, document.getId());
+            containerIO.createDraftArtifactRel(containerId, document.getId(),
+                    ContainerDraft.ArtifactState.NONE);
+            getDocumentModel().revertDraft(lock, documentId);
+        } finally {
+            releaseLock(lock);
+        }
+        // create draft document
+        createDraftDocument(containerId, documentId);
     }
 
     /**

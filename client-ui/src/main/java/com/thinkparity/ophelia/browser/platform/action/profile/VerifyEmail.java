@@ -44,10 +44,12 @@ public class VerifyEmail extends AbstractBrowserAction {
             final Long emailId = (Long) data.get(DataKey.EMAIL_ID);
             final String key = (String) data.get(DataKey.KEY);
             final ProfileModel profileModel = getProfileModel();
-            // HACK Should handle incorrect key in a better way. This is a temporary fix for the beta to avoid crash.
             try {
                 profileModel.verifyEmail(emailId, key);
             } catch (final Throwable t) {
+                logger.logError(t, "Could not verify e-mail address {0} with key {1}.",
+                        emailId, key);
+                // HACK Should handle incorrect key in a better way. This is a temporary fix for the beta to avoid crash.
                 browser.displayErrorDialog("VerifyEmail.ErrorVerifyKeyNotCorrect");
             }
         }

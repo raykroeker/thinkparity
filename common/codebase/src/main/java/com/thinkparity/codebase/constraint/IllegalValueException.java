@@ -66,5 +66,5 @@ public final class IllegalValueException extends IllegalArgumentException {
      * <b>Title:</b>Illegal Value Reason<br>
      * <b>Description:</b>An enumeration of the cause of the exception.<br>
      */
-    public enum Reason { FORMAT, NULL, TOO_LONG, TOO_SHORT }
+    public enum Reason { FORMAT, NULL, TOO_LARGE, TOO_LONG, TOO_SHORT, TOO_SMALL }
 }

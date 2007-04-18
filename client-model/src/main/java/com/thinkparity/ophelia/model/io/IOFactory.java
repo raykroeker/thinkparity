@@ -87,13 +87,6 @@ public abstract class IOFactory {
 	public abstract DocumentIOHandler createDocumentHandler();
 
     /**
-     * Create an e-mail io handler.
-     * 
-     * @return An instance of <code>EMailIOHandler</code>.
-     */
-    public abstract EMailIOHandler createEMailHandler();
-
-    /**
 	 * Create a document history io handler.
 	 * 
 	 * @return A document history io handler.

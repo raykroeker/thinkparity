@@ -97,15 +97,6 @@ public class HypersonicIOFactory extends IOFactory {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.IOFactory#createEMailHandler()
-     *
-     */
-    @Override
-    public EMailIOHandler createEMailHandler() {
-        return (EMailIOHandler) createHandler("EMailIOHandler");
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.io.IOFactory#createMigratorHandler()
      *
      */

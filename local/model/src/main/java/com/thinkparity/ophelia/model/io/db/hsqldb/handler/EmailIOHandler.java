@@ -3,6 +3,9 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.sql.DataSource;
 
 import com.thinkparity.codebase.email.EMail;
@@ -10,12 +13,15 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 
-
 /**
+ * <b>Title:</b>thinkParity OpheliaModel EMail IO Handler<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version
+ * @version 1.1.2.8
  */
-class EmailIOHandler extends AbstractIOHandler {
+public final class EmailIOHandler extends AbstractIOHandler implements
+        com.thinkparity.ophelia.model.io.handler.EMailIOHandler {
 
     /** Sql to create an e-mail address. */
     private static final String SQL_CREATE =
@@ -29,6 +35,13 @@ class EmailIOHandler extends AbstractIOHandler {
             new StringBuffer("delete from EMAIL ")
             .append("where EMAIL_ID=?")
             .toString();
+
+    /** Sql to read all e-mail addresses. */
+    private static final String SQL_READ =
+        new StringBuilder("select E.EMAIL ")
+        .append("from EMAIL E")
+        .append("order by E.EMAIL_ID asc")
+        .toString();
 
     /** Sql to read an e-mail count by its unique key. */
     private static final String SQL_READ_COUNT_UK =
@@ -44,6 +57,11 @@ class EmailIOHandler extends AbstractIOHandler {
             .append("where E.EMAIL=?")
             .toString();
 
+    /** Sql to update an e-mail address. */
+    private static final String SQL_UPDATE =
+        new StringBuilder("update EMAIL set EMAIL=? where EMAIL_ID=?")
+        .toString();
+
     /**
      * Create EmailIOHandler.
      * 
@@ -52,6 +70,55 @@ class EmailIOHandler extends AbstractIOHandler {
      */
     EmailIOHandler(final DataSource dataSource) {
         super(dataSource);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.EMailIOHandler#read()
+     *
+     */
+    public List<EMail> read() {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ);
+            session.executeQuery();
+            final List<EMail> emails = new ArrayList<EMail>();
+            while (session.nextResult()) {
+                emails.add(extractEMail(session));
+            }
+            return emails;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.EMailIOHandler#readId(com.thinkparity.codebase.email.EMail)
+     *
+     */
+    public Long readId(final EMail email) {
+        final Session session = openSession();
+        try {
+            return readId(session, email);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.EMailIOHandler#update(java.lang.Long, com.thinkparity.codebase.email.EMail)
+     *
+     */
+    public void update(final Long emailId, final EMail email) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE);
+            session.setEMail(1, email);
+            session.setLong(2, emailId);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not update e-mail address.");
+        } finally {
+            session.close();
+        }
     }
 
     /**

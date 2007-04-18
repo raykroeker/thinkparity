@@ -15,6 +15,8 @@ import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.event.EventNotifier;
 
 import com.thinkparity.codebase.model.DownloadMonitor;
@@ -33,6 +35,7 @@ import com.thinkparity.ophelia.model.events.MigratorAdapter;
 import com.thinkparity.ophelia.model.events.MigratorEvent;
 import com.thinkparity.ophelia.model.events.MigratorListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
+import com.thinkparity.ophelia.model.io.handler.EMailIOHandler;
 import com.thinkparity.ophelia.model.io.handler.MigratorIOHandler;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
@@ -478,6 +481,18 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             logger.logInfo("Deleting previous release {0}.", previousRelease.getName());
             final File previous = new File(installDirectory, previousRelease.getName());
             FileUtil.deleteTree(previous);
+
+            // update profile e-mail addresses so that they are now all lower case
+            final EMailIOHandler emailIO = IOFactory.getDefault(workspace).createEMailHandler();
+            final List<EMail> emails = emailIO.read();
+            EMail newEMail;
+            Long emailId;
+            for (final EMail email : emails) {
+                newEMail = EMailBuilder.parse(email.toString());
+
+                emailId = emailIO.readId(email);
+                emailIO.update(emailId, newEMail);
+            }
         }
 
         migratorIO.updateReleaseInitialization(installedRelease);

@@ -7,7 +7,6 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicIOFactory;
 import com.thinkparity.ophelia.model.io.handler.*;
-import com.thinkparity.ophelia.model.io.xmpp.XMPPIOFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -29,12 +28,6 @@ public abstract class IOFactory {
 		ioFactory.initialize();
         return ioFactory;
 	}
-
-	public static IOFactory getXMPP(final Workspace workspace) {
-        final IOFactory ioFactory = new XMPPIOFactory(workspace);
-        ioFactory.initialize();
-        return ioFactory;
-    }
 
 	/**
 	 * The parity workspace.
@@ -92,6 +85,13 @@ public abstract class IOFactory {
 	 * @return The document io handler.
 	 */
 	public abstract DocumentIOHandler createDocumentHandler();
+
+    /**
+     * Create an e-mail io handler.
+     * 
+     * @return An instance of <code>EMailIOHandler</code>.
+     */
+    public abstract EMailIOHandler createEMailHandler();
 
     /**
 	 * Create a document history io handler.

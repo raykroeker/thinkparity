@@ -515,8 +515,9 @@ Examples:
     </target>
 
     <!-- deploy -->
-    <target name="deploy" depends="package">
+    <target name="deploy">
         <property name="thinkparity.target.classes-dir" value="${target.classes.dir}"/>
+        <property name="thinkparity.target.native-dir" value="${target.native.dir}"/>
         <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
         <property name="thinkparity.target.workspace-dir" value="${target.dir}/workspace"/>
         <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="groovy.classpath"/>
@@ -524,7 +525,7 @@ Examples:
     </target>
 
     <!-- package-image -->
-    <target name="package-image" depends="compile">
+    <target name="package-image">
         <property name="thinkparity.target.classes-dir" value="${target.classes.dir}"/>
         <property name="thinkparity.target.native-dir" value="${target.native.dir}"/>
         <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
@@ -535,7 +536,7 @@ Examples:
     </target>
 
     <!-- package -->
-    <target name="package" depends="compile">
+    <target name="package">
         <property name="thinkparity.target.classes-dir" value="${target.classes.dir}"/>
         <property name="thinkparity.target.native-dir" value="${target.native.dir}"/>
         <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
@@ -558,17 +559,15 @@ Examples:
     </target>
 
     <!-- package-installer -->
-    <target name="package-installer" depends="package"
+    <target name="package-installer"
             description="compile a null-soft installer for the package">
-        <copy todir="${target.package.dir}" file="${target.classes.dir}/install.nsi"/>
+        <copy todir="${target.package.dir}" file="${target.classes.dir}/InstallThinkParity.nsi"/>
         <exec executable="${env.NSIS_HOME}/makensis.exe" dir="${target.package.dir}">
-            <arg value="${target.package.dir}/install.nsi"/>
+            <arg value="${target.package.dir}/InstallThinkParity.nsi"/>
         </exec>
-        <checksum file="${target.package.dir}/thinkParity-${thinkparity.release-name}.exe"
-            algorithm="MD5"/>
-        <checksum file="${target.package.dir}/thinkParity-${thinkparity.release-name}.exe"
-            algorithm="SHA"/>
-        <delete file="${target.package.dir}/install.nsi"/>
+        <checksum file="${target.package.dir}/InstallThinkParity.exe" algorithm="MD5"/>
+        <checksum file="${target.package.dir}/InstallThinkParity.exe" algorithm="SHA"/>
+        <delete file="${target.package.dir}/InstallThinkParity.nsi"/>
     </target>
 
     <!-- pathinfo -->

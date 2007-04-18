@@ -373,7 +373,8 @@ public final class WorkspaceImpl implements Workspace {
      */
     @Deprecated
     public Boolean isDesktop() {
-        return System.getProperty("thinkparity.product-name").equals("OpheliaProduct");
+        return System.getProperty("thinkparity.product-name").equals("OpheliaProduct")
+            || System.getProperty("thinkparity.product-name").equals("OpheliaProduct_Staging");
     }
 
     /**

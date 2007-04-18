@@ -12,7 +12,7 @@
 
   ;Name and file
   Name "thinkParity"
-  OutFile "thinkParity-${pom.version}.exe"
+  OutFile "InstallThinkParity.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES\thinkParity"
@@ -58,7 +58,7 @@ Section "thinkParity" SecParityBrowser
 
   SetOutPath "$INSTDIR"
 
-  File /r "${pom.version}"
+  File /r "${thinkparity.release-name}"
   File /r "jre1.6.0_01"
   File "LICENSE.TXT"
   File "README.TXT"
@@ -98,13 +98,7 @@ SectionEnd
 
 Section "Uninstall"
 
-  RMDir /r "$INSTDIR\${pom.version}"
-  RMDir /r "jre1.6.0_01"
-  Delete "$INSTDIR\LICENSE.txt"
-  Delete "$INSTDIR\README.txt"
-  Delete "$INSTDIR\thinkParity.exe"
-  Delete "$INSTDIR\thinkParity.jar"
-  Delete "$INSTDIR\thinkParity.properties"
+  RMDir /r "$INSTDIR"
 
   ; extract the location of the start menu
   !insertmacro MUI_STARTMENU_GETFOLDER Application $MUI_TEMP

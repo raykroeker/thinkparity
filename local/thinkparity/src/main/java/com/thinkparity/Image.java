@@ -14,6 +14,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
@@ -72,7 +73,7 @@ public class Image {
      * library paths then invoke the main class.
      *
      */
-    void execute() {
+    void execute2() {
         if (!isMounted())
             throw new IllegalStateException("Image not mounted.");
         // set last run property
@@ -106,6 +107,77 @@ public class Image {
             throw new ThinkParityException("Could not execute image.", iax);
         } catch (final InvocationTargetException itx) {
             throw new ThinkParityException("Could not execute image.", itx);
+        }
+    }
+
+    
+    /**
+     * Execute the image.  Ensure the image is mounted; build the class and
+     * library paths then invoke the main class.
+     *
+     */
+    void execute() {
+        if (true)
+            execute2();
+        else {
+            if (!isMounted())
+                throw new IllegalStateException("Image not mounted.");
+            // set last run property
+            final Calendar lastRun = Calendar.getInstance();
+            setProperty(PropertyNames.ThinkParity.ImageLastRun, DateFormats.ImageLastRun.format(lastRun.getTime()));
+            // set library path
+            setSystemProperty(PropertyNames.System.JavaLibraryPath, javaLibraryPath);
+            // set product
+            setSystemProperty(PropertyNames.ThinkParity.ProductName, properties);
+            // set release
+            setSystemProperty(PropertyNames.ThinkParity.ReleaseName, properties);
+            // store image configuration
+            try {
+                storeProperties();
+            } catch (final IOException iox) {
+                throw new ThinkParityException("Could not save image configuration.", iox);
+            }
+    
+            final ProcessBuilder processBuilder = new ProcessBuilder();
+            final Process process;
+            try {
+                // update the environment path to include the java library path
+                final Map<String, String> environment = processBuilder.environment();
+                final StringBuilder path = new StringBuilder(environment.get("PATH"));
+                path.insert(0, File.pathSeparatorChar);
+                path.insert(0, javaLibraryPath);
+                environment.put("PATH", path.toString());
+                // set the command
+                processBuilder.command("", "");
+                
+                
+                
+                
+                    
+                    
+                    
+                    process = processBuilder.start();
+                } catch (final IOException iox) {
+                    throw new ThinkParityException("Could not execute image.", iox);
+                }
+    
+            // execute
+            final ClassLoader classLoader = URLClassLoader.newInstance(classPath,
+                    Thread.currentThread().getContextClassLoader());
+            Thread.currentThread().setContextClassLoader(classLoader);
+            try {
+                final Class<?> mainClass = classLoader.loadClass(mainClassName);
+                final Method mainMethod = mainClass.getMethod("main", new Class[] {mainArgs.getClass()});
+                mainMethod.invoke(null, new Object[] {mainArgs});
+            } catch (final ClassNotFoundException cnfx) {
+                throw new ThinkParityException("Could not execute image.", cnfx);
+            } catch (final NoSuchMethodException nsmx) {
+                throw new ThinkParityException("Could not execute image.", nsmx);
+            } catch(final IllegalAccessException iax) {
+                throw new ThinkParityException("Could not execute image.", iax);
+            } catch (final InvocationTargetException itx) {
+                throw new ThinkParityException("Could not execute image.", itx);
+            }
         }
     }
 

@@ -4,6 +4,8 @@
 package com.thinkparity.desdemona.model.io.hsqldb;
 
 import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.sql.*;
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -19,6 +21,8 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.user.UserVCard;
+import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 
@@ -30,6 +34,9 @@ public final class HypersonicSession {
 
     /** An apache logger wrapper. */
     protected static final Log4JWrapper LOGGER;
+
+    /** An <code>XStreamUtil</code> instance. */
+    protected static final XStreamUtil XSTREAM_UTIL;
 
     private static final String SQL_GET_IDENTITY_PRE = "select IDENTITY_VAL_LOCAL() \"ID\" from ";
 
@@ -43,15 +50,16 @@ public final class HypersonicSession {
         LOGGER = new Log4JWrapper("DESDEMONA_SQL_DEBUGGER");
         TIME_ZONE = TimeZone.getDefault();
         UNIVERSAL_TIME_ZONE = TimeZone.getTimeZone("Universal");
+        XSTREAM_UTIL = XStreamUtil.getInstance();
     }
 
     /** A <code>Connection</code>. */
 	private Connection connection;
 
-    /** A session unique id <code>JVMUniqueId</code>. */
+	/** A session unique id <code>JVMUniqueId</code>. */
 	private final JVMUniqueId id;
 
-	/** A <code>PreparedStatement</code>. */
+    /** A <code>PreparedStatement</code>. */
 	private PreparedStatement preparedStatement;
 
     /** A <code>ResultSet</code>. */
@@ -60,7 +68,7 @@ public final class HypersonicSession {
     /** A <code>HypersonicSessionManager</code>. */
     private final HypersonicSessionManager sessionManager;
 
-    /**
+	/**
 	 * Create a Session.
 	 * 
 	 * @param connection
@@ -74,7 +82,7 @@ public final class HypersonicSession {
         this.sessionManager = sessionManager;
 	}
 
-	/**
+    /**
      * Close the session.
      *
      */
@@ -157,7 +165,7 @@ public final class HypersonicSession {
 		finally { close(statement); }
 	}
 
-    /**
+	/**
      * Execute the SQL query in the session's prepared statement and set the
      * result set.
      * 
@@ -172,7 +180,7 @@ public final class HypersonicSession {
 		}
 	}
 
-	/**
+    /**
      * Execute the SQL query in the session's prepared statement and set the
      * result set. Return the number of rows updated.
      * 
@@ -288,7 +296,7 @@ public final class HypersonicSession {
         }
     }
 
-    /**
+	/**
 	 * Obtain the session id.
 	 * 
 	 * @return The session id.
@@ -335,7 +343,7 @@ public final class HypersonicSession {
         }
     }
 
-	public Integer getInteger(final String columnName) {
+    public Integer getInteger(final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
         try {
@@ -359,7 +367,7 @@ public final class HypersonicSession {
         }
 	}
 
-    public JabberId getQualifiedUsername(final String columnName) {
+	public JabberId getQualifiedUsername(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -426,7 +434,7 @@ public final class HypersonicSession {
         }
 	}
 
-	/**
+    /**
 	 * @see java.lang.Object#hashCode()
 	 * 
 	 */
@@ -524,7 +532,7 @@ public final class HypersonicSession {
         }
     }
 
-	public void setBoolean(final Integer index, final Boolean value) {
+    public void setBoolean(final Integer index, final Boolean value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -575,7 +583,7 @@ public final class HypersonicSession {
         }
     }
 
-    public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
+	public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -586,7 +594,7 @@ public final class HypersonicSession {
         }
     }
 
-	public void setInt(final Integer index, final Integer value) {
+    public void setInt(final Integer index, final Integer value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -623,7 +631,7 @@ public final class HypersonicSession {
 		}
 	}
 
-    public void setString(final Integer index, final String value) {
+	public void setString(final Integer index, final String value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -667,7 +675,7 @@ public final class HypersonicSession {
 		}
 	}
 
-	public void setUniqueId(final Integer index, final UUID value) {
+    public void setUniqueId(final Integer index, final UUID value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -677,6 +685,42 @@ public final class HypersonicSession {
             throw panic(sqlx);
         }
 	}
+
+    public <T extends UserVCard> T getVCard(final String columnName,
+            final T vcard) {
+        assertConnectionIsOpen();
+        assertResultSetIsSet();
+        try {
+            final String vcardXML = resultSet.getString(columnName);
+            if (resultSet.wasNull()) {
+                logColumnExtraction(columnName, null);
+                return null;
+            }
+            else {
+                logColumnExtraction(columnName, vcardXML);
+                final StringReader vcardXMLReader = new StringReader(vcardXML);
+                XSTREAM_UTIL.fromXML(vcardXMLReader, vcard);
+                return vcard;
+            }
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+
+    }
+
+	public <T extends UserVCard> void setVCard(final Integer index,
+            final T value) {
+        assertConnectionIsOpen();
+        assertPreparedStatementIsSet();
+        logColumnInjection(index, value);
+        try {
+            final StringWriter valueWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(value, valueWriter);
+            preparedStatement.setString(index, valueWriter.toString());
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
 
 	/**
 	 * Obtain the database metadata.

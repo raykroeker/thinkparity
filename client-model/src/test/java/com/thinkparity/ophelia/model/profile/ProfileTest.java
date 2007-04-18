@@ -71,8 +71,10 @@ public final class ProfileTest extends ProfileTestCase {
         credentials.setPassword("password");
         credentials.setUsername("junit." + System.currentTimeMillis());
 
+        final String emailInjection = "+" + String.valueOf(System.currentTimeMillis());
+        final EMail email = EMailBuilder.parse("junit" + emailInjection + "@thinkparity.com");
         final Reservation reservation = getModel(datum.junit).createReservation(
-                credentials.getUsername());
+                credentials.getUsername(), email);
 
         final Profile profile = new Profile();
         profile.setVCard(new ProfileVCard());
@@ -88,11 +90,9 @@ public final class ProfileTest extends ProfileTestCase {
         profile.setProvince("Province");
         profile.setTimeZone(TimeZone.getDefault());
         profile.setTitle("Title");
-        final String emailInjection = "+" + String.valueOf(System.currentTimeMillis());
-        final EMail email = EMailBuilder.parse("junit" + emailInjection + "@thinkparity.com");
         try {
             getModel(datum.junit).create(reservation, credentials, profile,
-					email);
+                    email);
         } catch (final ReservationExpiredException rex) {
             fail(rex, "Profile reservation has expired.");
         }
@@ -211,22 +211,6 @@ public final class ProfileTest extends ProfileTestCase {
     }
 
     /**
-     * Test verifying an email address.
-     *
-     */
-    public void testVerifyEmail() {
-        final String emailInjection = "+" + String.valueOf(System.currentTimeMillis());
-        final EMail email = EMailBuilder.parse("junit" + emailInjection + "@thinkparity.com");
-        getModel(datum.junit).addEmail(email);
-        final List<ProfileEMail> emails = getModel(datum.junit).readEmails();
-        getModel(datum.junit).addListener(datum.verify_email_listener);
-        getModel(datum.junit).verifyEmail(emails.get(emails.size() - 1).getEmailId(), email.toString());
-        datum.waitForEvents();
-        getModel(datum.junit).removeListener(datum.verify_email_listener);
-        assertTrue("Email verified event not fired.", datum.verify_email_notify);
-    }
-
-    /**
      * Set up the profile test.
      *
      */
@@ -270,8 +254,6 @@ public final class ProfileTest extends ProfileTestCase {
         private boolean update_notify;
         private final ProfileListener update_password_listener;
         private boolean update_password_notify;
-        private final ProfileListener verify_email_listener;
-        private boolean verify_email_notify;
         /**
          * Create Fixture.
          *
@@ -333,16 +315,6 @@ public final class ProfileTest extends ProfileTestCase {
                 }
             };
             this.update_password_notify = false;
-            this.verify_email_listener = new ProfileAdapter() {
-                @Override
-                public void emailVerified(final ProfileEvent e) {
-                    assertNotNull("Profile event is null.", e);
-                    assertNotNull("Profile event profile is null.", e.getProfile());
-                    assertNotNull("Profile event email is not null.", e.getEmail());
-                    verify_email_notify = true;
-                }
-            };
-            this.verify_email_notify = false;
             addQueueHelper(junit);
         }
     }

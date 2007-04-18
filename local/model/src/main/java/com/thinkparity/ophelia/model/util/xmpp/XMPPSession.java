@@ -222,7 +222,7 @@ public interface XMPPSession {
             final String securityQuestion, final String securityAnswer);
 
     public Reservation createProfileReservation(final JabberId userId,
-            final String username, final Calendar reservedOn);
+            final String username, final EMail email, final Calendar reservedOn);
 
     /**
      * Create a stream.

@@ -90,6 +90,13 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         super.addListener(listener);
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#create(com.thinkparity.codebase.model.profile.Reservation,
+     *      com.thinkparity.codebase.model.session.Credentials,
+     *      com.thinkparity.codebase.model.profile.Profile,
+     *      com.thinkparity.codebase.email.EMail)
+     * 
+     */
     public void create(final Reservation reservation,
 			final Credentials credentials, final Profile profile,
 			final EMail email) throws ReservationExpiredException {
@@ -99,6 +106,13 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             final long now = currentDateTime().getTimeInMillis();
             if (now > reservation.getExpiresOn().getTimeInMillis())
                 throw new ReservationExpiredException(reservation.getExpiresOn());
+
+            Assert.assertTrue(reservation.getUsername().equals(credentials.getUsername()),
+                    "Reservation username {0} does not match credentials username {1}.",
+                    reservation.getUsername(), credentials.getUsername());
+            Assert.assertTrue(reservation.getEMail().equals(email),
+                    "Reservation e-mail address {0} does not match e-mail address {1}.",
+                    reservation.getEMail(), email);
 
             // HACK - ProfileModelImpl#create()
             getSessionModel().createProfile(reservation, credentials, profile,
@@ -111,12 +125,13 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.profile.ProfileModel#createReservation(java.lang.String)
-     *
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#createReservation(java.lang.String,
+     *      com.thinkparity.codebase.email.EMail)
+     * 
      */
-    public Reservation createReservation(final String username) {
+    public Reservation createReservation(final String username, final EMail email) {
         try {
-            return getSessionModel().createProfileReservation(username);
+            return getSessionModel().createProfileReservation(username, email);
         } catch (final Throwable t) {
             throw panic(t);
         }

@@ -429,7 +429,8 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
             SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
             errorMessageJLabel.setText(getString("CheckingUsername"));
             errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel.getWidth(), errorMessageJLabel.getHeight());
-            final Reservation reservation = ((SignupProvider) contentProvider).readReservation(username);
+            // NOCOMMIT - SignupAccountInfoAvatar#reserveUsername - A null e-mail address is being passed.
+            final Reservation reservation = ((SignupProvider) contentProvider).createReservation(username, null);
             SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
             if (null == reservation) {
                 unacceptableUsername = username;

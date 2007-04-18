@@ -7,10 +7,12 @@ create table TPSD_EMAIL(
 
 create table TPSD_USER_RESERVATION(
     USERNAME varchar(32) not null,
+    EMAIL varchar(512) not null,
     TOKEN varchar(32) not null,
     EXPIRES_ON timestamp not null,
     CREATED_ON timestamp not null,
     primary key (USERNAME),
+    unique (EMAIL),
     unique (TOKEN)
 );
 create table TPSD_USER(

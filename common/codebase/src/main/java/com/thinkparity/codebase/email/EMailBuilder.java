@@ -69,8 +69,9 @@ public class EMailBuilder {
             throw new EMailFormatException("EMail does not contain domain.", s);
 
 		final EMail email = new EMail();
-        email.setDomain(domain);
-        email.setUsername(username);
+        // NOTE e-mail addresses are all lower case
+        email.setDomain(domain.toLowerCase());
+        email.setUsername(username.toLowerCase());
 		return email;
 	}
 }

@@ -101,7 +101,7 @@ public class OpheliaTestUser extends User {
         JUNIT_W = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.w");
         JUNIT_X = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.x");
         JUNIT_Y = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.y");
-        JUNIT_Z = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.z");
+        JUNIT_Z = null;//new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.z");
         THINKPARITY = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "thinkparity");
 	}
 

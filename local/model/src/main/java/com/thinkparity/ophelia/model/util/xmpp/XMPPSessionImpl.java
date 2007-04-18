@@ -436,12 +436,13 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
 
     /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createProfileReservation(com.thinkparity.codebase.jabber.JabberId,
-     *      java.lang.String)
+     *      java.lang.String, com.thinkparity.codebase.email.EMail,
+     *      java.util.Calendar)
      * 
      */
     public Reservation createProfileReservation(final JabberId userId,
-            final String username, final Calendar reservedOn) {
-        return xmppProfile.createReservation(userId, username, reservedOn);
+            final String username, final EMail email, final Calendar reservedOn) {
+        return xmppProfile.createReservation(userId, username, email, reservedOn);
     }
 
     /**

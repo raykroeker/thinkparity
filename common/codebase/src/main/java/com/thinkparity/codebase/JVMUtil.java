@@ -101,4 +101,34 @@ public final class JVMUtil {
         pb.directory(executionDirectory);
         return pb.start();
     }
+
+    /**
+     * Create and start a process to the jvm.
+     * 
+     * 
+     * @param executionDirectory
+     *            The directory <code>File</code> from which to start the
+     *            process.
+     * @param jarFile
+     *            The jar <code>File</code> to execute.
+     * @param jvmArgs
+     *            Optional jvm arguments to be passed to the process in the
+     *            format of key=value.
+     * @return The <code>Process</code>.
+     * @throws IOException
+     *             if the process cannot be started
+     */
+    public Process execute(final File executionDirectory,
+            final File jarFile, final String... jvmArgs) throws IOException {
+        final List<String> executeJarCommand = new ArrayList<String>();
+        executeJarCommand.add(javaCommand);
+        for (final String jvmArg : jvmArgs)
+            executeJarCommand.add(jvmArg);
+        executeJarCommand.add(ARG_JAR);
+        executeJarCommand.add(jarFile.getAbsolutePath());
+        final ProcessBuilder pb = new ProcessBuilder();
+        pb.command(executeJarCommand);
+        pb.directory(executionDirectory);
+        return pb.start();
+    }
 }

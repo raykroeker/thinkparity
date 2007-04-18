@@ -3,8 +3,6 @@
  */
 package com.thinkparity.desdemona.model.io.sql;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -20,11 +18,11 @@ import com.thinkparity.codebase.model.profile.Reservation;
 import com.thinkparity.codebase.model.profile.VerificationKey;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.Token;
 
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
-import com.thinkparity.desdemona.model.user.VCardOpener;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel User SQL<br>
@@ -33,7 +31,7 @@ import com.thinkparity.desdemona.model.user.VCardOpener;
  * @author raymond@thinkparity.com
  * @version 1.1.2.17
  */
-public class UserSql extends AbstractSql {
+public final class UserSql extends AbstractSql {
 
     /** Sql to create a user. */
     private static final String SQL_CREATE =
@@ -59,8 +57,8 @@ public class UserSql extends AbstractSql {
     /** Sql to create a reservation. */
     private static final String SQL_CREATE_RESERVATION =
         new StringBuilder("insert into TPSD_USER_RESERVATION ")
-        .append("(USERNAME,TOKEN,EXPIRES_ON,CREATED_ON) ")
-        .append("values (?,?,?,?)")
+        .append("(USERNAME,EMAIL,TOKEN,EXPIRES_ON,CREATED_ON) ")
+        .append("values (?,?,?,?,?)")
         .toString();
 
     /** Sql to delete an email address. */
@@ -81,11 +79,27 @@ public class UserSql extends AbstractSql {
         .append("where TOKEN=?")
         .toString();
 
+    /** Sql to determine user existence by e-mail unique key. */
+    private static final String SQL_DOES_EXIST_EMAIL_UK =
+        new StringBuilder("select count(U.USER_ID) \"USER_COUNT\" ")
+        .append("from TPSD_USER U ")
+        .append("inner join TPSD_USER_EMAIL UE on UE.USER_ID=U.USER_ID ")
+        .append("inner join TPSD_EMAIL E on E.EMAIL_ID=UE.EMAIL_ID ")
+        .append("where E.EMAIL=?")
+        .toString();
+
     /** Sql to determine reservation existence by unique key. */
     private static final String SQL_DOES_EXIST_RESERVATION_UK =
         new StringBuilder("select count(UR.TOKEN) \"RESERVATION_COUNT\" ")
         .append("from TPSD_USER_RESERVATION UR ")
         .append("where UR.TOKEN=?")
+        .toString();
+
+    /** Sql to determine user existence by unique key. */
+    private static final String SQL_DOES_EXIST_UK =
+        new StringBuilder("select count(USER_ID) \"USER_COUNT\" ")
+        .append("from TPSD_USER U ")
+        .append("where U.USERNAME=?")
         .toString();
 
     /** Sql to read all users. */
@@ -166,14 +180,14 @@ public class UserSql extends AbstractSql {
         .append("from TPSD_USER U ")
         .append("where U.USERNAME=?")
         .toString();
-        
+
     /** Sql to read the user profile's security question. */
     private static final String SQL_READ_SECURITY_QUESTION =
         new StringBuilder("select U.SECURITY_QUESTION ")
         .append("from TPSD_USER U ")
         .append("where U.USERNAME=?")
         .toString();
-
+        
     /** Sql to read the user's token. */
     private static final String SQL_READ_TOKEN =
         new StringBuilder("select U.TOKEN ")
@@ -226,23 +240,20 @@ public class UserSql extends AbstractSql {
     /**
      * Create a user.
      * 
+     * @param T
+     *            The <code>UserVCard</code> type.
      * @param credentials
      *            A user's <code>Credentials</code>.
      * @param securityQuestion
      *            A security question <code>String</code>.
      * @param securityAnswer
      *            A security answer <code>String</code>.
-     * @param vcardStream
-     *            A vcard <code>InputStream</code>.
-     * @param vcardLength
-     *            The vcard length.
-     * @param bufferSize
-     *            A buffer size <code>Integer</code>.
+     * @param vcard
+     *            The vcard <code>T</code>.
      */
-    public Long create(final Credentials credentials,
+    public <T extends UserVCard> Long create(final Credentials credentials,
             final String securityQuestion, final String securityAnswer,
-            final InputStream vcardStream, final Long vcardLength,
-            final Integer bufferSize) {
+            final T vcard) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_CREATE);
@@ -251,7 +262,7 @@ public class UserSql extends AbstractSql {
             session.setString(3, securityQuestion);
             session.setString(4, securityAnswer);
             session.setBoolean(5, Boolean.FALSE);
-            session.setAsciiStream(6, vcardStream, vcardLength, bufferSize);
+            session.setVCard(6, vcard);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not create user.");
             final Long userId = session.getIdentity("TPSD_USER");
@@ -323,9 +334,10 @@ public class UserSql extends AbstractSql {
         try {
             session.prepareStatement(SQL_CREATE_RESERVATION);
             session.setString(1, reservation.getUsername());
-            session.setString(2, reservation.getToken().getValue());
-            session.setCalendar(3, reservation.getExpiresOn());
-            session.setCalendar(4, reservation.getCreatedOn());
+            session.setEMail(2, reservation.getEMail());
+            session.setString(3, reservation.getToken().getValue());
+            session.setCalendar(4, reservation.getExpiresOn());
+            session.setCalendar(5, reservation.getCreatedOn());
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not create reservation.");
             session.commit();
@@ -398,6 +410,66 @@ public class UserSql extends AbstractSql {
     }
 
     /**
+     * Determine whether or not a user exists by their e-mail address.
+     * 
+     * @param username
+     *            A username <code>String</code>.
+     * @return True if the user exists.
+     */
+    public Boolean doesExist(final EMail email) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_EMAIL_UK);
+            session.setEMail(1, email);
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int userCount = session.getInteger("USER_COUNT");
+                if (0 == userCount) {
+                    return Boolean.FALSE;
+                } else if (1 == userCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine user existence.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine user existence.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Determine whether or not a user exists by their username.
+     * 
+     * @param username
+     *            A username <code>String</code>.
+     * @return True if the user exists.
+     */
+    public Boolean doesExist(final String username) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_UK);
+            session.setString(1, username);
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int userCount = session.getInteger("USER_COUNT");
+                if (0 == userCount) {
+                    return Boolean.FALSE;
+                } else if (1 == userCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine user existence.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine user existence.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Determine whether or not a given reservation exists.
      * 
      * @param token
@@ -421,37 +493,6 @@ public class UserSql extends AbstractSql {
                 }
             } else {
                 throw new HypersonicException("Could not determine reservation existence.");
-            }
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
-     * Open a user's vcard.
-     * 
-     * @param userId
-     *            A user id <code>Long</code>.
-     * @param opener
-     *            A <code>VCardOpener</code>.
-     * @throws IOException
-     */
-    public void openVCard(final Long userId, final VCardOpener opener)
-            throws IOException {
-        final HypersonicSession session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_VCARD);
-            session.setLong(1, userId);
-            session.executeQuery();
-            if (session.nextResult()) {
-                final InputStream stream = session.getClob("VCARD");
-                try {
-                    opener.open(stream);
-                } finally {
-                    stream.close();
-                }
-            } else {
-                opener.open(null);
             }
         } finally {
             session.close();
@@ -679,6 +720,32 @@ public class UserSql extends AbstractSql {
     }
 
     /**
+     * Open a user's vcard.
+     * 
+     * @param T
+     *            A <code>UserVCardType</code>.
+     * @param userId
+     *            A user id <code>Long</code>.
+     * @param vcard
+     *            An instance of <code>T</code>.
+     */
+    public <T extends UserVCard> T readVCard(final Long userId, final T vcard) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_VCARD);
+            session.setLong(1, userId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getVCard("VCARD", vcard);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Update the user's password.
      * 
      * @param userId
@@ -729,21 +796,19 @@ public class UserSql extends AbstractSql {
     /**
      * Update the user's vcard information.
      * 
+     * @param T
+     *            The <code>UserVCard</code> type.
      * @param userId
      *            The user id <code>Long</code>.
-     * @param vcardStream
-     *            The vcard <code>InputStream</code>.
-     * @param vcardLength
-     *            The vcard length <code>Long</code>.
-     * @param bufferSize
-     *            The buffer size <code>Integer</code>.
+     * @param vcard
+     *            The vcard <code>T</code>.
      */
-    public void updateVCard(final Long userId, final InputStream vcardStream,
-            final Long vcardLength, final Integer bufferSize) {
+    public <T extends UserVCard> void updateVCard(final Long userId,
+            final T vcard) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_UPDATE_VCARD);
-            session.setAsciiStream(1, vcardStream, vcardLength, bufferSize);
+            session.setVCard(1, vcard);
             session.setLong(2, userId);
             if (1 != session.executeUpdate())
                 throw panic("Could not update profile vcard.");

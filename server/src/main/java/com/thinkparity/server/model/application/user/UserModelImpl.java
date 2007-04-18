@@ -3,7 +3,6 @@
  */
 package com.thinkparity.desdemona.model.user;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -168,14 +167,7 @@ class UserModelImpl extends AbstractModelImpl {
     <T extends com.thinkparity.codebase.model.user.UserVCard> T readVCard(
             final Long userId, final T vcard) {
         try {
-            userSql.openVCard(userId, new VCardOpener() {
-                public void open(final InputStream stream) throws IOException {
-                    XSTREAM_UTIL.fromXML(new BufferedReader(
-                            new InputStreamReader(stream),
-                            getDefaultBufferSize()), vcard);
-                }
-            });
-            return vcard;
+            return userSql.readVCard(userId, vcard);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -184,27 +176,7 @@ class UserModelImpl extends AbstractModelImpl {
     void updateVCard(final Long userId,
             final com.thinkparity.codebase.model.user.UserVCard vcard) {
         try {
-            final File tempVCardFile = session.createTempFile();
-            try {
-                // write the vcard to the temp file
-                final FileWriter fileWriter = new FileWriter(tempVCardFile);
-                try {
-                    XSTREAM_UTIL.toXML(vcard, fileWriter);
-                } finally {
-                    fileWriter.close();
-                }
-                // update the database vcard from the temp file
-                final InputStream vcardStream = new FileInputStream(tempVCardFile);
-                try {
-                    userSql.updateVCard(userId, vcardStream,
-                            tempVCardFile.length(), getDefaultBufferSize());
-                } finally {
-                    vcardStream.close();
-                }
-            } finally {
-                // TEMPFILE - UserModelImpl#updateVCard()
-                tempVCardFile.delete();
-            }
+            userSql.updateVCard(userId, vcard);
         } catch (final Throwable t) {
             throw translateError(t);
         }

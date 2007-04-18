@@ -342,10 +342,12 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createProfileReservation(java.lang.String)
-     *
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createProfileReservation(java.lang.String,
+     *      com.thinkparity.codebase.email.EMail)
+     * 
      */
-    public Reservation createProfileReservation(final String username) {
+    public Reservation createProfileReservation(final String username,
+            final EMail email) {
         try {
             assertXMPPOffline();
             final XMPPSession xmppSession = workspace.getXMPPSession();
@@ -353,7 +355,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 authenticateAsSystem(xmppSession);
                 try {
                     return xmppSession.createProfileReservation(
-                            User.THINKPARITY.getId(), username,
+                            User.THINKPARITY.getId(), username, email,
                             xmppSession.readDateTime(User.THINKPARITY.getId()));
                 } finally {
                     unauthenticate(xmppSession);

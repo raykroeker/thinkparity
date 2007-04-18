@@ -5,6 +5,7 @@ package com.thinkparity.desdemona.wildfire.handler.profile;
 
 import java.util.Calendar;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.profile.Reservation;
@@ -41,13 +42,13 @@ public final class CreateReservation extends AuthenticatedHandler {
             final ServiceResponseWriter writer) {
         writer.write("reservation", createReservation(provider,
                 reader.readJabberId("userId"), reader.readString("username"),
-                reader.readCalendar("reservedOn")));
+                reader.readEMail("email"), reader.readCalendar("reservedOn")));
     }
 
     private Reservation createReservation(final ServiceModelProvider provider,
-            final JabberId userId, final String username,
+            final JabberId userId, final String username, final EMail email,
             final Calendar reservedOn) {
         return provider.getProfileModel().createReservation(userId, username,
-                reservedOn);
+                email, reservedOn);
     }
 }

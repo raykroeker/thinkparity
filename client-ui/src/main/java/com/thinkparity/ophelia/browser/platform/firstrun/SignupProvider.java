@@ -67,9 +67,12 @@ public class SignupProvider extends ContentProvider {
      * 
      * @param username
      *            A username <code>String</code>.
+     * @param email
+     *            An <code>EMail</code> address.
      * @return The <code>Reservation</code>.
      */
-    public Reservation readReservation(final String username) {
-        return profileModel.createReservation(username);
+    public Reservation createReservation(final String username,
+            final EMail email) {
+        return profileModel.createReservation(username, email);
     }
 }

@@ -76,10 +76,11 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
     }
 
     Reservation createReservation(final JabberId userId, final String username,
-            final Calendar reservedOn) {
+            final EMail email, final Calendar reservedOn) {
         final XMPPMethod createReservation = xmppCore.createMethod("profile:createreservation");
         createReservation.setParameter("userId", userId);
         createReservation.setParameter("username", username);
+        createReservation.setParameter("email", email);
         createReservation.setParameter("reservedOn", reservedOn);
         return execute(createReservation, Boolean.TRUE).readResultReservation("reservation");
     }

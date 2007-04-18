@@ -165,7 +165,8 @@ public interface InternalSessionModel extends SessionModel {
             final EMail email, final String securityQuestion,
             final String securityAnswer);
 
-    public Reservation createProfileReservation(final String username);
+    public Reservation createProfileReservation(final String username,
+            final EMail email);
 
     /**
      * Create a stream.
@@ -308,6 +309,15 @@ public interface InternalSessionModel extends SessionModel {
     public Boolean isEmailAvailable(final JabberId userId, final EMail email);
 
 	/**
+     * Determine whether or not this is the first login.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return True if this is the first login.
+     */
+    public Boolean isFirstLogin(final JabberId userId);
+
+    /**
      * Determine if publish is restricted to the publish to user.
      * 
      * @param publishTo
@@ -348,15 +358,6 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void login(final Credentials credentials)
             throws InvalidCredentialsException;
-
-    /**
-     * Determine whether or not this is the first login.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return True if this is the first login.
-     */
-    public Boolean isFirstLogin(final JabberId userId);
 
     /**
      * Fire the client maintenance event.

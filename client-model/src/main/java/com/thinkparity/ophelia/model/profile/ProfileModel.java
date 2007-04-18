@@ -51,7 +51,8 @@ public interface ProfileModel {
             final Credentials credentials, final Profile profile,
             final EMail email) throws ReservationExpiredException;
 
-    public Reservation createReservation(final String username);
+    public Reservation createReservation(final String username,
+            final EMail email);
 
 	/**
      * Determine whether or not an e-mail address is available.

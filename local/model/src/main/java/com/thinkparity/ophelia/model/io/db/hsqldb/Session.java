@@ -574,7 +574,6 @@ public final class Session {
         } catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
         }
-
     }
 
 	/**
@@ -1084,7 +1083,7 @@ public final class Session {
      *            The column value <code>Object</code>.
      */
     private void logColumnExtraction(final String columnName, final Object columnValue) {
-//        LOGGER.logDebug("Extract {0}:{1}", columnName, columnValue);
+        LOGGER.logDebug("Extract {0}:{1}", columnName, columnValue);
     }
 
     /**
@@ -1096,7 +1095,7 @@ public final class Session {
      *            The column value <code>Object</code>.
      */
     private void logColumnInjection(final Integer index, final Object columnValue) {
-//        LOGGER.logDebug("Inject {0}:{1}", index, columnValue);
+        LOGGER.logDebug("Inject {0}:{1}", index, columnValue);
     }
 
     /**
@@ -1106,7 +1105,7 @@ public final class Session {
      *            An sql statement <code>String</code>.
      */
     private void logStatement(final String sql) {
-//        LOGGER.logDebug("Statement:{0}", sql);
+        LOGGER.logDebug("Statement:{0}", sql);
     }
 
     /**

@@ -5,6 +5,8 @@ package com.thinkparity.codebase.model.profile;
 
 import java.util.Calendar;
 
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.codebase.model.util.Token;
 
 /**
@@ -18,6 +20,9 @@ public class Reservation {
 
     /** The reservation's creation date. */
     private Calendar createdOn;
+
+    /** An <code>EMail</code> address. */
+    private EMail email;
 
     /** The reservation's expiry date. */
     private Calendar expiresOn;
@@ -43,6 +48,15 @@ public class Reservation {
      */
     public Calendar getCreatedOn() {
         return createdOn;
+    }
+
+    /**
+     * Obtain email.
+     *
+     * @return A EMail.
+     */
+    public EMail getEMail() {
+        return email;
     }
 
     /**
@@ -80,6 +94,16 @@ public class Reservation {
      */
     public void setCreatedOn(final Calendar createdOn) {
         this.createdOn = createdOn;
+    }
+
+    /**
+     * Set email.
+     *
+     * @param email
+     *		A EMail.
+     */
+    public void setEMail(final EMail email) {
+        this.email = email;
     }
 
     /**

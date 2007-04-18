@@ -3,10 +3,6 @@
  */
 package com.thinkparity.desdemona.model.profile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -114,9 +110,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             final String securityAnswer) {
         try {
             assertIsValid(profile.getVCard());
-
-            // HACK - ProfileModelImpl#create() - usernames should not be case sensitive
-            credentials.setUsername(credentials.getUsername().toLowerCase());
+            assertIsValid(reservation, credentials, email);
 
             // delete expired reservations
             userSql.deleteExpiredReservations(currentDateTime());
@@ -124,25 +118,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                     reservation.getToken()), "Reservation {0} expired on {1}.",
                     reservation.getToken(), reservation.getExpiresOn());
 
-            final File tempVCardFile = session.createTempFile();
-            try {
-                final FileWriter tempFileWriter = new FileWriter(tempVCardFile);
-                try {
-                    XSTREAM_UTIL.toXML(profile.getVCard(), tempFileWriter);
-                    final InputStream vcardStream = new FileInputStream(tempVCardFile);
-                    try {
-                        profile.setLocalId(userSql.create(credentials,
-                                securityQuestion, securityAnswer, vcardStream,
-                                tempVCardFile.length(), getDefaultBufferSize()));
-                    } finally {
-                        vcardStream.close();
-                    }
-                } finally {
-                    tempFileWriter.close();
-                }
-            } finally {
-                tempVCardFile.delete();
-            }
+            profile.setLocalId(userSql.create(credentials, securityQuestion,
+                    securityAnswer, profile.getVCard()));
 
             // add e-mail address
             final VerificationKey key = VerificationKey.generate(email);
@@ -171,11 +148,12 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
 
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#createReservation(com.thinkparity.codebase.jabber.JabberId,
-     *      java.lang.String, java.util.Calendar)
+     *      java.lang.String, com.thinkparity.codebase.email.EMail,
+     *      java.util.Calendar)
      * 
      */
     public Reservation createReservation(final JabberId userId,
-            final String username, final Calendar reservedOn) {
+            final String username, final EMail email, final Calendar reservedOn) {
         try {
             userSql.deleteExpiredReservations(currentDateTime());
 
@@ -185,14 +163,26 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
 
             final Reservation reservation = new Reservation();
             reservation.setCreatedOn(reservedOn);
+            reservation.setEMail(email);
             reservation.setExpiresOn(expiresOn);
             reservation.setToken(newToken());
-            // HACK - ProfileModelImpl#createReservation - usernames should not be case sensitive
+            // NOTE - ProfileModelImpl#createReservation - usernames are case in-sensitive
             reservation.setUsername(username.toLowerCase());
             try {
                 userSql.createReservation(reservation);
-                return reservation;
+
+                // if a user exists with the same username/e-mail game over
+                if (userSql.doesExist(reservation.getUsername())) {
+                    userSql.deleteReservation(reservation.getToken());
+                    return null;
+                } else if (userSql.doesExist(reservation.getEMail())) {
+                    userSql.deleteReservation(reservation.getToken());
+                    return null;
+                } else {
+                    return reservation;
+                }
             } catch (final Throwable t) {
+                logger.logError(t, "Reservation {0} cannot be created.", reservation);
                 /* NOTE probably not the best way to indicate that a reservation
                  * cannot be made */
                 return null;
@@ -293,6 +283,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      */
     public List<Feature> readFeatures(final JabberId userId) {
         try {
+            // NOCOMMIT - ProfileModelImpl#readFeatures - The product should be parameterized
             final User user = read(userId);
             return userSql.readFeatures(user.getLocalId(), Ophelia.PRODUCT_ID);
         } catch (final Throwable t) {
@@ -466,6 +457,16 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         assertIsSet("title", vcard.getTitle());
     }
 
+    private void assertIsValid(final Reservation reservation,
+            final Credentials credentials, final EMail email) {
+        Assert.assertTrue(reservation.getUsername().equals(credentials.getUsername()),
+                "Reservation username {0} does not match credentials username {1}.",
+                reservation.getUsername(), credentials.getUsername());
+        Assert.assertTrue(reservation.getEMail().equals(email),
+                "Reservation e-mail address {0} does not match e-mail address {1}.",
+                reservation.getEMail(), email);
+    }
+
     private void assertIsValidCountry(final String name, final String value) {
         final Locale[] locales = LocaleUtil.getInstance().getAvailableLocales();
         boolean found = false;
@@ -506,10 +507,11 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      *            A <code>VerificationKey</code>.
      * @throws MessagingException
      */
-    private void createVerification(final MimeMessage mimeMessage,
+    private void createFirstVerification(final MimeMessage mimeMessage,
             final EMail email, final VerificationKey key)
             throws MessagingException {
-        final VerificationText text = new VerificationText(Locale.getDefault(), email, key);
+        final FirstVerificationText text = new FirstVerificationText(
+                Locale.getDefault(), email, key);
         mimeMessage.setSubject(text.getSubject());
 
         final MimeBodyPart verificationBody = new MimeBodyPart();
@@ -531,11 +533,10 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      *            A <code>VerificationKey</code>.
      * @throws MessagingException
      */
-    private void createFirstVerification(final MimeMessage mimeMessage,
+    private void createVerification(final MimeMessage mimeMessage,
             final EMail email, final VerificationKey key)
             throws MessagingException {
-        final FirstVerificationText text = new FirstVerificationText(
-                Locale.getDefault(), email, key);
+        final VerificationText text = new VerificationText(Locale.getDefault(), email, key);
         mimeMessage.setSubject(text.getSubject());
 
         final MimeBodyPart verificationBody = new MimeBodyPart();

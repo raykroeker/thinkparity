@@ -48,7 +48,7 @@ public interface ProfileModel {
 
     @ThinkParityAuthenticate(AuthenticationType.SYSTEM)
     public Reservation createReservation(final JabberId userId,
-            final String username, final Calendar reservedOn);
+            final String username, final EMail email, final Calendar reservedOn);
 
     /**
      * Create a user's token.

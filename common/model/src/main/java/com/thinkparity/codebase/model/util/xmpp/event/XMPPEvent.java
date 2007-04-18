@@ -6,11 +6,11 @@ package com.thinkparity.codebase.model.util.xmpp.event;
 import java.util.Calendar;
 
 /**
- * <b>Title:</b>thinkParity XMPP Event<br>
+ * <b>Title:</b>thinkParity CommonModel XMPP Event<br>
  * <b>Description:</b>An xmpp event.<br>
  * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.3
  */
 public abstract class XMPPEvent {
 

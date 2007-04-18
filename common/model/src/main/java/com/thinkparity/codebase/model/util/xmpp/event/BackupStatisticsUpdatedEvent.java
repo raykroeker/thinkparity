@@ -6,13 +6,13 @@ package com.thinkparity.codebase.model.util.xmpp.event;
 import com.thinkparity.codebase.model.backup.Statistics;
 
 /**
- * <b>Title:</b>thinkParity Backup Statistics Updated Event<br>
+ * <b>Title:</b>thinkParity CommonModel XMPP Backup Statistics Updated Event<br>
  * <b>Description:</b><br>
  * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.2
  */
-public class BackupStatisticsUpdatedEvent extends XMPPEvent {
+public final class BackupStatisticsUpdatedEvent extends XMPPEvent {
 
     /** The backup <code>Statistics</code>. */
     private Statistics statistics;

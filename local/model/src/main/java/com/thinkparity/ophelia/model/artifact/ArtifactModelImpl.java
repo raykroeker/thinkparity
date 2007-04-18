@@ -230,13 +230,18 @@ public final class ArtifactModelImpl extends Model implements
     public void handleDraftCreated(final ArtifactDraftCreatedEvent event) {
         try {
             final Long artifactId = artifactIO.readId(event.getUniqueId());
-            switch (artifactIO.readType(artifactId)) {
-            case CONTAINER:
-                getContainerModel().handleDraftCreated(artifactId,
-                        event.getCreatedBy(), event.getCreatedOn());
-                break;
-            default:
-                Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
+            if (null == artifactId) {
+                logger.logWarning("Artifact for event {0} does not exist locally.",
+                        event);
+            } else {
+                switch (artifactIO.readType(artifactId)) {
+                case CONTAINER:
+                    getContainerModel().handleDraftCreated(artifactId,
+                            event.getCreatedBy(), event.getCreatedOn());
+                    break;
+                default:
+                    Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
+                }
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -251,8 +256,8 @@ public final class ArtifactModelImpl extends Model implements
         try {
             final Long artifactId = artifactIO.readId(event.getUniqueId());
             if (null == artifactId) {
-                logger.logWarning("Artifact {0} no longer exists locally.",
-                        event.getUniqueId());
+                logger.logWarning("Artifact for event {0} does not exist locally.",
+                        event);
             } else {
                 switch (artifactIO.readType(artifactId)) {
                 case CONTAINER:
@@ -314,21 +319,24 @@ public final class ArtifactModelImpl extends Model implements
      * 
      */
     public void handleReceived(final ArtifactReceivedEvent event) {
-        logger.logApiId();
-        logger.logVariable("event", event);
         try {
             final Long artifactId = artifactIO.readId(event.getUniqueId());
-            if (doesVersionExist(artifactId, event.getVersionId())) {
-                switch (artifactIO.readType(artifactId)) {
-                case CONTAINER:
-                    getContainerModel().handleReceived(event);
-                    break;
-                default:
-                    Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
-                }
+            if (null == artifactId) {
+                logger.logWarning("Artifact for event {0} does not exist locally.",
+                        event);
             } else {
-                logger.logWarning("Artifact version {0}:{1} does not exist locally.",
-                        event.getUniqueId(), event.getVersionId());
+                if (doesVersionExist(artifactId, event.getVersionId())) {
+                    switch (artifactIO.readType(artifactId)) {
+                    case CONTAINER:
+                        getContainerModel().handleReceived(event);
+                        break;
+                    default:
+                        Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
+                    }
+                } else {
+                    logger.logWarning("Artifact version for event {0} does not exist locally.",
+                            event);
+                }
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -343,8 +351,8 @@ public final class ArtifactModelImpl extends Model implements
         try {
             final Long artifactId = readId(event.getUniqueId());
             if (null == artifactId) {
-                logger.logWarning("Artifact {0} no longer exists.", event
-                        .getUniqueId());
+                logger.logWarning("Artifact for event {0} does not exist locally.",
+                        event);
             } else {
                 addTeamMember(artifactId, event.getJabberId());
             }
@@ -361,8 +369,8 @@ public final class ArtifactModelImpl extends Model implements
         try {
             final Long artifactId = readId(event.getUniqueId());
             if (null == artifactId) {
-                logger.logWarning("Artifact {0} no longer exists.", event
-                        .getUniqueId());
+                logger.logWarning("Artifact for event {0} does not exist locally.",
+                        event);
             } else {
                 final User user = getUserModel().read(event.getJabberId());
                 artifactIO.deleteTeamRel(artifactId, user.getLocalId());

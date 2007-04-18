@@ -8,12 +8,13 @@ import java.util.Calendar;
 import com.thinkparity.codebase.jabber.JabberId;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity CommonModel Contact Updated Event<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.2
  */
-public class ContactUpdatedEvent extends XMPPEvent {
+public final class ContactUpdatedEvent extends XMPPEvent {
 
     /** The contact id <code>JabberId</code>. */
     private JabberId contactId;

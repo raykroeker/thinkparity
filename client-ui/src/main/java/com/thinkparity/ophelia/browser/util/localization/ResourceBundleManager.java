@@ -24,14 +24,14 @@ public class ResourceBundleManager {
 	static { SINGLETON = new ResourceBundleManager(); }
 
 	/**
-	 * Obtain a resource bundle for a given resource bundle type.
-	 * 
-	 * @param bundleType
-	 *            Type of resource bundle to obtain.
-	 * @return The resource bundle.
+     * Obtain a resource bundle for a given localization resource.
+     * 
+     * @param l18nResource
+     *            A localization resource.
+     * @return A resource bundle.
 	 */
-	public static ResourceBundle getBundle(final ResourceBundleType bundleType) {
-		return SINGLETON.doGetBundle(bundleType);
+	public static ResourceBundle getBundle(final com.thinkparity.codebase.l10n.L18nResource l18nResource) {
+		return SINGLETON.doGetBundle(l18nResource);
 	}
 
     /**
@@ -54,14 +54,15 @@ public class ResourceBundleManager {
 	private ResourceBundleManager() { super(); }
 
     /**
-     * Obtain a resource bundle for a given resource bundle type.
+     * Obtain a resource bundle for a given localization resource.
      * 
-     * @param bundleType
-     *            The type of bundle to obtain.
+     * @param l18nResource
+     *            A localization resource.
      * @return The resource bundle.
      */
-    private ResourceBundle doGetBundle(final ResourceBundleType bundleType) {
-        return ResourceBundle.getBundle(getBaseName(bundleType), getLocale());
+    private ResourceBundle doGetBundle(final com.thinkparity.codebase.l10n.L18nResource l18nResource) {
+        return ResourceBundle.getBundle(
+                l18nResource.getResourceBundleBaseName(), getLocale());
     }
 
     /**
@@ -97,20 +98,6 @@ public class ResourceBundleManager {
             return null;
         }
     }
-
-	/**
-	 * Build the base NAME for the given resource bundle type.
-	 * 
-	 * @param bundleType
-	 *            The type of resource bundle to NAME.
-	 * @return The base NAME used to obtain the resource bundle.
-	 */
-	private String getBaseName(final ResourceBundleType bundleType) {
-		return new StringBuffer("localization")
-			.append(".")
-			.append(bundleType.getBaseName())
-			.append("_Messages").toString();
-	}
 
 	/**
 	 * Obtain the locale for the browser.

@@ -72,7 +72,7 @@ public class Publish extends AbstractBrowserAction {
 		public Runnable getErrorHandler(final Throwable t) {
 			return new Runnable() {
 				public void run() {
-					action.browser.displayErrorDialog("Publish",
+					action.browser.displayErrorDialog("PublishError",
 							new Object[] {}, t);
 				}
 			};

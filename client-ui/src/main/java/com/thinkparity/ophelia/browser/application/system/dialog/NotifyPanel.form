@@ -22,26 +22,26 @@
               <Group type="103" groupAlignment="1" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="controlJPanel" pref="221" max="32767" attributes="1"/>
+                      <Component id="controlJPanel" pref="229" max="32767" attributes="1"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="titleJPanel" pref="207" max="32767" attributes="1"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="closeJButton" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="1" attributes="0">
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                   <Component id="headingLine2JLabel" max="32767" attributes="1"/>
-                                  <Component id="headingLine1JLabel" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="headingLine1JLabel" alignment="0" min="-2" max="-2" attributes="1"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="contentLine2JLabel" pref="170" max="32767" attributes="1"/>
-                                  <Component id="contentLine1JLabel" alignment="0" pref="170" max="32767" attributes="1"/>
+                                  <Component id="contentLine2JLabel" pref="179" max="32767" attributes="1"/>
+                                  <Component id="contentLine1JLabel" alignment="0" pref="179" max="32767" attributes="1"/>
                               </Group>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="titleJPanel" pref="207" max="32767" attributes="1"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="closeJButton" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -61,7 +61,7 @@
                           <Component id="closeJButton" min="-2" max="-2" attributes="0"/>
                           <Component id="titleJPanel" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="headingLine1JLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="contentLine1JLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -71,7 +71,7 @@
                           <Component id="headingLine2JLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="contentLine2JLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="controlJPanel" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -240,7 +240,7 @@
         <Component class="javax.swing.JLabel" name="previousJLabel">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="localization/Application_Messages.properties" key="SystemApplication.NotifyPanel.Previous" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="localization/Browser_Messages.properties" key="SystemApplication.NotifyPanel.Previous" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Events>
@@ -272,7 +272,7 @@
         <Component class="javax.swing.JLabel" name="nextJLabel">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="localization/Application_Messages.properties" key="SystemApplication.NotifyPanel.Next" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="localization/Browser_Messages.properties" key="SystemApplication.NotifyPanel.Next" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Events>

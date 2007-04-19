@@ -28,7 +28,7 @@ public class ErrorAvatar extends Avatar {
 
     /** Creates new form ErrorDialog */
     public ErrorAvatar() {
-        super("ErrorDialog", BrowserConstants.DIALOGUE_BACKGROUND);
+        super("ErrorAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         bindEscapeKey("Cancel", new AbstractAction() {
             public void actionPerformed(final ActionEvent e) {
                 disposeWindow();
@@ -85,7 +85,7 @@ public class ErrorAvatar extends Avatar {
         errorMessageJLabel.setPreferredSize(new java.awt.Dimension(485, 50));
 
         closeJButton.setFont(Fonts.DialogButtonFont);
-        closeJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ErrorDialog.Ok"));
+        closeJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ErrorAvatar.Ok"));
         closeJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 closeJButtonActionPerformed(evt);

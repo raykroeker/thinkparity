@@ -49,7 +49,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     private static final ResourceBundle BUNDLE;
 
     static {
-        BUNDLE = ResourceBundle.getBundle("localization/JPanel_Messages");
+        BUNDLE = ResourceBundle.getBundle("localization/Browser_Messages");
     }
 
     /** A list of all core tabs. */

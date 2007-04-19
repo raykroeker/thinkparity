@@ -35,7 +35,7 @@ public final class ErrorDetailsAvatar extends Avatar {
      * 
      */
     public ErrorDetailsAvatar() {
-        super("ErrorDetailsDialog", BrowserConstants.DIALOGUE_BACKGROUND);
+        super("ErrorDetailsAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         bindEscapeKey("Cancel", new AbstractAction() {
             public void actionPerformed(final ActionEvent e) {
                 disposeWindow();
@@ -76,18 +76,18 @@ public final class ErrorDetailsAvatar extends Avatar {
         errorMessageJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         copyDetailsJButton.setFont(Fonts.DialogButtonFont);
-        copyDetailsJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ErrorDetailsDialog.CopyDetailsButton"));
+        copyDetailsJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ErrorDetailsAvatar.CopyDetailsButton"));
         copyDetailsJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                copyDetailsJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                copyDetailsJButtonActionPerformed(evt);
             }
         });
 
         closeJButton.setFont(Fonts.DialogButtonFont);
-        closeJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ErrorDetailsDialog.Ok"));
+        closeJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ErrorDetailsAvatar.Ok"));
         closeJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                closeJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeJButtonActionPerformed(evt);
             }
         });
 
@@ -116,7 +116,7 @@ public final class ErrorDetailsAvatar extends Avatar {
                     .addComponent(detailsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(copyDetailsJButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 266, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 297, Short.MAX_VALUE)
                         .addComponent(closeJButton))
                     .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE))
                 .addContainerGap())

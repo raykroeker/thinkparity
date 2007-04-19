@@ -7,6 +7,7 @@ import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import com.thinkparity.codebase.l10n.L18nContext;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 /**
@@ -37,11 +38,32 @@ public class ResourceBundleHelper {
 	/** An apache logger. */
 	private final Log4JWrapper logger;
 
+    /**
+     * Create ResourceBundleHelper
+     * 
+     * @param bundle
+     *            A resource bundle.
+     * @param l18nContext
+     *            A localization context.
+     */
+    public ResourceBundleHelper(final ResourceBundle bundle,
+            final L18nContext l18nContext) {
+        super();
+        this.bundle = bundle;
+        if (null != l18nContext) {
+            this.context = l18nContext.getLookupContext();
+        } else {
+            this.context = null;
+        }
+        this.logger = new Log4JWrapper();
+        logger.logVariable("context", context);
+    }
+
 	/**
 	 * Create a ResourceBundleHelper
 	 * 
 	 * @param bundle
-	 *            The bundle to use.
+     *            A resource bundle.
 	 * @param l18Context
 	 *            The l18Context to use.
 	 */

@@ -134,11 +134,11 @@ public class ConfirmSynchronizeAvatar extends Avatar {
         final javax.swing.JButton denyJButton = ButtonFactory.create();
 
         messageJLabel.setFont(Fonts.DialogFont);
-        messageJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ConfirmSynchronizeAvatar.messageStandardJLabel"));
+        messageJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ConfirmSynchronizeAvatar.messageStandardJLabel"));
         messageJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         confirmJButton.setFont(Fonts.DialogButtonFont);
-        confirmJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ConfirmSynchronizeAvatar.ConfirmButton"));
+        confirmJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ConfirmSynchronizeAvatar.ConfirmButton"));
         confirmJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 confirmJButtonActionPerformed(evt);
@@ -146,7 +146,7 @@ public class ConfirmSynchronizeAvatar extends Avatar {
         });
 
         denyJButton.setFont(Fonts.DialogButtonFont);
-        denyJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ConfirmSynchronizeAvatar.DenyButton"));
+        denyJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ConfirmSynchronizeAvatar.DenyButton"));
         denyJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 denyJButtonActionPerformed(evt);

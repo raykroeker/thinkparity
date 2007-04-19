@@ -10,7 +10,7 @@ package com.thinkparity.ophelia.browser.util.localization;
  */
 public enum L18nResource implements com.thinkparity.codebase.l10n.L18nResource {
 
-	APPLICATION("Application");
+    ACTION("Action"), BROWSER("Browser");
 
 	/**
 	 * The resource name.

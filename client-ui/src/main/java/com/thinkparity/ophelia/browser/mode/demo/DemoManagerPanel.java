@@ -141,7 +141,7 @@ public class DemoManagerPanel extends AbstractJPanel implements ExecutionMonitor
 
     private void extractDefaultJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_extractDefaultJButtonActionPerformed
         if(JFileChooser.APPROVE_OPTION == getJFileChooser().showOpenDialog(getParent())) {
-            final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
+            final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/Browser_Messages"); // NOI18N
             final String confirmation = MessageFormat.format(
                     bundle.getString("DemoManagerPanel.extractConfirm"),
                     jFileChooser.getSelectedFile());
@@ -178,7 +178,7 @@ public class DemoManagerPanel extends AbstractJPanel implements ExecutionMonitor
                 }
                 @Override
                 public String getDescription() {
-                    java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
+                    java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/Browser_Messages"); // NOI18N
                     return bundle.getString("DemoManagerPanel.filterDescription");
                 }
             });
@@ -211,13 +211,12 @@ public class DemoManagerPanel extends AbstractJPanel implements ExecutionMonitor
         exitJButton = new javax.swing.JButton();
         initializeJButton = new javax.swing.JButton();
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        eaJLabel.setText(bundle.getString("DemoManagerPanel.eaJLabel")); // NOI18N
+        eaJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("DemoManagerPanel.eaJLabel"));
         eaJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         demoRootJLabel.setText("${DEMO_ROOT}");
 
-        browseJButton.setText(bundle.getString("DemoManagerPanel.browseJButton")); // NOI18N
+        browseJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("DemoManagerPanel.browseJButton"));
         browseJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 browseJButtonActionPerformed(evt);
@@ -228,28 +227,28 @@ public class DemoManagerPanel extends AbstractJPanel implements ExecutionMonitor
         scenarioJList.setCellRenderer(new ScenarioListCellRenderer());
         scenaioJScrollPane.setViewportView(scenarioJList);
 
-        resetJButton.setText(bundle.getString("DemoManagerPanel.resetJButton")); // NOI18N
+        resetJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("DemoManagerPanel.resetJButton"));
         resetJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 resetJButtonActionPerformed(evt);
             }
         });
 
-        extractDefaultJButton.setText(bundle.getString("DemoManagerPanel.extractJButton")); // NOI18N
+        extractDefaultJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("DemoManagerPanel.extractJButton"));
         extractDefaultJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 extractDefaultJButtonActionPerformed(evt);
             }
         });
 
-        exitJButton.setText(bundle.getString("DemoManagerPanel.exitJButton")); // NOI18N
+        exitJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("DemoManagerPanel.exitJButton"));
         exitJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 exitJButtonActionPerformed(evt);
             }
         });
 
-        initializeJButton.setText(bundle.getString("DemoManagerPanel.initializeJButton")); // NOI18N
+        initializeJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("DemoManagerPanel.initializeJButton"));
         initializeJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 initializeJButtonActionPerformed(evt);
@@ -281,6 +280,11 @@ public class DemoManagerPanel extends AbstractJPanel implements ExecutionMonitor
                         .add(scenaioJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 258, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
+
+        layout.linkSize(new java.awt.Component[] {exitJButton, initializeJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
+        layout.linkSize(new java.awt.Component[] {extractDefaultJButton, resetJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
@@ -328,7 +332,7 @@ public class DemoManagerPanel extends AbstractJPanel implements ExecutionMonitor
         if (null != demoRoot) {
             demoRootJLabel.setText(demoRoot.getRoot().getName());
         } else {
-            java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
+            java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/Browser_Messages"); // NOI18N
             demoRootJLabel.setText(bundle.getString("DemoManagerPanel.internalDemoRoot"));
         }
     }

@@ -39,7 +39,7 @@ public class VerifyEMailAvatar extends Avatar {
 
     /** Creates new form VerifyEMailAvatar */
     public VerifyEMailAvatar() {
-        super("VerifyEMailDialog", BrowserConstants.DIALOGUE_BACKGROUND);
+        super("VerifyEMailAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
         initDocumentHandler();
         bindEscapeKey("Cancel", new AbstractAction() {
@@ -124,7 +124,7 @@ public class VerifyEMailAvatar extends Avatar {
         cancelJButton = ButtonFactory.create();
 
         keyJLabel.setFont(Fonts.DialogFont);
-        keyJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("VerifyEMailDialog.VerificationKey"));
+        keyJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("VerifyEMailAvatar.VerificationKey"));
 
         keyJTextField.setFont(Fonts.DialogTextEntryFont);
 
@@ -133,7 +133,7 @@ public class VerifyEMailAvatar extends Avatar {
         errorMessageJLabel.setText("!Error Message!");
 
         verifyJButton.setFont(Fonts.DialogButtonFont);
-        verifyJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("VerifyEMailDialog.Verify"));
+        verifyJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("VerifyEMailAvatar.Verify"));
         verifyJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 verifyJButtonActionPerformed(evt);
@@ -141,7 +141,7 @@ public class VerifyEMailAvatar extends Avatar {
         });
 
         cancelJButton.setFont(Fonts.DialogButtonFont);
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("VerifyEMailDialog.Cancel"));
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("VerifyEMailAvatar.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelJButtonActionPerformed(evt);

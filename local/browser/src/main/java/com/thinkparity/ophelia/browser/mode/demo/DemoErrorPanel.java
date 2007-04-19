@@ -50,7 +50,7 @@ public class DemoErrorPanel extends AbstractJPanel {
     }
 
     void reload() throws IOException {
-        final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages");
+        final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/Browser_Messages");
         errorJTabbedPane.setTitleAt(0, bundle.getString("DemoErrorPanel.errorJTabbedPane.title0"));
         errorJTabbedPane.setTitleAt(1, bundle.getString("DemoErrorPanel.scriptJTabbedPane.title1"));
         reloadScript();
@@ -102,7 +102,7 @@ public class DemoErrorPanel extends AbstractJPanel {
         );
         errorJPanelLayout.setVerticalGroup(
             errorJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(errorJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
+            .add(errorJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 457, Short.MAX_VALUE)
         );
         errorJTabbedPane.addTab("tab2", errorJPanel);
 
@@ -118,12 +118,11 @@ public class DemoErrorPanel extends AbstractJPanel {
         );
         scriptJPanelLayout.setVerticalGroup(
             scriptJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(scriptJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
+            .add(scriptJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 457, Short.MAX_VALUE)
         );
         errorJTabbedPane.addTab("tab1", scriptJPanel);
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        closeJButton.setText(bundle.getString("DemoErrorPanel.closeButton")); // NOI18N
+        closeJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("DemoErrorPanel.closeButton"));
         closeJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 closeJButtonActionPerformed(evt);

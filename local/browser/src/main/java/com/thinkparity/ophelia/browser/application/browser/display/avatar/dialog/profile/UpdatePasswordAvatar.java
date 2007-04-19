@@ -48,7 +48,7 @@ public class UpdatePasswordAvatar extends Avatar {
      * 
      */
     public UpdatePasswordAvatar() {
-        super("UpdatePasswordDialog", BrowserConstants.DIALOGUE_BACKGROUND);
+        super("UpdatePasswordAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
         initDocumentHandlers();
         bindEscapeKey("Cancel", new AbstractAction() {
@@ -184,13 +184,13 @@ public class UpdatePasswordAvatar extends Avatar {
         final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
 
         oldPasswordJLabel.setFont(Fonts.DialogFont);
-        oldPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdatePasswordDialog.OldPassword"));
+        oldPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdatePasswordAvatar.OldPassword"));
 
         newPasswordJLabel.setFont(Fonts.DialogFont);
-        newPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdatePasswordDialog.NewPassword"));
+        newPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdatePasswordAvatar.NewPassword"));
 
         confirmNewPasswordJLabel.setFont(Fonts.DialogFont);
-        confirmNewPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdatePasswordDialog.ConfirmNewPassword"));
+        confirmNewPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdatePasswordAvatar.ConfirmNewPassword"));
 
         oldPasswordJPasswordField.setFont(Fonts.DialogTextEntryFont);
 
@@ -203,7 +203,7 @@ public class UpdatePasswordAvatar extends Avatar {
         errorMessageJLabel.setText("!Error Message!");
 
         okJButton.setFont(Fonts.DialogButtonFont);
-        okJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdatePasswordDialog.OK"));
+        okJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdatePasswordAvatar.OK"));
         okJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 okJButtonActionPerformed(evt);
@@ -211,7 +211,7 @@ public class UpdatePasswordAvatar extends Avatar {
         });
 
         cancelJButton.setFont(Fonts.DialogButtonFont);
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdatePasswordDialog.Cancel"));
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdatePasswordAvatar.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelJButtonActionPerformed(evt);
@@ -222,7 +222,7 @@ public class UpdatePasswordAvatar extends Avatar {
 
         forgotPasswordJPanel.setOpaque(false);
         forgotPasswordJLabel.setFont(Fonts.DialogFont);
-        forgotPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UpdatePasswordDialog.ForgotPassword"));
+        forgotPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdatePasswordAvatar.ForgotPassword"));
         forgotPasswordJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 forgotPasswordJLabelMousePressed(evt);

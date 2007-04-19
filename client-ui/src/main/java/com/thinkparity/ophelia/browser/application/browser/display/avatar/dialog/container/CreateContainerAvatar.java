@@ -32,13 +32,13 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  * @version 1.1.2.1
  */
 public class CreateContainerAvatar extends Avatar {
-    
+
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
-       
-    /** Creates new form NewContainerDialogue */
+
+    /** Creates new form CreateContainerAvatar */
     public CreateContainerAvatar() {
-        super("NewContainerDialog", BrowserConstants.DIALOGUE_BACKGROUND);
+        super("CreateContainerAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
         initDocumentHandler();
         bindEscapeKey("Cancel", new AbstractAction() {
@@ -58,7 +58,7 @@ public class CreateContainerAvatar extends Avatar {
     public State getState() {
         return null;
     }
-    
+
     public void reload() {
         // If input is null then this call to reload() is too early,
         // the input isn't set up yet.
@@ -68,7 +68,7 @@ public class CreateContainerAvatar extends Avatar {
             nameJTextField.requestFocusInWindow();
         }
     }
-    
+
     /**
      * Extract the name from the control.
      *
@@ -77,7 +77,7 @@ public class CreateContainerAvatar extends Avatar {
     private String extractName() {
         return SwingUtil.extract(nameJTextField, Boolean.TRUE);
     }
-    
+
     /**
      * Determine whether the user input is valid.
      * This method should return false whenever we want the
@@ -105,7 +105,7 @@ public class CreateContainerAvatar extends Avatar {
         final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
         nameJLabel.setFont(Fonts.DialogFont);
-        nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.Name"));
+        nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("CreateContainerAvatar.Name"));
 
         nameJTextField.setFont(Fonts.DialogTextEntryFont);
         nameJTextField.addActionListener(new java.awt.event.ActionListener() {
@@ -115,7 +115,7 @@ public class CreateContainerAvatar extends Avatar {
         });
 
         okJButton.setFont(Fonts.DialogButtonFont);
-        okJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.Ok"));
+        okJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("CreateContainerAvatar.Ok"));
         okJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 okJButtonActionPerformed(evt);
@@ -123,7 +123,7 @@ public class CreateContainerAvatar extends Avatar {
         });
 
         cancelJButton.setFont(Fonts.DialogButtonFont);
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.Cancel"));
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("CreateContainerAvatar.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelJButtonActionPerformed(evt);
@@ -179,12 +179,12 @@ public class CreateContainerAvatar extends Avatar {
     private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_cancelJButtonActionPerformed
         disposeWindow();
     }                                             
-        
+  
     private void initDocumentHandler() {
         Document document = nameJTextField.getDocument();
         document.addDocumentListener( new DocumentHandler() );        
     }
-    
+
     // Enable or disable the OK control. Some notes:
     //    - ActionPerformed on a JTextField will happen when press enter.
     //    - TextChanged message is received after user presses letter but before extractName() will see it.
@@ -198,17 +198,17 @@ public class CreateContainerAvatar extends Avatar {
                 okJButton.setEnabled(Boolean.FALSE);
             }
         }
-        
+
         public void removeUpdate( DocumentEvent event ) {
             // Do the same check as insertUpdate()
             insertUpdate( event );
         }
-        
+
         public void changedUpdate( DocumentEvent event ) {
             // Nothing to do here
         }
     }
-    
+
     /**
      * If the user presses "OK" or Enter, and input is valid, create the container
      */
@@ -223,7 +223,7 @@ public class CreateContainerAvatar extends Avatar {
             getController().runCreateContainer(containerName);
         }     
     }
-    
+
     /**
      * Convert the data element found at the given key to a list of files.
      * 
@@ -240,7 +240,7 @@ public class CreateContainerAvatar extends Avatar {
         for(final Object o : list) { files.add((File) o); }
         return files;
     }    
-      
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
     private final javax.swing.JButton okJButton = ButtonFactory.create();

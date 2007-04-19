@@ -38,7 +38,7 @@ public class TextFactory extends ComponentFactory {
 
 	static {
 	    SINGLETON = new TextFactory();
-        RESOURCE_BUNDLE = ResourceBundle.getBundle("localization/Misc_Messages");
+        RESOURCE_BUNDLE = ResourceBundle.getBundle("localization/Browser_Messages");
         JPOPUP_MENU = MenuFactory.createPopup();
 
         final JMenuItem copy = new JMenuItem(RESOURCE_BUNDLE.getString("TextFactory.Copy.Text"));

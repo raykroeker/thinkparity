@@ -82,7 +82,7 @@ public final class PublishContainerAvatar extends Avatar implements
      *
      */
     public PublishContainerAvatar() {
-        super("PublishContainerDialog", BrowserConstants.DIALOGUE_BACKGROUND);
+        super("PublishContainerAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         this.namesListModel = new PublishContainerAvatarUserListModel();
         initComponents();
         addValidationListener(emailsJTextArea);
@@ -370,7 +370,7 @@ public final class PublishContainerAvatar extends Avatar implements
         namesJScrollPane.setViewportView(namesJList);
 
         emailsJLabel.setFont(Fonts.DialogFont);
-        emailsJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("PublishContainerDialog.Emails"));
+        emailsJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.Emails"));
 
         emailsJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         emailsJTextArea.setColumns(20);
@@ -379,7 +379,7 @@ public final class PublishContainerAvatar extends Avatar implements
         emailsJScrollPane.setViewportView(emailsJTextArea);
 
         commentJLabel.setFont(Fonts.DialogFont);
-        commentJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("PublishContainerDialog.Comment"));
+        commentJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.Comment"));
         commentJLabel.setFocusable(false);
 
         commentJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -393,7 +393,7 @@ public final class PublishContainerAvatar extends Avatar implements
         fillerJLabel.setPreferredSize(new java.awt.Dimension(3, 14));
 
         publishJButton.setFont(Fonts.DialogButtonFont);
-        publishJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("PublishContainerDialog.publishJButton"));
+        publishJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.Publish"));
         publishJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 publishJButtonActionPerformed(evt);
@@ -401,7 +401,7 @@ public final class PublishContainerAvatar extends Avatar implements
         });
 
         cancelJButton.setFont(Fonts.DialogButtonFont);
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("PublishContainerDialog.Cancel"));
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelJButtonActionPerformed(evt);
@@ -420,7 +420,7 @@ public final class PublishContainerAvatar extends Avatar implements
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(cancelJButton))
                     .add(buttonBarJPanelLayout.createSequentialGroup()
-                        .add(fillerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+                        .add(fillerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
                         .add(71, 71, 71))))
         );
         buttonBarJPanelLayout.setVerticalGroup(

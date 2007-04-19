@@ -69,13 +69,11 @@ public class DisplayInfoPanel extends SystemPanel {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
-        javax.swing.JLabel versionJLabel;
 
         final javax.swing.JButton closeJButton = new javax.swing.JButton();
         final javax.swing.JLabel logoJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel thinkParityJLabel = LabelFactory.create("", Fonts.DialogFontBold);
         final javax.swing.JLabel copyrightJLabel = LabelFactory.create("", Fonts.DialogFont);
-        versionJLabel = LabelFactory.create("", Fonts.DialogFontBold);
         webPageJPanel = new javax.swing.JPanel();
         fillWestJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel webPageJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
@@ -90,16 +88,16 @@ public class DisplayInfoPanel extends SystemPanel {
         closeJButton.setMinimumSize(new java.awt.Dimension(14, 14));
         closeJButton.setPreferredSize(new java.awt.Dimension(14, 14));
         closeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                closeJButtonMouseEntered(e);
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                closeJButtonMouseEntered(evt);
             }
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                closeJButtonMouseExited(e);
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                closeJButtonMouseExited(evt);
             }
         });
         closeJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                closeJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeJButtonActionPerformed(evt);
             }
         });
 
@@ -108,13 +106,10 @@ public class DisplayInfoPanel extends SystemPanel {
         logoJLabel.setFocusable(false);
 
         thinkParityJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        thinkParityJLabel.setText(java.util.ResourceBundle.getBundle("localization/Application_Messages").getString("SystemApplication.DisplayInfoPanel.thinkParity"));
+        thinkParityJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SystemApplication.DisplayInfoPanel.thinkParity"));
 
         copyrightJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        copyrightJLabel.setText(java.util.ResourceBundle.getBundle("localization/Application_Messages").getString("SystemApplication.DisplayInfoPanel.Copyright"));
-
-        versionJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        versionJLabel.setText(java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("localization/Application_Messages").getString("SystemApplication.DisplayInfoPanel.Version"), systemApplication.getReleaseName()));
+        copyrightJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SystemApplication.DisplayInfoPanel.Copyright"));
 
         webPageJPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -124,8 +119,8 @@ public class DisplayInfoPanel extends SystemPanel {
         webPageJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         webPageJLabel.setText(StringUtil.removeBefore(systemApplication.getWebPage().toString(), "//"));
         webPageJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                webPageJLabelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                webPageJLabelMousePressed(evt);
             }
         });
 
@@ -146,9 +141,8 @@ public class DisplayInfoPanel extends SystemPanel {
                     .addComponent(closeJButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(logoJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
                     .addComponent(thinkParityJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
-                    .addComponent(versionJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
-                    .addComponent(webPageJPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
-                    .addComponent(copyrightJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(copyrightJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
+                    .addComponent(webPageJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -158,15 +152,13 @@ public class DisplayInfoPanel extends SystemPanel {
                 .addComponent(closeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(logoJLabel)
-                .addGap(20, 20, 20)
+                .addGap(21, 21, 21)
                 .addComponent(thinkParityJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(versionJLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(copyrightJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(webPageJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addContainerGap(30, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

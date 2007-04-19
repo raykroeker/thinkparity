@@ -7,7 +7,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import java.awt.event.MouseAdapter;
 import java.util.List;
 
-import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
+import com.thinkparity.ophelia.browser.util.localization.Localization;
 
 /**
  * @author rob_masako@shaw.ca
@@ -22,7 +22,7 @@ public class PanelCellListManager {
     private final PanelCellListModel listModel;
     
     /** The panel localization. */
-    private final MainCellL18n localization;
+    private final Localization localization;
     
     /** The number of visible rows. */
     private final int visibleRows;
@@ -62,7 +62,7 @@ public class PanelCellListManager {
      * @param listModel
      *            A <code>PanelCellListModel</code>.
      * @param localization
-     *            A <code>MainCellL18n</code>.          
+     *            A <code>Localization</code>.          
      * @param visibleRows
      *            The number of visible rows.
      * @param firstJLabel
@@ -80,7 +80,7 @@ public class PanelCellListManager {
      */
     public PanelCellListManager(
             final PanelCellListModel listModel,
-            final MainCellL18n localization,
+            final Localization localization,
             final int visibleRows,
             final javax.swing.JLabel firstJLabel,
             final javax.swing.JLabel previousJLabel,
@@ -163,7 +163,7 @@ public class PanelCellListManager {
     
     private void reloadCount() {
         if (numberPages > 1) {
-            countJLabel.setText(localization.getString("countJLabel", currentPage+1, numberPages));
+            countJLabel.setText(localization.getString("countJLabel", new Object[] {currentPage+1, numberPages}));
             countJLabel.setVisible(true);
         } else {
             countJLabel.setVisible(false);

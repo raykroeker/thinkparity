@@ -185,27 +185,27 @@ class RenameProfileAvatar extends Avatar {
         cancelJButton = ButtonFactory.create(getString("CancelButton"));
         eaJLabel = new javax.swing.JLabel();
 
-        profileNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameProfileAvatar.ProfileNameLabel"));
+        profileNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RenameProfileAvatar.ProfileNameLabel"));
 
         profileNameJTextField.setText("!Profile name value!");
 
         renameJButton.setMnemonic('R');
-        renameJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameProfileAvatar.RenameButton"));
+        renameJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RenameProfileAvatar.RenameButton"));
         renameJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                renameJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                renameJButtonActionPerformed(evt);
             }
         });
 
         cancelJButton.setMnemonic('a');
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameProfileAvatar.CancelButton"));
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RenameProfileAvatar.CancelButton"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                cancelJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelJButtonActionPerformed(evt);
             }
         });
 
-        eaJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameProfileAvatar.EmbeddedAssistance"));
+        eaJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RenameProfileAvatar.EmbeddedAssistance"));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -214,17 +214,20 @@ class RenameProfileAvatar extends Avatar {
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 298, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
-                        .add(cancelJButton)
+                        .add(renameJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(renameJButton))
+                        .add(cancelJButton))
                     .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
                         .add(profileNameJLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(profileNameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE)))
+                        .add(profileNameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)))
                 .addContainerGap())
         );
+
+        layout.linkSize(new java.awt.Component[] {cancelJButton, renameJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
@@ -234,10 +237,10 @@ class RenameProfileAvatar extends Avatar {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(profileNameJLabel)
                     .add(profileNameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 17, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(renameJButton)
-                    .add(cancelJButton))
+                    .add(cancelJButton)
+                    .add(renameJButton))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

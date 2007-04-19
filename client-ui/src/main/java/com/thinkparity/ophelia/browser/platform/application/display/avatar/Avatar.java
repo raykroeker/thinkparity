@@ -17,7 +17,10 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJPanel;
@@ -33,10 +36,8 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.platform.util.State;
-import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
-import javax.swing.JTextArea;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import com.thinkparity.ophelia.browser.util.localization.BrowserLocalization;
+import com.thinkparity.ophelia.browser.util.localization.Localization;
 
 /**
  * <b>Title:</b>thinkParity Browser Avatar<br>
@@ -55,7 +56,7 @@ public abstract class Avatar extends AbstractJPanel {
     protected Object input;
 
     /** Localization helper utility. */
-    protected final JPanelLocalization localization;
+    protected final Localization localization;
 
 	/** The thinkParity <code>PluginRegistry</code>. */
     protected final PluginRegistry pluginRegistry;
@@ -128,7 +129,7 @@ public abstract class Avatar extends AbstractJPanel {
 		super();
         this.applicationRegistry = new ApplicationRegistry();
 		this.inputErrors = new LinkedList<String>();
-        this.localization = new JPanelLocalization(l18nContext);
+        this.localization = new BrowserLocalization(l18nContext);
         this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
 	}
@@ -148,7 +149,7 @@ public abstract class Avatar extends AbstractJPanel {
 		super(background);
         this.applicationRegistry = new ApplicationRegistry();
 		this.inputErrors = new LinkedList<String>();
-        this.localization = new JPanelLocalization(l18nContext);
+        this.localization = new BrowserLocalization(l18nContext);
         this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
 	}
@@ -417,10 +418,9 @@ public abstract class Avatar extends AbstractJPanel {
 	/**
      * Obtain the avatar's localization.
      * 
-     * @return A <code>JPanelLocalization</code>.
+     * @return A <code>Localization</code>.
      */
-    // NOTE This should return be a more generic interface.
-    protected final JPanelLocalization getLocalization() {
+    protected final Localization getLocalization() {
         return localization;
     }
 
@@ -462,7 +462,7 @@ public abstract class Avatar extends AbstractJPanel {
     }
     
     /**
-     * @see JPanelLocalization#getString(String)
+     * @see Localization#getString(String)
      * 
      */
     protected String getString(final String localKey) {
@@ -481,7 +481,7 @@ public abstract class Avatar extends AbstractJPanel {
     }
 
     /**
-     * @see JPanelLocalization#getString(String, Object[])
+     * @see Localization#getString(String, Object[])
      * 
      */
     protected String getString(final String localKey, final Object[] arguments) {

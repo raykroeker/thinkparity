@@ -31,7 +31,7 @@ public class UserInfoAvatar extends Avatar {
 
     /** Creates new form UserInfoAvatar */
     public UserInfoAvatar() {
-        super("UserInfoDialog", BrowserConstants.DIALOGUE_BACKGROUND);
+        super("UserInfoAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
     }
 
@@ -117,7 +117,7 @@ public class UserInfoAvatar extends Avatar {
         final javax.swing.JLabel companyJLabel = new javax.swing.JLabel();
 
         closeJButton.setFont(Fonts.DialogButtonFont);
-        closeJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UserInfoDialog.Close"));
+        closeJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Close"));
         closeJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 closeJButtonActionPerformed(evt);
@@ -125,7 +125,7 @@ public class UserInfoAvatar extends Avatar {
         });
 
         nameJLabel.setFont(Fonts.DialogFont);
-        nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UserInfoDialog.Name"));
+        nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Name"));
 
         nameJTextField.setEditable(false);
         nameJTextField.setFont(Fonts.DialogTextEntryFont);
@@ -133,7 +133,7 @@ public class UserInfoAvatar extends Avatar {
         nameJTextField.setOpaque(false);
 
         titleJLabel.setFont(Fonts.DialogFont);
-        titleJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UserInfoDialog.TitleLabel"));
+        titleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.TitleLabel"));
 
         titleJTextField.setEditable(false);
         titleJTextField.setFont(Fonts.DialogTextEntryFont);
@@ -141,14 +141,14 @@ public class UserInfoAvatar extends Avatar {
         titleJTextField.setOpaque(false);
 
         companyJLabel.setFont(Fonts.DialogFont);
-        companyJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UserInfoDialog.Company"));
+        companyJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Company"));
 
         companyJTextField.setEditable(false);
         companyJTextField.setFont(Fonts.DialogTextEntryFont);
         companyJTextField.setFocusable(false);
         companyJTextField.setOpaque(false);
 
-        inviteJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("UserInfoDialog.Invite"));
+        inviteJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Invite"));
         inviteJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 inviteJLabelMousePressed(evt);

@@ -168,23 +168,23 @@ class CreateProfileAvatar extends Avatar {
         createJButton = ButtonFactory.create(getString("CreateButton"));
         cancelJButton = ButtonFactory.create(getString("CancelButton"));
 
-        eaJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("CreateProfileAvatar.EmbeddedAssistance"));
+        eaJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("CreateProfileAvatar.EmbeddedAssistance"));
 
-        profileNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("CreateProfileAvatar.ProfileNameLabel"));
+        profileNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("CreateProfileAvatar.ProfileNameLabel"));
 
         createJButton.setMnemonic('C');
-        createJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("CreateProfileAvatar.CreateButton"));
+        createJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("CreateProfileAvatar.CreateButton"));
         createJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                createJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                createJButtonActionPerformed(evt);
             }
         });
 
         cancelJButton.setMnemonic('a');
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("CreateProfileAvatar.CancelButton"));
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("CreateProfileAvatar.CancelButton"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                cancelJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelJButtonActionPerformed(evt);
             }
         });
 
@@ -195,17 +195,20 @@ class CreateProfileAvatar extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE)
+                    .add(eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(profileNameJLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(profileNameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE))
+                        .add(profileNameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 287, Short.MAX_VALUE))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(cancelJButton)
+                        .add(createJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(createJButton)))
+                        .add(cancelJButton)))
                 .addContainerGap())
         );
+
+        layout.linkSize(new java.awt.Component[] {cancelJButton, createJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
@@ -215,10 +218,10 @@ class CreateProfileAvatar extends Avatar {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(profileNameJLabel)
                     .add(profileNameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 18, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(createJButton)
-                    .add(cancelJButton))
+                    .add(cancelJButton)
+                    .add(createJButton))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

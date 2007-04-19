@@ -125,7 +125,6 @@ public class BrowserWindow extends AbstractJFrame {
             }});
         initMenu(maximized);       
 		setIconImage(com.thinkparity.ophelia.browser.Constants.Images.WINDOW_ICON_IMAGE);
-		setTitle(java.util.ResourceBundle.getBundle("localization/JFrame_Messages").getString("BrowserWindow.Title"));
 		setUndecorated(true);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         final Point location = persistence.get("location", getMainWindowLocation());      

@@ -106,7 +106,7 @@ public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
 
         setOpaque(false);
         titleJLabel.setFont(Fonts.DialogFont);
-        titleJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.LicenseAgreement.Title"));
+        titleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.LicenseAgreement.Title"));
 
         licenseAgreementJTextArea.setColumns(20);
         licenseAgreementJTextArea.setEditable(false);
@@ -118,7 +118,7 @@ public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
 
         acceptOrDeclineButtonGroup.add(acceptJRadioButton);
         acceptJRadioButton.setFont(Fonts.DialogFont);
-        acceptJRadioButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.LicenseAgreement.AcceptLicenseAgreement"));
+        acceptJRadioButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.LicenseAgreement.AcceptLicenseAgreement"));
         acceptJRadioButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         acceptJRadioButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         acceptJRadioButton.setOpaque(false);
@@ -130,7 +130,7 @@ public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
 
         acceptOrDeclineButtonGroup.add(declineJRadioButton);
         declineJRadioButton.setFont(Fonts.DialogFont);
-        declineJRadioButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.LicenseAgreement.DeclineLicenseAgreement"));
+        declineJRadioButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.LicenseAgreement.DeclineLicenseAgreement"));
         declineJRadioButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         declineJRadioButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         declineJRadioButton.setOpaque(false);

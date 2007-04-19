@@ -5,8 +5,6 @@ package com.thinkparity.ophelia.browser.util.localization;
 
 import java.util.ResourceBundle;
 
-import com.thinkparity.codebase.model.artifact.ArtifactType;
-
 import com.thinkparity.ophelia.browser.platform.plugin.PluginExtension;
 
 
@@ -24,7 +22,7 @@ public class ActionLocalization {
 
 	static {
 		RESOURCE_BUNDLE =
-			ResourceBundleManager.getBundle(ResourceBundleType.ACTION);
+			ResourceBundleManager.getBundle(L18nResource.ACTION);
 	}
 
 	/**
@@ -55,17 +53,6 @@ public class ActionLocalization {
         this.bundleHelper = new ResourceBundleHelper(
                 extension.getLocalization(), extension.getLocalizationContext());
     }
-
-	/**
-	 * Obtain the localised string for an artifact type.
-	 * 
-	 * @param artifactType
-	 *            The parity artifact type.
-	 * @return The localised text.
-	 */
-	public String getString(final ArtifactType artifactType) {
-		return getString(artifactType.toString());
-	}
 
 	/**
 	 * Obtain a localised string.

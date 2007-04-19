@@ -37,7 +37,7 @@ public class RenameDocumentAvatar extends Avatar {
 
     /** Creates new form RenameDocumentAvatar */
     public RenameDocumentAvatar() {
-        super("RenameDocumentDialog", BrowserConstants.DIALOGUE_BACKGROUND);
+        super("RenameDocumentAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
         initDocumentHandler();
         bindEscapeKey();
@@ -241,7 +241,7 @@ public class RenameDocumentAvatar extends Avatar {
         final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
         nameJLabel.setFont(Fonts.DialogFont);
-        nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameDocumentDialog.Name"));
+        nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RenameDocumentAvatar.Name"));
 
         nameJTextField.setFont(Fonts.DialogTextEntryFont);
         nameJTextField.addActionListener(new java.awt.event.ActionListener() {
@@ -252,11 +252,11 @@ public class RenameDocumentAvatar extends Avatar {
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
-        errorMessageJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameDocumentDialog.ErrorNotUnique"));
+        errorMessageJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RenameDocumentAvatar.ErrorNotUnique"));
         errorMessageJLabel.setPreferredSize(new java.awt.Dimension(32, 14));
 
         okJButton.setFont(Fonts.DialogButtonFont);
-        okJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameDocumentDialog.OK"));
+        okJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RenameDocumentAvatar.OK"));
         okJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 okJButtonActionPerformed(evt);
@@ -264,7 +264,7 @@ public class RenameDocumentAvatar extends Avatar {
         });
 
         cancelJButton.setFont(Fonts.DialogButtonFont);
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameDocumentDialog.Cancel"));
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RenameDocumentAvatar.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelJButtonActionPerformed(evt);

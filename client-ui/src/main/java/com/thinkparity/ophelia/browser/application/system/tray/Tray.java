@@ -34,9 +34,6 @@ public final class Tray {
     /** A menu builder for the system tray application. */
     private final TrayMenuBuilder menuBuilder;
 
-    /** The local user's profile. */
-    private final Profile profile;
-
     /** The system application. */
 	private final SystemApplication systemApplication;
 
@@ -56,7 +53,6 @@ public final class Tray {
 		super();
         this.logger = new Log4JWrapper(getClass());
         this.menuBuilder = new TrayMenuBuilder(systemApplication);
-        this.profile = profile;
 		this.isInstalled = Boolean.FALSE;
 		this.systemApplication = systemApplication;
 	}
@@ -146,11 +142,9 @@ public final class Tray {
     private StringBuffer createCaption() {
         switch(systemApplication.getConnection()) {
         case OFFLINE:
-            return new StringBuffer(getString("OFFLINE",
-                    new Object[] { profile.getName() }));
+            return new StringBuffer(getString("OFFLINE"));
         case ONLINE:
-            return new StringBuffer(getString("ONLINE",
-                    new Object[] { profile.getName() }));
+            return new StringBuffer(getString("ONLINE"));
         default:
             throw Assert.createUnreachable("[UNKNOWN CONNECTION]");
         }
@@ -161,12 +155,10 @@ public final class Tray {
      * 
      * @param key
      *            A local key.
-     * @param argument
-     *            A formatting argument.
      * @return A localized string.
      */
-    private String getString(final String key, final Object[] arguments) {
-        return systemApplication.getString(key, arguments);
+    private String getString(final String key) {
+        return systemApplication.getString(key);
     }
 
     /**

@@ -152,23 +152,23 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
 
         setOpaque(false);
         titleJLabel.setFont(Fonts.DialogFont);
-        titleJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.PaymentInfo.Title"));
+        titleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.PaymentInfo.Title"));
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
         errorMessageJLabel.setText("!Error Message!");
 
         cardTypeJLabel.setFont(Fonts.DialogFont);
-        cardTypeJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.PaymentInfo.CardType"));
+        cardTypeJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.PaymentInfo.CardType"));
 
         cardNumberJLabel.setFont(Fonts.DialogFont);
-        cardNumberJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.PaymentInfo.CardNumber"));
+        cardNumberJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.PaymentInfo.CardNumber"));
 
         cardNameJLabel.setFont(Fonts.DialogFont);
-        cardNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.PaymentInfo.CardName"));
+        cardNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.PaymentInfo.CardName"));
 
         expiryDateJLabel.setFont(Fonts.DialogFont);
-        expiryDateJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.PaymentInfo.CardDate"));
+        expiryDateJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.PaymentInfo.CardDate"));
 
         cardTypeJComboBox.setFont(Fonts.DialogTextEntryFont);
         cardTypeJComboBox.setModel(cardTypeModel);

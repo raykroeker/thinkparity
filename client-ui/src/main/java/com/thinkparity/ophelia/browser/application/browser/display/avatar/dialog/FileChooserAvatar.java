@@ -29,7 +29,7 @@ public class FileChooserAvatar extends Avatar {
 
     /** Creates new form FileChooserAvatar */
     public FileChooserAvatar() {
-        super("FileChooserDialog", BrowserConstants.DIALOGUE_BACKGROUND);
+        super("FileChooserAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         bindEscapeKey("Cancel", new AbstractAction() {
             public void actionPerformed(final ActionEvent e) {
                 disposeWindow();

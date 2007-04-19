@@ -34,7 +34,8 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
-import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
+import com.thinkparity.ophelia.browser.util.localization.BrowserLocalization;
+import com.thinkparity.ophelia.browser.util.localization.Localization;
 
 /**
  * <b>Title:</b><br>
@@ -94,7 +95,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     private final GridBagConstraints innerJPanelConstraints;
     
     /** The panel localization. */
-    private final MainCellL18n localization;
+    private final Localization localization;
     
     /** A contact <code>OutgoingEMailInvitation</code>. */
     private OutgoingEMailInvitation outgoingEMail;
@@ -119,7 +120,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         this.innerJPanelConstraints = new GridBagConstraints();
         this.innerJPanelConstraints.fill = GridBagConstraints.BOTH;
         this.innerJPanelConstraints.weightx = this.innerJPanelConstraints.weighty = 1.0F;
-        this.localization = new MainCellL18n("ContactTabPanel");
+        this.localization = new BrowserLocalization("ContactTabPanel");
         initComponents();
     }
 
@@ -965,7 +966,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         expandedDataLabelsJPanel.setLayout(new java.awt.GridBagLayout());
 
         expandedDataLabelsJPanel.setOpaque(false);
-        contactEMailJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.emailJLabel"));
+        contactEMailJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContactTabPanel.emailJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -974,7 +975,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(8, 51, 0, 0);
         expandedDataLabelsJPanel.add(contactEMailJLabel, gridBagConstraints);
 
-        contactAddressJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.addressJLabel"));
+        contactAddressJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContactTabPanel.addressJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -982,7 +983,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(10, 51, 0, 0);
         expandedDataLabelsJPanel.add(contactAddressJLabel, gridBagConstraints);
 
-        contactPhoneJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.phoneJLabel"));
+        contactPhoneJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContactTabPanel.phoneJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
@@ -990,7 +991,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(34, 51, 0, 0);
         expandedDataLabelsJPanel.add(contactPhoneJLabel, gridBagConstraints);
 
-        contactMobilePhoneJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.mobilePhoneJLabel"));
+        contactMobilePhoneJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContactTabPanel.mobilePhoneJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;

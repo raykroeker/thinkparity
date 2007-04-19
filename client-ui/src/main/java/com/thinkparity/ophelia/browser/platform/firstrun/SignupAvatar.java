@@ -170,7 +170,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
         );
 
         prevJButton.setFont(Fonts.DialogButtonFont);
-        prevJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.PrevButton"));
+        prevJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.PrevButton"));
         prevJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 prevJButtonActionPerformed(evt);
@@ -178,7 +178,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
         });
 
         nextJButton.setFont(Fonts.DialogButtonFont);
-        nextJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.NextButton"));
+        nextJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.NextButton"));
         nextJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 nextJButtonActionPerformed(evt);
@@ -186,7 +186,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
         });
 
         cancelJButton.setFont(Fonts.DialogButtonFont);
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("SignupAvatar.CancelButton"));
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.CancelButton"));
         cancelJButton.setPreferredSize(new java.awt.Dimension(69, 23));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

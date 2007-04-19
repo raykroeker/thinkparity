@@ -13,7 +13,6 @@ import java.util.Set;
 import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.l10n.L18nContext;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -41,7 +40,8 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtensio
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-import com.thinkparity.ophelia.browser.util.localization.ApplicationL18n;
+import com.thinkparity.ophelia.browser.util.localization.BrowserLocalization;
+import com.thinkparity.ophelia.browser.util.localization.Localization;
 
 /**
  * @author raykroeker@gmail.com
@@ -72,7 +72,7 @@ public abstract class AbstractApplication implements Application {
 	}
 
     /** Application localization. */
-	protected final L18n l18n;
+	protected final Localization localization;
 
 	/** An apache logger. */
 	protected final Log4JWrapper logger;
@@ -106,7 +106,7 @@ public abstract class AbstractApplication implements Application {
 			final L18nContext l18nContext) {
 		super();
 		this.avatarRegistry = new AvatarRegistry();
-		this.l18n = new ApplicationL18n(l18nContext);
+		this.localization = new BrowserLocalization(l18nContext);
 		this.logger = new Log4JWrapper();
 		this.persistence = PersistenceFactory.getPersistence(getClass());
 		this.platform = platform;
@@ -398,11 +398,11 @@ public abstract class AbstractApplication implements Application {
     }
 
     protected String getString(final String localKey) {
-		return l18n.getString(localKey);
+		return localization.getString(localKey);
 	}
 
     protected String getString(final String localKey, final Object[] arguments) {
-		return l18n.getString(localKey, arguments);
+		return localization.getString(localKey, arguments);
 	}
 
     /** Log an api id. */

@@ -13,7 +13,7 @@ import javax.swing.event.ListDataListener;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
-import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
+import com.thinkparity.ophelia.browser.util.localization.Localization;
 
 /**
  * @author rob_masako@shaw.ca
@@ -55,7 +55,7 @@ public class PanelCellListModel {
      * @param listKey
      *            A list key <code>String</code>.         
      * @param localization
-     *            A <code>MainCellL18n</code>.          
+     *            A <code>Localization</code>.          
      * @param visibleRows
      *            The number of visible rows.
      * @param firstJLabel
@@ -72,7 +72,7 @@ public class PanelCellListModel {
     public PanelCellListModel(
         final DefaultTabPanel tabPanel,
         final String listKey,
-        final MainCellL18n localization,
+        final Localization localization,
         final int visibleRows,
         final javax.swing.JLabel firstJLabel,
         final javax.swing.JLabel previousJLabel,

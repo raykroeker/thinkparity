@@ -30,7 +30,7 @@ public class RenameContainerAvatar extends Avatar {
 
     /** Creates new form RenameContainerAvatar */
     public RenameContainerAvatar() {
-        super("RenameContainerDialog", BrowserConstants.DIALOGUE_BACKGROUND);
+        super("RenameContainerAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
         initDocumentHandler();
         bindEscapeKey();
@@ -145,7 +145,7 @@ public class RenameContainerAvatar extends Avatar {
         final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
         nameJLabel.setFont(Fonts.DialogFont);
-        nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameContainerDialog.Name"));
+        nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RenameContainerAvatar.Name"));
 
         nameJTextField.setFont(Fonts.DialogTextEntryFont);
         nameJTextField.addActionListener(new java.awt.event.ActionListener() {
@@ -155,7 +155,7 @@ public class RenameContainerAvatar extends Avatar {
         });
 
         okJButton.setFont(Fonts.DialogButtonFont);
-        okJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameContainerDialog.OK"));
+        okJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RenameContainerAvatar.OK"));
         okJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 okJButtonActionPerformed(evt);
@@ -163,7 +163,7 @@ public class RenameContainerAvatar extends Avatar {
         });
 
         cancelJButton.setFont(Fonts.DialogButtonFont);
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("RenameContainerDialog.Cancel"));
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RenameContainerAvatar.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelJButtonActionPerformed(evt);

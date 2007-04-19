@@ -343,53 +343,53 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         filler2JLabel = new javax.swing.JLabel();
 
         usernameJLabel.setFont(Fonts.DialogFont);
-        usernameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.UsernameLabel"));
+        usernameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("LoginAvatar.UsernameLabel"));
 
         usernameJTextField.setFont(Fonts.DialogTextEntryFont);
         usernameJTextField.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent e) {
-                usernameJTextFieldFocusLost(e);
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                usernameJTextFieldFocusLost(evt);
             }
         });
 
         passwordJLabel.setFont(Fonts.DialogFont);
-        passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.PasswordLabel"));
+        passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("LoginAvatar.PasswordLabel"));
 
         passwordJPasswordField.setFont(usernameJTextField.getFont());
 
         buttonBarJPanel.setOpaque(false);
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
-        errorMessageJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.ErrorBadCredentials"));
+        errorMessageJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("LoginAvatar.ErrorBadCredentials"));
         errorMessageJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        signUpJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.SignUp"));
+        signUpJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("LoginAvatar.SignUp"));
         signUpJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                signUpJLabelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                signUpJLabelMousePressed(evt);
             }
         });
 
-        forgotPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.ForgotPassword"));
+        forgotPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("LoginAvatar.ForgotPassword"));
         forgotPasswordJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                forgotPasswordJLabelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                forgotPasswordJLabelMousePressed(evt);
             }
         });
 
         nextJButton.setFont(Fonts.DialogButtonFont);
-        nextJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.LoginButton"));
+        nextJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("LoginAvatar.LoginButton"));
         nextJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                nextJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nextJButtonActionPerformed(evt);
             }
         });
 
         cancelJButton.setFont(Fonts.DialogButtonFont);
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.CancelButton"));
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("LoginAvatar.CancelButton"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                cancelJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelJButtonActionPerformed(evt);
             }
         });
 
@@ -403,7 +403,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
             buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonBarJPanelLayout.createSequentialGroup()
                 .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, errorMessageJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 325, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
                     .add(buttonBarJPanelLayout.createSequentialGroup()
                         .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(forgotPasswordJLabel)
@@ -413,7 +413,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
                                 .add(filler1JLabel)))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(filler2JLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 129, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 181, Short.MAX_VALUE)
                         .add(nextJButton)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(cancelJButton))
@@ -571,7 +571,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
 
     private void reloadError(final Boolean validCredentials) {
         if (!validCredentials) {
-            errorMessageJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.ErrorBadCredentials"));
+            errorMessageJLabel.setText(getString("ErrorBadCredentials"));
             nextJButton.setEnabled(Boolean.FALSE);
         } else {
             validateInput();

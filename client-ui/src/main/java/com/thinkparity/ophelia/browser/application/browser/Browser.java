@@ -389,7 +389,7 @@ public class Browser extends AbstractApplication {
             final Object[] errorMessageArguments,
             final Throwable error) {
         if ((null != error) && (getPlatform().isDevelopmentMode() || getPlatform().isTestingMode())) {
-            displayErrorDetailsDialog(errorMessageKey, errorMessageArguments, error);
+            displayErrorDetailsDialog(null, null, error);
         } else {        
             final Data input = new Data(3);
             if (null != errorMessageKey)

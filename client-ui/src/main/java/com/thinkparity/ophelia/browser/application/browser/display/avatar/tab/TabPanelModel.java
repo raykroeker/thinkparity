@@ -24,7 +24,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
+import com.thinkparity.ophelia.browser.util.localization.Localization;
 
 /**
  * <b>Title:</b>thinkParity Tab Panel Model<br>
@@ -47,8 +47,8 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     /** The swing list model. */
     protected final DefaultListModel listModel;
 
-    /** A <code>JPanelLocalization</code>. */
-    protected JPanelLocalization localization;
+    /** A <code>Localization</code>. */
+    protected Localization localization;
 
     /** An apache logger wrapper. */
     protected final Log4JWrapper logger;
@@ -217,9 +217,9 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      * Set localization.
      *
      * @param localization
-     *      A JPanelLocalization.
+     *      A Localization.
      */
-    public void setLocalization(final JPanelLocalization localization) {
+    public void setLocalization(final Localization localization) {
         this.localization = localization;
     }
     

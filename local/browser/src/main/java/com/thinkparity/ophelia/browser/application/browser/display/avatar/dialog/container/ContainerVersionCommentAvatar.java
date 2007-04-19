@@ -28,7 +28,7 @@ public class ContainerVersionCommentAvatar extends Avatar {
 
     /** Creates new form ContainerVersionCommentAvatar */
     public ContainerVersionCommentAvatar() {
-        super("ContainerVersionCommentDialog", BrowserConstants.DIALOGUE_BACKGROUND);
+        super("ContainerVersionCommentAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
     }
 
@@ -89,7 +89,7 @@ public class ContainerVersionCommentAvatar extends Avatar {
         final javax.swing.JScrollPane commentJScrollPane = new javax.swing.JScrollPane();
 
         okJButton.setFont(Fonts.DialogButtonFont);
-        okJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ContainerVersionCommentDialog.Ok"));
+        okJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerVersionCommentAvatar.Ok"));
         okJButton.setMaximumSize(new java.awt.Dimension(65, 23));
         okJButton.setMinimumSize(new java.awt.Dimension(65, 23));
         okJButton.setPreferredSize(new java.awt.Dimension(65, 23));

@@ -39,7 +39,7 @@ public final class ConfirmAvatar extends Avatar {
      *
      */
     public ConfirmAvatar() {
-        super("ConfirmDialog", BrowserConstants.DIALOGUE_BACKGROUND);
+        super("ConfirmAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         bindEscapeKey("Cancel", new AbstractAction() {
             public void actionPerformed(final ActionEvent e) {
                 disposeWindow();
@@ -160,7 +160,7 @@ public final class ConfirmAvatar extends Avatar {
         confirmMessageJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         confirmJButton.setFont(Fonts.DialogButtonFont);
-        confirmJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ConfirmDialog.Confirm"));
+        confirmJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ConfirmAvatar.Confirm"));
         confirmJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 confirmJButtonActionPerformed(evt);
@@ -168,7 +168,7 @@ public final class ConfirmAvatar extends Avatar {
         });
 
         denyJButton.setFont(Fonts.DialogButtonFont);
-        denyJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ConfirmDialog.Deny"));
+        denyJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ConfirmAvatar.Deny"));
         denyJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 denyJButtonActionPerformed(evt);

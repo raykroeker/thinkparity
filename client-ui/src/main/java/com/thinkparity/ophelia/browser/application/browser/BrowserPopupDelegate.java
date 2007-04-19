@@ -56,12 +56,11 @@ public class BrowserPopupDelegate extends DefaultPopupDelegate {
     }
 
     /**
-     * Determine whether or not the user is online.
+     * Determine whether or not the platform is online.
      * 
-     * @return True if the user is online.
+     * @return True if the platform is online.
      */
     public Boolean isOnline() {
-        // TODO A better way?
-        return BrowserPlatform.getInstance().getModelFactory().getSessionModel(getClass()).isLoggedIn();
+        return BrowserPlatform.getInstance().isOnline();
     }
 }

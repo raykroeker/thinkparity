@@ -18,7 +18,8 @@ import com.thinkparity.ophelia.browser.Constants;
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowId;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.browser.util.localization.JFrameLocalization;
+import com.thinkparity.ophelia.browser.util.localization.BrowserLocalization;
+import com.thinkparity.ophelia.browser.util.localization.Localization;
 import com.thinkparity.ophelia.browser.util.window.WindowUtil;
 import com.thinkparity.ophelia.browser.util.window.WindowUtilProvider;
 
@@ -39,7 +40,7 @@ public abstract class Window extends AbstractJDialog {
     }
 
 	/** Resource bundle based localziation. */
-    protected final JFrameLocalization localization;
+    protected final Localization localization;
     
     /** The panel onto which all displays are dropped. */
 	protected WindowPanel windowPanel;
@@ -69,9 +70,8 @@ public abstract class Window extends AbstractJDialog {
             final Boolean titleText, final String l18nContext) {
         super(owner, modal, l18nContext);
         this.titleText = titleText;
-        this.localization = new JFrameLocalization(l18nContext);
+        this.localization = new BrowserLocalization(l18nContext);
         this.windowSize = new WindowSize();
-        setTitle(getString("Title"));
         setUndecorated(true);
     }
 
@@ -169,21 +169,21 @@ public abstract class Window extends AbstractJDialog {
     protected void disposeWindow() { dispose(); }
 
     /**
-     * @see JFrameLocalization#getString(String)
+     * @see BrowserLocalization#getString(String)
      * 
      */
     protected String getString(final String localKey) {
     	return localization.getString(localKey);
     }
-    
+
     /**
-     * @see JFrameLocalization#getString(String, Object[])
+     * @see BrowserLocalization#getString(String, Object[])
      * 
      */
     protected String getString(final String localKey, final Object[] arguments) {
     	return localization.getString(localKey, arguments);
     }
-        
+  
     /**
      * Initialize the swing components on the window.
      * 

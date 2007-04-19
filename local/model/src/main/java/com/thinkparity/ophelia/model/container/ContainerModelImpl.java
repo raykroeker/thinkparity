@@ -807,10 +807,10 @@ public final class ContainerModelImpl extends
             final Container postPublish = read(container.getId());
             final ContainerVersion postPublishVersion = readVersion(
                     container.getId(), version.getVersionId());
-            // HACK - should be done be the client however cannot at this point
+            // HACK - should be done by the client however cannot at this point
             if (!didExist)
                 notifyContainerPublished(postPublish, draft, previous,
-                        postPublishVersion, publishedBy, remoteEventGenerator);
+                        postPublishVersion, next, publishedBy, remoteEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1066,8 +1066,9 @@ public final class ContainerModelImpl extends
                 final ContainerVersion postPublishVersion = readVersion(
                         version.getArtifactId(), version.getVersionId());
                 notifyContainerPublished(postPublish, draft, previous,
-                        postPublishVersion, localTeamMember(container.getId()),
-                        invitations, localEventGenerator);
+                        postPublishVersion, null,
+                        localTeamMember(container.getId()), invitations,
+                        localEventGenerator);
             } finally {
                 releaseLocks(locks.values());
             }
@@ -1148,8 +1149,8 @@ public final class ContainerModelImpl extends
                 readVersion(containerId, versionId);
             notifyContainerPublished(postPublish, null,
                     readPreviousVersion(containerId, versionId),
-                    postPublishVersion, localTeamMember(containerId),
-                    localEventGenerator);
+                    postPublishVersion, readNextVersion(containerId, versionId),
+                    localTeamMember(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         } finally {
@@ -1486,19 +1487,12 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Read the next container version sequentially.
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#readNextVersion(java.lang.Long,
+     *      java.lang.Long)
      * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A container version id <code>Long</code>.
-     * @return A <code>ContainerVersion</code>.
      */
     public ContainerVersion readNextVersion(final Long containerId,
             final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
         try {
             final Long nextVersionId =
                 artifactIO.readNextVersionId(containerId, versionId);
@@ -2994,12 +2988,13 @@ public final class ContainerModelImpl extends
      */
     private void notifyContainerPublished(final Container container,
             final ContainerDraft draft, final ContainerVersion previousVersion,
-            final ContainerVersion version, final TeamMember teamMember,
+            final ContainerVersion version, final ContainerVersion nextVersion,
+            final TeamMember teamMember,
             final ContainerEventGenerator eventGenerator) {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
                 listener.containerPublished(eventGenerator.generate(container,
-                        draft, previousVersion, version, teamMember));
+                        draft, previousVersion, version, nextVersion, teamMember));
             }
         });
     }
@@ -3018,13 +3013,14 @@ public final class ContainerModelImpl extends
      */
     private void notifyContainerPublished(final Container container,
             final ContainerDraft draft, final ContainerVersion previousVersion,
-            final ContainerVersion version, final TeamMember teamMember,
+            final ContainerVersion version, final ContainerVersion nextVersion,
+            final TeamMember teamMember,
             final List<OutgoingEMailInvitation> outgoingEMailInvitations,
             final ContainerEventGenerator eventGenerator) {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
                 listener.containerPublished(eventGenerator.generate(container,
-                        draft, previousVersion, version, teamMember,
+                        draft, previousVersion, version, nextVersion, teamMember,
                         outgoingEMailInvitations));
             }
         });

@@ -35,6 +35,9 @@ public class ContainerEvent {
     /** A draft. */
     private final ContainerDraft draft;
 
+    /** The next <code>ContainerVersion</code>. */
+    private final ContainerVersion nextVersion;
+
     /** An <code>OutgoingEMailInvitation</code>. */
     private final List<OutgoingEMailInvitation> outgoingEMailInvitations;
 
@@ -59,7 +62,7 @@ public class ContainerEvent {
      *            The container.
      */
     public ContainerEvent(final Source source, final Container container) {
-        this(source, container, null, null, null, null, null,
+        this(source, container, null, null, null, null, null, null,
                 EMPTY_OUTGOING_EMAIL_INVITATIONS);
     }
 
@@ -75,7 +78,7 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container,
             final ContainerDraft draft) {
-        this(source, container, draft, null, null, null, null,
+        this(source, container, draft, null, null, null, null, null,
                 EMPTY_OUTGOING_EMAIL_INVITATIONS);
     }
 
@@ -93,9 +96,10 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container,
             final ContainerDraft draft, final ContainerVersion previousVersion,
-            final ContainerVersion version, final TeamMember teamMember) {
-        this(source, container, draft, previousVersion, version, teamMember,
-                EMPTY_OUTGOING_EMAIL_INVITATIONS);
+            final ContainerVersion version, final ContainerVersion nextVersion,
+            final TeamMember teamMember) {
+        this(source, container, draft, previousVersion, version, nextVersion,
+                teamMember, EMPTY_OUTGOING_EMAIL_INVITATIONS);
     }
 
     /**
@@ -112,10 +116,11 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container,
             final ContainerDraft draft, final ContainerVersion previousVersion,
-            final ContainerVersion version, final TeamMember teamMember,
+            final ContainerVersion version, final ContainerVersion nextVersion,
+            final TeamMember teamMember,
             final List<OutgoingEMailInvitation> outgoingEMailInvitations) {
-        this(source, container, draft, previousVersion, version, teamMember,
-                null, outgoingEMailInvitations);
+        this(source, container, draft, previousVersion, version, nextVersion,
+                teamMember, null, outgoingEMailInvitations);
     }
 
     /**
@@ -132,7 +137,7 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container,
             final ContainerDraft draft, final Document document) {
-        this(source, container, draft, null, null, null, document,
+        this(source, container, draft, null, null, null, null, document,
                 EMPTY_OUTGOING_EMAIL_INVITATIONS);
     }
 
@@ -164,7 +169,7 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container,
             final TeamMember teamMember) {
-        this(source, container, null, null, null, teamMember, null,
+        this(source, container, null, null, null, null, teamMember, null,
                 EMPTY_OUTGOING_EMAIL_INVITATIONS);
     }
 
@@ -182,7 +187,7 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container,
             final TeamMember teamMember, final ContainerVersion version) {
-        this(source, container, null, null, version, teamMember, null,
+        this(source, container, null, null, version, null, teamMember, null,
                 EMPTY_OUTGOING_EMAIL_INVITATIONS);
     }
 
@@ -217,18 +222,19 @@ public class ContainerEvent {
      */
     private ContainerEvent(final Source source, final Container container,
             final ContainerDraft draft, final ContainerVersion previousVersion,
-            final ContainerVersion version, final TeamMember teamMember,
-            final Document document,
+            final ContainerVersion version, final ContainerVersion nextVersion,
+            final TeamMember teamMember, final Document document,
             final List<OutgoingEMailInvitation> outgoingEMailInvitations) {
         super();
         this.source = source;
         this.container = container;
         this.draft = draft;
         this.document = document;
+        this.nextVersion = nextVersion;
+        this.outgoingEMailInvitations = outgoingEMailInvitations;
         this.previousVersion = previousVersion;
         this.teamMember = teamMember;
         this.version = version;
-        this.outgoingEMailInvitations = outgoingEMailInvitations;
     }
 
     /**
@@ -251,6 +257,15 @@ public class ContainerEvent {
      * @return The draft.
      */
     public ContainerDraft getDraft() { return draft; }
+
+    /**
+     * Obtain next container version.
+     * 
+     * @return A <code>ContainerVersion</code>.
+     */
+    public ContainerVersion getNextVersion() {
+        return nextVersion;
+    }
 
     /**
      * Obtain outgoingEMailInvitation.

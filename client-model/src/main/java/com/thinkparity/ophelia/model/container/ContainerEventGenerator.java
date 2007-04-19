@@ -72,9 +72,10 @@ class ContainerEventGenerator {
      */
     ContainerEvent generate(final Container container,
             final ContainerDraft draft, final ContainerVersion previousVersion,
-            final ContainerVersion version, final TeamMember teamMember) {
+            final ContainerVersion version, final ContainerVersion nextVersion,
+            final TeamMember teamMember) {
         return new ContainerEvent(source, container, draft, previousVersion,
-                version, teamMember);
+                version, nextVersion, teamMember);
     }
 
     /**
@@ -90,10 +91,11 @@ class ContainerEventGenerator {
      */
     ContainerEvent generate(final Container container,
             final ContainerDraft draft, final ContainerVersion previousVersion,
-            final ContainerVersion version, final TeamMember teamMember,
+            final ContainerVersion version, final ContainerVersion nextVersion,
+            final TeamMember teamMember,
             final List<OutgoingEMailInvitation> outgoingEMailInvitations) {
         return new ContainerEvent(source, container, draft, previousVersion,
-                version, teamMember, outgoingEMailInvitations);
+                version, nextVersion, teamMember, outgoingEMailInvitations);
     }
 
     /**

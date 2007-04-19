@@ -231,7 +231,15 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
     private EMail extractEMail() {
         final String emailAddress = SwingUtil.extract(emailJTextField,
                 Boolean.TRUE);
-        return null == emailAddress ? null : EMailBuilder.parse(emailAddress);
+        if (null == emailAddress) {
+            return null;
+        } else {
+            try {
+                return EMailBuilder.parse(emailAddress);                
+            } catch (final EMailFormatException emfx) {
+                return null;
+            }
+        }
     }
 
     /**

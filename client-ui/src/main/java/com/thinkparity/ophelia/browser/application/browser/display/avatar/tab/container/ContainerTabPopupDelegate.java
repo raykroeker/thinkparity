@@ -81,6 +81,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      */
     public void showForContainer(final Container container,
             final ContainerDraft draft, final boolean expanded) {
+        final boolean online = isOnline();
         boolean needSeparator = false;
         
         if (!expanded) {
@@ -88,7 +89,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             addSeparator();
         }
 
-        if (isOnline() && isLocalDraft(draft) && isLocalDraftModified(container.getId())) {
+        if (online && isLocalDraft(draft) && isLocalDraftModified(container.getId())) {
             final Data publishData = new Data(3);
             publishData.set(Publish.DataKey.CONTAINER_ID, container.getId());
             publishData.set(Publish.DataKey.CONTACTS, Collections.emptyList());
@@ -99,7 +100,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
 
         // create draft
         if (null == draft
-                && ((isOnline() && container.isLatest()) || !isDistributed(container.getId()))) {
+                && ((online && container.isLatest()) || !isDistributed(container.getId()))) {
             final Data createDraftData = new Data(1);
             createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_CREATE_DRAFT, createDraftData, container);  
@@ -107,7 +108,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         }
 
         // delete draft
-        if (isLocalDraft(draft) && (isOnline() || !isDistributed(container.getId()))) {
+        if (isLocalDraft(draft) && (online || !isDistributed(container.getId()))) {
             final Data deleteDraftData = new Data(2);
             deleteDraftData.set(DeleteDraft.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_DELETE_DRAFT, deleteDraftData, container);
@@ -137,7 +138,8 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             needSeparator = true;
         }
 
-        if (isDistributed(container.getId()) && !isLocalDraft(draft)) {
+        // archive
+        if (online && isDistributed(container.getId()) && !isLocalDraft(draft)) {
             final Data archiveData = new Data(1);
             archiveData.set(Archive.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_ARCHIVE, archiveData, container);
@@ -146,7 +148,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
 
         // delete
         // This menu is shown if online, or if it has never been published.
-        if (isOnline() || !isDistributed(container.getId())) {
+        if (online || !isDistributed(container.getId())) {
             final Data deleteData = new Data(1);
             deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_DELETE, deleteData, container);
@@ -162,6 +164,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             final Data exportData = new Data(1);
             exportData.set(com.thinkparity.ophelia.browser.platform.action.container.Export.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_EXPORT, exportData, container);
+            needSeparator = true;
         }
         
         // Collapse
@@ -207,6 +210,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      * 
      */
     public void showForDraft(final Container container, final ContainerDraft draft) {
+        final boolean online = isOnline();
         final List<Document> documents = draft.getDocuments();
 
         // Open submenu, documents
@@ -221,7 +225,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         
         // publish
         boolean needSeparator = false;
-        if (isOnline() && isLocalDraftModified(container.getId())) {
+        if (online && isLocalDraftModified(container.getId())) {
             final Data publishData = new Data(1);
             publishData.set(Publish.DataKey.CONTAINER_ID, draft.getContainerId());
             publishData.set(Publish.DataKey.CONTACTS, Collections.emptyList());
@@ -232,7 +236,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
 
         // delete draft
         // This menu is shown if online, or if it has never been published.
-        if (isOnline() || !isDistributed(container.getId())) {
+        if (online || !isDistributed(container.getId())) {
             final Data deleteData = new Data(2);
             deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, draft.getContainerId());
             add(ActionId.CONTAINER_DELETE_DRAFT, deleteData);
@@ -334,6 +338,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     public void showForVersion(final ContainerVersion version,
             final List<DocumentView> documentViews,
             final List<ArtifactReceipt> publishedTo, final User publishedBy) {
+        final boolean online = isOnline();
         
         // Open submenu, documents
         for (final DocumentView documentView : documentViews) {
@@ -345,7 +350,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         if (documentViews.size() > 0) {
             addSeparator(ActionId.DOCUMENT_OPEN_VERSION);
         }
-        
+
         // Open submenu, publisher
         if (isLocalUser(publishedBy)) {
             final Data data = new Data(1);
@@ -374,7 +379,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         addSeparator();
 
         // invite submenu users
-        if (isOnline()) {
+        if (online) {
             if (!isLocalUser(publishedBy) && !doesExistContact(publishedBy) && !doesExistOutgoingUserInvitation(publishedBy)) {
                 final Data data = new Data(1);
                 data.set(CreateOutgoingUserInvitation.DataKey.USER_ID, publishedBy.getLocalId());
@@ -399,7 +404,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         }
         
         // Forward
-        if (isOnline()) {
+        if (online) {
             final Data shareData = new Data(2);
             shareData.set(PublishVersion.DataKey.CONTAINER_ID, version.getArtifactId());
             shareData.set(PublishVersion.DataKey.VERSION_ID, version.getVersionId());

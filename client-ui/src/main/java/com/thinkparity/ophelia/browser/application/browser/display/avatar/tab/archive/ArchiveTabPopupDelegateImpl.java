@@ -80,6 +80,7 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
      */
     public void showForContainer(final Container container,
             final ContainerDraft draft, final boolean expanded) {
+        final boolean online = isOnline();
         boolean needSeparator = false;
 
         if (!expanded) {
@@ -88,32 +89,36 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
         }
 
         // restore
-        final Data archiveData = new Data(1);
-        archiveData.set(Restore.DataKey.CONTAINER_ID, container.getId());
-        addWithExpand(ActionId.CONTAINER_RESTORE, archiveData, container);
-        needSeparator = true;
+        if (online) {
+            final Data archiveData = new Data(1);
+            archiveData.set(Restore.DataKey.CONTAINER_ID, container.getId());
+            addWithExpand(ActionId.CONTAINER_RESTORE, archiveData, container);
+            needSeparator = true;
+        }
 
         // delete
         // This menu is shown if online, or if it has never been published.
-        if (isOnline() || !isDistributed(container.getId())) {
+        if (online || !isDistributed(container.getId())) {
             final Data deleteData = new Data(1);
             deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_DELETE, deleteData, container);
             needSeparator = true;
         }
 
+        // Separator, maybe
+        if (needSeparator) {
+            addSeparator();
+            needSeparator = false;
+        }
+
         // export
-        addSeparator();
         final Data exportData = new Data(1);
         exportData.set(com.thinkparity.ophelia.browser.platform.action.container.Export.DataKey.CONTAINER_ID, container.getId());
         addWithExpand(ActionId.CONTAINER_EXPORT, exportData, container);
-        needSeparator = true;
 
         // collapse
         if (expanded) {
-            if (needSeparator) {
-                addSeparator();
-            }
+            addSeparator();
             addCollapse(container.getId());
         }
 

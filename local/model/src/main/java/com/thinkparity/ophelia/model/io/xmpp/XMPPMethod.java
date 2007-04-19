@@ -190,14 +190,14 @@ public class XMPPMethod extends IQ {
     		XMPPMethodResponse response = null == timeout
     				? (XMPPMethodResponse) idCollector.nextResult()
 					: (XMPPMethodResponse) idCollector.nextResult(timeout);
+			executionTime = Long.valueOf(System.currentTimeMillis() - start);
             if (null == response && null != timeout) {
         		LOGGER.logWarning("XMPP method {0} has timed out after {1}ms execution time {2}ms serialization time.",
-        				name, timeout, serializationTime);
+        				name, executionTime, serializationTime);
         		throw new XMPPTimeoutException(this);
             }
-        	executionTime = Long.valueOf(System.currentTimeMillis() - start);
-    		LOGGER.logInfo("XMPP method {0} has executed in {0} ms.", name,
-					executionTime);
+            LOGGER.logInfo("XMPP method {0} has executed in {0} ms.", name,
+                    executionTime);
             return response;
         } catch (final Throwable t) {
             final String errorId = new ErrorHelper().getErrorId(t);

@@ -160,7 +160,7 @@ public final class ProfileTest extends ProfileTestCase {
     public void testResetPassword() {
         final String password = datum.junit.getCredentials().getPassword();
         getModel(datum.junit).addListener(datum.reset_password_listener);
-        getModel(datum.junit).resetPassword(datum.junit.getSimpleUsername());
+        getModel(datum.junit).resetPassword();
         datum.waitForEvents();
         getModel(datum.junit).removeListener(datum.reset_password_listener);
         assertTrue("Reset password event not fired.", datum.reset_password_notify);

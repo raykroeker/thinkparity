@@ -365,13 +365,15 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      * Reset the user's password.
      *
      */
-    public void resetPassword(final String securityAnswer) {
-        logger.logApiId();
+    public void resetPassword() {
         try {
-            // update remote data.
+            /* HACK - ProfileModelImpl#create() - security question/answer are
+             * not specified */
+
+            // reset password
             final String resetPassword =
-                getSessionModel().resetProfilePassword(localUserId(),
-                    securityAnswer);
+                getSessionModel().resetProfilePassword(localUserId(), "");
+
             // update local data
             final Credentials credentials = readCredentials();
             credentials.setPassword(resetPassword);

@@ -146,10 +146,8 @@ public interface ProfileModel {
     /**
      * Reset the user's password.
      * 
-     * @param securityAnswer
-     *            The security question answer <code>String</code>.
      */
-	public void resetPassword(final String securityAnswer);
+	public void resetPassword();
 
     /**
      * Search for profiles.

@@ -3,6 +3,9 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
@@ -18,15 +21,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
-import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingEMailInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingUserInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.Collapse;
-import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingEMailInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingUserInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
-import com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingEMailInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingUserInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.Expand;
+import com.thinkparity.ophelia.browser.platform.action.contact.*;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword;
 
@@ -38,6 +33,12 @@ import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword;
  */
 final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
         PopupDelegate {
+
+    /** A list of action ids, used for the contact popup. */
+    private final List<ActionId> actionIds;
+
+    /** A list of data, used for the container popup. */
+    private final List<Data> dataList;
 
     /** The <code>ContactTabModel</code>. */
     private final ContactTabModel model;
@@ -51,6 +52,8 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
     ContactTabPopupDelegate(final ContactTabModel model) {
         super();
         this.model = model;
+        this.actionIds = new ArrayList<ActionId>();
+        this.dataList = new ArrayList<Data>();
     }
 
     /**
@@ -58,17 +61,24 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
      * 
      */
     public void showForContact(final Contact contact, final boolean expanded) {
+        final boolean online = isOnline();
         if (!expanded) {
             addExpand(contact.getId());
-            addSeparator();
+            if (online) {
+                addSeparator();
+            }
         }
 
-        final Data deleteData = new Data(1);
-        deleteData.set(Delete.DataKey.CONTACT_ID, contact.getId());
-        add(ActionId.CONTACT_DELETE, deleteData);
+        if (online) {
+            final Data deleteData = new Data(1);
+            deleteData.set(Delete.DataKey.CONTACT_ID, contact.getId());
+            add(ActionId.CONTACT_DELETE, deleteData);
+        }
 
         if (expanded) {
-            addSeparator();
+            if (online) {
+                addSeparator();
+            }
             addCollapse(contact.getId());
         }
 
@@ -147,25 +157,26 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.PopupDelegate#showForProfile(com.thinkparity.codebase.model.profile.Profile, boolean)
      */
     public void showForProfile(final Profile profile, final boolean expanded) {
+        final boolean online = isOnline();
         if (!expanded) {
             addExpand(profile.getId());
-            if (isOnline()) {
+            if (online) {
                 addSeparator();
             }
         }        
 
-        if (isOnline()) {
+        if (online) {
             final Data profileData = new Data(1);
             profileData.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-            add(ActionId.PROFILE_UPDATE, profileData);
+            addWithExpand(ActionId.PROFILE_UPDATE, profileData, profile.getId());
 
             final Data updateProfileData = new Data(1);
             updateProfileData.set(UpdatePassword.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-            add(ActionId.PROFILE_UPDATE_PASSWORD, updateProfileData);
+            addWithExpand(ActionId.PROFILE_UPDATE_PASSWORD, updateProfileData, profile.getId());
         }
 
         if (expanded) {
-            if (isOnline()) {
+            if (online) {
                 addSeparator();
             }
             addCollapse(profile.getId());
@@ -196,6 +207,32 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
         final Data expandData = new Data(1);
         expandData.set(Expand.DataKey.CONTACT_ID, contactId);
         add(ActionId.CONTACT_EXPAND, expandData);
+    }
+
+    /**
+     * Add an action to a popup menu.
+     * A second action to expand the contact is inserted.
+     * 
+     * @param actionId
+     *            An <code>ActionId</code>.
+     * @param data
+     *            The <code>Data</code>.       
+     * @param contactId
+     *            A <code>JabberId</code>.          
+     */
+    private void addWithExpand(final ActionId actionId, final Data data,
+            final JabberId contactId) {
+        actionIds.clear();
+        dataList.clear();
+        
+        final Data expandData = new Data(2);
+        expandData.set(Expand.DataKey.CONTACT_ID, contactId);
+        actionIds.add(ActionId.CONTACT_EXPAND);
+        dataList.add(expandData);
+        
+        actionIds.add(actionId);
+        dataList.add(data);
+        add(actionIds, dataList, 1);
     }
 
     /**

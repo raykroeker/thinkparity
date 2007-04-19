@@ -32,9 +32,10 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
@@ -312,14 +313,16 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createProfile(com.thinkparity.codebase.model.profile.Reservation,
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createProfile(com.thinkparity.codebase.model.profile.UsernameReservation,
+     *      com.thinkparity.codebase.model.profile.EMailReservation,
      *      com.thinkparity.codebase.model.session.Credentials,
      *      com.thinkparity.codebase.model.profile.Profile,
      *      com.thinkparity.codebase.email.EMail, java.lang.String,
      *      java.lang.String)
      * 
      */
-    public void createProfile(final Reservation reservation,
+    public void createProfile(final UsernameReservation usernameReservation,
+            final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
             final EMail email, final String securityQuestion,
             final String securityAnswer) {
@@ -330,8 +333,8 @@ public final class SessionModelImpl extends Model<SessionListener>
                 authenticateAsSystem(xmppSession);
                 try {
                     xmppSession.createProfile(User.THINKPARITY.getId(),
-                            reservation, credentials, profile, email,
-                            securityQuestion, securityAnswer);
+                            usernameReservation, emailReservation, credentials,
+                            profile, email, securityQuestion, securityAnswer);
                 } finally {
                     unauthenticate(xmppSession);
                 }
@@ -342,11 +345,34 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createProfileReservation(java.lang.String,
-     *      com.thinkparity.codebase.email.EMail)
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createProfileUsernameReservation(java.lang.String)
      * 
      */
-    public Reservation createProfileReservation(final String username,
+    public UsernameReservation createProfileUsernameReservation(
+            final String username) {
+        try {
+            assertXMPPOffline();
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                authenticateAsSystem(xmppSession);
+                try {
+                    return xmppSession.createProfileUsernameReservation(
+                            User.THINKPARITY.getId(), username,
+                            xmppSession.readDateTime(User.THINKPARITY.getId()));
+                } finally {
+                    unauthenticate(xmppSession);
+                }
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createProfileEMailReservation(com.thinkparity.codebase.email.EMail)
+     *
+     */
+    public EMailReservation createProfileEMailReservation(
             final EMail email) {
         try {
             assertXMPPOffline();
@@ -354,8 +380,8 @@ public final class SessionModelImpl extends Model<SessionListener>
             synchronized (xmppSession) {
                 authenticateAsSystem(xmppSession);
                 try {
-                    return xmppSession.createProfileReservation(
-                            User.THINKPARITY.getId(), username, email,
+                    return xmppSession.createProfileEMailReservation(
+                            User.THINKPARITY.getId(), email,
                             xmppSession.readDateTime(User.THINKPARITY.getId()));
                 } finally {
                     unauthenticate(xmppSession);

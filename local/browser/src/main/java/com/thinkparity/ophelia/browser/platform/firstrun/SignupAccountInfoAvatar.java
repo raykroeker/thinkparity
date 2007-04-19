@@ -6,8 +6,8 @@
 
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -19,7 +19,8 @@ import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.swing.SwingUtil;
 
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.EMailReservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -51,13 +52,29 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
     /** The most recent unacceptable username <code>String</code>. */
     private String unacceptableUsername;
 
-    /** The list of <code>Reservation</code>s. */
-    private final List<Reservation> reservations;
+    /** The most recent unacceptable <code>EMail</code> address. */
+    private EMail unacceptableEMail;
 
-    /** Creates new form SignupAccountInfoAvatar */
+    /**
+     * A <code>Map</code> of username <code>String</code>s to their
+     * <code>UsernameReservation</code>s.
+     */
+    private final Map<String, UsernameReservation> usernameReservations;
+
+    /**
+     * A <code>Map</code> of <code>EMail</code> addresses to their
+     * <code>EMailReservation</code>s.
+     */
+    private final Map<EMail,EMailReservation> emailReservations;
+
+    /**
+     * Create SignupAccountInfoAvatar.
+     * 
+     */
     public SignupAccountInfoAvatar() {
         super("SignupAvatar.AccountInfo", BrowserConstants.DIALOGUE_BACKGROUND);
-        this.reservations = new ArrayList<Reservation>();
+        this.usernameReservations = new HashMap<String, UsernameReservation>();
+        this.emailReservations = new HashMap<EMail, EMailReservation>();
         initComponents();
         initDocumentHandlers();
     }
@@ -98,8 +115,8 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         if (!isInputValid()) {
             return Boolean.FALSE;
         }
-        reserveUsername();
-        return (!containsInputErrors());
+        createReservations();
+        return !containsInputErrors();
     }
 
     /**
@@ -116,9 +133,10 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      */
     public void saveData() {
         ((Data) input).set(SignupData.DataKey.FEATURE_SET, extractFeatureSet());
-        ((Data) input).set(SignupData.DataKey.EMAIL, extractEmail());
+        ((Data) input).set(SignupData.DataKey.EMAIL, extractEMail());
         ((Data) input).set(SignupData.DataKey.CREDENTIALS, extractCredentials());
-        ((Data) input).set(SignupData.DataKey.RESERVATION, lookupReservation(extractUsername()));
+        ((Data) input).set(SignupData.DataKey.USERNAME_RESERVATION, usernameReservations.get(extractUsername()));
+        ((Data) input).set(SignupData.DataKey.EMAIL_RESERVATION, emailReservations.get(extractEMail()));
     }
 
     /**
@@ -128,7 +146,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
     @Override
     public final void validateInput() {
         super.validateInput();
-        final String email = extractInputEmail();
+        final String email = extractInputEMail();
         final String username = extractUsername();
         final String password = extractPassword();
         final String confirmPassword = extractConfirmPassword();
@@ -153,6 +171,9 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         if (null != password && null != confirmPassword &&
                 !password.equals(confirmPassword))
             addInputError(getString("ErrorPasswordsDoNotMatch"));
+        if (null != email && null != unacceptableEMail && email.equals(unacceptableEMail)) {
+            addInputError(getString("ErrorEMailTaken", new Object[] { email }));
+        }
 
         errorMessageJLabel.setText(" ");
         if (containsInputErrors()) {
@@ -189,8 +210,8 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      * 
      * @return The <code>EMail</code>.
      */
-    private EMail extractEmail() {
-        return EMailBuilder.parse(extractInputEmail());
+    private EMail extractEMail() {
+        return EMailBuilder.parse(extractInputEMail());
     }
 
     /**
@@ -215,7 +236,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      * 
      * @return The email <code>String</code>.
      */
-    private String extractInputEmail() {
+    private String extractInputEMail() {
         return SwingUtil.extract(emailJTextField, Boolean.TRUE);
     }
 
@@ -428,7 +449,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      * @return True if the input email is valid; false otherwise.
      */
     private Boolean isInputEmailValid() {
-        final String email = extractInputEmail();
+        final String email = extractInputEMail();
         if (isEmpty(email)) {
             return Boolean.FALSE;
         } else {
@@ -445,32 +466,20 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      * Determine if the username has been reserved.
      * 
      * @param username
-     *            The username <code>String</code>.
-     * @return true if the username has been reserved, false otherwise.
+     *            A username <code>String</code>.
+     * @param email
+     *            A <code>EMail</code> address.
+     * @return True if the username and e-mail address have been reserved, false
+     *         otherwise.
      */
-    private Boolean isReserved(final String username) {
-        return (null != lookupReservation(username));
+    private Boolean isReserved(final String username, final EMail email) {
+        return usernameReservations.containsKey(username)
+                && emailReservations.containsKey(email);
     }
 
     private void learnMoreJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_learnMoreJLabelMousePressed
         platform.runLearnMore(LearnMore.Topic.SIGNUP);
     }//GEN-LAST:event_learnMoreJLabelMousePressed
-
-    /**
-     * Lookup the reservation. Returns null if not found.
-     * 
-     * @param username
-     *            The username <code>String</code>.
-     * @return The <code>Reservation</code>.
-     */
-    private Reservation lookupReservation(final String username) {
-        for (final Reservation reservation : reservations) {
-            if (reservation.getUsername().equals(username)) {
-                return reservation;
-            }
-        }
-        return null;
-    }
 
     /**
      * Reload the account type radio buttons.
@@ -480,25 +489,60 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
     }
 
     /**
-     * Reserve the username.
+     * Create the username and e-mail address reservations.
+     *
      */
-    private void reserveUsername() {
+    private void createReservations() {
         final String username = extractUsername();
-        // TODO Fix this isReserved() logic now that username and email are both part of the reservation
-        if (!isReserved(username)) {
+        final EMail email = extractEMail();
+        if (!isReserved(username, email)) {
             SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
-            errorMessageJLabel.setText(getString("CheckingUsername"));
-            errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel.getWidth(), errorMessageJLabel.getHeight());
-            final EMail email = extractEmail();
-            final Reservation reservation = ((SignupProvider) contentProvider).createReservation(username, email);
-            SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
-            if (null == reservation) {
+            final UsernameReservation usernameReservation;
+            final EMailReservation emailReservation;
+            try {
+                errorMessageJLabel.setText(getString("CheckingUsername"));
+                errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel
+                        .getWidth(), errorMessageJLabel.getHeight());
+                usernameReservation = createUsernameReservation(username);
+                emailReservation = createEMailReservation(email);
+            } finally {
+                SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+            }
+
+            if (null == usernameReservation) {
                 unacceptableUsername = username;
             } else {
-                reservations.add(reservation);
+                usernameReservations.put(username, usernameReservation);
+            }
+            if (null == emailReservation) {
+                unacceptableEMail = email;
+            } else {
+                emailReservations.put(email, emailReservation);
             }
             validateInput();
         }
+    }
+
+    /**
+     * Create a username reservation.
+     * 
+     * @param username
+     *            A username <code>String</code>.
+     * @return A <code>UsernameReservation</code>.
+     */
+    private UsernameReservation createUsernameReservation(final String username) {
+        return ((SignupProvider) contentProvider).createUsernameReservation(username);
+    }
+
+    /**
+     * Create an e-mail address reservation.
+     * 
+     * @param email
+     *            An <code>EMail</code> address.
+     * @return A <code>EMailReservation</code>.
+     */
+    private EMailReservation createEMailReservation(final EMail email) {
+        return ((SignupProvider) contentProvider).createEMailReservation(email);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

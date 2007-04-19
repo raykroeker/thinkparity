@@ -37,8 +37,9 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.Token;
@@ -467,6 +468,18 @@ public class ElementBuilder {
     }
 
     public static final Element addElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final EMailReservation value) {
+        if (null == value) {
+            return addNullElement(parent, name, EMailReservation.class);
+        } else {
+            final Element element = addElement(parent, name, value.getClass());
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
+            return element;
+        }
+    }
+
+    public static final Element addElement(final XStreamUtil xstreamUtil,
             final Element parent, final String name, final Feature value) {
         if (null == value) {
             return addNullElement(parent, name, Feature.class);
@@ -527,18 +540,6 @@ public class ElementBuilder {
     }
 
     public static final Element addElement(final XStreamUtil xstreamUtil,
-            final Element parent, final String name, final Reservation value) {
-        if (null == value) {
-            return addNullElement(parent, name, Reservation.class);
-        } else {
-            final Element element = addElement(parent, name, value.getClass());
-            final Dom4JWriter writer = new Dom4JWriter(element);
-            xstreamUtil.marshal(value, writer);
-            return element;
-        }
-    }
-
-    public static final Element addElement(final XStreamUtil xstreamUtil,
             final Element parent, final String name, final Resource value) {
         if (null == value) {
             return addNullElement(parent, name, Resource.class);
@@ -578,6 +579,18 @@ public class ElementBuilder {
             final Element parent, final String name, final Token value) {
         if (null == value) {
             return addNullElement(parent, name, Token.class);
+        } else {
+            final Element element = addElement(parent, name, value.getClass());
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
+            return element;
+        }
+    }
+
+    public static final Element addElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final UsernameReservation value) {
+        if (null == value) {
+            return addNullElement(parent, name, UsernameReservation.class);
         } else {
             final Element element = addElement(parent, name, value.getClass());
             final Dom4JWriter writer = new Dom4JWriter(element);

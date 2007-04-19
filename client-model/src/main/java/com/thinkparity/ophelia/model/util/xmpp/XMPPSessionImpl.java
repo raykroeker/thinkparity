@@ -38,9 +38,10 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
@@ -417,9 +418,10 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppMigrator.createStream(userId, streamId, product, release, resources);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createProfile(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.model.profile.Reservation,
+     *      com.thinkparity.codebase.model.profile.UsernameReservation,
+     *      com.thinkparity.codebase.model.profile.EMailReservation,
      *      com.thinkparity.codebase.model.session.Credentials,
      *      com.thinkparity.codebase.model.profile.Profile,
      *      com.thinkparity.codebase.email.EMail, java.lang.String,
@@ -427,22 +429,34 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * 
      */
     public void createProfile(final JabberId userId,
-            final Reservation reservation, final Credentials credentials,
-            final Profile profile, final EMail email,
-            final String securityQuestion, final String securityAnswer) {
-        xmppProfile.create(userId, reservation, credentials, profile, email,
-                securityQuestion, securityAnswer);
+            final UsernameReservation usernameReservation,
+            final EMailReservation emailReservation,
+            final Credentials credentials, final Profile profile,
+            final EMail email, final String securityQuestion,
+            final String securityAnswer) {
+        xmppProfile.create(userId, usernameReservation, emailReservation,
+                credentials, profile, email, securityQuestion, securityAnswer);
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createProfileReservation(com.thinkparity.codebase.jabber.JabberId,
-     *      java.lang.String, com.thinkparity.codebase.email.EMail,
-     *      java.util.Calendar)
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createProfileEMailReservation(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.email.EMail, java.util.Calendar)
+     *
+     */
+    public EMailReservation createProfileEMailReservation(
+            final JabberId userId, final EMail email,
+            final Calendar reservedOn) {
+        return xmppProfile.createEMailReservation(userId, email, reservedOn);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createProfileUsernameReservation(com.thinkparity.codebase.jabber.JabberId,
+     *      java.lang.String, java.util.Calendar)
      * 
      */
-    public Reservation createProfileReservation(final JabberId userId,
-            final String username, final EMail email, final Calendar reservedOn) {
-        return xmppProfile.createReservation(userId, username, email, reservedOn);
+    public UsernameReservation createProfileUsernameReservation(
+            final JabberId userId, final String username,
+            final Calendar reservedOn) {
+        return xmppProfile.createUsernameReservation(userId, username, reservedOn);
     }
 
     /**

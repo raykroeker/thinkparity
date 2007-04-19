@@ -16,10 +16,11 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
@@ -97,26 +98,30 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      *      com.thinkparity.codebase.email.EMail)
      * 
      */
-    public void create(final Reservation reservation,
-			final Credentials credentials, final Profile profile,
-			final EMail email) throws ReservationExpiredException {
+    public void create(final UsernameReservation usernameReservation,
+            final EMailReservation emailReservation,
+            final Credentials credentials, final Profile profile,
+            final EMail email) throws ReservationExpiredException {
         try {
             assertIsValid(profile);
 
             final long now = currentDateTime().getTimeInMillis();
-            if (now > reservation.getExpiresOn().getTimeInMillis())
-                throw new ReservationExpiredException(reservation.getExpiresOn());
+            if (now > usernameReservation.getExpiresOn().getTimeInMillis())
+                throw new ReservationExpiredException(usernameReservation.getExpiresOn());
+            if (now > emailReservation.getExpiresOn().getTimeInMillis())
+                throw new ReservationExpiredException(emailReservation.getExpiresOn());
 
-            Assert.assertTrue(reservation.getUsername().equals(credentials.getUsername()),
+            Assert.assertTrue(usernameReservation.getUsername().equals(credentials.getUsername()),
                     "Reservation username {0} does not match credentials username {1}.",
-                    reservation.getUsername(), credentials.getUsername());
-            Assert.assertTrue(reservation.getEMail().equals(email),
+                    usernameReservation.getUsername(), credentials.getUsername());
+            Assert.assertTrue(emailReservation.getEMail().equals(email),
                     "Reservation e-mail address {0} does not match e-mail address {1}.",
-                    reservation.getEMail(), email);
+                    emailReservation.getEMail(), email);
 
-            // HACK - ProfileModelImpl#create()
-            getSessionModel().createProfile(reservation, credentials, profile,
-                    email, "", "");
+            /* HACK - ProfileModelImpl#create() - security question/answer are
+             * not specified */
+            getSessionModel().createProfile(usernameReservation,
+                    emailReservation, credentials, profile, email, "", "");
         } catch (final ReservationExpiredException rex) {
             throw rex;
         } catch (final Throwable t) {
@@ -125,13 +130,24 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.profile.ProfileModel#createReservation(java.lang.String,
-     *      com.thinkparity.codebase.email.EMail)
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#createEMailReservation(com.thinkparity.codebase.email.EMail)
      * 
      */
-    public Reservation createReservation(final String username, final EMail email) {
+    public EMailReservation createEMailReservation(final EMail email) {
         try {
-            return getSessionModel().createProfileReservation(username, email);
+            return getSessionModel().createProfileEMailReservation(email);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#createUsernameReservation(java.lang.String)
+     *
+     */
+    public UsernameReservation createUsernameReservation(final String username) {
+        try {
+            return getSessionModel().createProfileUsernameReservation(username);
         } catch (final Throwable t) {
             throw panic(t);
         }

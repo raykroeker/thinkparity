@@ -5,8 +5,6 @@ package com.thinkparity.codebase.model.profile;
 
 import java.util.Calendar;
 
-import com.thinkparity.codebase.email.EMail;
-
 import com.thinkparity.codebase.model.util.Token;
 
 /**
@@ -16,18 +14,15 @@ import com.thinkparity.codebase.model.util.Token;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class Reservation {
+public class UsernameReservation {
 
     /** The reservation's creation date. */
     private Calendar createdOn;
 
-    /** An <code>EMail</code> address. */
-    private EMail email;
-
     /** The reservation's expiry date. */
     private Calendar expiresOn;
 
-    /** The reservation token <code>String</code>. */
+    /** A <code>Token</code>. */
     private Token token;
 
     /** A username <code>String</code>. */
@@ -37,7 +32,7 @@ public class Reservation {
      * Create UsernameReservation.
      *
      */
-    public Reservation() {
+    public UsernameReservation() {
         super();
     }
 
@@ -51,15 +46,6 @@ public class Reservation {
     }
 
     /**
-     * Obtain email.
-     *
-     * @return A EMail.
-     */
-    public EMail getEMail() {
-        return email;
-    }
-
-    /**
      * Obtain expiresOn.
      *
      * @return A Calendar.
@@ -69,9 +55,9 @@ public class Reservation {
     }
 
     /**
-     * Obtain token.
+     * Obtain usernameToken.
      *
-     * @return A String.
+     * @return A Token.
      */
     public Token getToken() {
         return token;
@@ -97,16 +83,6 @@ public class Reservation {
     }
 
     /**
-     * Set email.
-     *
-     * @param email
-     *		A EMail.
-     */
-    public void setEMail(final EMail email) {
-        this.email = email;
-    }
-
-    /**
      * Set expiresOn.
      *
      * @param expiresOn
@@ -117,10 +93,10 @@ public class Reservation {
     }
 
     /**
-     * Set token.
+     * Set usernameToken.
      *
-     * @param token
-     *		A String.
+     * @param usernameToken
+     *		A Token.
      */
     public void setToken(final Token token) {
         this.token = token;

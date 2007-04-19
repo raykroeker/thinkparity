@@ -21,9 +21,10 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.util.Token;
@@ -112,6 +113,10 @@ public class XMPPMethodResponse extends IQ {
         return (List<DocumentVersion>) readResult(name);
     }
 
+    public EMailReservation readResultEMailReservation(final String name) {
+        return (EMailReservation) readResult(name);
+    }
+
     public List<EMail> readResultEMails(final String name) {
         return (List<EMail>) readResult(name);
     }
@@ -193,10 +198,6 @@ public class XMPPMethodResponse extends IQ {
         return releases;
     }
 
-    public Reservation readResultReservation(final String name) {
-        return (Reservation) readResult(name);
-    }
-
     public List<Resource> readResultResources(final String name) {
         return (List<Resource>) readResult(name);
     }
@@ -245,6 +246,10 @@ public class XMPPMethodResponse extends IQ {
 
     public List<ArtifactReceipt> readResultUserArtifactReceipts(final String name) {
         return (List<ArtifactReceipt>) readResult(name);
+    }
+
+    public UsernameReservation readResultUsernameReservation(final String name) {
+        return (UsernameReservation) readResult(name);
     }
 
     public byte[] readSmallBytes(final String name) {

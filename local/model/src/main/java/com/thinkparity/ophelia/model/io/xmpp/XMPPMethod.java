@@ -44,9 +44,10 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
@@ -331,6 +332,10 @@ public class XMPPMethod extends IQ {
         parameters.add(new XMPPMethodParameter(name, EMail.class, value));
     }
 
+    public final void setParameter(final String name, final EMailReservation value) {
+        parameters.add(new XMPPMethodParameter(name, EMailReservation.class, value));
+    }
+
     public final void setParameter(final String name, final Error value) {
         parameters.add(new XMPPMethodParameter(name, Error.class, value));
     }
@@ -379,10 +384,6 @@ public class XMPPMethod extends IQ {
         parameters.add(new XMPPMethodParameter(name, Release.class, value));
     }
 
-    public final void setParameter(final String name, final Reservation value) {
-        parameters.add(new XMPPMethodParameter(name, Reservation.class, value));
-    }
-
     /**
      * Set a named parameter.
      * 
@@ -418,15 +419,19 @@ public class XMPPMethod extends IQ {
             final String name, final T value) {
         parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
     }
-    
+
     public final <T extends ContactInvitation> void setParameter(
             final String name, final T value) {
         parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
     }
-
+    
     public final <T extends TimeZone> void setParameter(
             final String name, final T value) {
         parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
+    }
+
+    public final void setParameter(final String name, final UsernameReservation value) {
+        parameters.add(new XMPPMethodParameter(name, UsernameReservation.class, value));
     }
 
     public final void setParameter(final String name, final UserVCard value) {
@@ -609,7 +614,11 @@ public class XMPPMethod extends IQ {
             final StringWriter xmlWriter = new StringWriter();
             XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
             return xmlWriter.toString();
-        } else if (Reservation.class.isAssignableFrom(parameter.javaType)) {
+        } else if (EMailReservation.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (UsernameReservation.class.isAssignableFrom(parameter.javaType)) {
             final StringWriter xmlWriter = new StringWriter();
             XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
             return xmlWriter.toString();
@@ -850,9 +859,15 @@ public class XMPPMethod extends IQ {
                     parser.next();
                     parser.next();
                     return product;
-                } else if (javaType.equals(Reservation.class)) {
-                    Reservation reservation = null;
-                    reservation = (Reservation) xstreamUtil.unmarshal(new SmackXppReader(parser), reservation);
+                } else if (javaType.equals(EMailReservation.class)) {
+                    EMailReservation reservation = null;
+                    reservation = (EMailReservation) xstreamUtil.unmarshal(new SmackXppReader(parser), reservation);
+                    parser.next();
+                    parser.next();
+                    return reservation;
+                } else if (javaType.equals(UsernameReservation.class)) {
+                    UsernameReservation reservation = null;
+                    reservation = (UsernameReservation) xstreamUtil.unmarshal(new SmackXppReader(parser), reservation);
                     parser.next();
                     parser.next();
                     return reservation;

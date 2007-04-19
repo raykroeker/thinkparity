@@ -10,10 +10,11 @@ import java.util.TimeZone;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
@@ -71,10 +72,14 @@ public final class ProfileTest extends ProfileTestCase {
         credentials.setPassword("password");
         credentials.setUsername("junit." + System.currentTimeMillis());
 
+        final UsernameReservation usernameReservation =
+            getModel(datum.junit).createUsernameReservation(
+                    credentials.getUsername());
+
         final String emailInjection = "+" + String.valueOf(System.currentTimeMillis());
         final EMail email = EMailBuilder.parse("junit" + emailInjection + "@thinkparity.com");
-        final Reservation reservation = getModel(datum.junit).createReservation(
-                credentials.getUsername(), email);
+        final EMailReservation emailReservation =
+            getModel(datum.junit).createEMailReservation(email);
 
         final Profile profile = new Profile();
         profile.setVCard(new ProfileVCard());
@@ -91,8 +96,8 @@ public final class ProfileTest extends ProfileTestCase {
         profile.setTimeZone(TimeZone.getDefault());
         profile.setTitle("Title");
         try {
-            getModel(datum.junit).create(reservation, credentials, profile,
-                    email);
+            getModel(datum.junit).create(usernameReservation, emailReservation,
+                    credentials, profile, email);
         } catch (final ReservationExpiredException rex) {
             fail(rex, "Profile reservation has expired.");
         }

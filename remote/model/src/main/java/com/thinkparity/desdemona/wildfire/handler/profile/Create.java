@@ -6,8 +6,9 @@ package com.thinkparity.desdemona.wildfire.handler.profile;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
@@ -41,7 +42,8 @@ public final class Create extends AuthenticatedHandler {
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
         create(provider, reader.readJabberId("userId"),
-                reader.readReservation("reservation"),
+                reader.readUsernameReservation("usernameReservation"),
+                reader.readEMailReservation("emailReservation"),
                 reader.readCredentials("credentials"),
                 reader.readProfile("profile"), reader.readEMail("email"),
                 reader.readString("securityQuestion"),
@@ -49,11 +51,14 @@ public final class Create extends AuthenticatedHandler {
     }
 
     private void create(final ServiceModelProvider provider,
-            final JabberId userId, final Reservation reservation,
+            final JabberId userId,
+            final UsernameReservation usernameReservation,
+            final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
             final EMail email, final String securityQuestion,
             final String securityAnswer) {
-        provider.getProfileModel().create(userId, reservation, credentials,
-                profile, email, securityQuestion, securityAnswer);
+        provider.getProfileModel().create(userId, usernameReservation,
+                emailReservation, credentials, profile, email,
+                securityQuestion, securityAnswer);
     }
 }

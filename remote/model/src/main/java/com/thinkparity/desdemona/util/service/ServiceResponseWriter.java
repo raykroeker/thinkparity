@@ -26,8 +26,9 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.UserVCard;
@@ -42,6 +43,8 @@ import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
  * @version 1.1.2.1
  */
 public interface ServiceResponseWriter {
+
+    public void write(final String name, final EMailReservation value);
 
     /**
      * Write the product to the service response.
@@ -63,9 +66,9 @@ public interface ServiceResponseWriter {
      */
     public void write(final String name, final Release value);
 
-    public void write(final String name, final Reservation value);
-
     public void write(final String name, final Statistics value);
+
+    public void write(final String name, final UsernameReservation value);
 
     public void writeArtifactReceipts(final String name,
             List<ArtifactReceipt> values);

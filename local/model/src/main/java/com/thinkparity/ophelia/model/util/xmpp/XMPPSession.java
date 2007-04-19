@@ -11,6 +11,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
@@ -28,9 +29,10 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
@@ -39,6 +41,7 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.Token;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
+
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.util.xmpp.event.SessionListener;
@@ -217,12 +220,18 @@ public interface XMPPSession {
             final Release release, final List<Resource> resources);
 
     public void createProfile(final JabberId userId,
-            final Reservation reservation, final Credentials credentials,
-            final Profile profile, final EMail email,
-            final String securityQuestion, final String securityAnswer);
+            final UsernameReservation usernameReservation,
+            final EMailReservation emailReservation,
+            final Credentials credentials, final Profile profile,
+            final EMail email, final String securityQuestion,
+            final String securityAnswer);
 
-    public Reservation createProfileReservation(final JabberId userId,
-            final String username, final EMail email, final Calendar reservedOn);
+    public EMailReservation createProfileEMailReservation(
+            final JabberId userId, final EMail email, final Calendar reservedOn);
+
+    public UsernameReservation createProfileUsernameReservation(
+            final JabberId userId, final String username,
+            final Calendar reservedOn);
 
     /**
      * Create a stream.

@@ -13,8 +13,9 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.profile.VerificationKey;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.User;
@@ -47,6 +48,13 @@ public final class UserSql extends AbstractSql {
         .append("values (?,?,?,?)")
         .toString();
 
+    /** Sql to create a reservation. */
+    private static final String SQL_CREATE_EMAIL_RESERVATION =
+        new StringBuilder("insert into TPSD_EMAIL_RESERVATION ")
+        .append("(EMAIL,TOKEN,EXPIRES_ON,CREATED_ON) ")
+        .append("values (?,?,?,?)")
+        .toString();
+
     /** Sql to create a user feature relationship. */
     private static final String SQL_CREATE_FEATURE_REL =
         new StringBuilder("insert into TPSD_USER_FEATURE_REL ")
@@ -55,10 +63,10 @@ public final class UserSql extends AbstractSql {
         .toString();
 
     /** Sql to create a reservation. */
-    private static final String SQL_CREATE_RESERVATION =
-        new StringBuilder("insert into TPSD_USER_RESERVATION ")
-        .append("(USERNAME,EMAIL,TOKEN,EXPIRES_ON,CREATED_ON) ")
-        .append("values (?,?,?,?,?)")
+    private static final String SQL_CREATE_USERNAME_RESERVATION =
+        new StringBuilder("insert into TPSD_USERNAME_RESERVATION ")
+        .append("(USERNAME,TOKEN,EXPIRES_ON,CREATED_ON) ")
+        .append("values (?,?,?,?)")
         .toString();
 
     /** Sql to delete an email address. */
@@ -67,16 +75,35 @@ public final class UserSql extends AbstractSql {
         .append("where USER_ID=? and EMAIL_ID=?")
         .toString();
 
-    /** Sql to delete expired reservations. */
-    private static final String SQL_DELETE_EXPIRED_RESERVATIONS =
-        new StringBuilder("delete from TPSD_USER_RESERVATION ")
+    /** Sql to delete a reservation by its unique key. */
+    private static final String SQL_DELETE_EMAIL_RESERVATION_UK =
+        new StringBuilder("delete from TPSD_EMAIL_RESERVATION ")
+        .append("where TOKEN=?")
+        .toString();
+
+    /** Sql to delete expired username reservations. */
+    private static final String SQL_DELETE_EXPIRED_USERNAME_RESERVATIONS =
+        new StringBuilder("delete from TPSD_USERNAME_RESERVATION ")
+        .append("where EXPIRES_ON < ?")
+        .toString();
+
+    /** Sql to delete expired e-mail address reservations. */
+    private static final String SQL_DELETE_EXPIRED_EMAIL_RESERVATIONS =
+        new StringBuilder("delete from TPSD_EMAIL_RESERVATION ")
         .append("where EXPIRES_ON < ?")
         .toString();
 
     /** Sql to delete a reservation by its unique key. */
-    private static final String SQL_DELETE_RESERVATION_UK =
-        new StringBuilder("delete from TPSD_USER_RESERVATION ")
+    private static final String SQL_DELETE_USERNAME_RESERVATION_UK =
+        new StringBuilder("delete from TPSD_USERNAME_RESERVATION ")
         .append("where TOKEN=?")
+        .toString();
+
+    /** Sql to determine e-mail address reservation existence by unique key. */
+    private static final String SQL_DOES_EXIST_EMAIL_RESERVATION_UK =
+        new StringBuilder("select count(ER.TOKEN) \"RESERVATION_COUNT\" ")
+        .append("from TPSD_EMAIL_RESERVATION ER ")
+        .append("where ER.TOKEN=?")
         .toString();
 
     /** Sql to determine user existence by e-mail unique key. */
@@ -88,18 +115,18 @@ public final class UserSql extends AbstractSql {
         .append("where E.EMAIL=?")
         .toString();
 
-    /** Sql to determine reservation existence by unique key. */
-    private static final String SQL_DOES_EXIST_RESERVATION_UK =
-        new StringBuilder("select count(UR.TOKEN) \"RESERVATION_COUNT\" ")
-        .append("from TPSD_USER_RESERVATION UR ")
-        .append("where UR.TOKEN=?")
-        .toString();
-
     /** Sql to determine user existence by unique key. */
     private static final String SQL_DOES_EXIST_UK =
         new StringBuilder("select count(USER_ID) \"USER_COUNT\" ")
         .append("from TPSD_USER U ")
         .append("where U.USERNAME=?")
+        .toString();
+
+    /** Sql to determine username reservation existence by unique key. */
+    private static final String SQL_DOES_EXIST_USERNAME_RESERVATION_UK =
+        new StringBuilder("select count(UR.TOKEN) \"RESERVATION_COUNT\" ")
+        .append("from TPSD_USERNAME_RESERVATION UR ")
+        .append("where UR.TOKEN=?")
         .toString();
 
     /** Sql to read all users. */
@@ -299,6 +326,30 @@ public final class UserSql extends AbstractSql {
     }
 
     /**
+     * Create a reservation.
+     * 
+     * @param reservation
+     *            A <code>ProfileReservation</code>.
+     */
+    public void createEMailReservation(final EMailReservation reservation) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_EMAIL_RESERVATION);
+            session.setEMail(1, reservation.getEMail());
+            session.setString(2, reservation.getToken().getValue());
+            session.setCalendar(3, reservation.getExpiresOn());
+            session.setCalendar(4, reservation.getCreatedOn());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not create reservation.");
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Create a feature relationship for a user.
      * 
      * @param user
@@ -329,15 +380,14 @@ public final class UserSql extends AbstractSql {
      * @param reservation
      *            A <code>ProfileReservation</code>.
      */
-    public void createReservation(final Reservation reservation) {
+    public void createUsernameReservation(final UsernameReservation reservation) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_CREATE_RESERVATION);
+            session.prepareStatement(SQL_CREATE_USERNAME_RESERVATION);
             session.setString(1, reservation.getUsername());
-            session.setEMail(2, reservation.getEMail());
-            session.setString(3, reservation.getToken().getValue());
-            session.setCalendar(4, reservation.getExpiresOn());
-            session.setCalendar(5, reservation.getCreatedOn());
+            session.setString(2, reservation.getToken().getValue());
+            session.setCalendar(3, reservation.getExpiresOn());
+            session.setCalendar(4, reservation.getCreatedOn());
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not create reservation.");
             session.commit();
@@ -369,6 +419,27 @@ public final class UserSql extends AbstractSql {
     }
 
     /**
+     * Delete a reservation.
+     * 
+     * @param token
+     *            A reservation <code>Token</code>.
+     */
+    public void deleteEMailReservation(final Token token) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_EMAIL_RESERVATION_UK);
+            session.setString(1, token.getValue());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not delete reservation.");
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Delete expired profile reservations.
      * 
      * @param expireOn
@@ -377,7 +448,10 @@ public final class UserSql extends AbstractSql {
     public void deleteExpiredReservations(final Calendar expireOn) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_DELETE_EXPIRED_RESERVATIONS);
+            session.prepareStatement(SQL_DELETE_EXPIRED_USERNAME_RESERVATIONS);
+            session.setCalendar(1, expireOn);
+            session.executeUpdate();
+            session.prepareStatement(SQL_DELETE_EXPIRED_EMAIL_RESERVATIONS);
             session.setCalendar(1, expireOn);
             session.executeUpdate();
             session.commit();
@@ -394,10 +468,10 @@ public final class UserSql extends AbstractSql {
      * @param token
      *            A reservation <code>Token</code>.
      */
-    public void deleteReservation(final Token token) {
+    public void deleteUsernameReservation(final Token token) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_DELETE_RESERVATION_UK);
+            session.prepareStatement(SQL_DELETE_USERNAME_RESERVATION_UK);
             session.setString(1, token.getValue());
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not delete reservation.");
@@ -476,10 +550,10 @@ public final class UserSql extends AbstractSql {
      *            A reservation <code>Token</code>.
      * @return True if a reservation exists.
      */
-    public Boolean doesExistReservation(final Token token) {
+    public Boolean doesExistEMailReservation(final Token token) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_DOES_EXIST_RESERVATION_UK);
+            session.prepareStatement(SQL_DOES_EXIST_EMAIL_RESERVATION_UK);
             session.setString(1, token.getValue());
             session.executeQuery();
             if (session.nextResult()) {
@@ -489,10 +563,40 @@ public final class UserSql extends AbstractSql {
                 } else if (1 == reservationCount) {
                     return Boolean.TRUE;
                 } else {
-                    throw new HypersonicException("Could not determine reservation existence.");
+                    throw new HypersonicException("Could not determine e-mail reservation existence.");
                 }
             } else {
-                throw new HypersonicException("Could not determine reservation existence.");
+                throw new HypersonicException("Could not determine e-mail reservation existence.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Determine whether or not a given reservation exists.
+     * 
+     * @param token
+     *            A reservation <code>Token</code>.
+     * @return True if a reservation exists.
+     */
+    public Boolean doesExistUsernameReservation(final Token token) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_USERNAME_RESERVATION_UK);
+            session.setString(1, token.getValue());
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int reservationCount = session.getInteger("RESERVATION_COUNT");
+                if (0 == reservationCount) {
+                    return Boolean.FALSE;
+                } else if (1 == reservationCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine username reservation existence.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine username reservation existence.");
             }
         } finally {
             session.close();

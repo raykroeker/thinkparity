@@ -24,9 +24,10 @@ import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -105,6 +106,15 @@ public interface ServiceRequestReader {
      * @return An <code>EMail</code>.
      */
     public EMail readEMail(final String name);
+
+    /**
+     * Read an e-mail address reservation.
+     * 
+     * @param name
+     *            The parameter name <code>String</code>.
+     * @return An <code>EMailReservation</code>.
+     */
+    public EMailReservation readEMailReservation(final String name);
 
     /**
      * Read email addresses.
@@ -245,15 +255,6 @@ public interface ServiceRequestReader {
     public Release readRelease(final String name);
 
     /**
-     * Read reservation.
-     * 
-     * @param name
-     *            The parameter name <code>String</code>.
-     * @return The <code>Reservation</code>.
-     */
-    public Reservation readReservation(final String name);
-
-    /**
      * Read resource datum.
      * 
      * @param name
@@ -279,6 +280,15 @@ public interface ServiceRequestReader {
      * @return A <code>List</code> of <code>TeamMember</code>s.
      */
     public List<TeamMember> readTeamMembers(final String name);
+
+    /**
+     * Read a username reservation.
+     * 
+     * @param name
+     *            The parameter name <code>String</code>.
+     * @return The <code>UsernameReservation</code>.
+     */
+    public UsernameReservation readUsernameReservation(final String name);
 
     /**
      * Read users.

@@ -10,9 +10,10 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
@@ -47,12 +48,14 @@ public interface ProfileModel {
     @ThinkParityTransaction(TransactionType.NEVER)
     public void addListener(final ProfileListener listener);
 
-    public void create(final Reservation reservation,
+    public void create(final UsernameReservation usernameReservation,
+            final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
             final EMail email) throws ReservationExpiredException;
 
-    public Reservation createReservation(final String username,
-            final EMail email);
+    public EMailReservation createEMailReservation(final EMail email);
+
+    public UsernameReservation createUsernameReservation(final String username);
 
 	/**
      * Determine whether or not an e-mail address is available.

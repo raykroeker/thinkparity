@@ -24,10 +24,11 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.profile.VerificationKey;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.User;
@@ -104,19 +105,26 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      *      java.lang.String)
      * 
      */
-    public void create(final JabberId userId, final Reservation reservation,
+    public void create(final JabberId userId,
+            final UsernameReservation usernameReservation,
+            final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
             final EMail email, final String securityQuestion,
             final String securityAnswer) {
         try {
             assertIsValid(profile.getVCard());
-            assertIsValid(reservation, credentials, email);
+            assertIsValid(usernameReservation, emailReservation, credentials, email);
 
             // delete expired reservations
             userSql.deleteExpiredReservations(currentDateTime());
-            Assert.assertTrue(userSql.doesExistReservation(
-                    reservation.getToken()), "Reservation {0} expired on {1}.",
-                    reservation.getToken(), reservation.getExpiresOn());
+            Assert.assertTrue(userSql.doesExistUsernameReservation(
+                    usernameReservation.getToken()),
+                    "Username reservation {0} expired on {1}.",
+                    usernameReservation.getToken(), usernameReservation.getExpiresOn());
+            Assert.assertTrue(userSql.doesExistEMailReservation(
+                    emailReservation.getToken()),
+                    "E-mail address reservation {0} expired on {1}.",
+                    emailReservation.getToken(), emailReservation.getExpiresOn());
 
             profile.setLocalId(userSql.create(credentials, securityQuestion,
                     securityAnswer, profile.getVCard()));
@@ -130,7 +138,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                 userSql.createFeature(profile, feature);
 
             // remove username reservation
-            userSql.deleteReservation(reservation.getToken());
+            userSql.deleteUsernameReservation(usernameReservation.getToken());
+            userSql.deleteEMailReservation(emailReservation.getToken());
 
             // add support contact
             getContactModel().create(userId, profile,
@@ -147,13 +156,12 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.profile.ProfileModel#createReservation(com.thinkparity.codebase.jabber.JabberId,
-     *      java.lang.String, com.thinkparity.codebase.email.EMail,
-     *      java.util.Calendar)
+     * @see com.thinkparity.desdemona.model.profile.ProfileModel#createEMailReservation(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.email.EMail, java.util.Calendar)
      * 
      */
-    public Reservation createReservation(final JabberId userId,
-            final String username, final EMail email, final Calendar reservedOn) {
+    public EMailReservation createEMailReservation(final JabberId userId,
+            final EMail email, final Calendar reservedOn) {
         try {
             userSql.deleteExpiredReservations(currentDateTime());
 
@@ -161,30 +169,26 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             final Calendar expiresOn = (Calendar) reservedOn.clone();
             expiresOn.set(Calendar.HOUR, expiresOn.get(Calendar.HOUR) + 1);
 
-            final Reservation reservation = new Reservation();
+            final EMailReservation reservation = new EMailReservation();
             reservation.setCreatedOn(reservedOn);
-            reservation.setEMail(email);
             reservation.setExpiresOn(expiresOn);
-            reservation.setToken(newToken());
-            // NOTE - ProfileModelImpl#createReservation - usernames are case in-sensitive
-            reservation.setUsername(username.toLowerCase());
-            try {
-                userSql.createReservation(reservation);
+            reservation.setEMail(email);
 
-                // if a user exists with the same username/e-mail game over
-                if (userSql.doesExist(reservation.getUsername())) {
-                    userSql.deleteReservation(reservation.getToken());
-                    return null;
-                } else if (userSql.doesExist(reservation.getEMail())) {
-                    userSql.deleteReservation(reservation.getToken());
+            /* NOTE - there is a deliberate non re-throw of any error */
+            try {
+                reservation.setToken(newToken());
+                userSql.createEMailReservation(reservation);
+                
+                // if a user exists with the same e-mail game over
+                if (userSql.doesExist(reservation.getEMail())) {
+                    userSql.deleteEMailReservation(reservation.getToken());
                     return null;
                 } else {
                     return reservation;
                 }
             } catch (final Throwable t) {
-                logger.logError(t, "Reservation {0} cannot be created.", reservation);
-                /* NOTE probably not the best way to indicate that a reservation
-                 * cannot be made */
+                logger.logError(t, "Could not create e-mail reservation {0}.",
+                        reservation);
                 return null;
             }
         } catch (final Throwable t) {
@@ -210,6 +214,48 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             return userSql.readProfileToken(userId);
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.profile.ProfileModel#createUsernameReservation(com.thinkparity.codebase.jabber.JabberId,
+     *      java.lang.String, java.util.Calendar)
+     * 
+     */
+    public UsernameReservation createUsernameReservation(final JabberId userId,
+            final String username, final Calendar reservedOn) {
+        try {
+            userSql.deleteExpiredReservations(currentDateTime());
+
+            // expire in an hour
+            final Calendar expiresOn = (Calendar) reservedOn.clone();
+            expiresOn.set(Calendar.HOUR, expiresOn.get(Calendar.HOUR) + 1);
+
+            final UsernameReservation reservation = new UsernameReservation();
+            reservation.setCreatedOn(reservedOn);
+            reservation.setExpiresOn(expiresOn);
+            // NOTE - ProfileModelImpl#createReservation - usernames are case in-sensitive
+            reservation.setUsername(username.toLowerCase());
+
+            /* NOTE - there is a deliberate non re-throw of any error */
+            try {
+                reservation.setToken(newToken());
+                userSql.createUsernameReservation(reservation);
+                
+                // if a user exists with the same username game over
+                if (userSql.doesExist(reservation.getUsername())) {
+                    userSql.deleteUsernameReservation(reservation.getToken());
+                    return null;
+                } else {
+                    return reservation;
+                }
+            } catch (final Throwable t) {
+                logger.logError(t, "Could not create username reservation {0}.",
+                        reservation);
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 
@@ -276,7 +322,6 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         }
     }
 
-    
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#readFeatures(com.thinkparity.codebase.jabber.JabberId)
      * 
@@ -303,6 +348,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         }
     }
 
+    
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#readToken(com.thinkparity.codebase.jabber.JabberId)
      * 
@@ -457,14 +503,15 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         assertIsSet("title", vcard.getTitle());
     }
 
-    private void assertIsValid(final Reservation reservation,
+    private void assertIsValid(final UsernameReservation usernameReservation,
+            final EMailReservation emailReservation,
             final Credentials credentials, final EMail email) {
-        Assert.assertTrue(reservation.getUsername().equals(credentials.getUsername()),
+        Assert.assertTrue(usernameReservation.getUsername().equals(credentials.getUsername()),
                 "Reservation username {0} does not match credentials username {1}.",
-                reservation.getUsername(), credentials.getUsername());
-        Assert.assertTrue(reservation.getEMail().equals(email),
+                usernameReservation.getUsername(), credentials.getUsername());
+        Assert.assertTrue(emailReservation.getEMail().equals(email),
                 "Reservation e-mail address {0} does not match e-mail address {1}.",
-                reservation.getEMail(), email);
+                emailReservation.getEMail(), email);
     }
 
     private void assertIsValidCountry(final String name, final String value) {

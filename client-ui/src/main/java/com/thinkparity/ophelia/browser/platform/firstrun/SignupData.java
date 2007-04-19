@@ -19,5 +19,12 @@ public class SignupData extends Data {
         super();
     }
 
-    public enum DataKey { CREDENTIALS, EMAIL, FEATURE_SET, PROFILE, RESERVATION }
+    /**
+     * <b>Title:</b>Signup Data Key Enumeration<br>
+     * <b>Description:</b><br>
+     */
+    public enum DataKey {
+        CREDENTIALS, EMAIL, EMAIL_RESERVATION, FEATURE_SET, PROFILE,
+        USERNAME_RESERVATION
+    }
 }

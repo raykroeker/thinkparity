@@ -29,9 +29,10 @@ import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -236,6 +237,14 @@ public final class IQReader implements ServiceRequestReader {
     }
 
     /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readReservation(java.lang.String)
+     *
+     */
+    public EMailReservation readEMailReservation(final String name) {
+        return (EMailReservation) readXStreamObject(name, new EMailReservation());
+    }
+
+    /**
      * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readEMails(java.lang.String)
      * 
      */
@@ -408,14 +417,6 @@ public final class IQReader implements ServiceRequestReader {
     }
 
     /**
-     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readReservation(java.lang.String)
-     *
-     */
-    public Reservation readReservation(final String name) {
-        return (Reservation) readXStreamObject(name, new Reservation());
-    }
-
-    /**
      * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readResources(java.lang.String)
      * 
      */
@@ -465,6 +466,14 @@ public final class IQReader implements ServiceRequestReader {
             }
         }
         return teamMembers;
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceRequestReader#readReservation(java.lang.String)
+     *
+     */
+    public UsernameReservation readUsernameReservation(final String name) {
+        return (UsernameReservation) readXStreamObject(name, new UsernameReservation());
     }
 
     /**

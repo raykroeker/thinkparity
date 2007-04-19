@@ -10,10 +10,11 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.util.Token;
 
@@ -41,14 +42,16 @@ public interface ProfileModel {
     public void addEmail(final JabberId userId, final EMail email);
 
 	@ThinkParityAuthenticate(AuthenticationType.SYSTEM)
-    public void create(final JabberId userId, final Reservation reservation,
+    public void create(final JabberId userId,
+            final UsernameReservation usernameReservation,
+            final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
             final EMail email, final String securityQuestion,
             final String securityAnswer);
 
     @ThinkParityAuthenticate(AuthenticationType.SYSTEM)
-    public Reservation createReservation(final JabberId userId,
-            final String username, final EMail email, final Calendar reservedOn);
+    public EMailReservation createEMailReservation(final JabberId userId,
+            final EMail email, final Calendar reservedOn);
 
     /**
      * Create a user's token.
@@ -59,6 +62,10 @@ public interface ProfileModel {
      */
     @ThinkParityAuthenticate(AuthenticationType.USER)
     public Token createToken(final JabberId userId);
+
+    @ThinkParityAuthenticate(AuthenticationType.SYSTEM)
+    public UsernameReservation createUsernameReservation(final JabberId userId,
+            final String username, final Calendar reservedOn);
 
     /**
      * Determine whether or not an e-mail address is available.

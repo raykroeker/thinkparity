@@ -1,3 +1,11 @@
+create table TPSD_EMAIL_RESERVATION(
+    EMAIL varchar(512) not null,
+    TOKEN varchar(32) not null,
+    EXPIRES_ON timestamp not null,
+    CREATED_ON timestamp not null,
+    primary key (EMAIL),
+    unique (TOKEN)
+);
 create table TPSD_EMAIL(
     EMAIL_ID bigint generated always as identity(start with 5000),
     EMAIL varchar(512) not null,
@@ -5,14 +13,12 @@ create table TPSD_EMAIL(
     unique(EMAIL)
 );
 
-create table TPSD_USER_RESERVATION(
+create table TPSD_USERNAME_RESERVATION(
     USERNAME varchar(32) not null,
-    EMAIL varchar(512) not null,
     TOKEN varchar(32) not null,
     EXPIRES_ON timestamp not null,
     CREATED_ON timestamp not null,
     primary key (USERNAME),
-    unique (EMAIL),
     unique (TOKEN)
 );
 create table TPSD_USER(

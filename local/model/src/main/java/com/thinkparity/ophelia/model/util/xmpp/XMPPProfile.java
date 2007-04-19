@@ -10,9 +10,10 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.util.Token;
 
@@ -60,13 +61,16 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         execute(addEmail);
     }
 
-    void create(final JabberId userId, final Reservation reservation,
+    void create(final JabberId userId,
+            final UsernameReservation usernameReservation,
+            final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
             final EMail email, final String securityQuestion,
             final String securityAnswer) {
         final XMPPMethod create = xmppCore.createMethod("profile:create");
         create.setParameter("userId", userId);
-        create.setParameter("reservation", reservation);
+        create.setParameter("usernameReservation", usernameReservation);
+        create.setParameter("emailReservation", emailReservation);
         create.setParameter("credentials", credentials);
         create.setParameter("profile", profile);
         create.setParameter("email", email);
@@ -75,14 +79,13 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         execute(create);
     }
 
-    Reservation createReservation(final JabberId userId, final String username,
+    EMailReservation createEMailReservation(final JabberId userId,
             final EMail email, final Calendar reservedOn) {
-        final XMPPMethod createReservation = xmppCore.createMethod("profile:createreservation");
+        final XMPPMethod createReservation = xmppCore.createMethod("profile:createemailreservation");
         createReservation.setParameter("userId", userId);
-        createReservation.setParameter("username", username);
         createReservation.setParameter("email", email);
         createReservation.setParameter("reservedOn", reservedOn);
-        return execute(createReservation, Boolean.TRUE).readResultReservation("reservation");
+        return execute(createReservation, Boolean.TRUE).readResultEMailReservation("reservation");
     }
 
     /**
@@ -96,6 +99,15 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         final XMPPMethod createToken = xmppCore.createMethod("profile:createtoken");
         createToken.setParameter("userId", userId);
         return execute(createToken, Boolean.TRUE).readResultToken("token");
+    }
+
+    UsernameReservation createUsernameReservation(final JabberId userId,
+            final String username, final Calendar reservedOn) {
+        final XMPPMethod createReservation = xmppCore.createMethod("profile:createusernamereservation");
+        createReservation.setParameter("userId", userId);
+        createReservation.setParameter("username", username);
+        createReservation.setParameter("reservedOn", reservedOn);
+        return execute(createReservation, Boolean.TRUE).readResultUsernameReservation("reservation");
     }
 
     /**

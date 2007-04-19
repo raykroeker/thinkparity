@@ -28,8 +28,9 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.UserVCard;
@@ -88,6 +89,11 @@ public final class IQWriter implements ServiceResponseWriter {
      */
     public final IQ getIQ() { return iq; }
 
+    public void write(final String name, final EMailReservation value) {
+        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
+    }
+
+
     /**
      * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#write(java.lang.String,
      *      com.thinkparity.codebase.model.migrator.Product)
@@ -96,7 +102,6 @@ public final class IQWriter implements ServiceResponseWriter {
     public final void write(final String name, final Product value) {
         ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
     }
-
 
     /**
      * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#write(java.lang.String,
@@ -108,18 +113,18 @@ public final class IQWriter implements ServiceResponseWriter {
     }
 
     /**
-     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#write(java.lang.String, com.thinkparity.codebase.model.profile.Reservation)
-     *
-     */
-    public void write(final String name, final Reservation value) {
-        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
-    }
-
-    /**
      * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#write(java.lang.String, com.thinkparity.codebase.model.backup.Statistics)
      *
      */
     public void write(final String name, final Statistics value) {
+        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#write(java.lang.String, com.thinkparity.codebase.model.profile.Reservation)
+     *
+     */
+    public void write(final String name, final UsernameReservation value) {
         ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
     }
 
@@ -268,15 +273,6 @@ public final class IQWriter implements ServiceResponseWriter {
     }
 
     /**
-     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeProfileEMails(java.lang.String, java.util.List)
-     *
-     */
-    public void writeProfileEMails(final String name,
-            final List<ProfileEMail> values) {
-        ElementBuilder.addProfileEMailElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
-    }
-
-    /**
      * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeIncomingEMailInvitations(java.lang.String,
      *      java.util.List)
      * 
@@ -341,6 +337,15 @@ public final class IQWriter implements ServiceResponseWriter {
     public void writeOutgoingUserInvitations(final String name,
             final List<OutgoingUserInvitation> values) {
         ElementBuilder.addOutgoingUserInvitationElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writeProfileEMails(java.lang.String, java.util.List)
+     *
+     */
+    public void writeProfileEMails(final String name,
+            final List<ProfileEMail> values) {
+        ElementBuilder.addProfileEMailElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
     }
 
     /**

@@ -5,10 +5,9 @@ package com.thinkparity.desdemona.wildfire.handler.profile;
 
 import java.util.Calendar;
 
-import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
@@ -22,14 +21,14 @@ import com.thinkparity.desdemona.wildfire.handler.AuthenticatedHandler;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class CreateReservation extends AuthenticatedHandler {
+public final class CreateUsernameReservation extends AuthenticatedHandler {
 
     /**
      * Create CreateReservation.
      *
      */
-    public CreateReservation() {
-        super("profile:createreservation");
+    public CreateUsernameReservation() {
+        super("profile:createusernamereservation");
     }
 
     /**
@@ -40,15 +39,15 @@ public final class CreateReservation extends AuthenticatedHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        writer.write("reservation", createReservation(provider,
+        writer.write("reservation", createUsernameReservation(provider,
                 reader.readJabberId("userId"), reader.readString("username"),
-                reader.readEMail("email"), reader.readCalendar("reservedOn")));
+                reader.readCalendar("reservedOn")));
     }
 
-    private Reservation createReservation(final ServiceModelProvider provider,
-            final JabberId userId, final String username, final EMail email,
-            final Calendar reservedOn) {
-        return provider.getProfileModel().createReservation(userId, username,
-                email, reservedOn);
+    private UsernameReservation createUsernameReservation(
+            final ServiceModelProvider provider, final JabberId userId,
+            final String username, final Calendar reservedOn) {
+        return provider.getProfileModel().createUsernameReservation(userId,
+                username, reservedOn);
     }
 }

@@ -1,9 +1,6 @@
 /*
- * SignupProfileInfoAvatar.java
- *
  * Created on April 2, 2007, 4:02 PM
  */
-
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
 import java.awt.event.ItemEvent;
@@ -22,9 +19,10 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.profile.Reservation;
+import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 
 import com.thinkparity.ophelia.model.Constants.Product;
@@ -39,10 +37,13 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.firstrun.SignupData.DataKey;
 
 /**
- *
- * @author  user
+ * <b>Title:</b>thinkParity OpheliaUI Sign-Up Profile Info Avatar<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.9
  */
-public class SignupProfileInfoAvatar extends DefaultSignupPage {
+public final class SignupProfileInfoAvatar extends DefaultSignupPage {
 
     /** The country <code>DefaultComboBoxModel</code>. */
     private final DefaultComboBoxModel countryModel;
@@ -149,22 +150,47 @@ public class SignupProfileInfoAvatar extends DefaultSignupPage {
     }
 
     /**
-     * Create the account.
+     * Create a new profile.
+     *
      */
-    private void createAccount() {
-        final Reservation reservation = (Reservation)((Data)input).get(SignupData.DataKey.RESERVATION);
-        final Credentials credentials = (Credentials)((Data)input).get(SignupData.DataKey.CREDENTIALS);
+    private void createProfile() {
+        final UsernameReservation usernameReservation = (UsernameReservation) ((Data) input).get(SignupData.DataKey.USERNAME_RESERVATION);
+        final EMailReservation emailReservation = (EMailReservation) ((Data) input).get(SignupData.DataKey.EMAIL_RESERVATION);
+        final Credentials credentials = (Credentials) ((Data) input).get(SignupData.DataKey.CREDENTIALS);
         final Profile profile = extractProfile();
-        final EMail email = (EMail)((Data)input).get(SignupData.DataKey.EMAIL);
+        final EMail email = (EMail) ((Data) input).get(SignupData.DataKey.EMAIL);
         try {
             profile.setFeatures(extractFeatures());
-            ((SignupProvider) contentProvider).createProfile(reservation,
-					credentials, profile, email);
+            createProfile(usernameReservation, emailReservation, credentials,
+                    profile, email);
         } catch (final ReservationExpiredException rex) {
         	addInputError(getString("ErrorReservationExpired"));
         } catch (final Throwable t) {
             addInputError(getString("ErrorCreateAccount"));
         }
+    }
+
+    /**
+     * Create a new profile.
+     * 
+     * @param usernameReservation
+     *            A <code>UsernameReservation</code>.
+     * @param emailReservation
+     *            An <code>EMailReservation</code>.
+     * @param credentials
+     *            A set of user <code>Credentials</code>.
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param email
+     *            An <code>EMail</code> address.
+     * @throws ReservationExpiredException
+     */
+    private void createProfile(final UsernameReservation usernameReservation,
+            final EMailReservation emailReservation,
+            final Credentials credentials, final Profile profile,
+            final EMail email) throws ReservationExpiredException {
+        ((SignupProvider) contentProvider).createProfile(usernameReservation,
+                emailReservation, credentials, profile, email);
     }
 
     /**
@@ -457,17 +483,6 @@ public class SignupProfileInfoAvatar extends DefaultSignupPage {
     }
 
     /**
-     * Reload the postal code (ie. postal code or zip code) label.
-     */
-    private void reloadPostalCodeLabel() {
-        if (isUnitedStates()) {
-            postalCodeJLabel.setText(getString("ZipCode"));
-        } else {
-            postalCodeJLabel.setText(getString("PostalCode"));    
-        }
-    }
-
-    /**
      * Reload the country from the default locale.
      */
     private void reloadCountry() {
@@ -478,6 +493,17 @@ public class SignupProfileInfoAvatar extends DefaultSignupPage {
             if (locale.getCountry().equals(defaultLocale.getCountry())) {
                 countryModel.setSelectedItem(locale);
             }
+        }
+    }
+
+    /**
+     * Reload the postal code (ie. postal code or zip code) label.
+     */
+    private void reloadPostalCodeLabel() {
+        if (isUnitedStates()) {
+            postalCodeJLabel.setText(getString("ZipCode"));
+        } else {
+            postalCodeJLabel.setText(getString("PostalCode"));    
         }
     }
 
@@ -499,14 +525,14 @@ public class SignupProfileInfoAvatar extends DefaultSignupPage {
         SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
         errorMessageJLabel.setText(getString("SigningUp"));
         errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel.getWidth(), errorMessageJLabel.getHeight());
-        createAccount();
+        createProfile();
         errorMessageJLabel.setText(" ");
         if (containsInputErrors()) {
             errorMessageJLabel.setText(getInputErrors().get(0));
         }
         SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
     }
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JTextField addressJTextField = new javax.swing.JTextField();
     private final javax.swing.JTextField cityJTextField = new javax.swing.JTextField();
@@ -522,5 +548,4 @@ public class SignupProfileInfoAvatar extends DefaultSignupPage {
     private final javax.swing.JTextField provinceJTextField = new javax.swing.JTextField();
     private final javax.swing.JTextField userTitleJTextField = new javax.swing.JTextField();
     // End of variables declaration//GEN-END:variables
-    
 }

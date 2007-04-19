@@ -335,12 +335,27 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     private void initComponents() {
         javax.swing.JLabel filler1JLabel;
         javax.swing.JLabel filler2JLabel;
+        javax.swing.JLabel fillerJLabel;
 
+        final javax.swing.JLabel signUpExplanationJLabel = new javax.swing.JLabel();
+        fillerJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel usernameJLabel = LabelFactory.create();
         final javax.swing.JLabel passwordJLabel = LabelFactory.create();
         final javax.swing.JButton cancelJButton = ButtonFactory.create();
         filler1JLabel = new javax.swing.JLabel();
         filler2JLabel = new javax.swing.JLabel();
+
+        signUpExplanationJLabel.setFont(Fonts.DialogFont);
+        signUpExplanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("LoginAvatar.SignUpExplanation"));
+
+        signUpJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("LoginAvatar.SignUp"));
+        signUpJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                signUpJLabelMousePressed(evt);
+            }
+        });
+
+        fillerJLabel.setText(" ");
 
         usernameJLabel.setFont(Fonts.DialogFont);
         usernameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("LoginAvatar.UsernameLabel"));
@@ -362,13 +377,6 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
         errorMessageJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("LoginAvatar.ErrorBadCredentials"));
         errorMessageJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-
-        signUpJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("LoginAvatar.SignUp"));
-        signUpJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                signUpJLabelMousePressed(evt);
-            }
-        });
 
         forgotPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("LoginAvatar.ForgotPassword"));
         forgotPasswordJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -403,17 +411,15 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
             buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonBarJPanelLayout.createSequentialGroup()
                 .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
                     .add(buttonBarJPanelLayout.createSequentialGroup()
-                        .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(forgotPasswordJLabel)
-                            .add(buttonBarJPanelLayout.createSequentialGroup()
-                                .add(signUpJLabel)
+                        .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, buttonBarJPanelLayout.createSequentialGroup()
+                                .add(forgotPasswordJLabel)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(filler1JLabel)))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(filler2JLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 181, Short.MAX_VALUE)
+                                .add(filler2JLabel))
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, filler1JLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 129, Short.MAX_VALUE)
                         .add(nextJButton)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(cancelJButton))
@@ -431,9 +437,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
                         .add(cancelJButton)
                         .add(nextJButton))
                     .add(buttonBarJPanelLayout.createSequentialGroup()
-                        .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(signUpJLabel)
-                            .add(filler1JLabel))
+                        .add(filler1JLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(forgotPasswordJLabel)
@@ -456,8 +460,8 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         progressBarJPanel.setLayout(progressBarJPanelLayout);
         progressBarJPanelLayout.setHorizontalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, stepJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
-            .add(loginJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, stepJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+            .add(loginJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
         );
         progressBarJPanelLayout.setVerticalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -485,7 +489,13 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
                     .add(layout.createSequentialGroup()
                         .add(passwordJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 103, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(passwordJPasswordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE)))
+                        .add(passwordJPasswordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(signUpExplanationJLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(signUpJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 36, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(fillerJLabel)))
                 .addContainerGap())
         );
 
@@ -496,7 +506,12 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(28, Short.MAX_VALUE)
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(signUpExplanationJLabel)
+                    .add(fillerJLabel)
+                    .add(signUpJLabel))
+                .add(15, 15, 15)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(usernameJLabel)
                     .add(usernameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -504,7 +519,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(passwordJLabel)
                     .add(passwordJPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(21, 21, 21)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 14, Short.MAX_VALUE)
                 .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))

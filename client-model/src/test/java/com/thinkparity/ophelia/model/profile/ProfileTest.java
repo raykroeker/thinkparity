@@ -154,26 +154,6 @@ public final class ProfileTest extends ProfileTestCase {
     }
 
     /**
-     * Test resetting the password.
-     *
-     */
-    public void testResetPassword() {
-        final String password = datum.junit.getCredentials().getPassword();
-        getModel(datum.junit).addListener(datum.reset_password_listener);
-        getModel(datum.junit).resetPassword();
-        datum.waitForEvents();
-        getModel(datum.junit).removeListener(datum.reset_password_listener);
-        assertTrue("Reset password event not fired.", datum.reset_password_notify);
-        // change it back
-        final String newPassword = getModel(datum.junit).readCredentials().getPassword();
-        try {
-            getModel(datum.junit).updatePassword(newPassword, password);
-        } catch (final InvalidCredentialsException icx) {
-            fail("Cannot update password:  {0}", icx.getMessage());
-        }
-    }
-
-    /**
      * Test updating the profile.
      *
      */
@@ -253,8 +233,6 @@ public final class ProfileTest extends ProfileTestCase {
         private final OpheliaTestUser junit_x;
         private final ProfileListener remove_email_listener;
         private boolean remove_email_notify;
-        private final ProfileListener reset_password_listener;
-        private boolean reset_password_notify;
         private final ProfileListener update_listener;
         private boolean update_notify;
         private final ProfileListener update_password_listener;
@@ -290,16 +268,6 @@ public final class ProfileTest extends ProfileTestCase {
                 }
             };
             this.remove_email_notify = false;
-            this.reset_password_listener = new ProfileAdapter() {
-                @Override
-                public void passwordReset(final ProfileEvent e) {
-                    assertNotNull("Profile event is null.", e);
-                    assertNotNull("Profile event profile is null.", e.getProfile());
-                    assertNull("Profile event email is not null.", e.getEmail());
-                    reset_password_notify = true;
-                }
-            };
-            this.reset_password_notify = false;
             this.update_listener = new ProfileAdapter() {
                 @Override
                 public void profileUpdated(final ProfileEvent e) {

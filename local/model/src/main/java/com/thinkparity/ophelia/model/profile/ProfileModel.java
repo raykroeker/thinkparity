@@ -144,12 +144,6 @@ public interface ProfileModel {
     public void removeListener(final ProfileListener listener);
 
     /**
-     * Reset the user's password.
-     * 
-     */
-	public void resetPassword();
-
-    /**
      * Search for profiles.
      * 
      * @param expression

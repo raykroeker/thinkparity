@@ -26,10 +26,13 @@ public class EMail {
 	 */
     @Override
 	public boolean equals(final Object obj) {
-		if(null != obj && obj instanceof EMail) {
-			return obj.toString().equals(toString());
-		}
-		return false;
+        if (null == obj)
+            return false;
+        if (this == obj)
+            return true;
+        if (getClass() != obj.getClass())
+            return false;
+        return obj.toString().equals(toString());
 	}
 
 	/**

@@ -146,12 +146,12 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
     @Override
     public final void validateInput() {
         super.validateInput();
-        final String email = extractInputEMail();
+        final EMail email = extractEMail();
         final String username = extractUsername();
         final String password = extractPassword();
         final String confirmPassword = extractConfirmPassword();
 
-        if (isEmpty(email)) {
+        if (null == email) {
             addInputError(Separator.Space.toString());
         } else if (!isInputEmailValid()) {
             addInputError(getString("ErrorInvalidEmail"));
@@ -171,7 +171,8 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         if (null != password && null != confirmPassword &&
                 !password.equals(confirmPassword))
             addInputError(getString("ErrorPasswordsDoNotMatch"));
-        if (null != email && null != unacceptableEMail && email.equals(unacceptableEMail)) {
+
+        if (null != unacceptableEMail && email.equals(unacceptableEMail)) {
             addInputError(getString("ErrorEMailTaken", new Object[] { email }));
         }
 
@@ -206,15 +207,6 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
     }
 
     /**
-     * Extract the email from the control.
-     * 
-     * @return The <code>EMail</code>.
-     */
-    private EMail extractEMail() {
-        return EMailBuilder.parse(extractInputEMail());
-    }
-
-    /**
      * Extract the feature set based upon the account type selection.
      * 
      * @return A <code>FeatureSet</code>.
@@ -236,8 +228,10 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      * 
      * @return The email <code>String</code>.
      */
-    private String extractInputEMail() {
-        return SwingUtil.extract(emailJTextField, Boolean.TRUE);
+    private EMail extractEMail() {
+        final String emailAddress = SwingUtil.extract(emailJTextField,
+                Boolean.TRUE);
+        return null == emailAddress ? null : EMailBuilder.parse(emailAddress);
     }
 
     /**
@@ -449,16 +443,10 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      * @return True if the input email is valid; false otherwise.
      */
     private Boolean isInputEmailValid() {
-        final String email = extractInputEMail();
-        if (isEmpty(email)) {
+        try {
+            return null != extractEMail();
+        } catch (final EMailFormatException emfx) {
             return Boolean.FALSE;
-        } else {
-            try {
-                EMailBuilder.parse(email);
-                return Boolean.TRUE;
-            } catch(final EMailFormatException efx) {
-                return Boolean.FALSE;
-            }
         }
     }
 

@@ -223,7 +223,7 @@ public final class ProfileTest extends ProfileTestCase {
         // test update password with temporary credentials using e-mail key
         getModel(datum.junit).addListener(datum.update_password_listener);
         final TemporaryCredentials temporaryCredentialsViaEMail = getModel(datum.junit).createCredentials(
-                datum.junit.getEmail().toString(), datum.junit.getUsername());
+                datum.junit.getEmail().toString(), datum.junit.getSimpleUsername());
         try {
             getModel(datum.junit).updatePassword(temporaryCredentialsViaEMail, newPassword);
         } catch (final InvalidCredentialsException icx) {

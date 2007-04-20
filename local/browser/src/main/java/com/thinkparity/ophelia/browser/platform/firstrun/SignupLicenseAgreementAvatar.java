@@ -45,14 +45,7 @@ public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getPreviousPageName()
      */
     public String getPreviousPageName() {
-        return null;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isFirstPage()
-     */
-    public Boolean isFirstPage() {
-        return Boolean.TRUE;
+        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_INTRO);
     }
 
     /**

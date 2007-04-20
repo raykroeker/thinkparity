@@ -254,7 +254,7 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
     /**
      * Credit card types
      */
-    public enum CardType {
+    private enum CardType {
         VISA("Visa"),
         MASTERCARD("MasterCard"),
         AMERICAN_EXPRESS("AmericanExpress"),

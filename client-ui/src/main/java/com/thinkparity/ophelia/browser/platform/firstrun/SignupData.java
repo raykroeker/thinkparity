@@ -25,6 +25,6 @@ public class SignupData extends Data {
      */
     public enum DataKey {
         CREDENTIALS, EMAIL, EMAIL_RESERVATION, FEATURE_SET, PROFILE,
-        USERNAME_RESERVATION
+        SECURITY_ANSWER, SECURITY_QUESTION, USERNAME_RESERVATION
     }
 }

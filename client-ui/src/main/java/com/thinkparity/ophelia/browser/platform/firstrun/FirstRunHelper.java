@@ -13,6 +13,9 @@ import com.thinkparity.ophelia.browser.platform.Platform;
  */
 public final class FirstRunHelper {
 
+    /** A <code>LoginWindow</code>. */
+    private LoginWindow loginWindow;
+
     /** A <code>SignupWindow</code>. */
     private SignupWindow signupWindow;
 
@@ -30,28 +33,41 @@ public final class FirstRunHelper {
      * Execute first run functionality for the browser platform.
      */
     public void firstRun() {
-        final LoginWindow loginWindow = new LoginWindow();
-        loginWindow.setInitializeMediator(new InitializeMediator() {
-            public Boolean confirmRestorePremium() {
-                return new ConfirmSynchronizeWindow().confirmRestorePremium();
-            }
-            public Boolean confirmRestoreStandard() {
-                return new ConfirmSynchronizeWindow().confirmRestoreStandard();
-            }
-        });
-        boolean doneLogin = false;
-        while (!doneLogin) {
-            loginWindow.setVisibleAndWait();
-            if (loginWindow.isSignup()) {
-                getSignupWindow().setVisibleAndWait();
-                if (getSignupWindow().isSignupCompleted()) {
-                    loginWindow.setCredentials(getSignupWindow().getCredentials());
-                    loginWindow.enableSignup(Boolean.FALSE);
-                }
+        final SignupWindow signupWindow = getSignupWindow();
+        signupWindow.setVisibleAndWait();
+        if (!signupWindow.isCancelled()) {
+            final LoginWindow loginWindow = getLoginWindow();
+            if (signupWindow.isSetCredentials()) {
+                loginWindow.setCredentials(signupWindow.getCredentials());
+                loginWindow.setVisibleAndWait(new Runnable() {
+                    public void run() {
+                        loginWindow.login();
+                    }
+                });
             } else {
-                doneLogin = true;
+                loginWindow.setVisibleAndWait();
             }
         }
+    }
+
+    /**
+     * Get a LoginWindow
+     * 
+     * @return A <code>LoginWindow</code>.
+     */
+    private LoginWindow getLoginWindow() {
+        if (null == loginWindow) {
+            loginWindow = new LoginWindow();
+            loginWindow.setInitializeMediator(new InitializeMediator() {
+                public Boolean confirmRestorePremium() {
+                    return new ConfirmSynchronizeWindow().confirmRestorePremium();
+                }
+                public Boolean confirmRestoreStandard() {
+                    return new ConfirmSynchronizeWindow().confirmRestoreStandard();
+                }
+            });
+        }
+        return loginWindow;
     }
 
     /**

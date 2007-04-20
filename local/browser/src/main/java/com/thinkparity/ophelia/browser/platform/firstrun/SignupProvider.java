@@ -50,24 +50,29 @@ public class SignupProvider extends ContentProvider {
     /**
      * Create a profile (account).
      * 
-     * @param reservation
-     *            A <code>Reservation</code>.
+     * @param usernameReservation
+     *            A <code>UsernameReservation</code>.
+     * @param emailReservation
+     *            An <code>EMailReservation</code>.
      * @param credentials
      *            A <code>Credentials</code>.
      * @param profile
      *            A <code>Profile</code>.
      * @param email
      *            An <code>EMail</code>.
+     * @param securityQuestion
+     *            A security question <code>String</code>.
+     * @param securityAnswer
+     *            A security answer <code>String</code>.
      * @throws ReservationExpiredException
      */
     public void createProfile(final UsernameReservation usernameReservation,
             final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
-            final EMail email) throws ReservationExpiredException {
-        // NOCOMMIT - Hardcoded security question/answer.
+            final EMail email, final String securityQuestion,
+            final String securityAnswer) throws ReservationExpiredException {
     	profileModel.create(usernameReservation, emailReservation, credentials,
-                profile, email, "What is my username?",
-                profile.getSimpleUsername());
+                profile, email, securityQuestion, securityAnswer);
     }
 
     /**

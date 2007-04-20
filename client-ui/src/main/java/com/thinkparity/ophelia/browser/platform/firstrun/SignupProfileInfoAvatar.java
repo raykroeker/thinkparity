@@ -159,10 +159,12 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
         final Credentials credentials = (Credentials) ((Data) input).get(SignupData.DataKey.CREDENTIALS);
         final Profile profile = extractProfile();
         final EMail email = (EMail) ((Data) input).get(SignupData.DataKey.EMAIL);
+        final String securityQuestion = (String) ((Data) input).get(SignupData.DataKey.SECURITY_QUESTION);
+        final String securityAnswer = (String) ((Data) input).get(SignupData.DataKey.SECURITY_ANSWER);
         try {
             profile.setFeatures(extractFeatures());
             createProfile(usernameReservation, emailReservation, credentials,
-                    profile, email);
+                    profile, email, securityQuestion, securityAnswer);
         } catch (final ReservationExpiredException rex) {
         	addInputError(getString("ErrorReservationExpired"));
         } catch (final Throwable t) {
@@ -183,14 +185,20 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
      *            A <code>Profile</code>.
      * @param email
      *            An <code>EMail</code> address.
+     * @param securityQuestion
+     *            A security question <code>String</code>.
+     * @param securityAnswer
+     *            A security answer <code>String</code>.
      * @throws ReservationExpiredException
      */
     private void createProfile(final UsernameReservation usernameReservation,
             final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
-            final EMail email) throws ReservationExpiredException {
+            final EMail email, final String securityQuestion,
+            final String securityAnswer) throws ReservationExpiredException {
         ((SignupProvider) contentProvider).createProfile(usernameReservation,
-                emailReservation, credentials, profile, email);
+                emailReservation, credentials, profile, email,
+                securityQuestion, securityAnswer);
     }
 
     /**

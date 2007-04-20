@@ -58,12 +58,6 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     /** The password. */
     private String password;
 
-    /** Signup flag (true when selected by user) */
-    private Boolean signup;
-
-    /** Signup enabled flag (indicates the link is enabled) */
-    private Boolean signupEnabled;
-
     /** The username. */
     private String username;
 
@@ -77,7 +71,6 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     public LoginAvatar() {
         super("LoginAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         this.validCredentials = Boolean.TRUE;
-        this.signupEnabled = Boolean.TRUE;
         this.online = Boolean.TRUE;
         this.password = this.username = null;
         this.platform = BrowserPlatform.getInstance();
@@ -103,17 +96,6 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
      */
     public void dispose() {
         disposeWindow();
-    }
-
-    /**
-     * Enable or disable signup.
-     * 
-     * @param signupEnabled
-     *            The signup <code>Boolean</code>.
-     */
-    public void enableSignup(final Boolean signupEnabled) {
-        this.signupEnabled = signupEnabled;
-        reload();
     }
 
     /**
@@ -162,7 +144,6 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
             errorMessageJLabel.setText(getInputErrors().get(0));
         nextJButton.setEnabled(!containsInputErrors());
         reloadForgotPassword();
-        reloadSignup();
     }
 
     /**
@@ -186,16 +167,21 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         loginJProgressBar.setIndeterminate(true);
         progressBarJPanel.setVisible(true);
         buttonBarJPanel.setVisible(false);
+        usernameJTextField.setEditable(false);
+        passwordJPasswordField.setEditable(false);
         validate();
     }
 
     /**
-     * Determine if signup was selected.
-     * 
-     * @return true if signup was selected, false otherwise.
+     * Login.
      */
-    public Boolean isSignup() {
-        return signup;
+    public void login() {
+        // Username and password are saved in case they turn out to be wrong.
+        // In that event reload() will be called so the user can have another go.
+        username = extractUsername();
+        password = extractPassword();
+        nextJButton.setEnabled(false);
+        runLogin();
     }
 
     /**
@@ -224,7 +210,6 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         reloadUsername(username);
         reloadPassword(password);
         reloadForgotPassword();
-        reloadSignup();
         reloadError(validCredentials);
         reloadProgressBar();
         validateInput();
@@ -283,7 +268,6 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
 
     private void cancelJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_cancelJButtonActionPerformed
         password = username = null;
-        signup = Boolean.FALSE;
         disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
 
@@ -335,27 +319,12 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     private void initComponents() {
         javax.swing.JLabel filler1JLabel;
         javax.swing.JLabel filler2JLabel;
-        javax.swing.JLabel fillerJLabel;
 
-        final javax.swing.JLabel signUpExplanationJLabel = new javax.swing.JLabel();
-        fillerJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel usernameJLabel = LabelFactory.create();
         final javax.swing.JLabel passwordJLabel = LabelFactory.create();
         final javax.swing.JButton cancelJButton = ButtonFactory.create();
         filler1JLabel = new javax.swing.JLabel();
         filler2JLabel = new javax.swing.JLabel();
-
-        signUpExplanationJLabel.setFont(Fonts.DialogFont);
-        signUpExplanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("LoginAvatar.SignUpExplanation"));
-
-        signUpJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("LoginAvatar.SignUp"));
-        signUpJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                signUpJLabelMousePressed(evt);
-            }
-        });
-
-        fillerJLabel.setText(" ");
 
         usernameJLabel.setFont(Fonts.DialogFont);
         usernameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("LoginAvatar.UsernameLabel"));
@@ -489,13 +458,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
                     .add(layout.createSequentialGroup()
                         .add(passwordJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 103, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(passwordJPasswordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE))
-                    .add(layout.createSequentialGroup()
-                        .add(signUpExplanationJLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(signUpJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 36, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(fillerJLabel)))
+                        .add(passwordJPasswordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -506,12 +469,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(signUpExplanationJLabel)
-                    .add(fillerJLabel)
-                    .add(signUpJLabel))
-                .add(15, 15, 15)
+                .addContainerGap(41, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(usernameJLabel)
                     .add(usernameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -519,7 +477,7 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(passwordJLabel)
                     .add(passwordJPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 14, Short.MAX_VALUE)
+                .add(14, 14, 14)
                 .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -568,18 +526,12 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     /**
      * Perform the login.
      */
-    private void login() {
+    private void runLogin() {
         platform.runLogin(extractUsername(), extractPassword(), createMonitor(), initializeMediator);
     }
 
     private void nextJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_nextJButtonActionPerformed
         if (isInputValid()) {
-            // Username and password are saved in case they turn out to be wrong.
-            // In that event reload() will be called so the user can have another go.
-            username = extractUsername();
-            password = extractPassword();
-            signup = Boolean.FALSE;
-            nextJButton.setEnabled(false);
             login();
         }
     }//GEN-LAST:event_nextJButtonActionPerformed
@@ -612,26 +564,17 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     private void reloadProgressBar() {
         buttonBarJPanel.setVisible(true);
         progressBarJPanel.setVisible(false);
+        usernameJTextField.setEditable(true);
+        passwordJPasswordField.setEditable(true);
         /* The space is deliberate (as opposed to an empty string) in
          * order to maintain vertical spacing. */
         stepJLabel.setText(" ");
         validate();
     }
 
-    private void reloadSignup() {
-        signUpJLabel.setVisible(signupEnabled.booleanValue() && online.booleanValue());
-    }
-
     private void reloadUsername(final String username) {
         usernameJTextField.setText(username);
     }
-
-    private void signUpJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_signUpJLabelMousePressed
-        password = username = null;
-        signup = Boolean.TRUE;
-        SwingUtil.setCursor((javax.swing.JLabel) evt.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
-        disposeWindow();
-    }//GEN-LAST:event_signUpJLabelMousePressed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPanel buttonBarJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
@@ -640,7 +583,6 @@ public class LoginAvatar extends Avatar implements LoginSwingDisplay {
     private final javax.swing.JButton nextJButton = ButtonFactory.create();
     private final javax.swing.JPasswordField passwordJPasswordField = TextFactory.createPassword();
     private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel signUpJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JLabel stepJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField usernameJTextField = TextFactory.create();
     // End of variables declaration//GEN-END:variables

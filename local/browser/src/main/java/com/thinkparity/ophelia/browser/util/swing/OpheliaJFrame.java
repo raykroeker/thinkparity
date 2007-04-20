@@ -67,9 +67,21 @@ public abstract class OpheliaJFrame extends AbstractJFrame {
     /**
      * Set the visibility of the ophelia JFrame to true; and block until it is
      * closed.
-     * 
      */
     public final void setVisibleAndWait() {
+        setVisibleAndWait(new Runnable() {
+            public void run() {}
+        });
+    }
+
+    /**
+     * Set the visibility of the ophelia JFrame to true; and block until it is
+     * closed.
+     * 
+     * @param runWhenVisible
+     *            A <code>Runnable</code> that runs after the frame is made visible.
+     */
+    public final void setVisibleAndWait(final Runnable runWhenVisible) {
         addWindowListener(new WindowAdapter() {
             public void windowClosed(final WindowEvent e) {
                 synchronized (OpheliaJFrame.this) {
@@ -81,6 +93,7 @@ public abstract class OpheliaJFrame extends AbstractJFrame {
             SwingUtilities.invokeAndWait(new Runnable() {
                 public void run() {
                     setVisible(true);
+                    runWhenVisible.run();
                 }
             });
         } catch (final Throwable t) {

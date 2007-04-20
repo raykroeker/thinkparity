@@ -130,6 +130,9 @@ public class ProviderFactory {
         case DIALOG_PLATFORM_SIGNUP_AGREEMENT:
             provider = new SignupProvider(profileModel);
             break;
+        case DIALOG_PLATFORM_SIGNUP_INTRO:
+            provider = new SignupProvider(profileModel);
+            break;
         case DIALOG_PLATFORM_SIGNUP_PAYMENT:
             provider = new SignupProvider(profileModel);
             break;

@@ -54,12 +54,21 @@ public final class SignupWindow extends OpheliaJFrame {
     }
 
     /**
-     * Determine if signup has been completed (the button pressed).
+     * Determine if signup has been cancelled.
      * 
-     * @return true if the signup has been completed.
+     * @return true if the signup has been cancelled.
      */
-    public Boolean isSignupCompleted() {
-        return signupAvatar.isSignupCompleted();
+    public Boolean isCancelled() {
+        return signupAvatar.isCancelled();
+    }
+
+    /**
+     * Determine if the credentials are set.
+     * 
+     * @return true if the credentials are set, false otherwise.
+     */
+    public Boolean isSetCredentials() {
+        return (null != getCredentials());
     }
 
     /**
@@ -105,6 +114,7 @@ public final class SignupWindow extends OpheliaJFrame {
         signupData = new SignupData();
         signupAvatar = (SignupAvatar)getAvatar(AvatarId.DIALOG_PLATFORM_SIGNUP);
         signupAvatar.setInput(signupData);
+        signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_INTRO));
         signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_AGREEMENT));
         signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_ACCOUNT));
         signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT));

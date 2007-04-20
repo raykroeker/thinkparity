@@ -42,25 +42,6 @@ public final class LoginWindow extends OpheliaJFrame {
     }
 
     /**
-     * Enable or disable signup.
-     * 
-     * @param enable
-     *            The signup <code>Boolean</code>.
-     */
-    public void enableSignup(final Boolean enable) {
-        loginAvatar.enableSignup(enable);
-    }
-
-    /**
-     * Determine if signup was selected.
-     * 
-     * @return true if signup was selected, false otherwise.
-     */
-    public Boolean isSignup() {
-        return loginAvatar.isSignup();
-    }
-
-    /**
      * Set the credentials.
      * 
      * @param credentials
@@ -78,6 +59,13 @@ public final class LoginWindow extends OpheliaJFrame {
      */
     public void setInitializeMediator(final InitializeMediator initializeMediator) {
         loginAvatar.setInitializeMediator(initializeMediator);
+    }
+
+    /**
+     * Login (so no button press is required).
+     */
+    public void login() {
+        loginAvatar.login();
     }
 
     /**

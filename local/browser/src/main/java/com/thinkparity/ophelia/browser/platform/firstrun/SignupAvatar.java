@@ -36,8 +36,8 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     /** The current <code>SignupPage</code>. */
     private SignupPage currentPage;
 
-    /** Signup completed flag <code>Boolean</code>. */
-    private Boolean signupCompleted;
+    /** Signup cancelled flag <code>Boolean</code>. */
+    private Boolean cancelled;
 
     /** The list of <code>SignupPage</code>s. */
     private final List<SignupPage> signupPages;
@@ -46,7 +46,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     public SignupAvatar() {
         super("SignupAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         signupPages = new ArrayList<SignupPage>();
-        signupCompleted = Boolean.FALSE;
+        cancelled = Boolean.FALSE;
         initComponents();
         bindEscapeKey("Cancel", new AbstractAction() {
             private static final long serialVersionUID = 1;
@@ -85,12 +85,12 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     }
 
     /**
-     * Determine if signup has been completed (the button pressed).
+     * Determine if signup has been cancelled.
      * 
-     * @return true if the signup has been completed.
+     * @return true if the signup has been cancelled.
      */
-    public Boolean isSignupCompleted() {
-        return signupCompleted;
+    public Boolean isCancelled() {
+        return cancelled;
     }
 
     /**
@@ -142,6 +142,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     }
 
     private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
+        cancelled = Boolean.TRUE;
         disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
 
@@ -303,7 +304,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
      * Sign up.
      */
     private void signupComplete() {
-        signupCompleted = Boolean.TRUE;
+        cancelled = Boolean.FALSE;
         disposeWindow();
     }
 

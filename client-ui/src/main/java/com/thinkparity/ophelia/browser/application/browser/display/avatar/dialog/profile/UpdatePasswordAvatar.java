@@ -379,10 +379,10 @@ public class UpdatePasswordAvatar extends Avatar {
      *
      */
     private void updatePassword() {
-        final String password = extractPassword();
+        final Credentials credentials = extractCredentials();
         final String newPassword = extractNewPassword();
         final String newPasswordConfirm = extractConfirmNewPassword();
-        getController().runUpdateProfilePassword(password, newPassword,
+        getController().runUpdateProfilePassword(credentials, newPassword,
                 newPasswordConfirm);
     }
 }

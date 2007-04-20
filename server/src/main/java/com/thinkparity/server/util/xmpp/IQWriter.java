@@ -31,6 +31,7 @@ import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
+import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.UserVCard;
@@ -117,6 +118,10 @@ public final class IQWriter implements ServiceResponseWriter {
      *
      */
     public void write(final String name, final Statistics value) {
+        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
+    }
+
+    public final void write(final String name, final TemporaryCredentials value) {
         ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
     }
 

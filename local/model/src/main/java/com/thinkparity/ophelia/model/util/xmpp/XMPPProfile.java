@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.util.Token;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
@@ -86,6 +87,15 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         createReservation.setParameter("email", email);
         createReservation.setParameter("reservedOn", reservedOn);
         return execute(createReservation, Boolean.TRUE).readResultEMailReservation("reservation");
+    }
+
+    TemporaryCredentials createProfileCredentials(final String profileKey,
+            final String securityAnswer, final Calendar createdOn) {
+        final XMPPMethod createCredentials = new XMPPMethod("profile:createcredentials");
+        createCredentials.setParameter("profileKey", profileKey);
+        createCredentials.setParameter("securityAnswer", securityAnswer);
+        createCredentials.setParameter("createdOn", createdOn);
+        return execute(createCredentials, Boolean.TRUE).readResultTemporaryCredentials("credentials");
     }
 
     /**
@@ -216,24 +226,6 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
     }
 
     /**
-     * Reset the user's password.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     */
-    String resetPassword(final JabberId userId, final String securityAnswer) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("securityAnswer", "XXXXX");
-        assertIsAuthenticatedUser(userId);
-        final XMPPMethod resetCredentials = xmppCore.createMethod("profile:resetpassword");
-        resetCredentials.setParameter("userId", userId);
-        resetCredentials.setParameter("securityAnswer", securityAnswer);
-        final XMPPMethodResponse response = execute(resetCredentials, Boolean.TRUE);
-        return response.readResultString("password");
-    }
-
-    /**
      * Update the profile.
      * 
      * @param userId
@@ -255,21 +247,22 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         execute(update);
     }
 
-    /**
-     * Update the user's password.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     */
-    void updatePassword(final JabberId userId, final String password, final String newPassword) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("password", "XXXX");
-        logger.logVariable("newPassword", "XXXX");
+    void updatePassword(final JabberId userId, final Credentials credentials,
+            final String newPassword) {
         assertIsAuthenticatedUser(userId);
         final XMPPMethod updatePassword = xmppCore.createMethod("profile:updatepassword");
         updatePassword.setParameter("userId", userId);
-        updatePassword.setParameter("password", password);
+        updatePassword.setParameter("credentials", credentials);
+        updatePassword.setParameter("newPassword", newPassword);
+        execute(updatePassword);
+    }
+
+    void updatePassword(final JabberId userId,
+            final TemporaryCredentials credentials, final String newPassword) {
+        assertIsAuthenticatedUser(userId);
+        final XMPPMethod updatePassword = xmppCore.createMethod("profile:updateforgottenpassword");
+        updatePassword.setParameter("userId", userId);
+        updatePassword.setParameter("credentials", credentials);
         updatePassword.setParameter("newPassword", newPassword);
         execute(updatePassword);
     }

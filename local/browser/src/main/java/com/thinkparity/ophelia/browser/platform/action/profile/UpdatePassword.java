@@ -3,13 +3,15 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.profile;
 
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 /**
  * @author raymond@thinkparity.com
@@ -43,16 +45,16 @@ public class UpdatePassword extends AbstractBrowserAction {
             final ProfileModel profileModel = getProfileModel();
 
             // update password
-            final String password = (String) data.get(DataKey.PASSWORD);
+            final Credentials credentials = (Credentials) data.get(DataKey.CREDENTIALS);
             final String newPassword = (String) data.get(DataKey.NEW_PASSWORD);
             try {
-                profileModel.updatePassword(password, newPassword);
+                profileModel.updatePassword(credentials, newPassword);
             } catch (final InvalidCredentialsException icx) {}
         }
     }
 
     /** Data keys. */
     public enum DataKey {
-        DISPLAY_AVATAR, NEW_PASSWORD, NEW_PASSWORD_CONFIRM, PASSWORD
+        CREDENTIALS, DISPLAY_AVATAR, NEW_PASSWORD, NEW_PASSWORD_CONFIRM
     }
 }

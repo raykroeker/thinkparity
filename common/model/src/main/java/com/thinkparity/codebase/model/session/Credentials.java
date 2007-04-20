@@ -4,10 +4,13 @@
 package com.thinkparity.codebase.model.session;
 
 /**
+ * <b>Title:</b>thinkParity CommonModel Session Credentials<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.0
+ * @version 1.1.2.6
  */
-public class Credentials {
+public final class Credentials {
 
     /** The password. */
     private String password;

@@ -19,7 +19,10 @@ import javax.mail.internet.MimeMultipart;
 import com.thinkparity.codebase.LocaleUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.email.EMailBuilder;
+import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
@@ -31,6 +34,7 @@ import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.profile.VerificationKey;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.Token;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
@@ -116,7 +120,9 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             assertIsValid(usernameReservation, emailReservation, credentials, email);
 
             // delete expired reservations
-            userSql.deleteExpiredReservations(currentDateTime());
+            userSql.deleteReservations(currentDateTime());
+
+            // ensure the reservations exist
             Assert.assertTrue(userSql.doesExistUsernameReservation(
                     usernameReservation.getToken()),
                     "Username reservation {0} expired on {1}.",
@@ -156,6 +162,60 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.profile.ProfileModel#createCredentials(java.lang.String, java.lang.String)
+     *
+     */
+    public TemporaryCredentials createCredentials(final String profileKey,
+            final String securityAnswer, final Calendar createdOn) {
+        try {
+            userSql.deleteTemporaryCredentials(currentDateTime());
+
+            // expire in an hour
+            final Calendar expiresOn = (Calendar) createdOn.clone();
+            expiresOn.set(Calendar.HOUR, expiresOn.get(Calendar.HOUR) + 1);
+
+            // try to find a profile by either by username or by e-mail address
+            Profile profile = null;
+            try {
+                final JabberId userId = JabberIdBuilder.parseUsername(profileKey);
+                profile = read(userId);
+            } catch (final IllegalArgumentException iax) {}
+
+            if (null == profile) {
+                // try to fine a profile by e-mail
+                try {
+                    final EMail email = EMailBuilder.parse(profileKey);
+                    final User user = userSql.read(email);
+                    profile = read(user.getId());
+                } catch (final EMailFormatException efx) {}
+            }
+
+            if (null != profile) {
+                final String localSecurityAnswer = userSql.readProfileSecurityAnswer(profile.getId());
+                if (localSecurityAnswer.equals(securityAnswer)) {
+                    /* temporary credentials are single-use only therefore must
+                     * be deleted before new ones are issued */
+                    userSql.deleteTemporaryCredentials(profile);
+                    
+                    final TemporaryCredentials credentials = new TemporaryCredentials();
+                    credentials.setCreatedOn(createdOn);
+                    credentials.setExpiresOn(expiresOn);
+                    credentials.setToken(newToken());
+                    credentials.setUsername(profile.getSimpleUsername());
+                    userSql.createTemporaryCredentials(profile, credentials);
+                    return credentials;
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#createEMailReservation(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.email.EMail, java.util.Calendar)
      * 
@@ -163,7 +223,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     public EMailReservation createEMailReservation(final JabberId userId,
             final EMail email, final Calendar reservedOn) {
         try {
-            userSql.deleteExpiredReservations(currentDateTime());
+            userSql.deleteReservations(currentDateTime());
 
             // expire in an hour
             final Calendar expiresOn = (Calendar) reservedOn.clone();
@@ -225,16 +285,17 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     public UsernameReservation createUsernameReservation(final JabberId userId,
             final String username, final Calendar reservedOn) {
         try {
-            userSql.deleteExpiredReservations(currentDateTime());
+            userSql.deleteReservations(currentDateTime());
 
             // expire in an hour
             final Calendar expiresOn = (Calendar) reservedOn.clone();
             expiresOn.set(Calendar.HOUR, expiresOn.get(Calendar.HOUR) + 1);
 
+            /* NOTE - ProfileModelImpl#createReservation - usernames are case
+             * in-sensitive */
             final UsernameReservation reservation = new UsernameReservation();
             reservation.setCreatedOn(reservedOn);
             reservation.setExpiresOn(expiresOn);
-            // NOTE - ProfileModelImpl#createReservation - usernames are case in-sensitive
             reservation.setUsername(username.toLowerCase());
 
             /* NOTE - there is a deliberate non re-throw of any error */
@@ -378,28 +439,6 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.profile.ProfileModel#resetPassword(com.thinkparity.codebase.jabber.JabberId,
-     *      java.lang.String)
-     * 
-     */
-    public String resetPassword(final JabberId userId,
-            final String securityAnswer) {
-        try {
-            final String storedSecurityAnswer =
-                userSql.readProfileSecurityAnswer(userId);
-            Assert.assertTrue("SECURITY ANSWER DOES NOT MATCH",
-                    securityAnswer.equals(storedSecurityAnswer));
-            final User user = userSql.read(userId);
-            final Credentials credentials = userSql.readCredentials(user.getLocalId());
-            final String newPassword = PasswordGenerator.generate();
-            userSql.updatePassword(userId, credentials.getPassword(), newPassword);
-            return newPassword;
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#update(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.profile.ProfileVCard)
      * 
@@ -418,13 +457,62 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
 
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#updatePassword(com.thinkparity.codebase.jabber.JabberId,
-     *      java.lang.String, java.lang.String)
+     *      com.thinkparity.codebase.model.session.Credentials,
+     *      java.lang.String)
      * 
      */
-    public void updatePassword(final JabberId userId, final String password,
-            final String newPassword) {
+    public void updatePassword(final JabberId userId,
+            final Credentials credentials, final String newPassword) {
         try {
-            userSql.updatePassword(userId, password, newPassword);
+            final Profile profile = read(userId);
+            final Credentials localCredentials = userSql.readCredentials(
+                    profile.getLocalId());
+            Assert.assertTrue(credentials.getPassword().equals(
+                    localCredentials.getPassword()),
+                    "User password cannot be updated.");
+            Assert.assertTrue(credentials.getUsername().equals(
+                    localCredentials.getUsername()),
+                    "User password cannot be updated.");
+
+            userSql.updatePassword(userId, credentials, newPassword);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.profile.ProfileModel#updatePassword(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.model.session.TemporaryCredentials, java.lang.String)
+     *
+     */
+    public void updatePassword(final JabberId userId,
+            final TemporaryCredentials credentials, final String newPassword) {
+        try {
+            try {
+                final Profile profile = read(userId);
+
+                // delete expired credentials
+                userSql.deleteTemporaryCredentials(currentDateTime());
+    
+                // ensure the credentials exist
+                Assert.assertTrue(userSql.doesExistTemporaryCredentials(profile,
+                        credentials.getToken()),
+                        "Password temporary credentials {0} expired on {1}.",
+                        credentials.getToken(), credentials.getExpiresOn());
+    
+                // ensure the credentials match
+                final Credentials localCredentials = userSql.readCredentials(
+                        profile.getLocalId());
+                Assert.assertTrue(credentials.getUsername().equals(
+                        localCredentials.getUsername()),
+                        "User password cannot be updated.");
+    
+                // update the password
+                userSql.updatePassword(userId, localCredentials, newPassword);
+            } finally {
+                /* delete the temporary credentials whether or not the update
+                 * succeeded */
+                userSql.deleteTemporaryCredentials(credentials);
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }

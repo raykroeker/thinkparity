@@ -25,12 +25,6 @@ public class ProfileAdapter implements ProfileListener {
     public void emailRemoved(final ProfileEvent e) {}
 
     /**
-     * @see com.thinkparity.ophelia.model.events.ProfileListener#passwordReset(com.thinkparity.ophelia.model.events.ProfileEvent)
-     *
-     */
-    public void passwordReset(final ProfileEvent e) {}
-
-    /**
      * @see com.thinkparity.ophelia.model.events.ProfileListener#passwordUpdated(com.thinkparity.ophelia.model.events.ProfileEvent)
      *
      */

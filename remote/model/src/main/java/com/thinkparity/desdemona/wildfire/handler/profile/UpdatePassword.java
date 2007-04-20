@@ -5,6 +5,8 @@ package com.thinkparity.desdemona.wildfire.handler.profile;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.session.Credentials;
+
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
 import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
@@ -33,22 +35,14 @@ public final class UpdatePassword extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        updateCredentials(provider, reader.readJabberId("userId"),
-                reader.readString("password"),
-                reader.readString("newPassword"));
+        updatePassword(provider, reader.readJabberId("userId"),
+                reader.readCredentials("credentials"),
+                reader.readString("newPassword"));            
     }
 
-    /**
-     * Reset a user's credentials.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param securityAnswer
-     *            A security question answer <code>String</code>.
-     */
-    private void updateCredentials(final ServiceModelProvider provider,
-            final JabberId userId, final String password,
+    private void updatePassword(final ServiceModelProvider provider,
+            final JabberId userId, final Credentials credentials,
             final String newPassword) {
-        provider.getProfileModel().updatePassword(userId, password, newPassword);
+        provider.getProfileModel().updatePassword(userId, credentials, newPassword);
     }
 }

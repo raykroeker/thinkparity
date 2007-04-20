@@ -39,14 +39,6 @@ public interface ProfileListener extends EventListener {
     public void emailVerified(final ProfileEvent e);
 
     /**
-     * The profile password was reset.
-     *
-     * @param e
-     *      A <code>ProfileEvent</code>.
-     */
-    public void passwordReset(final ProfileEvent e);
-
-    /**
      * The profile password was updated.
      *
      * @param e

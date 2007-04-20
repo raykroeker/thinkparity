@@ -64,8 +64,10 @@ public class SignupProvider extends ContentProvider {
             final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
             final EMail email) throws ReservationExpiredException {
+        // NOCOMMIT - Hardcoded security question/answer.
     	profileModel.create(usernameReservation, emailReservation, credentials,
-                profile, email);
+                profile, email, "What is my username?",
+                profile.getSimpleUsername());
     }
 
     /**

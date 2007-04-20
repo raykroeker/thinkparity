@@ -18,6 +18,7 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.profile.VerificationKey;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.Token;
@@ -62,6 +63,13 @@ public final class UserSql extends AbstractSql {
         .append("values (?,?)")
         .toString();
 
+    /** Sql to create temporary credentials. */
+    private static final String SQL_CREATE_TEMPORARY_CREDENTIALS =
+        new StringBuilder("insert into TPSD_USER_TEMPORARY_CREDENTIAL ")
+        .append("(USER_ID,TOKEN,EXPIRES_ON,CREATED_ON) ")
+        .append("values (?,?,?,?)")
+        .toString();
+
     /** Sql to create a reservation. */
     private static final String SQL_CREATE_USERNAME_RESERVATION =
         new StringBuilder("insert into TPSD_USERNAME_RESERVATION ")
@@ -81,16 +89,34 @@ public final class UserSql extends AbstractSql {
         .append("where TOKEN=?")
         .toString();
 
+    /** Sql to delete expired e-mail address reservations. */
+    private static final String SQL_DELETE_EXPIRED_EMAIL_RESERVATIONS =
+        new StringBuilder("delete from TPSD_EMAIL_RESERVATION ")
+        .append("where EXPIRES_ON < ?")
+        .toString();
+
     /** Sql to delete expired username reservations. */
     private static final String SQL_DELETE_EXPIRED_USERNAME_RESERVATIONS =
         new StringBuilder("delete from TPSD_USERNAME_RESERVATION ")
         .append("where EXPIRES_ON < ?")
         .toString();
 
-    /** Sql to delete expired e-mail address reservations. */
-    private static final String SQL_DELETE_EXPIRED_EMAIL_RESERVATIONS =
-        new StringBuilder("delete from TPSD_EMAIL_RESERVATION ")
+    /** Sql to delete temporary credentials. */
+    private static final String SQL_DELETE_TEMPORARY_CREDENTIALS =
+        new StringBuilder("delete from TPSD_USER_TEMPORARY_CREDENTIAL ")
         .append("where EXPIRES_ON < ?")
+        .toString();
+
+    /** Sql to delete temporary credentials. */
+    private static final String SQL_DELETE_TEMPORARY_CREDENTIALS_PK =
+        new StringBuilder("delete from TPSD_USER_TEMPORARY_CREDENTIAL ")
+        .append("where USER_ID=?")
+        .toString();
+
+    /** Sql to delete temporary credentials. */
+    private static final String SQL_DELETE_TEMPORARY_CREDENTIALS_UK =
+        new StringBuilder("delete from TPSD_USER_TEMPORARY_CREDENTIAL ")
+        .append("where TOKEN=?")
         .toString();
 
     /** Sql to delete a reservation by its unique key. */
@@ -113,6 +139,14 @@ public final class UserSql extends AbstractSql {
         .append("inner join TPSD_USER_EMAIL UE on UE.USER_ID=U.USER_ID ")
         .append("inner join TPSD_EMAIL E on E.EMAIL_ID=UE.EMAIL_ID ")
         .append("where E.EMAIL=?")
+        .toString();
+
+    /** Sql to determine temporary credential existence by unique key. */
+    private static final String SQL_DOES_EXIST_TEMPORARY_CREDENTIALS_UK =
+        new StringBuilder("select count(UTC.TOKEN) \"CREDENTIAL_COUNT\" ")
+        .append("from TPSD_USER_TEMPORARY_CREDENTIAL UTC ")
+        .append("inner join TPSD_USER U on U.USER_ID=UTC.USER_ID ")
+        .append("where U.USER_ID=? and UTC.TOKEN=?")
         .toString();
 
     /** Sql to determine user existence by unique key. */
@@ -214,7 +248,7 @@ public final class UserSql extends AbstractSql {
         .append("from TPSD_USER U ")
         .append("where U.USERNAME=?")
         .toString();
-        
+
     /** Sql to read the user's token. */
     private static final String SQL_READ_TOKEN =
         new StringBuilder("select U.TOKEN ")
@@ -234,7 +268,7 @@ public final class UserSql extends AbstractSql {
         .append("set PASSWORD=? ")
         .append("where USERNAME=? and PASSWORD=?")
         .toString();
-
+        
     /** Sql to create the user's token. */
     private static final String SQL_UPDATE_TOKEN =
         new StringBuilder("update TPSD_USER ")
@@ -375,6 +409,33 @@ public final class UserSql extends AbstractSql {
     }
 
     /**
+     * Create temporary credentials for a user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param credentials
+     *            A set of <code>TemporaryCredentials</code>.
+     */
+    public void createTemporaryCredentials(final User user,
+            final TemporaryCredentials credentials) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_TEMPORARY_CREDENTIALS);
+            session.setLong(1, user.getLocalId());
+            session.setString(2, credentials.getToken().getValue());
+            session.setCalendar(3, credentials.getExpiresOn());
+            session.setCalendar(4, credentials.getCreatedOn());
+            if (1 != session.executeUpdate())
+                throw panic("Could not create temporary credentials.");
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Create a reservation.
      * 
      * @param reservation
@@ -445,7 +506,7 @@ public final class UserSql extends AbstractSql {
      * @param expireOn
      *            The target expiration date.
      */
-    public void deleteExpiredReservations(final Calendar expireOn) {
+    public void deleteReservations(final Calendar expireOn) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_DELETE_EXPIRED_USERNAME_RESERVATIONS);
@@ -453,6 +514,66 @@ public final class UserSql extends AbstractSql {
             session.executeUpdate();
             session.prepareStatement(SQL_DELETE_EXPIRED_EMAIL_RESERVATIONS);
             session.setCalendar(1, expireOn);
+            session.executeUpdate();
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Delete all temporary credentials that expire before the date.
+     * 
+     * @param expireOn
+     *            An expire on <code>Calendar</code>.
+     */
+    public void deleteTemporaryCredentials(final Calendar expireOn) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_TEMPORARY_CREDENTIALS);
+            session.setCalendar(1, expireOn);
+            session.executeUpdate();
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Delete all temporary credentials that expire before the date.
+     * 
+     * @param expireOn
+     *            An expire on <code>Calendar</code>.
+     */
+    public void deleteTemporaryCredentials(final TemporaryCredentials credentials) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_TEMPORARY_CREDENTIALS_UK);
+            session.setString(1, credentials.getToken().getValue());
+            session.executeUpdate();
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Delete all temporary credentials for a user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     */
+    public void deleteTemporaryCredentials(final User user) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_TEMPORARY_CREDENTIALS_PK);
+            session.setLong(1, user.getLocalId());
             session.executeUpdate();
             session.commit();
         } catch (final Throwable t) {
@@ -567,6 +688,38 @@ public final class UserSql extends AbstractSql {
                 }
             } else {
                 throw new HypersonicException("Could not determine e-mail reservation existence.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Determine whether or not temporary credentials exist for the token.
+     * 
+     * @param token
+     *            A <code>Token</code>.
+     * @return True if temporary credentials exist, false otherwise.
+     */
+    public Boolean doesExistTemporaryCredentials(final User user,
+            final Token token) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_TEMPORARY_CREDENTIALS_UK);
+            session.setLong(1, user.getLocalId());
+            session.setString(2, token.getValue());
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int credentialCount = session.getInteger("CREDENTIAL_COUNT");
+                if (0 == credentialCount) {
+                    return Boolean.FALSE;
+                } else if (1 == credentialCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine .");
+                }
+            } else {
+                throw new HypersonicException("Could not determine .");
             }
         } finally {
             session.close();
@@ -854,23 +1007,21 @@ public final class UserSql extends AbstractSql {
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @param password
-     *            A password <code>String</code>.
+     * @param credentials
+     *            A profile's <code>Credentials</code>.
      * @param newPassword
      *            A new password <code>String</code>.
      */
-    public void updatePassword(final JabberId userId, final String password,
-            final String newPassword) {
+    public void updatePassword(final JabberId userId,
+            final Credentials credentials, final String newPassword) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_UPDATE_PASSWORD);
             session.setString(1, newPassword);
-            session.setString(2, userId.getUsername());
-            session.setString(3, password);
+            session.setString(2, credentials.getUsername());
+            session.setString(3, credentials.getPassword());
             if (1 != session.executeUpdate())
-                throw new HypersonicException(
-                        "Could not update password for user {0}.",
-                        userId.getUsername());
+                throw new HypersonicException("User password cannot be updated.");
 
             session.commit();
         } catch (final Throwable t) {

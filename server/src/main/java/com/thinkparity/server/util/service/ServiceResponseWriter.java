@@ -29,6 +29,7 @@ import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
+import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.UserVCard;
@@ -67,6 +68,8 @@ public interface ServiceResponseWriter {
     public void write(final String name, final Release value);
 
     public void write(final String name, final Statistics value);
+
+    public void write(final String name, final TemporaryCredentials credentials);
 
     public void write(final String name, final UsernameReservation value);
 

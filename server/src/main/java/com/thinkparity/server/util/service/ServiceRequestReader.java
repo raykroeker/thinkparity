@@ -29,6 +29,7 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
@@ -78,6 +79,8 @@ public interface ServiceRequestReader {
      * @return The <code>Credentials</code>.
      */
     public Credentials readCredentials(final String name);
+
+    public TemporaryCredentials readTemporaryCredentials(final String name);
 
     /**
      * Read a list of document versions.

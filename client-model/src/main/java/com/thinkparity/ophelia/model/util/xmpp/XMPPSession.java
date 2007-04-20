@@ -36,6 +36,7 @@ import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -225,6 +226,10 @@ public interface XMPPSession {
             final Credentials credentials, final Profile profile,
             final EMail email, final String securityQuestion,
             final String securityAnswer);
+
+    public TemporaryCredentials createProfileCredentials(
+            final String profileKey, final String securityAnswer,
+            final Calendar createdOn);
 
     public EMailReservation createProfileEMailReservation(
             final JabberId userId, final EMail email, final Calendar reservedOn);
@@ -923,17 +928,6 @@ public interface XMPPSession {
             final JabberId teamMemberId);
 
     /**
-     * Reset a user's credentials.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>
-     * @param securityAnswer
-     *            A security question answer <code>String</code>.
-     */
-    public String resetProfilePassword(final JabberId userId,
-            final String securityAnswer);
-
-    /**
      * Restore an artifact. This will simply remove the archived flag within the
      * backup.
      * 
@@ -955,17 +949,30 @@ public interface XMPPSession {
     public void updateProfile(final JabberId userId, final Profile profile);
 
     /**
-     * Update a user's credentials.
+     * Update a profile's password.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @param password
-     *            A user's password <code>String</code>.
+     * @param credentials
+     *            A profile's <code>Credentials</code>.
      * @param newPassword
-     *            A user's new password <code>String</code>.
+     *            A new password <code>String</code>.
      */
     public void updateProfilePassword(final JabberId userId,
-            final String password, final String newPassword);
+            final Credentials credentials, final String newPassword);
+
+    /**
+     * Update the profile's password using a set of temporary credentials.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param credentials
+     *            A profile's <code>TemporaryCredentials</code>.
+     * @param newPassword
+     *            A new password <code>String</code>.
+     */
+    public void updateProfilePassword(final JabberId userId,
+            final TemporaryCredentials credentials, final String newPassword);
 
     /**
      * Verify an email in a user's profile.

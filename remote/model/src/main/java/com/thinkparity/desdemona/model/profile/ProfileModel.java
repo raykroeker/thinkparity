@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.util.Token;
 
 import com.thinkparity.desdemona.model.annotation.ThinkParityAuthenticate;
@@ -48,6 +49,9 @@ public interface ProfileModel {
             final Credentials credentials, final Profile profile,
             final EMail email, final String securityQuestion,
             final String securityAnswer);
+
+    public TemporaryCredentials createCredentials(final String profileKey,
+            final String securityAnswer, final Calendar createdOn);
 
     @ThinkParityAuthenticate(AuthenticationType.SYSTEM)
     public EMailReservation createEMailReservation(final JabberId userId,
@@ -139,19 +143,6 @@ public interface ProfileModel {
     public void removeEmail(final JabberId userId, final EMail email);
 
     /**
-     * Reset a user's credentials.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param securityAnswer
-     *            The security question answer <code>String</code>.
-     * @return The user's new password.
-     */
-    @ThinkParityAuthenticate(AuthenticationType.USER)
-    public String resetPassword(final JabberId userId,
-            final String securityAnswer);
-
-    /**
      * Update a user's profile.
      * 
      * @param userId
@@ -177,8 +168,21 @@ public interface ProfileModel {
      *            The new password <code>String</code>.
      */
     @ThinkParityAuthenticate(AuthenticationType.USER)
-    public void updatePassword(final JabberId userId, final String password,
-            final String newPassword);
+    public void updatePassword(final JabberId userId,
+            final Credentials credentials, final String newPassword);
+
+    /**
+     * Update a user's password.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param credentials
+     *            A set of <code>TemporaryCredentials</code>.
+     * @param newPassword
+     *            The new password <code>String</code>.
+     */
+    public void updatePassword(final JabberId userId,
+            final TemporaryCredentials credentials, final String newPassword);
 
     /**
      * Verify an email in a user's profile. This includes generation of incoming

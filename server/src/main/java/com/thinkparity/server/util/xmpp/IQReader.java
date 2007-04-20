@@ -34,6 +34,7 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
@@ -179,6 +180,10 @@ public final class IQReader implements ServiceRequestReader {
      */
     public Credentials readCredentials(final String name) {
         return (Credentials) readXStreamObject(name, new Credentials());
+    }
+
+    public TemporaryCredentials readTemporaryCredentials(final String name) {
+        return (TemporaryCredentials) readXStreamObject(name, new TemporaryCredentials());
     }
 
     /**

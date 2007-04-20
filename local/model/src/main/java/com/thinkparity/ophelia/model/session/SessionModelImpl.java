@@ -40,6 +40,7 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.session.InvalidLocationException;
+import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -345,22 +346,29 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createProfileUsernameReservation(java.lang.String)
-     * 
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createProfileCredentials(java.lang.String, java.lang.String)
+     *
      */
-    public UsernameReservation createProfileUsernameReservation(
-            final String username) {
+    public TemporaryCredentials createProfileCredentials(
+            final String profileKey, final String securityAnswer) {
         try {
-            assertXMPPOffline();
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                authenticateAsSystem(xmppSession);
+                final boolean didAuthenticate;
+                if (xmppSession.isOnline()) {
+                    didAuthenticate = false;
+                } else {
+                    authenticateAsSystem(xmppSession);
+                    didAuthenticate = true;
+                }
                 try {
-                    return xmppSession.createProfileUsernameReservation(
-                            User.THINKPARITY.getId(), username,
-                            xmppSession.readDateTime(User.THINKPARITY.getId()));
+                    return xmppSession.createProfileCredentials(profileKey,
+                            securityAnswer, xmppSession.readDateTime(
+                                    didAuthenticate ? User.THINKPARITY.getId()
+                                                    : localUserId()));
                 } finally {
-                    unauthenticate(xmppSession);
+                    if (didAuthenticate)
+                        unauthenticate(xmppSession);
                 }
             }
         } catch (final Throwable t) {
@@ -382,6 +390,30 @@ public final class SessionModelImpl extends Model<SessionListener>
                 try {
                     return xmppSession.createProfileEMailReservation(
                             User.THINKPARITY.getId(), email,
+                            xmppSession.readDateTime(User.THINKPARITY.getId()));
+                } finally {
+                    unauthenticate(xmppSession);
+                }
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createProfileUsernameReservation(java.lang.String)
+     * 
+     */
+    public UsernameReservation createProfileUsernameReservation(
+            final String username) {
+        try {
+            assertXMPPOffline();
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                authenticateAsSystem(xmppSession);
+                try {
+                    return xmppSession.createProfileUsernameReservation(
+                            User.THINKPARITY.getId(), username,
                             xmppSession.readDateTime(User.THINKPARITY.getId()));
                 } finally {
                     unauthenticate(xmppSession);
@@ -523,7 +555,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteInvitation(com.thinkparity.codebase.model.contact.OutgoingUserInvitation,
      *      java.util.Calendar)
      * 
@@ -541,7 +573,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * Delete a stream session.
      * 
      * @param session
@@ -849,7 +881,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.SessionModel#logout()
      *
      */
@@ -867,7 +899,7 @@ public final class SessionModelImpl extends Model<SessionListener>
 		}
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#notifyClientMaintenance()
      *
      */
@@ -902,7 +934,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#publish(com.thinkparity.codebase.model.container.ContainerVersion,
      *      com.thinkparity.codebase.model.container.ContainerVersion,
      *      java.util.Map, java.util.List, java.util.List,
@@ -929,7 +961,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readArchiveContainer(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.UUID)
      * 
@@ -1076,7 +1108,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * Read the archived document versions.
      * 
      * @param userId
@@ -1105,8 +1137,8 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
-	public List<TeamMember> readArchiveTeam(final JabberId userId,
+    
+    public List<TeamMember> readArchiveTeam(final JabberId userId,
             final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -1143,7 +1175,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-    
+
     public Container readBackupContainer(final JabberId userId, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -1231,6 +1263,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
+
     /**
      * Read the backup document versions.
      * 
@@ -1260,7 +1293,6 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
 
     public List<ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
@@ -1443,7 +1475,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorRelease(java.lang.String,
      *      java.lang.String, com.thinkparity.codebase.OS)
      * 
@@ -1461,7 +1493,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorResources(java.lang.String,
      *      java.lang.String, com.thinkparity.codebase.OS)
      * 
@@ -1539,7 +1571,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readProfileFeatures(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
@@ -1560,7 +1592,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * Read the user profile's security question.
      * 
      * @param userId
@@ -1568,12 +1600,22 @@ public final class SessionModelImpl extends Model<SessionListener>
      * @return A security question <code>String</code>.
      */
     public String readProfileSecurityQuestion(final JabberId userId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                return xmppSession.readProfileSecurityQuestion(userId);
+                final boolean didAuthenticate;
+                if (xmppSession.isOnline()) {
+                    didAuthenticate = false;
+                } else {
+                    authenticateAsSystem(xmppSession);
+                    didAuthenticate = true;
+                }
+                try {
+                    return xmppSession.readProfileSecurityQuestion(userId);
+                } finally {
+                    if (didAuthenticate)
+                        unauthenticate(xmppSession);
+                }
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -1695,30 +1737,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Reset the user's authentication credentials.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param securityAnswer
-     *            A security question answer <code>String</code>.
-     * @return A new password.
-     */
-    public String resetProfilePassword(final JabberId userId,
-            final String securityAnswer) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("securityAnswer", "XXXXX");
-        try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                return xmppSession.resetProfilePassword(userId, securityAnswer);
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#restoreArtifact(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
      *
      */
@@ -1753,17 +1771,47 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#updateProfilePassword(java.lang.String,
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#updateProfilePassword(com.thinkparity.codebase.model.session.Credentials,
      *      java.lang.String)
      * 
      */
-    public void updateProfilePassword(final String password,
+    public void updateProfilePassword(final Credentials credentials,
             final String newPassword) {
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                xmppSession.updateProfilePassword(localUserId(), password,
+                xmppSession.updateProfilePassword(localUserId(), credentials,
                         newPassword);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#updateProfilePassword(com.thinkparity.codebase.model.session.TemporaryCredentials, java.lang.String)
+     *
+     */
+    public void updateProfilePassword(final TemporaryCredentials credentials,
+            final String newPassword) {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                final boolean didAuthenticate;
+                if (xmppSession.isOnline()) {
+                    didAuthenticate = false;
+                } else {
+                    authenticateAsSystem(xmppSession);
+                    didAuthenticate = true;
+                }
+                try {
+                    xmppSession.updateProfilePassword(
+                            didAuthenticate ? User.THINKPARITY.getId()
+                                    : localUserId(), credentials, newPassword);
+                } finally {
+                    if (didAuthenticate)
+                        unauthenticate(xmppSession);
+                }
             }
         } catch (final Throwable t) {
             throw panic(t);

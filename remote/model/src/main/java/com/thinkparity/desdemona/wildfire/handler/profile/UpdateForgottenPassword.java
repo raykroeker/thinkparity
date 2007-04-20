@@ -5,6 +5,8 @@ package com.thinkparity.desdemona.wildfire.handler.profile;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.session.TemporaryCredentials;
+
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
 import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
@@ -16,14 +18,14 @@ import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ResetPassword extends AbstractHandler {
+public final class UpdateForgottenPassword extends AbstractHandler {
 
     /**
      * Create ResetPassword.
      *
      */
-    public ResetPassword() {
-        super("profile:resetpassword");
+    public UpdateForgottenPassword() {
+        super("profile:updateforgottenpassword");
     }
 
     /**
@@ -33,22 +35,14 @@ public final class ResetPassword extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        logger.logApiId();
-        writer.writeString("password", resetCredentials(provider,
-                reader.readJabberId("userId"),
-                reader.readString("securityAnswer")));
+        updatePassword(provider, reader.readJabberId("userId"),
+                reader.readTemporaryCredentials("credentials"),
+                reader.readString("newPassword"));            
     }
 
-    /**
-     * Reset a user's credentials.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param securityAnswer
-     *            A security question answer <code>String</code>.
-     */
-    private String resetCredentials(final ServiceModelProvider provider,
-            final JabberId userId, final String securityAnswer) {
-        return provider.getProfileModel().resetPassword(userId, securityAnswer);
+    private void updatePassword(final ServiceModelProvider provider,
+            final JabberId userId, final TemporaryCredentials credentials,
+            final String newPassword) {
+        provider.getProfileModel().updatePassword(userId, credentials, newPassword);
     }
 }

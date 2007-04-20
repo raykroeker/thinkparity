@@ -36,6 +36,7 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -166,6 +167,9 @@ public interface InternalSessionModel extends SessionModel {
             final Credentials credentials, final Profile profile,
             final EMail email, final String securityQuestion,
             final String securityAnswer);
+
+    public TemporaryCredentials createProfileCredentials(
+            final String profileKey, final String securityAnswer);
 
     public EMailReservation createProfileEMailReservation(final EMail email);
 
@@ -734,18 +738,6 @@ public interface InternalSessionModel extends SessionModel {
             final List<JabberId> team, final JabberId jabberId);
 
     /**
-     * Reset the user's authentication credentials.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param securityAnswer
-     *            A security question answer <code>String</code>.
-     * @return A new password.
-     */
-    public String resetProfilePassword(final JabberId userId,
-            final String securityAnswer);
-
-    /**
      * Restore an artifact. This will simply remove the archived flag within the
      * backup.
      * 
@@ -767,14 +759,25 @@ public interface InternalSessionModel extends SessionModel {
     public void updateProfile(final JabberId userId, final Profile profile);
 
     /**
-     * Update the profile's credentials.
+     * Update the profile's password.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param credentials
      *            A user's <code>Credentials</code>.
+     * @param newPassword
+     *            The new profile password<code>String</code>.
      */
-    public void updateProfilePassword(final String password,
+    public void updateProfilePassword(final Credentials credentials,
+            final String newPassword);
+
+    /**
+     * Update the profile's credentials.
+     * 
+     * @param credentials
+     *            A user's <code>TemporaryCredentials</code>.
+     * @param newPassword
+     *            The new profile password<code>String</code>.
+     */
+    public void updateProfilePassword(final TemporaryCredentials credentials,
             final String newPassword);
 
     /**

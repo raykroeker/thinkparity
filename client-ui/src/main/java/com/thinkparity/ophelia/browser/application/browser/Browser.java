@@ -29,6 +29,7 @@ import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
@@ -1420,18 +1421,18 @@ public class Browser extends AbstractApplication {
 	/**
      * Update the user's profile.
      * 
-     * @param oldPassword
-     *            The user's password <code>String</code>.
+     * @param credentials
+     *            The user's <code>Credentials</code>.
      * @param newPassword
      *            The user's updated password <code>String</code>.
      * @param confirmNewPassword
      *            The user's updated password again <code>String</code>.
      */
-    public void runUpdateProfilePassword(final String password,
+    public void runUpdateProfilePassword(final Credentials credentials,
             final String newPassword, final String confirmNewPassword) {     
         final Data data = new Data(4); 
         data.set(UpdatePassword.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
-        data.set(UpdatePassword.DataKey.PASSWORD, password);
+        data.set(UpdatePassword.DataKey.CREDENTIALS, credentials);
         data.set(UpdatePassword.DataKey.NEW_PASSWORD, newPassword);
         data.set(UpdatePassword.DataKey.NEW_PASSWORD_CONFIRM, confirmNewPassword);
         invoke(ActionId.PROFILE_UPDATE_PASSWORD, data);

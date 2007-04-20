@@ -1,6 +1,6 @@
 create table TPSD_EMAIL_RESERVATION(
     EMAIL varchar(512) not null,
-    TOKEN varchar(32) not null,
+    TOKEN varchar(64) not null,
     EXPIRES_ON timestamp not null,
     CREATED_ON timestamp not null,
     primary key (EMAIL),
@@ -15,7 +15,7 @@ create table TPSD_EMAIL(
 
 create table TPSD_USERNAME_RESERVATION(
     USERNAME varchar(32) not null,
-    TOKEN varchar(32) not null,
+    TOKEN varchar(64) not null,
     EXPIRES_ON timestamp not null,
     CREATED_ON timestamp not null,
     primary key (USERNAME),
@@ -28,7 +28,7 @@ create table TPSD_USER(
     SECURITY_QUESTION varchar(64) not null,
     SECURITY_ANSWER varchar(64) not null,
     DISABLED char not null,
-    TOKEN varchar(32),
+    TOKEN varchar(64),
     VCARD clob not null,
     primary key(USER_ID),
     unique(USERNAME)
@@ -53,6 +53,14 @@ create table TPSD_USER_EVENT_QUEUE(
 );
 create index TPSD_USER_EVENT_QUEUE_IX_0 on TPSD_USER_EVENT_QUEUE(EVENT_PRIORITY);
 create index TPSD_USER_EVENT_QUEUE_IX_1 on TPSD_USER_EVENT_QUEUE(EVENT_DATE);
+create table TPSD_USER_TEMPORARY_CREDENTIAL(
+    USER_ID bigint not null,
+    TOKEN varchar(64) not null,
+    EXPIRES_ON timestamp not null,
+    CREATED_ON timestamp not null,
+    primary key (USER_ID),
+    unique (TOKEN)
+);
 
 create table TPSD_CONTACT(
     USER_ID bigint not null,

@@ -25,6 +25,7 @@ import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
+import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.util.Token;
@@ -234,6 +235,10 @@ public class XMPPMethodResponse extends IQ {
 
     public List<TeamMember> readResultTeamMembers(final String name) {
         return (List<TeamMember>) readResult(name);
+    }
+
+    public TemporaryCredentials readResultTemporaryCredentials(final String name) {
+        return (TemporaryCredentials) readResult(name);
     }
 
     public final TimeZone readResultTimeZone(final String name) {

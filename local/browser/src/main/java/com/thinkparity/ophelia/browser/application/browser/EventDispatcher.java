@@ -3,14 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
-import com.thinkparity.ophelia.model.events.ContactAdapter;
-import com.thinkparity.ophelia.model.events.ContactEvent;
-import com.thinkparity.ophelia.model.events.ContactListener;
-import com.thinkparity.ophelia.model.events.ProfileAdapter;
-import com.thinkparity.ophelia.model.events.ProfileEvent;
-import com.thinkparity.ophelia.model.events.ProfileListener;
-import com.thinkparity.ophelia.model.events.SessionAdapter;
-import com.thinkparity.ophelia.model.events.SessionListener;
+import com.thinkparity.ophelia.model.events.*;
 
 /**
  * The browser's event dispatcher.
@@ -175,10 +168,6 @@ class EventDispatcher {
             }
             @Override
             public void emailVerified(final ProfileEvent e) {
-                browser.syncContactTabProfile(e.isRemote());
-            }
-            @Override
-            public void passwordReset(final ProfileEvent e) {
                 browser.syncContactTabProfile(e.isRemote());
             }
             @Override

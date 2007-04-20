@@ -50,6 +50,7 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -424,10 +425,14 @@ public class XMPPMethod extends IQ {
             final String name, final T value) {
         parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
     }
-    
+
     public final <T extends TimeZone> void setParameter(
             final String name, final T value) {
         parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
+    }
+    
+    public final void setParameter(final String name, final TemporaryCredentials value) {
+        parameters.add(new XMPPMethodParameter(name, TemporaryCredentials.class, value));
     }
 
     public final void setParameter(final String name, final UsernameReservation value) {
@@ -565,6 +570,10 @@ public class XMPPMethod extends IQ {
             XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
             return xmlWriter.toString();
         } else if (parameter.javaType.equals(Credentials.class)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else if (parameter.javaType.equals(TemporaryCredentials.class)) {
             final StringWriter xmlWriter = new StringWriter();
             XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
             return xmlWriter.toString();
@@ -865,6 +874,12 @@ public class XMPPMethod extends IQ {
                     parser.next();
                     parser.next();
                     return reservation;
+                } else if (javaType.equals(TemporaryCredentials.class)) {
+                    TemporaryCredentials credentials = null;
+                    credentials = (TemporaryCredentials) xstreamUtil.unmarshal(new SmackXppReader(parser), credentials);
+                    parser.next();
+                    parser.next();
+                    return credentials;
                 } else if (javaType.equals(UsernameReservation.class)) {
                     UsernameReservation reservation = null;
                     reservation = (UsernameReservation) xstreamUtil.unmarshal(new SmackXppReader(parser), reservation);

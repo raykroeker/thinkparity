@@ -24,6 +24,7 @@ import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+import com.thinkparity.codebase.model.session.TemporaryCredentials;
 
 import com.thinkparity.ophelia.model.Constants;
 import com.thinkparity.ophelia.model.Model;
@@ -101,9 +102,12 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     public void create(final UsernameReservation usernameReservation,
             final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
-            final EMail email) throws ReservationExpiredException {
+            final EMail email, final String securityQuestion,
+            final String securityAnswer) throws ReservationExpiredException {
         try {
             assertIsValid(profile);
+            Assert.assertNotNull(securityQuestion, "Security question cannot be null.");
+            Assert.assertNotNull(securityAnswer, "Security question answer cannot be null.");
 
             final long now = currentDateTime().getTimeInMillis();
             if (now > usernameReservation.getExpiresOn().getTimeInMillis())
@@ -121,9 +125,24 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             /* HACK - ProfileModelImpl#create() - security question/answer are
              * not specified */
             getSessionModel().createProfile(usernameReservation,
-                    emailReservation, credentials, profile, email, "", "");
+                    emailReservation, credentials, profile, email,
+                    securityQuestion, securityAnswer);
         } catch (final ReservationExpiredException rex) {
             throw rex;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#createCredentials(java.lang.String, com.thinkparity.codebase.email.EMail, java.lang.String)
+     *
+     */
+    public TemporaryCredentials createCredentials(final String profileKey,
+            final String securityAnswer) {
+        try {
+            return getSessionModel().createProfileCredentials(profileKey,
+                    securityAnswer);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -265,6 +284,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         }
     }
 
+
     /**
      * @see com.thinkparity.ophelia.model.Model#readCredentials()
      * 
@@ -305,7 +325,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             throw panic(t);
         }
     }
-
 
     /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#readFeatures()
@@ -362,29 +381,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * Reset the user's password.
-     *
-     */
-    public void resetPassword() {
-        try {
-            /* HACK - ProfileModelImpl#create() - security question/answer are
-             * not specified */
-
-            // reset password
-            final String resetPassword =
-                getSessionModel().resetProfilePassword(localUserId(), "");
-
-            // update local data
-            final Credentials credentials = readCredentials();
-            credentials.setPassword(resetPassword);
-            updateCredentials(credentials);
-            notifyPasswordReset(read(), localEventGenerator);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#search(java.lang.String)
      *
      */
@@ -419,24 +415,58 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.profile.ProfileModel#updatePassword(java.lang.String,
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#updatePassword(com.thinkparity.codebase.model.session.Credentials,
      *      java.lang.String)
      * 
      */
-    public void updatePassword(final String password, final String newPassword)
-            throws InvalidCredentialsException {
+    public void updatePassword(final Credentials credentials,
+            final String newPassword) throws InvalidCredentialsException {
         try {
-            final Credentials credentials = readCredentials();
-            if (!credentials.getPassword().equals(password))
-                throw new InvalidCredentialsException();
+            validateCredentials(credentials);
+
+            // duplicate credentials
+            final Credentials orginalCredentials = readCredentials();
+
             // update local data
             credentials.setPassword(newPassword);
             updateCredentials(credentials);
+
             // update remote data.
-            getSessionModel().updateProfilePassword(password, newPassword);
+            getSessionModel().updateProfilePassword(orginalCredentials, newPassword);
             notifyPasswordUpdated(read(), localEventGenerator);
         } catch (final InvalidCredentialsException icx) {
             throw icx;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#updatePassword(com.thinkparity.codebase.model.session.TemporaryCredentials, java.lang.String)
+     *
+     */
+    public void updatePassword(final TemporaryCredentials credentials,
+            final String newPassword) throws InvalidCredentialsException {
+        try {
+            final Credentials localCredentials = readCredentials();
+            validateCredentials(credentials, localCredentials);
+
+            /* there are two possible scenarios - the first is that the user has
+             * never logged in to this workspace before, the second is that they
+             * have */
+            if (null == localCredentials) {
+                // update remote password
+                getSessionModel().updateProfilePassword(credentials,
+                        newPassword);
+            } else {
+                // update local password
+                localCredentials.setPassword(newPassword);
+                updateCredentials(localCredentials);
+                // update remote password
+                getSessionModel().updateProfilePassword(credentials,
+                        newPassword);
+            }
+            notifyPasswordUpdated(read(), localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -612,23 +642,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * Notify that the password has been reset.
-     * 
-     * @param profile
-     *      A <code>Profile</code>.
-     * @param eventGenerator
-     *            An event generator.
-     */
-    private void notifyPasswordReset(final Profile profile,
-            final ProfileEventGenerator eventGenerator) {
-        notifyListeners(new EventNotifier<ProfileListener>() {
-            public void notifyListener(final ProfileListener listener) {
-                listener.passwordReset(eventGenerator.generate(profile));
-            }
-        });
-    }
-
-    /**
      * Notify that the password has been updated.
      * 
      * @param profile
@@ -660,5 +673,33 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
                 listener.profileUpdated(eventGenerator.generate(profile));
             }
         });
+    }
+
+    /**
+     * Validate the temporary credentials.
+     * 
+     * @param credentials
+     *            A set of <code>TemporaryCredentials</code>.
+     * @throws InvalidCredentialsException
+     */
+    private void validateCredentials(final TemporaryCredentials credentials,
+            final Credentials localCredentials)
+            throws InvalidCredentialsException {
+        try {
+            if (null == credentials)
+                throw new InvalidCredentialsException();
+            if (null == credentials.getUsername())
+                throw new InvalidCredentialsException();
+            if (null == credentials.getToken())
+                throw new InvalidCredentialsException();
+            if (null != localCredentials)
+                if (!localCredentials.getUsername().equals(credentials.getUsername()))
+                    throw new InvalidCredentialsException();
+        } catch (final InvalidCredentialsException icx) {
+            try {
+                Thread.sleep(3 * 1000);
+            } catch (final InterruptedException ix) {}
+            throw icx;
+        }
     }
 }

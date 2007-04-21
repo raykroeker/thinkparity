@@ -428,8 +428,9 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             final Credentials orginalCredentials = readCredentials();
 
             // update local data
-            credentials.setPassword(newPassword);
-            updateCredentials(credentials);
+            final Credentials localCredentials = readCredentials();
+            localCredentials.setPassword(newPassword);
+            updateCredentials(localCredentials);
 
             // update remote data.
             getSessionModel().updateProfilePassword(orginalCredentials, newPassword);

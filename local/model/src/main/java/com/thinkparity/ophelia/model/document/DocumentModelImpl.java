@@ -821,12 +821,12 @@ public final class DocumentModelImpl extends
                 // rename the document
                 document.setName(renameTo);
                 documentIO.update(document);
-
-                // rename the local file
-                renameFile(lock, renameTo);
             } finally {
                 release(lock);
             }
+
+            // rename the local file
+            renameFile(lock, renameTo);
         } catch (final CannotLockException clx) {
             throw clx;
         } catch (final Throwable t) {
@@ -1352,7 +1352,11 @@ public final class DocumentModelImpl extends
      *            The new name <code>String</code>.
      */
     private void renameFile(final DocumentFileLock lock, final String renameTo) {
-        lock.getFile().renameTo(new File(lock.getFile().getParentFile(), renameTo));
+        final File renameToFile = new File(
+                lock.getFile().getParentFile(), renameTo);
+        Assert.assertTrue(lock.getFile().renameTo(renameToFile),
+                "Could not rename file from {0} to {1}.", lock.getFile(),
+                renameToFile);
     }
 
     /**

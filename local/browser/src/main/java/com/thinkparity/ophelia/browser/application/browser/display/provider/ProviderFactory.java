@@ -139,6 +139,9 @@ public class ProviderFactory {
         case DIALOG_PLATFORM_SIGNUP_PROFILE:
             provider = new SignupProvider(profileModel);
             break;
+        case DIALOG_PLATFORM_SIGNUP_SUMMARY:
+            provider = new SignupProvider(profileModel);
+            break;
         case DIALOG_PROFILE_UPDATE:
             provider = new UpdateProfileProvider(profileModel);
             break;

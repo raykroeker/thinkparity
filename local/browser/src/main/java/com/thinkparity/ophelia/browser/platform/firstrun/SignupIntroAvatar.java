@@ -37,7 +37,7 @@ public class SignupIntroAvatar extends DefaultSignupPage {
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getNextPageName()
      */
     public String getNextPageName() {
-        if (skipSignupJCheckBox.isSelected()) {
+        if (isLastPage()) {
             return null;
         } else {
             return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_AGREEMENT);

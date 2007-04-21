@@ -110,11 +110,11 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
     public String getNextPageName() {
         final FeatureSet featureSet = extractFeatureSet();
         if (featureSet == FeatureSet.FREE) {
-            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PROFILE);
+            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_SUMMARY);
         } else {
             // TODO when ready, hook in payment tab.
-            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PROFILE);
-            //return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT);
+            //return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_SUMMARY);
+            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT);
         }
     }
 
@@ -122,7 +122,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getPreviousPageName()
      */
     public String getPreviousPageName() {
-        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_AGREEMENT);
+        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PROFILE);
     }
 
     /**
@@ -344,7 +344,8 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         if (accountTypeGuestJRadioButton.isSelected()) {
             return FeatureSet.FREE;
         } else if (accountTypeStandardJRadioButton.isSelected()) {
-            return FeatureSet.PREMIUM;
+            // TODO should be PREMIUM
+            return FeatureSet.STANDARD;
         } else {
             throw Assert.createUnreachable("Unknown account type selected.");
         }

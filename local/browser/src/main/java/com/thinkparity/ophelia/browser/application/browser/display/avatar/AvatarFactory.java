@@ -28,12 +28,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.Prov
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.browser.platform.firstrun.SignupAccountInfoAvatar;
-import com.thinkparity.ophelia.browser.platform.firstrun.SignupAvatar;
-import com.thinkparity.ophelia.browser.platform.firstrun.SignupIntroAvatar;
-import com.thinkparity.ophelia.browser.platform.firstrun.SignupLicenseAgreementAvatar;
-import com.thinkparity.ophelia.browser.platform.firstrun.SignupPaymentInfoAvatar;
-import com.thinkparity.ophelia.browser.platform.firstrun.SignupProfileInfoAvatar;
+import com.thinkparity.ophelia.browser.platform.firstrun.*;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
@@ -198,6 +193,10 @@ public class AvatarFactory {
             break;
         case DIALOG_PLATFORM_SIGNUP_PROFILE:
             avatar = newAvatar(SignupProfileInfoAvatar.class);
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
+            break;
+        case DIALOG_PLATFORM_SIGNUP_SUMMARY:
+            avatar = newAvatar(SignupSummaryAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
 

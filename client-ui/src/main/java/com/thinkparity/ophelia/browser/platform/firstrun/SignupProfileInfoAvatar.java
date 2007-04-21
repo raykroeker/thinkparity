@@ -5,8 +5,6 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -15,18 +13,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.thinkparity.codebase.StringUtil.Separator;
-import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.swing.SwingUtil;
 
-import com.thinkparity.codebase.model.migrator.Feature;
-import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.profile.UsernameReservation;
-import com.thinkparity.codebase.model.session.Credentials;
-
-import com.thinkparity.ophelia.model.Constants.Product;
-import com.thinkparity.ophelia.model.profile.ReservationExpiredException;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
@@ -34,7 +24,6 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.dialog.profile.LocaleRenderer;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.firstrun.SignupData.DataKey;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Sign-Up Profile Info Avatar<br>
@@ -69,39 +58,14 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getNextPageName()
      */
     public String getNextPageName() {
-        return null;
+        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_ACCOUNT);
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getPreviousPageName()
      */
     public String getPreviousPageName() {
-        final FeatureSet featureSet = (FeatureSet) ((Data) input).get(DataKey.FEATURE_SET);
-        if (featureSet == FeatureSet.FREE) {
-            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_ACCOUNT);
-        } else {
-            // TODO When ready, hook in payment tab.
-            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_ACCOUNT);
-            //return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isLastPage()
-     */
-    public Boolean isLastPage() {
-        return Boolean.TRUE;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isNextOk()
-     */
-    public Boolean isNextOk() {
-        if (!isInputValid()) {
-            return Boolean.FALSE;
-        }
-        signUp();
-        return (!containsInputErrors());
+        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_AGREEMENT);
     }
 
     /**
@@ -147,83 +111,6 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
         if (isSignupDelegateInitialized()) {
             signupDelegate.enableNextButton(!containsInputErrors());
         }
-    }
-
-    /**
-     * Create a new profile.
-     *
-     */
-    private void createProfile() {
-        final UsernameReservation usernameReservation = (UsernameReservation) ((Data) input).get(SignupData.DataKey.USERNAME_RESERVATION);
-        final EMailReservation emailReservation = (EMailReservation) ((Data) input).get(SignupData.DataKey.EMAIL_RESERVATION);
-        final Credentials credentials = (Credentials) ((Data) input).get(SignupData.DataKey.CREDENTIALS);
-        final Profile profile = extractProfile();
-        final EMail email = (EMail) ((Data) input).get(SignupData.DataKey.EMAIL);
-        final String securityQuestion = (String) ((Data) input).get(SignupData.DataKey.SECURITY_QUESTION);
-        final String securityAnswer = (String) ((Data) input).get(SignupData.DataKey.SECURITY_ANSWER);
-        try {
-            profile.setFeatures(extractFeatures());
-            createProfile(usernameReservation, emailReservation, credentials,
-                    profile, email, securityQuestion, securityAnswer);
-        } catch (final ReservationExpiredException rex) {
-        	addInputError(getString("ErrorReservationExpired"));
-        } catch (final Throwable t) {
-            addInputError(getString("ErrorCreateAccount"));
-        }
-    }
-
-    /**
-     * Create a new profile.
-     * 
-     * @param usernameReservation
-     *            A <code>UsernameReservation</code>.
-     * @param emailReservation
-     *            An <code>EMailReservation</code>.
-     * @param credentials
-     *            A set of user <code>Credentials</code>.
-     * @param profile
-     *            A <code>Profile</code>.
-     * @param email
-     *            An <code>EMail</code> address.
-     * @param securityQuestion
-     *            A security question <code>String</code>.
-     * @param securityAnswer
-     *            A security answer <code>String</code>.
-     * @throws ReservationExpiredException
-     */
-    private void createProfile(final UsernameReservation usernameReservation,
-            final EMailReservation emailReservation,
-            final Credentials credentials, final Profile profile,
-            final EMail email, final String securityQuestion,
-            final String securityAnswer) throws ReservationExpiredException {
-        ((SignupProvider) contentProvider).createProfile(usernameReservation,
-                emailReservation, credentials, profile, email,
-                securityQuestion, securityAnswer);
-    }
-
-    /**
-     * Extract the features.
-     * 
-     * @return A list of <code>Feature</code>.
-     */
-    private List<Feature> extractFeatures() {
-        final FeatureSet featureSet = (FeatureSet) ((Data) input).get(DataKey.FEATURE_SET);
-        final List<Feature> allFeatures = ((SignupProvider) contentProvider).readFeatures();
-        final List<Feature> features = new ArrayList<Feature>();
-        switch (featureSet) {
-        case FREE:
-            break;
-        case STANDARD:
-            for (final Feature feature : allFeatures)
-                if (feature.getName().equals(Product.Features.CORE))
-                    features.add(feature);
-            break;
-        case PREMIUM:
-            for (final Feature feature : allFeatures)
-                features.add(feature);
-            break;
-        }
-        return features;
     }
 
     /**
@@ -526,21 +413,6 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
         }
     }
 
-    /**
-     * Sign up.
-     */
-    private void signUp() {
-        SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
-        errorMessageJLabel.setText(getString("SigningUp"));
-        errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel.getWidth(), errorMessageJLabel.getHeight());
-        createProfile();
-        errorMessageJLabel.setText(" ");
-        if (containsInputErrors()) {
-            errorMessageJLabel.setText(getInputErrors().get(0));
-        }
-        SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
-    }
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JTextField addressJTextField = new javax.swing.JTextField();
     private final javax.swing.JTextField cityJTextField = new javax.swing.JTextField();

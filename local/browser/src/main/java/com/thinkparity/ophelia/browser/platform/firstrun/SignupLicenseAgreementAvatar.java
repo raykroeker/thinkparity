@@ -38,7 +38,7 @@ public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getNextPageName()
      */
     public String getNextPageName() {
-        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_ACCOUNT);
+        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PROFILE);
     }
 
     /**

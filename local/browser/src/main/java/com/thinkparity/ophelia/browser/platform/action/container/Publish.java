@@ -227,11 +227,13 @@ public class Publish extends AbstractBrowserAction {
         final Container container = containerModel.read(containerId);
         if (containerModel.isLocalDraftModified(containerId)) {
             final ContainerDraft draft = containerModel.readDraft(containerId);
+            // make sure there is at least one document, excluding removed documents.
             boolean isPublishable = false;
             for (final Artifact artifact : draft.getArtifacts()) {
                 switch (draft.getState(artifact)) {
                 case ADDED:
                 case MODIFIED:
+                case NONE:
                     isPublishable = true;
                     break;
                 }

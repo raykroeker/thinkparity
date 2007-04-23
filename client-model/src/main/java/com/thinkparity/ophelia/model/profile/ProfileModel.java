@@ -137,9 +137,11 @@ public interface ProfileModel {
     /**
      * Read the security question.
      * 
-     * @return A security question.
+     * @param profileKey
+     *            A profile key can be either a username or an e-mail address.
+     * @return A security question <code>String</code>.
      */
-    public String readSecurityQuestion();
+    public String readSecurityQuestion(final String profileKey);
 
     /**
      * Remove an email.

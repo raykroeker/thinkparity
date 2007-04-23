@@ -182,14 +182,10 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
      *            A user id <code>JabberId</code>.
      * @return A security question <code>String</code>.
      */
-    String readSecurityQuestion(final JabberId userId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        assertIsAuthenticatedUser(userId);
-        final XMPPMethod resetCredentials = xmppCore.createMethod("profile:readsecurityquestion");
-        resetCredentials.setParameter("userId", userId);
-        final XMPPMethodResponse response = execute(resetCredentials, Boolean.TRUE);
-        return response.readResultString("securityQuestion");
+    String readSecurityQuestion(final String profileKey) {
+        final XMPPMethod readSecurityQuestion = xmppCore.createMethod("profile:readsecurityquestion");
+        readSecurityQuestion.setParameter("profileKey", profileKey);
+        return execute(readSecurityQuestion, Boolean.TRUE).readResultString("securityQuestion");
     }
 
     /**

@@ -1595,11 +1595,11 @@ public final class SessionModelImpl extends Model<SessionListener>
     /**
      * Read the user profile's security question.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
+     * @param profileKey
+     *            A profile key can be either a username or an e-mail address.
      * @return A security question <code>String</code>.
      */
-    public String readProfileSecurityQuestion(final JabberId userId) {
+    public String readProfileSecurityQuestion(final String profileKey) {
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -1611,7 +1611,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                     didAuthenticate = true;
                 }
                 try {
-                    return xmppSession.readProfileSecurityQuestion(userId);
+                    return xmppSession.readProfileSecurityQuestion(profileKey);
                 } finally {
                     if (didAuthenticate)
                         unauthenticate(xmppSession);

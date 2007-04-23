@@ -116,11 +116,11 @@ public interface ProfileModel {
     /**
      * Read a user's security question.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
+     * @param profileKey
+     *            A profile key <code>String</code>.
      * @return A users's security question <code>String</code>.
      */
-    public String readSecurityQuestion(final JabberId userId);
+    public String readSecurityQuestion(final String profileKey);
 
     /**
      * Read a user's token.

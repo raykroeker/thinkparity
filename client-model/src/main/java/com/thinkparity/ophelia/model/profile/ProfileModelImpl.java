@@ -339,15 +339,15 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * Read the security question.
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#readSecurityQuestion(java.lang.String)
      * 
-     * @return A security question.
      */
-    public String readSecurityQuestion() {
-        logger.logApiId();
+    public String readSecurityQuestion(final String profileKey) {
         try {
-            final Profile profile = read();
-            return getSessionModel().readProfileSecurityQuestion(profile.getId());
+            final String securityQuestion =
+                getSessionModel().readProfileSecurityQuestion(profileKey);
+            delay();
+            return securityQuestion;
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -486,9 +486,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
                 throw new InvalidCredentialsException();
             }
         } catch (final InvalidCredentialsException icx) {
-            try {
-                Thread.sleep(3 * 1000);
-            } catch (final InterruptedException ix) {}
+            delay();
             throw icx;
         } catch (final Throwable t) {
             throw panic(t);
@@ -580,6 +578,16 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     private void assertIsValidTimeZone(final String name, final String value) {
         final TimeZone timeZone = TimeZone.getTimeZone(value);
         Assert.assertTrue(timeZone.getID().equals(value), "Profile field {0} contains invalid value {1}.", name, value);
+    }
+
+    /**
+     * Delay the current thread for a number of seconds.
+     *
+     */
+    private void delay() {
+        try {
+            Thread.sleep(3 * 1000);
+        } catch (final InterruptedException ix) {}
     }
 
     /**
@@ -697,9 +705,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
                 if (!localCredentials.getUsername().equals(credentials.getUsername()))
                     throw new InvalidCredentialsException();
         } catch (final InvalidCredentialsException icx) {
-            try {
-                Thread.sleep(3 * 1000);
-            } catch (final InterruptedException ix) {}
+            delay();
             throw icx;
         }
     }

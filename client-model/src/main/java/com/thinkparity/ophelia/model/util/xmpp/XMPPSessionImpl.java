@@ -1088,10 +1088,11 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readProfileSecurityQuestion(com.thinkparity.codebase.jabber.JabberId)
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readProfileSecurityQuestion(java.lang.String)
+     * 
      */
-    public String readProfileSecurityQuestion(final JabberId userId) {
-        return xmppProfile.readSecurityQuestion(userId);
+    public String readProfileSecurityQuestion(final String profileKey) {
+        return xmppProfile.readSecurityQuestion(profileKey);
     }
 
     /**

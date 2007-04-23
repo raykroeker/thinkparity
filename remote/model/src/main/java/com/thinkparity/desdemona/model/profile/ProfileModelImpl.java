@@ -175,22 +175,10 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             expiresOn.set(Calendar.HOUR, expiresOn.get(Calendar.HOUR) + 1);
 
             // try to find a profile by either by username or by e-mail address
-            Profile profile = null;
-            try {
-                final JabberId userId = JabberIdBuilder.parseUsername(profileKey);
-                profile = read(userId);
-            } catch (final IllegalArgumentException iax) {}
-
+            final Profile profile = read(profileKey);
             if (null == profile) {
-                // try to fine a profile by e-mail
-                try {
-                    final EMail email = EMailBuilder.parse(profileKey);
-                    final User user = userSql.read(email);
-                    profile = read(user.getId());
-                } catch (final EMailFormatException efx) {}
-            }
-
-            if (null != profile) {
+                return null;
+            } else {
                 final String localSecurityAnswer = userSql.readProfileSecurityAnswer(profile.getId());
                 if (localSecurityAnswer.equals(securityAnswer)) {
                     /* temporary credentials are single-use only therefore must
@@ -207,8 +195,6 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                 } else {
                     return null;
                 }
-            } else {
-                return null;
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -398,18 +384,22 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.profile.ProfileModel#readSecurityQuestion(com.thinkparity.codebase.jabber.JabberId)
-     * 
+     * @see com.thinkparity.desdemona.model.profile.ProfileModel#readSecurityQuestion(java.lang.String)
+     *
      */
-    public String readSecurityQuestion(final JabberId userId) {
+    public String readSecurityQuestion(final String profileKey) {
         try {
-            return userSql.readProfileSecurityQuestion(userId);
+            final Profile profile = read(profileKey);
+            if (null == profile) {
+                return null;
+            } else {
+                return userSql.readProfileSecurityQuestion(profile.getId());
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
-    
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#readToken(com.thinkparity.codebase.jabber.JabberId)
      * 
@@ -421,7 +411,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             throw translateError(t);
         }
     }
-
+    
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#removeEmail(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.email.EMail)
@@ -709,5 +699,31 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         contactUpdated.setContactId(user.getId());
         contactUpdated.setUpdatedOn(currentDateTime());
         enqueueEvent(user.getId(), contactIds, contactUpdated);
+    }
+
+    /**
+     * Read a profile by a profile key. A profile key can be one of either a
+     * username or an e-mail address. If a profile can be found it is returned
+     * otherwise null is returned.
+     * 
+     * @param profileKey
+     *            A profile key <code>String</code>.
+     * @return A <code>Profile</code>.
+     */
+    private Profile read(final String profileKey) {
+        // try to find a profile by user id
+        try {
+            final JabberId userId = JabberIdBuilder.parseUsername(profileKey);
+            return read(userId);
+        } catch (final IllegalArgumentException iax) {}
+
+        // try to find a profile by e-mail
+        try {
+            final EMail email = EMailBuilder.parse(profileKey);
+            final User user = userSql.read(email);
+            return read(user.getId());
+        } catch (final EMailFormatException efx) {}
+
+        return null;
     }
 }

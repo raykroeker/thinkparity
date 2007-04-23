@@ -3,8 +3,6 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.profile;
 
-import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
 import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
@@ -38,7 +36,7 @@ public final class ReadSecurityQuestion extends AbstractHandler {
             final ServiceResponseWriter writer) {
         logger.logApiId();
         writer.writeString("securityQuestion", readSecurityQuestion(provider,
-                reader.readJabberId("userId")));
+                reader.readString("profileKey")));
     }
 
     /**
@@ -49,7 +47,7 @@ public final class ReadSecurityQuestion extends AbstractHandler {
      * @return A security question <code>String</code>.
      */
     private String readSecurityQuestion(final ServiceModelProvider provider,
-            final JabberId userId) {
-        return provider.getProfileModel().readSecurityQuestion(userId);
+            final String profileKey) {
+        return provider.getProfileModel().readSecurityQuestion(profileKey);
     }
 }

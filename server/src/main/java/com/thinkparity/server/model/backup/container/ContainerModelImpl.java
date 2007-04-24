@@ -254,6 +254,13 @@ public final class ContainerModelImpl extends
         try {
             final InternalArtifactModel artifactModel = getArtifactModel();
             final Long containerId = artifactModel.readId(event.getUniqueId());
+            // if a draft exists, delete it
+            if (doesExistDraft(containerId)) {
+                Assert.assertNotTrue(doesExistLocalDraft(containerId),
+                        "Invalid state.  Local draft for {0} should not exist.",
+                        containerId);
+                deleteDraft(containerId);
+            }
 
             /* HACK we know the latest flag was either applied or remoted by
              * the artifact model */

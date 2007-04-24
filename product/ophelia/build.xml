@@ -440,8 +440,11 @@ Examples:
 
         <junit fork="on" forkmode="once" reloading="false"
                         errorproperty="junit.didError" failureproperty="junit.didFail">
+            <jvmarg value="-Dthinkparity-dir=${target.package.dir}"/>
             <jvmarg value="-Dthinkparity.mode=${thinkparity.mode}"/>
             <jvmarg value="-Dthinkparity.environment=${thinkparity.environment}"/>
+            <jvmarg value="-Dthinkparity.product-name=${thinkparity.product-name}"/>
+            <jvmarg value="-Dthinkparity.release-name=${thinkparity.release-name}"/>
             <jvmarg value="-Djunitx.log4j.level=${inner.junitx.log4j.level}"/>
             <jvmarg value="-Djunitx.log4j.console=${inner.junitx.log4j.console}"/>
 

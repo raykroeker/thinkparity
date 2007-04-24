@@ -28,6 +28,8 @@ import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 
+import com.thinkparity.ophelia.model.profile.ReservationExpiredException;
+
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -112,8 +114,6 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         if (featureSet == FeatureSet.FREE) {
             return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_SUMMARY);
         } else {
-            // TODO when ready, hook in payment tab.
-            //return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_SUMMARY);
             return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT);
         }
     }
@@ -133,6 +133,9 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
             return Boolean.FALSE;
         }
         createReservations();
+        if (!containsInputErrors() && accountTypeGuestJRadioButton.isSelected()) {
+            signupGuest();
+        }
         return !containsInputErrors();
     }
 
@@ -233,6 +236,19 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
             return emailReservations.get(email);
         } else {
             return ((SignupProvider) contentProvider).createEMailReservation(email);
+        }
+    }
+
+    /**
+     * Create a new profile.
+     */
+    private void createProfile() {
+        try {
+            getSignupHelper().createProfile();
+        } catch (final ReservationExpiredException rex) {
+            addInputError(getString("ErrorReservationExpired"));
+        } catch (final Throwable t) {
+            addInputError(getString("ErrorCreateAccount"));
         }
     }
 
@@ -495,15 +511,6 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(securityTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
                             .addComponent(accountTypeTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(26, 26, 26)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(accountTypeGuestJRadioButton)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(accountTypeStandardJRadioButton)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 189, Short.MAX_VALUE)
-                                        .addComponent(learnMoreJLabel)
-                                        .addGap(66, 66, 66))))
                             .addComponent(loginInfoTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(27, 27, 27)
@@ -530,7 +537,16 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
                                 .addGap(37, 37, 37))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(36, 36, 36)
-                        .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)))
+                        .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(35, 35, 35)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(accountTypeStandardJRadioButton)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(accountTypeGuestJRadioButton)
+                                .addGap(55, 55, 55)
+                                .addComponent(learnMoreJLabel)))
+                        .addGap(187, 187, 187)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -539,10 +555,10 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
                 .addGap(22, 22, 22)
                 .addComponent(accountTypeTitleJLabel)
                 .addGap(14, 14, 14)
-                .addComponent(accountTypeGuestJRadioButton)
+                .addComponent(accountTypeStandardJRadioButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(accountTypeStandardJRadioButton)
+                    .addComponent(accountTypeGuestJRadioButton)
                     .addComponent(learnMoreJLabel))
                 .addGap(22, 22, 22)
                 .addComponent(loginInfoTitleJLabel)
@@ -678,6 +694,22 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      */
     private void reloadAccountTypeRadioButtons() {
         accountTypeStandardJRadioButton.setSelected(true);
+    }
+
+    /**
+     * Sign up guest.
+     */
+    private void signupGuest() {
+        saveData();
+        SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
+        errorMessageJLabel.setText(getString("SigningUpGuest"));
+        errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel.getWidth(), errorMessageJLabel.getHeight());
+        createProfile();
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors()) {
+            errorMessageJLabel.setText(getInputErrors().get(0));
+        }
+        SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
     }
 
     private void usernameJTextFieldFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_usernameJTextFieldFocusLost

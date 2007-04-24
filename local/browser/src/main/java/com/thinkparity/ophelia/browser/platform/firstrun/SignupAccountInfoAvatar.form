@@ -30,18 +30,6 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="securityTitleJLabel" alignment="0" pref="438" max="32767" attributes="0"/>
                           <Component id="accountTypeTitleJLabel" alignment="0" pref="438" max="32767" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="accountTypeGuestJRadioButton" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Component id="accountTypeStandardJRadioButton" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace pref="189" max="32767" attributes="0"/>
-                                      <Component id="learnMoreJLabel" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace min="-2" pref="66" max="-2" attributes="0"/>
-                                  </Group>
-                              </Group>
-                          </Group>
                           <Component id="loginInfoTitleJLabel" alignment="0" pref="438" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
@@ -78,6 +66,18 @@
                       <EmptySpace min="-2" pref="36" max="-2" attributes="0"/>
                       <Component id="errorMessageJLabel" pref="412" max="32767" attributes="1"/>
                   </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="accountTypeStandardJRadioButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="accountTypeGuestJRadioButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="55" max="-2" attributes="0"/>
+                              <Component id="learnMoreJLabel" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace min="-2" pref="187" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -89,10 +89,10 @@
               <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
               <Component id="accountTypeTitleJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
-              <Component id="accountTypeGuestJRadioButton" min="-2" max="-2" attributes="0"/>
+              <Component id="accountTypeStandardJRadioButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="accountTypeStandardJRadioButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="accountTypeGuestJRadioButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="learnMoreJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>

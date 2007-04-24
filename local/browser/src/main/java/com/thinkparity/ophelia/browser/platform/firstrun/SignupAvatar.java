@@ -22,6 +22,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.ophelia.browser.platform.application.window.WindowTitle;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
@@ -41,6 +42,9 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
 
     /** The list of <code>SignupPage</code>s. */
     private final List<SignupPage> signupPages;
+
+    /** The <code>WindowTitle</code>. */
+    private WindowTitle windowTitle;
 
     /** Creates new form SignupAvatar */
     public SignupAvatar() {
@@ -110,6 +114,13 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
      */
     public void setState(final State state) {
         throw Assert.createNotYetImplemented("SignupAvatar#setState");
+    }
+
+    /**
+     * Set the window title.
+     */
+    public void setWindowTitle(final WindowTitle windowTitle) {
+        this.windowTitle = windowTitle;
     }
 
     /**
@@ -275,6 +286,14 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     }
 
     /**
+     * Reload the window title.
+     */
+    private void reloadWindowTitle() {
+        Assert.assertNotNull("Null window title in signup dialog.", windowTitle);
+        windowTitle.setTitleText(((Avatar)currentPage).getAvatarTitle());
+    }
+
+    /**
      * Set the first page in the card layout.
      */
     private void setFirstPage() {
@@ -297,6 +316,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
         cardLayout.show(contentJPanel, page.getPageName());
         reloadNextButton();
         reloadPrevButton();
+        reloadWindowTitle();
         page.validateInput();
     }
 

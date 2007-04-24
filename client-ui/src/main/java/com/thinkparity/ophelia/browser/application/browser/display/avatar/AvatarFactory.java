@@ -183,8 +183,20 @@ public class AvatarFactory {
             avatar = newAvatar(SignupLicenseAgreementAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
+        case DIALOG_PLATFORM_SIGNUP_CREDENTIALS:
+            avatar = newAvatar(SignupCredentialsAvatar.class);
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
+            break;
+        case DIALOG_PLATFORM_SIGNUP_FORGOT_PASSWORD:
+            avatar = newAvatar(SignupForgotPasswordAvatar.class);
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
+            break;
         case DIALOG_PLATFORM_SIGNUP_INTRO:
             avatar = newAvatar(SignupIntroAvatar.class);
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
+            break;
+        case DIALOG_PLATFORM_SIGNUP_LOGIN:
+            avatar = newAvatar(SignupLoginAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_PLATFORM_SIGNUP_PAYMENT:

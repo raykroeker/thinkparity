@@ -13,6 +13,9 @@ import java.util.Calendar;
 import javax.swing.DefaultComboBoxModel;
 
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.ophelia.model.profile.ReservationExpiredException;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
@@ -72,10 +75,22 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isNextOk()
+     */
+    public Boolean isNextOk() {
+        if (!isInputValid()) {
+            return Boolean.FALSE;
+        }
+        if (!containsInputErrors()) {
+            signup();
+        }
+        return !containsInputErrors();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
      */
     public void reload() {
-        // TODO
         validateInput();
     }
 
@@ -83,7 +98,6 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#saveData()
      */
     public void saveData() {
-        // TODO
     }
 
     /**
@@ -102,6 +116,19 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
 
         if (isSignupDelegateInitialized()) {
             signupDelegate.enableNextButton(!containsInputErrors());
+        }
+    }
+
+    /**
+     * Create a new profile.
+     */
+    private void createProfile() {
+        try {
+            getSignupHelper().createProfile();
+        } catch (final ReservationExpiredException rex) {
+            addInputError(getString("ErrorReservationExpired"));
+        } catch (final Throwable t) {
+            addInputError(getString("ErrorCreateAccount"));
         }
     }
 
@@ -144,15 +171,15 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        final javax.swing.JLabel titleJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel cardTypeJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel cardNumberJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel cardNameJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel expiryDateJLabel = new javax.swing.JLabel();
 
         setOpaque(false);
-        titleJLabel.setFont(Fonts.DialogFont);
-        titleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.PaymentInfo.Title"));
+        explanationJLabel.setFont(Fonts.DialogFont);
+        explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.PaymentInfo.Explanation"));
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
@@ -191,7 +218,7 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(titleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 416, Short.MAX_VALUE))
+                        .addComponent(explanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 416, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(38, 38, 38)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -218,7 +245,7 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(19, 19, 19)
-                .addComponent(titleJLabel)
+                .addComponent(explanationJLabel)
                 .addGap(19, 19, 19)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cardTypeJLabel)
@@ -241,6 +268,22 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
                 .addContainerGap(128, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Sign up.
+     */
+    private void signup() {
+        saveData();
+        SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
+        errorMessageJLabel.setText(getString("SigningUp"));
+        errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel.getWidth(), errorMessageJLabel.getHeight());
+        createProfile();
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors()) {
+            errorMessageJLabel.setText(getInputErrors().get(0));
+        }
+        SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JComboBox cardMonthJComboBox = new javax.swing.JComboBox();

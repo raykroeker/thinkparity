@@ -95,11 +95,11 @@ public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         final javax.swing.ButtonGroup acceptOrDeclineButtonGroup = new javax.swing.ButtonGroup();
-        final javax.swing.JLabel titleJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
 
         setOpaque(false);
-        titleJLabel.setFont(Fonts.DialogFont);
-        titleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.LicenseAgreement.Title"));
+        explanationJLabel.setFont(Fonts.DialogFont);
+        explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.LicenseAgreement.Explanation"));
 
         licenseAgreementJTextArea.setColumns(20);
         licenseAgreementJTextArea.setEditable(false);
@@ -141,7 +141,7 @@ public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(licenseAgreementJScrollPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE)
-                    .addComponent(titleJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE)
+                    .addComponent(explanationJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE)
                     .addComponent(acceptJRadioButton, javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(declineJRadioButton, javax.swing.GroupLayout.Alignment.LEADING))
                 .addContainerGap())
@@ -150,7 +150,7 @@ public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(titleJLabel)
+                .addComponent(explanationJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(licenseAgreementJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -181,5 +181,4 @@ public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
     private final javax.swing.JScrollPane licenseAgreementJScrollPane = new javax.swing.JScrollPane();
     private final javax.swing.JTextArea licenseAgreementJTextArea = new javax.swing.JTextArea();
     // End of variables declaration//GEN-END:variables
-    
 }

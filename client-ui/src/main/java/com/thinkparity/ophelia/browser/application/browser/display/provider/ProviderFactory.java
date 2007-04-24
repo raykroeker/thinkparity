@@ -122,23 +122,14 @@ public class ProviderFactory {
             provider = new ContainerVersionProvider(profileModel, containerModel, userModel);
             break;
         case DIALOG_PLATFORM_SIGNUP:
-            provider = new SignupProvider(profileModel);
-            break;
         case DIALOG_PLATFORM_SIGNUP_ACCOUNT:
-            provider = new SignupProvider(profileModel);
-            break;
         case DIALOG_PLATFORM_SIGNUP_AGREEMENT:
-            provider = new SignupProvider(profileModel);
-            break;
+        case DIALOG_PLATFORM_SIGNUP_CREDENTIALS:
+        case DIALOG_PLATFORM_SIGNUP_FORGOT_PASSWORD:
         case DIALOG_PLATFORM_SIGNUP_INTRO:
-            provider = new SignupProvider(profileModel);
-            break;
+        case DIALOG_PLATFORM_SIGNUP_LOGIN:
         case DIALOG_PLATFORM_SIGNUP_PAYMENT:
-            provider = new SignupProvider(profileModel);
-            break;
         case DIALOG_PLATFORM_SIGNUP_PROFILE:
-            provider = new SignupProvider(profileModel);
-            break;
         case DIALOG_PLATFORM_SIGNUP_SUMMARY:
             provider = new SignupProvider(profileModel);
             break;

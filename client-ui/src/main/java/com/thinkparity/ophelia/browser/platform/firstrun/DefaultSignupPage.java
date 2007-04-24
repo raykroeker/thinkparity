@@ -11,6 +11,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
+import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
@@ -26,6 +27,9 @@ public abstract class DefaultSignupPage extends Avatar
 
     /** The  <code>SignupDelegate</code>. */
     protected SignupDelegate signupDelegate;
+
+    /** A <code>SignupHelper</code>. */
+    private SignupHelper signupHelper;
 
     /**
      * Create a DefaultSignupPage.
@@ -114,6 +118,18 @@ public abstract class DefaultSignupPage extends Avatar
      */
     protected String getPageName(final AvatarId id) {
         return id.toString();
+    }
+
+    /**
+     * Get a SignupHelper
+     * 
+     * @return A <code>SignupHelper</code>.
+     */
+    protected SignupHelper getSignupHelper() {
+        if (null == signupHelper) {
+            signupHelper = new SignupHelper((SignupProvider) contentProvider, (Data) input);
+        }
+        return signupHelper;
     }
 
     /**

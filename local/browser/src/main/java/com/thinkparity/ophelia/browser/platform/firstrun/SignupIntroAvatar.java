@@ -37,8 +37,8 @@ public class SignupIntroAvatar extends DefaultSignupPage {
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getNextPageName()
      */
     public String getNextPageName() {
-        if (isLastPage()) {
-            return null;
+        if (haveAccountJRadioButton.isSelected()) {
+            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_CREDENTIALS);
         } else {
             return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_AGREEMENT);
         }
@@ -56,13 +56,6 @@ public class SignupIntroAvatar extends DefaultSignupPage {
      */
     public Boolean isFirstPage() {
         return Boolean.TRUE;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isLastPage()
-     */
-    public Boolean isLastPage() {
-        return skipSignupJCheckBox.isSelected();
     }
 
     /**
@@ -88,6 +81,7 @@ public class SignupIntroAvatar extends DefaultSignupPage {
      */
     @Override
     public void reload() {
+        reloadAccountRadioButtons();
         validateInput();
     }
 
@@ -116,21 +110,30 @@ public class SignupIntroAvatar extends DefaultSignupPage {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        final javax.swing.JLabel introTitleJLabel = new javax.swing.JLabel();
+        accountButtonGroup = new javax.swing.ButtonGroup();
+        final javax.swing.JLabel welcomeJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
 
         setOpaque(false);
-        introTitleJLabel.setFont(Fonts.DialogFontBold);
-        introTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Intro.Title"));
+        welcomeJLabel.setFont(Fonts.DialogFontBold);
+        welcomeJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Intro.Welcome"));
 
         explanationJLabel.setFont(Fonts.DialogFont);
         explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Intro.Explanation"));
 
-        skipSignupJCheckBox.setFont(Fonts.DialogFont);
-        skipSignupJCheckBox.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Intro.SkipSignup"));
-        skipSignupJCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        skipSignupJCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        skipSignupJCheckBox.setOpaque(false);
+        accountButtonGroup.add(doNotHaveAccountJRadioButton);
+        doNotHaveAccountJRadioButton.setFont(Fonts.DialogFont);
+        doNotHaveAccountJRadioButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Intro.DoNotHaveAccount"));
+        doNotHaveAccountJRadioButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        doNotHaveAccountJRadioButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        doNotHaveAccountJRadioButton.setOpaque(false);
+
+        accountButtonGroup.add(haveAccountJRadioButton);
+        haveAccountJRadioButton.setFont(Fonts.DialogFont);
+        haveAccountJRadioButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Intro.HaveAccount"));
+        haveAccountJRadioButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        haveAccountJRadioButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        haveAccountJRadioButton.setOpaque(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -139,27 +142,41 @@ public class SignupIntroAvatar extends DefaultSignupPage {
             .addGroup(layout.createSequentialGroup()
                 .addGap(39, 39, 39)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(62, 62, 62)
-                        .addComponent(skipSignupJCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE))
                     .addComponent(explanationJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
-                    .addComponent(introTitleJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE))
+                    .addComponent(welcomeJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE))
                 .addGap(39, 39, 39))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(71, 71, 71)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(doNotHaveAccountJRadioButton)
+                    .addComponent(haveAccountJRadioButton))
+                .addContainerGap(193, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addGap(101, 101, 101)
-                .addComponent(introTitleJLabel)
+                .addComponent(welcomeJLabel)
                 .addGap(25, 25, 25)
                 .addComponent(explanationJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(skipSignupJCheckBox)
-                .addContainerGap(62, Short.MAX_VALUE))
+                .addComponent(doNotHaveAccountJRadioButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(haveAccountJRadioButton)
+                .addContainerGap(37, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Reload the account radio buttons.
+     */
+    private void reloadAccountRadioButtons() {
+        doNotHaveAccountJRadioButton.setSelected(true);
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JCheckBox skipSignupJCheckBox = new javax.swing.JCheckBox();
+    private javax.swing.ButtonGroup accountButtonGroup;
+    private final javax.swing.JRadioButton doNotHaveAccountJRadioButton = new javax.swing.JRadioButton();
+    private final javax.swing.JRadioButton haveAccountJRadioButton = new javax.swing.JRadioButton();
     // End of variables declaration//GEN-END:variables
 }

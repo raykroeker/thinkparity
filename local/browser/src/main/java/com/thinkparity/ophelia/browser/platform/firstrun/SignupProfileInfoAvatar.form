@@ -19,40 +19,42 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="titleJLabel" pref="424" max="32767" attributes="0"/>
+                      <Component id="explanationJLabel" pref="424" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="nameJLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="userTitleJLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="organizationJLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="phoneJLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="mobilePhoneJLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="addressJLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="cityJLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="provinceJLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="postalCodeJLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="countryJLabel" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="nameJLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="userTitleJLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="organizationJLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="phoneJLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="mobilePhoneJLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="addressJLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="cityJLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="provinceJLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="postalCodeJLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="countryJLabel" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                  <Component id="nameJTextField" alignment="0" pref="237" max="32767" attributes="1"/>
+                                  <Component id="countryJComboBox" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="postalCodeJTextField" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="userTitleJTextField" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="organizationJTextField" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="phoneJTextField" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="mobilePhoneJTextField" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="addressJTextField" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="cityJTextField" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="provinceJTextField" alignment="0" max="32767" attributes="1"/>
+                              </Group>
+                              <EmptySpace pref="49" max="32767" attributes="0"/>
+                          </Group>
+                          <Component id="errorMessageJLabel" alignment="0" pref="397" max="32767" attributes="1"/>
+                          <Component id="starExplanationjLabel" alignment="0" min="-2" max="-2" attributes="1"/>
                       </Group>
-                      <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="nameJTextField" alignment="0" pref="237" max="32767" attributes="1"/>
-                          <Component id="countryJComboBox" alignment="0" max="32767" attributes="1"/>
-                          <Component id="postalCodeJTextField" alignment="0" max="32767" attributes="1"/>
-                          <Component id="userTitleJTextField" alignment="0" max="32767" attributes="1"/>
-                          <Component id="organizationJTextField" alignment="0" max="32767" attributes="1"/>
-                          <Component id="phoneJTextField" alignment="0" max="32767" attributes="1"/>
-                          <Component id="mobilePhoneJTextField" alignment="0" max="32767" attributes="1"/>
-                          <Component id="addressJTextField" alignment="0" max="32767" attributes="1"/>
-                          <Component id="cityJTextField" alignment="0" max="32767" attributes="1"/>
-                          <Component id="provinceJTextField" alignment="0" max="32767" attributes="1"/>
-                      </Group>
-                      <EmptySpace pref="49" max="32767" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
-                      <Component id="errorMessageJLabel" pref="397" max="32767" attributes="1"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -63,7 +65,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
               <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
-              <Component id="titleJLabel" min="-2" max="-2" attributes="0"/>
+              <Component id="explanationJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="nameJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -119,21 +121,23 @@
                   <Component id="postalCodeJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="postalCodeJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+              <Component id="starExplanationjLabel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
               <Component id="errorMessageJLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="23" max="32767" attributes="0"/>
+              <EmptySpace pref="67" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JLabel" name="titleJLabel">
+    <Component class="javax.swing.JLabel" name="explanationJLabel">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
           <Connection code="Fonts.DialogFont" type="code"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="localization/Browser_Messages.properties" key="SignupAvatar.ProfileInfo.Title" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="localization/Browser_Messages.properties" key="SignupAvatar.ProfileInfo.Explanation" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <AuxValues>
@@ -383,6 +387,20 @@
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JLabel" name="starExplanationjLabel">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogFont" type="code"/>
+        </Property>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="localization/Browser_Messages.properties" key="SignupAvatar.ProfileInfo.StarExplanation" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="errorMessageJLabel">

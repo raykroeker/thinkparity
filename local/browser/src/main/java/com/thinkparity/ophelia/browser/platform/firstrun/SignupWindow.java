@@ -37,9 +37,9 @@ public final class SignupWindow extends OpheliaJFrame {
      */
     public SignupWindow() {
         super("SignupWindow");
-        initSignupAvatar();
         windowPanel = new WindowPanel();
         windowPanel.getWindowTitle().setBorderType(WindowTitle.BorderType.WINDOW_BORDER2);
+        initSignupAvatar();
         initComponents(signupAvatar);
         pack();
     }
@@ -114,12 +114,16 @@ public final class SignupWindow extends OpheliaJFrame {
         signupData = new SignupData();
         signupAvatar = (SignupAvatar)getAvatar(AvatarId.DIALOG_PLATFORM_SIGNUP);
         signupAvatar.setInput(signupData);
+        signupAvatar.setWindowTitle(windowPanel.getWindowTitle());
         signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_INTRO));
         signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_AGREEMENT));
         signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_PROFILE));
         signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_ACCOUNT));
         signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT));
         signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_SUMMARY));
+        signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_CREDENTIALS));
+        signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_FORGOT_PASSWORD));
+        signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_LOGIN));
         signupAvatar.reload();
     }
 }

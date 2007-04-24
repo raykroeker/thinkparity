@@ -99,7 +99,8 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
                 isEmpty(profile.getAddress()) ||
                 isEmpty(profile.getCity()) ||
                 isEmpty(profile.getProvince()) ||
-                isEmpty(profile.getCountry())) {
+                isEmpty(profile.getCountry()) ||
+                isEmpty(profile.getPostalCode())) {
             addInputError(Separator.Space.toString());
         }
 
@@ -158,7 +159,7 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        final javax.swing.JLabel titleJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel userTitleJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel organizationJLabel = new javax.swing.JLabel();
@@ -167,10 +168,11 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
         final javax.swing.JLabel addressJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel cityJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel countryJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel starExplanationjLabel = new javax.swing.JLabel();
 
         setOpaque(false);
-        titleJLabel.setFont(Fonts.DialogFont);
-        titleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.ProfileInfo.Title"));
+        explanationJLabel.setFont(Fonts.DialogFont);
+        explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.ProfileInfo.Explanation"));
 
         nameJLabel.setFont(Fonts.DialogFont);
         nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.ProfileInfo.Name"));
@@ -224,6 +226,9 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
 
         postalCodeJTextField.setFont(Fonts.DialogTextEntryFont);
 
+        starExplanationjLabel.setFont(Fonts.DialogFont);
+        starExplanationjLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.ProfileInfo.StarExplanation"));
+
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
         errorMessageJLabel.setText("!Error Message!");
@@ -236,43 +241,44 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(titleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE))
+                        .addComponent(explanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(37, 37, 37)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(nameJLabel)
-                            .addComponent(userTitleJLabel)
-                            .addComponent(organizationJLabel)
-                            .addComponent(phoneJLabel)
-                            .addComponent(mobilePhoneJLabel)
-                            .addComponent(addressJLabel)
-                            .addComponent(cityJLabel)
-                            .addComponent(provinceJLabel)
-                            .addComponent(postalCodeJLabel)
-                            .addComponent(countryJLabel))
-                        .addGap(26, 26, 26)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(nameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 237, Short.MAX_VALUE)
-                            .addComponent(countryJComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(postalCodeJTextField)
-                            .addComponent(userTitleJTextField)
-                            .addComponent(organizationJTextField)
-                            .addComponent(phoneJTextField)
-                            .addComponent(mobilePhoneJTextField)
-                            .addComponent(addressJTextField)
-                            .addComponent(cityJTextField)
-                            .addComponent(provinceJTextField))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(37, 37, 37)
-                        .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(nameJLabel)
+                                    .addComponent(userTitleJLabel)
+                                    .addComponent(organizationJLabel)
+                                    .addComponent(phoneJLabel)
+                                    .addComponent(mobilePhoneJLabel)
+                                    .addComponent(addressJLabel)
+                                    .addComponent(cityJLabel)
+                                    .addComponent(provinceJLabel)
+                                    .addComponent(postalCodeJLabel)
+                                    .addComponent(countryJLabel))
+                                .addGap(26, 26, 26)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(nameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 237, Short.MAX_VALUE)
+                                    .addComponent(countryJComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(postalCodeJTextField)
+                                    .addComponent(userTitleJTextField)
+                                    .addComponent(organizationJTextField)
+                                    .addComponent(phoneJTextField)
+                                    .addComponent(mobilePhoneJTextField)
+                                    .addComponent(addressJTextField)
+                                    .addComponent(cityJTextField)
+                                    .addComponent(provinceJTextField))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE))
+                            .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
+                            .addComponent(starExplanationjLabel))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(19, 19, 19)
-                .addComponent(titleJLabel)
+                .addComponent(explanationJLabel)
                 .addGap(16, 16, 16)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(nameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -316,9 +322,11 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(postalCodeJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(postalCodeJLabel))
-                .addGap(22, 22, 22)
+                .addGap(18, 18, 18)
+                .addComponent(starExplanationjLabel)
+                .addGap(23, 23, 23)
                 .addComponent(errorMessageJLabel)
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addContainerGap(67, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

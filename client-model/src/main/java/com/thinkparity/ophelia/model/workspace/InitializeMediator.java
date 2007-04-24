@@ -3,6 +3,10 @@
  */
 package com.thinkparity.ophelia.model.workspace;
 
+import java.util.List;
+
+import com.thinkparity.codebase.model.migrator.Feature;
+
 /**
  * <b>Title:</b>thinkParity OpheliaModel Workspace Initialize Mediator<br>
  * <b>Description:</b>Decouples the workspace initialization client from the
@@ -15,16 +19,12 @@ package com.thinkparity.ophelia.model.workspace;
 public interface InitializeMediator {
 
     /**
-     * Confirm restore on a premium account.
+     * Confirm the restoration of a user's profile.
      * 
+     * @param features
+     *            A <code>List</code> of the <code>Feature</code>s a user
+     *            has enabled.
      * @return True if the user wishes to restore.
      */
-    public Boolean confirmRestorePremium();
-
-    /**
-     * Confirm restore on a standard account.
-     * 
-     * @return True if the user wishes to restore.
-     */
-    public Boolean confirmRestoreStandard();
+    public Boolean confirmRestore(final List<Feature> features);
 }

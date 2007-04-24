@@ -299,6 +299,12 @@ public interface InternalSessionModel extends SessionModel {
     public void handleSessionTerminated();
 
     /**
+     * Initialize the user's session token data.
+     *
+     */
+    public void initializeToken();
+
+    /**
      * Determine the availability of an e-mail address.
      * 
      * @param userId
@@ -312,11 +318,9 @@ public interface InternalSessionModel extends SessionModel {
 	/**
      * Determine whether or not this is the first login.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @return True if this is the first login.
      */
-    public Boolean isFirstLogin(final JabberId userId);
+    public Boolean isFirstLogin();
 
     /**
      * Determine if publish is restricted to the publish to user.
@@ -674,7 +678,7 @@ public interface InternalSessionModel extends SessionModel {
      * 
      * @return A <code>List</code> of <code>Feature</code>s.
      */
-    public List<Feature> readProfileFeatures(final JabberId userId);
+    public List<Feature> readProfileFeatures();
 
     /**
      * Read the user profile's security question.

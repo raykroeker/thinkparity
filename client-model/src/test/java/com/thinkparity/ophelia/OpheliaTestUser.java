@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia;
 
 import java.io.File;
+import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
@@ -11,6 +12,7 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
@@ -65,10 +67,7 @@ public class OpheliaTestUser extends User {
 
 	static {
         INITIALIZE_MEDIATOR = new InitializeMediator() {
-            public Boolean confirmRestorePremium() {
-                return Boolean.TRUE;
-            }
-            public Boolean confirmRestoreStandard() {
+            public Boolean confirmRestore(final List<Feature> features) {
                 return Boolean.TRUE;
             }
         };

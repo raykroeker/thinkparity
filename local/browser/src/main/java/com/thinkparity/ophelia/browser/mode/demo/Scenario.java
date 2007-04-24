@@ -14,6 +14,7 @@ import java.util.Map;
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
 
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
@@ -44,10 +45,7 @@ public final class Scenario {
 
     static {
         INITIALIZE_MEDIATOR = new InitializeMediator() {
-            public Boolean confirmRestorePremium() {
-                return Boolean.FALSE;
-            }
-            public Boolean confirmRestoreStandard() {
+            public Boolean confirmRestore(final List<Feature> features) {
                 return Boolean.FALSE;
             }
         };

@@ -65,6 +65,10 @@ public class XStreamUtil {
         return xstream.fromXML(xml, root);
     }
 
+    public Object fromXML(final Reader xml) {
+        return xstream.fromXML(xml);
+    }
+
     /**
      * Marshal an artifact receipt to an xstream writer.
      * 

@@ -3,7 +3,6 @@
  */
 package com.thinkparity.desdemona.model.io.sql;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +12,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
-import com.thinkparity.desdemona.model.queue.EventOpener;
 
 /**
  * @author raykroeker@gmail.com
@@ -66,9 +64,7 @@ public class QueueSql extends AbstractSql {
         this.userSql = new UserSql();
 	}
 
-    public void createEvent(final JabberId userId, final XMPPEvent event,
-            final InputStream xml, final Long xmlLength,
-            final Integer bufferSize) {
+    public void createEvent(final JabberId userId, final XMPPEvent event) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_CREATE_EVENT);
@@ -76,7 +72,7 @@ public class QueueSql extends AbstractSql {
             session.setString(2, event.getId());
             session.setCalendar(3, event.getDate());
             session.setInt(4, event.getPriority().priority());
-            session.setAsciiStream(5, xml, xmlLength, bufferSize);
+            session.setEvent(5, event);
             if (1 != session.executeUpdate())
                 throw panic("Could not create queue event.");
 
@@ -133,8 +129,7 @@ public class QueueSql extends AbstractSql {
      *            An <code>EventOpener</code>.
      * @return A <code>List</code> of <code>XMPPEvent</code>.
      */
-    public List<XMPPEvent> readEvents(final JabberId userId,
-            final EventOpener opener) {
+    public List<XMPPEvent> readEvents(final JabberId userId) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_EVENTS);
@@ -142,12 +137,7 @@ public class QueueSql extends AbstractSql {
             session.executeQuery();
             final List<XMPPEvent> events = new ArrayList<XMPPEvent>();
             while (session.nextResult()) {
-                final InputStream event = session.getClob("EVENT_XML");
-                try {
-                    events.add(opener.open(event));
-                } finally {
-                    event.close();
-                }
+                events.add(session.getEvent("EVENT_XML"));
             }
             return events;
         } catch (final Throwable t) {

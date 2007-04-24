@@ -22,6 +22,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.user.UserVCard;
+import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
@@ -296,6 +297,25 @@ public final class HypersonicSession {
         }
     }
 
+	public XMPPEvent getEvent(final String columnName) {
+        assertConnectionIsOpen();
+        assertResultSetIsSet();
+        try {
+            final String eventXML = resultSet.getString(columnName);
+            if (resultSet.wasNull()) {
+                logColumnExtraction(columnName, null);
+                return null;
+            }
+            else {
+                logColumnExtraction(columnName, eventXML);
+                final StringReader eventXMLReader = new StringReader(eventXML);
+                return (XMPPEvent) XSTREAM_UTIL.fromXML(eventXMLReader);
+            }
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
+
 	/**
 	 * Obtain the session id.
 	 * 
@@ -323,7 +343,7 @@ public final class HypersonicSession {
         }
 	}
 
-	/**
+    /**
      * Obtain the input stream from the result.
      * 
      * @param columnName
@@ -355,7 +375,7 @@ public final class HypersonicSession {
         }
     }
 
-    public Long getLong(final String columnName) {
+	public Long getLong(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -422,7 +442,7 @@ public final class HypersonicSession {
 		}
 	}
 
-	public UUID getUniqueId(final String columnName) {
+    public UUID getUniqueId(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
         try {
@@ -433,6 +453,28 @@ public final class HypersonicSession {
             throw panic(sqlx);
         }
 	}
+
+    public <T extends UserVCard> T getVCard(final String columnName,
+            final T vcard) {
+        assertConnectionIsOpen();
+        assertResultSetIsSet();
+        try {
+            final String vcardXML = resultSet.getString(columnName);
+            if (resultSet.wasNull()) {
+                logColumnExtraction(columnName, null);
+                return null;
+            }
+            else {
+                logColumnExtraction(columnName, vcardXML);
+                final StringReader vcardXMLReader = new StringReader(vcardXML);
+                XSTREAM_UTIL.fromXML(vcardXMLReader, vcard);
+                return vcard;
+            }
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+
+    }
 
     /**
 	 * @see java.lang.Object#hashCode()
@@ -509,7 +551,7 @@ public final class HypersonicSession {
         }
     }
 
-    /**
+	/**
      * Set a blob column value.
      * 
      * @param index
@@ -532,7 +574,7 @@ public final class HypersonicSession {
         }
     }
 
-    public void setBoolean(final Integer index, final Boolean value) {
+	public void setBoolean(final Integer index, final Boolean value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -568,7 +610,7 @@ public final class HypersonicSession {
 		}
 	}
 
-	public void setEMail(final Integer index, final EMail value) {
+    public void setEMail(final Integer index, final EMail value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -594,7 +636,21 @@ public final class HypersonicSession {
         }
     }
 
-    public void setInt(final Integer index, final Integer value) {
+	public <T extends XMPPEvent> void setEvent(final Integer index,
+            final T value) {
+        assertConnectionIsOpen();
+        assertPreparedStatementIsSet();
+        logColumnInjection(index, value);
+        try {
+            final StringWriter valueWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(value, valueWriter);
+            preparedStatement.setString(index, valueWriter.toString());
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
+
+	public void setInt(final Integer index, final Integer value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -605,7 +661,7 @@ public final class HypersonicSession {
 		}
 	}
 
-	public void setLong(final Integer index, final Long value) {
+    public void setLong(final Integer index, final Long value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -620,7 +676,7 @@ public final class HypersonicSession {
 		}
 	}
 
-	public void setQualifiedUsername(final Integer index, final JabberId value) {
+    public void setQualifiedUsername(final Integer index, final JabberId value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -631,7 +687,7 @@ public final class HypersonicSession {
 		}
 	}
 
-	public void setString(final Integer index, final String value) {
+    public void setString(final Integer index, final String value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -685,28 +741,6 @@ public final class HypersonicSession {
             throw panic(sqlx);
         }
 	}
-
-    public <T extends UserVCard> T getVCard(final String columnName,
-            final T vcard) {
-        assertConnectionIsOpen();
-        assertResultSetIsSet();
-        try {
-            final String vcardXML = resultSet.getString(columnName);
-            if (resultSet.wasNull()) {
-                logColumnExtraction(columnName, null);
-                return null;
-            }
-            else {
-                logColumnExtraction(columnName, vcardXML);
-                final StringReader vcardXMLReader = new StringReader(vcardXML);
-                XSTREAM_UTIL.fromXML(vcardXMLReader, vcard);
-                return vcard;
-            }
-        } catch (final SQLException sqlx) {
-            throw new HypersonicException(sqlx);
-        }
-
-    }
 
 	public <T extends UserVCard> void setVCard(final Integer index,
             final T value) {

@@ -49,6 +49,15 @@ public class StreamModel extends AbstractModel<StreamModelImpl> {
     }
 
     /**
+     * Obtain a thinkParity Stream interface.
+     * 
+     * @return A thinkParity Stream interface.
+     */
+    public static InternalStreamModel getInternalModel(final Context context) {
+        return new InternalStreamModel(context);
+    }
+
+    /**
      * Create StreamModel.
      *
      * @param workspace
@@ -64,7 +73,7 @@ public class StreamModel extends AbstractModel<StreamModelImpl> {
      * @param workspace
      *      The thinkParity workspace.
      */
-    private StreamModel() {
+    protected StreamModel() {
         super(new StreamModelImpl());
     }
 

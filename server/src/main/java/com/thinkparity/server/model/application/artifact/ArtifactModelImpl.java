@@ -37,14 +37,21 @@ class ArtifactModelImpl extends AbstractModelImpl {
     /** Artifact sql io. */
 	private final ArtifactSql artifactSql;
 
+    /**
+     * Create a ArtifactModelImpl.
+     */
+    ArtifactModelImpl() {
+        super();
+        this.artifactSql = new ArtifactSql();
+    }
 
     /**
-	 * Create a ArtifactModelImpl.
-	 */
-	ArtifactModelImpl(final Session session) {
-		super(session);
-		this.artifactSql = new ArtifactSql();
-	}
+     * Create a ArtifactModelImpl.
+     */
+    ArtifactModelImpl(final Session session) {
+        super(session);
+        this.artifactSql = new ArtifactSql();
+    }
 
 	/**
      * Add a user to an artifact's team.
@@ -63,20 +70,17 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.logVariable("teamMemberId", teamMemberId);
         try {
             final InternalUserModel userModel = getUserModel();
-            if (userModel.isBackup(userId)) {
-                logInfo("Ignoring archive user {0}.", userId);
-            } else {
-                final Artifact artifact = read(uniqueId);
-                final User teamMember = userModel.read(teamMemberId);
-                final List<TeamMember> teamMembers = readTeam(userId, artifact.getId());
-                if (!contains(teamMembers, teamMember))
-                    addTeamMember(userId, artifact.getId(), teamMember.getLocalId());
 
-                final ArtifactTeamMemberAddedEvent teamMemberAdded = new ArtifactTeamMemberAddedEvent();
-                teamMemberAdded.setJabberId(teamMemberId);
-                teamMemberAdded.setUniqueId(uniqueId);
-                enqueueEvent(userId, team, teamMemberAdded);
-            }
+            final Artifact artifact = read(uniqueId);
+            final User teamMember = userModel.read(teamMemberId);
+            final List<TeamMember> teamMembers = readTeam(userId, artifact.getId());
+            if (!contains(teamMembers, teamMember))
+                addTeamMember(userId, artifact.getId(), teamMember.getLocalId());
+
+            final ArtifactTeamMemberAddedEvent teamMemberAdded = new ArtifactTeamMemberAddedEvent();
+            teamMemberAdded.setJabberId(teamMemberId);
+            teamMemberAdded.setUniqueId(uniqueId);
+            enqueueEvent(userId, team, teamMemberAdded);
         } catch(final Throwable t) {
             throw translateError(t);
         }
@@ -110,28 +114,24 @@ class ArtifactModelImpl extends AbstractModelImpl {
         try {
             assertIsAuthenticatedUser(userId);
 
-            if (getUserModel().isBackup(userId)) {
-                logInfo("Ignoring archive user {0}.", userId);
-            } else {
-                final ArtifactReceivedEvent received = new ArtifactReceivedEvent();
-                received.setUniqueId(uniqueId);
-                received.setVersionId(versionId);
-                received.setPublishedOn(publishedOn);
-                received.setReceivedBy(receivedBy);
-                received.setReceivedOn(receivedOn);
-                final List<JabberId> enqueueFor =
-                    new ArrayList<JabberId>(publishedTo.size() + 1);
-                enqueueFor.add(publishedBy);
-                enqueueFor.addAll(publishedTo);
-                enqueueEvent(userId, enqueueFor, received);
-                // add user to the team
-                final InternalArtifactModel artifactModel = getArtifactModel();
-                final Artifact artifact = getArtifactModel().read(uniqueId);
-                final List<TeamMember> localTeam = artifactModel.readTeam(userId, artifact.getId());
-                final User receivedByUser = getUserModel().read(receivedBy);
-                if (!contains(localTeam, receivedByUser))
-                    artifactModel.addTeamMember(userId, artifact.getId(), receivedByUser.getLocalId());
-            }
+            final ArtifactReceivedEvent received = new ArtifactReceivedEvent();
+            received.setUniqueId(uniqueId);
+            received.setVersionId(versionId);
+            received.setPublishedOn(publishedOn);
+            received.setReceivedBy(receivedBy);
+            received.setReceivedOn(receivedOn);
+            final List<JabberId> enqueueFor =
+                new ArrayList<JabberId>(publishedTo.size() + 1);
+            enqueueFor.add(publishedBy);
+            enqueueFor.addAll(publishedTo);
+            enqueueEvent(userId, enqueueFor, received);
+            // add user to the team
+            final InternalArtifactModel artifactModel = getArtifactModel();
+            final Artifact artifact = getArtifactModel().read(uniqueId);
+            final List<TeamMember> localTeam = artifactModel.readTeam(userId, artifact.getId());
+            final User receivedByUser = getUserModel().read(receivedBy);
+            if (!contains(localTeam, receivedByUser))
+                artifactModel.addTeamMember(userId, artifact.getId(), receivedByUser.getLocalId());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -321,19 +321,16 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.logVariable("teamMemberId", teamMemberId);
         try {
             final InternalUserModel userModel = getUserModel();
-            if (userModel.isBackup(userId)) {
-                logInfo("Ignoring archive user {0}.", userId);
-            } else {
-                final Artifact artifact = read(uniqueId);
-                final User teamMember = userModel.read(teamMemberId);
-                artifactSql.deleteTeamRel(artifact.getId(), teamMember.getLocalId());
 
-                final ArtifactTeamMemberRemovedEvent teamMemberRemoved = 
-                    new ArtifactTeamMemberRemovedEvent();
-                teamMemberRemoved.setUniqueId(uniqueId);
-                teamMemberRemoved.setJabberId(teamMemberId);
-                enqueueEvent(userId, team, teamMemberRemoved);
-            }
+            final Artifact artifact = read(uniqueId);
+            final User teamMember = userModel.read(teamMemberId);
+            artifactSql.deleteTeamRel(artifact.getId(), teamMember.getLocalId());
+
+            final ArtifactTeamMemberRemovedEvent teamMemberRemoved = 
+                new ArtifactTeamMemberRemovedEvent();
+            teamMemberRemoved.setUniqueId(uniqueId);
+            teamMemberRemoved.setJabberId(teamMemberId);
+            enqueueEvent(userId, team, teamMemberRemoved);
         } catch (final Throwable t) {
             throw translateError(t);
         }

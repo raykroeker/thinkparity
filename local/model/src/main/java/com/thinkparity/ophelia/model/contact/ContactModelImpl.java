@@ -1135,6 +1135,9 @@ public final class ContactModelImpl extends Model<ContactListener>
         local.setFlags(remote.getFlags());
         local.setId(remote.getId());
         local.setLocalId(user.getLocalId());
+        local.setName(remote.getName());
+        local.setOrganization(remote.getOrganization());
+        local.setTitle(remote.getTitle());
         local.setVCard(remote.getVCard());
         contactIO.create(local);
 

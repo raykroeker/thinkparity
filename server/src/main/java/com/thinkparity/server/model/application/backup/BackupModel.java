@@ -64,8 +64,6 @@ public interface BackupModel {
      */
     public void delete(final JabberId userId, final UUID uniqueId);
 
-    public Boolean isBackupOnline(final JabberId userId);
-
     /**
      * Read a container.
      * 
@@ -76,20 +74,6 @@ public interface BackupModel {
      * @return A <code>Container</code>.
      */
     public Container readContainer(final JabberId userId, final UUID uniqueId);
-
-    /**
-     * Read the container version's document versions.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A container unique id <code>UUID</code>.
-     * @param versionId
-     *            A container version id <code>Long</code>.
-     * @return A <code>List</code> of <code>ContainerVersion</code>.
-     */
-    public List<DocumentVersion> readContainerDocumentVersions(
-            final JabberId userId, final UUID uniqueId, final Long versionId);
 
     /**
      * Read the container version's documents.
@@ -104,6 +88,20 @@ public interface BackupModel {
      */
     public List<Document> readContainerDocuments(final JabberId userId,
             final UUID uniqueId, final Long versionId);
+
+    /**
+     * Read the container version's document versions.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List</code> of <code>ContainerVersion</code>.
+     */
+    public List<DocumentVersion> readContainerDocumentVersions(
+            final JabberId userId, final UUID uniqueId, final Long versionId);
 
     /**
      * Read the container's published to list.

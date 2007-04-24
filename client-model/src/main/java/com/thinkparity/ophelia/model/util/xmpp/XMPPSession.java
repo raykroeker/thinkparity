@@ -389,15 +389,6 @@ public interface XMPPSession {
             final String streamId);
 
     /**
-     * Determine if the backup is online.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return True if the backup is online.
-     */
-    public Boolean isBackupOnline(final JabberId userId);
-    
-    /**
      * Determine the availability of an e-mail address.
      * 
      * @param userId

@@ -93,15 +93,6 @@ public final class MainStatusProvider extends ContentProvider {
      * 
      * @return True if the user's backup is online.
      */
-    public Boolean isBackupOnline() {
-        return backupModel.isOnline();
-    }
-
-    /**
-     * Determine if the user's backup is online.
-     * 
-     * @return True if the user's backup is online.
-     */
     public Boolean isOnline() {
         return sessionModel.isLoggedIn();
     }

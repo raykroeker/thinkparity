@@ -106,7 +106,6 @@ Local Configuration:                ${localconfig}
 
     <!-- input directories -->
     <property name="thinkparity.common.home" value="${basedir}/../common"/>
-    <property name="thinkparity.ophelia.home" value="${basedir}/../ophelia/local"/>
 
     <!-- output directories -->
     <property name="target.dir" value="${basedir}/target"/>
@@ -246,13 +245,6 @@ Local Configuration:                ${localconfig}
             <classpath refid="compile.classpath"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
-        <!-- local/model -->
-        <javac srcdir="${thinkparity.ophelia.home}/model/src/main/java"
-                destdir="${target.classes.dir}" debug="${javac.debug}"
-                debuglevel="${javac.debug-level}">
-            <classpath refid="compile.classpath"/>
-            <compilerarg line="${javac.compilerargs}"/>
-        </javac>
         <!-- remote/codebase -->
         <javac srcdir="remote/codebase/src/main/java"
                 destdir="${target.classes.dir}" debug="${javac.debug}"
@@ -303,6 +295,13 @@ Local Configuration:                ${localconfig}
                 <exclude name="com/thinkparity/desdemona/wildfire/handler/IQAction.java"/>
                 <exclude name="com/thinkparity/desdemona/util/dom4j/ElementName.java"/>
                 <exclude name="com/thinkparity/desdemona/util/dom4j/NamespaceName.java"/>
+                <exclude name="com/thinkparity/ophelia/model/audit/AuditEventType.java"/>
+                <exclude name="com/thinkparity/ophelia/model/container/monitor/PublishStep.java"/>
+                <exclude name="com/thinkparity/ophelia/model/container/monitor/RestoreBackupStep.java"/>
+                <exclude name="com/thinkparity/ophelia/model/io/md/MetaDataType.java"/>
+                <exclude name="com/thinkparity/ophelia/model/util/localization/L18nResource.java"/>
+                <exclude name="com/thinkparity/ophelia/model/util/localization/LocalizationContext.java"/>
+                <exclude name="com/thinkparity/ophelia/model/workspace/monitor/InitializeStep.java"/>
             </fileset>
             <component classname="org.xdoclet.plugin.jivehandler.JiveHandlerPlugin"
                 destdir="${target.classes.dir}"/>
@@ -366,7 +365,6 @@ Examples:
         <copy todir="${target.classes.dir}">
             <fileset dir="${thinkparity.common.home}/codebase/src/main/resources"/>
             <fileset dir="${thinkparity.common.home}/model/src/main/resources"/>
-            <fileset dir="${thinkparity.ophelia.home}/model/src/main/resources"/>
             <fileset dir="${basedir}/remote/model/src/main/resources"/>
         </copy>
         <copy todir="${target.classes.dir}">
@@ -453,13 +451,6 @@ Examples:
             <classpath refid="test.classpath"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
-        <!-- local/model -->
-        <javac srcdir="${thinkparity.ophelia.home}/model/src/test/java"
-                destdir="${target.test-classes.dir}" debug="${javac.debug}"
-                debuglevel="${javac.debug-level}">
-            <classpath refid="test.classpath"/>
-            <compilerarg line="${javac.compilerargs}"/>
-        </javac>
         <!-- remote/model -->
         <javac srcdir="remote/model/src/test/java"
                 destdir="${target.test-classes.dir}" debug="${javac.debug}"
@@ -473,7 +464,6 @@ Examples:
     <target name="test-process-resources">
         <copy todir="${target.test-classes.dir}">
             <fileset dir="${thinkparity.common.home}/junitx/src/main/resources"/>
-            <fileset dir="${thinkparity.ophelia.home}/model/src/test/resources"/>
         </copy>
     </target>
 

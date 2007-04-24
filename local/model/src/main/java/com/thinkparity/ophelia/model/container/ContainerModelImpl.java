@@ -626,12 +626,21 @@ public final class ContainerModelImpl extends
 
     /**
      * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handlePublished(com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent)
-     *
+     * 
+     * NOTE any update here should be reflected in the server backup's handle
+     * published event as well
      */
     public void handlePublished(final ArtifactPublishedEvent event) {
         try {
             final InternalArtifactModel artifactModel = getArtifactModel();
             final Long containerId = artifactModel.readId(event.getUniqueId());
+            // if a draft exists, delete it
+            if (doesExistDraft(containerId)) {
+                Assert.assertNotTrue(doesExistLocalDraft(containerId),
+                        "Invalid state.  Local draft for {0} should not exist.",
+                        containerId);
+                deleteDraft(containerId);
+            }
             // restore
             final boolean doRestore = artifactModel.isFlagApplied(
                     containerId, ArtifactFlag.ARCHIVED);
@@ -3412,6 +3421,20 @@ public final class ContainerModelImpl extends
                     container.getId(),
                     userModel.readLazyCreate(teamId).getLocalId());
         }
+        // restore the draft if one existed
+        final InternalSessionModel sessionModel = getSessionModel();
+        final JabberId draftOwner = sessionModel.readKeyHolder(
+                container.getUniqueId());
+        if (draftOwner.equals(User.THINKPARITY.getId())) {
+            logger.logInfo("No remote draft exists for {0}.", container.getName());
+        } else {
+            final List<TeamMember> team = artifactIO.readTeamRel2(container.getId());
+            final ContainerDraft draft = new ContainerDraft();
+            draft.setLocal(Boolean.FALSE);
+            draft.setContainerId(container.getId());
+            draft.setOwner(team.get(indexOf(team, draftOwner)));
+            containerIO.createDraft(draft);
+        }        
         // restore version info
         final List<ContainerVersion> versions =
             restoreModel.readContainerVersions(container.getUniqueId());

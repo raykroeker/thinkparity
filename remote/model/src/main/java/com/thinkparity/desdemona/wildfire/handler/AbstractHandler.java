@@ -150,8 +150,8 @@ public abstract class AbstractHandler extends
                 }, reader, writer);
             }
         } catch (final Throwable t) {
-            logger.logFatal(t, "A non-recoverable error has occured trying to service {0}.",
-                    info.getNamespace());
+            logger.logFatal(t, "A non-recoverable error has occured trying to service {0} for {1}.",
+                    info.getNamespace(), session.getJabberId().getUsername());
             return createErrorResponse(iq, t);
         }
         IQ_LOGGER.logVariable("response", response);

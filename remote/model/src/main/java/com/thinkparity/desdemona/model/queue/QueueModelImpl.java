@@ -3,14 +3,11 @@
  */
 package com.thinkparity.desdemona.model.queue;
 
-import java.io.*;
 import java.util.List;
 
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
-import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.io.sql.QueueSql;
@@ -28,9 +25,6 @@ class QueueModelImpl extends AbstractModelImpl {
     /** A <code>QueueSql</code> interface. */
 	private final QueueSql queueSql;
 
-    /** An <code>XStreamUtil</code> xml streamer. */
-    private final XStreamUtil xstreamUtil;
-
     /**
 	 * Create a QueueModelImpl.
 	 * 
@@ -40,7 +34,6 @@ class QueueModelImpl extends AbstractModelImpl {
 	QueueModelImpl(final Session session) {
 		super(session);
 		this.queueSql = new QueueSql();
-        this.xstreamUtil = XStreamUtil.getInstance();
 	}
 
     void createEvent(final JabberId userId, final JabberId eventUserId,
@@ -55,27 +48,7 @@ class QueueModelImpl extends AbstractModelImpl {
             event.setDate(currentDateTime());
             event.setId(buildEventId(eventUserId));
             event.setPriority(priority);
-            /* create a temporary file, write the event xml to it then use a
-             * file input stream to create the clob */
-            final File tempEventFile = session.createTempFile();
-            try {
-                final FileWriter fileWriter = new FileWriter(tempEventFile);
-                try {
-                    xstreamUtil.toXML(event, fileWriter);
-                } finally {
-                    fileWriter.close();
-                }
-                final InputStream inputStream = new FileInputStream(tempEventFile);
-                try {
-                    queueSql.createEvent(eventUserId, event, inputStream,
-                            tempEventFile.length(), getDefaultBufferSize());
-                } finally {
-                    inputStream.close();
-                }
-            } finally {
-                Assert.assertTrue(tempEventFile.delete(),
-                        "Could not delete temporary file {0}.", tempEventFile);
-            }
+            queueSql.createEvent(eventUserId, event);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -102,14 +75,7 @@ class QueueModelImpl extends AbstractModelImpl {
     List<XMPPEvent> readEvents(final JabberId userId) {
         try {
             assertIsAuthenticatedUser(userId);
-            return queueSql.readEvents(userId, new EventOpener() {
-                public XMPPEvent open(final InputStream event) throws IOException {
-                    XMPPEvent root = null;
-                    return xstreamUtil.eventFromXML(new BufferedReader(
-                            new InputStreamReader(event),
-                            getDefaultBufferSize()), root);
-                }
-            });
+            return queueSql.readEvents(userId);
         } catch (final Throwable t) {
             throw panic(t);
         }

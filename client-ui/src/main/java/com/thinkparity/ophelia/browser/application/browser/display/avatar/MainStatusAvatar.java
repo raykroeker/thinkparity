@@ -457,15 +457,6 @@ public class MainStatusAvatar extends Avatar {
     }
 
     /**
-     * Determine if the backup feature is online.
-     * 
-     * @return True if the backup feature is online.
-     */
-    private boolean isBackupOnline() {
-        return ((MainStatusProvider) contentProvider).isBackupOnline().booleanValue();
-    }
-
-    /**
      * Determine if the window event indicates a maximized JFrame window.
      * 
      * @param e
@@ -565,7 +556,7 @@ public class MainStatusAvatar extends Avatar {
         backupStatisticsJLabel.setText("");
         if (null != statistics) {
             reloadBackupStatistics(statistics);
-        } else if (isOnline() && isBackupEnabled() && isBackupOnline()) {
+        } else if (isOnline() && isBackupEnabled()) {
             this.statistics = readBackupStatistics();
             reloadBackupStatistics(statistics);
         }

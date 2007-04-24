@@ -27,6 +27,7 @@ import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.document.CannotLockException;
@@ -118,17 +119,16 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.backup.BackupModel#isBackupOnline(com.thinkparity.codebase.jabber.JabberId)
-     * 
+     * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#enqueueBackupEvent(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.jabber.JabberId)
+     *
      */
-    public Boolean isBackupOnline(final JabberId userId) {
+    public void enqueueBackupEvent(final JabberId userId, final JabberId eventUserId) {
         try {
-            final User user = getUserModel().read(userId);
-            if (isBackupEnabled(user)) {
-                return isBackupOnlineImpl(user);
+            final User eventUser = getUserModel().read(eventUserId);
+            if (isBackupEnabled(eventUser)) {
+                enqueueBackupEventImpl(getUserModel().read(userId), eventUser);
             } else {
                 logger.logWarning("User {0} has no backup feature.", userId);
-                return null;
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -499,6 +499,22 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
         if (0 == artifactSql.readTeamRelCount(artifact.getId())) {
             artifactSql.delete(artifact.getId());
         }
+        // fire backup event
+        enqueueBackupEventImpl(user, user);
+    }
+
+    /**
+     * Enqueue a backup event for a user.
+     * 
+     * @param user
+     *            A user <code>User</code>.
+     * @param eventUser
+     *            The event <code>User</code>.
+     */
+    private void enqueueBackupEventImpl(final User user, final User eventUser) {
+        final BackupStatisticsUpdatedEvent bsue = new BackupStatisticsUpdatedEvent();
+        bsue.setStatistics(readStatisticsImpl(eventUser));
+        enqueueEvent(user.getId(), eventUser.getId(), bsue);
     }
 
     /**
@@ -572,17 +588,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             }
         }
         return Boolean.FALSE;
-    }
-
-    /**
-     * Is backup online implementation.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @return True if the backup is online.
-     */
-    private Boolean isBackupOnlineImpl(final User user) {
-        return BackupService.getInstance().isOnline();
     }
 
     /**
@@ -931,7 +936,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
         } else {
             logger.logWarning("Container {0} is not backed up for user {1}.",
                     uniqueId, user.getId());
-            return null;
+            return Collections.emptyList();
         }
     }
 

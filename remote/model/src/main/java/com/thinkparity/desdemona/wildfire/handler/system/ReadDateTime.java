@@ -3,8 +3,7 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.system;
 
-import com.thinkparity.codebase.DateUtil;
-
+import com.thinkparity.desdemona.util.DateTimeProvider;
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
 import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
@@ -36,7 +35,6 @@ public final class ReadDateTime extends AbstractHandler {
     protected void service(final ServiceModelProvider provider,
             final ServiceRequestReader reader,
             final ServiceResponseWriter writer) {
-        logger.logApiId();
-        writer.writeCalendar("datetime", DateUtil.getInstance());
+        writer.writeCalendar("datetime", DateTimeProvider.getCurrentDateTime());
     }
 }

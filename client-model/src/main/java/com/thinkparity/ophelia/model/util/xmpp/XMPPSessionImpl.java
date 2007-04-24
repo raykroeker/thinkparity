@@ -656,14 +656,6 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#isBackupOnline(com.thinkparity.codebase.jabber.JabberId)
-     *
-     */
-    public Boolean isBackupOnline(final JabberId userId) {
-        return xmppBackup.isOnline(userId);
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#isEmailAvailable(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.email.EMail)
      * 

@@ -299,13 +299,6 @@ public interface InternalSessionModel extends SessionModel {
     public void handleSessionTerminated();
 
     /**
-     * Determine if the backup is online.
-     * 
-     * @return True if the backup server is online.
-     */
-    public Boolean isBackupOnline();
-
-    /**
      * Determine the availability of an e-mail address.
      * 
      * @param userId

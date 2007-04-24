@@ -211,7 +211,7 @@ public final class SessionUtil {
          */
         private AnonymousSessionImpl(final ClientSession clientSession,
                 final JabberId userId, final String xmppDomain) {
-            super(clientSession, null, userId, xmppDomain);
+            super(clientSession, userId, xmppDomain);
         }
     }
 
@@ -236,14 +236,21 @@ public final class SessionUtil {
 
         /**
          * Create SessionImpl.
-         *
+         * 
+         * @param clientSession
+         *            A user's <code>ClientSession</code>.
+         * @param userId
+         *            A user id <code>JabberId</code>.
+         * @param xmppDomain
+         *            The xmpp domain <code>String</code>.
          */
-        private SessionImpl() {
+        private SessionImpl(final ClientSession clientSession,
+                final JabberId userId, final String xmppDomain) {
             super();
-            this.userId = null;
-            this.inetAddress = null;
+            this.inetAddress = clientSession.getConnection().getInetAddress();
             this.tempFileSystem = null;
-            this.xmppDomain = null;
+            this.userId = userId;
+            this.xmppDomain = xmppDomain;
         }
 
         /**
@@ -262,7 +269,7 @@ public final class SessionUtil {
                 final File tempRoot, final JabberId userId,
                 final String xmppDomain) {
             this.inetAddress = clientSession.getConnection().getInetAddress();
-            this.tempFileSystem = null == tempRoot ? null : new FileSystem(tempRoot);
+            this.tempFileSystem = new FileSystem(tempRoot);
             this.userId = userId;
             this.xmppDomain = xmppDomain;
         }

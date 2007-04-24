@@ -86,19 +86,6 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         execute(delete);
     }
 
-    /**
-     * Determine if the backup is online.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return True if the backup is online.
-     */
-    Boolean isOnline(final JabberId userId) {
-        final XMPPMethod isOnline = xmppCore.createMethod("backup:isonline");
-        isOnline.setParameter("userId", userId);
-        return execute(isOnline, Boolean.TRUE).readResultBoolean("online");
-    }
-
     Statistics readStatistics(final JabberId userId) {
         final XMPPMethod readStatistics = xmppCore.createMethod("backup:readstatistics");
         readStatistics.setParameter("userId", userId);

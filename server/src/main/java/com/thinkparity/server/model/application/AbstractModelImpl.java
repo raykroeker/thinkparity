@@ -38,7 +38,6 @@ import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
-import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
@@ -47,6 +46,7 @@ import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
+import com.thinkparity.desdemona.model.backup.BackupService;
 import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.container.InternalContainerModel;
@@ -874,26 +874,9 @@ public abstract class AbstractModelImpl
      */
     private void backupEvent(final JabberId userId, final JabberId eventUserId,
             final XMPPEvent event) {
-        final JabberId backupUserId = getUserModel().readBackupUserId();
-
-        // create a backup statistics event in the database
-        final BackupStatisticsUpdatedEvent bsue = new BackupStatisticsUpdatedEvent();
-        bsue.setStatistics(getBackupModel().readStatistics(eventUserId));
-        createEvent(userId, eventUserId, bsue);
-        if (isOnline(eventUserId)) {
-            // send the user a notification that an event is pending
-            sendQueueUpdated(eventUserId);
-        }
-
-        // create the backup event in the database
+        // fire backup event
         if (event.getClass().isAnnotationPresent(ThinkParityBackupEvent.class)) {
-            createEvent(userId, backupUserId, event);
-            if (isOnline(backupUserId)) {
-                // send the backup user a notification that an event is pending
-                sendQueueUpdated(backupUserId);
-            } else {
-                logWarning("Backup service is not online.");
-            }
+            BackupService.getInstance().getEventHandler().handleEvent(session, event);
         } else {
             logInfo("Event {0} cannot be backed up.", event.getClass());
         }

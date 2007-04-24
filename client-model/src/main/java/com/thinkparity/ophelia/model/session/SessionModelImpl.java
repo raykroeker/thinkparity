@@ -675,21 +675,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isBackupOnline()
-     *
-     */
-    public Boolean isBackupOnline() {
-        try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                return xmppSession.isBackupOnline(localUserId());
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isEmailAvailable(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.email.EMail)
      * 

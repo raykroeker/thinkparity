@@ -9,7 +9,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.migrator.Feature;
-import com.thinkparity.codebase.model.session.Credentials;
 
 import com.thinkparity.desdemona.model.session.Session;
 
@@ -37,26 +36,7 @@ public class InternalUserModel extends UserModel {
         super(session);
     }
 
-    /**
-     * Determine if the user represents the backup user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return True if the user represents the backup user.
-     */
-    public Boolean isBackup(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().isBackup(userId);
-        }
-    }
-
-    public Credentials readBackupCredentials() {
-        synchronized (getImplLock()) {
-            return getImpl().readBackupCredentials();
-        }
-    }
-
-    public JabberId readBackupUserId() {
+	public JabberId readBackupUserId() {
         synchronized (getImplLock()) {
             return getImpl().readBackupUserId();
         }

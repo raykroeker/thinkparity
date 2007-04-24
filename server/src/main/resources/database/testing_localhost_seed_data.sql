@@ -5,7 +5,6 @@ insert into jiveProperty(NAME,PROPVALUE) values('xmpp.socket.plain.port','5224')
 insert into jiveProperty(NAME,PROPVALUE) values('xmpp.socket.ssl.active','true');
 insert into jiveProperty(NAME,PROPVALUE) values('xmpp.socket.ssl.keypass','password');
 insert into jiveProperty(NAME,PROPVALUE) values('xmpp.socket.ssl.port','5225');
-insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.backup.monitor-period','1800000');
 insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.environment','TESTING_LOCALHOST');
 insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.mode','TESTING');
 insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.product-name','DesdemonaProduct');

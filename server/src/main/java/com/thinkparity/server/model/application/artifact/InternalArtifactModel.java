@@ -30,6 +30,14 @@ public class InternalArtifactModel extends ArtifactModel {
      * Create InternalArtifactModel.
      *
      */
+    InternalArtifactModel(final Context context) {
+        super();
+    }
+
+    /**
+     * Create InternalArtifactModel.
+     *
+     */
     InternalArtifactModel(final Context context, final Session session) {
         super(session);
     }

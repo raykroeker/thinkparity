@@ -34,6 +34,14 @@ class RulesModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Create RulesModelImpl.
+     *
+     */
+    RulesModelImpl() {
+        super();
+    }
+
+    /**
      * Determine if publish is restricted when publishing from one user to
      * another. The rule is that if either user has the core feature; publish is
      * not restricted. Another view is that it is only restricted when both
@@ -57,6 +65,31 @@ class RulesModelImpl extends AbstractModelImpl {
             assertIsAuthenticatedUser(userId);
             assertEquals("Cannot access rule.", userId, publishFrom);
 
+            return isPublishRestricted(publishFrom, publishTo);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * Determine if publish is restricted when publishing from one user to
+     * another. The rule is that if either user has the core feature; publish is
+     * not restricted. Another view is that it is only restricted when both
+     * users do not have the core feature.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param publishFrom
+     *            A publish from user id <code>JabberId</code>.
+     * @param publishTo
+     *            A publish to user id <code>JabberId</code>.
+     * @return True if publish to the user is restricted.
+     */
+    Boolean isPublishRestricted(final JabberId publishFrom, final JabberId publishTo) {
+        logger.logApiId();
+        logger.logVariable("publishFrom", publishFrom);
+        logger.logVariable("publishTo", publishTo);
+        try {
             final InternalUserModel userModel = getUserModel();
             /* NOTE the product id/name should be read from the interface once the
              * migrator code is complete */

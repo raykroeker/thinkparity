@@ -23,6 +23,15 @@ public class InternalStreamModel extends StreamModel {
      *
      * @param session
      */
+    InternalStreamModel(final Context context) {
+        super();
+    }
+
+    /**
+     * Create InternalStreamModel.
+     *
+     * @param session
+     */
     InternalStreamModel(final Context context, final Session session) {
         super(session);
     }

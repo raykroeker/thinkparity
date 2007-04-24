@@ -4,17 +4,13 @@
 package com.thinkparity.desdemona.model.backup;
 
 import java.io.File;
-import java.util.concurrent.Executors;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.session.InvalidCredentialsException;
-import com.thinkparity.codebase.model.session.InvalidLocationException;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
@@ -24,8 +20,6 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
-import com.thinkparity.desdemona.model.user.InternalUserModel;
-import com.thinkparity.desdemona.model.user.UserModel;
 
 import org.jivesoftware.util.JiveProperties;
 
@@ -38,14 +32,10 @@ import org.jivesoftware.util.JiveProperties;
  */
 public final class BackupService {
 
-    /** A default period <code>Long</code> for the backup monitor. */
-    private static final Long DEFAULT_MONITOR_PERIOD;
-
     /** A singleton instance of the <code>BackupService</code>. */
     private static final BackupService SINGLETON;
 
     static {
-        DEFAULT_MONITOR_PERIOD = Long.valueOf(30 * 60 * 1000);  // TIMEOUT 30m
         SINGLETON = new BackupService();
     }
 
@@ -58,14 +48,11 @@ public final class BackupService {
         return SINGLETON;
     }
 
-    /** The <code>BackupMonitor</code>.*/
-    private BackupMonitor backupMonitor;
-
-    /** The backup user's <code>Credentials</code>. */
-    private Credentials credentials;
-
     /** The backup <code>Environment</code>. */
     private Environment environment;
+
+    /** The <code>XMPPEventHandler</code>. */
+    private final XMPPEventHandler eventHandler;
 
     /** The backup <code>FileSystem</code>. */
     private final FileSystem fileSystem;
@@ -79,9 +66,6 @@ public final class BackupService {
     /** The backup <code>InternalModelFactory</code>. */
     private InternalModelFactory modelFactory;
 
-    /** A user sql interface. */
-    private final InternalUserModel userModel;
-
     /** The backup <code>Workspace</code>. */
     private Workspace workspace;
 
@@ -93,20 +77,18 @@ public final class BackupService {
         super();
         this.jiveProperties = JiveProperties.getInstance();
 
+        this.eventHandler = new XMPPEventHandler();
         this.logger = new Log4JWrapper(getClass());
         this.fileSystem = readBackupFileSystem();
-        this.userModel = UserModel.getInternalModel(new Context());
     }
 
     /**
-     * Determine if the service is online.
+     * An xmpp event handler.
      * 
-     * @return True if the service is online.
+     * @return An <code>XMPPEventHandler</code>.
      */
-    public Boolean isOnline() {
-        synchronized (this) {
-            return isOnlineImpl();
-        }
+    public XMPPEventHandler getEventHandler() {
+        return eventHandler;
     }
 
     /**
@@ -156,42 +138,6 @@ public final class BackupService {
     }
 
     /**
-     * Obtain a configuration property.
-     * 
-     * @param name
-     *            A property name <code>String</code>.
-     * @param defaultValue
-     *            A default value <code>String</code>.
-     * @return A property value <code>String</code>.
-     */
-    private String getJiveProperty(final String name, final String defaultValue) {
-        final String value = (String) jiveProperties.get(name);
-        if (null == value) {
-            return defaultValue;
-        } else {
-            return value;
-        }
-    }
-
-    /**
-     * Determine if the service is online.
-     * 
-     * @return True if the backup service is online.
-     */
-    private Boolean isOnlineImpl() {
-        return getModelFactory().getSessionModel().isLoggedIn();
-    }
-
-    /**
-     * Read the backup service user's credentials.
-     * 
-     * @return The backup service user's login <code>Credentials</code>.
-     */
-    private Credentials readBackupCredentials() {
-        return userModel.readBackupCredentials();
-    }
-
-    /**
      * Read the backup service user's environment.
      * 
      * @return An <code>Environment</code>.
@@ -226,7 +172,7 @@ public final class BackupService {
     private Workspace readBackupWorkspace() {
         Assert.assertNotNull(environment, "Backup environment not yet initialized.");
         Assert.assertNotNull(fileSystem, "Backup file system not yet initialized.");
-        final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
+        final WorkspaceModel workspaceModel = WorkspaceModel.getInstance();
         return workspaceModel.getWorkspace(fileSystem.getRoot());
     }
 
@@ -237,66 +183,34 @@ public final class BackupService {
     private void startImpl() {
         logger.logInfo("Starting backup service.");
         try {
-            credentials = readBackupCredentials();
             environment = readBackupEnvironment();
             workspace = readBackupWorkspace();
-            Assert.assertNotNull(credentials, "Backup credentials not yet initialized.");
             Assert.assertNotNull(environment, "Backup environment not yet initialized.");
             Assert.assertNotNull(workspace, "Backup workspace not yet initialized.");
-            final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
+            final WorkspaceModel workspaceModel = WorkspaceModel.getInstance();
             if (!workspaceModel.isInitialized(workspace)) {
-                try {
-                    workspaceModel.initialize(new ProcessAdapter() {
-                        @Override
-                        public void beginProcess() {}
-                        @Override
-                        public void beginStep(final Step step, final Object data) {}
-                        @Override
-                        public void determineSteps(final Integer steps) {}
-                        @Override
-                        public void endProcess() {}
-                        @Override
-                        public void endStep(final Step step) {}
-                    }, new InitializeMediator() {
-                        public Boolean confirmRestorePremium() {
-                            throw new BackupException("Cannot initialize backup workspace.  Backup workspace has already been initialized.");
-                        }
-                        public Boolean confirmRestoreStandard() {
-                            throw new BackupException("Cannot initialize backup workspace.  Backup workspace has already been initialized.");
-                        }
-                    }, workspace, credentials);
-                } catch (final InvalidCredentialsException icx) {
-                    throw new BackupException(icx, "Cannot initialize backup workspace.");
-                }
-            } else {
-                try {
-                    getModelFactory().getSessionModel().login(new ProcessAdapter() {
-                            @Override
-                            public void beginProcess() {}
-                            @Override
-                            public void beginStep(final Step step, final Object data) {}
-                            @Override
-                            public void determineSteps(final Integer steps) {}
-                            @Override
-                            public void endProcess() {}
-                            @Override
-                            public void endStep(final Step step) {}
-                    });
-                } catch (final InvalidCredentialsException icx) {
-                    throw new BackupException(icx, "Cannot login backup.");
-                } catch (final InvalidLocationException ilx) {
-                    throw new BackupException(ilx, "Cannot login backup.");
-                }
+                workspaceModel.initialize(new ProcessAdapter() {
+                    @Override
+                    public void beginProcess() {}
+                    @Override
+                    public void beginStep(final Step step, final Object data) {}
+                    @Override
+                    public void determineSteps(final Integer steps) {}
+                    @Override
+                    public void endProcess() {}
+                    @Override
+                    public void endStep(final Step step) {}
+                }, new InitializeMediator() {
+                    public Boolean confirmRestorePremium() {
+                        return null;
+                    }
+                    public Boolean confirmRestoreStandard() {
+                        return null;
+                    }
+                }, workspace, null);
             }
-            backupMonitor = new BackupMonitor(getModelFactory().getSessionModel(),
-                    Long.valueOf(getJiveProperty(
-                            JivePropertyNames.THINKPARITY_BACKUP_MONITOR_PERIOD,
-                            DEFAULT_MONITOR_PERIOD.toString())));
-            final Thread backupMonitorThread =
-                Executors.defaultThreadFactory().newThread(backupMonitor);
-            backupMonitorThread.setName("TPS-DesdemonaModel-BackupMonitor");
-            backupMonitorThread.start();
-            logger.logInfo("Backup service is online.");
+            eventHandler.start(getModelFactory());
+            logger.logInfo("Backup service started.");
         } catch (final Throwable t) {
             throw new BackupException(t, "Failed to start backup service.");
         }
@@ -309,13 +223,12 @@ public final class BackupService {
     private void stopImpl() {
         logger.logInfo("Stopping backup service .");
         try {
-            backupMonitor.stopMonitor();
-            getModelFactory().getSessionModel().logout();
+            eventHandler.stop();
 
-            final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
+            final WorkspaceModel workspaceModel = WorkspaceModel.getInstance();
             workspaceModel.close(workspace);
 
-            logger.logInfo("Backup service is offline.");
+            logger.logInfo("Backup service stopped.");
         } catch (final Throwable t) {
             throw new BackupException(t, "Failed to stop backup service.");
         }

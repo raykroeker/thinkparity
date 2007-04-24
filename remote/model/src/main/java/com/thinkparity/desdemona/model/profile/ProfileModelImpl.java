@@ -252,7 +252,15 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             final Token existingToken = userSql.readProfileToken(userId);
             if (null != existingToken) {
                 getQueueModel().deleteEvents(userId);
-                getArtifactModel().deleteDrafts(userId, now);
+                /* HACK - up until a point, the "thinkParity" user was not able
+                 * to login - now this user does login such that certain apis
+                 * can be exercised with an actual user login - threfore we
+                 * need to ignore the user in this scenario */
+                if (userId.equals(User.THINKPARITY.getId())) {
+                    logger.logInfo("Logging in as system user.");
+                } else {
+                    getArtifactModel().deleteDrafts(userId, now);
+                }
             }
 
             final Token newToken = newToken();

@@ -222,7 +222,7 @@ public class InvitationSql extends AbstractSql {
         .append("CIOU.CONTACT_INVITATION_ID,CIOU.USER_ID,")
         .append("CIOU.INVITATION_USER_ID ")
         .append("from TPSD_CONTACT_INVITATION_OUTGOING_USER CIOU ")
-        .append("inner join CONTACT_INVITATION CI ")
+        .append("inner join TPSD_CONTACT_INVITATION CI ")
         .append("on CI.CONTACT_INVITATION_ID=CIOU.CONTACT_INVITATION_ID ")
         .append("where CIOU.USER_ID=? and CIOU.INVITATION_USER_ID=?")
         .toString();

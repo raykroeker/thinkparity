@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
@@ -99,7 +98,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     public void archive(final Long artifactId) {
         try {
             if (isBackupEnabled()) {
-                assertBackupOnline();
                 final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
                 getSessionModel().archiveArtifact(localUserId(), uniqueId);
             }
@@ -114,7 +112,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
      */
     public void delete(final Long artifactId) {
         if (isBackupEnabled()) {
-            assertBackupOnline();
             final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
             getSessionModel().deleteArtifact(localUserId(), uniqueId);
         }
@@ -129,14 +126,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.Model#isOnline()
-     *
-     */
-    public Boolean isOnline() {
-        return getSessionModel().isOnline() && isBackupOnline();
-    }
-
-    /**
      * Open a document version from the backup.
      * 
      * @param uniqueId
@@ -148,7 +137,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     public InputStream openDocumentVersion(final UUID uniqueId,
             final Long versionId) {
         try {
-            assertBackupOnline();
             final InternalSessionModel sessionModel = getSessionModel();
             final StreamSession session = sessionModel.createStreamSession();
             final String streamId = sessionModel.createStream(session);
@@ -173,7 +161,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
 
     public Container readContainer(final UUID uniqueId) {
         try {
-            assertBackupOnline();
             return getSessionModel().readBackupContainer(localUserId(), uniqueId);
         } catch (final Throwable t) {
             throw panic(t);
@@ -219,7 +206,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
      */
     public List<Container> readContainers(final Comparator<Artifact> comparator, final Filter<? super Artifact> filter) {
         try {
-            assertBackupOnline();
             final List<Container> containers =
                 getSessionModel().readBackupContainers(localUserId());
             FilterManager.filter(containers, filter);
@@ -238,22 +224,16 @@ public final class BackupModelImpl extends Model<BackupListener> implements
      * @return A <code>List&lt;Container&gt;</code>.
      */
     public List<Container> readContainers(final Filter<? super Artifact> filter) {
-        logger.logApiId();
         return readContainers(defaultComparator, filter);
     }
 
     public List<ContainerVersion> readContainerVersions(final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
         return readContainerVersions(uniqueId, defaultVersionComparator,
                 defaultVersionFilter);
     }
 
     public List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Comparator<ArtifactVersion> comparator) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("comparator", comparator);
         return readContainerVersions(uniqueId, comparator,
                 defaultVersionFilter);
     }
@@ -261,12 +241,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     public List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("comparator", comparator);
-        logger.logVariable("filter", filter);
         try {
-            assertBackupOnline();
             final List<ContainerVersion> versions =
                 getSessionModel().readBackupContainerVersions(
                         localUserId(), uniqueId);
@@ -280,40 +255,25 @@ public final class BackupModelImpl extends Model<BackupListener> implements
 
     public List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Filter<? super ArtifactVersion> filter) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("filter", filter);
         return readContainerVersions(uniqueId, defaultVersionComparator,
                 filter);
     }
 
     public List<Document> readDocuments(final UUID uniqueId,
             final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
         return readDocuments(uniqueId, versionId, defaultComparator,
                 defaultFilter);
     }
 
     public List<Document> readDocuments(final UUID uniqueId,
             final Long versionId, final Comparator<Artifact> comparator) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("comparator", comparator);
         return readDocuments(uniqueId, versionId, comparator, defaultFilter);
     }
 
     public List<Document> readDocuments(final UUID uniqueId,
             final Long versionId, final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("filter", filter);
         try {
-            assertBackupOnline();
             final List<Document> documents =
                 getSessionModel().readBackupDocuments(localUserId(),
                         uniqueId, versionId);
@@ -327,10 +287,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
 
     public List<Document> readDocuments(final UUID uniqueId, final Long versionId,
             final UUID documentUniqueId, final Filter<? super Artifact> filter) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("filter", filter);
         return readDocuments(uniqueId, versionId, defaultComparator, filter);
     }
 
@@ -341,19 +297,12 @@ public final class BackupModelImpl extends Model<BackupListener> implements
      */
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
         return readDocumentVersions(uniqueId, versionId,
                 defaultVersionComparator, defaultVersionFilter);
     }
 
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId, final Comparator<ArtifactVersion> comparator) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("comparator", comparator);
         return readDocumentVersions(uniqueId, versionId, comparator,
                 defaultVersionFilter);
     }
@@ -361,12 +310,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId, final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("comparator", comparator);
         try {
-            assertBackupOnline();
             final List<DocumentVersion> versions =
                 getSessionModel().readBackupDocumentVersions(
                         localUserId(), uniqueId, versionId);
@@ -380,10 +324,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
 
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId, final Filter<? super ArtifactVersion> filter) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("filter", filter);
         return readDocumentVersions(uniqueId, versionId,
                 defaultVersionComparator, filter);
     }
@@ -469,10 +409,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     }
 
     public List<JabberId> readTeamIds(final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
         try {
-            assertBackupOnline();
             return getSessionModel().readBackupTeamIds(localUserId(),
                     uniqueId);
         } catch (final Throwable t) {
@@ -496,8 +433,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     public void restore(final Long artifactId) {
         try {
             if (isBackupEnabled()) {
-                assertBackupOnline();
-    
                 final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
                 getSessionModel().restoreArtifact(localUserId(), uniqueId);
             }
@@ -515,30 +450,12 @@ public final class BackupModelImpl extends Model<BackupListener> implements
             final Workspace workspace) {}
 
     /**
-     * Assert that the backup server is online.
-     *
-     */
-    private void assertBackupOnline() {
-        Assert.assertTrue(isBackupOnline(),
-                "The backup server is not online.");
-    }
-
-    /**
      * Determine if backup is enabled for the user.
      * 
      * @return True if backup is enabled.
      */
     private boolean isBackupEnabled() {
         return getProfileModel().isBackupEnabled().booleanValue();
-    }
-
-    /**
-     * Determine whether or not the backup is online or not.
-     * 
-     * @return True if the backup is online; false otherwise.
-     */
-    private Boolean isBackupOnline() {
-        return getSessionModel().isBackupOnline();
     }
 
     /**

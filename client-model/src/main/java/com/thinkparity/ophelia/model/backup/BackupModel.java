@@ -29,13 +29,6 @@ public interface BackupModel {
     public void addListener(final BackupListener l);
 
     /**
-     * Determine if the backup is online.
-     * 
-     * @return True if the backup is online.
-     */
-    public Boolean isOnline();
-
-    /**
      * Read the backup statistics.
      * 
      * @return An instance of <code>Statistics</code>.

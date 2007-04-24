@@ -5,6 +5,8 @@ package com.thinkparity.desdemona.model.rules;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.Context;
+
 import com.thinkparity.desdemona.model.AbstractModel;
 import com.thinkparity.desdemona.model.session.Session;
 
@@ -29,6 +31,17 @@ public class RulesModel extends AbstractModel<RulesModelImpl> {
     }
 
     /**
+     * Obtain an instance of the rules model.
+     * 
+     * @param context
+     *            A <code>Context</code>.
+     * @return An instance of <code>InternalRulesModel</code>.
+     */
+    public static InternalRulesModel getInternalModel(final Context context) {
+        return new InternalRulesModel(context);
+    }
+
+    /**
      * Create RulesModel.
      * 
      * @param session
@@ -36,6 +49,16 @@ public class RulesModel extends AbstractModel<RulesModelImpl> {
      */
     protected RulesModel(final Session session) {
         super(new RulesModelImpl(session));
+    }
+
+    /**
+     * Create RulesModel.
+     * 
+     * @param session
+     *            A user <code>Session</code>.
+     */
+    protected RulesModel() {
+        super(new RulesModelImpl());
     }
 
     /**

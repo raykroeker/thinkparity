@@ -23,6 +23,10 @@ import com.thinkparity.desdemona.model.session.Session;
  */
 public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
 
+    public static InternalArtifactModel getInternalModel(final Context context) {
+        return new InternalArtifactModel(context);
+    }
+
     public static InternalArtifactModel getInternalModel(final Context context,
             final Session session) {
         return new InternalArtifactModel(context, session);
@@ -44,9 +48,19 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
      * @param session
      *            A <code>Session</code>.
      */
-	protected ArtifactModel(final Session session) {
-		super(new ArtifactModelImpl(session));
-	}
+    protected ArtifactModel() {
+        super(new ArtifactModelImpl());
+    }
+
+    /**
+     * Create ArtifactModel.
+     * 
+     * @param session
+     *            A <code>Session</code>.
+     */
+    protected ArtifactModel(final Session session) {
+        super(new ArtifactModelImpl(session));
+    }
 
 	/**
      * Add a user to an artifact's team.

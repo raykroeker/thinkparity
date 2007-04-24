@@ -12,7 +12,6 @@ import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.migrator.Feature;
-import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
@@ -28,10 +27,10 @@ import com.thinkparity.desdemona.model.session.Session;
  */
 class UserModelImpl extends AbstractModelImpl {
 
-	/** User sql io. */
+    /** User sql io. */
     private final UserSql userSql;
 
-    /**
+	/**
      * Create UserModelImpl.
      *
      */
@@ -49,28 +48,6 @@ class UserModelImpl extends AbstractModelImpl {
 		super(session);
         this.userSql = new UserSql();
 	}
-
-    /**
-     * Determine if the user is an archive.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return True if the user represents an archive.
-     */
-    Boolean isBackup(final JabberId userId) {
-        try {
-            final User user = userSql.read(userId);
-            final Credentials credentials = userSql.readCredentials(user.getLocalId());
-            final Credentials backupCredentials = readBackupCredentials();
-            // NOTE potentially not completely correct
-            return credentials.getUsername().equals(
-                        backupCredentials.getUsername())
-                    && credentials.getPassword().equals(
-                            backupCredentials.getPassword());
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
 
     List<User> read() {
         logApiId();
@@ -128,15 +105,6 @@ class UserModelImpl extends AbstractModelImpl {
             throw translateError(t);
 		}
 	}
-
-    Credentials readBackupCredentials() {
-        try {
-            final User backupUser = userSql.read(User.THINKPARITY_BACKUP.getId());
-            return userSql.readCredentials(backupUser.getLocalId());
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
 
     JabberId readBackupUserId() {
         try {

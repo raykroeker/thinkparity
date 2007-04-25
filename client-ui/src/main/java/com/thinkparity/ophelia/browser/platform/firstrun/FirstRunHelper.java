@@ -35,7 +35,8 @@ public final class FirstRunHelper {
     public void firstRun() {
         final SignupWindow signupWindow = getSignupWindow();
         signupWindow.setVisibleAndWait();
-        if (!signupWindow.isCancelled()) {
+        // TODO remove this code
+/*        if (!signupWindow.isCancelled()) {
             final LoginWindow loginWindow = getLoginWindow();
             if (signupWindow.isSetCredentials()) {
                 loginWindow.setCredentials(signupWindow.getCredentials());
@@ -47,7 +48,7 @@ public final class FirstRunHelper {
             } else {
                 loginWindow.setVisibleAndWait();
             }
-        }
+        }*/
     }
 
     /**
@@ -55,7 +56,7 @@ public final class FirstRunHelper {
      * 
      * @return A <code>LoginWindow</code>.
      */
-    private LoginWindow getLoginWindow() {
+/*    private LoginWindow getLoginWindow() {
         if (null == loginWindow) {
             loginWindow = new LoginWindow();
             loginWindow.setInitializeMediator(new InitializeMediator() {
@@ -68,7 +69,7 @@ public final class FirstRunHelper {
             });
         }
         return loginWindow;
-    }
+    }*/
 
     /**
      * Get a SignupWindow

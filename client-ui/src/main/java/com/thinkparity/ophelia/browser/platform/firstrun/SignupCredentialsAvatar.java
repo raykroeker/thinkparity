@@ -44,6 +44,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage {
         this.usernameSecurityQuestions = new HashMap<String, String>();
         initComponents();
         initDocumentHandlers();
+        SignupLoginHelper.getInstance().setSignupCredentialsAvatar(this);
     }
 
     /**
@@ -61,9 +62,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage {
         if (forgetPasswordJCheckBox.isSelected()) {
             return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_FORGOT_PASSWORD);
         } else {
-            // TODO Go to the login page
-            return null;
-            //return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_LOGIN);
+            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_LOGIN);
         }
     }
 
@@ -75,14 +74,6 @@ public class SignupCredentialsAvatar extends DefaultSignupPage {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isLastPage()
-     */
-    public Boolean isLastPage() {
-        // TODO Go to the login page
-        return (!forgetPasswordJCheckBox.isSelected());
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isNextOk()
      */
     public Boolean isNextOk() {
@@ -91,8 +82,13 @@ public class SignupCredentialsAvatar extends DefaultSignupPage {
         }
         if (forgetPasswordJCheckBox.isSelected()) {
             readSecurityQuestion();
+            return !containsInputErrors();
+        } else {
+            login();
+            // Don't change to the next page the normal way. Instead, let the
+            // SignupLoginHelper direct the change to the next page.
+            return Boolean.FALSE;
         }
-        return !containsInputErrors();
     }
 
     /**
@@ -111,6 +107,15 @@ public class SignupCredentialsAvatar extends DefaultSignupPage {
         if (isSecurityQuestionRead(extractUsername())) {
             ((Data) input).set(SignupData.DataKey.SECURITY_QUESTION, usernameSecurityQuestions.get(extractUsername()));
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#setSignupDelegate(com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate)
+     */
+    @Override
+    public void setSignupDelegate(final SignupDelegate signupDelegate) {
+        super.setSignupDelegate(signupDelegate);
+        SignupLoginHelper.getInstance().setSignupDelegate(signupDelegate);
     }
 
     /**
@@ -238,24 +243,21 @@ public class SignupCredentialsAvatar extends DefaultSignupPage {
                                 .addGap(100, 100, 100)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(passwordJPasswordField)
-                                    .addComponent(usernameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
-                                    .addComponent(forgetPasswordJCheckBox))
-                                .addGap(33, 33, 33))
+                                    .addComponent(forgetPasswordJCheckBox)
+                                    .addComponent(usernameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(21, 21, 21))
                             .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE))))
                 .addContainerGap())
         );
-
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {passwordJPasswordField, usernameJTextField});
-
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(22, 22, 22)
+                .addGap(85, 85, 85)
                 .addComponent(explanationJLabel)
                 .addGap(15, 15, 15)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(usernameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(usernameJLabel))
+                    .addComponent(usernameJLabel)
+                    .addComponent(usernameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(passwordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -264,7 +266,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage {
                 .addComponent(forgetPasswordJCheckBox)
                 .addGap(35, 35, 35)
                 .addComponent(errorMessageJLabel)
-                .addContainerGap(38, Short.MAX_VALUE))
+                .addContainerGap(113, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -288,13 +290,48 @@ public class SignupCredentialsAvatar extends DefaultSignupPage {
     }
 
     /**
+     * Determine if the security question has been read.
+     * 
+     * @param username
+     *            A username <code>String</code>.
+     * @return True if the security question has been read, false otherwise.
+     */
+    private Boolean isSecurityQuestionRead(final String username) {
+        return usernameSecurityQuestions.containsKey(username);
+    }
+
+    /**
+     * Login.
+     */
+    private void login() {
+        SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
+        errorMessageJLabel.setText(getString("LoggingIn"));
+        errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel.getWidth(), errorMessageJLabel.getHeight());
+        final Credentials credentials = extractCredentials();
+        platform.runLogin(credentials.getUsername(), credentials.getPassword(),
+                SignupLoginHelper.getInstance().createMonitor(),
+                SignupLoginHelper.getInstance());
+    }
+
+    public void loginPhaseOneDone() {
+        SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+    }
+
+    public void setValidCredentials(final Boolean validCredentials) {
+        if (!validCredentials) {
+            SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+            errorMessageJLabel.setText(getString("ErrorInvalidCredentials"));
+        }
+    }
+
+    /**
      * Read the security question.
      * 
      * @param username
      *            A username <code>String</code>.
      * @return A security question.
      */
-    public String readSecurityQuestion(final String username) {
+    private String readSecurityQuestion(final String username) {
         return ((SignupProvider) contentProvider).readSecurityQuestion(username);
     }
 
@@ -322,17 +359,6 @@ public class SignupCredentialsAvatar extends DefaultSignupPage {
             }
             validateInput();
         }
-    }
-
-    /**
-     * Determine if the security question has been read.
-     * 
-     * @param username
-     *            A username <code>String</code>.
-     * @return True if the security question has been read, false otherwise.
-     */
-    private Boolean isSecurityQuestionRead(final String username) {
-        return usernameSecurityQuestions.containsKey(username);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

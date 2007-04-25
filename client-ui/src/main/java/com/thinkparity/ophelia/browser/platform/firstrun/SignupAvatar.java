@@ -69,6 +69,13 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate#enableCancelButton(java.lang.Boolean)
+     */
+    public void enableCancelButton(final Boolean enable) {
+        cancelJButton.setEnabled(enable);
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate#enableNextButton(java.lang.Boolean)
      */
     public void enableNextButton(final Boolean enable) {
@@ -91,7 +98,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     /**
      * Determine if signup has been cancelled.
      * 
-     * @return true if the signup has been cancelled.
+     * @return true if the signup has been cancelled, false otherwise.
      */
     public Boolean isCancelled() {
         return cancelled;
@@ -106,6 +113,14 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     public void registerPage(final SignupPage signupPage) {
         signupPages.add(signupPage);
         contentJPanel.add((Component)signupPage, signupPage.getPageName());
+    }
+
+    /**
+     * Set the next page.
+     */
+    public void setNextPage() {
+        setPage(lookupPage(currentPage.getNextPageName()));
+        currentPage.reloadData();
     }
 
     /**
@@ -154,6 +169,9 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
 
     private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
         cancelled = Boolean.TRUE;
+        synchronized (this) {
+            notifyAll();
+        }
         disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
 
@@ -261,8 +279,11 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
             if (currentPage.isLastPage()) {
                 signupComplete();
             } else {
-                setPage(lookupPage(currentPage.getNextPageName()));
+                setNextPage();
             }
+        }
+        synchronized (this) {
+            notifyAll();
         }
     }//GEN-LAST:event_nextJButtonActionPerformed
 
@@ -282,7 +303,8 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
      * Reload the previous button.
      */
     private void reloadPrevButton() {
-        prevJButton.setVisible(!currentPage.isFirstPage().booleanValue());
+        prevJButton.setVisible(!currentPage.isFirstPage().booleanValue() &&
+                null!=currentPage.getPreviousPageName());
     }
 
     /**
@@ -325,7 +347,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
      */
     private void signupComplete() {
         cancelled = Boolean.FALSE;
-        disposeWindow();
+        // NOTE The wizard ends in login. Login is responsible for disposing the window.
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -334,5 +356,4 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     private javax.swing.JButton nextJButton;
     private javax.swing.JButton prevJButton;
     // End of variables declaration//GEN-END:variables
-    
 }

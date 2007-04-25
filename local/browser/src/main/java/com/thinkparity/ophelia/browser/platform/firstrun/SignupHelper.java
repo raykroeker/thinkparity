@@ -15,7 +15,6 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 
-import com.thinkparity.ophelia.model.Constants.Product;
 import com.thinkparity.ophelia.model.profile.ReservationExpiredException;
 
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -103,11 +102,6 @@ public class SignupHelper {
         final List<Feature> features = new ArrayList<Feature>();
         switch (featureSet) {
         case FREE:
-            break;
-        case STANDARD:
-            for (final Feature feature : allFeatures)
-                if (feature.getName().equals(Product.Features.CORE))
-                    features.add(feature);
             break;
         case PREMIUM:
             for (final Feature feature : allFeatures)

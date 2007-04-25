@@ -86,6 +86,12 @@ public abstract class DefaultSignupPage extends Avatar
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#reloadData()
+     */
+    public void reloadData() {
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#setSignupDelegate(com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate)
      */
     public void setSignupDelegate(final SignupDelegate signupDelegate) {

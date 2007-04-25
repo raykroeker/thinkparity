@@ -240,7 +240,7 @@ public class WorkspaceModel {
             final Credentials credentials) throws InvalidCredentialsException {
         final WorkspaceImpl workspaceImpl = findImpl(workspace);
         notifyProcessBegin(monitor);
-        notifyDetermine(monitor, 3);
+        notifyDetermine(monitor, 1);
         try {
             // begin initialization
             notifyStepBegin(monitor, InitializeStep.PERSISTENCE_INITIALIZE);
@@ -249,6 +249,7 @@ public class WorkspaceModel {
             final InternalModelFactory modelFactory = InternalModelFactory.getInstance(context, environment, workspace);
             final InternalSessionModel sessionModel = modelFactory.getSessionModel();
             // login
+            notifyDetermine(monitor, 2);
             notifyStepBegin(monitor, InitializeStep.SESSION_LOGIN);
             sessionModel.login(credentials);
             if (sessionModel.isFirstLogin()

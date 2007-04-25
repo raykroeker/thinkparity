@@ -270,8 +270,12 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
                                     .addComponent(cityJTextField)
                                     .addComponent(provinceJTextField))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE))
-                            .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
-                            .addComponent(starExplanationjLabel))))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(starExplanationjLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(37, 37, 37)
+                        .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -322,11 +326,11 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(postalCodeJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(postalCodeJLabel))
-                .addGap(18, 18, 18)
+                .addGap(16, 16, 16)
                 .addComponent(starExplanationjLabel)
-                .addGap(23, 23, 23)
+                .addGap(14, 14, 14)
                 .addComponent(errorMessageJLabel)
-                .addContainerGap(67, Short.MAX_VALUE))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

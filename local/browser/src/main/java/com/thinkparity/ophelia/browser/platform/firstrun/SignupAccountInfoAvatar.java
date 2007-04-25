@@ -360,8 +360,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         if (accountTypeGuestJRadioButton.isSelected()) {
             return FeatureSet.FREE;
         } else if (accountTypeStandardJRadioButton.isSelected()) {
-            // TODO should be PREMIUM
-            return FeatureSet.STANDARD;
+            return FeatureSet.PREMIUM;
         } else {
             throw Assert.createUnreachable("Unknown account type selected.");
         }
@@ -536,9 +535,6 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
                                     .addComponent(securityQuestionJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 254, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(37, 37, 37))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(36, 36, 36)
-                        .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
                         .addGap(35, 35, 35)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(accountTypeStandardJRadioButton)
@@ -546,7 +542,10 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
                                 .addComponent(accountTypeGuestJRadioButton)
                                 .addGap(55, 55, 55)
                                 .addComponent(learnMoreJLabel)))
-                        .addGap(187, 187, 187)))
+                        .addGap(187, 187, 187))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(36, 36, 36)
+                        .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -588,9 +587,9 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(securityAnswerJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(securityAnswerJLabel))
-                .addGap(33, 33, 33)
+                .addGap(15, 15, 15)
                 .addComponent(errorMessageJLabel)
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

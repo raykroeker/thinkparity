@@ -15,6 +15,7 @@ import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.platform.action.Data;
 
 /**
  *
@@ -27,7 +28,6 @@ public class SignupForgotPasswordAvatar extends DefaultSignupPage {
         super("SignupAvatar.ForgotPassword", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
         initDocumentHandler();
-        // TODO Display the correct security question when the page is displayed
     }
 
     /**
@@ -69,6 +69,14 @@ public class SignupForgotPasswordAvatar extends DefaultSignupPage {
     @Override
     public void reload() {
         validateInput();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#reloadData()
+     */
+    @Override
+    public void reloadData() {
+        reloadSecurityQuestion();
     }
 
     /**
@@ -130,25 +138,23 @@ public class SignupForgotPasswordAvatar extends DefaultSignupPage {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(39, 39, 39)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(explanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(29, 29, 29)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(answerJLabel)
-                                .addGap(41, 41, 41)
-                                .addComponent(answerJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(questionJLabel))
-                        .addGap(18, 18, 18))))
+                        .addComponent(answerJLabel)
+                        .addGap(41, 41, 41)
+                        .addComponent(answerJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(questionJLabel))
+                .addGap(18, 18, 18))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(explanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(19, 19, 19)
+                .addGap(86, 86, 86)
                 .addComponent(explanationJLabel)
                 .addGap(16, 16, 16)
                 .addComponent(questionJLabel)
@@ -156,7 +162,7 @@ public class SignupForgotPasswordAvatar extends DefaultSignupPage {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(answerJLabel)
                     .addComponent(answerJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(71, Short.MAX_VALUE))
+                .addContainerGap(95, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -181,13 +187,10 @@ public class SignupForgotPasswordAvatar extends DefaultSignupPage {
     /**
      * Reload the security question.
      */
-    // TODO
-    /*
     private void reloadSecurityQuestion() {
         final String securityQuestion = (String) ((Data) input).get(SignupData.DataKey.SECURITY_QUESTION);
         questionJLabel.setText(securityQuestion);
     }
-    */
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JTextField answerJTextField = new javax.swing.JTextField();

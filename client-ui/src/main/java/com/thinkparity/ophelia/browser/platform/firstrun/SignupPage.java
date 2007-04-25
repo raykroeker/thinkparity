@@ -56,6 +56,11 @@ public interface SignupPage {
     public void reload();
 
     /**
+     * Reload data.
+     */
+    public void reloadData();
+
+    /**
      * Save data.
      */
     public void saveData();

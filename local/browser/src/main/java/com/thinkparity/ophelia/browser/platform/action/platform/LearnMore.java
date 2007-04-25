@@ -51,5 +51,5 @@ public class LearnMore extends AbstractAction {
     }
 
     public enum DataKey { TOPIC }
-    public enum Topic { SIGNUP, SYNCHRONIZE }
+    public enum Topic { SIGNUP, SYNCHRONIZE, BETA }
 }

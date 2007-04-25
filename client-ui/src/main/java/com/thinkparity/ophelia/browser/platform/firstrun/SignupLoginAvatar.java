@@ -9,17 +9,94 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.platform.action.Data;
 
 /**
  *
  * @author  user
  */
-public class SignupLoginAvatar extends DefaultSignupPage {
+public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDisplay {
+    
+    /** Flag indicating if this is an existing account or a new account. */
+    Boolean existingAccount;
+    
+    /** Flag indicating if backup is supported. */
+    Boolean backupAccount;
 
     /** Creates new form SignupLoginAvatar */
     public SignupLoginAvatar() {
         super("SignupAvatar.Login", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
+        SignupLoginHelper.getInstance().setSignupLoginAvatar(this);
+        existingAccount = Boolean.FALSE;
+        backupAccount = Boolean.FALSE;
+    }
+
+    /** Example
+    final FeatureSet featureSet = (FeatureSet) ((Data) input).get(DataKey.FEATURE_SET);
+    if (featureSet == FeatureSet.FREE) {
+        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_ACCOUNT);
+    } else {
+        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT);
+    }
+    */
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#dispose()
+     */
+    public void dispose() {
+        disposeWindow();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#installProgressBar()
+     */
+    public void installProgressBar() {
+        loginJProgressBar.setIndeterminate(true);
+        progressBarJPanel.setVisible(true);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#resetProgressBar()
+     */
+    public void resetProgressBar() {
+        reload();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#setDetermination(java.lang.Integer)
+     */
+    public void setDetermination(final Integer steps) {
+        loginJProgressBar.setMinimum(0);
+        loginJProgressBar.setMaximum(steps);
+        loginJProgressBar.setIndeterminate(false);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#setValidCredentials(java.lang.Boolean)
+     */
+    public void setValidCredentials(final Boolean validCredentials) {
+        SignupLoginHelper.getInstance().setValidCredentials(validCredentials);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#updateProgress(java.lang.Integer, java.lang.String)
+     */
+    public void updateProgress(final Integer step, final String note) {
+        loginJProgressBar.setValue(step);
+        if (null != note && 0 < note.trim().length()) {
+            stepJLabel.setText(note);
+        } else {
+            stepJLabel.setText(" ");
+        }
+    }
+
+    private void reloadProgressBar() {
+        progressBarJPanel.setVisible(false);
+        /* The space is deliberate (as opposed to an empty string) in
+         * order to maintain vertical spacing. */
+        stepJLabel.setText(" ");
+        validate();
     }
 
     /**
@@ -45,6 +122,17 @@ public class SignupLoginAvatar extends DefaultSignupPage {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isNextOk()
+     */
+    public Boolean isNextOk() {
+        if (!isInputValid()) {
+            return Boolean.FALSE;
+        }
+        // TODO
+        return !containsInputErrors();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#isLastPage()
      */
     @Override
@@ -57,22 +145,23 @@ public class SignupLoginAvatar extends DefaultSignupPage {
      */
     @Override
     public void reload() {
+        reloadProgressBar();
         validateInput();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#reloadData()
+     */
+    @Override
+    public void reloadData() {
+        this.existingAccount = (Boolean) ((Data) input).get(SignupData.DataKey.EXISTING_ACCOUNT);
+        reloadExplanation();
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#saveData()
      */
     public void saveData() {
-    }
-
-    /**
-     * Obtain the text for the step label.
-     * 
-     * @return A text <code>String<code>.
-     */
-    private String getStepJLabelText() {
-        return getString("progressBarJPanel.stepJLabel");
     }
 
     /** This method is called from within the constructor to
@@ -82,16 +171,18 @@ public class SignupLoginAvatar extends DefaultSignupPage {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
 
         setOpaque(false);
+        warningJLabel.setFont(Fonts.DialogFontBold);
+        warningJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Login.WarningNoBackup"));
+
         explanationJLabel.setFont(Fonts.DialogFont);
-        explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Login.ExplanationGuest"));
+        explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Login.ExplanationNoBackup"));
         explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         progressBarJPanel.setOpaque(false);
         stepJLabel.setFont(Fonts.DialogFont);
-        stepJLabel.setText(getStepJLabelText());
+        stepJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Login.progressBarJPanel.stepJLabel"));
 
         loginJProgressBar.setBorder(null);
         loginJProgressBar.setBorderPainted(false);
@@ -121,27 +212,47 @@ public class SignupLoginAvatar extends DefaultSignupPage {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(explanationJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
-                    .addComponent(progressBarJPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(progressBarJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(explanationJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                    .addComponent(warningJLabel))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(57, 57, 57)
+                .addComponent(warningJLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(explanationJLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 68, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)
                 .addComponent(progressBarJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(30, 30, 30))
+                .addGap(49, 49, 49))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Reload the explanation field.
+     */
+    private void reloadExplanation() {
+        final String explanation;
+        if (!existingAccount) {
+            explanation = getString("ExplanationNewAccount");
+        } else if (backupAccount) {
+            explanation = getString("ExplanationBackup");
+        } else {
+            explanation = getString("ExplanationNoBackup");
+        }
+        explanationJLabel.setText(explanation);
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
     private final javax.swing.JProgressBar loginJProgressBar = new javax.swing.JProgressBar();
     private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel stepJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel warningJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 }

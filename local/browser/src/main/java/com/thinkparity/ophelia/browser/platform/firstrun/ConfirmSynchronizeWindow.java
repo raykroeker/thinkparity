@@ -3,6 +3,10 @@
  */
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
+import java.util.List;
+
+import com.thinkparity.codebase.model.migrator.Feature;
+
 import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -18,8 +22,7 @@ import com.thinkparity.ophelia.browser.util.swing.OpheliaJFrame;
  * @author raymond@thinkparity.com
  * @version 1.1.2.3
  */
-public final class ConfirmSynchronizeWindow extends OpheliaJFrame implements
-        InitializeMediator {
+public final class ConfirmSynchronizeWindow extends OpheliaJFrame {
 
     /** The confirm synchronize avatar. */
     private ConfirmSynchronizeAvatar confirmSynchronizeAvatar;

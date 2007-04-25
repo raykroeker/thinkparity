@@ -110,7 +110,7 @@ public interface ProfileModel {
      *            A user id <code>JabberId</code>.
      * @return A <code>List&lt;Feature&gt</code>.
      */
-    @ThinkParityAuthenticate(AuthenticationType.SYSTEM)
+    @ThinkParityAuthenticate(AuthenticationType.USER)
     public List<Feature> readFeatures(final JabberId userId);
 
     /**

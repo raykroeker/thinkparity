@@ -86,7 +86,11 @@ class UserModelImpl extends AbstractModelImpl {
 		logVariable("userId", userId);
         try {
             final User user = userSql.read(userId);
-            return inject(user, readVCard(user.getLocalId(), new UserVCard()));
+            if (null == user) {
+                return null;
+            } else {
+                return inject(user, readVCard(user.getLocalId(), new UserVCard()));
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }

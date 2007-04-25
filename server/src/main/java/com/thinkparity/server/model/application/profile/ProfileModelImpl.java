@@ -719,18 +719,18 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      * @return A <code>Profile</code>.
      */
     private Profile read(final String profileKey) {
-        // try to find a profile by user id
-        try {
-            final JabberId userId = JabberIdBuilder.parseUsername(profileKey);
-            return read(userId);
-        } catch (final IllegalArgumentException iax) {}
-
         // try to find a profile by e-mail
         try {
             final EMail email = EMailBuilder.parse(profileKey);
             final User user = userSql.read(email);
             return read(user.getId());
         } catch (final EMailFormatException efx) {}
+
+        // try to find a profile by user id
+        try {
+            final JabberId userId = JabberIdBuilder.parseUsername(profileKey);
+            return read(userId);
+        } catch (final IllegalArgumentException iax) {}
 
         return null;
     }

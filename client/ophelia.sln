@@ -1,7 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual C++ Express 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ophelia", "ophelia.vcproj", "{F1784BCB-BBA5-41FB-BDEE-A9F22FDBCEA5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Win32WindowUtil", "Win32WindowUtil.vcproj", "{F1784BCB-BBA5-41FB-BDEE-A9F22FDBCEA5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Win32FirewallUtil", "Win32FirewallUtil.vcproj", "{44981DC5-964C-4325-A63B-4FA3333B38C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +15,10 @@ Global
 		{F1784BCB-BBA5-41FB-BDEE-A9F22FDBCEA5}.Debug|Win32.Build.0 = Debug|Win32
 		{F1784BCB-BBA5-41FB-BDEE-A9F22FDBCEA5}.Release|Win32.ActiveCfg = Release|Win32
 		{F1784BCB-BBA5-41FB-BDEE-A9F22FDBCEA5}.Release|Win32.Build.0 = Release|Win32
+		{44981DC5-964C-4325-A63B-4FA3333B38C7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{44981DC5-964C-4325-A63B-4FA3333B38C7}.Debug|Win32.Build.0 = Debug|Win32
+		{44981DC5-964C-4325-A63B-4FA3333B38C7}.Release|Win32.ActiveCfg = Release|Win32
+		{44981DC5-964C-4325-A63B-4FA3333B38C7}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -25,7 +25,8 @@ public final class Constants {
 
     public static final class Directories {
         public static final class ThinkParity {
-            public static final File Dir = new File(System.getProperty(PropertyNames.ThinkParity.Dir));
+            public static final File Binary = new File(System.getProperty(PropertyNames.ThinkParity.Directory));
+            public static final File Directory = new File(System.getProperty(PropertyNames.ThinkParity.Directory));
         }
     }
 
@@ -36,7 +37,7 @@ public final class Constants {
     }
     public static final class Files {
         public static final class ThinkParity {
-            public static final File JAR = new File(Directories.ThinkParity.Dir, FileNames.JAR);
+            public static final File JAR = new File(Directories.ThinkParity.Directory, FileNames.JAR);
         }
     }
 
@@ -45,7 +46,8 @@ public final class Constants {
             public static final String JavaLibraryPath = "java.library.path";
         }
         public static final class ThinkParity {
-            public static final String Dir = "thinkparity-dir";
+            public static final String Executable = "thinkparity-executable";
+            public static final String Directory = "thinkparity-directory";
             public static final String Image = "thinkparity.image";
             public static final String ImageClassPath = "thinkparity.image-classpath";
             public static final String ImageLastRun = "thinkparity.image-lastrun";

@@ -61,7 +61,7 @@ public class Image {
      */
     Image(final String image) {
         super();
-        this.rootDirectory = new File(Directories.ThinkParity.Dir, image);
+        this.rootDirectory = new File(Directories.ThinkParity.Directory, image);
         ThinkParity.checkFileExists(rootDirectory);
         this.properties = new Properties();
         this.propertiesFile = new File(rootDirectory, FileNames.ThinkParityImageProperties);

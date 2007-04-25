@@ -15,7 +15,7 @@ import java.io.File;
 public final class Constants {
     public static final class Directories {
         public static final class ThinkParity {
-            public static final File DIR = new File(System.getProperty(PropertyNames.ThinkParity.DIR));
+            public static final File DIRECTORY = new File(System.getProperty(PropertyNames.ThinkParity.DIRECTORY));
         }
     }
     public static final class DirectoryNames {
@@ -61,7 +61,7 @@ public final class Constants {
     }
     public static final class PropertyNames {
         public static final class ThinkParity {
-            public static final String DIR = "thinkparity-dir";
+            public static final String DIRECTORY = "thinkparity-directory";
         }
     }
     public static final class Release {

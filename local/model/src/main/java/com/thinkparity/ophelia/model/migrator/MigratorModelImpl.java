@@ -378,7 +378,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
         downloadDirectory = workspace.getDownloadDirectory();
-        installDirectory = new File(System.getProperty("thinkparity-dir"));
+        installDirectory = Constants.Directories.ThinkParity.DIRECTORY;
         migratorIO = IOFactory.getDefault(workspace).createMigratorHandler();
         if (!workspace.isSetAttribute(WS_ATTRIBUTE_KEY_LISTENER).booleanValue()) {
             final MigratorListener listener = new MigratorAdapter() {

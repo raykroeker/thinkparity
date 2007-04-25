@@ -136,9 +136,10 @@ public class ThinkParity {
      */
     private ThinkParity() {
         super();
-        checkSystemProperty(PropertyNames.ThinkParity.Dir);
+        checkSystemProperty(PropertyNames.ThinkParity.Directory);
+        checkSystemProperty(PropertyNames.ThinkParity.Executable);
         this.properties = new Properties();
-        this.propertiesFile = new File(Directories.ThinkParity.Dir, FileNames.ThinkParityProperties);
+        this.propertiesFile = new File(Directories.ThinkParity.Directory, FileNames.ThinkParityProperties);
         ThinkParity.checkFileExists(propertiesFile);
     }
 

@@ -10,6 +10,8 @@ import java.awt.Window;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.ophelia.browser.util.window.WindowUtil;
+
 /**
  * <b>Title:</b>thinkParity OpheliaUI Win32 Window Util<br>
  * <b>Description:</b><br>
@@ -17,8 +19,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class Win32WindowUtil implements
-        com.thinkparity.ophelia.browser.util.window.WindowUtil {
+public final class Win32WindowUtil implements WindowUtil {
 
     /**
      * A <code>boolean</code> flag indicating whether or not the window util
@@ -34,7 +35,7 @@ public final class Win32WindowUtil implements
 
     static {
         LOGGER = new Log4JWrapper();
-        WINDOW_UTIL_LIBNAME = "win32WindowUtil";
+        WINDOW_UTIL_LIBNAME = "Win32WindowUtil";
 
         loaded = false;
         try {

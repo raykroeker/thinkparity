@@ -106,7 +106,8 @@ class PackageImageTask {
             // /lib/${native}/*
             copy(todir:imageLibNativeDir) {
                 fileset(dir:nativeDir) {
-                    include(name:"win32WindowUtil.dll")
+                    include(name:"Win32WindowUtil.dll")
+                    include(name:"Win32FirewallUtil.dll")
                 }
                 mapper(type:"flatten")
             }

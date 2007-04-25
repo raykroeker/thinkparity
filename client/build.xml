@@ -236,14 +236,8 @@ Local Configuration:            ${localconfig}
         </javac>
     </target>
 
-    <!-- compile.win32 -->
+    <!-- compile-win32 -->
     <target name="compile-win32">
-        <!-- generate header files -->
-        <javah class="com.thinkparity.ophelia.browser.util.window.win32.Win32WindowUtil"
-                destdir="${target.include.dir}" implementation="sun">
-            <classpath refid="compile.classpath"/>
-        </javah>
-        <!-- setup msbuild environment -->
         <!-- rebuild solution -->
         <exec executable="${env.ComSpec}" os="Windows XP" failonerror="true">
             <arg line="/C &quot;${env.VS_HOME}\VC\vcvarsall.bat&quot; &amp; MSBuild.exe ophelia.sln /nologo /noautoresponse /t:Build /p:Configuration=Release"/>
@@ -556,7 +550,19 @@ Examples:
                     stayAlive="false"
                     icon="${target.classes.dir}/images/ThinkParity32x32.ico">
                 <jre path="jre1.6.0_01"
-                    args="-Dthinkparity-dir=&quot;%EXEDIR%&quot; -Dthinkparity.mode=${thinkparity.mode} -Dthinkparity.environment=${thinkparity.environment}"/>
+                    args="-Dthinkparity-executable=&quot;%EXEFILE%&quot; -Dthinkparity-directory=&quot;%EXEDIR%&quot; -Dthinkparity.mode=${thinkparity.mode} -Dthinkparity.environment=${thinkparity.environment}"/>
+                <versionInfo>
+                    <fileVersion>1.0.0.0</fileVersion>
+                    <txtFileVersion>${thinkparity.release-name}</txtFileVersion>
+                    <fileDescription>thinkParity(TM) Platform</fileDescription>
+                    <copyright>Copyright(C) 2007</copyright>
+                    <productVersion>1.0.0.0</productVersion>
+                    <txtProductVersion>${thinkparity.release-name}</txtProductVersion>
+                    <productName>thinkParity(TM)</productName>
+                    <companyName>thinkParity Solutions Inc.</companyName>
+                    <internalName>thinkParity</internalName>
+                    <originalFilename>thinkParity.exe</originalFilename>
+                  </versionInfo>   
             </config>
         </launch4j>
     </target>

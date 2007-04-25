@@ -778,7 +778,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         closeWorkspace();
         final List<String> jvmArgs = new ArrayList<String>();
         jvmArgs.add("-Dthinkparity-dir="
-                            + Directories.ThinkParity.DIR.getAbsolutePath());
+                            + Directories.ThinkParity.DIRECTORY.getAbsolutePath());
         jvmArgs.add("-Dthinkparity.mode=" + mode.name());
         jvmArgs.add("-Dthinkparity.environment=" + environment.name());
         if (null != imageName)
@@ -789,13 +789,13 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
             public void run() {
                 try {
                     JVMUtil.getInstance().executeJar(
-                            Directories.ThinkParity.DIR, Files.JAR,
+                            Directories.ThinkParity.DIRECTORY, Files.JAR,
                             jvmArgs.toArray(new String[] {}));
                 } catch (final IOException iox) {
                     logger.logError(iox,
                             "Could not restart ui platform.{0}{1}{0}{2}{0}{3}",
                             Separator.SystemNewLine,
-                            Directories.ThinkParity.DIR, Files.JAR, jvmArgs);
+                            Directories.ThinkParity.DIRECTORY, Files.JAR, jvmArgs);
                 }
             }
         });

@@ -12,10 +12,16 @@ import java.util.Properties;
 
 import com.thinkparity.codebase.model.session.Environment;
 
+import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.ophelia.browser.Constants;
+import com.thinkparity.ophelia.browser.Constants.ShutdownHooks;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
+import com.thinkparity.ophelia.browser.util.firewall.FirewallAccessException;
+import com.thinkparity.ophelia.browser.util.firewall.FirewallUtil;
+import com.thinkparity.ophelia.browser.util.firewall.FirewallUtilProvider;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -62,7 +68,50 @@ class BrowserPlatformInitializer {
                         .append(key).append(":")
                         .append(properties.get(key)));
         }
+
+        initFirewall(workspace);
 	}
+
+    /**
+     * Initialize the firewall. Since adding a firewall rule reduces the
+     * effective security of the system, the firewall rule is added/removed for
+     * the duration of the application only.
+     * 
+     * @param workspace
+     *            A <code>Workspace</code>.
+     */
+    private void initFirewall(final Workspace workspace) {
+        final FirewallUtil firewallUtil = FirewallUtilProvider.getInstance();
+
+        /* if we are not in development mode, the firewall is enabled, and the
+         * executable has not yet been added; add it and schedule its removal */
+        if (platform.isDevelopmentMode()) {
+        } else {
+            if (firewallUtil.isEnabled().booleanValue()) {
+                try {
+                    firewallUtil.addExecutable(Constants.Files.EXECUTABLE);
+                    workspace.addShutdownHook(new ShutdownHook() {
+                        @Override
+                        public String getDescription() {
+                            return null;
+                        }
+                        @Override
+                        public String getName() {
+                            return ShutdownHooks.Name.REMOVE_FIREWALL_RULE;
+                        }
+                        @Override
+                        public Integer getPriority() {
+                            return ShutdownHooks.Priority.REMOVE_FIREWALL_RULE;
+                        }
+                        @Override
+                        public void run() {
+                            firewallUtil.removeExecutable(Constants.Files.EXECUTABLE);
+                        }
+                    });
+                } catch (final FirewallAccessException fax) {}
+            }
+        }
+    }
 
     /**
      * Initialize the logging based upon the application's mode.

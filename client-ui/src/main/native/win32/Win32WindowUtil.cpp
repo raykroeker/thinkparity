@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <jawt.h>
 #include <jawt_md.h>
-#include "com_thinkparity_ophelia_browser_util_window_win32_Win32WindowUtil.h"
+#include "Win32WindowUtil.h"
 
 /*
  * Class:     com_thinkparity_ophelia_browser_util_window_win32_Win32WindowUtil
@@ -10,7 +10,7 @@
  * Signature: (IIII)J
  */
 JNIEXPORT jint JNICALL
-Java_com_thinkparity_ophelia_browser_util_window_win32_Win32WindowUtil_CreateRectRgn(JNIEnv * env, jobject refThis, jint nLeftRect, jint nTopRect, jint nRightRect, jint nBottomRect)
+Java_com_thinkparity_ophelia_browser_util_window_win32_Win32WindowUtil_CreateRectRgn(JNIEnv* env, jobject refThis, jint nLeftRect, jint nTopRect, jint nRightRect, jint nBottomRect)
 {
     return (int) CreateRectRgn(nLeftRect, nTopRect, nRightRect, nBottomRect);
 }
@@ -21,7 +21,7 @@ Java_com_thinkparity_ophelia_browser_util_window_win32_Win32WindowUtil_CreateRec
  * Signature: (IIIIII)J
  */
 JNIEXPORT jint JNICALL
-Java_com_thinkparity_ophelia_browser_util_window_win32_Win32WindowUtil_CreateRoundRectRgn(JNIEnv * env, jobject refThis, jint nLeftRect, jint nTopRect, jint nRightRect, jint nBottomRect, jint nWidthEllipse, jint nHeightEllipse)
+Java_com_thinkparity_ophelia_browser_util_window_win32_Win32WindowUtil_CreateRoundRectRgn(JNIEnv* env, jobject refThis, jint nLeftRect, jint nTopRect, jint nRightRect, jint nBottomRect, jint nWidthEllipse, jint nHeightEllipse)
 {
     return (int) CreateRoundRectRgn(nLeftRect, nTopRect, nRightRect, nBottomRect, nWidthEllipse, nHeightEllipse);
 }
@@ -32,7 +32,7 @@ Java_com_thinkparity_ophelia_browser_util_window_win32_Win32WindowUtil_CreateRou
  * Signature: (Ljava/awt/Window;)J
  */
 JNIEXPORT jint JNICALL
-Java_com_thinkparity_ophelia_browser_util_window_win32_Win32WindowUtil_GetWindowHandle(JNIEnv * env, jobject refThis, jobject window)
+Java_com_thinkparity_ophelia_browser_util_window_win32_Win32WindowUtil_GetWindowHandle(JNIEnv* env, jobject refThis, jobject window)
 {
 	/* NOTE big fat reminder, in c you need to pre-declare vars at the
 	 * beginning of the code block */
@@ -78,7 +78,7 @@ Java_com_thinkparity_ophelia_browser_util_window_win32_Win32WindowUtil_GetWindow
  * Signature: (JJZ)I
  */
 JNIEXPORT jint JNICALL
-Java_com_thinkparity_ophelia_browser_util_window_win32_Win32WindowUtil_SetWindowRgn(JNIEnv * env, jobject refThis, jint hWnd, jint hRgn, jboolean bRedraw)
+Java_com_thinkparity_ophelia_browser_util_window_win32_Win32WindowUtil_SetWindowRgn(JNIEnv* env, jobject refThis, jint hWnd, jint hRgn, jboolean bRedraw)
 {
     return (int) SetWindowRgn((HWND) hWnd, (HRGN) hRgn, bRedraw);
 }

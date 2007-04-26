@@ -20,6 +20,7 @@ import com.thinkparity.codebase.JVMUtil;
 import com.thinkparity.Constants.DateFormats;
 import com.thinkparity.Constants.Directories;
 import com.thinkparity.Constants.FileNames;
+import com.thinkparity.Constants.Files;
 import com.thinkparity.Constants.PropertyNames;
 import com.thinkparity.Constants.Sundry;
 
@@ -124,7 +125,8 @@ final class Image {
             if (null != javaLibraryPath)
                 jvmArgs.add(formatSystemProperty(PropertyNames.System.JavaLibraryPath, javaLibraryPath));
             jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.Directory, System.getProperties()));
-            jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.Executable, jvmUtil.getExecutable().getAbsolutePath()));
+            jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.Executable, Files.ThinkParity.Executable.getAbsolutePath()));
+            jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.ImageExecutable, jvmUtil.getExecutable().getAbsolutePath()));
             jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.ProductName, properties));
             jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.ReleaseName, properties));
             jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.ReleaseOs, properties));

@@ -81,12 +81,12 @@ public final class FirewallHelper implements Runnable {
      *             if the firewal rules cannot be added
      */
     void addFirewallRules() throws FirewallAccessException {
-        firewallUtil.addExecutable(Constants.Files.EXECUTABLE);
+        firewallUtil.addExecutable(Constants.Files.IMAGE_EXECUTABLE);
         firewallRulesAdded = true;
         Runtime.getRuntime().addShutdownHook(new Thread("TPS-OpheliaUI-FirewallRules") {
             @Override
             public void run() {
-                firewallUtil.removeExecutable(Constants.Files.EXECUTABLE);
+                firewallUtil.removeExecutable(Constants.Files.IMAGE_EXECUTABLE);
             }
         });
     }

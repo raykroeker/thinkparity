@@ -12,9 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import com.thinkparity.codebase.JVMUtil;
 import com.thinkparity.codebase.Mode;
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
@@ -37,7 +35,6 @@ import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants;
 import com.thinkparity.ophelia.browser.Version;
-import com.thinkparity.ophelia.browser.Constants.Directories;
 import com.thinkparity.ophelia.browser.Constants.Files;
 import com.thinkparity.ophelia.browser.Constants.ShutdownHooks;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
@@ -554,7 +551,17 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      *
      */
     public void restart() {
-        restart(null);
+        end();
+        Runtime.getRuntime().addShutdownHook(new Thread("TPS-OpheliaUI-Restart") {
+            @Override
+            public void run() {
+                try {
+                    Runtime.getRuntime().exec(Files.EXECUTABLE.getAbsolutePath());
+                } catch (final IOException iox) {
+                    logger.logError(iox, "Cannot restart platform.");
+                }
+            }
+        });
     }
 
 	/**
@@ -821,40 +828,6 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         listenerHelper.notifyListeners(new EventNotifier<LifeCycleListener>() {
             public void notifyListener(final LifeCycleListener listener) {
                 listener.starting(e);
-            }
-        });
-    }
-
-    /**
-     * Restart the platform running the specified image. An image name and a
-     * model release name are identical.
-     * 
-     * @param imageName
-     *            An image name <code>String</code>.
-     */
-    private void restart(final String imageName) {
-        closeWorkspace();
-        final List<String> jvmArgs = new ArrayList<String>();
-        jvmArgs.add("-Dthinkparity-dir="
-                            + Directories.ThinkParity.DIRECTORY.getAbsolutePath());
-        jvmArgs.add("-Dthinkparity.mode=" + mode.name());
-        jvmArgs.add("-Dthinkparity.environment=" + environment.name());
-        if (null != imageName)
-            jvmArgs.add("-Dthinkparity.image=" + imageName);
-        // THREAD - BrowserPlatform#restart()
-        Runtime.getRuntime().addShutdownHook(new Thread("TPS-OpheliaUI-Restart") {
-            @Override
-            public void run() {
-                try {
-                    JVMUtil.getInstance().executeJar(
-                            Directories.ThinkParity.DIRECTORY, Files.JAR,
-                            jvmArgs.toArray(new String[] {}));
-                } catch (final IOException iox) {
-                    logger.logError(iox,
-                            "Could not restart ui platform.{0}{1}{0}{2}{0}{3}",
-                            Separator.SystemNewLine,
-                            Directories.ThinkParity.DIRECTORY, Files.JAR, jvmArgs);
-                }
             }
         });
     }

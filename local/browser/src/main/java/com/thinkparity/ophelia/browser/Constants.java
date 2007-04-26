@@ -189,6 +189,8 @@ public final class Constants {
     public static final class Files {
         public static final File EXECUTABLE = new File(
                 System.getProperty("thinkparity-executable"));
+        public static final File IMAGE_EXECUTABLE = new File(
+                System.getProperty("thinkparity.image-executable"));
         public static final File JAR = new File(
                 Directories.ThinkParity.DIRECTORY, "thinkParity.jar");
     }

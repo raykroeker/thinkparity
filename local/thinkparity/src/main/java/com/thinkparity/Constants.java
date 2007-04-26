@@ -56,6 +56,7 @@ public final class Constants {
             public static final String Executable = "thinkparity-executable";
             public static final String Image = "thinkparity.image";
             public static final String ImageClassPath = "thinkparity.image-classpath";
+            public static final String ImageExecutable = "thinkparity.image-executable";
             public static final String ImageJVMArgs = "thinkparity.image-jvmargs";
             public static final String ImageLastRun = "thinkparity.image-lastrun";
             public static final String ImageLibraryPath = "thinkparity.image-librarypath";

@@ -5,8 +5,6 @@ package com.thinkparity.ophelia.browser.platform.firewall;
 
 import com.thinkparity.ophelia.browser.Constants;
 import com.thinkparity.ophelia.browser.platform.Platform;
-import com.thinkparity.ophelia.browser.platform.event.LifeCycleAdapter;
-import com.thinkparity.ophelia.browser.platform.event.LifeCycleEvent;
 import com.thinkparity.ophelia.browser.util.firewall.FirewallAccessException;
 import com.thinkparity.ophelia.browser.util.firewall.FirewallUtil;
 import com.thinkparity.ophelia.browser.util.firewall.FirewallUtilProvider;
@@ -23,9 +21,6 @@ public final class FirewallHelper implements Runnable {
     /** A generic platform specific <code>FirewallUtil</code>. */
     private final FirewallUtil firewallUtil;
 
-    /** The <code>Platform</code>. */
-    private final Platform platform;
-
     /** A <code>FirewallAccessErrorWindow</code>. */
     private FirewallAccessErrorWindow window;
 
@@ -35,7 +30,6 @@ public final class FirewallHelper implements Runnable {
      */
     public FirewallHelper(final Platform platform) {
         super();
-        this.platform = platform;
         this.firewallUtil = FirewallUtilProvider.getInstance();
     }
 
@@ -65,9 +59,9 @@ public final class FirewallHelper implements Runnable {
      */
     void addFirewallRules() throws FirewallAccessException {
         firewallUtil.addExecutable(Constants.Files.EXECUTABLE);
-        platform.addListener(new LifeCycleAdapter() {
+        Runtime.getRuntime().addShutdownHook(new Thread("TPS-OpheliaUI-FirewallRules") {
             @Override
-            public void ending(final LifeCycleEvent e) {
+            public void run() {
                 firewallUtil.removeExecutable(Constants.Files.EXECUTABLE);
             }
         });

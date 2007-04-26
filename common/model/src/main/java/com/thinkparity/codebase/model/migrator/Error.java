@@ -18,8 +18,8 @@ public class Error {
     /** The method arguments <code>Object[]</code>. */
     private transient Object[] arguments;
 
-    /** The cause <code>Throwable</code>. */
-    private Throwable cause;
+    /** The stack trace <code>String</code>. */
+    private String stack;
 
     /** An error id <code>String</code>. */
     private Long id;
@@ -52,8 +52,8 @@ public class Error {
      *
      * @return A Throwable.
      */
-    public Throwable getCause() {
-        return cause;
+    public String getStack() {
+        return stack;
     }
 
     /**
@@ -99,8 +99,8 @@ public class Error {
      * @param cause
      *		A Throwable.
      */
-    public void setCause(final Throwable cause) {
-        this.cause = cause;
+    public void setStack(final String stack) {
+        this.stack = stack;
     }
 
     /**

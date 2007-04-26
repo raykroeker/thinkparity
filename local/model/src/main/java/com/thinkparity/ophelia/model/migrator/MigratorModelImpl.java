@@ -313,7 +313,9 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             if (sessionModel.isLoggedIn()) {
                 final Error error = new Error();
                 error.setArguments(arguments);
-                error.setCause(cause);
+                final StringWriter writer = new StringWriter();
+                cause.printStackTrace(new PrintWriter(writer));
+                error.setStack(writer.toString());
                 error.setMethod(method);
                 error.setOccuredOn(sessionModel.readDateTime());
                 final Product product = migratorIO.readProduct(Constants.Product.NAME);

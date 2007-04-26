@@ -184,7 +184,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
          * exit here but works like a charm */
         final FirewallHelper firewallHelper = new FirewallHelper(this);
         firewallHelper.run();
-        if (!firewallHelper.didAddFirewallRules())
+        if (firewallHelper.isFirewallEnabled() && !firewallHelper.didAddFirewallRules())
             System.exit(1);
 
         this.workspace = WorkspaceModel.getInstance(

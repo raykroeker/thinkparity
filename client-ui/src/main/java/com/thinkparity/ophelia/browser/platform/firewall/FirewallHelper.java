@@ -48,6 +48,15 @@ public final class FirewallHelper implements Runnable {
     }
 
     /**
+     * Determine whether or not the firewall is enabled.
+     * 
+     * @return True if the firewall is enabled.
+     */
+    public Boolean isFirewallEnabled() {
+        return firewallUtil.isEnabled();
+    }
+
+    /**
      * Initialize the firewall helper. Check to see if a firewall is enabled,
      * and if so add the appropriate firewall rules. If the rules cannot be
      * added, maintain an appropriate dialogue.

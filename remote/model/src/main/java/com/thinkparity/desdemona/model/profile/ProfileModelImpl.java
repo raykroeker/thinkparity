@@ -334,12 +334,15 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     public Profile read(final JabberId userId) {
         try {
             final User user = getUserModel().read(userId);
-
-            final Profile profile = new Profile();
-            profile.setVCard(getUserModel().readVCard(user.getLocalId(), new ProfileVCard()));
-            profile.setFeatures(userSql.readFeatures(user.getLocalId(),
-                    Ophelia.PRODUCT_ID));
-            return inject(profile, user);
+            if (null == user) {
+                return null;
+            } else {
+                final Profile profile = new Profile();
+                profile.setVCard(getUserModel().readVCard(user.getLocalId(), new ProfileVCard()));
+                profile.setFeatures(userSql.readFeatures(user.getLocalId(),
+                        Ophelia.PRODUCT_ID));
+                return inject(profile, user);
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }

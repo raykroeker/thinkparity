@@ -772,6 +772,11 @@ public final class ContainerModelImpl extends
                         version.getVersionId(), receipt.getPublishedOn(),
                         receivedBy.getId(), receipt.getReceivedOn());
             }
+            final InternalSessionModel sessionModel = getSessionModel();
+            final Calendar receivedOn = sessionModel.readDateTime();
+            containerIO.updatePublishedTo(container.getId(),
+                    version.getVersionId(), event.getPublishedOn(),
+                    localUserId(), receivedOn);
             // calculate differences
             final ContainerVersion previous = readPreviousVersion(container.getId(), version.getVersionId());
             final ContainerVersion next = readNextVersion(container.getId(), version.getVersionId());
@@ -794,8 +799,6 @@ public final class ContainerModelImpl extends
             // index
             getIndexModel().indexContainer(container.getId());
             // send confirmation
-            final InternalSessionModel sessionModel = getSessionModel();
-            final Calendar confirmedOn = sessionModel.readDateTime();
             sessionModel.confirmArtifactReceipt(container.getUniqueId(),
                     version.getVersionId(), event.getPublishedBy(),
                     event.getPublishedOn(),
@@ -811,7 +814,7 @@ public final class ContainerModelImpl extends
                     USER_UTILS.getIds(containerIO.readPublishedTo(
                             container.getId(), version.getVersionId()),
                             new ArrayList<JabberId>()),
-                    localUserId(), confirmedOn);
+                    localUserId(), receivedOn);
             // audit\fire event
             final Container postPublish = read(container.getId());
             final ContainerVersion postPublishVersion = readVersion(

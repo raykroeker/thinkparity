@@ -34,7 +34,7 @@ public class LearnMore extends AbstractAction {
 
     static {
         SIGNUP_LINK = "pricing";
-        BETA_LINK = "freeTrial";
+        BETA_LINK = "contactUs";
     }
 
     /** Create LearnMore. */

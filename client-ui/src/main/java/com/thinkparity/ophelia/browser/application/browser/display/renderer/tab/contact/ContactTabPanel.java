@@ -429,8 +429,8 @@ public class ContactTabPanel extends DefaultTabPanel {
         initCollapsedPanel();
 
         collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
-        reload(collapsedAdditionalTextJLabel, (String) null);
         reload(collapsedTextJLabel, outgoingEMail.getInvitationEMail());
+        reload(collapsedAdditionalTextJLabel, localization.getString("OutgoingInvitationAdditionalText"));
     }
 
     /**
@@ -444,8 +444,8 @@ public class ContactTabPanel extends DefaultTabPanel {
         initCollapsedPanel();
 
         collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
-        reload(collapsedAdditionalTextJLabel, getAdditionalText(outgoingUser.getInvitationUser()));
         reload(collapsedTextJLabel, outgoingUser.getInvitationUser().getName());
+        reload(collapsedAdditionalTextJLabel, localization.getString("OutgoingInvitationAdditionalText"));
     }
 
     /**

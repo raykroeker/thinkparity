@@ -5,7 +5,7 @@
 package com.thinkparity.ophelia.browser.platform.action.platform;
 
 import com.thinkparity.codebase.Application;
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.util.http.Link;
 import com.thinkparity.codebase.model.util.http.LinkFactory;
@@ -26,6 +26,17 @@ import org.jdesktop.jdic.desktop.DesktopException;
  */
 public class LearnMore extends AbstractAction {
 
+    /** The relative link for "signup" learn more. */
+    private static String SIGNUP_LINK;
+
+    /** The relative link for "beta" learn more. */
+    private static String BETA_LINK;
+
+    static {
+        SIGNUP_LINK = "pricing";
+        BETA_LINK = "freeTrial";
+    }
+
     /** Create LearnMore. */
     public LearnMore(final Platform platform) {
         super(ActionId.PLATFORM_LEARN_MORE);
@@ -37,12 +48,30 @@ public class LearnMore extends AbstractAction {
     @Override
     public void invoke(final Data data) {
         final Topic topic = (Topic) data.get(DataKey.TOPIC);
-        // TODO This needs to go somewhere sensible.
-        final StringBuffer topicLink = new StringBuffer("about").append(
-                Separator.ForwardSlash.toString()).append(topic.toString());
+        // TODO Finalize where links go.
+        // TODO Beta topic will go away when beta is done.
+        switch (topic) {
+        case SIGNUP:
+            browse(SIGNUP_LINK);
+            break;
+        case BETA:
+            browse(BETA_LINK);
+            break;
+        default:
+            Assert.assertUnreachable("Unknown learn more topic.");
+        }
+    }
+
+    /**
+     * Browser to the specified topic link.
+     * 
+     * @param topicLink
+     *            A topic link <code>String</code>.
+     * @throws BrowserException
+     */
+    private void browse(final String topicLink) {
         final Link learnMoreLink = LinkFactory.getInstance(Application.OPHELIA,
-                BrowserPlatform.getInstance().getEnvironment()).create(
-                topicLink.toString());    
+                BrowserPlatform.getInstance().getEnvironment()).create(topicLink);
         try {
             DesktopUtil.browse(learnMoreLink.toString());
         } catch (final DesktopException dx) {
@@ -51,5 +80,5 @@ public class LearnMore extends AbstractAction {
     }
 
     public enum DataKey { TOPIC }
-    public enum Topic { SIGNUP, SYNCHRONIZE, BETA }
+    public enum Topic { SIGNUP, BETA }
 }

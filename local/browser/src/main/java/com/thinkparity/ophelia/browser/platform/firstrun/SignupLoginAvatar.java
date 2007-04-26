@@ -6,6 +6,14 @@
 
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
+import java.util.List;
+
+import com.thinkparity.codebase.assertion.Assert;
+
+import com.thinkparity.codebase.model.migrator.Feature;
+
+import com.thinkparity.ophelia.model.Constants.Product.Features;
+
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
@@ -16,31 +24,18 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author  user
  */
 public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDisplay {
-    
-    /** Flag indicating if this is an existing account or a new account. */
-    Boolean existingAccount;
-    
-    /** Flag indicating if backup is supported. */
-    Boolean backupAccount;
+
+    /** Progress bar indeterminate flag. */
+    private Boolean indeterminate;
 
     /** Creates new form SignupLoginAvatar */
     public SignupLoginAvatar() {
         super("SignupAvatar.Login", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
-        SignupLoginHelper.getInstance().setSignupLoginAvatar(this);
-        existingAccount = Boolean.FALSE;
-        backupAccount = Boolean.FALSE;
+        SignupLoginHelper.getInstance().setLoginSwingDisplay(this);
+        indeterminate = Boolean.TRUE;
     }
 
-    /** Example
-    final FeatureSet featureSet = (FeatureSet) ((Data) input).get(DataKey.FEATURE_SET);
-    if (featureSet == FeatureSet.FREE) {
-        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_ACCOUNT);
-    } else {
-        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT);
-    }
-    */
-    
     /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#dispose()
      */
@@ -49,59 +44,7 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#installProgressBar()
-     */
-    public void installProgressBar() {
-        loginJProgressBar.setIndeterminate(true);
-        progressBarJPanel.setVisible(true);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#resetProgressBar()
-     */
-    public void resetProgressBar() {
-        reload();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#setDetermination(java.lang.Integer)
-     */
-    public void setDetermination(final Integer steps) {
-        loginJProgressBar.setMinimum(0);
-        loginJProgressBar.setMaximum(steps);
-        loginJProgressBar.setIndeterminate(false);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#setValidCredentials(java.lang.Boolean)
-     */
-    public void setValidCredentials(final Boolean validCredentials) {
-        SignupLoginHelper.getInstance().setValidCredentials(validCredentials);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#updateProgress(java.lang.Integer, java.lang.String)
-     */
-    public void updateProgress(final Integer step, final String note) {
-        loginJProgressBar.setValue(step);
-        if (null != note && 0 < note.trim().length()) {
-            stepJLabel.setText(note);
-        } else {
-            stepJLabel.setText(" ");
-        }
-    }
-
-    private void reloadProgressBar() {
-        progressBarJPanel.setVisible(false);
-        /* The space is deliberate (as opposed to an empty string) in
-         * order to maintain vertical spacing. */
-        stepJLabel.setText(" ");
-        validate();
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getId()
-     * 
      */
     public AvatarId getId() {
         return AvatarId.DIALOG_PLATFORM_SIGNUP_LOGIN;
@@ -118,18 +61,16 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getPreviousPageName()
      */
     public String getPreviousPageName() {
-        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_CREDENTIALS);
+        // User is not allowed to go back once the login is in progress.
+        return null;
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isNextOk()
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#installProgressBar()
      */
-    public Boolean isNextOk() {
-        if (!isInputValid()) {
-            return Boolean.FALSE;
-        }
-        // TODO
-        return !containsInputErrors();
+    public void installProgressBar() {
+        loginJProgressBar.setIndeterminate(indeterminate.booleanValue());
+        progressBarJPanel.setVisible(true);
     }
 
     /**
@@ -138,6 +79,15 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
     @Override
     public Boolean isLastPage() {
         return Boolean.TRUE;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isNextOk()
+     */
+    public Boolean isNextOk() {
+        // The next button is handled in a special way on this page.
+        // See confirmRestore() in SignupCredentialsAvatar.
+        return Boolean.FALSE;
     }
 
     /**
@@ -154,14 +104,51 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
      */
     @Override
     public void reloadData() {
-        this.existingAccount = (Boolean) ((Data) input).get(SignupData.DataKey.EXISTING_ACCOUNT);
         reloadExplanation();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#resetProgressBar()
+     */
+    public void resetProgressBar() {
+        reload();
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#saveData()
      */
     public void saveData() {
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#setDetermination(java.lang.Integer)
+     */
+    public void setDetermination(final Integer steps) {
+        loginJProgressBar.setMinimum(0);
+        loginJProgressBar.setMaximum(steps);
+        indeterminate = Boolean.FALSE;
+        loginJProgressBar.setIndeterminate(indeterminate.booleanValue());
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#setValidCredentials(java.lang.Boolean)
+     */
+    public void setValidCredentials(final Boolean validCredentials) {
+        final LoginCredentialsDisplay display = SignupLoginHelper.getInstance().getLoginCredentialsDisplay();
+        Assert.assertNotNull("The login credentials display null.", display);
+        display.setValidCredentials(validCredentials);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#updateProgress(java.lang.Integer, java.lang.String)
+     */
+    public void updateProgress(final Integer step, final String note) {
+        loginJProgressBar.setValue(step);
+        if (null != note && 0 < note.trim().length()) {
+            stepJLabel.setText(note);
+        } else {
+            stepJLabel.setText(" ");
+        }
     }
 
     /** This method is called from within the constructor to
@@ -234,18 +221,53 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
     }// </editor-fold>//GEN-END:initComponents
 
     /**
+     * Determine if backup is enabled.
+     * 
+     * @param features
+     *            A list of <code>Feature</code>.
+     * @return true if backup is enabled.
+     */
+    private Boolean isBackupEnabled(final List<Feature> features) {
+        for (final Feature feature : features) {
+            if (Features.BACKUP.equals(feature.getName())) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
      * Reload the explanation field.
      */
     private void reloadExplanation() {
+        final Boolean existingAccount = (Boolean)((Data) input).get(SignupData.DataKey.EXISTING_ACCOUNT);
+        final List<Feature> features = ((Data) input).getList(SignupData.DataKey.FEATURES);
+        final Boolean backupEnabled = isBackupEnabled(features);
+        final String warning;
         final String explanation;
         if (!existingAccount) {
+            warning = getString("WarningNewAccount");
             explanation = getString("ExplanationNewAccount");
-        } else if (backupAccount) {
+        } else if (backupEnabled) {
+            warning = getString("WarningBackup");
             explanation = getString("ExplanationBackup");
         } else {
+            warning = getString("WarningNoBackup");
             explanation = getString("ExplanationNoBackup");
         }
+        warningJLabel.setText(warning);
         explanationJLabel.setText(explanation);
+    }
+
+    /**
+     * Reload the progress bar (make it invisible).
+     */
+    private void reloadProgressBar() {
+        progressBarJPanel.setVisible(false);
+        /* The space is deliberate (as opposed to an empty string) in
+         * order to maintain vertical spacing. */
+        stepJLabel.setText(" ");
+        validate();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -25,6 +25,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colo
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
 
 /**
@@ -33,7 +34,7 @@ import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
  */
 public class SignupPaymentInfoAvatar extends DefaultSignupPage {
 
-    /** TODO remove this later. */
+    /** TODO remove this when beta is done. */
     /** The beta activation code. */
     private static String BETA_ACTIVATION_CODE;
     static {
@@ -95,7 +96,12 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
             return Boolean.FALSE;
         }
         if (!containsInputErrors()) {
-            signup();
+            // TODO for beta, this page is displayed so this check is required.
+            // After beta, this featureSet check can be removed and always call signup().
+            final FeatureSet featureSet = (FeatureSet) ((Data) input).get(SignupData.DataKey.FEATURE_SET);
+            if (featureSet != FeatureSet.FREE) {
+                signup();
+            }
         }
         return !containsInputErrors();
     }
@@ -105,16 +111,7 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
      */
     public void reload() {
         // TODO For now, hide the payment fields. When add them back, remember to make them local variables.
-        explanationJLabel.setVisible(false);
-        cardNameJLabel.setVisible(false);
-        cardNameJTextField.setVisible(false);
-        cardNumberJLabel.setVisible(false);
-        cardNumberJTextField.setVisible(false);
-        cardTypeJComboBox.setVisible(false);
-        cardTypeJLabel.setVisible(false);
-        cardMonthJComboBox.setVisible(false);
-        cardYearJComboBox.setVisible(false);
-        expiryDateJLabel.setVisible(false);
+        reloadPayment();
         validateInput();
     }
 
@@ -149,8 +146,8 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
         }
     }
 
+    // TODO Remove this after beta.
     private void betaActivationLearnMoreJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_betaActivationLearnMoreJLabelMousePressed
-        // TODO Remove this after beta.
         platform.runLearnMore(LearnMore.Topic.BETA);
     }//GEN-LAST:event_betaActivationLearnMoreJLabelMousePressed
 
@@ -272,10 +269,6 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(28, 28, 28)
-                                .addComponent(errorMessageJLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 315, Short.MAX_VALUE))
                             .addComponent(explanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 420, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(28, 28, 28)
@@ -292,15 +285,18 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
                                         .addComponent(cardMonthJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(cardYearJComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addComponent(cardTypeJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE))))
+                                    .addComponent(cardTypeJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(40, 40, 40)
                         .addComponent(betaActivationCodeJLabel)
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(betaActivationLearnMoreJLabel)
-                            .addComponent(betaActivationCodeJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(betaActivationCodeJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(38, 38, 38)
+                        .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -342,7 +338,6 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
     /**
      * Initialize document handler.
      */
-    // TODO Remove this after beta.
     private void initDocumentHandler() {
         final DocumentListener documentListener = new DocumentListener() {
             public void changedUpdate(final DocumentEvent e) {
@@ -355,7 +350,26 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
                 validateInput();
             }
         };
+        // TODO Remove this after beta.
         betaActivationCodeJTextField.getDocument().addDocumentListener(documentListener);
+    }
+
+    /**
+     * Relaod payment.
+     * TODO Remove this after beta.
+     */
+    private void reloadPayment() {
+        explanationJLabel.setVisible(false);
+        cardNameJLabel.setVisible(false);
+        cardNameJTextField.setVisible(false);
+        cardNumberJLabel.setVisible(false);
+        cardNumberJTextField.setVisible(false);
+        cardTypeJComboBox.setVisible(false);
+        cardTypeJLabel.setVisible(false);
+        cardMonthJComboBox.setVisible(false);
+        cardYearJComboBox.setVisible(false);
+        expiryDateJLabel.setVisible(false);
+        validate();
     }
 
     /**

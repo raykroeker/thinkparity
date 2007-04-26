@@ -67,6 +67,9 @@ public interface SignupPage {
 
     /**
      * Set the signup delegate.
+     * 
+     * @param signupDelegate
+     *            The <code>SignupDelegate</code>.
      */
     public void setSignupDelegate(final SignupDelegate signupDelegate);
 

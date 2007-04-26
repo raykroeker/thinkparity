@@ -24,11 +24,6 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
-                              <Component id="errorMessageJLabel" min="-2" max="-2" attributes="1"/>
-                              <EmptySpace pref="315" max="32767" attributes="0"/>
-                          </Group>
                           <Component id="explanationJLabel" alignment="0" pref="420" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
@@ -47,9 +42,9 @@
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="cardYearJComboBox" max="32767" attributes="0"/>
                                   </Group>
-                                  <Component id="cardTypeJComboBox" alignment="0" min="-2" pref="245" max="-2" attributes="1"/>
+                                  <Component id="cardTypeJComboBox" alignment="0" min="-2" pref="248" max="-2" attributes="1"/>
                               </Group>
-                              <EmptySpace pref="25" max="32767" attributes="0"/>
+                              <EmptySpace pref="22" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -58,9 +53,13 @@
                       <Component id="betaActivationCodeJLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="betaActivationLearnMoreJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="betaActivationCodeJTextField" alignment="0" min="-2" pref="245" max="-2" attributes="0"/>
+                          <Component id="betaActivationLearnMoreJLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="betaActivationCodeJTextField" min="-2" pref="248" max="-2" attributes="0"/>
                       </Group>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="-2" pref="38" max="-2" attributes="0"/>
+                      <Component id="errorMessageJLabel" pref="392" max="32767" attributes="1"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>

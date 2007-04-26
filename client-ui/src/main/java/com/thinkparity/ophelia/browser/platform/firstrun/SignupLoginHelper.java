@@ -4,35 +4,26 @@
  */
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
-import java.util.List;
-
 import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.codebase.model.migrator.Feature;
-
-import com.thinkparity.ophelia.model.workspace.InitializeMediator;
-
-import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class SignupLoginHelper implements InitializeMediator {
+public class SignupLoginHelper {
 
     /** A singleton instance. */
     private static SignupLoginHelper SINGLETON;
-    
+
     static {
         SINGLETON = new SignupLoginHelper();
     }
 
-    /** The <code>SignupDelegate</code>. */
-    private SignupDelegate signupDelegate;
-    
-    private SignupCredentialsAvatar signupCredentialsAvatar;
-    private SignupLoginAvatar signupLoginAvatar;
+    /** The <code>LoginSwingDisplay</code>. */
+    private LoginSwingDisplay loginSwingDisplay;
+
+    /** The <code>LoginCredentialsDisplay</code>. */
+    private LoginCredentialsDisplay loginCredentialsDisplay;
 
     /**
      * Create SignupLoginHelper.
@@ -51,43 +42,41 @@ public class SignupLoginHelper implements InitializeMediator {
         return SINGLETON;
     }
 
-    public void setSignupCredentialsAvatar(final SignupCredentialsAvatar signupCredentialsAvatar) {
-        this.signupCredentialsAvatar = signupCredentialsAvatar;
-    }
-    
-    public void setSignupLoginAvatar(final SignupLoginAvatar signupLoginAvatar) {
-        this.signupLoginAvatar = signupLoginAvatar;
-    }
-
-    public void setSignupDelegate(final SignupDelegate signupDelegate) {
-        this.signupDelegate = signupDelegate;
-    }
-
-    public void setValidCredentials(final Boolean validCredentials) {
-        signupCredentialsAvatar.setValidCredentials(validCredentials);
-    }
-
-    public ThinkParitySwingMonitor createMonitor() {
-        Assert.assertNotNull("The login helper signup login avatar is null.", signupLoginAvatar);
-        return new LoginSwingMonitor(signupLoginAvatar);
+    /**
+     * Get the login swing display.
+     * 
+     * @return The <code>LoginSwingDisplay</code>.
+     */
+    public LoginSwingDisplay getLoginSwingDisplay() {
+        return loginSwingDisplay;
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.workspace.InitializeMediator#confirmRestore(java.util.List)
+     * Get the login credentials display.
+     * 
+     * @return The <code>LoginCredentialsDisplay</code>.
      */
-    public Boolean confirmRestore(final List<Feature> features) {
-        Assert.assertNotNull("The login helper signup delegate is null.", signupDelegate);
-        Assert.assertNotNull("The login helper signup credentials avatar is null.", signupCredentialsAvatar);
-        signupCredentialsAvatar.loginPhaseOneDone();
-        signupDelegate.setNextPage();
-        synchronized (signupDelegate) {
-            try {
-                signupDelegate.wait();
-            } catch (final Throwable t) {
-                throw new BrowserException(
-                        "Error opening the thinkParity signup delegate.", t);
-            }
-            return !signupDelegate.isCancelled();
-        }
+    public LoginCredentialsDisplay getLoginCredentialsDisplay() {
+        return loginCredentialsDisplay;
+    }
+
+    /**
+     * Set the login swing display.
+     * 
+     * @param loginSwingDisplay
+     *            The <code>LoginSwingDisplay</code>.
+     */
+    public void setLoginSwingDisplay(final LoginSwingDisplay loginSwingDisplay) {
+        this.loginSwingDisplay = loginSwingDisplay;
+    }
+
+    /**
+     * Set the login credentials display.
+     * 
+     * @param loginCredentialsDisplay
+     *            The <code>LoginCredentialsDisplay</code>.
+     */
+    public void setLoginCredentialsDisplay(final LoginCredentialsDisplay loginCredentialsDisplay) {
+        this.loginCredentialsDisplay = loginCredentialsDisplay;
     }
 }

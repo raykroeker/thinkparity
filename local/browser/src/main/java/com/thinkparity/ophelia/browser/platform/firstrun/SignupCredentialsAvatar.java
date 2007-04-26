@@ -7,27 +7,38 @@
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.session.Credentials;
 
+import com.thinkparity.ophelia.model.workspace.InitializeMediator;
+
+import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 
 /**
  *
  * @author  user
  */
-public class SignupCredentialsAvatar extends DefaultSignupPage {
+public class SignupCredentialsAvatar extends DefaultSignupPage
+        implements InitializeMediator, LoginCredentialsDisplay {
+
+    /** The list of <code>Feature</code>. */
+    private List<Feature> features;
 
     /** The most recent username <code>String</code> with no security question. */
     private String noSecurityQuestionUsername;
@@ -44,7 +55,31 @@ public class SignupCredentialsAvatar extends DefaultSignupPage {
         this.usernameSecurityQuestions = new HashMap<String, String>();
         initComponents();
         initDocumentHandlers();
-        SignupLoginHelper.getInstance().setSignupCredentialsAvatar(this);
+        SignupLoginHelper.getInstance().setLoginCredentialsDisplay(this);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.InitializeMediator#confirmRestore(java.util.List)
+     */
+    public Boolean confirmRestore(final List<Feature> features) {
+        setFeatures(features);
+        saveData();
+        SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+        resetProgressBar();
+        signupDelegate.setNextPage();
+        synchronized (signupDelegate) {
+            try {
+                signupDelegate.wait();
+                if (!signupDelegate.isCancelled()) {
+                    installProgressBar();
+                    enableButtons(Boolean.FALSE);
+                }
+            } catch (final Throwable t) {
+                throw new BrowserException(
+                        "Error opening the thinkParity signup delegate.", t);
+            }
+            return !signupDelegate.isCancelled();
+        }
     }
 
     /**
@@ -107,15 +142,19 @@ public class SignupCredentialsAvatar extends DefaultSignupPage {
         if (isSecurityQuestionRead(extractUsername())) {
             ((Data) input).set(SignupData.DataKey.SECURITY_QUESTION, usernameSecurityQuestions.get(extractUsername()));
         }
+        if (isSetFeatures()) {
+            ((Data) input).set(SignupData.DataKey.FEATURES, features);
+        }
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#setSignupDelegate(com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate)
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginCredentialsDisplay#setValidCredentials(java.lang.Boolean)
      */
-    @Override
-    public void setSignupDelegate(final SignupDelegate signupDelegate) {
-        super.setSignupDelegate(signupDelegate);
-        SignupLoginHelper.getInstance().setSignupDelegate(signupDelegate);
+    public void setValidCredentials(final Boolean validCredentials) {
+        if (!validCredentials) {
+            SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+            errorMessageJLabel.setText(getString("ErrorInvalidCredentials"));
+        }
     }
 
     /**
@@ -149,6 +188,28 @@ public class SignupCredentialsAvatar extends DefaultSignupPage {
         if (isSignupDelegateInitialized()) {
             signupDelegate.enableNextButton(!containsInputErrors());
         }
+    }
+
+    /**
+     * Create a thinkParity swing monitor.
+     * 
+     * @return A <code>ThinkParitySwingMonitor</code>.
+     */
+    private ThinkParitySwingMonitor createMonitor() {
+        final LoginSwingDisplay display = SignupLoginHelper.getInstance().getLoginSwingDisplay();
+        Assert.assertNotNull("The login swing display null.", display);
+        return new LoginSwingMonitor(display);
+    }
+
+    /**
+     * Enable or disable the next and cancel buttons.
+     * 
+     * @param enable
+     *            Enable or disable <code>Boolean</code>.
+     */
+    private void enableButtons(final Boolean enable) {
+        signupDelegate.enableNextButton(enable);
+        signupDelegate.enableCancelButton(enable);
     }
 
     /**
@@ -290,6 +351,15 @@ public class SignupCredentialsAvatar extends DefaultSignupPage {
     }
 
     /**
+     * Install the progress bar.
+     */
+    private void installProgressBar() {
+        final LoginSwingDisplay display = SignupLoginHelper.getInstance().getLoginSwingDisplay();
+        Assert.assertNotNull("The login swing display null.", display);
+        display.installProgressBar();
+    }
+
+    /**
      * Determine if the security question has been read.
      * 
      * @param username
@@ -301,27 +371,24 @@ public class SignupCredentialsAvatar extends DefaultSignupPage {
     }
 
     /**
+     * Determine if features have been set.
+     * 
+     * @return true if features have been set.
+     */
+    public Boolean isSetFeatures() {
+        return (null != features);
+    }
+
+    /**
      * Login.
      */
     private void login() {
+        saveData();
         SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
         errorMessageJLabel.setText(getString("LoggingIn"));
         errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel.getWidth(), errorMessageJLabel.getHeight());
         final Credentials credentials = extractCredentials();
-        platform.runLogin(credentials.getUsername(), credentials.getPassword(),
-                SignupLoginHelper.getInstance().createMonitor(),
-                SignupLoginHelper.getInstance());
-    }
-
-    public void loginPhaseOneDone() {
-        SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
-    }
-
-    public void setValidCredentials(final Boolean validCredentials) {
-        if (!validCredentials) {
-            SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
-            errorMessageJLabel.setText(getString("ErrorInvalidCredentials"));
-        }
+        platform.runLogin(credentials.getUsername(), credentials.getPassword(), createMonitor(), this);
     }
 
     /**
@@ -359,6 +426,25 @@ public class SignupCredentialsAvatar extends DefaultSignupPage {
             }
             validateInput();
         }
+    }
+
+    /**
+     * Reset the progress bar.
+     */
+    private void resetProgressBar() {
+        final LoginSwingDisplay display = SignupLoginHelper.getInstance().getLoginSwingDisplay();
+        Assert.assertNotNull("The login swing display null.", display);
+        display.resetProgressBar();
+    }
+
+    /**
+     * Set features.
+     * 
+     * @param features
+     *            A list of <code>Feature</code>.
+     */
+    private void setFeatures(final List<Feature> features) {
+        this.features = features;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

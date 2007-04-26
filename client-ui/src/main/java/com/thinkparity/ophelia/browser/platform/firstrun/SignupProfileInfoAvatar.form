@@ -19,7 +19,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="explanationJLabel" pref="424" max="32767" attributes="0"/>
+                      <Component id="explanationJLabel" pref="446" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
@@ -37,30 +37,27 @@
                                   <Component id="postalCodeJLabel" min="-2" max="-2" attributes="0"/>
                                   <Component id="countryJLabel" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="nameJTextField" alignment="0" pref="237" max="32767" attributes="1"/>
-                                  <Component id="countryJComboBox" alignment="0" max="32767" attributes="1"/>
-                                  <Component id="postalCodeJTextField" alignment="0" max="32767" attributes="1"/>
-                                  <Component id="userTitleJTextField" alignment="0" max="32767" attributes="1"/>
-                                  <Component id="organizationJTextField" alignment="0" max="32767" attributes="1"/>
-                                  <Component id="phoneJTextField" alignment="0" max="32767" attributes="1"/>
-                                  <Component id="mobilePhoneJTextField" alignment="0" max="32767" attributes="1"/>
-                                  <Component id="addressJTextField" alignment="0" max="32767" attributes="1"/>
-                                  <Component id="cityJTextField" alignment="0" max="32767" attributes="1"/>
-                                  <Component id="provinceJTextField" alignment="0" max="32767" attributes="1"/>
+                              <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                  <Component id="postalCodeJTextField" max="32767" attributes="1"/>
+                                  <Component id="countryJComboBox" alignment="1" max="32767" attributes="1"/>
+                                  <Component id="provinceJTextField" alignment="1" max="32767" attributes="1"/>
+                                  <Component id="cityJTextField" alignment="1" max="32767" attributes="1"/>
+                                  <Component id="addressJTextField" alignment="1" max="32767" attributes="1"/>
+                                  <Component id="mobilePhoneJTextField" alignment="1" max="32767" attributes="1"/>
+                                  <Component id="phoneJTextField" alignment="1" max="32767" attributes="1"/>
+                                  <Component id="organizationJTextField" alignment="1" max="32767" attributes="1"/>
+                                  <Component id="userTitleJTextField" alignment="1" max="32767" attributes="1"/>
+                                  <Component id="nameJTextField" alignment="1" pref="251" max="32767" attributes="1"/>
                               </Group>
-                              <EmptySpace pref="49" max="32767" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="starExplanationjLabel" min="-2" max="-2" attributes="1"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                          </Group>
+                          <Component id="starExplanationjLabel" alignment="0" min="-2" max="-2" attributes="1"/>
                       </Group>
+                      <EmptySpace pref="49" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
-                      <Component id="errorMessageJLabel" pref="397" max="32767" attributes="1"/>
+                      <Component id="errorMessageJLabel" pref="419" max="32767" attributes="1"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -74,37 +71,37 @@
               <Component id="explanationJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="nameJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="nameJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="nameJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="userTitleJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="userTitleJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="userTitleJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="organizationJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="organizationJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="organizationJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                       <Component id="phoneJTextField" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="mobilePhoneJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="mobilePhoneJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="mobilePhoneJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="addressJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="addressJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="addressJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="cityJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="cityJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="cityJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
@@ -114,18 +111,18 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="provinceJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="provinceJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="provinceJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="countryJComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="countryJLabel" alignment="3" min="-2" pref="19" max="-2" attributes="0"/>
+                  <Component id="countryJComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="postalCodeJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="postalCodeJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="postalCodeJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
               <Component id="starExplanationjLabel" min="-2" max="-2" attributes="0"/>

@@ -347,7 +347,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
      */
     private void signupComplete() {
         cancelled = Boolean.FALSE;
-        // NOTE The wizard ends in login. Login is responsible for disposing the window.
+        // NOTE The wizard always ends in login. Login is responsible for disposing the window.
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

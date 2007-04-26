@@ -110,12 +110,16 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getNextPageName()
      */
     public String getNextPageName() {
+        // TODO for beta, all versions go to the payment page. When beta is done, change this
+        // so guest accounts don't go to payment tab. (enable the commented out code)
+        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT);
+        /*
         final FeatureSet featureSet = extractFeatureSet();
         if (featureSet == FeatureSet.FREE) {
             return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_SUMMARY);
         } else {
             return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT);
-        }
+        }*/
     }
 
     /**

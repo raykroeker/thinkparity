@@ -136,8 +136,7 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
     public void setValidCredentials(final Boolean validCredentials) {
         if (!validCredentials) {
             errorMessageJLabel.setText(getString("ErrorInvalidCredentials"));
-            signupDelegate.enableNextButton(Boolean.TRUE);
-            signupDelegate.enableCancelButton(Boolean.TRUE);
+            enableButtons(Boolean.TRUE);
             reloadProgressBar();
         }
     }
@@ -172,6 +171,17 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
         }
     }
 
+    /**
+     * Enable or disable the next and cancel buttons.
+     * 
+     * @param enable
+     *            Enable or disable <code>Boolean</code>.
+     */
+    private void enableButtons(final Boolean enable) {
+        signupDelegate.enableNextButton(enable);
+        signupDelegate.enableCancelButton(enable);
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -182,9 +192,6 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
         final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel importantNoteJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel explanation2JLabel = new javax.swing.JLabel();
-        progressBarJPanel = new javax.swing.JPanel();
-        stepJLabel = new javax.swing.JLabel();
-        loginJProgressBar = new javax.swing.JProgressBar();
 
         setOpaque(false);
         explanationJLabel.setFont(Fonts.DialogFont);
@@ -266,9 +273,8 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
      * Login.
      */
     private void login() {
-        signupDelegate.enableNextButton(Boolean.FALSE);
-        signupDelegate.enableCancelButton(Boolean.FALSE);
-        final Credentials credentials =(Credentials) ((Data) input).get(DataKey.CREDENTIALS);
+        enableButtons(Boolean.FALSE);
+        final Credentials credentials = (Credentials) ((Data) input).get(DataKey.CREDENTIALS);
         platform.runLogin(credentials.getUsername(), credentials.getPassword(),
                 new LoginSwingMonitor(this), this);
     }
@@ -284,8 +290,8 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
-    private javax.swing.JProgressBar loginJProgressBar;
-    private javax.swing.JPanel progressBarJPanel;
-    private javax.swing.JLabel stepJLabel;
+    private final javax.swing.JProgressBar loginJProgressBar = new javax.swing.JProgressBar();
+    private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel stepJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 }

@@ -83,6 +83,7 @@ public final class FirewallAccessErrorAvatar extends Avatar {
         final javax.swing.JLabel messageJLabel = LabelFactory.create(Fonts.DialogFont);
         final javax.swing.JLabel learnMoreJLabel = LabelFactory.createLink("", Fonts.DialogFont);
         final javax.swing.JButton continueJButton = ButtonFactory.create(Fonts.DialogButtonFont);
+        final javax.swing.JButton cancelJButton = new javax.swing.JButton();
 
         welcomeJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("FirewallAccessErrorAvatar.WelcomeLabel"));
 
@@ -102,6 +103,13 @@ public final class FirewallAccessErrorAvatar extends Avatar {
             }
         });
 
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("FirewallAccessErrorAvatar.CancelButton"));
+        cancelJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelJButtonActionPerformed(e);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -118,8 +126,10 @@ public final class FirewallAccessErrorAvatar extends Avatar {
                             .addComponent(welcomeJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 343, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(50, Short.MAX_VALUE))))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(337, Short.MAX_VALUE)
+                .addContainerGap(245, Short.MAX_VALUE)
                 .addComponent(continueJButton)
+                .addGap(17, 17, 17)
+                .addComponent(cancelJButton)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -132,10 +142,16 @@ public final class FirewallAccessErrorAvatar extends Avatar {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(learnMoreJLabel)
                 .addGap(115, 115, 115)
-                .addComponent(continueJButton)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cancelJButton)
+                    .addComponent(continueJButton))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void cancelJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_cancelJButtonActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_cancelJButtonActionPerformed
 
     private void learnMoreJLabelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_learnMoreJLabelMousePressed
         try {

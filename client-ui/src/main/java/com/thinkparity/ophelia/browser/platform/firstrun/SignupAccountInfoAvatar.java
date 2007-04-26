@@ -28,8 +28,6 @@ import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 
-import com.thinkparity.ophelia.model.profile.ReservationExpiredException;
-
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -137,9 +135,12 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
             return Boolean.FALSE;
         }
         createReservations();
+        // TODO When beta is done, restore these lines of code.
+        /*
         if (!containsInputErrors() && accountTypeGuestJRadioButton.isSelected()) {
             signupGuest();
         }
+        */
         return !containsInputErrors();
     }
 
@@ -243,9 +244,11 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         }
     }
 
+    // TODO Add this code back after beta.
     /**
      * Create a new profile.
      */
+    /*
     private void createProfile() {
         try {
             getSignupHelper().createProfile();
@@ -255,6 +258,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
             addInputError(getString("ErrorCreateAccount"));
         }
     }
+    */
 
     /**
      * Create the username and e-mail address reservations.
@@ -702,6 +706,8 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
     /**
      * Sign up guest.
      */
+    // TODO Add this code back after beta.
+    /*
     private void signupGuest() {
         saveData();
         SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
@@ -714,6 +720,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         }
         SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
     }
+    */
 
     private void usernameJTextFieldFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_usernameJTextFieldFocusLost
         final String username = SwingUtil.extract(usernameJTextField, Boolean.TRUE);

@@ -25,7 +25,6 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colo
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
 
 /**
@@ -96,12 +95,7 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
             return Boolean.FALSE;
         }
         if (!containsInputErrors()) {
-            // TODO for beta, this page is displayed so this check is required.
-            // After beta, this featureSet check can be removed and always call signup().
-            final FeatureSet featureSet = (FeatureSet) ((Data) input).get(SignupData.DataKey.FEATURE_SET);
-            if (featureSet != FeatureSet.FREE) {
-                signup();
-            }
+            signup();
         }
         return !containsInputErrors();
     }

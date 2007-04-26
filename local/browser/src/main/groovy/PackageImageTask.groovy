@@ -122,10 +122,12 @@ class PackageImageTask {
             newLine(writer)
             writer.write("thinkparity.image-classpath:core/codebase.jar,core/model.jar,core/browser.jar")
             for (dependency in dependencies) {
-                writer.write(",")
-                writer.write(imageLibDir.getName())
-                writer.write("/")
-                writer.write(dependency.getLocation().getName())
+                if (dependency.getType().equals(Dependency.Type.JAVA)) {
+	                writer.write(",")
+	                writer.write(imageLibDir.getName())
+	                writer.write("/")
+	                writer.write(dependency.getLocation().getName())
+	            }
             }
             // thinkparity.image-librarypath
             newLine(writer)
@@ -136,9 +138,6 @@ class PackageImageTask {
             // thinkparity.image-main
             newLine(writer)
             writer.write("thinkparity.image-main:com.thinkparity.ophelia.browser.Browser")
-            // thinkparity.image-mainargs
-            newLine(writer)
-            writer.write("thinkparity.image-mainargs:")
             // thinkparity.product-name
             newLine(writer)
             writer.write("thinkparity.product-name:")

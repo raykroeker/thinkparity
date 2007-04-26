@@ -10,12 +10,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-
 /**
+ * <b>Title:</b>thinkParity OpheliaUI Properties Util<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.1
  */
-class PropertiesUtil {
+final class PropertiesUtil {
 
     /** Line separator. */
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");

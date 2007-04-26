@@ -55,6 +55,16 @@ class PackageTask {
                     exclude(name:"com/thinkparity/codebase/")
                     exclude(name:"com/thinkparity/ophelia/")
                 }
+                fileset(dir:classesDir) {
+                    include(name:"com/thinkparity/codebase/assertion/")
+                    include(name:"com/thinkparity/codebase/Enum*")
+                    include(name:"com/thinkparity/codebase/JVMUtil*")
+                    include(name:"com/thinkparity/codebase/OS*")
+                    include(name:"com/thinkparity/codebase/OSUtil*")
+                    include(name:"com/thinkparity/codebase/Platform*")
+                    include(name:"com/thinkparity/codebase/StringUtil*")
+                    include(name:"com/thinkparity/codebase/SystemUtil*")
+                }
             }
             // $/LICENSE.txt
             // $/README.txt

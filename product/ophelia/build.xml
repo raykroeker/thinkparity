@@ -551,18 +551,16 @@ Examples:
                     icon="${target.classes.dir}/images/ThinkParity32x32.ico">
                 <jre path="jre1.6.0_01"
                     args="-Dthinkparity-executable=&quot;%EXEFILE%&quot; -Dthinkparity-directory=&quot;%EXEDIR%&quot; -Dthinkparity.mode=${thinkparity.mode} -Dthinkparity.environment=${thinkparity.environment}"/>
-                <versionInfo>
-                    <fileVersion>1.0.0.0</fileVersion>
-                    <txtFileVersion>${thinkparity.release-name}</txtFileVersion>
-                    <fileDescription>thinkParity(TM) Platform</fileDescription>
-                    <copyright>Copyright(C) 2007</copyright>
-                    <productVersion>1.0.0.0</productVersion>
-                    <txtProductVersion>${thinkparity.release-name}</txtProductVersion>
-                    <productName>thinkParity(TM)</productName>
-                    <companyName>thinkParity Solutions Inc.</companyName>
-                    <internalName>thinkParity</internalName>
-                    <originalFilename>thinkParity.exe</originalFilename>
-                  </versionInfo>   
+                <versionInfo fileVersion="1.0.0.0"
+                    txtFileVersion="${thinkparity.release-name}"
+                    fileDescription="thinkParity(TM) Platform"
+                    copyright="Copyright(C) 2007"
+                    productVersion="1.0.0.0"
+                    txtProductVersion="${thinkparity.release-name}"
+                    productName="thinkParity(TM)"
+                    companyName="thinkParity Solutions Inc."
+                    internalName="thinkParity"
+                    originalFilename="thinkParity.exe"/>
             </config>
         </launch4j>
     </target>

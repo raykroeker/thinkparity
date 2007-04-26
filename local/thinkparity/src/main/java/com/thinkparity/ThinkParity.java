@@ -14,12 +14,13 @@ import com.thinkparity.Constants.PropertyNames;
 import com.thinkparity.Constants.Sundry;
 
 /**
- * The thinkParity client application entry point.
+ * <b>Title:</b>thinkParity OpheliaUI<br>
+ * <b>Description:</b>The client application entry point.<br>
  * 
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.7
  */
-public class ThinkParity {
+public final class ThinkParity {
 
     /** A singleton instance of <code>ThinkParity</code>. */
     private static ThinkParity INSTANCE;
@@ -55,31 +56,23 @@ public class ThinkParity {
     }
 
     /**
-     * Look for the file; and if it is not found; report an error and exit.
-     *
+     * Look for the file; and if it is not found, cannot be read from, or cannot
+     * be written to; report an error and exit.
+     * 
      * @param file
-     *      A file.
+     *            A <code>File</code>.
      */
-    static void checkFileExists(final File file) {
-        if(!file.exists()) {
-            System.err.println("File " + file.getName() + " was not found.");
+    static void checkFile(final File file) {
+        if (!file.exists()) {
+            System.err.println("File " + file.getAbsolutePath() + " was not found.");
             System.exit(1);
         }
-    }
-
-    /**
-     * Look for the file; and if it is not found; report an error and exit.
-     * 
-     * @param parent
-     *            The parent abstract pathname
-     * @param child
-     *            The child pathname string
-     * @see File#File(File, String)
-     */
-    static void checkFileExists(final File parent, final String child) {
-        final File file = new File(parent, child);
-        if(!file.exists()) {
-            System.err.println("File " + parent.getName() + "/" + child + " was not found.");
+        if (!file.canRead()) {
+            System.err.println("File " + file.getAbsolutePath() + " cannot be read from.");
+            System.exit(1);
+        }
+        if (!file.canWrite()) {
+            System.err.println("File " + file.getAbsolutePath() + " cannot be written to.");
             System.exit(1);
         }
     }
@@ -138,9 +131,11 @@ public class ThinkParity {
         super();
         checkSystemProperty(PropertyNames.ThinkParity.Directory);
         checkSystemProperty(PropertyNames.ThinkParity.Executable);
+        checkSystemProperty(PropertyNames.ThinkParity.Environment);
+        checkSystemProperty(PropertyNames.ThinkParity.Mode);
         this.properties = new Properties();
         this.propertiesFile = new File(Directories.ThinkParity.Directory, FileNames.ThinkParityProperties);
-        ThinkParity.checkFileExists(propertiesFile);
+        checkFile(propertiesFile);
     }
 
     /**
@@ -170,43 +165,12 @@ public class ThinkParity {
     }
 
     /**
-     * Obtain a system property.
-     * 
-     * @param key
-     *            A property key <code>String</code>.
-     * @return A property value <code>String</code>.
-     */
-    private String getSystemProperty(final String key) {
-        return System.getProperty(key);
-    }
-
-    /**
-     * Obtain a system property.
-     * 
-     * @param key
-     *            A property key <code>String</code>.
-     * @return A property value <code>String</code>.
-     */
-    private boolean isSetSystemProperty(final String key) {
-        final String value = getSystemProperty(key);
-        if (null == value || 0 == value.length()) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    /**
-     * Load thinkParity.properties. If a system property value for the image is
-     * set, set the corresponding value within the properties.
+     * Load thinkParity.properties.  Ensure that the image property is set.
      * 
      */
     private void loadProperties() throws IOException {
         PropertiesUtil.load(properties, propertiesFile);
-        if (isSetSystemProperty(PropertyNames.ThinkParity.Image)) {
-            setProperty(PropertyNames.ThinkParity.Image,
-                    getSystemProperty(PropertyNames.ThinkParity.Image));
-        }
+        checkProperty(properties, PropertyNames.ThinkParity.Image);
     }
 
     /**

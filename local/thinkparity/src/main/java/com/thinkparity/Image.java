@@ -4,19 +4,18 @@
  */
 package com.thinkparity;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.io.InputStreamReader;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
+
+import com.thinkparity.codebase.JVMUtil;
 
 import com.thinkparity.Constants.DateFormats;
 import com.thinkparity.Constants.Directories;
@@ -25,18 +24,51 @@ import com.thinkparity.Constants.PropertyNames;
 import com.thinkparity.Constants.Sundry;
 
 /**
- * A thinkParity image is a directory structure that can be run.
+ * <b>Title:</b>thinkParity OpheliaUI Image<br>
+ * <b>Description:</b>A thinkParity image is a directory structure that can be
+ * run.<br>
  * 
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.8
  */
-public class Image {
+final class Image {
+
+    /**
+     * Format a system property as a string.
+     * 
+     * @param key
+     *            The property key.
+     * @param value
+     *            The property value.
+     * @return A formatted -Dkey=value <code>String</code>.
+     */
+    private static String formatSystemProperty(final String key,
+            final Properties properties) {
+        return formatSystemProperty(key, properties.getProperty(key));
+    }
+
+    /**
+     * Format a system property as a string.
+     * 
+     * @param key
+     *            The property key.
+     * @param value
+     *            The property value.
+     * @return A formatted -Dkey=value <code>String</code>.
+     */
+    private static String formatSystemProperty(final String key,
+            final String value) {
+        return MessageFormat.format("-D{0}={1}", key, value);
+    }
 
     /** The image class path. */
-    private URL[] classPath;
+    private String[] classPath;
 
     /** The java library path. */
     private String javaLibraryPath;
+
+    /** The java virtual machine arguments. */
+    private List<String> jvmArgs;
 
     /** The main class arguments. */
     private String[] mainArgs;
@@ -62,122 +94,55 @@ public class Image {
     Image(final String image) {
         super();
         this.rootDirectory = new File(Directories.ThinkParity.Directory, image);
-        ThinkParity.checkFileExists(rootDirectory);
+        ThinkParity.checkFile(rootDirectory);
         this.properties = new Properties();
         this.propertiesFile = new File(rootDirectory, FileNames.ThinkParityImageProperties);
-        ThinkParity.checkFileExists(propertiesFile);
+        ThinkParity.checkFile(propertiesFile);
     }
 
     /**
-     * Execute the image.  Ensure the image is mounted; build the class and
-     * library paths then invoke the main class.
-     *
+     * Execute the image. An image is executed by staring a new process that
+     * will execute the virtual machine.
+     * 
      */
-    void execute2() {
+    void execute() {
         if (!isMounted())
             throw new IllegalStateException("Image not mounted.");
         // set last run property
         final Calendar lastRun = Calendar.getInstance();
         setProperty(PropertyNames.ThinkParity.ImageLastRun, DateFormats.ImageLastRun.format(lastRun.getTime()));
-        // set library path
-        setSystemProperty(PropertyNames.System.JavaLibraryPath, javaLibraryPath);
-        // set product
-        setSystemProperty(PropertyNames.ThinkParity.ProductName, properties);
-        // set release
-        setSystemProperty(PropertyNames.ThinkParity.ReleaseName, properties);
         // store image configuration
         try {
             storeProperties();
         } catch (final IOException iox) {
             throw new ThinkParityException("Could not save image configuration.", iox);
         }
-        // execute
-        final ClassLoader classLoader = URLClassLoader.newInstance(classPath,
-                Thread.currentThread().getContextClassLoader());
-        Thread.currentThread().setContextClassLoader(classLoader);
+        // execute a new vm
         try {
-            final Class<?> mainClass = classLoader.loadClass(mainClassName);
-            final Method mainMethod = mainClass.getMethod("main", new Class[] {mainArgs.getClass()});
-            mainMethod.invoke(null, new Object[] {mainArgs});
-        } catch (final ClassNotFoundException cnfx) {
-            throw new ThinkParityException("Could not execute image.", cnfx);
-        } catch (final NoSuchMethodException nsmx) {
-            throw new ThinkParityException("Could not execute image.", nsmx);
-        } catch(final IllegalAccessException iax) {
-            throw new ThinkParityException("Could not execute image.", iax);
-        } catch (final InvocationTargetException itx) {
-            throw new ThinkParityException("Could not execute image.", itx);
-        }
-    }
-
-    
-    /**
-     * Execute the image.  Ensure the image is mounted; build the class and
-     * library paths then invoke the main class.
-     *
-     */
-    void execute() {
-        if (true)
-            execute2();
-        else {
-            if (!isMounted())
-                throw new IllegalStateException("Image not mounted.");
-            // set last run property
-            final Calendar lastRun = Calendar.getInstance();
-            setProperty(PropertyNames.ThinkParity.ImageLastRun, DateFormats.ImageLastRun.format(lastRun.getTime()));
-            // set library path
-            setSystemProperty(PropertyNames.System.JavaLibraryPath, javaLibraryPath);
-            // set product
-            setSystemProperty(PropertyNames.ThinkParity.ProductName, properties);
-            // set release
-            setSystemProperty(PropertyNames.ThinkParity.ReleaseName, properties);
-            // store image configuration
-            try {
-                storeProperties();
-            } catch (final IOException iox) {
-                throw new ThinkParityException("Could not save image configuration.", iox);
+            final JVMUtil jvmUtil = JVMUtil.getInstance();
+            final List<String> jvmArgs = new ArrayList<String>();
+            if (null != javaLibraryPath)
+                jvmArgs.add(formatSystemProperty(PropertyNames.System.JavaLibraryPath, javaLibraryPath));
+            jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.Directory, System.getProperties()));
+            jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.Executable, jvmUtil.getExecutable().getAbsolutePath()));
+            jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.ProductName, properties));
+            jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.ReleaseName, properties));
+            jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.ReleaseOs, properties));
+            jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.Environment, System.getProperties()));
+            jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.Mode, System.getProperties()));
+            jvmArgs.addAll(this.jvmArgs);
+            final String[] jvmArgsArray = jvmArgs.toArray(new String[] {});
+            jvmUtil.print(rootDirectory, jvmArgsArray, classPath, mainClassName,
+                    mainArgs);
+            final Process process = jvmUtil.execute(rootDirectory, jvmArgsArray,
+                    classPath, mainClassName, mainArgs);
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while (null != (line = reader.readLine())) {
+                System.out.println(line);
             }
-    
-            final ProcessBuilder processBuilder = new ProcessBuilder();
-            final Process process;
-            try {
-                // update the environment path to include the java library path
-                final Map<String, String> environment = processBuilder.environment();
-                final StringBuilder path = new StringBuilder(environment.get("PATH"));
-                path.insert(0, File.pathSeparatorChar);
-                path.insert(0, javaLibraryPath);
-                environment.put("PATH", path.toString());
-                // set the command
-                processBuilder.command("", "");
-                
-                
-                
-                
-                    
-                    
-                    
-                    process = processBuilder.start();
-                } catch (final IOException iox) {
-                    throw new ThinkParityException("Could not execute image.", iox);
-                }
-    
-            // execute
-            final ClassLoader classLoader = URLClassLoader.newInstance(classPath,
-                    Thread.currentThread().getContextClassLoader());
-            Thread.currentThread().setContextClassLoader(classLoader);
-            try {
-                final Class<?> mainClass = classLoader.loadClass(mainClassName);
-                final Method mainMethod = mainClass.getMethod("main", new Class[] {mainArgs.getClass()});
-                mainMethod.invoke(null, new Object[] {mainArgs});
-            } catch (final ClassNotFoundException cnfx) {
-                throw new ThinkParityException("Could not execute image.", cnfx);
-            } catch (final NoSuchMethodException nsmx) {
-                throw new ThinkParityException("Could not execute image.", nsmx);
-            } catch(final IllegalAccessException iax) {
-                throw new ThinkParityException("Could not execute image.", iax);
-            } catch (final InvocationTargetException itx) {
-                throw new ThinkParityException("Could not execute image.", itx);
-            }
+        } catch (final Exception x) {
+            throw new ThinkParityException("Could not execute image.", x);
         }
     }
 
@@ -195,38 +160,86 @@ public class Image {
         } catch (final IOException iox) {
             throw new ThinkParityException("", iox);
         }
-        // thinkparity.image-classpath
-        ThinkParity.checkProperty(properties, PropertyNames.ThinkParity.ImageClassPath);
-        final StringTokenizer classPath = new StringTokenizer(properties.getProperty(PropertyNames.ThinkParity.ImageClassPath), ",");
-        final List<URL> imageClassPath = new ArrayList<URL>();
-        while(classPath.hasMoreTokens()) {
-            try {
-                imageClassPath.add(new File(rootDirectory, classPath.nextToken()).toURI().toURL());
-            } catch (final MalformedURLException murlx) {
-                throw new ThinkParityException("", murlx);
+        StringTokenizer tokenizer;
+        String token;
+
+        // thinkparity.image-jvmargs
+        jvmArgs = new ArrayList<String>();
+        if (properties.containsKey(PropertyNames.ThinkParity.ImageJVMArgs)) {
+            tokenizer = new StringTokenizer(properties.getProperty(PropertyNames.ThinkParity.ImageJVMArgs), ",");
+            while (tokenizer.hasMoreTokens()) {
+                token = tokenizer.nextToken();
+                if (!token.contains("=")) {
+                    System.err.println("Invalid jvm arg format " + token + ".");
+                    System.exit(1);
+                }
+                jvmArgs.add("-D" + token);
             }
         }
-        this.classPath = imageClassPath.toArray(new URL[] {});
+
+        // thinkparity.image-libararypath
+        if (properties.containsKey(PropertyNames.ThinkParity.ImageLibraryPath)) {
+            final StringBuffer imageLibraryPath = new StringBuffer();
+            tokenizer = new StringTokenizer(properties.getProperty(PropertyNames.ThinkParity.ImageLibraryPath), ",");
+            File libraryPathDirectory;
+            while (tokenizer.hasMoreTokens()) {
+                token = tokenizer.nextToken().replace('/', File.separatorChar);
+                libraryPathDirectory = new File(rootDirectory, token);
+                if (!libraryPathDirectory.exists()) {
+                    System.err.println(MessageFormat.format("Library path directory {0} does not exist.", libraryPathDirectory));
+                    System.exit(1);
+                }
+                if (!libraryPathDirectory.isDirectory()) {
+                    System.err.println(MessageFormat.format("Library path directory {0} is not a directory.", libraryPathDirectory));
+                    System.exit(1);
+                }
+                if (!libraryPathDirectory.canRead()) {
+                    System.err.println(MessageFormat.format("Library path directory {0} cannot be read.", libraryPathDirectory));
+                    System.exit(1);
+                }
+                imageLibraryPath.append(libraryPathDirectory.getAbsolutePath());
+                if (tokenizer.hasMoreTokens()) {
+                    imageLibraryPath.append(File.pathSeparator);
+                }
+            }
+            this.javaLibraryPath = imageLibraryPath.toString();
+        } else {
+            this.javaLibraryPath = null;
+        }
+
+        // thinkparity.image-classpath
+        ThinkParity.checkProperty(properties, PropertyNames.ThinkParity.ImageClassPath);
+        tokenizer = new StringTokenizer(properties.getProperty(PropertyNames.ThinkParity.ImageClassPath), ",");
+        final List<String> imageClassPath = new ArrayList<String>();
+        File classPathFile;
+        while (tokenizer.hasMoreTokens()) {
+            token = tokenizer.nextToken().replace('/', File.separatorChar);
+            classPathFile = new File(rootDirectory, token);
+            if (!classPathFile.exists()) {
+                System.err.println("Classpath file " + classPathFile.getName() + " was not found.");
+                System.exit(1);
+            }
+            if (!classPathFile.canRead()) {
+                System.err.println("Classpath file " + classPathFile.getName() + " could not be read.");
+                System.exit(1);
+            }
+            imageClassPath.add(token);
+        }
+        this.classPath = imageClassPath.toArray(new String[] {});
+
         // thinkparity.image-main
         ThinkParity.checkProperty(properties, PropertyNames.ThinkParity.ImageMain);
         mainClassName = properties.getProperty(PropertyNames.ThinkParity.ImageMain);
+
         // thinkparity.image-mainargs
-        ThinkParity.checkProperty(properties, PropertyNames.ThinkParity.ImageMainArgs);
-        final StringTokenizer mainArgs = new StringTokenizer(properties.getProperty(PropertyNames.ThinkParity.ImageMainArgs), ",");
         final List<String> imageMainArgs = new ArrayList<String>();
-        while(mainArgs.hasMoreTokens()) {
-            imageMainArgs.add(mainArgs.nextToken());
+        if (properties.containsKey(PropertyNames.ThinkParity.ImageMainArgs)) {
+            tokenizer = new StringTokenizer(properties.getProperty(PropertyNames.ThinkParity.ImageMainArgs), ",");
+            while (tokenizer.hasMoreTokens()) {
+                imageMainArgs.add(tokenizer.nextToken());
+            }
         }
         this.mainArgs = imageMainArgs.toArray(new String[] {});
-        // thinkparity.image-libararypath
-        ThinkParity.checkProperty(properties, PropertyNames.ThinkParity.ImageLibraryPath);
-        final StringTokenizer libraryPath = new StringTokenizer(properties.getProperty(PropertyNames.ThinkParity.ImageLibraryPath), ",");
-        final StringBuffer imageLibraryPath = new StringBuffer();
-        while(libraryPath.hasMoreTokens()) {
-            imageLibraryPath.append(new File(rootDirectory, libraryPath.nextToken()).getAbsolutePath());
-            if(libraryPath.hasMoreTokens()) { imageLibraryPath.append(File.pathSeparator); }
-        }
-        this.javaLibraryPath = imageLibraryPath.toString();
     }
 
     /**
@@ -258,31 +271,6 @@ public class Image {
      */
     private void setProperty(final String key, final String value) {
         properties.setProperty(key, value);
-    }
-
-
-    /**
-     * Set an system property.
-     * 
-     * @param key
-     *            A property key <code>String</code>.
-     * @param source
-     *            A property source <code>Properties</code>.
-     */
-    private void setSystemProperty(final String key, final Properties source) {
-        System.setProperty(key, source.getProperty(key));
-    }
-
-    /**
-     * Set an system property.
-     * 
-     * @param key
-     *            A property key <code>String</code>.
-     * @param value
-     *            A property value <code>String</code>.
-     */
-    private void setSystemProperty(final String key, final String value) {
-        System.setProperty(key, value);
     }
 
     /**

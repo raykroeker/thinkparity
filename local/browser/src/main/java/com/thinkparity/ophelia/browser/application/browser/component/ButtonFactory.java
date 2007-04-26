@@ -3,8 +3,9 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.component;
 
+import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 import javax.swing.Action;
@@ -21,65 +22,30 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity OpheliaUI Button Factory<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.7
  */
-public class ButtonFactory extends ComponentFactory {
+public final class ButtonFactory extends ComponentFactory {
 
-	/**
-	 * Singleton instance.
-	 * 
-	 */
-	private static final ButtonFactory singleton;
+	/** A SINGLETON button factory. */
+    private static final ButtonFactory SINGLETON;
 
-	/**
-	 * Singleton synchronization lock.
-	 * 
-	 */
-	private static final Object singletonLock;
-
-	static {
-		singleton = new ButtonFactory();
-		singletonLock = new Object();
-	}
-    
-    /** An action registry. */
-    private final ActionRegistry actionRegistry;
-
-    /** The action wrapper registry. */
-    private final Map<ActionId, ActionWrapper> wrapperRegistry;
-
-    /** Create ButtonFactory. */
-    private ButtonFactory() {
-        super();
-        this.actionRegistry = new ActionRegistry();
-        this.wrapperRegistry = new HashMap<ActionId, ActionWrapper>(ActionId.values().length, 1.0F);
+    static {
+        SINGLETON = new ButtonFactory();
     }
 
-	/**
-	 * Create a JButton.
-	 * 
-	 * @return The JButton.
-	 */
-	public static JButton create() {
-		synchronized(singletonLock) { return singleton.doCreate(); }
-	}
+    /**
+     * Create a JButton.
+     * 
+     * @return The JButton.
+     */
+    public static JButton create() {
+        return SINGLETON.doCreate();
+    }
 
-	public static JButton create(final Icon icon) {
-		synchronized(singletonLock) { return singleton.doCreate(icon); }
-	}
-
-	/**
-	 * Create a JButton with the specified text.
-	 * 
-	 * @param text
-	 *            The button text.
-	 * @return The JButton.
-	 */
-	public static JButton create(final String text) { 
-		synchronized(singletonLock) { return singleton.doCreate(text); }
-	}
-    
     /**
      * Create a JButton for an action and its data.
      * 
@@ -89,46 +55,69 @@ public class ButtonFactory extends ComponentFactory {
      *            The action data.
      * @return The JButton
      */
-    public static JButton create(final ActionId actionId,
-            final Data data) {
-        return singleton.doCreate(actionId, data);
+    public static JButton create(final ActionId actionId, final Data data) {
+        return SINGLETON.doCreate(actionId, data);
     }
 
-	private void applyIcon(final JButton jButton, final Icon icon) {
-		jButton.setIcon(icon);
-	}
+    /**
+     * Create a button and apply a font.
+     * 
+     * @param font
+     *            A <code>Font</code>.
+     * @return A <code>JButton</code>.
+     */
+    public static JButton create(final Font font) {
+        return SINGLETON.doCreate(font);
+    }
 
-	/**
-	 * Create a JButton.
-	 * 
-	 * @return The JButton.
-	 */
-	private JButton doCreate() {
-		final JButton jButton = new JButton();
-		applyDefaultFont(jButton);
+    public static JButton create(final Icon icon) {
+        return SINGLETON.doCreate(icon);
+    }
+
+    /**
+     * Create a JButton with the specified text.
+     * 
+     * @param text
+     *            The button text.
+     * @return The JButton.
+     */
+    public static JButton create(final String text) {
+        return SINGLETON.doCreate(text);
+    }
+
+    /** An action registry. */
+    private final ActionRegistry actionRegistry;
+
+    /** The action wrapper registry. */
+    private final Map<ActionId, ActionWrapper> wrapperRegistry;
+
+    /**
+     * Create ButtonFactory.
+     * 
+     */
+    private ButtonFactory() {
+        super();
+        this.actionRegistry = new ActionRegistry();
+        this.wrapperRegistry = new Hashtable<ActionId, ActionWrapper>(
+                ActionId.values().length, 1.0F);
+    }
+
+    private void applyIcon(final JButton jButton, final Icon icon) {
+        jButton.setIcon(icon);
+    }
+
+    /**
+     * Create a JButton.
+     * 
+     * @return The JButton.
+     */
+    private JButton doCreate() {
+        final JButton jButton = new JButton();
+        applyDefaultFont(jButton);
         jButton.setOpaque(false);
-		return jButton;
-	}
+        return jButton;
+    }
 
-	private JButton doCreate(final Icon imageIcon) {
-		final JButton jButton = doCreate();
-		applyIcon(jButton, imageIcon);
-		return jButton;
-	}
-
-	/**
-	 * Create a JButton with the specified text.
-	 * 
-	 * @param text
-	 *            The button text.
-	 * @return The JButton.
-	 */
-	private JButton doCreate(final String text) {
-		final JButton jButton = doCreate();
-		jButton.setText(text);
-		return jButton;
-	}
-    
     /**
      * Create a button associated with an action id.
      * 
@@ -153,11 +142,43 @@ public class ButtonFactory extends ComponentFactory {
             actionWrapper = wrapperRegistry.get(actionId);
         }
         actionWrapper.setData(data);
-        JButton button = new JButton(actionWrapper);     
-       
+        JButton button = new JButton(actionWrapper);
+
         return button;
     }
-    
+
+    /**
+     * Create a button and apply a font.
+     * 
+     * @param font
+     *            A <code>Font</code>.
+     * @return A <code>JButton</code>.
+     */
+    private JButton doCreate(final Font font) {
+        final JButton jButton = doCreate();
+        applyFont(jButton, font);
+        return jButton;
+    }
+
+    private JButton doCreate(final Icon imageIcon) {
+        final JButton jButton = doCreate();
+        applyIcon(jButton, imageIcon);
+        return jButton;
+    }
+
+    /**
+     * Create a JButton with the specified text.
+     * 
+     * @param text
+     *            The button text.
+     * @return The JButton.
+     */
+    private JButton doCreate(final String text) {
+        final JButton jButton = doCreate();
+        jButton.setText(text);
+        return jButton;
+    }
+
     /**
      * A wrapper class for executing thinkParity actions from a popup menu.
      * 
@@ -185,7 +206,8 @@ public class ButtonFactory extends ComponentFactory {
             super();
             this.action = action;
             this.data = null;
-            putValue(Action.NAME, action.isSetName() ? action.getName() : "!No name set.!");
+            putValue(Action.NAME, action.isSetName() ? action.getName()
+                    : "!No name set.!");
         }
 
         /**
@@ -195,7 +217,7 @@ public class ButtonFactory extends ComponentFactory {
         public void actionPerformed(final ActionEvent e) {
             try {
                 action.invokeAction(data);
-            } catch(final Throwable t) {
+            } catch (final Throwable t) {
                 ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER))
                         .displayErrorDialog(t);
             }

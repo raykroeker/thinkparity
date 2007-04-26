@@ -32,7 +32,6 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.Collapse;
 import com.thinkparity.ophelia.browser.platform.action.container.Delete;
 import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
 import com.thinkparity.ophelia.browser.platform.action.container.Expand;
@@ -83,11 +82,6 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
         final boolean online = isOnline();
         boolean needSeparator = false;
 
-        if (!expanded) {
-            addExpand(container.getId());
-            addSeparator();
-        }
-
         // restore
         if (online) {
             final Data archiveData = new Data(1);
@@ -115,12 +109,6 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
         final Data exportData = new Data(1);
         exportData.set(com.thinkparity.ophelia.browser.platform.action.container.Export.DataKey.CONTAINER_ID, container.getId());
         addWithExpand(ActionId.CONTAINER_EXPORT, exportData, container);
-
-        // collapse
-        if (expanded) {
-            addSeparator();
-            addCollapse(container.getId());
-        }
 
         // debugging info
         if (model.isDevelopmentMode()) {
@@ -246,39 +234,7 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
             add(ActionId.DOCUMENT_PRINT_VERSION, documentView.getDocumentName(), documentVersionPrintData);           
         }
 
-        // Collapse
-        if (documentViewsNotDeleted.size() > 0) {
-            addSeparator();
-        }
-        addCollapse(version.getArtifactId());
-
         show();
-    }
-
-    /**
-     * Add the "collapse" menu.
-     * 
-     * @param containerId
-     *            A <code>Long</code>.
-     */
-    private void addCollapse(final Long containerId) {
-        final Data collapseData = new Data(2);
-        collapseData.set(Collapse.DataKey.CONTAINER_ID, containerId);
-        collapseData.set(Collapse.DataKey.ARCHIVE_TAB, Boolean.TRUE);
-        add(ActionId.CONTAINER_COLLAPSE, collapseData);
-    }
-
-    /**
-     * Add the "expand" menu.
-     * 
-     * @param containerId
-     *            A <code>Long</code>.
-     */
-    private void addExpand(final Long containerId) {
-        final Data expandData = new Data(2);
-        expandData.set(Expand.DataKey.CONTAINER_ID, containerId);
-        expandData.set(Expand.DataKey.ARCHIVE_TAB, Boolean.TRUE);
-        add(ActionId.CONTAINER_EXPAND, expandData);
     }
 
     /**

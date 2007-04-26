@@ -62,24 +62,11 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
      */
     public void showForContact(final Contact contact, final boolean expanded) {
         final boolean online = isOnline();
-        if (!expanded) {
-            addExpand(contact.getId());
-            if (online) {
-                addSeparator();
-            }
-        }
 
         if (online) {
             final Data deleteData = new Data(1);
             deleteData.set(Delete.DataKey.CONTACT_ID, contact.getId());
             add(ActionId.CONTACT_DELETE, deleteData);
-        }
-
-        if (expanded) {
-            if (online) {
-                addSeparator();
-            }
-            addCollapse(contact.getId());
         }
 
         show();
@@ -158,12 +145,6 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
      */
     public void showForProfile(final Profile profile, final boolean expanded) {
         final boolean online = isOnline();
-        if (!expanded) {
-            addExpand(profile.getId());
-            if (online) {
-                addSeparator();
-            }
-        }        
 
         if (online) {
             final Data profileData = new Data(1);
@@ -175,38 +156,7 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
             addWithExpand(ActionId.PROFILE_UPDATE_PASSWORD, updateProfileData, profile.getId());
         }
 
-        if (expanded) {
-            if (online) {
-                addSeparator();
-            }
-            addCollapse(profile.getId());
-        }
-
         show();
-    }
-
-    /**
-     * Add the "collapse" menu.
-     * 
-     * @param contactId
-     *            A <code>JabberId</code>.
-     */
-    private void addCollapse(final JabberId contactId) {
-        final Data collapseData = new Data(1);
-        collapseData.set(Collapse.DataKey.CONTACT_ID, contactId);
-        add(ActionId.CONTACT_COLLAPSE, collapseData);
-    }
-
-    /**
-     * Add the "expand" menu.
-     * 
-     * @param contactId
-     *            A <code>JabberId</code>.
-     */
-    private void addExpand(final JabberId contactId) {
-        final Data expandData = new Data(1);
-        expandData.set(Expand.DataKey.CONTACT_ID, contactId);
-        add(ActionId.CONTACT_EXPAND, expandData);
     }
 
     /**

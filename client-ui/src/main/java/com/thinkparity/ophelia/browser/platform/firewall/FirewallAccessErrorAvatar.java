@@ -3,7 +3,13 @@
  */
 package com.thinkparity.ophelia.browser.platform.firewall;
 
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+
 import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
@@ -32,7 +38,12 @@ public final class FirewallAccessErrorAvatar extends Avatar {
      *
      */
     public FirewallAccessErrorAvatar() {
-        super(AvatarId.DIALOG_PLATFORM_FIREWALL_ACCESS_ERROR);
+        super("FirewallAccessErrorAvatar");
+        bindEscapeKey("Cancel", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                cancelJButtonActionPerformed(e);
+            }
+        });
         initComponents();
     }
     
@@ -63,6 +74,28 @@ public final class FirewallAccessErrorAvatar extends Avatar {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#paintComponent(java.awt.Graphics)
+     * 
+     */
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        // These images help to make the rounded corners look good.
+        // Note that top left and top right are drawn by the window title.
+        g.drawImage(Images.BrowserTitle.DIALOG_BOTTOM_LEFT,
+                0,
+                getSize().height - Images.BrowserTitle.DIALOG_BOTTOM_LEFT.getHeight(),
+                Images.BrowserTitle.DIALOG_BOTTOM_LEFT.getWidth(),
+                Images.BrowserTitle.DIALOG_BOTTOM_LEFT.getHeight(), this);
+        g.drawImage(Images.BrowserTitle.DIALOG_BOTTOM_RIGHT,
+                getSize().width - Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getWidth(),
+                getSize().height - Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getHeight(),
+                Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getWidth(),
+                Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getHeight(), this);
+    }
+
+    /**
      * Set the firewall helper.
      * 
      * @param firewallHelper
@@ -83,7 +116,7 @@ public final class FirewallAccessErrorAvatar extends Avatar {
         final javax.swing.JLabel messageJLabel = LabelFactory.create(Fonts.DialogFont);
         final javax.swing.JLabel learnMoreJLabel = LabelFactory.createLink("", Fonts.DialogFont);
         final javax.swing.JButton continueJButton = ButtonFactory.create(Fonts.DialogButtonFont);
-        final javax.swing.JButton cancelJButton = new javax.swing.JButton();
+        final javax.swing.JButton cancelJButton = ButtonFactory.create(Fonts.DialogButtonFont);
 
         welcomeJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("FirewallAccessErrorAvatar.WelcomeLabel"));
 
@@ -150,7 +183,7 @@ public final class FirewallAccessErrorAvatar extends Avatar {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cancelJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_cancelJButtonActionPerformed
-// TODO add your handling code here:
+        disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
 
     private void learnMoreJLabelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_learnMoreJLabelMousePressed

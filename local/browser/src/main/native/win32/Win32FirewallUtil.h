@@ -71,13 +71,13 @@ class Win32Firewall {
             }
         }
 
-		/**
-		 * Add an executable to the firewall exception list.
-		 *
-		 * @param name A <code>CComBSTR</code> exception entry name.
-		 * @param path A <code>CComBSTR</code> exception entry path.
-		 * @return True if the excutable was added, false othwerwise.
-		 */
+        /**
+         * Add an executable to the firewall exception list.
+         *
+         * @param name A <code>CComBSTR</code> exception entry name.
+         * @param path A <code>CComBSTR</code> exception entry path.
+         * @return True if the excutable was added, false othwerwise.
+         */
         bool addExecutable(CComBSTR, CComBSTR);
 
         /**
@@ -111,13 +111,13 @@ class Win32Firewall {
          */
         bool isExecutableEnabled(CComBSTR);
 
-		/**
-		 * Remove an executable from the firewall.
-		 *
-		 * @param path A <code>CComBSTR</code> path to the executable.
-		 * @return True if the executable could be removed, false
-		 *		otherwise.
-		 */
+        /**
+         * Remove an executable from the firewall.
+         *
+         * @param path A <code>CComBSTR</code> path to the executable.
+         * @return True if the executable could be removed, false
+         *      otherwise.
+         */
         bool removeExecutable(CComBSTR);
 
     private:
@@ -179,7 +179,7 @@ jboolean isExecutableEnabled(JNIEnv*, jstring);
  * @param env A <code>JNIEnv*</code> jni environment.
  * @param path A <code>jstring</code> path to the executable.
  * @return True if the executable could be removed, false
- *		otherwise.
+ *      otherwise.
  */
 jboolean removeExecutable(JNIEnv*, jstring);
 

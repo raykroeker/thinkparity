@@ -8,6 +8,7 @@ import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.util.firewall.FirewallAccessException;
 import com.thinkparity.ophelia.browser.util.firewall.FirewallUtil;
 import com.thinkparity.ophelia.browser.util.firewall.FirewallUtilProvider;
+import com.thinkparity.ophelia.browser.util.swing.OpheliaJFrame;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI <br>
@@ -18,11 +19,14 @@ import com.thinkparity.ophelia.browser.util.firewall.FirewallUtilProvider;
  */
 public final class FirewallHelper implements Runnable {
 
+    /** A flag indicating whether or not the rules have been added. */
+    private boolean firewallRulesAdded;
+
     /** A generic platform specific <code>FirewallUtil</code>. */
     private final FirewallUtil firewallUtil;
 
-    /** A <code>FirewallAccessErrorWindow</code>. */
-    private FirewallAccessErrorWindow window;
+    /** A <code>OpheliaJFrame</code>. */
+    private OpheliaJFrame window;
 
     /**
      * Create FirewallHelper.
@@ -31,6 +35,16 @@ public final class FirewallHelper implements Runnable {
     public FirewallHelper(final Platform platform) {
         super();
         this.firewallUtil = FirewallUtilProvider.getInstance();
+        this.firewallRulesAdded = false;
+    }
+
+    /**
+     * Deterine whether or not the firewall rules were added.
+     * 
+     * @return True if the firewall rules were added.
+     */
+    public Boolean didAddFirewallRules() {
+        return Boolean.valueOf(firewallRulesAdded);
     }
 
     /**
@@ -59,6 +73,7 @@ public final class FirewallHelper implements Runnable {
      */
     void addFirewallRules() throws FirewallAccessException {
         firewallUtil.addExecutable(Constants.Files.EXECUTABLE);
+        firewallRulesAdded = true;
         Runtime.getRuntime().addShutdownHook(new Thread("TPS-OpheliaUI-FirewallRules") {
             @Override
             public void run() {
@@ -67,10 +82,15 @@ public final class FirewallHelper implements Runnable {
         });
     }
 
-    private FirewallAccessErrorWindow getWindow() {
+    /**
+     * Obtain the firewall access error window.
+     * 
+     * @return An <code>OpheliaJFrameWindow</code>.
+     */
+    private OpheliaJFrame getWindow() {
         if (null == window) {
             window = new FirewallAccessErrorWindow();
-            window.setFirewallHelper(this);
+            ((FirewallAccessErrorWindow) window).setFirewallHelper(this);
         }
         return window;
     }

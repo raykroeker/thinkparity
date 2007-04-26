@@ -180,8 +180,13 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         this.environment = environment;
         this.mode = mode;
 
-        this.listenerHelper = new ListenerHelper(this);
-        new FirewallHelper(this).run();
+        /* NOTE BrowserPlatform#init() - doesn't seem quite right to force an
+         * exit here but works like a charm */
+        final FirewallHelper firewallHelper = new FirewallHelper(this);
+        firewallHelper.run();
+        if (!firewallHelper.didAddFirewallRules())
+            System.exit(1);
+
         this.workspace = WorkspaceModel.getInstance(
                 environment).getWorkspace(new File(profile.getParityWorkspace()));
         new BrowserPlatformInitializer(this).initialize(workspace);
@@ -197,6 +202,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
 		this.persistence = new BrowserPlatformPersistence(this);
 
         this.firstRunHelper = new FirstRunHelper(this);
+        this.listenerHelper = new ListenerHelper(this);
         this.onlineHelper = new OnlineHelper(this);
         this.pluginHelper = new PluginHelper(this);
         this.migratorHelper = new MigratorHelper(this);

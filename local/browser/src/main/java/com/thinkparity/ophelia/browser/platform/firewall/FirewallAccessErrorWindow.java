@@ -1,20 +1,37 @@
 /*
- * FirewallAccessErrorWindow.java
- *
  * Created on April 25, 2007, 4:08 PM
  */
-
 package com.thinkparity.ophelia.browser.platform.firewall;
 
+import com.thinkparity.ophelia.browser.platform.application.window.WindowPanel;
+import com.thinkparity.ophelia.browser.platform.application.window.WindowTitle;
 import com.thinkparity.ophelia.browser.util.swing.OpheliaJFrame;
 
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 public final class FirewallAccessErrorWindow extends OpheliaJFrame {
+
+    /** The <code>FirewallAccessErrorAvatar</code>. */
+    private FirewallAccessErrorAvatar avatar;
+
+    /** The window panel. */
+    private final WindowPanel windowPanel;
+
+    /**
+     * Create FirewallAccessErrorWindow.
+     *
+     */
+    public FirewallAccessErrorWindow() {
+        super("FirewallAccesError");
+        this.windowPanel = new WindowPanel();
+        this.windowPanel.getWindowTitle().setBorderType(WindowTitle.BorderType.WINDOW_BORDER2);
+        initComponents();
+    }
 
     /**
      * Set the firewall helper.
@@ -23,16 +40,7 @@ public final class FirewallAccessErrorWindow extends OpheliaJFrame {
      *            A <code>FirewallHelper</code>.
      */
     public void setFirewallHelper(final FirewallHelper firewallHelper) {
-        firewallAccessErrorAvatar.setFirewallHelper(firewallHelper);
-    }
-
-    /**
-     * Create FirewallAccessErrorWindow.
-     *
-     */
-    public FirewallAccessErrorWindow() {
-        super("FirewallAccesError");
-        initComponents();
+        avatar.setFirewallHelper(firewallHelper);
     }
 
     /** This method is called from within the constructor to
@@ -42,23 +50,9 @@ public final class FirewallAccessErrorWindow extends OpheliaJFrame {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(firewallAccessErrorAvatar, javax.swing.GroupLayout.DEFAULT_SIZE, 466, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(firewallAccessErrorAvatar, javax.swing.GroupLayout.DEFAULT_SIZE, 308, Short.MAX_VALUE)
-        );
+        avatar = new FirewallAccessErrorAvatar();
+        windowPanel.addPanel(avatar, Boolean.TRUE);
+        add(windowPanel);
         pack();
-    }// </editor-fold>//GEN-END:initComponents
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final com.thinkparity.ophelia.browser.platform.firewall.FirewallAccessErrorAvatar firewallAccessErrorAvatar = new com.thinkparity.ophelia.browser.platform.firewall.FirewallAccessErrorAvatar();
-    // End of variables declaration//GEN-END:variables
+    }
 }

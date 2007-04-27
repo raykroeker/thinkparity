@@ -214,36 +214,41 @@ public final class ArtifactModelImpl extends Model implements
      */
     public void handlePublished(final ArtifactPublishedEvent event) {
         try {
-            /* update the latest flag only if the event pertains to the latest
-             * version */
             final Long artifactId = readId(event.getUniqueId());
-            if (event.isLatestVersion()) {
-                if (doesVersionExist(artifactId, event.getVersionId())) {
-                    applyFlagLatest(artifactId);
-                } else {
-                    removeFlagLatest(artifactId);
+            if (artifactIO.doesVersionExist(artifactId, event.getVersionId())) {
+                logger.logWarning("Artifact version for event {0} already exists locally.",
+                        event);
+            } else {
+                /* update the latest flag only if the event pertains to the latest
+                 * version */
+                if (event.isLatestVersion()) {
+                    if (doesVersionExist(artifactId, event.getVersionId())) {
+                        applyFlagLatest(artifactId);
+                    } else {
+                        removeFlagLatest(artifactId);
+                    }
                 }
-            }
-            // update local team definition
-            final List<JabberId> localTeamIds = readTeamIds(artifactId);
-            final List<JabberId> eventTeamIds = event.getTeamUserIds();
-            for (final JabberId localTeamId : localTeamIds) {
-                if (!eventTeamIds.contains(localTeamId)) {
-                    removeTeamMember(artifactId, localTeamId);
+                // update local team definition
+                final List<JabberId> localTeamIds = readTeamIds(artifactId);
+                final List<JabberId> eventTeamIds = event.getTeamUserIds();
+                for (final JabberId localTeamId : localTeamIds) {
+                    if (!eventTeamIds.contains(localTeamId)) {
+                        removeTeamMember(artifactId, localTeamId);
+                    }
                 }
-            }
-            for (final JabberId eventTeamId : eventTeamIds) {
-                if (!localTeamIds.contains(eventTeamId)) {
-                    addTeamMember(artifactId, eventTeamId);
+                for (final JabberId eventTeamId : eventTeamIds) {
+                    if (!localTeamIds.contains(eventTeamId)) {
+                        addTeamMember(artifactId, eventTeamId);
+                    }
                 }
-            }
-            switch (readType(artifactId)) {
-            case CONTAINER:
-                getContainerModel().handlePublished(event);
-                break;
-            case DOCUMENT:  // deliberate fall through
-            default:
-                Assert.assertUnreachable("Unexpected artifact type.");
+                switch (readType(artifactId)) {
+                case CONTAINER:
+                    getContainerModel().handlePublished(event);
+                    break;
+                case DOCUMENT:  // deliberate fall through
+                default:
+                    Assert.assertUnreachable("Unexpected artifact type.");
+                }
             }
         } catch (final Throwable t) {
             throw panic(t);

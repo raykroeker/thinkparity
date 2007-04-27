@@ -705,124 +705,127 @@ public final class ContainerModelImpl extends
             final boolean didExist = artifactModel.doesVersionExist(
                     event.getVersion().getArtifactUniqueId(),
                     event.getVersion().getVersionId()).booleanValue();
-            final Container container = handleResolution(event);
-            final ContainerVersion version = handleVersionResolution(event);
-            // handle the documents
-            for (final Entry<DocumentVersion, String> entry :
-                    event.getDocumentVersions().entrySet()) {
-                final ArtifactVersion artifactVersion =
-                    getDocumentModel().handleDocumentPublished(container.getId(),
-                            entry.getKey(), entry.getValue(),
-                            event.getPublishedBy(), event.getPublishedOn());
-                final Long artifactId = getArtifactModel().readId(
-                        entry.getKey().getArtifactUniqueId());
-                logger.logVariable("artifactId", artifactId);
-                if (!containerIO.doesExistVersion(container.getId(),
-                        version.getVersionId(), artifactId,
-                        entry.getKey().getVersionId()).booleanValue()) {
-                    containerIO.addVersion(version.getArtifactId(),
-                            version.getVersionId(),
-                            artifactVersion.getArtifactId(),
-                            artifactVersion.getVersionId(),
-                            artifactVersion.getArtifactType());
-                }
-            }
-            // build published to list
-            final InternalUserModel userModel = getUserModel();
-            final List<JabberId> publishedToIds = new ArrayList<JabberId>(event.getPublishedTo().size());
-            final List<User> publishedToUsers = new ArrayList<User>(event.getPublishedTo().size());
-            for (final User publishedToUser : event.getPublishedTo()) {
-                publishedToIds.add(publishedToUser.getId());
-                publishedToUsers.add(userModel.readLazyCreate(publishedToUser.getId()));
-            }
-            // add only published by user to the team
-            final TeamMember publishedBy;
-            final List<TeamMember> localTeam = artifactModel.readTeam2(container.getId());
-            if (!contains(localTeam, event.getPublishedBy())) {
-                publishedBy = artifactModel.addTeamMember(container.getId(), event.getPublishedBy());
+            if (didExist) {
+                logger.logWarning("Container version for event {0} already exists locally.",
+                        event);
             } else {
-                publishedBy = localTeam.get(indexOf(localTeam, event.getPublishedBy()));
-            }
-            // delete draft
-            final ContainerDraft draft = readDraft(container.getId());
-            if (null == draft) {
-                logger.logInfo("Draft did not previously exist for {0}.",
-                        container.getName());
-            } else {
-                deleteDraft(container.getId());
-            }
-            // create published to list
-            containerIO.createPublishedTo(container.getId(),
-                    version.getVersionId(), publishedToUsers,
-                    event.getPublishedOn());
-            // update the local published to list for the received by list
-            ArtifactReceipt localReceipt;
-            User receivedBy;
-            for (final ArtifactReceipt receipt : event.getReceivedBy()) {
-                receivedBy = userModel.readLazyCreate(receipt.getUser().getId());
-                localReceipt = containerIO.readPublishedToReceipt(
-                    container.getId(), version.getVersionId(),
-                    event.getPublishedOn(), receivedBy);
-                if (null == localReceipt) {
-                    containerIO.createPublishedTo(container.getId(),
-                            version.getVersionId(), receivedBy,
-                            receipt.getPublishedOn());
+                final Container container = handleResolution(event);
+                final ContainerVersion version = handleVersionResolution(event);
+                // handle the documents
+                for (final Entry<DocumentVersion, String> entry :
+                        event.getDocumentVersions().entrySet()) {
+                    final ArtifactVersion artifactVersion =
+                        getDocumentModel().handleDocumentPublished(container.getId(),
+                                entry.getKey(), entry.getValue(),
+                                event.getPublishedBy(), event.getPublishedOn());
+                    final Long artifactId = getArtifactModel().readId(
+                            entry.getKey().getArtifactUniqueId());
+                    logger.logVariable("artifactId", artifactId);
+                    if (!containerIO.doesExistVersion(container.getId(),
+                            version.getVersionId(), artifactId,
+                            entry.getKey().getVersionId()).booleanValue()) {
+                        containerIO.addVersion(version.getArtifactId(),
+                                version.getVersionId(),
+                                artifactVersion.getArtifactId(),
+                                artifactVersion.getVersionId(),
+                                artifactVersion.getArtifactType());
+                    }
                 }
+                // build published to list
+                final InternalUserModel userModel = getUserModel();
+                final List<JabberId> publishedToIds = new ArrayList<JabberId>(event.getPublishedTo().size());
+                final List<User> publishedToUsers = new ArrayList<User>(event.getPublishedTo().size());
+                for (final User publishedToUser : event.getPublishedTo()) {
+                    publishedToIds.add(publishedToUser.getId());
+                    publishedToUsers.add(userModel.readLazyCreate(publishedToUser.getId()));
+                }
+                // add only published by user to the team
+                final TeamMember publishedBy;
+                final List<TeamMember> localTeam = artifactModel.readTeam2(container.getId());
+                if (!contains(localTeam, event.getPublishedBy())) {
+                    publishedBy = artifactModel.addTeamMember(container.getId(), event.getPublishedBy());
+                } else {
+                    publishedBy = localTeam.get(indexOf(localTeam, event.getPublishedBy()));
+                }
+                // delete draft
+                final ContainerDraft draft = readDraft(container.getId());
+                if (null == draft) {
+                    logger.logInfo("Draft did not previously exist for {0}.",
+                            container.getName());
+                } else {
+                    deleteDraft(container.getId());
+                }
+                // create published to list
+                containerIO.createPublishedTo(container.getId(),
+                        version.getVersionId(), publishedToUsers,
+                        event.getPublishedOn());
+                // update the local published to list for the received by list
+                ArtifactReceipt localReceipt;
+                User receivedBy;
+                for (final ArtifactReceipt receipt : event.getReceivedBy()) {
+                    receivedBy = userModel.readLazyCreate(receipt.getUser().getId());
+                    localReceipt = containerIO.readPublishedToReceipt(
+                        container.getId(), version.getVersionId(),
+                        event.getPublishedOn(), receivedBy);
+                    if (null == localReceipt) {
+                        containerIO.createPublishedTo(container.getId(),
+                                version.getVersionId(), receivedBy,
+                                receipt.getPublishedOn());
+                    }
+                    containerIO.updatePublishedTo(container.getId(),
+                            version.getVersionId(), receipt.getPublishedOn(),
+                            receivedBy.getId(), receipt.getReceivedOn());
+                }
+                final InternalSessionModel sessionModel = getSessionModel();
+                final Calendar receivedOn = sessionModel.readDateTime();
                 containerIO.updatePublishedTo(container.getId(),
-                        version.getVersionId(), receipt.getPublishedOn(),
-                        receivedBy.getId(), receipt.getReceivedOn());
-            }
-            final InternalSessionModel sessionModel = getSessionModel();
-            final Calendar receivedOn = sessionModel.readDateTime();
-            containerIO.updatePublishedTo(container.getId(),
-                    version.getVersionId(), event.getPublishedOn(),
-                    localUserId(), receivedOn);
-            // calculate differences
-            final ContainerVersion previous = readPreviousVersion(container.getId(), version.getVersionId());
-            final ContainerVersion next = readNextVersion(container.getId(), version.getVersionId());
-            if (null == previous) {
-                logger.logInfo("First version of {0}.", container.getName());
-            } else {
-                containerIO.deleteDelta(container.getId(), previous.getVersionId(),
-                        version.getVersionId());
-                containerIO.createDelta(calculateDelta(container,
-                        version, previous));
-            }
-            if (null == next) {
-                logger.logInfo("Latest version of {0}.", container.getName());
-            } else {
-                containerIO.deleteDelta(container.getId(),
-                        version.getVersionId(), next.getVersionId());
-                containerIO.createDelta(calculateDelta(container, next,
-                        version));
-            }
-            // index
-            getIndexModel().indexContainer(container.getId());
-            // send confirmation
-            sessionModel.confirmArtifactReceipt(container.getUniqueId(),
-                    version.getVersionId(), event.getPublishedBy(),
-                    event.getPublishedOn(),
-                    /* NOTE this used to read the local team and pass it as a
-                     * parameter; which caused ticket #606
-                     * 
-                     * now the event's published to list is used
-                     * 
-                     * this also causes a publish of an existing version not to
-                     * propogate the distribution chain #555 therefore it was
-                     * changed to use the local published to list
-                     */
-                    USER_UTILS.getIds(containerIO.readPublishedTo(
-                            container.getId(), version.getVersionId()),
-                            new ArrayList<JabberId>()),
-                    localUserId(), receivedOn);
-            // audit\fire event
-            final Container postPublish = read(container.getId());
-            final ContainerVersion postPublishVersion = readVersion(
-                    container.getId(), version.getVersionId());
-            // HACK - should be done by the client however cannot at this point
-            if (!didExist)
+                        version.getVersionId(), event.getPublishedOn(),
+                        localUserId(), receivedOn);
+                // calculate differences
+                final ContainerVersion previous = readPreviousVersion(container.getId(), version.getVersionId());
+                final ContainerVersion next = readNextVersion(container.getId(), version.getVersionId());
+                if (null == previous) {
+                    logger.logInfo("First version of {0}.", container.getName());
+                } else {
+                    containerIO.deleteDelta(container.getId(), previous.getVersionId(),
+                            version.getVersionId());
+                    containerIO.createDelta(calculateDelta(container,
+                            version, previous));
+                }
+                if (null == next) {
+                    logger.logInfo("Latest version of {0}.", container.getName());
+                } else {
+                    containerIO.deleteDelta(container.getId(),
+                            version.getVersionId(), next.getVersionId());
+                    containerIO.createDelta(calculateDelta(container, next,
+                            version));
+                }
+                // index
+                getIndexModel().indexContainer(container.getId());
+                // send confirmation
+                sessionModel.confirmArtifactReceipt(container.getUniqueId(),
+                        version.getVersionId(), event.getPublishedBy(),
+                        event.getPublishedOn(),
+                        /* NOTE this used to read the local team and pass it as a
+                         * parameter; which caused ticket #606
+                         * 
+                         * now the event's published to list is used
+                         * 
+                         * this also causes a publish of an existing version not to
+                         * propogate the distribution chain #555 therefore it was
+                         * changed to use the local published to list
+                         */
+                        USER_UTILS.getIds(containerIO.readPublishedTo(
+                                container.getId(), version.getVersionId()),
+                                new ArrayList<JabberId>()),
+                        localUserId(), receivedOn);
+                // audit\fire event
+                final Container postPublish = read(container.getId());
+                final ContainerVersion postPublishVersion = readVersion(
+                        container.getId(), version.getVersionId());
                 notifyContainerPublished(postPublish, draft, previous,
                         postPublishVersion, next, publishedBy, remoteEventGenerator);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }

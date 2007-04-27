@@ -12,7 +12,24 @@ import javax.swing.Action;
  */
 public interface TabAvatarFilterBy {
 
+    /**
+     * Get the action.
+     * 
+     * @return The <code>Action</code>.
+     */
     public Action getAction();
 
+    /**
+     * Get the unique name.
+     * 
+     * @return The unique name <code>String</code>.
+     */
+    public String getName();
+
+    /**
+     * Get the text (appropriate for a menu).
+     * 
+     * @return The text <code>String</code>.
+     */
     public String getText();
 }

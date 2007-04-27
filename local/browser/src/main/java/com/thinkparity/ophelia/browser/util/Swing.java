@@ -49,6 +49,11 @@ public class Swing {
         defaults.put("MenuItem.selectionForeground", Colors.Swing.MENU_ITEM_SELECTION_FG);
         defaults.put("MenuItem.background", Colors.Swing.MENU_ITEM_BG);
         defaults.put("MenuItem.foreground", Colors.Swing.MENU_ITEM_FG);
+        defaults.put("CheckBoxMenuItem.font", BrowserConstants.Fonts.DefaultFont);
+        defaults.put("CheckBoxMenuItem.selectionBackground", Colors.Swing.MENU_ITEM_SELECTION_BG);
+        defaults.put("CheckBoxMenuItem.selectionForeground", Colors.Swing.MENU_ITEM_SELECTION_FG);
+        defaults.put("CheckBoxMenuItem.background", Colors.Swing.MENU_ITEM_BG);
+        defaults.put("CheckBoxMenuItem.foreground", Colors.Swing.MENU_ITEM_FG);
         defaults.put("Menu.submenuPopupOffsetX", Menus.Swing.SUBMENU_POPUP_OFFSET_X);
         defaults.put("Menu.submenuPopupOffsetY", Menus.Swing.SUBMENU_POPUP_OFFSET_Y);
         defaults.put("PopupMenu.background", Colors.Swing.MENU_BG);

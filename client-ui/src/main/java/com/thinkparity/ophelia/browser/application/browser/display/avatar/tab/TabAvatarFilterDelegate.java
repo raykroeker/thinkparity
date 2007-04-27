@@ -20,7 +20,12 @@ public interface TabAvatarFilterDelegate {
     public List<TabAvatarFilterBy> getFilterBy();
 
     /**
-     * Determine if a filter is currently selected.
+     * Determine if a filter is currently being applied.
      */
     public Boolean isFilterApplied();
+
+    /**
+     * Determine if the specified filter is selected in the menu.
+     */
+    public Boolean isFilterSelected(final TabAvatarFilterBy filterBy);
 }

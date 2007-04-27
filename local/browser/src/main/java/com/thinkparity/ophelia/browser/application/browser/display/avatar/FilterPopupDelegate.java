@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -15,7 +16,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
-import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
 
 /**
  * @author rob_masako@shaw.ca
@@ -83,9 +83,12 @@ public class FilterPopupDelegate extends DefaultPopupDelegate {
      * 
      * @param filterBy
      *            The <code>TabAvatarFilterBy</code>.
+     * @param selected
+     *            The selected <code>Boolean</code>.     
      */
-    private void addFilterBy(final TabAvatarFilterBy filterBy) {
-        final JMenuItem menuItem = new ThinkParityMenuItem(filterBy.getText());
+    private void addFilterBy(final TabAvatarFilterBy filterBy, final Boolean selected) {
+        final JMenuItem menuItem = new JCheckBoxMenuItem(filterBy.getText());
+        menuItem.setSelected(selected);
         menuItem.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 filterBy.getAction().actionPerformed(
@@ -123,7 +126,7 @@ public class FilterPopupDelegate extends DefaultPopupDelegate {
         Assert.assertNotNull("Null filter delegate in filter popup.", filterDelegate);
         Assert.assertNotTrue("Filter popup delegate has no filters.", filterDelegate.getFilterBy().isEmpty());
         for (final TabAvatarFilterBy filterBy : filterDelegate.getFilterBy()) {
-            addFilterBy(filterBy);
+            addFilterBy(filterBy, filterDelegate.isFilterSelected(filterBy));
         }
     }
 

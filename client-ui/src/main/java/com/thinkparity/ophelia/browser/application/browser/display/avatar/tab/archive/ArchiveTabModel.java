@@ -107,6 +107,9 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
                 public String getText() {
                     return getString(filterByValue);
                 }
+                public String getName() {
+                    return filterByValue.toString();
+                }
             });
         }
         return filterBy;
@@ -117,6 +120,13 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      */
     public Boolean isFilterApplied() {
         return (null != filterBy && !filterBy.equals(FilterBy.FILTER_NONE));
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate#isFilterSelected(com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterBy)
+     */
+    public Boolean isFilterSelected(final TabAvatarFilterBy tabAvatarFilterBy) {
+        return (null != this.filterBy && this.filterBy.toString().equals(tabAvatarFilterBy.getName()));
     }
 
     /**

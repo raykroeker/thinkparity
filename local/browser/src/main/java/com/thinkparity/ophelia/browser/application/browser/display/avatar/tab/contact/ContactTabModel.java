@@ -84,6 +84,13 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate#isFilterSelected(com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterBy)
+     */
+    public Boolean isFilterSelected(final TabAvatarFilterBy tabAvatarFilterBy) {
+        return Boolean.FALSE;
+    }
+
+    /**
      * Apply the sort to the filtered list of panels.
      * 
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySort()

@@ -12,44 +12,58 @@ import javax.swing.JMenuItem;
  * @version $Revision$
  */
 public class ThinkParityMenuItem extends JMenuItem implements ThinkParityBasicMenuItem {
-    
+
     /** Flag indicating if this is the last menu item. */
-    Boolean last;
-    
+    private Boolean last;
+
     /** Flag indicating if there is a separator next. */
-    Boolean separatorNext;
-    
+    private Boolean separatorNext;
+
     /** The menu style. */
-    MenuStyle menuStyle;
-    
+    private MenuStyle menuStyle;
+
     /**
+     * Create a think parity menu item.
+     * 
      * @param action
-     *          The action.
+     *            The <code>Action</code>.
      */
     public ThinkParityMenuItem(final Action action) {
         this(action, MenuStyle.NORMAL); 
     }
 
     /**
+     * Create a think parity menu item.
+     * 
      * @param action
-     *          The action.
+     *            The <code>Action</code>.
+     * @param menuStyle
+     *            The <code>MenuStyle</code>.
      */
     public ThinkParityMenuItem(final Action action, final MenuStyle menuStyle) {
         super(action);
         this.last = Boolean.TRUE;
         this.separatorNext = Boolean.FALSE;
         this.menuStyle = menuStyle;
-    }    
+    }
 
     /**
+     * Create a think parity menu item.
+     * 
      * @param text
+     *            The menu text <code>String</code>.
      */
     public ThinkParityMenuItem(final String text) {
         this(text, MenuStyle.NORMAL);
     }
-    
+
     /**
+     * Create a think parity menu item.
+     * 
      * @param text
+     *            The menu text <code>String</code>.
+     * @param menuStyle
+     *            The <code>MenuStyle</code>.
      */
     public ThinkParityMenuItem(final String text, final MenuStyle menuStyle) {
         super(text);
@@ -76,7 +90,7 @@ public class ThinkParityMenuItem extends JMenuItem implements ThinkParityBasicMe
     public void setLast(final Boolean last) {
         this.last = last;
     }
-    
+
     /**
      * Determine if there is a separator next.
      * 
@@ -94,20 +108,22 @@ public class ThinkParityMenuItem extends JMenuItem implements ThinkParityBasicMe
      */
     public void setSeparatorNext(final Boolean separatorNext) {
         this.separatorNext = separatorNext;
-    } 
-    
+    }
+
     /**
-     * Determine the menu style.
+     * Get the menu style.
+     * 
+     * @return The <code>MenuStyle</code>.
      */
     public MenuStyle getMenuStyle() {
         return menuStyle;
     }
-        
+
     /**
      * Set the menu style.
      * 
      * @param menuStyle
-     *          The menu style.
+     *            The <code>MenuStyle</code>.
      */
     public void setMenuStyle(final MenuStyle menuStyle) {
         this.menuStyle = menuStyle;

@@ -75,12 +75,9 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForContainer(com.thinkparity.codebase.model.container.Container,
-     *      com.thinkparity.ophelia.model.container.ContainerDraft, boolean)
-     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForContainer(com.thinkparity.codebase.model.container.Container, com.thinkparity.ophelia.model.container.ContainerDraft)
      */
-    public void showForContainer(final Container container,
-            final ContainerDraft draft, final boolean expanded) {
+    public void showForContainer(final Container container, final ContainerDraft draft) {
         final boolean online = isOnline();
         boolean needSeparator = false;
 
@@ -310,7 +307,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     public void showForPanel(final TabPanel tabPanel) {
         final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
         showForContainer(containerPanel.getContainer(),
-                containerPanel.getDraft(), false);
+                containerPanel.getDraft());
     }
 
     /**

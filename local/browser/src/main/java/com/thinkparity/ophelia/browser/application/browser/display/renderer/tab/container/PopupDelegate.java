@@ -32,11 +32,9 @@ public interface PopupDelegate extends TabPanelPopupDelegate {
      *            A <code>Container</code>.
      * @param draft
      *            A <code>ContainerDraft</code>.
-     * @param expanded
-     *            A <code>boolean</code>.
      */
     public void showForContainer(final Container container,
-            final ContainerDraft draft, final boolean expanded);
+            final ContainerDraft draft);
 
     /**
      * Display a popup menu for a draft.

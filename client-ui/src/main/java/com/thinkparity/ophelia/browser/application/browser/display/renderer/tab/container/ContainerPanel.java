@@ -467,7 +467,7 @@ public class ContainerPanel extends DefaultTabPanel {
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
             tabDelegate.selectPanel(this);
             popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
-            popupDelegate.showForContainer(container, draft, false);
+            popupDelegate.showForContainer(container, draft);
         } else if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.selectPanel(this);
         } else if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
@@ -481,7 +481,7 @@ public class ContainerPanel extends DefaultTabPanel {
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
             tabDelegate.selectPanel(this);
             popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
-            popupDelegate.showForContainer(container, draft, false);
+            popupDelegate.showForContainer(container, draft);
         }
     }//GEN-LAST:event_collapsedJPanelMouseReleased
 
@@ -1093,7 +1093,7 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public void showPopup() {
-            popupDelegate.showForContainer(container, draft, true);
+            popupDelegate.showForContainer(container, draft);
         }
         private void addActiveVersionDocumentCells(
                 final ContainerVersion containerVersion,

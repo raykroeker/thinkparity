@@ -7,6 +7,7 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
 import java.awt.Color;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
@@ -21,6 +22,9 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  */
 public abstract class DefaultSignupPage extends Avatar
         implements SignupPage {
+
+    /** The online <code>Boolean</code>. */
+    private Boolean online;
 
     /** The <code>Platform</code>. */
     protected final Platform platform;
@@ -42,6 +46,7 @@ public abstract class DefaultSignupPage extends Avatar
     public DefaultSignupPage(final String l18nContext, final Color background) {
         super(l18nContext, background);
         this.platform = BrowserPlatform.getInstance();
+        this.online = Boolean.TRUE;
     }
 
     /**
@@ -113,6 +118,51 @@ public abstract class DefaultSignupPage extends Avatar
     @Override
     public void validateInput() {
         super.validateInput();
+    }
+
+    /**
+     * Check if the system is online. The result can be determined
+     * using isOnline(Boolean.FALSE). Note that calling isOnline() is slow
+     * if the system is offline.
+     */
+    protected void checkOnline() {
+        SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
+        isOnline();
+        SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+    }
+
+    /**
+     * Get a shared localization string. Use this method to get strings that are
+     * shared between all pages of the signup wizard.
+     * 
+     * @param localKey
+     *            A localization key <code>String</code>.
+     * @return A localized <code>String</code>.
+     */
+    protected String getSharedString(final String localKey) {
+        return signupDelegate.getSharedLocalization().getString(localKey);
+    }
+
+    /**
+     * Determine if the system is online.
+     * Note that this call can take some time if the system is offline.
+     * 
+     * @return true if the system is online, false otherwise.
+     */
+    protected Boolean isOnline() {
+        online = platform.isXMPPHostReachable();
+        return online;
+    }
+
+    /**
+     * Determine if the system is online.
+     * 
+     * @param refresh
+     *            A refresh <code>Boolean</code>.
+     * @return true if the system is online, false otherwise.
+     */
+    protected Boolean isOnline(final Boolean refresh) {
+        return (refresh ? isOnline() : online);
     }
 
     /**

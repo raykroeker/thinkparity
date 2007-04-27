@@ -24,6 +24,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Avatar
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowTitle;
 import com.thinkparity.ophelia.browser.platform.util.State;
+import com.thinkparity.ophelia.browser.util.localization.Localization;
 
 /**
  *
@@ -80,6 +81,13 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
      */
     public void enableNextButton(final Boolean enable) {
         nextJButton.setEnabled(enable);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate#getSharedLocalization()
+     */
+    public Localization getSharedLocalization() {
+        return getLocalization();
     }
 
     /**

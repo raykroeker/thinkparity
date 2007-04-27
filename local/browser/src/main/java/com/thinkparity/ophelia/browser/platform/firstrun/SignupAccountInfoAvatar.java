@@ -134,8 +134,13 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         if (!isInputValid()) {
             return Boolean.FALSE;
         }
+        checkOnline();
+        if (!isOnline(Boolean.FALSE)) {
+            errorMessageJLabel.setText(getSharedString("ErrorOffline"));
+            return Boolean.FALSE;
+        }
         createReservations();
-        // TODO When beta is done, restore these lines of code.
+        // TODO When beta is done, restore these lines of code
         /*
         if (!containsInputErrors() && accountTypeGuestJRadioButton.isSelected()) {
             signupGuest();

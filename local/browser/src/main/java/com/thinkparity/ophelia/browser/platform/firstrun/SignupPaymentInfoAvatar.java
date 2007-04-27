@@ -94,9 +94,12 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
         if (!isInputValid()) {
             return Boolean.FALSE;
         }
-        if (!containsInputErrors()) {
-            signup();
+        checkOnline();
+        if (!isOnline(Boolean.FALSE)) {
+            errorMessageJLabel.setText(getSharedString("ErrorOffline"));
+            return Boolean.FALSE;
         }
+        signup();
         return !containsInputErrors();
     }
 

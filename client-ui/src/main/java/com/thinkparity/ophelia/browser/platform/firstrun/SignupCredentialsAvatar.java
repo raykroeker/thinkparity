@@ -115,6 +115,11 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
         if (!isInputValid()) {
             return Boolean.FALSE;
         }
+        checkOnline();
+        if (!isOnline(Boolean.FALSE)) {
+            errorMessageJLabel.setText(getSharedString("ErrorOffline"));
+            return Boolean.FALSE;
+        }
         if (forgetPasswordJCheckBox.isSelected()) {
             readSecurityQuestion();
             return !containsInputErrors();

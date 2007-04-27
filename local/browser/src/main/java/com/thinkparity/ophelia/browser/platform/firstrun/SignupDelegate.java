@@ -4,6 +4,8 @@
  */
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
+import com.thinkparity.ophelia.browser.util.localization.Localization;
+
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
@@ -25,6 +27,12 @@ public interface SignupDelegate {
      *            Enable <code>Boolean</code>.
      */
     public void enableNextButton(final Boolean enable);
+
+    /**
+     * Get the shared localization. Used for generic messages that are
+     * the same for all pages.
+     */
+    public Localization getSharedLocalization();
 
     /**
      * Determine if signup has been cancelled.

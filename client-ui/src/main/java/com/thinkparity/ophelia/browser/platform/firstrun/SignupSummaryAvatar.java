@@ -87,6 +87,11 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
         if (!isInputValid()) {
             return Boolean.FALSE;
         }
+        checkOnline();
+        if (!isOnline(Boolean.FALSE)) {
+            errorMessageJLabel.setText(getSharedString("ErrorOffline"));
+            return Boolean.FALSE;
+        }
         login();
         return !containsInputErrors();
     }

@@ -125,7 +125,7 @@ public final class Constants {
         public static final class BrowserWindow {
             public static final Point DEFAULT_LOCATION = new Point(100, 100);
             public static final Dimension DEFAULT_SIZE = new Dimension(700, 400);
-            public static final Dimension MIN_SIZE = new Dimension(500, 300);
+            public static final Dimension MIN_SIZE = new Dimension(735, 317);
             public static final class Display {
                 public static final Integer STATUS_HEIGHT = 34;
                 public static final Integer TITLE_HEIGHT = 48;

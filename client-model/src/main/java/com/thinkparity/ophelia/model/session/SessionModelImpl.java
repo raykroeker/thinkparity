@@ -2061,7 +2061,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                     try {
                         if (run && model.isXMPPOnline()) {
                             try {
-                                final Calendar now = impl.readDateTime();
+                                final Calendar now = model.readDateTime();
                                 if (run && null == now) {
                                     impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
                                     model.handleSessionTerminated();

@@ -60,9 +60,9 @@ public class SessionApplication extends AbstractApplication {
 
         // if we are connected; disconnect; otherwise the timer is running and
         // needs to be cancelled.
-        debugVariable("isConnected()", isConnected());
+        debugVariable("isOnline()", isOnline());
         debugVariable("connectTimer", connectTimer);
-        if (isConnected()) {
+        if (isOnline()) {
             disconnect();
         } else {
             // we can be not connected; and not attempting to connect
@@ -134,7 +134,7 @@ public class SessionApplication extends AbstractApplication {
         ed = new EventDispatcher(this);
         ed.start();
         // connect
-        if (!isConnected()) {
+        if (!isOnline()) {
             connectLater(0L);
         }
         // fire application started event
@@ -238,7 +238,12 @@ public class SessionApplication extends AbstractApplication {
      * 
      * @return True if the connected is established.
      */
-    private Boolean isConnected() {
-        return getSessionModel().isLoggedIn();
+    private Boolean isOnline() {
+        final Boolean isOnline = getSessionModel().isOnline();
+        if (!isOnline) {
+            logger.logWarning("User session is offline.  {0}",
+                    getSessionModel().getOfflineCode());
+        }
+        return isOnline;
     }
 }

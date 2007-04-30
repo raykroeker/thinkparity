@@ -284,6 +284,7 @@ public interface InternalSessionModel extends SessionModel {
      * @param cause
      *            The <code>Throwable</code> cause.
      */
+    @ThinkParityTransaction(TransactionType.SUPPORTED)
     public void handleSessionError(final Throwable cause);
     
     /**
@@ -296,6 +297,7 @@ public interface InternalSessionModel extends SessionModel {
      * Handle the remote session terminated event.
      *
      */
+    @ThinkParityTransaction(TransactionType.SUPPORTED)
     public void handleSessionTerminated();
 
     /**
@@ -563,10 +565,14 @@ public interface InternalSessionModel extends SessionModel {
     public List<JabberId> readContactIds();
 
     /**
-     * Return the remote date and time.
+     * Return the remote date and time. The transaction type is defined as
+     * supported meaning that if called from within an existing transaction
+     * context this method will participate in the transaction; however a new
+     * transaction context will not be created if none exists.
      * 
      * @return A <code>Calendar</code>.
      */
+    @ThinkParityTransaction(TransactionType.SUPPORTED)
     public Calendar readDateTime();
 
     /**

@@ -3,7 +3,6 @@
  */
 package com.thinkparity.codebase.model.migrator;
 
-import java.lang.reflect.Method;
 import java.util.Calendar;
 
 /**
@@ -15,8 +14,8 @@ import java.util.Calendar;
  */
 public class Error {
 
-    /** The method arguments <code>Object[]</code>. */
-    private transient Object[] arguments;
+    /** The method arguments <code>String[]</code>. */
+    private String[] arguments;
 
     /** The stack trace <code>String</code>. */
     private String stack;
@@ -24,8 +23,8 @@ public class Error {
     /** An error id <code>String</code>. */
     private Long id;
 
-    /** The <code>Method</code>. */
-    private Method method;
+    /** The method signature <code>String</code>. */
+    private String method;
 
     /** The occured on <code>Calendar</code>. */
     private Calendar occuredOn;
@@ -70,7 +69,7 @@ public class Error {
      *
      * @return A Method.
      */
-    public Method getMethod() {
+    public String getMethod() {
         return method;
     }
 
@@ -89,7 +88,7 @@ public class Error {
      * @param arguments
      *		A Object[].
      */
-    public void setArguments(final Object[] arguments) {
+    public void setArguments(final String[] arguments) {
         this.arguments = arguments;
     }
 
@@ -119,7 +118,7 @@ public class Error {
      * @param method
      *		A Method.
      */
-    public void setMethod(final Method method) {
+    public void setMethod(final String method) {
         this.method = method;
     }
 

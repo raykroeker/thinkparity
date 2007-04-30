@@ -89,7 +89,6 @@ public final class XStreamXMPPEventTest extends XStreamTestCase {
         jabberIds.add(JabberIdBuilder.parse("junit@thinkparity.dyndns.org/1209110"));
         data.add(setUp(new ArtifactDraftCreatedEvent(), new ArtifactDraftCreatedEvent()));
         data.add(setUp(new ArtifactDraftDeletedEvent(), new ArtifactDraftDeletedEvent()));
-        data.add(setUp(new ArtifactPublishedEvent(), new ArtifactPublishedEvent()));
         data.add(setUp(new ArtifactReceivedEvent(), new ArtifactReceivedEvent()));
         data.add(setUp(new ArtifactTeamMemberAddedEvent(), new ArtifactTeamMemberAddedEvent()));
         data.add(setUp(new ArtifactTeamMemberRemovedEvent(), new ArtifactTeamMemberRemovedEvent()));
@@ -129,16 +128,6 @@ public final class XStreamXMPPEventTest extends XStreamTestCase {
         event.setDeletedBy(jabberId);
         event.setDeletedOn(DateUtil.getInstance());
         event.setUniqueId(UUID.randomUUID());
-        return new Fixture(event);
-    }
-
-    private Fixture setUp(final ArtifactPublishedEvent event,
-            final ArtifactPublishedEvent event2) {
-        event.setLatestVersion(Boolean.FALSE);
-        event.setPublishedBy(jabberId);
-        event.setPublishedOn(DateUtil.getInstance());
-        event.setUniqueId(UUID.randomUUID());
-        event.setVersionId(10L);
         return new Fixture(event);
     }
 

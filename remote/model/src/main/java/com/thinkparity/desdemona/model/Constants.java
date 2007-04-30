@@ -42,7 +42,7 @@ public interface Constants {
         public static final String XMPP_DOMAIN = "xmpp.domain";
     }
 
-	/** Product Constants */
+    /** Product Constants */
     public static final class Product {
         /** Ophelia Product Constants */
         public static final class Ophelia {
@@ -58,8 +58,13 @@ public interface Constants {
         }
     }
 
-    public static final class VCardFields {
+	public static final class VCardFields {
         public static final String TITLE = "TITLE";
+    }
+
+    public static final class Versioning {
+        public static final Long INCREMENT = 1L;
+        public static final Long START = 1L;
     }
 
     /** Xml constants. */

@@ -22,6 +22,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedE
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.ParityServerModelException;
+import com.thinkparity.desdemona.model.Constants.Versioning;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
@@ -150,12 +151,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
     Artifact create(final JabberId userId, final UUID uniqueId,
             final Calendar createdOn) {
-		logApiId();
-		logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        logVariable("createdOn", createdOn);
 		try {
-			artifactSql.create(uniqueId, userId, session.getJabberId(), createdOn);
+			artifactSql.create(uniqueId, userId, Versioning.START,
+                    session.getJabberId(), createdOn);
 			return read(uniqueId);
 		} catch (final Throwable t) {
 		    throw translateError(t);
@@ -278,6 +276,16 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logVariable("userId", userId);
         logVariable("uniqueId", uniqueId);
         assertIsAuthenticatedUser(userId);
+        try {
+            return artifactSql.readDraftOwner(uniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    // same as read key holder
+    JabberId readDraftOwner(final UUID uniqueId) {
+        logVariable("uniqueId", uniqueId);
         try {
             return artifactSql.readDraftOwner(uniqueId);
         } catch (final Throwable t) {

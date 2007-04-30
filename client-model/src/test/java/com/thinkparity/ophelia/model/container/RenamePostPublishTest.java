@@ -3,8 +3,7 @@
  */
 package com.thinkparity.ophelia.model.container;
 
-import com.thinkparity.codebase.assertion.TrueAssertion;
-
+import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.container.Container;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
@@ -36,10 +35,11 @@ public class RenamePostPublishTest extends ContainerTestCase {
         datum.waitForEvents();
         try {
             renameContainer(datum.junit, c.getId(), NAME + "  Renamed.");
-        } catch (final TrueAssertion ta) {
-            if (ta.getMessage().equals("CONTAINER HAS BEEN DISTRIBUTED")) {
+        } catch (final ThinkParityException tpx) {
+            if (tpx.getCause().getMessage().equals(
+                    "Container has already been distributed.")) {
             } else { 
-                fail(createFailMessage(ta));
+                fail(createFailMessage(tpx));
             }
         }
         c = readContainer(datum.junit, c.getId());

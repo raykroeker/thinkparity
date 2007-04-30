@@ -703,12 +703,12 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createPublishedTo(java.lang.Long,
-     *      java.lang.Long, java.util.List)
-     * 
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createPublishedTo(java.lang.Long, java.lang.Long, java.util.List, java.util.Calendar)
+     *
      */
-    public void createPublishedTo(final Long containerId, final Long versionId,
-            final List<User> publishedTo, final Calendar publishedOn) {
+    public <T extends User> void createPublishedTo(final Long containerId,
+            final Long versionId, final List<T> publishedTo,
+            final Calendar publishedOn) {
         final Session session = openSession();
         try {
             for (final User publishedToUser : publishedTo) {

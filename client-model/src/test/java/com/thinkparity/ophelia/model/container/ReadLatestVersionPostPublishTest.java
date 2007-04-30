@@ -35,6 +35,7 @@ public class ReadLatestVersionPostPublishTest extends ContainerTestCase {
      */
     public void testReadLatestVersion() {
         final Container c = createContainer(datum.junit, NAME);
+        addDocument(datum.junit, c.getId(), "JUnitTestFramework");
         publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         

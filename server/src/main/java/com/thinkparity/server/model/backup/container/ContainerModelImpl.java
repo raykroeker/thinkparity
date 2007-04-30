@@ -14,6 +14,7 @@ import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -30,12 +31,19 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedNotificationEvent;
 
+import com.thinkparity.ophelia.model.Delegate;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
+import com.thinkparity.ophelia.model.container.delegate.HandlePublished;
+import com.thinkparity.ophelia.model.container.delegate.HandlePublishedNotification;
+import com.thinkparity.ophelia.model.container.delegate.HandleVersionPublished;
+import com.thinkparity.ophelia.model.container.delegate.HandleVersionPublishedNotification;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentFileLock;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
@@ -44,7 +52,6 @@ import com.thinkparity.ophelia.model.events.ContainerEvent.Source;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
-import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.util.sort.user.UserComparatorFactory;
@@ -247,154 +254,92 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handlePublished(com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent)
-     *
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent)
+     * 
      */
-    public void handlePublished(final ArtifactPublishedEvent event) {
+    public void handleEvent(final PublishedEvent event) {
         try {
-            final InternalArtifactModel artifactModel = getArtifactModel();
-            final Long containerId = artifactModel.readId(event.getUniqueId());
-            // if a draft exists, delete it
-            if (doesExistDraft(containerId)) {
-                Assert.assertNotTrue(doesExistLocalDraft(containerId),
-                        "Invalid state.  Local draft for {0} should not exist.",
-                        containerId);
-                deleteDraft(containerId);
-            }
-
-            /* HACK we know the latest flag was either applied or remoted by
-             * the artifact model */
+            // handle publish
+            final HandlePublished delegate = createDelegate(
+                    HandlePublished.class);
+            delegate.setEvent(event);
+            delegate.handlePublished();
+            // fire events
+            final Long containerId = getArtifactModel().readId(
+                    event.getVersion().getArtifactUniqueId());
             final Container container = read(containerId);
-            notifyContainerFlagged(container, remoteEventGenerator);
+            final ContainerVersion version = readVersion(containerId,
+                    event.getVersion().getVersionId());
+            final ContainerVersion previousVersion = readPreviousVersion(
+                    containerId, version.getVersionId());
+            final ContainerVersion nextVersion = readPreviousVersion(
+                    containerId, version.getVersionId());
+
+            notifyContainerPublished(container, delegate.getDraft(),
+                    previousVersion, version, nextVersion,
+                    delegate.getPublishedBy(), remoteEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
     /**
-     * Handle the container published event. The local team definition is built
-     * from the publishedTo list. The published to list is also saved.
-     * 
-     * @param uniqueId
-     *            The container unique id.
-     * @param versionId
-     *            The container version id.
-     * @param name
-     *            The container name.
-     * @param artifactCount
-     *            The container artifact count.
-     * @param publishedBy
-     *            The publish date.
-     * @param publishedTo
-     *            The publish to list.
-     * @param publishedOn
-     *            The published on date.
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedEvent)
+     *
      */
-    public void handlePublished(final ContainerPublishedEvent event) {
+    public void handleEvent(final VersionPublishedEvent event) {
         try {
-            final InternalArtifactModel artifactModel = getArtifactModel();
-            final boolean didExist = artifactModel.doesVersionExist(
-                    event.getVersion().getArtifactUniqueId(),
-                    event.getVersion().getVersionId()).booleanValue();
-            if (didExist) {
-                logger.logWarning("Container version for event {0} already exists locally.",
-                        event);
-            } else {
-                final Container container = handleResolution(event);
-                final ContainerVersion version = handleVersionResolution(event);
-                // handle the documents
-                for (final Entry<DocumentVersion, String> entry :
-                        event.getDocumentVersions().entrySet()) {
-                    final ArtifactVersion artifactVersion =
-                        getDocumentModel().handleDocumentPublished(container.getId(),
-                                entry.getKey(), entry.getValue(),
-                                event.getPublishedBy(), event.getPublishedOn());
-                    final Long artifactId = getArtifactModel().readId(
-                            entry.getKey().getArtifactUniqueId());
-                    logger.logVariable("artifactId", artifactId);
-                    if (!containerIO.doesExistVersion(container.getId(),
-                            version.getVersionId(), artifactId,
-                            entry.getKey().getVersionId()).booleanValue()) {
-                        containerIO.addVersion(version.getArtifactId(),
-                                version.getVersionId(),
-                                artifactVersion.getArtifactId(),
-                                artifactVersion.getVersionId(),
-                                artifactVersion.getArtifactType());
-                    }
-                }
-                // build published to list
-                final InternalUserModel userModel = getUserModel();
-                final List<JabberId> publishedToIds = new ArrayList<JabberId>(event.getPublishedTo().size());
-                final List<User> publishedToUsers = new ArrayList<User>(event.getPublishedTo().size());
-                for (final User publishedToUser : event.getPublishedTo()) {
-                    publishedToIds.add(publishedToUser.getId());
-                    publishedToUsers.add(userModel.readLazyCreate(publishedToUser.getId()));
-                }
-                // add only published by user to the team
-                final TeamMember publishedBy;
-                final List<TeamMember> localTeam = artifactModel.readTeam2(container.getId());
-                if (!contains(localTeam, event.getPublishedBy())) {
-                    publishedBy = artifactModel.addTeamMember(container.getId(), event.getPublishedBy());
-                } else {
-                    publishedBy = localTeam.get(indexOf(localTeam, event.getPublishedBy()));
-                }
-                // delete draft
-                final ContainerDraft draft = readDraft(container.getId());
-                if (null == draft) {
-                    logger.logInfo("Draft did not previously exist for {0}.",
-                            container.getName());
-                } else {
-                    deleteDraft(container.getId());
-                }
-                // create published to list
-                containerIO.createPublishedTo(container.getId(),
-                        version.getVersionId(), publishedToUsers,
-                        event.getPublishedOn());
-                // update the local published to list for the received by list
-                ArtifactReceipt localReceipt;
-                User receivedBy;
-                for (final ArtifactReceipt receipt : event.getReceivedBy()) {
-                    receivedBy = userModel.readLazyCreate(receipt.getUser().getId());
-                    localReceipt = containerIO.readPublishedToReceipt(
-                        container.getId(), version.getVersionId(),
-                        event.getPublishedOn(), receivedBy);
-                    if (null == localReceipt) {
-                        containerIO.createPublishedTo(container.getId(),
-                                version.getVersionId(), receivedBy,
-                                receipt.getPublishedOn());
-                    }
-                    containerIO.updatePublishedTo(container.getId(),
-                            version.getVersionId(), receipt.getPublishedOn(),
-                            receivedBy.getId(), receipt.getReceivedOn());
-                }
-                // calculate differences
-                final ContainerVersion previous = readPreviousVersion(container.getId(), version.getVersionId());
-                final ContainerVersion next = readNextVersion(container.getId(), version.getVersionId());
-                if (null == previous) {
-                    logger.logInfo("First version of {0}.", container.getName());
-                } else {
-                    containerIO.deleteDelta(container.getId(), previous.getVersionId(),
-                            version.getVersionId());
-                    containerIO.createDelta(calculateDelta(container,
-                            version, previous));
-                }
-                if (null == next) {
-                    logger.logInfo("Latest version of {0}.", container.getName());
-                } else {
-                    containerIO.deleteDelta(container.getId(),
-                            version.getVersionId(), next.getVersionId());
-                    containerIO.createDelta(calculateDelta(container, next,
-                            version));
-                }
-                // index
-                getIndexModel().indexContainer(container.getId());
-                // audit\fire event
-                final Container postPublish = read(container.getId());
-                final ContainerVersion postPublishVersion = readVersion(
-                        container.getId(), version.getVersionId());
-                notifyContainerPublished(postPublish, draft, previous,
-                        postPublishVersion, next, publishedBy, remoteEventGenerator);
-            }
+            final HandleVersionPublished delegate = createDelegate(HandleVersionPublished.class);
+            delegate.setEvent(event);
+            delegate.handleVersionPublished();
+            // fire event
+            final Long containerId = getArtifactModel().readId(
+                    event.getVersion().getArtifactUniqueId());
+            final Container container = read(containerId);
+            final ContainerVersion version = readVersion(containerId,
+                    event.getVersion().getVersionId());
+            final ContainerVersion previousVersion = readPreviousVersion(
+                    containerId, version.getVersionId());
+            final ContainerVersion nextVersion = readPreviousVersion(
+                    containerId, version.getVersionId());
+            notifyContainerPublished(container, null, previousVersion, version,
+                    nextVersion, delegate.getPublishedBy(),
+                    remoteEventGenerator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedNotificationEvent)
+     *
+     */
+    public void handleEvent(final VersionPublishedNotificationEvent event) {
+        try {
+            final HandleVersionPublishedNotification delegate =
+                createDelegate(HandleVersionPublishedNotification.class);
+            delegate.setEvent(event);
+            delegate.handleVersionPublishedNotification();
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent)
+     * 
+     */
+    public void handleEvent(final PublishedNotificationEvent event) {
+        try {
+            final HandlePublishedNotification delegate =
+                createDelegate(HandlePublishedNotification.class);
+            delegate.setEvent(event);
+            delegate.handlePublishedNotification();
+            // fire event
+            final Long containerId = getArtifactModel().readId(
+                    event.getVersion().getArtifactUniqueId());
+            final Container container = read(containerId);
+            notifyContainerFlagged(container, remoteEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -829,22 +774,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Assert that a draft exists.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param assertMessage
-     *            An assertion message <code>String</code>.
-     * @param assertArguments
-     *            Optional assertion message argument <code>Object[]</code>.
-     */
-    private void assertDoesExistDraft(final Long containerId,
-            final String assertMessage, final Object... assertArguments) {
-        Assert.assertTrue(doesExistDraft(containerId), assertMessage,
-                assertArguments);
-    }
-
-    /**
      * Calculate a delta between a version and its previous version.
      * 
      * @param container
@@ -855,7 +784,7 @@ public final class ContainerModelImpl extends
      *            Another <code>ContainerVersion</code>.
      * @return A <code>ContainerVersionDelta</code>.
      */
-    private ContainerVersionDelta calculateDelta(final Container container,
+    ContainerVersionDelta calculateDelta(final Container container,
             final ContainerVersion compare, final ContainerVersion compareTo) {
         final ContainerVersionDelta versionDelta = new ContainerVersionDelta();
         versionDelta.setCompareVersionId(compare.getVersionId());
@@ -940,7 +869,7 @@ public final class ContainerModelImpl extends
      *            The created on <code>Calendar</code>.
      * @return The new <code>ContainerVersion</code>.
      */
-    private ContainerVersion createVersion(final Long containerId,
+    ContainerVersion createVersion(final Long containerId,
             final Long versionId, final String comment,
             final JabberId createdBy, final Calendar createdOn) {
         final Container container = read(containerId);
@@ -957,10 +886,133 @@ public final class ContainerModelImpl extends
         version.setUpdatedOn(version.getCreatedOn());
         version.setVersionId(versionId);
         containerIO.createVersion(version);
-        getIndexModel().indexContainerVersion(new Pair<Long, Long>(
-                containerId, versionId));
-        return containerIO.readVersion(
-                version.getArtifactId(), version.getVersionId());
+        // index
+        getIndexModel().indexContainerVersion(new Pair<Long, Long>(containerId,
+                versionId));
+        return containerIO.readVersion(version.getArtifactId(),
+                version.getVersionId());
+    }
+
+    /**
+     * Obtain the container persitence io.
+     * 
+     * @return An instance of <code>ContainerIOHandler</code>.
+     */
+    ContainerIOHandler getContainerIO() {
+        return containerIO;
+    }
+
+    /**
+     * Create the requisite document versions if required.
+     * 
+     * @param containerVersion
+     *            A <code>ContainerVersion</code>.
+     * @param versions
+     *            A <code>Map</code> of <code>DocumentVersion</code>s to
+     *            their stream id <code>String</code>s.
+     * @param publishedBy
+     *            A published by user id <code>JabberId</code>.
+     * @param publishedOn
+     *            A published on <code>Calendar</code>.
+     */
+    void handleDocumentVersionsResolution(
+            final ContainerVersion containerVersion,
+            final Map<DocumentVersion, String> versions,
+            final JabberId publishedBy, final Calendar publishedOn) {
+        for (final Entry<DocumentVersion, String> entry : versions.entrySet()) {
+            final ArtifactVersion artifactVersion =
+                modelFactory.getDocumentModel().handleDocumentPublished(
+                        containerVersion.getArtifactId(), entry.getKey(),
+                        entry.getValue(), publishedBy, publishedOn);
+            final Long artifactId = modelFactory.getArtifactModel().readId(
+                    entry.getKey().getArtifactUniqueId());
+            logger.logVariable("artifactId", artifactId);
+            if (!containerIO.doesExistVersion(containerVersion.getArtifactId(),
+                    containerVersion.getVersionId(), artifactId,
+                    entry.getKey().getVersionId()).booleanValue()) {
+                containerIO.addVersion(containerVersion.getArtifactId(),
+                        containerVersion.getVersionId(),
+                        artifactVersion.getArtifactId(),
+                        artifactVersion.getVersionId(),
+                        artifactVersion.getArtifactType());
+            }
+        }
+    }
+
+    /**
+     * Handle the resolution of a container. If the container does not exist it
+     * will be created.
+     * 
+     * @param event
+     *            A <code>ContainerPublishedEvent</code>.
+     * @return A <code>Container</code>.
+     */
+    Container handleResolution(final UUID uniqueId, final JabberId publishedBy,
+            final Calendar publishedOn, final String name) {
+        // determine the existance of the container and the version.
+        final InternalArtifactModel artifactModel = modelFactory.getArtifactModel();
+        final boolean doesExist = artifactModel.doesExist(uniqueId).booleanValue();
+        final Container container;
+        if (doesExist) {
+            container = read(artifactModel.readId(uniqueId));
+        } else {
+            // ensure the published by user exists locally
+            modelFactory.getUserModel().readLazyCreate(publishedBy);
+    
+            container = new Container();
+            container.setCreatedBy(publishedBy);
+            container.setCreatedOn(publishedOn);
+            container.setName(name);
+            container.setState(ArtifactState.ACTIVE);
+            container.setType(ArtifactType.CONTAINER);
+            container.setUniqueId(uniqueId);
+            container.setUpdatedBy(container.getCreatedBy());
+            container.setUpdatedOn(container.getCreatedOn());
+            // create
+            containerIO.create(container);
+    
+            // index
+            modelFactory.getIndexModel().indexContainer(container.getId());
+        }
+        return container;
+    }
+
+    /**
+     * Assert that a draft exists.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param assertMessage
+     *            An assertion message <code>String</code>.
+     * @param assertArguments
+     *            Optional assertion message argument <code>Object[]</code>.
+     */
+    private void assertDoesExistDraft(final Long containerId,
+            final String assertMessage, final Object... assertArguments) {
+        Assert.assertTrue(doesExistDraft(containerId), assertMessage,
+                assertArguments);
+    }
+
+    /**
+     * Create an instance of a delegate.
+     * 
+     * @param <D>
+     *            A delegate type.
+     * @param type
+     *            The delegate type <code>Class</code>.
+     * @return An instance of <code>D</code>.
+     */
+    private <D extends Delegate<ContainerModelImpl>> D createDelegate(
+            final Class<D> type) {
+        try {
+            final D instance = type.newInstance();
+            instance.initialize(this);
+            return instance;
+        } catch (final IllegalAccessException iax) {
+            throw new ThinkParityException("Could not create delegate.", iax);
+        } catch (final InstantiationException ix) {
+            throw new ThinkParityException("Could not create delegate.", ix);
+        }
     }
 
     /**
@@ -1006,79 +1058,6 @@ public final class ContainerModelImpl extends
         getIndexModel().deleteContainer(containerId);
         // delete the container
         containerIO.delete(containerId);
-    }
-
-    /**
-     * Handle the resolution of a container. If the container does not exist it
-     * will be created.
-     * 
-     * @param event
-     *            A <code>ContainerPublishedEvent</code>.
-     * @return A <code>Container</code>.
-     */
-    private Container handleResolution(final ContainerPublishedEvent event) {
-        // determine the existance of the container and the version.
-        final InternalArtifactModel artifactModel = getArtifactModel();
-        final UUID uniqueId = event.getVersion().getArtifactUniqueId();
-        final JabberId publishedBy = event.getPublishedBy();
-        final Calendar publishedOn = event.getPublishedOn();
-        final String name = event.getVersion().getName();
-        final boolean doesExist = artifactModel.doesExist(uniqueId).booleanValue();
-        final Container container;
-        if (doesExist) {
-            container = read(artifactModel.readId(uniqueId));
-        } else {
-            // ensure the published by user exists locally
-            getUserModel().readLazyCreate(publishedBy);
-
-            container = new Container();
-            container.setCreatedBy(publishedBy);
-            container.setCreatedOn(publishedOn);
-            container.setName(name);
-            container.setState(ArtifactState.ACTIVE);
-            container.setType(ArtifactType.CONTAINER);
-            container.setUniqueId(uniqueId);
-            container.setUpdatedBy(container.getCreatedBy());
-            container.setUpdatedOn(container.getCreatedOn());
-            // create
-            containerIO.create(container);
-
-            // index
-            getIndexModel().indexContainer(container.getId());
-        }
-        return container;
-    }
-
-    /**
-     * Handle the resolution of a container version. If the version does not
-     * exist it will be created.
-     * 
-     * @param uniqueId
-     *            A container unique id <code>UUID</code>.
-     * @param versionId
-     *            A container version id <code>Long</code>.
-     * @param publishedBy
-     *            A container published by user id <code>JabberId</code>.
-     * @param publishedOn
-     *            A conatiner published on <code>Calendar</code>.
-     * @return A <code>ContainerVersion</code>.
-     */
-    private ContainerVersion handleVersionResolution(
-            final ContainerPublishedEvent event) {
-        final InternalArtifactModel artifactModel = getArtifactModel();
-        final UUID uniqueId = event.getVersion().getArtifactUniqueId();
-        final Long containerId = artifactModel.readId(uniqueId);
-        final Long versionId = event.getVersion().getVersionId();
-        final JabberId publishedBy = event.getPublishedBy();
-        final String comment = event.getVersion().getComment();
-        final ContainerVersion version;
-        if (artifactModel.doesVersionExist(containerId, versionId).booleanValue()) {
-            version = readVersion(containerId, versionId);
-        } else {
-            version = createVersion(containerId, versionId, comment,
-                    publishedBy, event.getVersion().getCreatedOn());
-        }
-        return version;
     }
 
     /**

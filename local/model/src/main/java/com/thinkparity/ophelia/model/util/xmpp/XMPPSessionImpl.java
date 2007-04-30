@@ -387,7 +387,8 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * 
      */
     public XMPPMethod createMethod(final String name) {
-    	if ("container:publish".equals(name)
+    	if ("backup:createstream".equals(name)
+                || "container:publish".equals(name)
 				|| "container:publish".equals(name)
 				|| "system:readqueueevents".equals(name)
                 || "contact:acceptincomingemailinvitation".equals(name)
@@ -763,9 +764,8 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#publish(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.model.container.ContainerVersion,
      *      com.thinkparity.codebase.model.container.ContainerVersion,
      *      java.util.Map, java.util.List,
      *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
@@ -773,15 +773,30 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * 
      */
     public void publish(final JabberId userId, final ContainerVersion version,
-            final ContainerVersion latestVersion,
-            final Map<DocumentVersion, String> documents,
+            final Map<DocumentVersion, String> documentVersions,
             final List<TeamMember> teamMembers,
-            final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
-            final Calendar publishedOn, final List<EMail> publishedToEMails,
-            final List<User> publishedToUsers) {
-        xmppContainer.publish(userId, version, latestVersion, documents,
+            final JabberId publishedBy, final Calendar publishedOn,
+            final List<EMail> publishToEMails, final List<User> publishToUsers) {
+        xmppContainer.publish(userId, version, documentVersions, teamMembers,
+                publishedBy, publishedOn, publishToEMails, publishToUsers);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#publishVersion(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.model.container.ContainerVersion,
+     *      java.util.Map, java.util.List, java.util.List,
+     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
+     *      java.util.List, java.util.List)
+     * 
+     */
+    public void publishVersion(JabberId userId, ContainerVersion version,
+            Map<DocumentVersion, String> documentVersions,
+            List<TeamMember> teamMembers, List<ArtifactReceipt> receivedBy,
+            JabberId publishedBy, Calendar publishedOn,
+            List<EMail> publishToEMails, List<User> publishToUsers) {
+        xmppContainer.publishVersion(userId, version, documentVersions,
                 teamMembers, receivedBy, publishedBy, publishedOn,
-                publishedToEMails, publishedToUsers);
+                publishToEMails, publishToUsers);
     }
 
     /**

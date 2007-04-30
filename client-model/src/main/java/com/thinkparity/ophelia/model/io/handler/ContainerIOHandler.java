@@ -92,15 +92,20 @@ public interface ContainerIOHandler {
     /**
      * Create a published to list for a container version.
      * 
+     * @param <T>
+     *            A user type.
      * @param containerId
      *            A container id <code>Long</code>.
      * @param versionId
      *            A version id <code>Long</code>.
      * @param publishedTo
-     *            A <code>User</code> <code>List</code>.
+     *            A <code>List</code> of users of type <code>T</code>.
+     * @param publishedOn
+     *            A published on <code>Calendar</code>.
      */
-    public void createPublishedTo(final Long containerId, final Long versionId,
-            final List<User> publishedTo, final Calendar publishedOn);
+    public <T extends User> void createPublishedTo(final Long containerId,
+            final Long versionId, final List<T> publishedTo,
+            final Calendar publishedOn);
 
     /**
      * Create a published to entry for a container version.
@@ -311,15 +316,6 @@ public interface ContainerIOHandler {
     public List<Container> readForTeamMember(final Long teamMemberId);
 
     /**
-     * Read a list of container versions a document is attached to.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @return A <code>List</code> of <code>ContainerVersion</code>s.
-     */
-    public List<ContainerVersion> readVersionsForDocument(final Long documentId);
-
-    /**
      * Read the latest container version.
      * 
      * @param containerId
@@ -385,6 +381,15 @@ public interface ContainerIOHandler {
      * @return A list of container versions.
      */
     public List<ContainerVersion> readVersions(final Long containerId);
+
+    /**
+     * Read a list of container versions a document is attached to.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return A <code>List</code> of <code>ContainerVersion</code>s.
+     */
+    public List<ContainerVersion> readVersionsForDocument(final Long documentId);
 
     /**
      * Remove an artifact version from a container version.

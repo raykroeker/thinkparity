@@ -928,25 +928,47 @@ public final class SessionModelImpl extends Model<SessionListener>
 
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#publish(com.thinkparity.codebase.model.container.ContainerVersion,
-     *      com.thinkparity.codebase.model.container.ContainerVersion,
+     *      java.util.Map, java.util.List,
+     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
+     *      java.util.List, java.util.List)
+     * 
+     */
+    public void publish(final ContainerVersion version,
+            final Map<DocumentVersion, String> documentVersions,
+            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final Calendar publishedOn, final List<EMail> publishToEMails,
+            final List<User> publishToUsers) {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                xmppSession.publish(localUserId(), version, documentVersions,
+                        teamMembers, publishedBy, publishedOn,
+                        publishToEMails, publishToUsers);
+            }
+        } catch(final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#publishVersion(com.thinkparity.codebase.model.container.ContainerVersion,
      *      java.util.Map, java.util.List, java.util.List,
      *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
      *      java.util.List, java.util.List)
      * 
      */
-	public void publish(final ContainerVersion version,
-            final ContainerVersion latestVersion,
-            final Map<DocumentVersion, String> documents,
+    public void publishVersion(final ContainerVersion version,
+            final Map<DocumentVersion, String> documentVersions,
             final List<TeamMember> teamMembers,
             final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
-            final Calendar publishedOn, final List<EMail> publishedToEMails,
-            final List<User> publishedToUsers) {
+            final Calendar publishedOn, final List<EMail> publishToEMails,
+            final List<User> publishToUsers) {
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                xmppSession.publish(localUserId(), version, latestVersion,
-                        documents, teamMembers, receivedBy, publishedBy,
-                        publishedOn, publishedToEMails, publishedToUsers);
+                xmppSession.publishVersion(localUserId(), version, documentVersions,
+                        teamMembers, receivedBy, publishedBy, publishedOn,
+                        publishToEMails, publishToUsers);
             }
         } catch(final Throwable t) {
             throw panic(t);

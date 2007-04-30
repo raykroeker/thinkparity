@@ -13,9 +13,11 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedNotificationEvent;
 
 /**
  * <b>Title:</b>thinkParity Container Internal Model<br>
@@ -62,22 +64,36 @@ public interface InternalContainerModel extends ContainerModel {
     public void handleDraftDeleted(final ArtifactDraftDeletedEvent event);
 
     /**
-     * Handle the remove event that is fired when an artifact is published. This
-     * occurs in sequence after the container published event. Here we restore
-     * the container from the archive and delete the draft.
+     * Handle the remote container published event.
      * 
      * @param event
-     *            A <code>ArtifactPublishedEvent</code>.
+     *            A <code>PublishedEvent</code>.
      */
-    public void handlePublished(final ArtifactPublishedEvent event);
+    public void handleEvent(final PublishedEvent event);
 
     /**
-     * Handle the container published remote event.
+     * Handle the remote container published notification event.
      * 
      * @param event
-     *            A <code>ContainerPublishedEvent</code>.
+     *            A <code>PublishedNotificationEvent</code>.
      */
-    public void handlePublished(final ContainerPublishedEvent event);
+    public void handleEvent(final PublishedNotificationEvent event);
+
+    /**
+     * Handle the remote container version published event.
+     * 
+     * @param event
+     *            A <code>VersionPublishedEvent</code>.
+     */
+    public void handleEvent(final VersionPublishedEvent event);
+
+    /**
+     * Handle the remote container version published notification event.
+     * 
+     * @param event
+     *            A <code>VersionPublishedNotificationEvent</code>.
+     */
+    public void handleEvent(final VersionPublishedNotificationEvent event);
 
     /**
      * Handle the remove artifact received event.

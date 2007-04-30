@@ -10,7 +10,6 @@ import java.util.Map;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -48,26 +47,22 @@ public final class Publish extends AbstractHandler {
         logger.logApiId();
         publish(provider, reader.readJabberId("userId"),
                 reader.readContainerVersion("version"),
-                reader.readContainerVersion("latestVersion"),
                 reader.readDocumentVersionsStreamIds("documentVersions"),
                 reader.readTeamMembers("teamMembers"),
-                reader.readArtifactReceipts("receivedBy"),
                 reader.readJabberId("publishedBy"),
                 reader.readCalendar("publishedOn"),
-                reader.readEMails("publishedToEMails"),
-                reader.readUsers("publishedToUsers"));
+                reader.readEMails("publishToEMails"),
+                reader.readUsers("publishToUsers"));
     }
 
     private void publish(final ServiceModelProvider provider,
             final JabberId userId, final ContainerVersion version,
-            final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documentVersions,
-            final List<TeamMember> teamMembers,
-            final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
+            final List<TeamMember> teamMembers, final JabberId publishedBy,
             final Calendar publishedOn, final List<EMail> publishedToEMails,
             final List<User> publishedToUsers) {
-        provider.getContainerModel().publish(userId, version, latestVersion,
-                documentVersions, teamMembers, receivedBy, publishedBy,
-                publishedOn, publishedToEMails, publishedToUsers);
+        provider.getContainerModel().publish(userId, version, documentVersions,
+                teamMembers, publishedBy, publishedOn, publishedToEMails,
+                publishedToUsers);
     }
 }

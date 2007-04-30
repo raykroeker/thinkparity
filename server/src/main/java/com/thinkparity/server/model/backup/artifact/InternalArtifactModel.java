@@ -16,7 +16,6 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
@@ -81,17 +80,6 @@ public interface InternalArtifactModel extends ArtifactModel {
     /**
      * Determine if the artifact version exists.
      * 
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     * @param versionId
-     *            An artifact version id.
-     * @return True if the artifact version exists.
-     */
-    public Boolean doesVersionExist(final UUID uniqueId, final Long versionId);
-
-    /**
-     * Determine if the artifact version exists.
-     * 
      * @param artifactId
      *            An artifact id.
      * @param versionId
@@ -99,6 +87,17 @@ public interface InternalArtifactModel extends ArtifactModel {
      * @return True if the artifact version exists.
      */
     public Boolean doesVersionExist(final Long artifactId, final Long versionId);
+
+    /**
+     * Determine if the artifact version exists.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @param versionId
+     *            An artifact version id.
+     * @return True if the artifact version exists.
+     */
+    public Boolean doesVersionExist(final UUID uniqueId, final Long versionId);
 
     /**
      * Handle the remote event generated when a draft is created.
@@ -115,14 +114,6 @@ public interface InternalArtifactModel extends ArtifactModel {
      *            An <code>ArtifactDraftDeleted</code> remote event.
      */
     public void handleDraftDeleted(final ArtifactDraftDeletedEvent event);
-
-    /**
-     * Handle an artifact published remote event.
-     * 
-     * @param event
-     *            An <code>ArtifactPublishedEvent</code>.
-     */
-    public void handlePublished(final ArtifactPublishedEvent event);
 
     /**
      * Handle an artifact received remote event.
@@ -142,7 +133,7 @@ public interface InternalArtifactModel extends ArtifactModel {
      *            The user's jabber id.
      */
     public void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event);
-    
+
     /**
      * Handle the team member removed remote event.
      * 
@@ -153,7 +144,7 @@ public interface InternalArtifactModel extends ArtifactModel {
      */
     public void handleTeamMemberRemoved(
             final ArtifactTeamMemberRemovedEvent event);
-
+    
     /**
      * Read the artifact id.
      * 
@@ -210,6 +201,14 @@ public interface InternalArtifactModel extends ArtifactModel {
      *            An artifact id.
      */
     public void removeFlagArchived(final Long artifactId);
+
+    /**
+     * Remove the latest flag.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     */
+    public void removeFlagLatest(final Long artifactId);
     
     /**
      * Remove the team member. Removes the user from the local team data.

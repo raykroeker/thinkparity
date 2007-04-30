@@ -7,10 +7,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.util.xmpp.event.*;
+import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedNotificationEvent;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 
@@ -119,6 +128,7 @@ public final class XMPPEventHandler {
      *            An instance of <code>InternalModelFactory</code>.
      */
     private void startImpl(final InternalModelFactory modelFactory) {
+        // artifact events
         addListener(ArtifactDraftCreatedEvent.class, new XMPPEventListener() {
             public void handleEvent(final Session session, final XMPPEvent event) {
                 modelFactory.getArtifactModel().handleDraftCreated(
@@ -129,21 +139,6 @@ public final class XMPPEventHandler {
             public void handleEvent(final Session session, final XMPPEvent event) {
                 modelFactory.getArtifactModel().handleDraftDeleted(
                         (ArtifactDraftDeletedEvent) event);
-            }
-        });
-        addListener(ArtifactPublishedEvent.class, new XMPPEventListener() {
-            public void handleEvent(final Session session, final XMPPEvent event) {
-                final ArtifactPublishedEvent ape = (ArtifactPublishedEvent) event;
-                modelFactory.getArtifactModel().handlePublished(ape);
-                final com.thinkparity.desdemona.model.backup.InternalBackupModel
-                    serverBackupModel = com.thinkparity.desdemona.model.InternalModelFactory.getInstance(new Context(), session).getBackupModel();
-                /* NOTE the backup model will make the ultimate decision as to
-                 * whether or not the event will be fired based upon the backup
-                 * feature of the user */
-                for (final JabberId teamMemberId : ape.getTeamUserIds()) {
-                    serverBackupModel.enqueueBackupEvent(session.getJabberId(),
-                            teamMemberId);
-                }
             }
         });
         addListener(ArtifactReceivedEvent.class, new XMPPEventListener() {
@@ -164,10 +159,47 @@ public final class XMPPEventHandler {
                         (ArtifactTeamMemberRemovedEvent) event);
             }
         });
-        addListener(ContainerPublishedEvent.class, new XMPPEventListener() {
+        // container events
+        addListener(PublishedEvent.class, new XMPPEventListener() {
             public void handleEvent(final Session session, final XMPPEvent event) {
-                modelFactory.getContainerModel().handlePublished(
-                        (ContainerPublishedEvent) event);
+                modelFactory.getContainerModel().handleEvent(
+                        (PublishedEvent) event);
+            }
+        });
+        addListener(PublishedNotificationEvent.class, new XMPPEventListener() {
+            public void handleEvent(final Session session, final XMPPEvent event) {
+                final PublishedNotificationEvent pne = (PublishedNotificationEvent) event;
+                modelFactory.getContainerModel().handleEvent(pne);
+                final com.thinkparity.desdemona.model.backup.InternalBackupModel
+                    serverBackupModel = com.thinkparity.desdemona.model.InternalModelFactory.getInstance(new Context(), session).getBackupModel();
+                /* NOTE the backup model will make the ultimate decision as to
+                 * whether or not the event will be fired based upon the backup
+                 * feature of the user */
+                for (final User teamUser : pne.getTeam()) {
+                    serverBackupModel.enqueueBackupEvent(session.getJabberId(),
+                            teamUser.getId());
+                }
+            }
+        });
+        addListener(VersionPublishedEvent.class, new XMPPEventListener() {
+            public void handleEvent(final Session session, final XMPPEvent event) {
+                modelFactory.getContainerModel().handleEvent(
+                        (VersionPublishedEvent) event);
+            }
+        });
+        addListener(VersionPublishedNotificationEvent.class, new XMPPEventListener() {
+            public void handleEvent(final Session session, final XMPPEvent event) {
+                final VersionPublishedNotificationEvent vpne = (VersionPublishedNotificationEvent) event;
+                modelFactory.getContainerModel().handleEvent(vpne);
+                final com.thinkparity.desdemona.model.backup.InternalBackupModel
+                    serverBackupModel = com.thinkparity.desdemona.model.InternalModelFactory.getInstance(new Context(), session).getBackupModel();
+                /* NOTE the backup model will make the ultimate decision as to
+                 * whether or not the event will be fired based upon the backup
+                 * feature of the user */
+                for (final User teamUser : vpne.getTeam()) {
+                    serverBackupModel.enqueueBackupEvent(session.getJabberId(),
+                            teamUser.getId());
+                }
             }
         });
     }

@@ -323,22 +323,6 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
-     * Assert that the list of team members does not contain the user.
-     * 
-     * 
-     * @param assertion
-     *            An assertion.
-     * @param teamMembers
-     *            A list of team members.
-     * @param user
-     *            A user.
-     */
-    protected void assertDoesNotContain(final Object assertion,
-            final List<TeamMember> teamMembers, final User user) {
-        Assert.assertNotTrue(assertion, contains(teamMembers, user));
-    }
-
-    /**
      * Assert that the artifact is closed.
      * 
      * @param assertion
@@ -454,7 +438,7 @@ public abstract class Model<T extends EventListener> extends
      */
     protected void assertTeamMember(final Object assertion, final Long artifactId, final JabberId userId) {
         final List<TeamMember> team = getArtifactModel().readTeam2(artifactId);
-        Assert.assertNotTrue(assertion, contains(team, getUserModel().read(userId)));
+        Assert.assertTrue(assertion, contains(team, getUserModel().read(userId)));
     }
 
     /**
@@ -519,8 +503,8 @@ public abstract class Model<T extends EventListener> extends
      *            A user id <code>JabberId</code>.
      * @return True if the user id matches one of the team members.
      */
-    protected <U extends User> Boolean contains(final List<U> users,
-            final JabberId userId) {
+    protected static final <U extends User> Boolean contains(
+            final List<U> users, final JabberId userId) {
         return USER_UTILS.contains(users, userId);
     }
 
@@ -533,7 +517,7 @@ public abstract class Model<T extends EventListener> extends
      *            A user.
      * @return True if the id of the user matches one of the team members.
      */
-    protected <U extends User, V extends User> Boolean contains(
+    protected static final <U extends User, V extends User> Boolean contains(
             final List<U> users, final V user) {
         return USER_UTILS.contains(users, user);
     }
@@ -860,9 +844,25 @@ public abstract class Model<T extends EventListener> extends
      * @return The index of the user id in the list; or -1 if the user does not
      *         exist in the list.
      */
-    protected <U extends User> int indexOf(final List<U> users,
+    protected static final <U extends User> int indexOf(final List<U> users,
             final JabberId userId) {
         return USER_UTILS.indexOf(users, userId);
+    }
+
+    /**
+     * Extract the user's ids into a list.
+     * 
+     * @param <T>
+     *            A user type.
+     * @param users
+     *            A <code>List</code> of <code>T</code>.
+     * @param userIds
+     *            A <code>List</code> to populate.
+     * @return A <code>List</code> of <code>JabberId</code>s.
+     */
+    protected static final <U extends User> List<JabberId> getIds(
+            final List<U> users, final List<JabberId> userIds) {
+        return USER_UTILS.getIds(users, userIds);
     }
 
     /**

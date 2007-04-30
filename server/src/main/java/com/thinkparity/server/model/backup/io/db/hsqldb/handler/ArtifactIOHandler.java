@@ -332,7 +332,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             session.setLong(1, artifactId);
             session.setLong(2, userId);
             if(1 != session.executeUpdate())
-                throw new HypersonicException("[LMODEL] [ARTIFACT] [IO] [DELETE TEAM REL]");
+                throw new HypersonicException("Cannot delete team relationship.");
         } finally {
             session.close();
         }

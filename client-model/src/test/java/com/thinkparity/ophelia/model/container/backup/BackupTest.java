@@ -207,10 +207,9 @@ public final class BackupTest extends BackupTestCase {
             c_list.add(c);
         }
         // ensure created
-        final List<Container> c_list_local = readContainers(datum.junit_z);
         Container c_local;
         for (int o = 0; o < numberOfContainers; o++) {
-            c_local = c_list_local.get(o);
+            c_local = c_list.get(o);
             final List<ContainerVersion> cv_list_local = readContainerVersions(datum.junit_z, c_local.getId());
             ContainerVersion cv_local;
             List<JabberId> t_id_list_local;
@@ -225,7 +224,7 @@ public final class BackupTest extends BackupTestCase {
             logger.logInfo("Validating container \"{0}\"", c_list.get(o).getName());
             final Container c_backup = getBackupModel(datum.junit_z).readContainer(c_list.get(o).getUniqueId());
             assertNotNull("Container " + o + " has not been properly backed up.", c_backup);
-            assertEquals("Container " + o + " has not been properly backed up.", c_local, c_backup);
+            assertSimilar("Container " + o + " has not been properly backed up.", c_local, c_backup);
             ContainerVersion cv_backup;
             List<JabberId> t_id_list_backup;
             JabberId t_id_backup;
@@ -245,7 +244,7 @@ public final class BackupTest extends BackupTestCase {
                 assertNotNull("Container version has not been properly backed up.", cv_backup);
                 logger.logInfo("Validating container \"{0}\" version \"{1}\".", c_backup.getName(), cv_backup.getVersionId());
                 cv_local = cv_list_local.get(i);
-                assertEquals("Container verison has not been properly backed up.", cv_local, cv_backup);
+                assertSimilar("Container verison has not been properly backed up.", cv_local, cv_backup);
                 logger.logInfo("Validating container \"{0}\" version \"{1}\" team.", c_backup.getName(), cv_backup.getVersionId());
                 t_id_list_local = readTeamIds(datum.junit_z, c_local.getId());
                 t_id_list_backup = getBackupModel(datum.junit_z).readTeamIds(c_list.get(o).getUniqueId());
@@ -271,7 +270,7 @@ public final class BackupTest extends BackupTestCase {
                     pt_receipt_backup = pt_list_backup.get(k);
                     assertNotNull("Published to receipt has not been properly backed up.", pt_receipt_backup);
                     pt_receipt_local = pt_list_local.get(k);
-                    assertEquals("Published to receipt has not been properly backed up.", pt_receipt_local, pt_receipt_backup);
+                    assertSimilar("Published to receipt has not been properly backed up.", pt_receipt_local, pt_receipt_backup);
                 }
                 d_list_backup = getBackupModel(datum.junit_z).readDocuments(c_list.get(o).getUniqueId(), cv_backup.getVersionId());
                 assertNotNull("Document list has not been properly backed up.", d_list_backup);
@@ -283,7 +282,7 @@ public final class BackupTest extends BackupTestCase {
                     assertNotNull("Document has not been properly backed up.", d_backup);
                     logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\".", c_backup.getName(), cv_backup.getVersionId(), d_backup.getName());
                     d_local = d_list_local.get(m);
-                    assertEquals("Document has not been properly backed up.", d_local, d_backup);
+                    assertSimilar("Document has not been properly backed up.", d_local, d_backup);
                 }
                 logger.logInfo("Validating container \"{0}\" version \"{1}\" document versions.", c_backup.getName(), cv_backup.getVersionId());
                 dv_list_backup = getBackupModel(datum.junit_z).readDocumentVersions(c_list.get(o).getUniqueId(), cv_backup.getVersionId());
@@ -295,8 +294,8 @@ public final class BackupTest extends BackupTestCase {
                     assertNotNull("Document version has not been properly backed up.", dv_backup);
                     logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\".", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getName(), dv_backup.getVersionId());
                     final DocumentVersion dv_local = dv_list_local.get(n);
-                    assertEquals("Document version has not been properly backed up.", dv_local, dv_backup);
-    
+                    assertSimilar("Document version has not been properly backed up.", dv_local, dv_backup);
+
                     logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\" stream.", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getName(), dv_backup.getVersionId());
                     dv_stream_backup = getBackupModel(datum.junit_z).openDocumentVersion(dv_backup.getArtifactUniqueId(), dv_backup.getVersionId());
                     getDocumentModel(datum.junit_z).openVersion(dv_local.getArtifactId(), dv_local.getVersionId(), new StreamOpener() {

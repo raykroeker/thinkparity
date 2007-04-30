@@ -312,11 +312,15 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             final InternalSessionModel sessionModel = getSessionModel();
             if (sessionModel.isLoggedIn()) {
                 final Error error = new Error();
-                error.setArguments(arguments);
+                final String[] stringArguments = new String[arguments.length];
+                for (int i = 0; i < arguments.length; i++) {
+                    stringArguments[i] = arguments[i].toString();
+                }
+                error.setArguments(stringArguments);
                 final StringWriter writer = new StringWriter();
                 cause.printStackTrace(new PrintWriter(writer));
                 error.setStack(writer.toString());
-                error.setMethod(method);
+                error.setMethod(method.toGenericString());
                 error.setOccuredOn(sessionModel.readDateTime());
                 final Product product = migratorIO.readProduct(Constants.Product.NAME);
                 sessionModel.logError(product,

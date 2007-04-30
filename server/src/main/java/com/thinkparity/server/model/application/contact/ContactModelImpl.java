@@ -15,7 +15,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.*;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -26,7 +26,6 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.*;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
-import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
 import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
 import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVersionAttachment;
@@ -757,13 +756,24 @@ public final class ContactModelImpl extends AbstractModelImpl implements
             final ContainerVersionAttachment attachment) {
         final InternalBackupModel backupModel = getBackupModel();
         // grab from backup
-        final Container container = backupModel.readContainer(attachment.getUniqueId());
-        final ContainerVersion version = backupModel.readContainerVersion(container.getUniqueId(), attachment.getVersionId());
-        final ContainerVersion latestVersion = backupModel.readContainerLatestVersion(container.getUniqueId());
-        final List<DocumentVersion> documentVersions = backupModel.readContainerDocumentVersions(container.getUniqueId(), version.getVersionId());
-        final List<TeamMember> teamMembers = backupModel.readArtifactTeam(container.getUniqueId());
+        final Container container = backupModel.readContainer(
+                attachment.getUniqueId());
+        final ContainerVersion version = backupModel.readContainerVersion(
+                container.getUniqueId(), attachment.getVersionId());
+        final List<DocumentVersion> documentVersions =
+            backupModel.readContainerDocumentVersions(container.getUniqueId(),
+                    version.getVersionId());
+        final List<TeamMember> teamMembers = backupModel.readArtifactTeam(
+                container.getUniqueId());
+        final List<ArtifactReceipt> receivedBy = backupModel.readPublishedTo(
+                container.getUniqueId(), version.getVersionId());
+        final JabberId publishedBy = sendAs;
+        final Calendar publishedOn = version.getCreatedOn();
+        final List<EMail> publishToEMails = Collections.emptyList();
+        final List<User> publishToUsers = new ArrayList<User>();
+        publishToUsers.add(readUser(sendTo));
         // upload documents
-        final Map<DocumentVersion, String> documentVersionStreams =
+        final Map<DocumentVersion, String> streamIds =
             new HashMap<DocumentVersion, String>(documentVersions.size());
         final InternalStreamModel streamModel = getStreamModel();
         final StreamSession streamSession = streamModel.createArchiveSession(sendTo);
@@ -774,40 +784,14 @@ public final class ContactModelImpl extends AbstractModelImpl implements
                 backupModel.uploadDocumentVersion(streamId,
                         documentVersion.getArtifactUniqueId(),
                         documentVersion.getVersionId());
-                documentVersionStreams.put(documentVersion, streamId);
+                streamIds.put(documentVersion, streamId);
             }
         } finally {
             streamModel.deleteSession(sendTo, streamSession.getId());
         }
-        final JabberId publishedBy = sendAs;
-        final Calendar publishedOn = version.getCreatedOn();
-        // publish to a single user
-        final List<User> publishedToUsers = new ArrayList<User>();
-        publishedToUsers.add(readUser(sendTo));
-        // container published
-        final ContainerPublishedEvent publishedEvent = new ContainerPublishedEvent();
-        publishedEvent.setDocumentVersions(documentVersionStreams);
-        publishedEvent.setPublishedBy(publishedBy);
-        publishedEvent.setPublishedOn(publishedOn);
-        publishedEvent.setPublishedTo(publishedToUsers);
-        publishedEvent.setVersion(version);
-        enqueueEvent(session.getJabberId(), sendTo, publishedEvent);
-        // artifact published
-        final ArtifactPublishedEvent artifactPublishedEvent = new ArtifactPublishedEvent();
-        artifactPublishedEvent.setLatestVersion(version.equals(latestVersion));
-        artifactPublishedEvent.setPublishedBy(publishedBy);
-        artifactPublishedEvent.setPublishedOn(publishedOn);
-        artifactPublishedEvent.setUniqueId(version.getArtifactUniqueId());
-        artifactPublishedEvent.setVersionId(version.getVersionId());
-        final List<JabberId> teamUserIds = USER_UTIL.getIds(teamMembers,
-                new ArrayList<JabberId>(teamMembers.size() + 1));
-        teamUserIds.add(sendTo);
-        artifactPublishedEvent.setTeamUserIds(teamUserIds);
-        enqueueEvent(session.getJabberId(), teamUserIds, artifactPublishedEvent);
-        // add team member
-        final InternalArtifactModel artifactModel = getArtifactModel();
-        final Artifact artifact = artifactModel.read(version.getArtifactUniqueId());
-        getArtifactModel().addTeamMember(session.getJabberId(),
-                artifact.getId(), readUser(sendTo).getLocalId());
+        // publish version
+        getContainerModel().publishVersion(sendAs, version, streamIds,
+                teamMembers, receivedBy, publishedBy, publishedOn,
+                publishToEMails, publishToUsers);
     }
 }

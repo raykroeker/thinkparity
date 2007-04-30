@@ -16,7 +16,6 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
@@ -67,12 +66,20 @@ public interface InternalArtifactModel extends ArtifactModel {
     public void applyFlagKey(final Long artifactId);
 
     /**
-     * Apply the key flag.
+     * Apply the latest flag.
      * 
      * @param artifactId
      *            The artifact id.
      */
     public void applyFlagLatest(final Long artifactId);
+
+    /**
+     * Remove the latest flag.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     */
+    public void removeFlagLatest(final Long artifactId);
 
     /**
      * Create the team. This will add the current user to the team.
@@ -157,14 +164,6 @@ public interface InternalArtifactModel extends ArtifactModel {
      *            An <code>ArtifactDraftDeleted</code> remote event.
      */
     public void handleDraftDeleted(final ArtifactDraftDeletedEvent event);
-
-    /**
-     * Handle an artifact published remote event.
-     * 
-     * @param event
-     *            An <code>ArtifactPublishedEvent</code>.
-     */
-    public void handlePublished(final ArtifactPublishedEvent event);
 
     /**
      * Handle an artifact received remote event.

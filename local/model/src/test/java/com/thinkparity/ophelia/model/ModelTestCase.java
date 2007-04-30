@@ -1643,6 +1643,18 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return getContainerModel(readAs).read();
     }
 
+    /**
+     * Read all containers for a user.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @return A <code>Container</code>.
+     */
+    protected List<Container> readContainers(final OpheliaTestUser readAs,
+            final Comparator<Artifact> comparator) {
+        return getContainerModel(readAs).read(comparator);
+    }
+
     protected Map<DocumentVersion, Delta> readContainerVersionDeltas(
             final OpheliaTestUser readAs, final Long localContainerId,
             final Long compareVersionId) {

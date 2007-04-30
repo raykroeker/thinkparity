@@ -473,10 +473,6 @@ public abstract class AbstractModelImpl
 		return ArtifactModel.getInternalModel(getContext(), session);
 	}
 
-    protected final InternalMigratorModel getMigratorModel() {
-        return InternalModelFactory.getInstance(getContext(), session).getMigratorModel();
-    }
-
     /**
      * Obtain an internal backup model.
      * 
@@ -530,7 +526,7 @@ public abstract class AbstractModelImpl
         return InternalModelFactory.getInstance(getContext(), session).getContainerModel();
     }
 
-	/**
+    /**
      * Obtain the default buffer size.
      * 
      * @return A buffer size <code>Integer</code>.
@@ -539,7 +535,7 @@ public abstract class AbstractModelImpl
         return ByteBuffer.allocate(getDefaultBufferSize());
     }
 
-    /**
+	/**
      * Obtain the default buffer size.
      * 
      * @return A buffer size <code>Integer</code>.
@@ -583,11 +579,35 @@ public abstract class AbstractModelImpl
                     t.getMessage());
     }
 
+    /**
+     * Build a list of user ids from a list of users.
+     * 
+     * @param <U>
+     *            A <code>User</code> type.
+     * @param users
+     *            A <code>List</code> of <code>User</code>s of type
+     *            <code>T</code>.
+     * @param userIds
+     *            A <code>List</code> of <code>JabberId</code>.
+     * @return A <code>List</code> of <code>JabberId</code>.
+     */
+    protected final <U extends User> List<JabberId> getIds(final List<U> users,
+            final List<JabberId> userIds) {
+        for (final U user : users) {
+            userIds.add(user.getId());
+        }
+        return userIds;
+    }
+
+	protected final InternalMigratorModel getMigratorModel() {
+        return InternalModelFactory.getInstance(getContext(), session).getMigratorModel();
+    }
+
 	protected final InternalProfileModel getProfileModel() {
         return InternalModelFactory.getInstance(getContext(), session).getProfileModel();
     }
 
-	protected final InternalQueueModel getQueueModel() {
+    protected final InternalQueueModel getQueueModel() {
         return QueueModel.getInternalModel(getContext(), session);
     }
 
@@ -595,11 +615,11 @@ public abstract class AbstractModelImpl
         return StreamModel.getInternalModel(getContext(), session);
     }
 
-    protected final InternalUserModel getUserModel() {
+	protected final InternalUserModel getUserModel() {
 		return UserModel.getInternalModel(getContext(), session);
 	}
 
-	/**
+    /**
      * Obtain the index of a user in the list.
      * 
      * @param <U>
@@ -649,7 +669,7 @@ public abstract class AbstractModelImpl
         this.modelConfiguration = ModelConfiguration.getInstance(getClass());
     }
 
-    /**
+	/**
      * Intialize the model.
      * 
      * @param session
@@ -677,7 +697,7 @@ public abstract class AbstractModelImpl
         return logger.logVariable("type", type);
     }
 
-	/**
+    /**
      * Determine if the user id is the authenticated user.
      * 
      * @param userId
@@ -688,7 +708,7 @@ public abstract class AbstractModelImpl
         return session.getJabberId().equals(userId);
     }
 
-    /**
+	/**
      * Determine whether or not the user represented by the jabber id is
      * currently online.
      * 
@@ -703,7 +723,7 @@ public abstract class AbstractModelImpl
 		else { return Boolean.FALSE; }
 	}
 
-	protected Boolean isSessionUserKeyHolder(final UUID uniqueId) {
+    protected Boolean isSessionUserKeyHolder(final UUID uniqueId) {
 		return readKeyHolder(uniqueId).equals(session.getJabberId());
 	}
 
@@ -718,12 +738,12 @@ public abstract class AbstractModelImpl
         return userId.equals(User.THINKPARITY.getId());
     }
 
-    /** Log an api id. */
+	/** Log an api id. */
     protected final void logApiId() {
         logger.logApiId();
     }
 
-	/**
+    /**
      * Log an api id with a message.
      * 
      * @param message
@@ -746,7 +766,7 @@ public abstract class AbstractModelImpl
         logger.logInfo(infoPattern, infoArguments);
     }
 
-    /** Log a trace id. */
+	/** Log a trace id. */
     protected final void logTraceId() {
         logger.logApiId();
     }
@@ -765,7 +785,7 @@ public abstract class AbstractModelImpl
         return logger.logVariable(name, value);
     }
 
-	/**
+    /**
      * Log a warning.
      * 
      * @param warning
@@ -817,7 +837,7 @@ public abstract class AbstractModelImpl
         return properties;
     }
 
-    /**
+	/**
      * Read the jive property for the environment.
      * 
      * @return An environment.
@@ -840,7 +860,7 @@ public abstract class AbstractModelImpl
         return getArtifactModel().readKeyHolder(session.getJabberId(), uniqueId);
     }
 
-	/**
+    /**
      * Set the to field in the query.
      * 
      * @param query
@@ -896,6 +916,7 @@ public abstract class AbstractModelImpl
         return session.createTempFile(streamId);
     }
 
+
     /**
      * Create a client session filter for a user.
      * 
@@ -908,7 +929,6 @@ public abstract class AbstractModelImpl
         filter.setUsername(userId.getUsername());
         return filter;
     }
-
 
     /**
      * Create an event for user.

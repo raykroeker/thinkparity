@@ -62,6 +62,12 @@ public class InternalArtifactModel extends ArtifactModel {
         }
     }
 
+    public JabberId readDraftOwner(final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readDraftOwner(uniqueId);
+        }
+    }
+
     // TODO-javadoc InternalArtifactModel#readTeam()
     public List<TeamMember> readTeam(final JabberId userId,
             final Long artifactId) {

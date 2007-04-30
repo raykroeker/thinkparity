@@ -310,6 +310,20 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#readPublishedTo(java.util.UUID,
+     *      java.lang.Long)
+     * 
+     */
+    public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId) {
+        try {
+            return readPublishedToImpl(uniqueId, versionId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.backup.BackupModel#readStatistics(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
@@ -936,6 +950,17 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
         } else {
             logger.logWarning("Container {0} is not backed up for user {1}.",
                     uniqueId, user.getId());
+            return Collections.emptyList();
+        }
+    }
+
+    private List<ArtifactReceipt> readPublishedToImpl(final UUID uniqueId,
+            final Long versionId) {
+        if (isContainerBackedUp(uniqueId)) {
+            final Long containerId = getModelFactory().getArtifactModel().readId(uniqueId);
+            return getModelFactory().getContainerModel().readPublishedTo(containerId, versionId);
+        } else {
+            logger.logWarning("Container {0} is not backed up.", uniqueId);
             return Collections.emptyList();
         }
     }

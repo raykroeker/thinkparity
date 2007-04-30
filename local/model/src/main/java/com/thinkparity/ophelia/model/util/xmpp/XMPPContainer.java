@@ -41,42 +41,29 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
 
     // TODO-javadoc XMPPContainer#publish
     void publish(final JabberId userId, final ContainerVersion version,
-            final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documentVersions,
-            final List<TeamMember> teamMembers,
-            final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
-            final Calendar publishedOn, final List<EMail> publishedToEMails,
-            final List<User> publishedToUsers) {
-        if (null == latestVersion) {
-            /* publish an existing version - does not require latest version */
-            publishVersion(userId, version, documentVersions, teamMembers,
-                    receivedBy, publishedBy, publishedOn, publishedToEMails,
-                    publishedToUsers);
-        } else {
-            /* publish a new version - requires latest version */
-            final XMPPMethod publish = xmppCore.createMethod("container:publish");
-            publish.setParameter("userId", userId);
-            publish.setParameter("version", version);
-            publish.setParameter("latestVersion", latestVersion);
-            publish.setDocumentVersionsStreamIdsParameter("documentVersions", documentVersions);
-            publish.setTeamMembersParameter("teamMembers", teamMembers);
-            publish.setArtifactReceiptParameter("receivedBy", receivedBy);
-            publish.setParameter("publishedBy", publishedBy);
-            publish.setParameter("publishedOn", publishedOn);
-            publish.setEMailsParameter("publishedToEMails", publishedToEMails);
-            publish.setUsersParameter("publishedToUsers", publishedToUsers);
-            execute(publish);
-        }
+            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final Calendar publishedOn, final List<EMail> publishToEMails,
+            final List<User> publishToUsers) {
+        final XMPPMethod publish = xmppCore.createMethod("container:publish");
+        publish.setParameter("userId", userId);
+        publish.setParameter("version", version);
+        publish.setDocumentVersionsStreamIdsParameter("documentVersions", documentVersions);
+        publish.setTeamMembersParameter("teamMembers", teamMembers);
+        publish.setParameter("publishedBy", publishedBy);
+        publish.setParameter("publishedOn", publishedOn);
+        publish.setEMailsParameter("publishToEMails", publishToEMails);
+        publish.setUsersParameter("publishToUsers", publishToUsers);
+        execute(publish);
     }
 
     // TODO-javadoc XMPPContainer#publishVersion()
-    private void publishVersion(final JabberId userId,
-            final ContainerVersion version,
+    void publishVersion(final JabberId userId, final ContainerVersion version,
             final Map<DocumentVersion, String> documentVersions,
             final List<TeamMember> teamMembers,
             final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
-            final Calendar publishedOn, final List<EMail> publishedToEMails,
-            final List<User> publishedToUsers) {
+            final Calendar publishedOn, final List<EMail> publishToEMails,
+            final List<User> publishToUsers) {
         final XMPPMethod publish = xmppCore.createMethod("container:publishversion");
         publish.setParameter("userId", userId);
         publish.setParameter("version", version);
@@ -85,8 +72,8 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
         publish.setArtifactReceiptParameter("receivedBy", receivedBy);
         publish.setParameter("publishedBy", publishedBy);
         publish.setParameter("publishedOn", publishedOn);
-        publish.setEMailsParameter("publishedToEMails", publishedToEMails);
-        publish.setUsersParameter("publishedToUsers", publishedToUsers);
+        publish.setEMailsParameter("publishToEMails", publishToEMails);
+        publish.setUsersParameter("publishToUsers", publishToUsers);
         execute(publish);
     }
 }

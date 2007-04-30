@@ -52,8 +52,8 @@ public final class PublishVersion extends AbstractHandler {
                 reader.readArtifactReceipts("receivedBy"),
                 reader.readJabberId("publishedBy"),
                 reader.readCalendar("publishedOn"),
-                reader.readEMails("publishedToEMails"),
-                reader.readUsers("publishedToUsers"));
+                reader.readEMails("publishToEMails"),
+                reader.readUsers("publishToUsers"));
     }
 
     private void publish(final ServiceModelProvider provider,
@@ -61,10 +61,10 @@ public final class PublishVersion extends AbstractHandler {
             final Map<DocumentVersion, String> documentVersions,
             final List<TeamMember> teamMembers,
             final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
-            final Calendar publishedOn, final List<EMail> publishedToEMails,
-            final List<User> publishedToUsers) {
-        provider.getContainerModel().publish(userId, version, null,
+            final Calendar publishedOn, final List<EMail> publishToEMails,
+            final List<User> publishToUsers) {
+        provider.getContainerModel().publishVersion(userId, version,
                 documentVersions, teamMembers, receivedBy, publishedBy,
-                publishedOn, publishedToEMails, publishedToUsers);
+                publishedOn, publishToEMails, publishToUsers);
     }
 }

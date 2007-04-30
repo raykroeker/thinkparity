@@ -495,13 +495,18 @@ public interface XMPPSession {
      *            A <code>List</code> of <code>User</code>s to publish to.
      */
     public void publish(final JabberId userId, final ContainerVersion version,
-            final ContainerVersion latestVersion,
-            final Map<DocumentVersion, String> documents,
+            final Map<DocumentVersion, String> documentVersions,
+            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final Calendar publishedOn, final List<EMail> publishToEMails,
+            final List<User> publishToUsers);
+
+    public void publishVersion(final JabberId userId,
+            final ContainerVersion version,
+            final Map<DocumentVersion, String> documentVersions,
             final List<TeamMember> teamMembers,
             final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
-            final Calendar publishedOn, final List<EMail> publishedToEMails,
-            final List<User> publishedToUsers);
-
+            final Calendar publishedOn, final List<EMail> publishToEMails,
+            final List<User> publishToUsers);
 
     /**
      * Read the archive's containers.

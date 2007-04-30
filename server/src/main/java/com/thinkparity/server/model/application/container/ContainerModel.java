@@ -35,35 +35,36 @@ public interface ContainerModel {
      *            A user id <code>JabberId</code>.
      * @param version
      *            A <code>ContainerVersion</code>.
-     * @param latestVersion
-     *            The latest <code>ContainerVersion</code>.
      * @param documentVersions
      *            A <code>List</code> of <code>DocumentVersion</code>s
      *            belonging to version.
      * @param teamMembers
      *            A <code>List</code> of <code>TeamMember</code>s.
-     * @param receivedBy
-     *            An optional <code>List</code> of
-     *            <code>ArtifactReceipt</code>s where the recipient has
-     *            already received the artifact.
      * @param publishedBy
      *            A published by user id <code>JabberId</code>.
      * @param publishedOn
      *            A published on <code>Calendar</code>.
-     * @param publishedToEMails
+     * @param publishToEMails
      *            A <code>List</code> of <code>EMail</code> addresses to
      *            publish to.  It is assumed that the e-mail addresses do not
      *            belong to a contact of the user performing the publish.
-     * @param publishedToUsers
+     * @param publishToUsers
      *            A <code>List</code> of <code>User</code>s to publish to.
      */
     @ThinkParityAuthenticate(AuthenticationType.USER)
     public void publish(final JabberId userId, final ContainerVersion version,
-            final ContainerVersion latestVersion,
+            final Map<DocumentVersion, String> documentVersions,
+            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final Calendar publishedOn, final List<EMail> publishedToEMails,
+            final List<User> publishedToUsers);
+
+    @ThinkParityAuthenticate(AuthenticationType.USER)
+    public void publishVersion(final JabberId userId,
+            final ContainerVersion version,
             final Map<DocumentVersion, String> documentVersions,
             final List<TeamMember> teamMembers,
             final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
-            final Calendar publishedOn, final List<EMail> publishedToEMails,
-            final List<User> publishedToUsers);
+            final Calendar publishedOn, final List<EMail> publishToEMails,
+            final List<User> publishToUsers);
 }
 

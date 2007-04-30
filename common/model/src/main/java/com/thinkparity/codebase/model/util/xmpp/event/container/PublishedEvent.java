@@ -1,7 +1,7 @@
 /*
  * 
  */
-package com.thinkparity.codebase.model.util.xmpp.event;
+package com.thinkparity.codebase.model.util.xmpp.event.container;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,19 +13,21 @@ import java.util.Map;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityBackupEvent;
-import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 /**
- * <b>Title:</b><br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity CommonModel Container Published Event<br>
+ * <b>Description:</b>The event that is fired when a new container version is
+ * published to users.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 @ThinkParityBackupEvent
-public final class ContainerPublishedEvent extends XMPPEvent {
+public final class PublishedEvent extends XMPPEvent {
 
     /**
      * The <code>DocumentVersion</code>s and their stream id
@@ -42,9 +44,6 @@ public final class ContainerPublishedEvent extends XMPPEvent {
     /** Who the container was published to. */
     private final List<User> publishedTo;
 
-    /** Who has already received the version. */
-    private final List<ArtifactReceipt> receivedBy;
-
     /** The <code>ContainerVersion</code>. */
     private ContainerVersion version;
 
@@ -52,11 +51,10 @@ public final class ContainerPublishedEvent extends XMPPEvent {
      * Create ContainerPublishedEvent.
      *
      */
-    public ContainerPublishedEvent() {
+    public PublishedEvent() {
         super();
         this.documentVersions = new HashMap<DocumentVersion, String>();
         this.publishedTo = new ArrayList<User>();
-        this.receivedBy = new ArrayList<ArtifactReceipt>();
     }
 
     public void clearDocumentVersions() {
@@ -65,10 +63,6 @@ public final class ContainerPublishedEvent extends XMPPEvent {
 
     public void clearPublishedTo() {
         this.publishedTo.clear();
-    }
-
-    public void clearReceivedBy() {
-        receivedBy.clear();
     }
 
     public Map<DocumentVersion, String> getDocumentVersions() {
@@ -100,10 +94,6 @@ public final class ContainerPublishedEvent extends XMPPEvent {
      */
     public List<User> getPublishedTo() {
         return Collections.unmodifiableList(publishedTo);
-    }
-
-    public List<ArtifactReceipt> getReceivedBy() {
-        return Collections.unmodifiableList(receivedBy);
     }
 
     /**
@@ -147,10 +137,6 @@ public final class ContainerPublishedEvent extends XMPPEvent {
      */
     public void setPublishedTo(final List<User> publishedTo) {
         this.publishedTo.addAll(publishedTo);
-    }
-
-    public void setReceivedBy(final List<ArtifactReceipt> receivedBy) {
-        this.receivedBy.addAll(receivedBy);
     }
 
     /**

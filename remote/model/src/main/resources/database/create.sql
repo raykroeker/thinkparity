@@ -138,6 +138,7 @@ create table TPSD_ARTIFACT(
     ARTIFACT_ID bigint generated always as identity(start with 2000),
     ARTIFACT_UNIQUE_ID varchar(256) not null,
     ARTIFACT_DRAFT_OWNER bigint not null,
+    ARTIFACT_LATEST_VERSION_ID bigint not null,
     CREATED_BY bigint not null,
     CREATED_ON timestamp not null,
     UPDATED_BY bigint not null,

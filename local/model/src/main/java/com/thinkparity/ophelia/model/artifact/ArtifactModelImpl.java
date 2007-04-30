@@ -22,7 +22,6 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
@@ -265,53 +264,6 @@ public final class ArtifactModelImpl extends Model implements
                     break;
                 default:
                     Assert.assertUnreachable("Unsupported artifact type.");
-                }
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#handlePublished(com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent)
-     * 
-     */
-    public void handlePublished(final ArtifactPublishedEvent event) {
-        try {
-            final Long artifactId = readId(event.getUniqueId());
-            if (artifactIO.doesVersionExist(artifactId, event.getVersionId())) {
-                logger.logWarning("Artifact version for event {0} already exists locally.",
-                        event);
-            } else {
-                /* update the latest flag only if the event pertains to the latest
-                 * version */
-                if (event.isLatestVersion()) {
-                    if (doesVersionExist(artifactId, event.getVersionId())) {
-                        applyFlagLatest(artifactId);
-                    } else {
-                        removeFlagLatest(artifactId);
-                    }
-                }
-                // update local team definition
-                final List<JabberId> localTeamIds = readTeamIds(artifactId);
-                final List<JabberId> eventTeamIds = event.getTeamUserIds();
-                for (final JabberId localTeamId : localTeamIds) {
-                    if (!eventTeamIds.contains(localTeamId)) {
-                        removeTeamMember(artifactId, localTeamId);
-                    }
-                }
-                for (final JabberId eventTeamId : eventTeamIds) {
-                    if (!localTeamIds.contains(eventTeamId)) {
-                        addTeamMember(artifactId, eventTeamId);
-                    }
-                }
-                switch (readType(artifactId)) {
-                case CONTAINER:
-                    getContainerModel().handlePublished(event);
-                    break;
-                case DOCUMENT:  // deliberate fall through
-                default:
-                    Assert.assertUnreachable("Unexpected artifact type.");
                 }
             }
         } catch (final Throwable t) {
@@ -567,6 +519,18 @@ public final class ArtifactModelImpl extends Model implements
 	}
 
     /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#removeFlagLatest(java.lang.Long)
+     *
+	 */
+    public void removeFlagLatest(final Long artifactId) {
+        try {
+            removeFlag(artifactId, ArtifactFlag.LATEST);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.artifact.ArtifactModel#removeFlagSeen(java.lang.Long)
      * 
      */
@@ -642,7 +606,7 @@ public final class ArtifactModelImpl extends Model implements
 		}
 	}
 
-    /**
+	/**
 	 * Remove a flag from an artifact.
 	 * 
 	 * @param artifactId
@@ -665,18 +629,4 @@ public final class ArtifactModelImpl extends Model implements
                     artifactId, flag);
 		}
 	}
-
-    /**
-     * Remove the latest flag.
-     * 
-     * @param artifactId
-     *            An artifact id.
-     */
-    private void removeFlagLatest(final Long artifactId) {
-        try {
-            removeFlag(artifactId, ArtifactFlag.LATEST);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
 }

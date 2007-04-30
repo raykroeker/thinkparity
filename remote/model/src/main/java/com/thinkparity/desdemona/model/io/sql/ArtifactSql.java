@@ -30,9 +30,10 @@ public class ArtifactSql extends AbstractSql {
     /** Sql to create an artifact. */
     private static final String SQL_CREATE =
         new StringBuilder("insert into TPSD_ARTIFACT ")
-        .append("(ARTIFACT_UNIQUE_ID,ARTIFACT_DRAFT_OWNER,CREATED_BY,")
-        .append("CREATED_ON,UPDATED_BY,UPDATED_ON) ")
-		.append("values (?,?,?,?,?,?)")
+        .append("(ARTIFACT_UNIQUE_ID,ARTIFACT_DRAFT_OWNER,")
+        .append("ARTIFACT_LATEST_VERSION_ID,CREATED_BY,CREATED_ON,UPDATED_BY,")
+        .append("UPDATED_ON) ")
+		.append("values (?,?,?,?,?,?,?)")
 		.toString();
 
     /** Sql to create a team member relationship. */
@@ -85,7 +86,14 @@ public class ArtifactSql extends AbstractSql {
         .append("order by A.ARTIFACT_ID asc")
         .toString();
 
-	/** Sql to read a user's artifacts from the team. */
+	/** Sql to read the latest version id. */
+    private static final String SQL_READ_LATEST_VERSION_ID =
+        new StringBuilder("select A.ARTIFACT_LATEST_VERSION_ID ")
+        .append("from TPSD_ARTIFACT A ")
+        .append("where A.ARTIFACT_ID=?")
+        .toString();
+
+    /** Sql to read a user's artifacts from the team. */
     private static final String SQL_READ_TEAM_ARTIFACT_UNIQUE_IDS =
         new StringBuilder("select A.ARTIFACT_UNIQUE_ID ")
         .append("from TPSD_ARTIFACT_TEAM_REL ATR ")
@@ -103,7 +111,7 @@ public class ArtifactSql extends AbstractSql {
         .append("order by U.USERNAME asc")
         .toString();
 
-    /** Sql to read the team relationship. */
+	/** Sql to read the team relationship. */
     private static final String SQL_READ_TEAM_REL_BY_ARTIFACT_ID =
         new StringBuilder("select U.USERNAME,U.USER_ID,ATR.ARTIFACT_ID ")
         .append("from TPSD_ARTIFACT_TEAM_REL ATR ")
@@ -112,7 +120,7 @@ public class ArtifactSql extends AbstractSql {
         .append("order by U.USERNAME asc")
         .toString();
 
-	/** Sql to read the team member relationship. */
+    /** Sql to read the team member relationship. */
     private static final String SQL_READ_TEAM_REL_COUNT_BY_ARTIFACT_ID =
         new StringBuilder("select COUNT(U.USER_ID) \"TEAM_REL_COUNT\" ")
         .append("from TPSD_ARTIFACT_TEAM_REL ATR ")
@@ -121,11 +129,18 @@ public class ArtifactSql extends AbstractSql {
         .toString();
 
     /** Sql to update the draft owner. */
-	private static final String SQL_UPDATE_DRAFT_OWNER =
-		new StringBuilder("update TPSD_ARTIFACT ")
-		.append("set ARTIFACT_DRAFT_OWNER=?,UPDATED_ON=?,UPDATED_BY=? ")
-		.append("where ARTIFACT_ID=?")
-		.toString();
+    private static final String SQL_UPDATE_DRAFT_OWNER =
+        new StringBuilder("update TPSD_ARTIFACT ")
+        .append("set ARTIFACT_DRAFT_OWNER=?,UPDATED_ON=?,UPDATED_BY=? ")
+        .append("where ARTIFACT_ID=?")
+        .toString();
+
+    /** Sql to update the latest version id. */
+    private static final String SQL_UPDATE_LATEST_VERSION_ID =
+        new StringBuilder("update TPSD_ARTIFACT ")
+        .append("set ARTIFACT_LATEST_VERSION_ID=?,UPDATED_BY=?,UPDATED_ON=? ")
+        .append("where ARTIFACT_ID=? AND ARTIFACT_DRAFT_OWNER=?")
+        .toString();
 
 	/** A user sql interface. */
     private final UserSql userSql;
@@ -146,6 +161,8 @@ public class ArtifactSql extends AbstractSql {
      *            An artifact unique id <code>UUID</code>.
      * @param draftOwner
      *            A draft owner user id <code>JabberId</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
      * @param createdBy
      *            The creation user id <code>JabberId</code>.
      * @param createdOn
@@ -153,16 +170,18 @@ public class ArtifactSql extends AbstractSql {
      * @return The artifact id <code>Long</code>.
      */
 	public Long create(final UUID uniqueId, final JabberId draftOwner,
-            final JabberId createdBy, final Calendar createdOn) {
+            final Long versionId, final JabberId createdBy,
+            final Calendar createdOn) {
 		final HypersonicSession session = openSession();
 		try {
 			session.prepareStatement(SQL_CREATE);
 			session.setUniqueId(1, uniqueId);
 			session.setLong(2, readLocalUserId(draftOwner));
-            session.setLong(3, readLocalUserId(createdBy));
-            session.setCalendar(4, createdOn);
-            session.setLong(5, readLocalUserId(createdBy));
-            session.setCalendar(6, createdOn);
+            session.setLong(3, versionId);
+            session.setLong(4, readLocalUserId(createdBy));
+            session.setCalendar(5, createdOn);
+            session.setLong(6, readLocalUserId(createdBy));
+            session.setCalendar(7, createdOn);
             if (1 != session.executeUpdate())
                 throw panic("Could not create artifact {0}.", uniqueId);
             session.commit();
@@ -175,7 +194,7 @@ public class ArtifactSql extends AbstractSql {
 		}
 	}
 
-	/**
+    /**
      * Create a team relationship.
      * 
      * @param artifactId
@@ -202,7 +221,7 @@ public class ArtifactSql extends AbstractSql {
         }
     }
 
-    /**
+	/**
      * Delete an artifact.
      * 
      * @param artifactId
@@ -345,6 +364,31 @@ public class ArtifactSql extends AbstractSql {
     }
 
     /**
+     * Read the latest version id for an artifact.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @return The latest version id <code>Long</code>.
+     */
+    public Long readLatestVersionId(final Long artifactId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_LATEST_VERSION_ID);
+            session.setLong(1, artifactId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getLong("ARTIFACT_LATEST_VERSION_ID");
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Read a team artifact unique ids.
      * 
      * @param userId
@@ -473,6 +517,28 @@ public class ArtifactSql extends AbstractSql {
             session.close();
 		}
 	}
+
+    public void updateLatestVersionId(final Long artifactId,
+            final Long versionId, final Long draftOwnerId,
+            final Calendar updatedOn) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_LATEST_VERSION_ID);
+            session.setLong(1, versionId);
+            session.setLong(2, draftOwnerId);
+            session.setCalendar(3, updatedOn);
+            session.setLong(4, artifactId);
+            session.setLong(5, draftOwnerId);
+
+            if (1 != session.executeUpdate())
+                throw panic("Could not update latest version.");
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
 
     /**
      * Extract an artifact from a database session.

@@ -870,20 +870,6 @@ public class ElementBuilder {
     }
 
     public static final Element createElement(final String name,
-            final ArtifactPublishedEvent value) {
-        if (null == value) {
-            return createNullElement(name, ArtifactPublishedEvent.class);
-        } else {
-            final Element element = createElement(name, ArtifactPublishedEvent.class);
-            addElement(element, "publishedBy", value.getPublishedBy());
-            addElement(element, "publishedOn", value.getPublishedOn());
-            addElement(element, "uniqueId", value.getUniqueId());
-            addElement(element, "versionId", value.getVersionId());
-            return element;
-        }
-    }
-
-    public static final Element createElement(final String name,
             final ArtifactReceivedEvent value) {
         if (null == value) {
             return createNullElement(name, ArtifactReceivedEvent.class);

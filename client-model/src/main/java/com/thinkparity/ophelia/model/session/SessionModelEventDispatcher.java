@@ -5,24 +5,11 @@ package com.thinkparity.ophelia.model.session;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationExtendedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationExtendedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.*;
+import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedNotificationEvent;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -53,6 +40,7 @@ class SessionModelEventDispatcher {
         this.logger = new Log4JWrapper();
         this.modelFactory = modelFactory;
         xmppSession.clearListeners();
+        // artifact events
         xmppSession.addListener(ArtifactDraftCreatedEvent.class,
                 new XMPPEventListener<ArtifactDraftCreatedEvent>() {
             public void handleEvent(final ArtifactDraftCreatedEvent event) {
@@ -64,12 +52,6 @@ class SessionModelEventDispatcher {
             public void handleEvent(final ArtifactDraftDeletedEvent event) {
                 logger.logApiId();
                 getArtifactModel().handleDraftDeleted(event);
-            }});
-        xmppSession.addListener(ArtifactPublishedEvent.class,
-                new XMPPEventListener<ArtifactPublishedEvent>() {
-            public void handleEvent(final ArtifactPublishedEvent event) {
-                logger.logApiId();
-                getArtifactModel().handlePublished(event);
             }});
         xmppSession.addListener(ArtifactReceivedEvent.class,
                 new XMPPEventListener<ArtifactReceivedEvent>() {
@@ -89,12 +71,14 @@ class SessionModelEventDispatcher {
                 logger.logApiId();
                 getArtifactModel().handleTeamMemberRemoved(event);
             }});
+        // backup events
         xmppSession.addListener(BackupStatisticsUpdatedEvent.class,
                 new XMPPEventListener<BackupStatisticsUpdatedEvent>() {
             public void handleEvent(BackupStatisticsUpdatedEvent event) {
                 logger.logApiId();
                 getBackupModel().handleStatisticsUpdated(event);
             }});
+        // contact events
         xmppSession.addListener(ContactDeletedEvent.class,
                 new XMPPEventListener<ContactDeletedEvent>() {
             public void handleEvent(final ContactDeletedEvent event) {
@@ -149,18 +133,39 @@ class SessionModelEventDispatcher {
                 logger.logApiId();
                 getContactModel().handleUserInvitationExtended(event);
             }});
-        xmppSession.addListener(ContainerPublishedEvent.class,
-                new XMPPEventListener<ContainerPublishedEvent>() {
-            public void handleEvent(final ContainerPublishedEvent event) {
+        // container events
+        xmppSession.addListener(PublishedEvent.class,
+                new XMPPEventListener<PublishedEvent>() {
+            public void handleEvent(final PublishedEvent event) {
                 logger.logApiId();
-                getContainerModel().handlePublished(event);
+                getContainerModel().handleEvent(event);
             }});
+        xmppSession.addListener(PublishedNotificationEvent.class,
+                new XMPPEventListener<PublishedNotificationEvent>() {
+            public void handleEvent(final PublishedNotificationEvent event) {
+                logger.logApiId();
+                getContainerModel().handleEvent(event);
+            }});
+        xmppSession.addListener(VersionPublishedEvent.class,
+                new XMPPEventListener<VersionPublishedEvent>() {
+            public void handleEvent(final VersionPublishedEvent event) {
+                logger.logApiId();
+                getContainerModel().handleEvent(event);
+            }});
+        xmppSession.addListener(VersionPublishedNotificationEvent.class,
+                new XMPPEventListener<VersionPublishedNotificationEvent>() {
+            public void handleEvent(final VersionPublishedNotificationEvent event) {
+                logger.logApiId();
+                getContainerModel().handleEvent(event);
+            }});
+        // migrator events
         xmppSession.addListener(ProductReleaseDeployedEvent.class,
                 new XMPPEventListener<ProductReleaseDeployedEvent>() {
             public void handleEvent(final ProductReleaseDeployedEvent event) {
                 logger.logApiId();
                 getMigratorModel().handleProductReleaseDeployed(event);
             }});
+        // session events
         xmppSession.addListener(new SessionListener() {
             public void sessionEstablished() {
                 logger.logApiId();

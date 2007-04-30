@@ -381,12 +381,18 @@ public interface InternalSessionModel extends SessionModel {
 
     // TODO-javadoc InternalSessionModel#publish
     public void publish(final ContainerVersion version,
-            final ContainerVersion latestVersion,
             final Map<DocumentVersion, String> documents,
+            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final Calendar publishedOn, final List<EMail> publishToEMails,
+            final List<User> publishToUsers);
+
+    // TODO-javadoc InternalSessionModel#publishVersion
+    public void publishVersion(final ContainerVersion version,
+            final Map<DocumentVersion, String> documentVersions,
             final List<TeamMember> teamMembers,
             final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
-            final Calendar publishedOn, final List<EMail> publishedToEMails,
-            final List<User> publishedToUsers);
+            final Calendar publishedOn, final List<EMail> publishToEMails,
+            final List<User> publishToUsers);
 
     public Container readArchiveContainer(final JabberId userId,
             final UUID uniqueId);

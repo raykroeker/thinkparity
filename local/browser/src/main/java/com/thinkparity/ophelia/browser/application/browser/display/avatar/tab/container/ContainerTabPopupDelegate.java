@@ -36,11 +36,7 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingUserInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
-import com.thinkparity.ophelia.browser.platform.action.document.Open;
-import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
-import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
 
 /**
@@ -81,38 +77,12 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         final boolean online = isOnline();
         boolean needSeparator = false;
 
-        if (online && isLocalDraft(draft) && isLocalDraftModified(container.getId())) {
-            final Data publishData = new Data(3);
-            publishData.set(Publish.DataKey.CONTAINER_ID, container.getId());
-            publishData.set(Publish.DataKey.CONTACTS, Collections.emptyList());
-            publishData.set(Publish.DataKey.TEAM_MEMBERS, Collections.emptyList());
-            addWithExpand(ActionId.CONTAINER_PUBLISH, publishData, container);
-            needSeparator = true;
-        }
-
         // create draft
         if (null == draft
                 && ((online && container.isLatest()) || !isDistributed(container.getId()))) {
             final Data createDraftData = new Data(1);
             createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_CREATE_DRAFT, createDraftData, container);  
-            needSeparator = true;
-        }
-
-        // delete draft
-        if (isLocalDraft(draft) && (online || !isDistributed(container.getId()))) {
-            final Data deleteDraftData = new Data(2);
-            deleteDraftData.set(DeleteDraft.DataKey.CONTAINER_ID, container.getId());
-            addWithExpand(ActionId.CONTAINER_DELETE_DRAFT, deleteDraftData, container);
-            needSeparator = true;
-        }
-
-        // Add document
-        if (isLocalDraft(draft)) {
-            final Data addDocumentData = new Data(1);
-            addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, container.getId());
-            addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
-            addWithExpand(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData, container);
             needSeparator = true;
         }
 
@@ -196,16 +166,6 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     public void showForDraft(final Container container, final ContainerDraft draft) {
         final boolean online = isOnline();
         final List<Document> documents = draft.getDocuments();
-
-        // Open submenu, documents
-        for (final Document document : documents) {
-            final Data openData = new Data(1);
-            openData.set(Open.DataKey.DOCUMENT_ID, document.getId());
-            add(ActionId.DOCUMENT_OPEN, document.getName(), openData);
-        }
-        if (documents.size() > 0) {
-            addSeparator();
-        }
         
         // publish
         boolean needSeparator = false;
@@ -317,44 +277,6 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             final List<DocumentView> documentViews,
             final List<ArtifactReceipt> publishedTo, final User publishedBy) {
         final boolean online = isOnline();
-        
-        // Open submenu, documents
-        for (final DocumentView documentView : documentViews) {
-            final Data openData = new Data(2);
-            openData.set(OpenVersion.DataKey.DOCUMENT_ID, documentView.getDocumentId());
-            openData.set(OpenVersion.DataKey.VERSION_ID, documentView.getVersionId());
-            add(ActionId.DOCUMENT_OPEN_VERSION, documentView.getDocumentName(), openData);
-        }
-        if (documentViews.size() > 0) {
-            addSeparator(ActionId.DOCUMENT_OPEN_VERSION);
-        }
-
-        // Open submenu, publisher
-        if (isLocalUser(publishedBy)) {
-            final Data data = new Data(1);
-            data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-            add(ActionId.CONTACT_READ, publishedBy.getName(), ActionId.PROFILE_UPDATE, data);
-        } else {
-            final Data data = new Data(1);
-            data.set(Read.DataKey.CONTACT_ID, publishedBy.getId());
-            add(ActionId.CONTACT_READ, publishedBy.getName(), data);
-        }
-
-        // Open submenu, users
-        for (final ArtifactReceipt artifactReceipt : publishedTo) {
-            final User publishedToUser = artifactReceipt.getUser();
-            if (isLocalUser(publishedToUser)) {
-                final Data data = new Data(1);
-                data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-                add(ActionId.CONTACT_READ, publishedToUser.getName(), ActionId.PROFILE_UPDATE, data);
-            } else {
-                final Data data = new Data(1);
-                data.set(Read.DataKey.CONTACT_ID, publishedToUser.getId());
-                add(ActionId.CONTACT_READ, publishedToUser.getName(), data);
-            }
-        }
-        
-        addSeparator();
 
         // invite submenu users
         if (online) {

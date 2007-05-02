@@ -2614,7 +2614,7 @@ public final class ContainerModelImpl extends
     private ContainerNameGenerator getNameGenerator() {
         logger.logApiId();
         try {
-            return new ContainerNameGenerator(l18n);
+            return new ContainerNameGenerator();
         } catch (final Throwable t) {
             throw panic(t);
         }

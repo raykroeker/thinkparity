@@ -18,7 +18,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.l10n.L18n;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.DownloadMonitor;
@@ -42,8 +41,6 @@ import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
-import com.thinkparity.ophelia.model.util.localization.Localization;
-import com.thinkparity.ophelia.model.util.localization.LocalizationContext;
 import com.thinkparity.ophelia.model.workspace.InternalWorkspaceModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -165,9 +162,6 @@ public abstract class Model<T extends EventListener> extends
 	/** A thinkParity <code>Environment</code>. */
     protected Environment environment;
 
-    /** A localization interface. */
-	protected final L18n l18n;
-
 	/** A thinkParity <code>InternalModelFactory</code>. */
     protected InternalModelFactory modelFactory;
 
@@ -183,7 +177,6 @@ public abstract class Model<T extends EventListener> extends
      */
 	protected Model() {
 		super();
-        this.l18n = new Localization(LocalizationContext.MODEL);
         this.notifiers = new Vector<EventNotifier<T>>(3);
 	}
 

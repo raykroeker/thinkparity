@@ -5,14 +5,15 @@ package com.thinkparity.ophelia.model.container;
 
 import java.text.MessageFormat;
 
-import com.thinkparity.codebase.l10n.L18n;
-
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 
 /**
+ * <b>Title:</b>thinkParity OpheliaModel Container Name Generator<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.4
  */
 public final class ContainerNameGenerator {
 
@@ -20,7 +21,7 @@ public final class ContainerNameGenerator {
      * Create ContainerNameGenerator.
      *
      */
-    ContainerNameGenerator(final L18n l18n) {
+    ContainerNameGenerator() {
         super();
     }
 

@@ -533,7 +533,6 @@ ${tmp.tdj}
                 <include name="localization/*_Messages.properties"/>
                 <exclude name="localization/Error_Messages.properties"/>
                 <exclude name="localization/FuzzyDateFormat_Messages.properties"/>
-                <exclude name="localization/Model_Messages.properties"/>
             </fileset>
         </zip>
     </target>

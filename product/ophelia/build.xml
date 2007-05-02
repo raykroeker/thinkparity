@@ -618,7 +618,7 @@ ${tmp.tdn}
 
     <!-- package-localization -->
     <target name="package-localization" depends="compile">
-        <property name="zip-file" value="${target.package.dir}/thinkParity_Messages.zip"/>
+        <property name="zip-file" value="${target.package.dir}/thinkParity Client Messages.zip"/>
         <delete file="${zip-file}"/>
         <zip destfile="${zip-file}" comment="${thinkparity.build-id}">
             <fileset dir="${target.classes.dir}">

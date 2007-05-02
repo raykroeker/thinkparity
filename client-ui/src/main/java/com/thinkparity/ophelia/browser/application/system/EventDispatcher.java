@@ -127,18 +127,13 @@ class EventDispatcher {
 
     /**
      * Create the system application migrator listener. The only events that are
-     * interesting for the user are when a release has been downloaded and when
-     * it has been installed. The system application will display a notification
-     * for both of these events.
+     * interesting for the user are when a release has been installed. The
+     * system application will restart the platform when this event is fired.
      * 
      * @return A <code>MigratorListener</code>.
      */
     private MigratorListener createMigratorListener() {
         return new MigratorAdapter() {
-            @Override
-            public void productReleaseDownloaded(final MigratorEvent e) {
-                systemApplication.fireProductReleaseDownloaded(e);
-            }
             @Override
             public void productReleaseInstalled(final MigratorEvent e) {
                 systemApplication.fireProductReleaseInstalled(e);

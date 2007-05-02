@@ -420,63 +420,13 @@ public final class SystemApplication extends AbstractApplication {
     }
 
     /**
-     * Fire a product release downloaded event.
-     * 
-     * @param e
-     *            A <code>MigratorEvent</code>.
-     */
-    void fireProductReleaseDownloaded(final MigratorEvent e) {
-        impl.fireNotification(new DefaultNotification() {
-            /**
-             * @see com.thinkparity.ophelia.browser.application.system.DefaultNotification#getContentLine1()
-             *
-             */
-            @Override
-            public String getContentLine1() {
-                return e.getRelease().getName();
-            }
-            @Override
-            public String getHeadingLine1() {
-                return getString("Notification.ProductReleaseDownloaded.Heading",
-                        new String[] {e.getRelease().getName()});
-            }
-            @Override
-            public int getNumberLines() {
-                return 1;
-            }
-            @Override
-            public String getTextTitle() {
-                return getString("Notification.ProductReleaseDownloaded.Title");
-            }
-        });
-    }
-
-    /**
      * Fire a product release installed event.
      * 
      * @param e
      *            A <code>MigratorEvent</code>.
      */
     void fireProductReleaseInstalled(final MigratorEvent e) {
-        impl.fireNotification(new DefaultNotification() {
-            @Override
-            public String getContentLine1() {
-                return e.getRelease().getName();
-            }
-            @Override
-            public String getHeadingLine1() {
-                return getString("Notification.ProductReleaseInstalled.Heading",
-                        new String[] {e.getRelease().getName()});
-            }
-            @Override
-            public int getNumberLines() {
-                return 1;
-            }
-            @Override
-            public String getTextTitle() {
-                return getString("Notification.ProductReleaseInstalled.Title");
-            }
-        });
+        getPlatform().restart();
     }
 
     /**

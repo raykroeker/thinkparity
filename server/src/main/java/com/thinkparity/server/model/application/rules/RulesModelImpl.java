@@ -27,6 +27,14 @@ class RulesModelImpl extends AbstractModelImpl {
     /**
      * Create RulesModelImpl.
      *
+     */
+    RulesModelImpl() {
+        super();
+    }
+
+    /**
+     * Create RulesModelImpl.
+     *
      * @param session
      */
     RulesModelImpl(final Session session) {
@@ -34,38 +42,31 @@ class RulesModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Create RulesModelImpl.
-     *
-     */
-    RulesModelImpl() {
-        super();
-    }
-
-    /**
-     * Determine if publish is restricted when publishing from one user to
-     * another. The rule is that if either user has the core feature; publish is
-     * not restricted. Another view is that it is only restricted when both
-     * users do not have the core feature.
+     * Determine if publish is restricted when publishing from one user to an e-mail
+     * address.  The rule is that if the user has the core feature; publish is
+     * not restricted.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param publishFrom
      *            A publish from user id <code>JabberId</code>.
-     * @param publishTo
-     *            A publish to user id <code>JabberId</code>.
      * @return True if publish to the user is restricted.
      */
-    Boolean isPublishRestricted(final JabberId userId,
-            final JabberId publishFrom, final JabberId publishTo) {
+    Boolean isPublishRestricted(final JabberId publishFrom) {
         logger.logApiId();
-        logger.logVariable("userId", userId);
         logger.logVariable("publishFrom", publishFrom);
-        logger.logVariable("publishTo", publishTo);
         try {
-            assertIsAuthenticatedUser(userId);
-            assertEquals("Cannot access rule.", userId, publishFrom);
-
-            return isPublishRestricted(publishFrom, publishTo);
+            final InternalUserModel userModel = getUserModel();
+            /* NOTE the product id/name should be read from the interface once the
+             * migrator code is complete */
+            final Long productId = Ophelia.PRODUCT_ID;
+            final User publishFromUser = userModel.read(publishFrom);
+            final List<Feature> publishFromFeatures = userModel.readFeatures(
+                    publishFromUser.getLocalId(), productId);
+            for (final Feature feature : publishFromFeatures) {
+                if (Ophelia.Feature.CORE.equals(feature.getName())) {
+                    return Boolean.FALSE;
+                }
+            }
+            return Boolean.TRUE;
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -111,6 +112,37 @@ class RulesModelImpl extends AbstractModelImpl {
                 }
             }
             return Boolean.TRUE;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+
+    /**
+     * Determine if publish is restricted when publishing from one user to
+     * another. The rule is that if either user has the core feature; publish is
+     * not restricted. Another view is that it is only restricted when both
+     * users do not have the core feature.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param publishFrom
+     *            A publish from user id <code>JabberId</code>.
+     * @param publishTo
+     *            A publish to user id <code>JabberId</code>.
+     * @return True if publish to the user is restricted.
+     */
+    Boolean isPublishRestricted(final JabberId userId,
+            final JabberId publishFrom, final JabberId publishTo) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("publishFrom", publishFrom);
+        logger.logVariable("publishTo", publishTo);
+        try {
+            assertIsAuthenticatedUser(userId);
+            assertEquals("Cannot access rule.", userId, publishFrom);
+
+            return isPublishRestricted(publishFrom, publishTo);
         } catch (final Throwable t) {
             throw panic(t);
         }

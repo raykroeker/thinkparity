@@ -55,6 +55,8 @@ import com.thinkparity.desdemona.model.migrator.InternalMigratorModel;
 import com.thinkparity.desdemona.model.profile.InternalProfileModel;
 import com.thinkparity.desdemona.model.queue.InternalQueueModel;
 import com.thinkparity.desdemona.model.queue.QueueModel;
+import com.thinkparity.desdemona.model.rules.InternalRulesModel;
+import com.thinkparity.desdemona.model.rules.RulesModel;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.stream.InternalStreamModel;
 import com.thinkparity.desdemona.model.stream.StreamModel;
@@ -609,6 +611,10 @@ public abstract class AbstractModelImpl
 
     protected final InternalQueueModel getQueueModel() {
         return QueueModel.getInternalModel(getContext(), session);
+    }
+
+    protected final InternalRulesModel getRulesModel() {
+        return RulesModel.getInternalModel(getContext());
     }
 
     protected final InternalStreamModel getStreamModel() {

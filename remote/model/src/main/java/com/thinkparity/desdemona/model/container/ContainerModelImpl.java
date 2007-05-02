@@ -29,6 +29,7 @@ import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
 import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
+import com.thinkparity.desdemona.model.rules.InternalRulesModel;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
 
@@ -184,6 +185,8 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             final ContainerVersion version, final List<EMail> publishToEMails,
             final Calendar publishedOn) {
         final InternalContactModel contactModel = getContactModel();
+        final InternalUserModel userModel = getUserModel();
+        final InternalRulesModel rulesModel = getRulesModel();
         for (final EMail publishToEMail : publishToEMails) {
             final List<OutgoingEMailInvitation> invitations =
                 contactModel.readOutgoingEMailInvitations(userId);
@@ -194,15 +197,33 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
                     break;
                 }
             }
-            // create invitation
             final OutgoingEMailInvitation invitation;
             if (null == existing) {
+                /* if the recipient user does not exist and the user is publish
+                 * restricted; do nothing */
+                final User publishToUser = userModel.read(publishToEMail);
+                if (null == publishToUser && rulesModel.isPublishRestricted(
+                        userId)) {
+                    logger.logInfo("Publish is restricted from {0} to {1}.",
+                            userId, publishToEMail);
+                    continue;
+                }
+                /* if the recipient exists and the pair are publish restricted;
+                 * do nothing */
+                if (null != publishToUser && rulesModel.isPublishRestricted(
+                        userId, publishToUser.getId())) {
+                    logger.logInfo("Publish is restricted from {0} to {1}.",
+                            userId, publishToUser.getId());
+                    continue;
+                }
+                // create invitation
                 invitation = new OutgoingEMailInvitation();
                 invitation.setCreatedBy(readUser(userId));
                 invitation.setCreatedOn(publishedOn);
                 invitation.setInvitationEMail(publishToEMail);
                 contactModel.createInvitation(userId, invitation);
             } else {
+                // reference existing invitation
                 invitation = existing;
             }
             final List<Attachment> attachments =

@@ -40,4 +40,17 @@ public class InternalRulesModel extends RulesModel {
             return getImpl().isPublishRestricted(publishFrom, publishTo);
         }
     }
+
+    /**
+     * Determine if publish is restricted for the user.
+     * 
+     * @param publishFrom
+     *            A publish from user id <code>JabberId</code>.
+     * @return True if publish from the user is restricted.
+     */
+    public Boolean isPublishRestricted(final JabberId publishFrom) {
+        synchronized (getImplLock()) {
+            return getImpl().isPublishRestricted(publishFrom);
+        }
+    }
 }

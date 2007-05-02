@@ -615,4 +615,17 @@ Test Dependencies (Native):
 ${tmp.tdn}
         </echo>
     </target>
+
+    <!-- package-localization -->
+    <target name="package-localization" depends="compile">
+        <property name="zip-file" value="${target.package.dir}/thinkParity_Messages.zip"/>
+        <delete file="${zip-file}"/>
+        <zip destfile="${zip-file}" comment="${thinkparity.build-id}">
+            <fileset dir="${target.classes.dir}">
+                <!-- note the deliberate inclusion of default messages only -->
+                <include name="localization/*_Messages.properties"/>
+                <include name="localization/LicenseAgreement"/>
+            </fileset>
+        </zip>
+    </target>
 </project>

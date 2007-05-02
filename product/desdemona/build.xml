@@ -522,4 +522,19 @@ Test Dependencies (Java):
 ${tmp.tdj}
         </echo>
     </target>
+
+    <!-- package-localization -->
+    <target name="package-localization" depends="compile">
+        <property name="zip-file" value="${target.package.dir}/thinkParity_Messages.zip"/>
+        <delete file="${zip-file}"/>
+        <zip destfile="${zip-file}" comment="${thinkparity.build-id}">
+            <fileset dir="${target.classes.dir}">
+                <!-- note the deliberate inclusion of default messages only -->
+                <include name="localization/*_Messages.properties"/>
+                <exclude name="localization/Error_Messages.properties"/>
+                <exclude name="localization/FuzzyDateFormat_Messages.properties"/>
+                <exclude name="localization/Model_Messages.properties"/>
+            </fileset>
+        </zip>
+    </target>
 </project>

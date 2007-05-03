@@ -198,7 +198,7 @@ public class XMPPMethod extends IQ {
         				name, executionTime, serializationTime);
         		throw new XMPPTimeoutException(this);
             }
-            LOGGER.logInfo("XMPP method {0} has executed in {0} ms.", name,
+            LOGGER.logInfo("XMPP method {0} has executed in {1} ms.", name,
                     executionTime);
             return response;
         } catch (final Throwable t) {

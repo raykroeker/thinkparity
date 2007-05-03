@@ -386,11 +386,6 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
         logging.setProperty(
                 "log4j.renderer.org.xmpp.packet.JID",
                 "com.thinkparity.desdemona.util.logging.or.JIDRenderer");
-        // ophelia renderers
-        logging.setProperty(
-                "log4j.renderer.org.jivesoftware.smack.packet.Packet",
-                "com.thinkparity.ophelia.model.util.logging.or.PacketRenderer");
-
         System.setProperty("log4j.defaultInitOverride", "true");
         PropertyConfigurator.configure(logging);
     }

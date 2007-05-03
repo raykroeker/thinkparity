@@ -35,8 +35,10 @@ public interface SessionModel {
      * 
      * @return An <code>OfflineCode</code>.
      */
+    @ThinkParityTransaction(TransactionType.SUPPORTED)
     public OfflineCode getOfflineCode();
 
+    @ThinkParityTransaction(TransactionType.SUPPORTED)
 	public Boolean isLoggedIn();
 
     /**
@@ -44,6 +46,7 @@ public interface SessionModel {
      * 
      * @return True if the session is online; false otherwise.
      */
+    @ThinkParityTransaction(TransactionType.SUPPORTED)
     public Boolean isOnline();
 
     /**

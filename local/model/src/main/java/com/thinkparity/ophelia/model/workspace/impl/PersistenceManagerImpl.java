@@ -63,9 +63,6 @@ class PersistenceManagerImpl {
     /** A <code>TransactionManager</code>. */
     private TransactionManager transactionManager;
 
-    /** The <code>Workspace</code>. */
-    private final Workspace workspace;
-
     /**
      * Create SessionManagerImpl.
      * 
@@ -79,7 +76,6 @@ class PersistenceManagerImpl {
                 workspace.getLogDirectory(), "thinkParity Derby.log");
         this.persistenceRoot = new File(
                 workspace.getDataDirectory(), DirectoryNames.Workspace.Data.DB);
-        this.workspace = workspace;
     }
 
     /**
@@ -175,31 +171,25 @@ class PersistenceManagerImpl {
      */
     void start() {
         try {
+            // create the data source
             final XADataSourceConfiguration xaDataSourceConfiguration;
-            if (workspace.isDesktop()) {
-                System.setProperty("derby.stream.error.file",
-                        persistenceLogFile.getAbsolutePath());
-                System.setProperty("derby.infolog.append", "true");
-                // create datasource configuration
-                xaDataSourceConfiguration = new XADataSourceConfiguration();
-                xaDataSourceConfiguration.setProperty(Key.DRIVER, "org.apache.derby.jdbc.EmbeddedDriver");
-                final StringBuilder url = new StringBuilder("jdbc:derby:")
-                    .append(persistenceRoot.getAbsolutePath());
-                if (!persistenceRoot.exists())
-                    url.append(";create=true");
-                xaDataSourceConfiguration.setProperty(Key.URL, url.toString());
-                xaDataSourceConfiguration.setProperty(Key.USER, "sa");
-            } else {
-                // create datasource configuration
-                xaDataSourceConfiguration = new XADataSourceConfiguration();
-                xaDataSourceConfiguration.setProperty(Key.DRIVER, System.getProperty("thinkparity.datasource-driver"));
-                xaDataSourceConfiguration.setProperty(Key.PASSWORD, System.getProperty("thinkparity.datasource-password")); 
-                xaDataSourceConfiguration.setProperty(Key.URL, System.getProperty("thinkparity.datasource-url")); 
-                xaDataSourceConfiguration.setProperty(Key.USER, System.getProperty("thinkparity.datasource-user"));
-            }
-            dataSource = new XADataSourcePool(new XADataSource(xaDataSourceConfiguration));
+            System.setProperty("derby.stream.error.file",
+                    persistenceLogFile.getAbsolutePath());
+            System.setProperty("derby.infolog.append", "true");
+            // create datasource configuration
+            xaDataSourceConfiguration = new XADataSourceConfiguration();
+            xaDataSourceConfiguration.setProperty(Key.DRIVER,
+                    "org.apache.derby.jdbc.EmbeddedDriver");
+            final StringBuilder url = new StringBuilder("jdbc:derby:")
+                .append(persistenceRoot.getAbsolutePath());
+            if (!persistenceRoot.exists())
+                url.append(";create=true");
+            xaDataSourceConfiguration.setProperty(Key.URL, url.toString());
+            xaDataSourceConfiguration.setProperty(Key.USER, "sa");
+            dataSource = new XADataSourcePool(new XADataSource(
+                    xaDataSourceConfiguration));
 
-            // create transaction manager
+            // create the transaction manager
             transactionManager = TransactionManager.getInstance();
             transactionManager.start();
             // bind the transaction manager to the data source

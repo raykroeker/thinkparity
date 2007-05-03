@@ -260,8 +260,7 @@ public class WorkspaceModel {
             }
             notifyStepEnd(monitor, InitializeStep.SESSION_LOGIN);
             // initialize migrator
-            if (workspace.isDesktop())
-                modelFactory.getMigratorModel().initialize(monitor);
+            modelFactory.getMigratorModel().initialize(monitor);
             // create the profile
             notifyStepBegin(monitor, InitializeStep.PROFILE_CREATE);
             modelFactory.getProfileModel().initialize();

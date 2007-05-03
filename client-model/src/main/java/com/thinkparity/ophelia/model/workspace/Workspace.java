@@ -24,15 +24,6 @@ import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 public interface Workspace {
 
     /**
-     * Determine if the workspace is running on the desktop.
-     * 
-     * @return True if the workspace is running on the desktop.
-     * @deprecated
-     */
-    @Deprecated
-    public Boolean isDesktop();
-
-    /**
      * Add a shutdown hook to the workspace.
      * 
      * @param shutdownHook

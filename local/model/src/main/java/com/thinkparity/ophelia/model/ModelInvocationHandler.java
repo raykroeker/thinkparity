@@ -44,6 +44,9 @@ final class ModelInvocationHandler implements InvocationHandler {
     /** A <code>Log4JWrapper</code>. */
     private static final Log4JWrapper LOGGER;
 
+    /** A replacement for a null object array for the invocation context. */
+    private static final Object[] NO_ARGS;
+
     /** The current transaction context <code>Map</code>. */
     private static Map<Object, Object> XA_CONTEXT;
 
@@ -53,6 +56,7 @@ final class ModelInvocationHandler implements InvocationHandler {
     static {
         XA_CONTEXT = new Hashtable<Object, Object>();
         LOGGER = new Log4JWrapper(ModelInvocationHandler.class);
+        NO_ARGS = new Object[0];
         XA_LOGGER = new Log4JWrapper("XA_DEBUGGER");
     }
 
@@ -100,7 +104,7 @@ final class ModelInvocationHandler implements InvocationHandler {
                     model.ensureOnline();
                 model.setInvocationContext(new ModelInvocationContext() {
                     public Object[] getArguments() {
-                        return args;
+                        return null == args ? NO_ARGS : args;
                     }
                     public Method getMethod() {
                         return method;

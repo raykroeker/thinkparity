@@ -14,6 +14,7 @@ import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.ZipUtil;
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 
@@ -310,11 +311,13 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             final Object[] arguments) {
         try {
             final InternalSessionModel sessionModel = getSessionModel();
-            if (sessionModel.isLoggedIn()) {
+            if (sessionModel.isOnline()) {
                 final Error error = new Error();
                 final String[] stringArguments = new String[arguments.length];
                 for (int i = 0; i < arguments.length; i++) {
-                    stringArguments[i] = arguments[i].toString();
+                    stringArguments[i] = null == arguments[i]
+                            ? Separator.Null.toString()
+                            : arguments[i].toString();
                 }
                 error.setArguments(stringArguments);
                 final StringWriter writer = new StringWriter();

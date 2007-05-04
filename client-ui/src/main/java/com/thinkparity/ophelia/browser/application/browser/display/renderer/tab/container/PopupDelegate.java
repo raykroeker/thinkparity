@@ -8,6 +8,8 @@ import java.util.List;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
@@ -62,4 +64,30 @@ public interface PopupDelegate extends TabPanelPopupDelegate {
     public void showForVersion(final ContainerVersion version,
             final List<DocumentView> documentViews,
             final List<ArtifactReceipt> publishedTo, final User publishedBy);
+
+    /**
+     * Display a popup menu for a draft document.
+     * 
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @param document
+     *            A <code>Document</code>.
+     */
+    public void showForDocument(final ContainerDraft draft, final Document document);
+
+    /**
+     * Display a popup menu for a version document.
+     * 
+     * @param documentVersion
+     *            A <code>DocumentVersion</code>.
+     */
+    public void showForDocument(final DocumentVersion documentVersion);
+
+    /**
+     * Display a popup menu for a version user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     */
+    public void showForUser(final User user);
 }

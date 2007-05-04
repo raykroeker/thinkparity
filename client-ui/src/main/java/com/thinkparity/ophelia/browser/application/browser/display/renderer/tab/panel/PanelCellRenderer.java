@@ -11,7 +11,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
  * @version $Revision$
  */
 public interface PanelCellRenderer {
-    
+
     /**
      * This method is always called before the panel is added and painted.
      * 
@@ -21,4 +21,12 @@ public interface PanelCellRenderer {
      *            An <code>int</code> index.
      */
     public void renderComponent(final Cell cell, final int index);
+
+    /**
+     * Set the panel selection manager.
+     * 
+     * @param panelSelectionManager
+     *            The <code>PanelSelectionManager</code>.
+     */
+    public void setPanelSelectionManager(final PanelSelectionManager panelSelectionManager);
 }

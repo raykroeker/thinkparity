@@ -19,6 +19,8 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
@@ -38,6 +40,7 @@ import com.thinkparity.ophelia.browser.platform.action.container.Expand;
 import com.thinkparity.ophelia.browser.platform.action.container.Restore;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
+import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
 
 /**
@@ -137,6 +140,25 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForDocument(com.thinkparity.ophelia.model.container.ContainerDraft, com.thinkparity.codebase.model.document.Document)
+     */
+    public void showForDocument(final ContainerDraft draft, final Document document) {
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForDocument(com.thinkparity.codebase.model.document.DocumentVersion)
+     */
+    public void showForDocument(final DocumentVersion documentVersion) {
+        // open
+        final Data data = new Data(2);
+        data.set(OpenVersion.DataKey.DOCUMENT_ID, documentVersion.getArtifactId());
+        data.set(OpenVersion.DataKey.VERSION_ID, documentVersion.getVersionId());
+        add(ActionId.DOCUMENT_OPEN_VERSION, data);
+        
+        show();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerTabPopupDelegate#showForDraft(com.thinkparity.codebase.model.container.Container,
      *      com.thinkparity.ophelia.model.container.ContainerDraft)
      * 
@@ -155,54 +177,40 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForUser(com.thinkparity.codebase.model.user.User)
+     */
+    public void showForUser(final User user) {
+        if (isLocalUser(user)) {
+            final Data data = new Data(1);
+            data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            add(ActionId.PROFILE_UPDATE, data);
+
+            final Data updatePasswordData = new Data(1);
+            updatePasswordData.set(UpdatePassword.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            add(ActionId.PROFILE_UPDATE_PASSWORD, updatePasswordData);
+        } else {
+            final Data data = new Data(1);
+            data.set(Read.DataKey.CONTACT_ID, user.getId());
+            add(ActionId.CONTACT_READ, data);
+        }
+
+        show();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForVersion(com.thinkparity.codebase.model.container.ContainerVersion, java.util.List, java.util.List, com.thinkparity.codebase.model.user.User)
      */
     public void showForVersion(final ContainerVersion version,
             final List<DocumentView> documentViews,
             final List<ArtifactReceipt> publishedTo, final User publishedBy) {
-        // open document versions
-        for (final DocumentView documentView : documentViews) {
-            final Data openData = new Data(2);
-            openData.set(OpenVersion.DataKey.DOCUMENT_ID, documentView.getDocumentId());
-            openData.set(OpenVersion.DataKey.VERSION_ID, documentView.getVersionId());
-            add(ActionId.DOCUMENT_OPEN_VERSION, documentView.getDocumentName(), openData);
-        }
-        if (documentViews.size() > 0) {
-            addSeparator(ActionId.DOCUMENT_OPEN_VERSION);
-        }
 
-        // update profile/read contact
-        if (isLocalUser(publishedBy)) {
-            final Data data = new Data(1);
-            data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-            add(ActionId.CONTACT_READ, publishedBy.getName(), ActionId.PROFILE_UPDATE, data);
-        } else {
-            final Data data = new Data(1);
-            data.set(Read.DataKey.CONTACT_ID, publishedBy.getId());
-            add(ActionId.CONTACT_READ, publishedBy.getName(), data);
-        }
-        // update profile/read contacts
-        for (final ArtifactReceipt artifactReceipt : publishedTo) {
-            final User publishedToUser = artifactReceipt.getUser();
-            if (isLocalUser(publishedToUser)) {
-                final Data data = new Data(1);
-                data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-                add(ActionId.CONTACT_READ, publishedToUser.getName(), ActionId.PROFILE_UPDATE, data);
-            } else {
-                final Data data = new Data(1);
-                data.set(Read.DataKey.CONTACT_ID, publishedToUser.getId());
-                add(ActionId.CONTACT_READ, publishedToUser.getName(), data);
-            }
-        }
-
-        addSeparator();
-
-        // display version info
+        // show version comment
         if (version.isSetComment()) {
             final Data commentData = new Data(2);
             commentData.set(DisplayVersionInfo.DataKey.CONTAINER_ID, version.getArtifactId());
             commentData.set(DisplayVersionInfo.DataKey.VERSION_ID, version.getVersionId());
             add(ActionId.CONTAINER_DISPLAY_VERSION_INFO, commentData);
+            addSeparator();
         }
 
         // export version
@@ -211,23 +219,13 @@ final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
         exportData.set(com.thinkparity.ophelia.browser.platform.action.container.ExportVersion.DataKey.VERSION_ID, version.getVersionId());
         add(ActionId.CONTAINER_EXPORT_VERSION, exportData);
 
-        addSeparator();
-
         // print
         final List<DocumentView> documentViewsNotDeleted = getDocumentViewsNotDeleted(documentViews);
-        if (documentViewsNotDeleted.size() > 1) {
+        if (documentViewsNotDeleted.size() > 0) {
             final Data printData = new Data(2);
             printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.CONTAINER_ID, version.getArtifactId());
             printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.VERSION_ID, version.getVersionId());
-            add(ActionId.DOCUMENT_PRINT_VERSION, ActionId.CONTAINER_PRINT_VERSION, printData);        
-            addSeparator(ActionId.DOCUMENT_PRINT_VERSION);
-        }
-        // print versions
-        for (final DocumentView documentView : documentViewsNotDeleted) {
-            final Data documentVersionPrintData = new Data(2);
-            documentVersionPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.DOCUMENT_ID, documentView.getDocumentId());
-            documentVersionPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.VERSION_ID, documentView.getVersionId());
-            add(ActionId.DOCUMENT_PRINT_VERSION, documentView.getDocumentName(), documentVersionPrintData);           
+            add(ActionId.CONTAINER_PRINT_VERSION, printData);
         }
 
         show();

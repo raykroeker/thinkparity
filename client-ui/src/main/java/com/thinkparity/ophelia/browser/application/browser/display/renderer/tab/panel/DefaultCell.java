@@ -95,14 +95,14 @@ public class DefaultCell implements Cell {
      * 
      */
     public Boolean isSetAdditionalText() {
-        return null != additionalText;
+        return null != getAdditionalText();
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isSetText()
      */
     public Boolean isSetText() {
-        return null != text;
+        return null != getText();
     }
 
     /**

@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -194,28 +195,39 @@ public final class TabRenderer {
      * @param width
      *            A width <code>int</code>.
      * @param height
-     *            A height <code>int</code>.
-     * @param selected
-     *            A selected <code>Boolean</code>.            
+     *            A height <code>int</code>.   
      */
-    public void paintBackground(final Graphics g, final int width, final int height, final Boolean selected) {
+    public void paintBackground(final Graphics g, final int width,
+            final int height) {
         final Graphics2D g2 = (Graphics2D)g.create();
         try {
             // Paint the background for a collapsed panel.
             // This is a simple color fill.
             g2.setColor(Colors.Browser.Panel.PANEL_COLLAPSED_BACKGROUND);
             g2.fillRect(0, 0, width, height);
-            
-            // For selection, draw a dashed line around the perimeter.
-            if (selected) {
-                final Path2D path = getSelectionPath(width, height);
-                final float dashes[] = {1};
-                g2.setStroke( new BasicStroke( 1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f, dashes, 0));
-                g2.setColor(Colors.Browser.Panel.PANEL_COLLAPSED_SELECTION_LINE); 
-                g2.draw(path);
-            }
         }
         finally { g2.dispose(); }
+    }
+
+    /**
+     * Paint a selection line.
+     * 
+     * @param g2
+     *            A <code>Graphics2D</code> context.
+     * @param x
+     *            The x location <code>int</code>.
+     * @param y
+     *            The y location <code>int</code>.
+     * @param width
+     *            The width <code>int</code>.
+     * @param height
+     *            The height <code>int</code>.
+     */
+    public void paintSelectionLine(final Graphics2D g2, final int x, final int y, final int width, final int height) {
+        final int insetX = 5;
+        final int insetY = 2;
+        final Path2D path = getSelectionPath(x - insetX, y - insetY, width + 2*insetX, height + 2*insetY);
+        paintLine(g2, path, Colors.Browser.Panel.PANEL_SELECTION_LINE, Boolean.TRUE);
     }
 
     /**
@@ -359,22 +371,24 @@ public final class TabRenderer {
     /**
      * Get a path for the selection line.
      * 
+     * @param x
+     *            A x offset <code>int</code>.
+     * @param y
+     *            A y offset <code>int</code>.
      * @param width
      *            A width <code>int</code>.
      * @param height
-     *            A height <code>int</code>.
+     *            A height <code>int</code>.   
      * @return A <code>Path2D</code>.
      */
-    private Path2D getSelectionPath(final int width, final int height) {
+    private Path2D getSelectionPath(final int x, final int y, final int width, final int height) {
         final Path2D path = new Path2D.Double();           
-        final int insetX = 6;   // Inset from the left, right
-        final int insetY = 2;   // Inset from the top, bottom
         final int radius = 2;   // Radius of the curves on the corners
         final int quad = 0;     // Inset to the control point for defining curves
-        final int minX = insetX;
-        final int maxX = width - insetX - 1;
-        final int minY = insetY;
-        final int maxY = height - insetY - 1;
+        final int minX = x;
+        final int maxX = x + width - 1;
+        final int minY = y;
+        final int maxY = y + height - 1;
         path.moveTo(minX + radius, minY);
         path.lineTo(maxX - radius, minY);
         path.quadTo(maxX - quad, minY + quad, maxX, minY + radius);
@@ -385,5 +399,28 @@ public final class TabRenderer {
         path.lineTo(minX, minY + radius);
         path.quadTo(minX + quad, minY + quad, minX + radius, minY);
         return path;
+    }
+
+    /**
+     * Paint a solid or dashed line.
+     * 
+     * @param g2
+     *            A <code>Graphics2D</code> context.
+     * @param path
+     *            A <code>Path2D</code>.
+     * @param color
+     *            A <code>Color</code>.
+     * @param dashed
+     *            A dashed <code>Boolean</code>. 
+     */
+    private void paintLine(final Graphics2D g2, final Path2D path, final Color color, final Boolean dashed) {
+        final float dashes[] = {1};
+        if (dashed) {
+            g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f, dashes, 0));
+        } else {
+            g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f));
+        }
+        g2.setColor(color);
+        g2.draw(path);
     }
 }

@@ -84,18 +84,50 @@ public class EastCellRenderer extends DefaultCellRenderer implements PanelCellRe
         try {
             // Paint text manually. This avoids layout problems when the textJLabel text is too long.
             g2.setFont(textJLabel.getFont());
-            final Point location = SwingUtilities.convertPoint(textJLabel,
+            Point location = SwingUtilities.convertPoint(textJLabel,
                     new Point(0, g2.getFontMetrics().getMaxAscent()), this);
             if (cell.isSetText()) {
-                if (paintText(g2, location, textJLabel.getForeground(), cell.getText())) {
-                    if (cell.isSetAdditionalText()) {
-                        location.x = location.x + SwingUtil.getStringWidth(cell.getText(), g2) + TEXT_SPACE_BETWEEN;
-                        paintText(g2, location, additionalTextJLabel.getForeground(), cell.getAdditionalText());
+                // paint the text
+                final String clippedText = clipText(g2, location, cell.getText());
+                paintText(g2, location, textJLabel.getForeground(), clippedText);
+                String clippedAdditionalText = null;
+                if (!isClipped(cell.getText(), clippedText) && cell.isSetAdditionalText()) {
+                    location.x += TEXT_SPACE_BETWEEN + SwingUtil.getStringWidth(clippedText, g2);
+                    clippedAdditionalText = clipText(g2, location, cell.getAdditionalText());
+                    if (null != clippedAdditionalText) {
+                        paintText(g2, location, additionalTextJLabel.getForeground(), clippedAdditionalText);
                     }
+                }
+
+                // paint the selection line
+                if (isSelected() && PanelFocusHelper.Focus.EAST == PanelFocusHelper.getFocus()) {
+                    location = SwingUtilities.convertPoint(textJLabel, new Point(0,0), this);
+                    final int height = SwingUtil.getStringHeight(g2);
+                    int width = SwingUtil.getStringWidth(clippedText, g2);
+                    if (null != clippedAdditionalText) {
+                        width += TEXT_SPACE_BETWEEN + SwingUtil.getStringWidth(clippedAdditionalText, g2);
+                    }
+                    paintSelectionLine(g2, location.x, location.y, width, height);
                 }
             }
         }
         finally { g2.dispose(); }
+    }
+
+    /**
+     * Clip text.
+     * 
+     * @param g
+     *            The <code>Graphics2D</code>.
+     * @param location
+     *            The text location <code>Point</code>.
+     * @param text
+     *            The text <code>String</code>.
+     * @return The text <code>String</code>, which may or may not be clipped.
+     */
+    private String clipText(final Graphics2D g, final Point location, final String text) {
+        final int availableWidth = getWidth() - location.x - TEXT_SPACE_END;
+        return SwingUtil.limitWidthWithEllipsis(text, availableWidth, g);
     }
 
     /**
@@ -138,6 +170,15 @@ public class EastCellRenderer extends DefaultCellRenderer implements PanelCellRe
     }// </editor-fold>//GEN-END:initComponents
 
     /**
+     * Determine if the string was clipped.
+     * 
+     * @return true if the string was clipped.
+     */
+    private Boolean isClipped(final String originalText, final String clippedText) {
+        return (null == clippedText || !clippedText.equals(originalText));
+    }
+
+    /**
      * Paint text.
      * 
      * @param g
@@ -148,19 +189,9 @@ public class EastCellRenderer extends DefaultCellRenderer implements PanelCellRe
      *            The text <code>Color</code>.
      * @param text
      *            The text <code>String</code>.
-     * @return true if the entire text is displayed; false if it is clipped.
      */
-    private Boolean paintText(final Graphics2D g, final Point location, final Color color, final String text) {
-        final int availableWidth = getWidth() - location.x - TEXT_SPACE_END;
-        final String clippedText = SwingUtil.limitWidthWithEllipsis(text, availableWidth, g);
-        if (null != clippedText) {
-            g.setPaint(color);
-            g.drawString(clippedText, location.x, location.y);
-        }
-        if (null != clippedText && clippedText.equals(text)) {
-            return Boolean.TRUE;
-        } else {
-            return Boolean.FALSE;
-        }
+    private void paintText(final Graphics2D g, final Point location, final Color color, final String text) {
+        g.setPaint(color);
+        g.drawString(text, location.x, location.y);
     }
 }

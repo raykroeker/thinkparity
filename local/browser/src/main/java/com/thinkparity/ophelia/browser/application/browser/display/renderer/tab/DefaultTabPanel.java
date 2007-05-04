@@ -44,9 +44,6 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     /** An image cache. */
     protected static final MainPanelImageCache IMAGE_CACHE;
 
-    /** The number of rows in the version panel. */
-    protected static final int NUMBER_VISIBLE_ROWS;
-
     /** A <code>FuzzyDateFormat</code>. */
     private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
 
@@ -57,7 +54,6 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
         BORDER = new BottomBorder(Colors.Browser.Panel.PANEL_BORDER);
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
         IMAGE_CACHE = new MainPanelImageCache();
-        NUMBER_VISIBLE_ROWS = 6;
     }
     
     /** The selected <code>Boolean</code> state. */

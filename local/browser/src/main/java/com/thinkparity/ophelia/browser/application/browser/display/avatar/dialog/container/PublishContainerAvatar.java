@@ -105,8 +105,13 @@ public final class PublishContainerAvatar extends Avatar implements
         if (input==null) {
             return getString("Title");
         } else {
+            final PublishType publishType = getInputPublishType();
             final String name = ((PublishContainerProvider) contentProvider).readContainerName(getInputContainerId());
-            return getString("TitlePublish", new Object[] {name});
+            if (publishType == PublishType.PUBLISH_VERSION) {
+                return getString("TitlePublishVersion", new Object[] {name});
+            } else {
+                return getString("TitlePublish", new Object[] {name});
+            }
         }
     }
 

@@ -63,11 +63,23 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The Y location of the container text. */
     private static final int CONTAINER_TEXT_Y;
 
+    /** The default east selected row. */
+    private static final int DEFAULT_SELECTED_ROW_EAST;
+
+    /** The default east selected row. */
+    private static final int DEFAULT_SELECTED_ROW_WEST;
+
+    /** The number of rows in the version panel. */
+    private static final int NUMBER_VISIBLE_ROWS;
+
     static {
         CONTAINER_TEXT_SPACE_BETWEEN = 5;
         CONTAINER_TEXT_SPACE_END = 20;
         CONTAINER_TEXT_X = 56;
-        CONTAINER_TEXT_Y = 16;
+        CONTAINER_TEXT_Y = 5;
+        DEFAULT_SELECTED_ROW_EAST = 0;
+        DEFAULT_SELECTED_ROW_WEST = 1;
+        NUMBER_VISIBLE_ROWS = 6;
     }
 
     /** The container tab's <code>DefaultActionDelegate</code>. */
@@ -75,6 +87,12 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /** The panel's animating indicator. */
     private boolean animating;
+
+    /** The clipped additional text */
+    private String clippedAdditionalText;
+
+    /** The clipped text */
+    private String clippedText;
 
     /** A <code>Container</code>. */
     private Container container;
@@ -146,12 +164,14 @@ public class ContainerPanel extends DefaultTabPanel {
         this.expanded = Boolean.FALSE;
         this.fileIconReader = new FileIconReader();
         this.localization = new BrowserLocalization("ContainerPanel");
-        this.eastListModel = new PanelCellListModel(this, "eastList", localization,
-                NUMBER_VISIBLE_ROWS, eastFirstJLabel, eastPreviousJLabel,
-                eastCountJLabel, eastNextJLabel, eastLastJLabel);
-        this.westListModel = new PanelCellListModel(this, "westList", localization,
-                NUMBER_VISIBLE_ROWS, westFirstJLabel, westPreviousJLabel,
-                westCountJLabel, westNextJLabel, westLastJLabel);
+        this.eastListModel = new PanelCellListModel(this, "eastList",
+                localization, NUMBER_VISIBLE_ROWS, DEFAULT_SELECTED_ROW_EAST,
+                eastFirstJLabel, eastPreviousJLabel, eastCountJLabel,
+                eastNextJLabel, eastLastJLabel);
+        this.westListModel = new PanelCellListModel(this, "westList",
+                localization, NUMBER_VISIBLE_ROWS, DEFAULT_SELECTED_ROW_WEST,
+                westFirstJLabel, westPreviousJLabel, westCountJLabel,
+                westNextJLabel, westLastJLabel);
         this.westCells = new ArrayList<Cell>();
         this.eastCellPanels = new ArrayList<PanelCellRenderer>();
         this.westCellPanels = new ArrayList<PanelCellRenderer>();
@@ -300,20 +320,34 @@ public class ContainerPanel extends DefaultTabPanel {
     public Boolean isSetDraft() {
         return null != draft;
     }
-    
+
     /**
+     * Handle mouse press on cells. 
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellMousePressed(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, java.lang.Boolean, java.awt.event.MouseEvent)
      */
     @Override
     public void panelCellMousePressed(final Cell cell, final Boolean onIcon, final MouseEvent e) {
         if (cell instanceof WestCell) {
-            westListModel.setSelectedCell(cell);
-        }           
+            if (0 == westListModel.getIndexOf(cell)) {
+                selectPanel();
+            } else {
+                PanelFocusHelper.setFocus(PanelFocusHelper.Focus.WEST);
+                westListModel.setSelectedCell(cell);
+            }
+        } else if (cell instanceof EastCell) {
+            if (0 == eastListModel.getIndexOf(cell)) {
+                selectPanel();
+            } else {
+                PanelFocusHelper.setFocus(PanelFocusHelper.Focus.EAST);
+                eastListModel.setSelectedCell(cell);
+            }
+        }
         if (!onIcon && e.getClickCount() % 2 == 0 && e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.toggleExpansion(this);
         }
+        repaint();
     }
-       
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellSelectionChanged()
      */
@@ -325,6 +359,8 @@ public class ContainerPanel extends DefaultTabPanel {
             } else {
                 eastListModel.initialize(((WestCell)cell).getEastCells());
             }
+            repaint();
+        } else if (cell instanceof EastCell) {
             repaint();
         }
     }
@@ -437,16 +473,20 @@ public class ContainerPanel extends DefaultTabPanel {
                 renderer.paintExpandedBackgroundWest(g, westWidth, getHeight(), selectionIndex, this);
                 renderer.paintExpandedBackgroundCenter(g, westWidth, getHeight(), selectionIndex, this);
                 renderer.paintExpandedBackgroundEast(g, westWidth, getHeight(), selectionIndex, this);
+                // TODO This paints on top of above images. Images should be adjusted.
+                renderer.paintBackground(g, getWidth(), ANIMATION_MINIMUM_HEIGHT);
             }
         } else {
-            renderer.paintBackground(g, getWidth(), getHeight(), selected);
+            renderer.paintBackground(g, getWidth(), getHeight());
         }
 
-        // Paint text. Text is painted (instead of using JLabels) so that when the container
+        // Paint text and selection.
+        // Text is painted (instead of using JLabels) so that when the container
         // is expanded the top west row can paint all the way across.
         final Graphics2D g2 = (Graphics2D)g.create();
         try {
             paintText(g2);
+            paintSelection(g2);
         }
         finally { g2.dispose(); }
     }
@@ -461,15 +501,31 @@ public class ContainerPanel extends DefaultTabPanel {
         westListJPanel.repaint();
     }
 
+    /**
+     * Clip text.
+     * 
+     * @param g2
+     *            The <code>Graphics2D</code>.
+     * @param location
+     *            The text location <code>Point</code>.
+     * @param text
+     *            The text <code>String</code>.
+     * @return The text <code>String</code>, which may or may not be clipped.
+     */
+    private String clipText(final Graphics2D g2, final Point location, final String text) {
+        final int availableWidth = getWidth() - location.x - CONTAINER_TEXT_SPACE_END;
+        return SwingUtil.limitWidthWithEllipsis(text, availableWidth, g2);
+    }
+
     private void collapsedJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMousePressed
         logger.logApiId();
         logger.logVariable("e", e);
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
-            tabDelegate.selectPanel(this);
+            selectPanel();
             popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
             popupDelegate.showForContainer(container, draft);
         } else if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
-            tabDelegate.selectPanel(this);
+            selectPanel();
         } else if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.toggleExpansion(this);
         }
@@ -479,7 +535,7 @@ public class ContainerPanel extends DefaultTabPanel {
         logger.logApiId();
         logger.logVariable("e", e);
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
-            tabDelegate.selectPanel(this);
+            selectPanel();
             popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
             popupDelegate.showForContainer(container, draft);
         }
@@ -575,7 +631,7 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     private void eastJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJPanelMousePressed
-        tabDelegate.selectPanel(this);
+        selectPanel();
         if (e.isPopupTrigger()) {
             if (!westListModel.isSelectionEmpty()) {
                 getPopupDelegate().initialize((Component) e.getSource(), e.getX(), e.getY());
@@ -599,7 +655,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private void expandedJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMousePressed
         logger.logApiId();
         logger.logVariable("e", e);
-        tabDelegate.selectPanel(this);
+        selectPanel();
         if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.toggleExpansion(this);
         }
@@ -958,24 +1014,50 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * Paint text on the panel.
+     * Paint selection.
      * 
-     * @param g
+     * @param g2
      *            The <code>Graphics2D</code>.
      */
-    private void paintText(final Graphics2D g) {
-        g.setFont(getContainerTextFont());
-        final Point location = new Point(CONTAINER_TEXT_X, CONTAINER_TEXT_Y);
-        if (paintText(g, location, getContainerTextColor(), getContainerText(container))) {
-            location.x = location.x + SwingUtil.getStringWidth(getContainerText(container), g) + CONTAINER_TEXT_SPACE_BETWEEN;
-            paintText(g, location, getContainerAdditionalTextColor(), getContainerAdditionalText(container));
+    private void paintSelection(final Graphics2D g2) {
+        if (selected && PanelFocusHelper.Focus.PANEL == PanelFocusHelper.getFocus()) {
+            g2.setFont(getContainerTextFont());
+            final Point location = new Point(CONTAINER_TEXT_X, CONTAINER_TEXT_Y);
+            final int height = SwingUtil.getStringHeight(g2);
+            int width = SwingUtil.getStringWidth(clippedText, g2);
+            if (null != clippedAdditionalText) {
+                width += CONTAINER_TEXT_SPACE_BETWEEN + SwingUtil.getStringWidth(clippedAdditionalText, g2);
+            }
+            renderer.paintSelectionLine(g2, location.x, location.y, width, height);
         }
     }
 
     /**
      * Paint text on the panel.
      * 
-     * @param g
+     * @param g2
+     *            The <code>Graphics2D</code>.
+     */
+    private void paintText(final Graphics2D g2) {
+        g2.setFont(getContainerTextFont());
+        final Point location = new Point(CONTAINER_TEXT_X, CONTAINER_TEXT_Y + g2.getFontMetrics().getMaxAscent());
+        clippedText = clipText(g2, location, getContainerText(container));
+        paintText(g2, location, getContainerTextColor(), clippedText);
+        if (null != clippedText && clippedText.equals(getContainerText(container))) {
+            location.x = location.x + SwingUtil.getStringWidth(getContainerText(container), g2) + CONTAINER_TEXT_SPACE_BETWEEN;
+            clippedAdditionalText = clipText(g2, location, getContainerAdditionalText(container));
+            if (null != clippedAdditionalText) {
+                paintText(g2, location, getContainerAdditionalTextColor(), clippedAdditionalText);
+            }
+        } else {
+            clippedAdditionalText = null;
+        }
+    }
+
+    /**
+     * Paint text on the panel.
+     * 
+     * @param g2
      *            The <code>Graphics2D</code>.
      * @param location
      *            The text location <code>Point</code>.
@@ -983,20 +1065,10 @@ public class ContainerPanel extends DefaultTabPanel {
      *            The text <code>Color</code>.
      * @param text
      *            The text <code>String</code>.
-     * @return true if the entire text is displayed; false if it is clipped.
      */
-    private Boolean paintText(final Graphics2D g, final Point location, final Color color, final String text) {
-        final int availableWidth = getWidth() - location.x - CONTAINER_TEXT_SPACE_END;
-        final String clippedText = SwingUtil.limitWidthWithEllipsis(text, availableWidth, g);
-        if (null != clippedText) {
-            g.setPaint(color);
-            g.drawString(clippedText, location.x, location.y);
-        }
-        if (null != clippedText && clippedText.equals(text)) {
-            return Boolean.TRUE;
-        } else {
-            return Boolean.FALSE;
-        }
+    private void paintText(final Graphics2D g2, final Point location, final Color color, final String text) {
+        g2.setPaint(color);
+        g2.drawString(text, location.x, location.y);
     }
 
     /**
@@ -1008,6 +1080,14 @@ public class ContainerPanel extends DefaultTabPanel {
         // the container is expanded.
         // So, make the text in the JLabel blank.
         textJLabel.setText(" ");
+    }
+
+    /**
+     * Select this panel.
+     */
+    private void selectPanel() {
+        PanelFocusHelper.setFocus(PanelFocusHelper.Focus.PANEL);
+        tabDelegate.selectPanel(this);
     }
 
     /** An east list cell. */
@@ -1303,8 +1383,15 @@ public class ContainerPanel extends DefaultTabPanel {
         public void invokeAction() {
             actionDelegate.invokeForDocument(draft, document);
         }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
+         */
+        @Override
+        public void showPopup() {
+            popupDelegate.showForDocument(draft, document);
+        }
     }
-        
+
     private final class EmptyEastCell extends AbstractEastCell {
         
         /** A <code>Boolean</code> indicating if the popup is available. */
@@ -1384,7 +1471,7 @@ public class ContainerPanel extends DefaultTabPanel {
         private void addFill(final int listSize) {
             add(fillJLabel, fillConstraints, listSize);
         }
-        
+
         /**
          * Add a panel from a model at an index.
          * 
@@ -1397,6 +1484,7 @@ public class ContainerPanel extends DefaultTabPanel {
             panelConstraints.gridy = index;
             final PanelCellRenderer panelCell = getPanelCellRenderer(listType, index);
             panelCell.renderComponent(cell, index);
+            panelCell.setPanelSelectionManager(panelCellListModel);
             add((Component)panelCell, panelConstraints.clone(), index);
         }
 
@@ -1578,6 +1666,13 @@ public class ContainerPanel extends DefaultTabPanel {
         public void invokeAction() {
             actionDelegate.invokeForDocument(version, delta);
         }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
+         */
+        @Override
+        public void showPopup() {
+            popupDelegate.showForDocument(version);
+        }
     }
     
     /** A user cell. */
@@ -1610,6 +1705,13 @@ public class ContainerPanel extends DefaultTabPanel {
         @Override
         public void invokeAction() {
             actionDelegate.invokeForUser(user);
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
+         */
+        @Override
+        public void showPopup() {
+            popupDelegate.showForUser(user);
         }
     }
 }

@@ -22,6 +22,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
@@ -36,7 +37,12 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingUserInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
+import com.thinkparity.ophelia.browser.platform.action.document.Open;
+import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
+import com.thinkparity.ophelia.browser.platform.action.profile.Update;
+import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
 
 /**
@@ -83,13 +89,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             final Data createDraftData = new Data(1);
             createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_CREATE_DRAFT, createDraftData, container);  
-            needSeparator = true;
-        }
-
-        // Separator, maybe
-        if (needSeparator) {
             addSeparator();
-            needSeparator = false;
         }
 
         // Rename container
@@ -130,7 +130,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         }
 
         // include the container's id and unique id in the menu
-        if(model.isDevelopmentMode()) {
+        if (model.isDevelopmentMode()) {
             final Clipboard systemClipboard =
                 Toolkit.getDefaultToolkit().getSystemClipboard();
             final ActionListener debugActionListener = new ActionListener() {
@@ -159,16 +159,72 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForDocument(com.thinkparity.ophelia.model.container.ContainerDraft, com.thinkparity.codebase.model.document.Document)
+     */
+    public void showForDocument(final ContainerDraft draft, final Document document) {
+        // open
+        final Data data = new Data(1);
+        data.set(Open.DataKey.DOCUMENT_ID, document.getId());
+        add(ActionId.DOCUMENT_OPEN, data);
+
+        // rename document
+        if (ArtifactState.ADDED == draft.getState(document)) {
+            final Data renameData = new Data(2);
+            renameData.set(RenameDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+            renameData.set(RenameDocument.DataKey.DOCUMENT_ID, document.getId());
+            add(ActionId.CONTAINER_RENAME_DOCUMENT, renameData);
+        }
+
+        // revert
+        if (ArtifactState.MODIFIED == draft.getState(document)) {
+            final Data revertData = new Data(2);
+            revertData.set(RevertDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+            revertData.set(RevertDocument.DataKey.DOCUMENT_ID, document.getId());
+            add(ActionId.CONTAINER_REVERT_DOCUMENT, revertData);
+        }
+
+        // undelete
+        if (ArtifactState.REMOVED == draft.getState(document)) {
+            final Data undeleteData = new Data(2);
+            undeleteData.set(UndeleteDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+            undeleteData.set(UndeleteDocument.DataKey.DOCUMENT_ID, document.getId());
+            add(ActionId.CONTAINER_UNDELETE_DOCUMENT, undeleteData);
+        }
+
+        // remove document
+        if (ArtifactState.REMOVED != draft.getState(document)) {
+            final Data removeData = new Data(2);
+            removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+            removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, document.getId());
+            add(ActionId.CONTAINER_REMOVE_DOCUMENT, removeData);
+        }
+
+        show();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForDocument(com.thinkparity.codebase.model.document.DocumentVersion)
+     */
+    public void showForDocument(final DocumentVersion documentVersion) {
+        // open
+        final Data data = new Data(2);
+        data.set(OpenVersion.DataKey.DOCUMENT_ID, documentVersion.getArtifactId());
+        data.set(OpenVersion.DataKey.VERSION_ID, documentVersion.getVersionId());
+        add(ActionId.DOCUMENT_OPEN_VERSION, data);
+        
+        show();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerTabPopupDelegate#showForDraft(com.thinkparity.codebase.model.container.Container,
      *      com.thinkparity.ophelia.model.container.ContainerDraft)
      * 
      */
     public void showForDraft(final Container container, final ContainerDraft draft) {
         final boolean online = isOnline();
-        final List<Document> documents = draft.getDocuments();
-        
-        // publish
         boolean needSeparator = false;
+
+        // publish
         if (online && isLocalDraftModified(container.getId())) {
             final Data publishData = new Data(1);
             publishData.set(Publish.DataKey.CONTAINER_ID, draft.getContainerId());
@@ -199,62 +255,14 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
         add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
 
-        // rename document
-        for (final Document document : documents) {
-            if (ArtifactState.ADDED == draft.getState(document)) {
-                final Data renameData = new Data(2);
-                renameData.set(RenameDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-                renameData.set(RenameDocument.DataKey.DOCUMENT_ID, document.getId());
-                add(ActionId.CONTAINER_RENAME_DOCUMENT, document.getName(), renameData);
-            }
-        }
-        
-        // revert
-        for (final Document document : documents) {
-            if (ArtifactState.MODIFIED == draft.getState(document)) {
-                final Data revertData = new Data(2);
-                revertData.set(RevertDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-                revertData.set(RevertDocument.DataKey.DOCUMENT_ID, document.getId());
-                add(ActionId.CONTAINER_REVERT_DOCUMENT, document.getName(), revertData);
-            }
-        }
-        
-        // undelete
-        for (final Document document : documents) {
-            if (ArtifactState.REMOVED == draft.getState(document)) {
-                final Data undeleteData = new Data(2);
-                undeleteData.set(UndeleteDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-                undeleteData.set(UndeleteDocument.DataKey.DOCUMENT_ID, document.getId());
-                add(ActionId.CONTAINER_UNDELETE_DOCUMENT, document.getName(), undeleteData);
-            }
-        }
-        
-        // remove document
-        for (final Document document : documents) {
-            if (ArtifactState.REMOVED != draft.getState(document)) {
-                final Data removeData = new Data(2);
-                removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-                removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, document.getId());
-                add(ActionId.CONTAINER_REMOVE_DOCUMENT, document.getName(), removeData);
-            }
-        }
-
         addSeparator();
 
         // print
         final List<Document> documentsNotDeleted = getDocumentsNotDeleted(draft);
-        if (documentsNotDeleted.size() > 1) {
+        if (documentsNotDeleted.size() > 0) {
             final Data printData = new Data(1);
             printData.set(PrintDraft.DataKey.CONTAINER_ID, draft.getContainerId());
-            add(ActionId.DOCUMENT_PRINT_DRAFT, ActionId.CONTAINER_PRINT_DRAFT, printData);
-            addSeparator(ActionId.DOCUMENT_PRINT_DRAFT);           
-        }
-
-        // print
-        for (final Document document : documentsNotDeleted) {
-            final Data documentPrintData = new Data(1);
-            documentPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintDraft.DataKey.DOCUMENT_ID, document.getId());
-            add(ActionId.DOCUMENT_PRINT_DRAFT, document.getName(), documentPrintData);     
+            add(ActionId.CONTAINER_PRINT_DRAFT, printData);
         }
 
         show();
@@ -271,73 +279,89 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForUser(com.thinkparity.codebase.model.user.User)
+     */
+    public void showForUser(final User user) {
+        final boolean online = isOnline();
+
+        // invite
+        if (online) {
+            if (!isLocalUser(user) && !doesExistContact(user) && !doesExistOutgoingUserInvitation(user)) {
+                final Data data = new Data(1);
+                data.set(CreateOutgoingUserInvitation.DataKey.USER_ID, user.getLocalId());
+                add(ActionId.CONTACT_CREATE_OUTGOING_USER_INVITATION, data);
+                addSeparator();
+            }
+        }
+
+        // open
+        if (isLocalUser(user)) {
+            final Data data = new Data(1);
+            data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            add(ActionId.PROFILE_UPDATE, data);
+
+            final Data updatePasswordData = new Data(1);
+            updatePasswordData.set(UpdatePassword.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            add(ActionId.PROFILE_UPDATE_PASSWORD, updatePasswordData);
+        } else {
+            final Data data = new Data(1);
+            data.set(Read.DataKey.CONTACT_ID, user.getId());
+            add(ActionId.CONTACT_READ, data);
+        }
+
+        show();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForVersion(com.thinkparity.codebase.model.container.ContainerVersion, java.util.List, java.util.List, com.thinkparity.codebase.model.user.User)
      */
     public void showForVersion(final ContainerVersion version,
             final List<DocumentView> documentViews,
             final List<ArtifactReceipt> publishedTo, final User publishedBy) {
         final boolean online = isOnline();
+        boolean needSeparator = false;
 
-        // invite submenu users
+        // Forward
         if (online) {
-            if (!isLocalUser(publishedBy) && !doesExistContact(publishedBy) && !doesExistOutgoingUserInvitation(publishedBy)) {
-                final Data data = new Data(1);
-                data.set(CreateOutgoingUserInvitation.DataKey.USER_ID, publishedBy.getLocalId());
-                add(ActionId.CONTACT_CREATE_OUTGOING_USER_INVITATION, publishedBy.getName(), data);
-            }
-            for (final ArtifactReceipt artifactReceipt : publishedTo) {
-                final User publishedToUser = artifactReceipt.getUser();
-                if (!isLocalUser(publishedToUser) && !doesExistContact(publishedToUser) && !doesExistOutgoingUserInvitation(publishedToUser)) {
-                    final Data data = new Data(1);
-                    data.set(CreateOutgoingUserInvitation.DataKey.USER_ID, publishedToUser.getLocalId());
-                    add(ActionId.CONTACT_CREATE_OUTGOING_USER_INVITATION, publishedToUser.getName(), data);
-                }
-            }
+            final Data shareData = new Data(2);
+            shareData.set(PublishVersion.DataKey.CONTAINER_ID, version.getArtifactId());
+            shareData.set(PublishVersion.DataKey.VERSION_ID, version.getVersionId());
+            add(ActionId.CONTAINER_PUBLISH_VERSION, shareData);
+            needSeparator = true;
         }
-        
+
         // Show version comment
         if (version.isSetComment()) {
             final Data commentData = new Data(2);
             commentData.set(DisplayVersionInfo.DataKey.CONTAINER_ID, version.getArtifactId());
             commentData.set(DisplayVersionInfo.DataKey.VERSION_ID, version.getVersionId());
             add(ActionId.CONTAINER_DISPLAY_VERSION_INFO, commentData);
+            needSeparator = true;
         }
-        
-        // Forward
-        if (online) {
-            final Data shareData = new Data(2);
-            shareData.set(PublishVersion.DataKey.CONTAINER_ID, version.getArtifactId());
-            shareData.set(PublishVersion.DataKey.VERSION_ID, version.getVersionId());
-            add(ActionId.CONTAINER_PUBLISH_VERSION, shareData);    
+
+        // separator
+        if (needSeparator) {
+            addSeparator();
+            needSeparator = false;
         }
-        
+
         // Export
         final Data exportData = new Data(2);
         exportData.set(com.thinkparity.ophelia.browser.platform.action.container.ExportVersion.DataKey.CONTAINER_ID, version.getArtifactId());
         exportData.set(com.thinkparity.ophelia.browser.platform.action.container.ExportVersion.DataKey.VERSION_ID, version.getVersionId());
         add(ActionId.CONTAINER_EXPORT_VERSION, exportData);
-        
-        addSeparator();
-        
+
         // Print
         final List<DocumentView> documentViewsNotDeleted = getDocumentViewsNotDeleted(documentViews);
-        if (documentViewsNotDeleted.size() > 1) {
+        if (documentViewsNotDeleted.size() > 0) {
             final Data printData = new Data(2);
             printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.CONTAINER_ID, version.getArtifactId());
             printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.VERSION_ID, version.getVersionId());
-            add(ActionId.DOCUMENT_PRINT_VERSION, ActionId.CONTAINER_PRINT_VERSION, printData);        
-            addSeparator(ActionId.DOCUMENT_PRINT_VERSION);
-        }
-        
-        for (final DocumentView documentView : documentViewsNotDeleted) {
-            final Data documentVersionPrintData = new Data(2);
-            documentVersionPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.DOCUMENT_ID, documentView.getDocumentId());
-            documentVersionPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.VERSION_ID, documentView.getVersionId());
-            add(ActionId.DOCUMENT_PRINT_VERSION, documentView.getDocumentName(), documentVersionPrintData);           
+            add(ActionId.CONTAINER_PRINT_VERSION, printData);
         }
 
         // include the version's created on/updated on
-        if(model.isDevelopmentMode()) {
+        if (model.isDevelopmentMode()) {
             addSeparator();
             add(MessageFormat.format(
                     "createdOn():{0,date,yyyy-MM-dd HH:mm:ss.SSS Z}",
@@ -346,6 +370,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
                     "updatedOn():{0,date,yyyy-MM-dd HH:mm:ss.SSS Z}",
                     version.getCreatedOn().getTime()));
         }
+
         show();
     }
 

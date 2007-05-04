@@ -511,7 +511,7 @@ public class ContactTabPanel extends DefaultTabPanel {
             renderer.paintExpandedBackgroundFields(g, location.x,
                     expandedDataValuesJPanel.getWidth(), this);
         } else {
-            renderer.paintBackground(g, getWidth(), getHeight(), selected);
+            renderer.paintBackground(g, getWidth(), getHeight());
         }
     }
 

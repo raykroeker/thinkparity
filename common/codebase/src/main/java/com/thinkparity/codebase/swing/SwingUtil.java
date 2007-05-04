@@ -126,6 +126,18 @@ public class SwingUtil {
     }
 
     /**
+     * Get the string height in the context of Graphics.
+     * 
+     * @param g
+     *            The <code>Graphics</code>.
+     * @return The height <code>int</code>.
+     */
+    public static int getStringHeight(final Graphics g) {
+        final FontMetrics fontMetrics = g.getFontMetrics();
+        return fontMetrics.getMaxAscent() + fontMetrics.getMaxDescent();
+    }
+
+    /**
      * Get the string width in the context of Graphics.
      * 
      * @param text

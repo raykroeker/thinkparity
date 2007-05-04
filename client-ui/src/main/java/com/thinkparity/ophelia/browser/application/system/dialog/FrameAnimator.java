@@ -70,7 +70,7 @@ public final class FrameAnimator {
         this.jDialog = jDialog;
         this.jDialogOriginalLocation = jDialog.getLocation();
         this.jDialogOriginalSize = jDialog.getSize();
-        this.timerDelay = 5;
+        this.timerDelay = 10;
     }
 
     /**
@@ -188,7 +188,9 @@ public final class FrameAnimator {
             done = true;
         }
         setBounds(jDialogLocation, jDialogSize);
-        maybeRoundCorners(jDialogSize);
+        if (jDialogSize.height == finalHeight) {
+            roundCorners();
+        }
         jDialog.validate();
         if (done) {
             stopAnimator();
@@ -196,16 +198,10 @@ public final class FrameAnimator {
     }
 
     /**
-     * Make the corners of the notify frame round provided the
-     * size of the dialog is big enough.
-     * 
-     * @param size
-     *            The <code>Dimension</code> dialog size.
+     * Make the corners of the notify frame round.
      */
-    private void maybeRoundCorners(final Dimension size) {
-        if (size.height > 2 * Constants.WindowUtil.NOTIFICATION_WINDOW_SIZE) {
-            WINDOW_UTIL.applyRoundedEdges(jDialog, Constants.WindowUtil.NOTIFICATION_WINDOW_SIZE);
-        }
+    private void roundCorners() {
+        WINDOW_UTIL.applyRoundedEdges(jDialog, Constants.WindowUtil.NOTIFICATION_WINDOW_SIZE);
     }
 
     /**

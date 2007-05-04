@@ -9,16 +9,25 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 
+import javax.swing.border.Border;
+
 import com.thinkparity.codebase.swing.AbstractJDialog;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2;
+import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2Animating;
 
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
 public abstract class SystemFrame extends AbstractJDialog {
+
+    /** The <code>Border</code>. */
+    final Border border;
+
+    /** The animating <code>Border</code>. */
+    final Border borderAnimating;
 
     /** The system frame's <code>FrameAnimator</code>. */
     private final FrameAnimator frameAnimator;
@@ -30,8 +39,10 @@ public abstract class SystemFrame extends AbstractJDialog {
      */
     protected SystemFrame() throws AWTException {
         super(null, Boolean.FALSE, "");
+        this.border = new WindowBorder2();
+        this.borderAnimating = new WindowBorder2Animating();
         this.frameAnimator = new FrameAnimator(this);
-        getRootPane().setBorder(new WindowBorder2());
+        getRootPane().setBorder(border);
     }
 
     /**
@@ -58,11 +69,16 @@ public abstract class SystemFrame extends AbstractJDialog {
 
     /**
      * Get the final size for the frame.
+     * Account for the difference in height between the two borders. This is
+     * done because the border is changed after animation is complete.
      * 
      * @return The final size <code>Dimension</code> for the frame.
      */
     protected Dimension getFinalSize() {
-        return getPreferredSize();
+        final Dimension dimension = getPreferredSize();
+        dimension.height += getBorderInsetHeight(getFinalBorder())
+                - getBorderInsetHeight(getStartBorder());
+        return dimension;
     }
 
     /**
@@ -96,18 +112,48 @@ public abstract class SystemFrame extends AbstractJDialog {
      */
     protected void show(final Boolean animate) {
         if (animate) {
+            getRootPane().setBorder(getStartBorder());
             setLocation(getStartLocation());
             setSize(getStartSize()); 
             validate();
             frameAnimator.slideIn(getAnimationAdjustmentY(),
                     getFinalLocation().y, getFinalSize().height,
                     new Runnable() {
-                        public void run() {}
+                        public void run() {
+                            getRootPane().setBorder(getFinalBorder());
+                        }
             });
             setVisible(true);
         } else {
             setLocation(getFinalLocation());
             setVisible(true);
         }
+    }
+
+    /**
+     * Get the total border inset height.
+     * 
+     * @return The border inset height <code>int</code>.
+     */
+    private int getBorderInsetHeight(final Border border) {
+        return border.getBorderInsets(this).top + border.getBorderInsets(this).bottom;
+    }
+
+    /**
+     * Get the final border.
+     * 
+     * @return The final <code>Border</code>.
+     */
+    private Border getFinalBorder() {
+        return this.border;
+    }
+
+    /**
+     * Get the start border.
+     * 
+     * @return The start <code>Border</code>.
+     */
+    private Border getStartBorder() {
+        return this.borderAnimating;
     }
 }

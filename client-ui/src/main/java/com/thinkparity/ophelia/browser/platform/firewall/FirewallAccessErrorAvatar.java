@@ -83,16 +83,16 @@ public final class FirewallAccessErrorAvatar extends Avatar {
 
         // These images help to make the rounded corners look good.
         // Note that top left and top right are drawn by the window title.
-        g.drawImage(Images.BrowserTitle.DIALOG_BOTTOM_LEFT,
+        g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT,
                 0,
-                getSize().height - Images.BrowserTitle.DIALOG_BOTTOM_LEFT.getHeight(),
-                Images.BrowserTitle.DIALOG_BOTTOM_LEFT.getWidth(),
-                Images.BrowserTitle.DIALOG_BOTTOM_LEFT.getHeight(), this);
-        g.drawImage(Images.BrowserTitle.DIALOG_BOTTOM_RIGHT,
-                getSize().width - Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getWidth(),
-                getSize().height - Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getHeight(),
-                Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getWidth(),
-                Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getHeight(), this);
+                getSize().height - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT.getHeight(),
+                Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT.getWidth(),
+                Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT.getHeight(), this);
+        g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT,
+                getSize().width - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT.getWidth(),
+                getSize().height - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT.getHeight(),
+                Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT.getWidth(),
+                Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT.getHeight(), this);
     }
 
     /**

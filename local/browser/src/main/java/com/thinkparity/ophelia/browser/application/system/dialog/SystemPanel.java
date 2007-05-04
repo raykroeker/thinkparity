@@ -51,7 +51,7 @@ public abstract class SystemPanel extends AbstractJPanel {
                     scaledSize.height, Image.SCALE_SMOOTH);
         }
         g.drawImage(scaledBackground, 0, 0, null);
-        
+
         // These images help to make the rounded corners look good.
         g.drawImage(Images.BrowserTitle.BROWSER_TOP_LEFT_INNER,
                 0,
@@ -63,15 +63,20 @@ public abstract class SystemPanel extends AbstractJPanel {
                 0,
                 Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
                 Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getHeight(), this);
-        g.drawImage(Images.BrowserTitle.DIALOG_BOTTOM_LEFT,
-                0,
-                getSize().height - Images.BrowserTitle.DIALOG_BOTTOM_LEFT.getHeight(),
-                Images.BrowserTitle.DIALOG_BOTTOM_LEFT.getWidth(),
-                Images.BrowserTitle.DIALOG_BOTTOM_LEFT.getHeight(), this);
-        g.drawImage(Images.BrowserTitle.DIALOG_BOTTOM_RIGHT,
-                getSize().width - Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getWidth(),
-                getSize().height - Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getHeight(),
-                Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getWidth(),
-                Images.BrowserTitle.DIALOG_BOTTOM_RIGHT.getHeight(), this);
+
+        // The bottom images are drawn only if the panel is full size.
+        // This improves the look during animation.
+        if (getSize().height >= getPreferredSize().height) {
+            g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT,
+                    0,
+                    getSize().height - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT.getHeight(),
+                    Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT.getWidth(),
+                    Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT.getHeight(), this);
+            g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT,
+                    getSize().width - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT.getWidth(),
+                    getSize().height - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT.getHeight(),
+                    Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT.getWidth(),
+                    Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT.getHeight(), this);
+        }
     }
 }

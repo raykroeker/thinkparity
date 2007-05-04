@@ -3,11 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
-import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -319,41 +316,8 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
             tabPanel.collapse(animate);
             expandedState.put(tabPanel, Boolean.FALSE);
         } else {
-            // find the first expanded panel and collapse it
-            boolean didHit = false;
-            if (animate) {
-                for (final TabPanel otherTabPanel : visiblePanels) {
-                    if (isExpanded(otherTabPanel)) {
-                        ((Container)otherTabPanel).addPropertyChangeListener("expanded",
-                                new PropertyChangeListener() {
-                                    public void propertyChange(
-                                            final PropertyChangeEvent evt) {
-                                        ((Container)otherTabPanel).removePropertyChangeListener("expanded", this);
-    
-                                        tabPanel.expand(animate);
-                                        expandedState.put(tabPanel, Boolean.TRUE);
-                                    }
-                                });
-                        otherTabPanel.collapse(animate);
-                        expandedState.put(otherTabPanel, Boolean.FALSE);
-                        didHit = true;
-                        break;
-                    }
-                }
-            }
-            // Collapse any expanded panels even if they are not visible, without animation.
-            // Panels may be non-visible due to search, and when the search is cleared
-            // we don't want multiple expanded panels.
-            for (final TabPanel panel : panels) {
-                if (!panel.equals(tabPanel) && isExpanded(panel)) {
-                    panel.setExpanded(Boolean.FALSE);
-                    expandedState.put(panel, Boolean.FALSE);
-                }
-            }
-            if (!didHit) {
-                tabPanel.expand(animate);
-                expandedState.put(tabPanel, Boolean.TRUE);
-            }
+            tabPanel.expand(animate);
+            expandedState.put(tabPanel, Boolean.TRUE);
         }
     }
    

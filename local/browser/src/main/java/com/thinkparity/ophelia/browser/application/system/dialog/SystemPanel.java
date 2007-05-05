@@ -53,20 +53,18 @@ public abstract class SystemPanel extends AbstractJPanel {
         g.drawImage(scaledBackground, 0, 0, null);
 
         // These images help to make the rounded corners look good.
-        g.drawImage(Images.BrowserTitle.BROWSER_TOP_LEFT_INNER,
-                0,
-                0,
-                Images.BrowserTitle.BROWSER_TOP_LEFT_INNER.getWidth(),
-                Images.BrowserTitle.BROWSER_TOP_LEFT_INNER.getHeight(), this);
-        g.drawImage(Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER,
-                getSize().width - Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
-                0,
-                Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
-                Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getHeight(), this);
-
-        // The bottom images are drawn only if the panel is full size.
-        // This improves the look during animation.
+        // Draw them only when the panel is full size. This helps the look of animation.
         if (getSize().height >= getPreferredSize().height) {
+            g.drawImage(Images.BrowserTitle.BROWSER_TOP_LEFT_INNER,
+                    0,
+                    0,
+                    Images.BrowserTitle.BROWSER_TOP_LEFT_INNER.getWidth(),
+                    Images.BrowserTitle.BROWSER_TOP_LEFT_INNER.getHeight(), this);
+            g.drawImage(Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER,
+                    getSize().width - Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
+                    0,
+                    Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
+                    Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getHeight(), this);
             g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT,
                     0,
                     getSize().height - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT.getHeight(),

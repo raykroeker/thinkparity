@@ -14,7 +14,6 @@ import java.util.Stack;
 import javax.swing.border.AbstractBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
-import com.thinkparity.ophelia.browser.Constants.Images;
 
 /**
  * @author rob_masako@shaw.ca
@@ -101,18 +100,6 @@ public class WindowBorder2Animating extends AbstractBorder {
         g.drawLine(0, 0, width - 1, 0);                     // top line
         g.drawLine(0, 0, 0, height - 1);                    // left line
         g.drawLine(width - 1, 0, width - 1, height - 1);    // right line
-
-        // These images put borders on rounded corners.
-        g.drawImage(Images.BrowserTitle.BROWSER_TOP_LEFT_OUTER,
-                0,
-                0,
-                Images.BrowserTitle.BROWSER_TOP_LEFT_OUTER.getWidth(),
-                Images.BrowserTitle.BROWSER_TOP_LEFT_OUTER.getHeight(), c);
-        g.drawImage(Images.BrowserTitle.BROWSER_TOP_RIGHT_OUTER,
-                width - Images.BrowserTitle.BROWSER_TOP_RIGHT_OUTER.getWidth(),
-                0,
-                Images.BrowserTitle.BROWSER_TOP_RIGHT_OUTER.getWidth(),
-                Images.BrowserTitle.BROWSER_TOP_RIGHT_OUTER.getHeight(), c);
 
         popColour(g);
     }

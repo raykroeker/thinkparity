@@ -647,7 +647,7 @@ public final class PublishContainerAvatar extends Avatar implements
             // NOCOMMIT This is here as a stopgap until more general code is in place.
             final Document document = commentJTextArea.getDocument();
             if (document instanceof AbstractDocument) {
-                ((AbstractDocument)document).setDocumentFilter(new DocumentSizeFilter(128));
+                ((AbstractDocument)document).setDocumentFilter(new DocumentSizeFilter(4096));
             }
             break;
         default:

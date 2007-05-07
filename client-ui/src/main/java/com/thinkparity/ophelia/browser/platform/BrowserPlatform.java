@@ -608,14 +608,6 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.Platform#runResetPassword()
-     * 
-     */
-    public void runResetPassword() {
-        invoke(ActionId.PLATFORM_RESET_PASSWORD, Data.emptyData());
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#start()
      * 
      */

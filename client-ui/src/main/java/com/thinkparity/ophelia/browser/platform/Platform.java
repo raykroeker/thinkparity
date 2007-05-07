@@ -253,12 +253,6 @@ public interface Platform extends ApplicationListener {
             final InitializeMediator mediator);
 
     /**
-     * Run the reset password action.
-     * 
-     */
-    public void runResetPassword();
-
-    /**
      * Start the browser platform.
      *
      */

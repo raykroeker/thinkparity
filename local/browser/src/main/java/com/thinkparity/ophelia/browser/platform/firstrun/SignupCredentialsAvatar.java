@@ -28,7 +28,6 @@ import com.thinkparity.ophelia.browser.application.browser.component.LabelFactor
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
-import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
 
 /**
  *

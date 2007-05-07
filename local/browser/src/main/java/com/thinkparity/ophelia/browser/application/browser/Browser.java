@@ -997,7 +997,15 @@ public class Browser extends AbstractApplication {
         data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, documentId);
         invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
     }
-  
+
+    /**
+     * Run the contact us action.
+     *
+     */
+    public void runContactUs() {
+        getPlatform().runContactUs();
+    }
+
     /**
      * Run the create container (package) action. The user will
      * determine the container name.
@@ -1340,15 +1348,7 @@ public class Browser extends AbstractApplication {
         data.set(RenameDocument.DataKey.DOCUMENT_NAME, documentName);
         invoke(ActionId.CONTAINER_RENAME_DOCUMENT, data);
     }
-    
-    /**
-     * Run the reset password action.
-     *
-     */
-    public void runResetPassword() {
-        getPlatform().runResetPassword();
-    }
-    
+
     /**
      * Update a document draft.
      * 

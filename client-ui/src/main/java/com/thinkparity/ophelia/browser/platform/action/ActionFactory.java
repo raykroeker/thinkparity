@@ -254,9 +254,6 @@ public class ActionFactory extends AbstractFactory {
         case PLATFORM_QUIT:
             action = new com.thinkparity.ophelia.browser.platform.action.platform.Quit(getPlatform());
             break;
-        case PLATFORM_RESET_PASSWORD:
-            action = new com.thinkparity.ophelia.browser.platform.action.platform.ResetPassword(getPlatform());
-            break;
         case PLATFORM_RESTART:
             action = new com.thinkparity.ophelia.browser.platform.action.platform.Restart(getPlatform());
             break;

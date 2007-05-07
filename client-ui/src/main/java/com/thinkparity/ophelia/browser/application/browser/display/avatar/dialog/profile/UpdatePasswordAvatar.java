@@ -155,7 +155,7 @@ public class UpdatePasswordAvatar extends Avatar {
     }
 
     private void forgotPasswordJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_forgotPasswordJLabelMousePressed
-        getController().runResetPassword();
+        getController().runContactUs();
     }//GEN-LAST:event_forgotPasswordJLabelMousePressed
 
     /**
@@ -174,14 +174,11 @@ public class UpdatePasswordAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
-
         final javax.swing.JLabel oldPasswordJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel newPasswordJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel confirmNewPasswordJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel forgotPasswordExplanationJLabel = new javax.swing.JLabel();
         final javax.swing.JButton cancelJButton = ButtonFactory.create();
-        final javax.swing.JPanel forgotPasswordJPanel = new javax.swing.JPanel();
-        final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
 
         oldPasswordJLabel.setFont(Fonts.DialogFont);
         oldPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdatePasswordAvatar.OldPassword"));
@@ -202,6 +199,17 @@ public class UpdatePasswordAvatar extends Avatar {
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
         errorMessageJLabel.setText("!Error Message!");
 
+        forgotPasswordExplanationJLabel.setFont(Fonts.DialogFont);
+        forgotPasswordExplanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdatePasswordAvatar.ExplanationForgetPassword"));
+
+        forgotPasswordJLabel.setFont(Fonts.DialogFont);
+        forgotPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdatePasswordAvatar.ForgetPassword"));
+        forgotPasswordJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                forgotPasswordJLabelMousePressed(evt);
+            }
+        });
+
         okJButton.setFont(Fonts.DialogButtonFont);
         okJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdatePasswordAvatar.OK"));
         okJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -217,32 +225,6 @@ public class UpdatePasswordAvatar extends Avatar {
                 cancelJButtonActionPerformed(evt);
             }
         });
-
-        forgotPasswordJPanel.setLayout(new java.awt.GridBagLayout());
-
-        forgotPasswordJPanel.setOpaque(false);
-        forgotPasswordJLabel.setFont(Fonts.DialogFont);
-        forgotPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdatePasswordAvatar.ForgotPassword"));
-        forgotPasswordJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                forgotPasswordJLabelMousePressed(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        forgotPasswordJPanel.add(forgotPasswordJLabel, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        forgotPasswordJPanel.add(fillerJLabel, gridBagConstraints);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -263,8 +245,10 @@ public class UpdatePasswordAvatar extends Avatar {
                             .addComponent(newPasswordJPasswordField, javax.swing.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE)
                             .addComponent(confirmNewPasswordJPasswordField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(forgotPasswordJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 138, Short.MAX_VALUE)
+                        .addComponent(forgotPasswordExplanationJLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(forgotPasswordJLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 57, Short.MAX_VALUE)
                         .addComponent(okJButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cancelJButton)))
@@ -291,11 +275,11 @@ public class UpdatePasswordAvatar extends Avatar {
                 .addGap(17, 17, 17)
                 .addComponent(errorMessageJLabel)
                 .addGap(22, 22, 22)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(cancelJButton)
-                        .addComponent(okJButton))
-                    .addComponent(forgotPasswordJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cancelJButton)
+                    .addComponent(okJButton)
+                    .addComponent(forgotPasswordExplanationJLabel)
+                    .addComponent(forgotPasswordJLabel))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

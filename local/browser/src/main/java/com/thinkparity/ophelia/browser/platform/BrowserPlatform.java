@@ -575,6 +575,13 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
 	}
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#runContactUs()
+     */
+    public void runContactUs() {
+        invoke(ActionId.PLATFORM_CONTACT_US, Data.emptyData());
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#runLearnMore(com.thinkparity.ophelia.browser.platform.action.platform.LearnMore.Topic)
      */
     public void runLearnMore(final LearnMore.Topic topic) {

@@ -224,6 +224,11 @@ public interface Platform extends ApplicationListener {
 	public void restore(final ApplicationId applicationId);
 
     /**
+     * Run the contact us action.
+     */
+    public void runContactUs();
+
+    /**
      * Run the learn more action.
      * 
      * @param topic

@@ -255,11 +255,10 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
         add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
 
-        addSeparator();
-
         // print
         final List<Document> documentsNotDeleted = getDocumentsNotDeleted(draft);
         if (documentsNotDeleted.size() > 0) {
+            addSeparator();
             final Data printData = new Data(1);
             printData.set(PrintDraft.DataKey.CONTAINER_ID, draft.getContainerId());
             add(ActionId.CONTAINER_PRINT_DRAFT, printData);

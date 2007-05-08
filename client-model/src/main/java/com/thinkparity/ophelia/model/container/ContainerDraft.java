@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.container;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,9 @@ import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.user.TeamMember;
+
+import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
+import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 
 /**
  * <b>Title:</b>thinkParity Container Draft<br>
@@ -36,6 +40,9 @@ public class ContainerDraft {
     /** The container the draft belongs to. */
     private Long containerId;
 
+    /** The default document comparator. */
+    private final Comparator<Artifact> defaultComparator;
+
     /**
      * A <code>Boolean</code> indicator as to whether or not the draft is
      * local.
@@ -50,6 +57,7 @@ public class ContainerDraft {
         super();
         this.artifacts = new ArrayList<Artifact>();
         this.artifactsState = new HashMap<Long, ArtifactState>(7, 0.75F);
+        this.defaultComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
     }
 
     /**
@@ -137,12 +145,24 @@ public class ContainerDraft {
      * @return A list of documents.
      */
     public List<Document> getDocuments() {
+        return getDocuments(defaultComparator);
+    }
+
+    /**
+     * Obtain a list of documents in the draft.
+     * 
+     * @param comparator
+     *            A document comparator.
+     * @return A list of documents.
+     */
+    public List<Document> getDocuments(final Comparator<Artifact> comparator) {
         final List<Document> documents = new ArrayList<Document>(artifacts.size());
         for (final Artifact artifact : artifacts) {
             if (ArtifactType.DOCUMENT == artifact.getType()) {
                 documents.add((Document) artifact);
             }
         }
+        ModelSorter.sortDocuments(documents, comparator);
         return Collections.unmodifiableList(documents);
     }
 

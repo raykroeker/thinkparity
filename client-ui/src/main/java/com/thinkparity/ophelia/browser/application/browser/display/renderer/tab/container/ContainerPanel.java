@@ -426,12 +426,12 @@ public class ContainerPanel extends DefaultTabPanel {
         if (versions.size() > 0) {
             this.firstVersion = versions.get(versions.size()-1);
         }
-        
+
         // Build the west list
         westCells.add(new ContainerCell(draftView, latestVersion, versions,
                 documentViews, team));
         if (isLocalDraft()) {
-            westCells.add(new DraftCell());
+            westCells.add(new DraftCell(draftView));
         }
         for (final ContainerVersion version : versions) {
             westCells.add(new VersionCell(version, documentViews.get(version),
@@ -1186,7 +1186,7 @@ public class ContainerPanel extends DefaultTabPanel {
             }
         }
         private void addDraftDocumentCells(final DraftView draftView) {
-            for (final Document document : draftView.getDraft().getDocuments()) {
+            for (final Document document : draftView.getDocuments()) {
                 add(new ContainerDraftDocumentCell(this, document, draftView));
             }
         }        
@@ -1333,9 +1333,9 @@ public class ContainerPanel extends DefaultTabPanel {
          * Create DraftCell.
          *
          */
-        private DraftCell() {
+        private DraftCell(final DraftView draftView) {
             super(Boolean.FALSE);
-            for (final Document document : draft.getDocuments()) {
+            for (final Document document : draftView.getDocuments()) {
                 add(new DraftDocumentCell(this, document));
             }
         }

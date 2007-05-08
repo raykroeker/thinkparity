@@ -231,6 +231,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
         }
         Collections.sort(views, new Comparator<DocumentView>() {
             public int compare(final DocumentView o1, final DocumentView o2) {
+                // Oldest are first in the list.
                 return o1.getFirstPublishedOn().compareTo(
                        o2.getFirstPublishedOn());
             }

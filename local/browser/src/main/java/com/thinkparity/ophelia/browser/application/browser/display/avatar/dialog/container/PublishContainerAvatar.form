@@ -16,13 +16,15 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="namesJScrollPane" alignment="0" pref="449" max="32767" attributes="0"/>
-                  <Component id="emailsJLabel" alignment="0" pref="449" max="32767" attributes="0"/>
-                  <Component id="emailsJScrollPane" alignment="0" pref="449" max="32767" attributes="0"/>
-                  <Component id="commentJLabel" alignment="0" pref="449" max="32767" attributes="0"/>
-                  <Component id="commentJScrollPane" alignment="0" max="32767" attributes="0"/>
                   <Component id="buttonBarJPanel" alignment="0" max="32767" attributes="0"/>
                   <Component id="progressBarJPanel" alignment="0" max="32767" attributes="0"/>
+                  <Component id="namesJScrollPane" alignment="1" pref="360" max="32767" attributes="0"/>
+                  <Component id="emailsJLabel" alignment="1" pref="360" max="32767" attributes="0"/>
+                  <Component id="emailsJScrollPane" alignment="0" pref="360" max="32767" attributes="0"/>
+                  <Component id="labelJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="labelJTextField" alignment="0" pref="360" max="32767" attributes="0"/>
+                  <Component id="commentJLabel" alignment="1" pref="360" max="32767" attributes="0"/>
+                  <Component id="commentJScrollPane" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -30,18 +32,22 @@
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="32767" attributes="0"/>
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
               <Component id="namesJScrollPane" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="emailsJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="emailsJScrollPane" min="-2" pref="58" max="-2" attributes="0"/>
+              <Component id="emailsJScrollPane" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="labelJLabel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="labelJTextField" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="commentJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="commentJScrollPane" min="-2" pref="58" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
               <Component id="buttonBarJPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="progressBarJPanel" min="-2" max="-2" attributes="0"/>
@@ -128,6 +134,30 @@
         </Component>
       </SubComponents>
     </Container>
+    <Component class="javax.swing.JLabel" name="labelJLabel">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogFont" type="code"/>
+        </Property>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="localization/Browser_Messages.properties" key="PublishContainerAvatar.Label" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JTextField" name="labelJTextField">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogTextEntryFont" type="code"/>
+        </Property>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
+      </AuxValues>
+    </Component>
     <Component class="javax.swing.JLabel" name="commentJLabel">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
@@ -148,8 +178,7 @@
         <Property name="horizontalScrollBarPolicy" type="int" value="31"/>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
@@ -188,7 +217,7 @@
                           <Component id="cancelJButton" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="fillerJLabel" pref="368" max="32767" attributes="0"/>
+                          <Component id="fillerJLabel" pref="279" max="32767" attributes="0"/>
                           <EmptySpace min="-2" pref="71" max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -273,8 +302,8 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="publishJProgressBar" alignment="0" pref="449" max="32767" attributes="0"/>
-              <Component id="statusJLabel" alignment="0" pref="449" max="32767" attributes="0"/>
+              <Component id="publishJProgressBar" alignment="0" pref="360" max="32767" attributes="0"/>
+              <Component id="statusJLabel" alignment="0" pref="360" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">

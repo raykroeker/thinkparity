@@ -64,8 +64,10 @@ public final class PublishContainerAvatar extends Avatar implements
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPanel buttonBarJPanel = new javax.swing.JPanel();
+    private final javax.swing.JScrollPane commentJScrollPane = new javax.swing.JScrollPane();
     private final javax.swing.JTextArea commentJTextArea = new javax.swing.JTextArea();
     private final javax.swing.JTextArea emailsJTextArea = new javax.swing.JTextArea();
+    private final javax.swing.JTextField labelJTextField = new javax.swing.JTextField();
     private final javax.swing.JList namesJList = new javax.swing.JList();
     private final javax.swing.JScrollPane namesJScrollPane = new javax.swing.JScrollPane();
     private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
@@ -251,11 +253,25 @@ public final class PublishContainerAvatar extends Avatar implements
     private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
         disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
-    
+
     private ThinkParitySwingMonitor createMonitor() {
         return new PublishContainerSwingMonitor(this, getInputContainerId());
     }
-    
+
+    /**
+     * Enable or disable user entry in a text component.
+     * 
+     * @param jTextComponent
+     *            A <code>JTextComponent</code>.
+     * @param enable
+     *            Enable or disable <code>boolean</code>.
+     */
+    private void enableUserEntry(final javax.swing.text.JTextComponent jTextComponent, final boolean enable) {
+        jTextComponent.setEditable(enable);
+        jTextComponent.setFocusable(enable);
+        jTextComponent.setOpaque(enable);
+    }
+
     /**
      * Extract the user comment.
      * 
@@ -354,8 +370,8 @@ public final class PublishContainerAvatar extends Avatar implements
     private void initComponents() {
         final javax.swing.JLabel emailsJLabel = new javax.swing.JLabel();
         final javax.swing.JScrollPane emailsJScrollPane = new javax.swing.JScrollPane();
+        final javax.swing.JLabel labelJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel commentJLabel = new javax.swing.JLabel();
-        final javax.swing.JScrollPane commentJScrollPane = new javax.swing.JScrollPane();
         final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
         final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
@@ -382,6 +398,11 @@ public final class PublishContainerAvatar extends Avatar implements
         emailsJTextArea.setFont(Fonts.DialogTextEntryFont);
         emailsJTextArea.setLineWrap(true);
         emailsJScrollPane.setViewportView(emailsJTextArea);
+
+        labelJLabel.setFont(Fonts.DialogFont);
+        labelJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.Label"));
+
+        labelJTextField.setFont(Fonts.DialogTextEntryFont);
 
         commentJLabel.setFont(Fonts.DialogFont);
         commentJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.Comment"));
@@ -425,7 +446,7 @@ public final class PublishContainerAvatar extends Avatar implements
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(cancelJButton))
                     .add(buttonBarJPanelLayout.createSequentialGroup()
-                        .add(fillerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                        .add(fillerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 279, Short.MAX_VALUE)
                         .add(71, 71, 71))))
         );
         buttonBarJPanelLayout.setVerticalGroup(
@@ -452,8 +473,8 @@ public final class PublishContainerAvatar extends Avatar implements
         progressBarJPanel.setLayout(progressBarJPanelLayout);
         progressBarJPanelLayout.setHorizontalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
-            .add(statusJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
+            .add(publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+            .add(statusJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
         );
         progressBarJPanelLayout.setVerticalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -472,29 +493,35 @@ public final class PublishContainerAvatar extends Avatar implements
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
-                    .add(emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
-                    .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
-                    .add(commentJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
-                    .add(commentJScrollPane)
                     .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .add(labelJLabel)
+                    .add(labelJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, commentJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .add(commentJScrollPane))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
                 .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(emailsJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(labelJLabel)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(labelJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(commentJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(14, 14, 14)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -636,14 +663,22 @@ public final class PublishContainerAvatar extends Avatar implements
             final Long containerId = getInputContainerId();
             final Long versionId = getInputVersionId();
             final String comment = ((PublishContainerProvider) contentProvider).readContainerVersionComment(containerId, versionId);
+            // TODO Populate label field
+            labelJTextField.setText(null);
+            enableUserEntry(labelJTextField, false);
             commentJTextArea.setText(comment);
-            commentJTextArea.setEditable(false);
-            commentJTextArea.setFocusable(false);
+            enableUserEntry(commentJTextArea, false);
+            commentJScrollPane.setOpaque(false);
+            commentJScrollPane.getViewport().setOpaque(false);
             break;
         case PUBLISH:
+            labelJTextField.setText(null);
+            enableUserEntry(labelJTextField, true);
             commentJTextArea.setText(null);
-            commentJTextArea.setEditable(true);
-            commentJTextArea.setFocusable(true);
+            enableUserEntry(commentJTextArea, true);
+            commentJScrollPane.setOpaque(true);
+            commentJScrollPane.getViewport().setOpaque(true);
+
             // NOCOMMIT This is here as a stopgap until more general code is in place.
             final Document document = commentJTextArea.getDocument();
             if (document instanceof AbstractDocument) {

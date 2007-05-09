@@ -317,6 +317,7 @@ public class ThinkParityScrollBarUI extends BasicScrollBarUI {
         private ScrollButton(final BufferedImage[] images) {
             super();
             this.images = images;
+            setRequestFocusEnabled(false);
         }
         @Override
         public Dimension getPreferredSize() {

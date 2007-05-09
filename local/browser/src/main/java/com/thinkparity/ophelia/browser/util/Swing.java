@@ -13,6 +13,7 @@ import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.Constants.Icons;
 import com.thinkparity.ophelia.browser.Constants.Menus;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityButtonUI;
@@ -54,6 +55,7 @@ public class Swing {
         defaults.put("CheckBoxMenuItem.selectionForeground", Colors.Swing.MENU_ITEM_SELECTION_FG);
         defaults.put("CheckBoxMenuItem.background", Colors.Swing.MENU_ITEM_BG);
         defaults.put("CheckBoxMenuItem.foreground", Colors.Swing.MENU_ITEM_FG);
+        defaults.put("CheckBoxMenuItem.checkIcon", Icons.Swing.CHECK_BOX_MENU_ITEM_CHECK_ICON);
         defaults.put("Menu.submenuPopupOffsetX", Menus.Swing.SUBMENU_POPUP_OFFSET_X);
         defaults.put("Menu.submenuPopupOffsetY", Menus.Swing.SUBMENU_POPUP_OFFSET_Y);
         defaults.put("PopupMenu.background", Colors.Swing.MENU_BG);

@@ -16,6 +16,7 @@ import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
+import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityCheckBoxMenuItemIcon;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Constants<br>
@@ -219,6 +220,10 @@ public final class Constants {
                 ImageIOUtil.readIcon("ThinkParityGray16x16.png");
             public static final Icon TRAY_ICON_ONLINE =
                 ImageIOUtil.readIcon("ThinkParity16x16.png");
+        }
+        public static final class Swing {
+            public static final Icon CHECK_BOX_MENU_ITEM_CHECK_ICON =
+                new ThinkParityCheckBoxMenuItemIcon();
         }
     }
     public static final class Images {

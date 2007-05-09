@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -82,6 +83,28 @@ public class ContainerPanel extends DefaultTabPanel {
         NUMBER_VISIBLE_ROWS = 6;
     }
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JPanel collapsedJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel eastCountJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel eastFirstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JPanel eastJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel eastLastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private javax.swing.JPanel eastListJPanel;
+    private final javax.swing.JLabel eastNextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel eastPreviousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel westCountJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel westFiller2JLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel westFirstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JPanel westJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel westLastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private javax.swing.JPanel westListJPanel;
+    private final javax.swing.JLabel westNextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel westPreviousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    // End of variables declaration//GEN-END:variables
+
     /** The container tab's <code>DefaultActionDelegate</code>. */
     private ActionDelegate actionDelegate;
 
@@ -97,8 +120,14 @@ public class ContainerPanel extends DefaultTabPanel {
     /** A <code>Container</code>. */
     private Container container;
 
-    /** A <code>ContainerDraft</code>. */
-    private ContainerDraft draft;
+    /**
+     * A <code>Map</code> of the <code>ContainerVersion</code> to its
+     * <code>List</code> of <code>DocumentView</code>s.
+     */
+    private final Map<ContainerVersion, List<DocumentView>> documentViews;
+
+    /** A <code>DraftView</code>. */
+    private DraftView draft;
 
     /** The east list of <code>PanelCellRenderer</code>.*/
     private final List<PanelCellRenderer> eastCellPanels;
@@ -124,6 +153,12 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The container tab's <code>PopupDelegate</code>. */
     private PopupDelegate popupDelegate;
 
+    /** A <code>List</code> of all <code>TeamMember</code>s. */
+    private final List<TeamMember> team;
+
+    /** The <code>List</code> of <code>ContainerVersion</code>s. */
+    private final List<ContainerVersion> versions;
+
     /** The west list of <code>PanelCellRenderer</code>.*/
     private final List<PanelCellRenderer> westCellPanels;
 
@@ -133,37 +168,30 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The visible west list model. */
     private final PanelCellListModel westListModel;
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JPanel collapsedJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel eastCountJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel eastFirstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JPanel eastJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel eastLastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private javax.swing.JPanel eastListJPanel;
-    private final javax.swing.JLabel eastNextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JLabel eastPreviousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel westCountJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel westFiller2JLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel westFirstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JPanel westJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel westLastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private javax.swing.JPanel westListJPanel;
-    private final javax.swing.JLabel westNextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JLabel westPreviousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    // End of variables declaration//GEN-END:variables
-
     /**
      * Create ContainerPanel.
      * 
      */
     public ContainerPanel(final BrowserSession session) {
         super(session);            
+        this.documentViews = new HashMap<ContainerVersion, List<DocumentView>>();
+        this.eastCellPanels = new ArrayList<PanelCellRenderer>();
         this.expanded = Boolean.FALSE;
         this.fileIconReader = new FileIconReader();
         this.localization = new BrowserLocalization("ContainerPanel");
+        this.team = new ArrayList<TeamMember>();
+        this.versions = new ArrayList<ContainerVersion>();
+        this.westCells = new ArrayList<Cell>();
+        this.westCellPanels = new ArrayList<PanelCellRenderer>();
+        for (int index = 0; index < NUMBER_VISIBLE_ROWS; index++) {
+            eastCellPanels.add(new EastCellRenderer(this));
+            if (0 == index) {
+                westCellPanels.add(new TopWestCellRenderer(this));
+            } else {
+                westCellPanels.add(new WestCellRenderer(this));
+            }
+        }
+
         this.eastListModel = new PanelCellListModel(this, "eastList",
                 localization, NUMBER_VISIBLE_ROWS, DEFAULT_SELECTED_ROW_EAST,
                 eastFirstJLabel, eastPreviousJLabel, eastCountJLabel,
@@ -172,20 +200,9 @@ public class ContainerPanel extends DefaultTabPanel {
                 localization, NUMBER_VISIBLE_ROWS, DEFAULT_SELECTED_ROW_WEST,
                 westFirstJLabel, westPreviousJLabel, westCountJLabel,
                 westNextJLabel, westLastJLabel);
-        this.westCells = new ArrayList<Cell>();
-        this.eastCellPanels = new ArrayList<PanelCellRenderer>();
-        this.westCellPanels = new ArrayList<PanelCellRenderer>();
-        for (int index = 0; index < NUMBER_VISIBLE_ROWS; index++) {
-            eastCellPanels.add(new EastCellRenderer(this));
-            if (index==0) {
-                westCellPanels.add(new TopWestCellRenderer(this));
-            } else {
-                westCellPanels.add(new WestCellRenderer(this));
-            }
-        }
         initComponents();
     }
-
+    
     /**
      * Collapse the panel.
      * 
@@ -201,7 +218,7 @@ public class ContainerPanel extends DefaultTabPanel {
     public void expand(final boolean animate) {
         doExpand(animate);
     }
-    
+
     /**
      * Obtain actionDelegate.
      *
@@ -254,7 +271,7 @@ public class ContainerPanel extends DefaultTabPanel {
      * @return A <code>ContainerDraft</code>.
      */
     public ContainerDraft getDraft() {
-        return draft;
+        return null == draft ? null : draft.getDraft();
     }
 
     /**
@@ -293,7 +310,7 @@ public class ContainerPanel extends DefaultTabPanel {
     public Boolean isDistributed() {
         return null != latestVersion;
     }
-
+    
     /**
      * Determine the expanded state.
      * 
@@ -311,7 +328,7 @@ public class ContainerPanel extends DefaultTabPanel {
     public Boolean isLocalDraft() {
         return isSetDraft() && draft.isLocal();
     }
-    
+
     /**
      * Determine whether or not the draft is set.
      * 
@@ -407,6 +424,31 @@ public class ContainerPanel extends DefaultTabPanel {
      *            A <code>Container</code>.
      * @param draft
      *            A <code>ContainerDraft</code>.
+     */
+    public void setPanelData(final Container container,
+            final ContainerDraft draft) {
+        this.container = container;
+        this.draft.setDraft(draft);
+        // set the container cell.
+        westCells.set(0, new ContainerCell(this.draft, latestVersion, versions,
+                documentViews, team));
+        // set the draft cell
+        westCells.set(1, new DraftCell(this.draft));
+        // re-initialize
+        westListModel.initialize(westCells);
+        iconJLabel.setIcon(container.isBookmarked()
+                ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK)
+                : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));
+        reloadText();
+    }
+
+    /**
+     * Set the panel data.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
      * @param latestVersion
      *            The latest <code>ContainerVersion</code>.
      */
@@ -421,8 +463,14 @@ public class ContainerPanel extends DefaultTabPanel {
             final Map<ContainerVersion, User> publishedBy,
             final List<TeamMember> team) {
         this.container = container;
-        this.draft = draftView.getDraft();
+        this.documentViews.clear();
+        this.documentViews.putAll(documentViews);
+        this.draft = draftView;
         this.latestVersion = latestVersion;
+        this.team.clear();
+        this.team.addAll(team);
+        this.versions.clear();
+        this.versions.addAll(versions);
         if (versions.size() > 0) {
             this.firstVersion = versions.get(versions.size()-1);
         }
@@ -523,7 +571,7 @@ public class ContainerPanel extends DefaultTabPanel {
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
             selectPanel();
             popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
-            popupDelegate.showForContainer(container, draft);
+            popupDelegate.showForContainer(container, getDraft());
         } else if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
             selectPanel();
         } else if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
@@ -537,7 +585,7 @@ public class ContainerPanel extends DefaultTabPanel {
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
             selectPanel();
             popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
-            popupDelegate.showForContainer(container, draft);
+            popupDelegate.showForContainer(container, getDraft());
         }
     }//GEN-LAST:event_collapsedJPanelMouseReleased
 
@@ -678,7 +726,7 @@ public class ContainerPanel extends DefaultTabPanel {
             return localization.getString("ContainerMessageLocalDraftOwner");    
         } else if (isSetDraft()) {
             return localization.getString("ContainerMessageDraftOwner",
-                    new Object[] {draft.getOwner().getName()}); 
+                    new Object[] {getDraft().getOwner().getName()}); 
         } else if (null != latestVersion) {
             return localization.getString("ContainerMessagePublishDate",
                     new Object[] {formatFuzzy(latestVersion.getUpdatedOn())});
@@ -1173,7 +1221,7 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public void showPopup() {
-            popupDelegate.showForContainer(container, draft);
+            popupDelegate.showForContainer(container, getDraft());
         }
         private void addActiveVersionDocumentCells(
                 final ContainerVersion containerVersion,
@@ -1249,7 +1297,7 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public void invokeAction() {
-            actionDelegate.invokeForDocument(draft, document);
+            actionDelegate.invokeForDocument(getDraft(), document);
         }
     }
     
@@ -1348,13 +1396,13 @@ public class ContainerPanel extends DefaultTabPanel {
             if (isLocalDraft()) {
                 return localization.getString("Draft");
             } else {
-                return localization.getString("DraftNotLocal", new Object[] {draft.getOwner().getName()});
+                return localization.getString("DraftNotLocal", new Object[] {getDraft().getOwner().getName()});
             }
         }
         
         @Override
         public void showPopup() {
-            popupDelegate.showForDraft(container, draft);
+            popupDelegate.showForDraft(container, getDraft());
         }
     }
 
@@ -1366,11 +1414,11 @@ public class ContainerPanel extends DefaultTabPanel {
             super(parent);
             this.document = document;
             setIcon(fileIconReader.getIcon(document));
-            switch (draft.getState(document)) {
+            switch (getDraft().getState(document)) {
             case ADDED:
             case MODIFIED:
             case REMOVED:
-                setAdditionalText(localization.getString(draft.getState(document)));
+                setAdditionalText(localization.getString(getDraft().getState(document)));
                 break;
             case NONE:
                 break;
@@ -1381,14 +1429,14 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public void invokeAction() {
-            actionDelegate.invokeForDocument(draft, document);
+            actionDelegate.invokeForDocument(getDraft(), document);
         }
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
          */
         @Override
         public void showPopup() {
-            popupDelegate.showForDocument(draft, document);
+            popupDelegate.showForDocument(getDraft(), document);
         }
     }
 

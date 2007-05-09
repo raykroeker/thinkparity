@@ -113,7 +113,14 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A <code>ContainerEvent</code>.
      */
     public void fireDocumentAdded(final ContainerEvent e) {
-        sync(e);
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.lookupContainerPanel(
+                        e.getContainer().getId()).setPanelData(e.getContainer(),
+                                e.getDraft());
+                model.synchronize();
+            }
+        });
     }
 
     /**

@@ -104,11 +104,11 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
                         }
                     };
                 }
-                public String getText() {
-                    return getString(filterByValue);
-                }
                 public String getName() {
                     return filterByValue.toString();
+                }
+                public String getText() {
+                    return getString(filterByValue);
                 }
             });
         }
@@ -275,7 +275,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         final int panelIndex = lookupIndex(panelId);
         return -1 == panelIndex ? null : panels.get(panelIndex);
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readSearchResults()
      *
@@ -295,6 +295,15 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#synchronize()
+     *
+     */
+    @Override
+    protected void synchronize() {
+        super.synchronize();
+    }
+    
+    /**
      * Obtain the popup delegate.
      * 
      * @return A <code>ContainerTabPopupDelegate</code>.
@@ -302,7 +311,19 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     ContainerTabPopupDelegate getPopupDelegate() {
         return popupDelegate;
     }
-    
+
+    /**
+     * Lookup the container panel.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A <code>ContainerPanel</code>.
+     */
+    ContainerPanel lookupContainerPanel(final Long containerId) {
+        final int index = lookupIndex(containerId);
+        return -1 == index ? null : (ContainerPanel) panels.get(index);
+    }
+
     /**
      * Determine if the specified user is the local user.
      * 
@@ -586,7 +607,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
                 return i;
         return -1;
     }
-
+    
     /**
      * Read the container from the provider.
      * 
@@ -597,7 +618,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     private Container read(final Long containerId) {
         return ((ContainerProvider) contentProvider).read(containerId);
     }
-    
+
     /**
      * Read the containers from the provider.
      * 
@@ -632,7 +653,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     private DraftView readDraftView(final Long containerId) {
         return ((ContainerProvider) contentProvider).readDraftView(containerId);
     }
-
+    
     /**
      * Determine if the draft document has been modified.
      * 
@@ -643,7 +664,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     private boolean readIsDraftDocumentModified(final Long documentId) {
         return ((ContainerProvider) contentProvider).isDraftDocumentModified(documentId).booleanValue();
     }
-    
+
     /**
      * Read to see if any draft document ArtifactState has become out of date.
      * This can happen during the time that the session draft monitor is disabled.

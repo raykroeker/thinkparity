@@ -46,6 +46,7 @@ public class VerifyEmail extends AbstractBrowserAction {
             final ProfileModel profileModel = getProfileModel();
             try {
                 profileModel.verifyEmail(emailId, key);
+                browser.displayStatusDialog("VerifyEmail.VerifyKeyCorrect");
             } catch (final Throwable t) {
                 logger.logError(t, "Could not verify e-mail address {0} with key {1}.",
                         emailId, key);

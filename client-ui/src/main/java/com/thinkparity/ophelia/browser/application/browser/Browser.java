@@ -43,6 +43,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorDetailsAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.FileChooserAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.StatusAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.UserInfoAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ContainerVersionCommentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
@@ -511,6 +512,33 @@ public class Browser extends AbstractApplication {
         input.set(RenameDocumentAvatar.DataKey.DOCUMENT_NAME, documentName);
         setInput(AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT);
+    }
+
+    /**
+     * Display a status dialog.
+     * 
+     * @param statusMessageKey
+     *            The status message localization key <code>String</code>.
+     */
+    public void displayStatusDialog(final String statusMessageKey) {
+        displayStatusDialog(statusMessageKey, null);
+    }
+
+    /**
+     * Display a status dialog.
+     * 
+     * @param statusMessageKey
+     *            The status message localization key <code>String</code>.
+     * @param statusMessageArguments
+     *            The status message arguments (optional).
+     */
+    public void displayStatusDialog(final String statusMessageKey,
+            final Object[] statusMessageArguments) {
+        final Data input = new Data(2);
+        input.set(StatusAvatar.DataKey.STATUS_MESSAGE_KEY, statusMessageKey);
+        if (null != statusMessageArguments)
+            input.set(StatusAvatar.DataKey.STATUS_MESSAGE_ARGUMENTS, statusMessageArguments);
+        open(WindowId.STATUS, AvatarId.DIALOG_STATUS, input);
     }
 
     /** Display a tab list extension. */

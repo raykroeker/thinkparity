@@ -85,6 +85,7 @@ public class WindowFactory {
         case FILE_CHOOSER: return doCreateFileChooser(browserWindow);
 		case POPUP: return doCreatePopup(browserWindow);
         case RENAME: return doCreateRename(browserWindow);
+        case STATUS: return doCreateStatus(browserWindow);
 		default:
 			throw Assert.createUnreachable("Unknown window:  " + windowId);
 		}
@@ -151,6 +152,19 @@ public class WindowFactory {
      */
     private Window doCreateRename(final BrowserWindow browserWindow) {
         final Window window = new RenameWindow(browserWindow);
+        register(window);
+        return window;
+    }
+
+    /**
+     * Create a status window.
+     * 
+     * @param browserWindow
+     *            The browser window.
+     * @return A window.
+     */
+    private Window doCreateStatus(final BrowserWindow browserWindow) {
+        final Window window = new StatusWindow(browserWindow);
         register(window);
         return window;
     }

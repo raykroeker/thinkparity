@@ -110,7 +110,9 @@ final class ModelInvocationHandler implements InvocationHandler {
                         return method;
                     }
                 });
+                ModelInvocationMetrics.begin(method);
                 final Object result = method.invoke(model, args);
+                ModelInvocationMetrics.end(method);
                 model.notifyListeners();
                 return LOGGER.logVariable("result", result);
             } catch (final InvocationTargetException itx) {

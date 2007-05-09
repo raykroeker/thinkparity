@@ -4,21 +4,15 @@
  */
 package com.thinkparity.ophelia.browser.profile;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.DirectoryNames;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -181,31 +175,8 @@ public class ProfileManager {
      */
     private void openWindow(final String title, final Avatar avatar) {
         window = new ProfileManagerWindow();
-        window.addWindowListener(new WindowAdapter() {
-            public void windowClosed(final WindowEvent e) {
-                synchronized (window) {
-                    window.notifyAll();
-                }
-            }
-        });
-        try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() {
-                    window.open(title, avatar);
-                }
-            });
-        } catch (final InterruptedException ix) {
-            throw new BrowserException("Cannot select user profile.", ix);
-        } catch (final InvocationTargetException itx) {
-            throw new BrowserException("Cannot select user profile.", itx);
-        }
-        synchronized (window) {
-            try {
-                window.wait();
-            } catch (final InterruptedException ix) {
-                throw new BrowserException("Cannot select user profile.", ix);
-            }
-        }
+        window.initComponents(title, avatar);
+        window.setVisibleAndWait();
     }
 
     /**

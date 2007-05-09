@@ -13,15 +13,19 @@ import javax.swing.JMenuItem;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.ophelia.browser.application.browser.DefaultBrowserPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
-import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 
 /**
- * @author rob_masako@shaw.ca
- * @version $Revision$
+ * <b>Title:</b>thinkParity OpheliaUI Browser Filter Popup Delegate<br>
+ * <b>Description:</b>A popup delegate used to display the popup for the filter
+ * control on the search button.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class FilterPopupDelegate extends DefaultPopupDelegate {
+public final class FilterPopupDelegate extends DefaultBrowserPopupDelegate {
 
     /** The filter delegate. */
     private TabAvatarFilterDelegate filterDelegate;

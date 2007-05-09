@@ -25,6 +25,7 @@ import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
+ * TODO replace with some simple buttons
  */
 public class BrowserMenuBar extends JMenuBar {
 

@@ -103,10 +103,10 @@ public class FileIconReader {
         // The name has the "." removed.
         final String name = StringUtil.searchAndReplace(extension,
                 Separator.Period, Separator.EmptyString).toUpperCase();
-        
-        // Return the icon from the cache if available, otherwise
-        // get the icon from the system and cache it.
-        if ((null==name) || (name.length()==0)) {
+
+        // return the icon from the cache if available, otherwise get the icon
+        // from the system and cache it
+        if (null == name || 0 == name.length()) {
             return null;
         } else if (isCached(ICON_CACHE, name)) {
             return (Icon) read(ICON_CACHE, name);
@@ -116,7 +116,7 @@ public class FileIconReader {
                 write(ICON_CACHE, name, icon);
                 return icon;
             } else {
-                return (read(FileIcon.FILE_DEFAULT));
+                return read(FileIcon.FILE_DEFAULT);
             }
         }        
     }

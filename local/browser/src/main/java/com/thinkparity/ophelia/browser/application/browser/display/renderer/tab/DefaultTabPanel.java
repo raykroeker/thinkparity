@@ -29,11 +29,11 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 public abstract class DefaultTabPanel extends AbstractJPanel implements
         TabPanel {
 
-    /** The maximum height of a panel. */
-    protected static final int ANIMATION_MAXIMUM_HEIGHT;
-
     /** The number of pixels to adjust the height of the panel by when animating. */
     protected static final int ANIMATION_HEIGHT_ADJUSTMENT;
+
+    /** The maximum height of a panel. */
+    protected static final int ANIMATION_MAXIMUM_HEIGHT;
 
     /** The minimum height of a panel. */
     protected static final int ANIMATION_MINIMUM_HEIGHT;
@@ -56,9 +56,6 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
         IMAGE_CACHE = new MainPanelImageCache();
     }
     
-    /** The selected <code>Boolean</code> state. */
-    protected boolean selected;
-
     /**
      * Format a calendar as a fuzzy date.
      * 
@@ -81,6 +78,9 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
 
     /** The tab panel's <code>TabRenderer</code>. */
     protected final TabRenderer renderer;
+
+    /** The selected <code>Boolean</code> state. */
+    protected boolean selected;
 
     /** A <code>TabDelegate</code>. */
     protected TabDelegate tabDelegate;
@@ -125,6 +125,18 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     }
 
     /**
+     * Obtain a session attribute.
+     * 
+     * @param name
+     *            An attribute name <code>String</code>.
+     * @return An attribute value <code>Object</code> or null if no such
+     *         attribute exists.
+     */
+    public final Object getAttribute(final String name) {
+        return session.getAttribute(name);
+    }
+
+    /**
 	 * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#getId()
      * 
 	 */
@@ -151,28 +163,6 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     }
 
     /**
-     * Set the tab delegate.
-     * 
-     * @param tabDelegate
-     *            A <code>TabDelegate</code>.
-     */
-    public void setTabDelegate(final TabDelegate tabDelegate) {
-        this.tabDelegate = tabDelegate;
-    }
-
-    /**
-     * Obtain a session attribute.
-     * 
-     * @param name
-     *            An attribute name <code>String</code>.
-     * @return An attribute value <code>Object</code> or null if no such
-     *         attribute exists.
-     */
-    public final Object getAttribute(final String name) {
-        return session.getAttribute(name);
-    }
-    
-    /**
      * Handle a mouse press on a panel cell.
      * 
      * @param cell
@@ -193,7 +183,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
      */
     public void panelCellSelectionChanged(final Cell cell) {
     }
-
+    
     /**
      * Remove a session attribute.
      * 
@@ -203,12 +193,6 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     public final void removeAttribute(final String name) {
         session.removeAttribute(name);
     }
-
-    /**
-     * Repaint the lists.
-     *
-     */
-    protected abstract void repaintLists();
 
     /**
      * Set a session attribute.
@@ -221,7 +205,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     public final void setAttribute(final String name, final Object value) {
         session.setAttribute(name, value);
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#setSelected(java.lang.Boolean)
      */
@@ -229,4 +213,20 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
         this.selected = selected;
         repaint();
     }
+
+    /**
+     * Set the tab delegate.
+     * 
+     * @param tabDelegate
+     *            A <code>TabDelegate</code>.
+     */
+    public void setTabDelegate(final TabDelegate tabDelegate) {
+        this.tabDelegate = tabDelegate;
+    }
+    
+    /**
+     * Repaint the lists.
+     *
+     */
+    protected abstract void repaintLists();
 }

@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.application.system;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.Application;
+import com.thinkparity.codebase.swing.AbstractJFrame;
 
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.util.http.Link;
@@ -43,16 +44,16 @@ public final class SystemApplication extends AbstractApplication {
 	/** The action registry. */
     private final ActionRegistry actionRegistry;
 
-	/** The application registry. */
+    /** The application registry. */
     private final ApplicationRegistry applicationRegistry;
 
-	/** The event dispatcher. */
+    /** The event dispatcher. */
 	private EventDispatcher ed;
 
 	/** The application impl. */
 	private SystemApplicationImpl impl;
 
-    /**
+	/**
      * Create SystemApplication.
      * 
      * @param platform
@@ -65,6 +66,12 @@ public final class SystemApplication extends AbstractApplication {
 	}
 
 	/**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#applyBusyIndicator()
+     *
+     */
+    public void applyBusyIndicator() {}
+
+    /**
      * Display the info notification.
      * 
      */
@@ -89,6 +96,15 @@ public final class SystemApplication extends AbstractApplication {
 	}
 
 	/**
+     * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getBuildId()
+     *
+     */
+    @Override
+    public String getBuildId() {
+        return super.getBuildId();
+    }
+
+	/**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#getConnection()
      *
 	 */
@@ -106,21 +122,20 @@ public final class SystemApplication extends AbstractApplication {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#getMainWindow()
+     *
+     */
+    public AbstractJFrame getMainWindow() {
+        return null;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getReleaseName()
      *
      */
     @Override
     public String getReleaseName() {
         return super.getReleaseName();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getBuildId()
-     *
-     */
-    @Override
-    public String getBuildId() {
-        return super.getBuildId();
     }
 
     /**
@@ -185,6 +200,12 @@ public final class SystemApplication extends AbstractApplication {
     }
 
 	/**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#removeBusyIndicator()
+     *
+     */
+    public void removeBusyIndicator() {}
+
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#restore(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -260,7 +281,7 @@ public final class SystemApplication extends AbstractApplication {
         runLater(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
     }
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#start(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -276,7 +297,7 @@ public final class SystemApplication extends AbstractApplication {
 		notifyStart();
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getProfile()
      * 
      */
@@ -440,9 +461,10 @@ public final class SystemApplication extends AbstractApplication {
     private void run(final ActionId actionId, final Data data) {
         try {
             if (actionRegistry.contains(actionId)) {
-                actionRegistry.get(actionId).invokeAction(data);
+                actionRegistry.get(actionId).invokeAction(this, data);
+            } else {
+                ActionFactory.create(actionId).invokeAction(this, data);
             }
-            else { ActionFactory.create(actionId).invokeAction(data); }
         } catch(final Throwable t) {
             logger.logError(t,
                     "Could not run system application action {0} with data {1}.",

@@ -28,6 +28,7 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
+import com.thinkparity.ophelia.browser.application.browser.DefaultBrowserPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
@@ -35,7 +36,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
@@ -51,8 +51,8 @@ import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
-        TabPanelPopupDelegate, PopupDelegate {
+final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
+        implements TabPanelPopupDelegate, PopupDelegate {
 
     /** A list of action ids, used for the container popup. */
     private final List<ActionId> actionIds;

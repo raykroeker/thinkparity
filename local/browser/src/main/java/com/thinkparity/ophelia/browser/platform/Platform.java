@@ -21,7 +21,6 @@ import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
-import com.thinkparity.ophelia.browser.platform.application.window.WindowRegistry;
 import com.thinkparity.ophelia.browser.platform.event.LifeCycleListener;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
@@ -54,6 +53,41 @@ public interface Platform extends ApplicationListener {
      * @throws IOException
      */
     public File createTempFile(final String suffix) throws IOException;
+
+    /**
+     * Display an error dialog for an application.
+     * 
+     * @param applicationId
+     *            An <code>ApplciationId</code>.
+     * @param error
+     *            An error <code>Throwable</code>.
+     */
+    public void displayErrorDialog(final ApplicationId applicationId,
+            final Throwable error);
+
+    /**
+     * Display an error dialog for an application.
+     * 
+     * @param applicationId
+     *            An <code>ApplciationId</code>.
+     * @param error
+     *            An error <code>Throwable</code>.
+     * @param errorMessageKey
+     *            An error message localization key <code>String</code>.
+     * @param errorMessageArguments
+     *            An error message localization argument <code>Object[]</code>.
+     */
+    public void displayErrorDialog(final ApplicationId applicationId,
+            final Throwable error, final String errorMessageKey,
+            final Object... errorMessageArguments);
+
+    /**
+     * Display an error dialog.
+     * 
+     * @param error
+     *            An error <code>Throwable</code>.
+     */
+    public void displayErrorDialog(final Throwable error);
 
     /**
      * End the platform.
@@ -124,8 +158,6 @@ public interface Platform extends ApplicationListener {
      * @return The <code>TimeZone</code>.
      */
     public TimeZone getTimeZone();
-
-    public WindowRegistry getWindowRegistry();
 
     /**
 	 * Request that the application hibernate.

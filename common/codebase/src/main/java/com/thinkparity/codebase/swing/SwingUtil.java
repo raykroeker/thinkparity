@@ -212,23 +212,11 @@ public class SwingUtil {
         SINGLETON.doSetCursor(component, cursor);
     }
 
-    public static void setCursor(final java.awt.Component component, final java.awt.Cursor cursor) {
-        SINGLETON.doSetCursor(component, cursor);
-    }
-    
-    public static void setCursor(final java.awt.Container container, final int cursor) {
-        SINGLETON.doSetCursor(container, cursor);
-    }
-
-    public static void setCursor(final java.awt.Container container, final java.awt.Cursor cursor) {
-        SINGLETON.doSetCursor(container, cursor);
+    public static void setCursor(final java.awt.Window window, final Cursor cursor) {
+        SINGLETON.doSetCursor(window, cursor);
     }
 
     public static void setCursor(final javax.swing.JComponent jComponent, final int cursor) {
-        SINGLETON.doSetCursor(jComponent, cursor);
-    }
-
-    public static void setCursor(final javax.swing.JComponent jComponent, final java.awt.Cursor cursor) {
         SINGLETON.doSetCursor(jComponent, cursor);
     }
 
@@ -430,10 +418,14 @@ public class SwingUtil {
     private void doSetCursor(final java.awt.Component component, final java.awt.Cursor cursor) {
         final Window window = javax.swing.SwingUtilities.getWindowAncestor(component);
         if (null != window) {
-            window.setCursor(cursor);
+            doSetCursor(window, cursor);
         } else {
             component.setCursor(cursor);
         }
+    }
+
+    private void doSetCursor(final java.awt.Window window, final Cursor cursor) {
+        window.setCursor(cursor);
     }
 
     /**

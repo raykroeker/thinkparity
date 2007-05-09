@@ -89,10 +89,6 @@ public final class Constants {
             public static final class Publish {
                 public static final Color FIRST_CONTACT_BORDER = new Color(212, 212, 212, 255);
             }
-            public static final class SemiTransparentLayer {
-                public static final float LAYER_ALPHA = 0.30F;
-                public static final Color LAYER_COLOR = new Color(239, 241, 242, 255);
-            }
             public static final class TabCell {
                 // TODO Can remove these if the tab cell code is stripped out
                 public static final Color TEXT = Color.BLACK;
@@ -107,6 +103,7 @@ public final class Constants {
                 public static final Color BORDER_TOP_RIGHT = new Color(242, 245, 248, 255);
                 public static final Color TITLE_GRADIENT_BOTTOM = new Color(247, 249, 250, 255);
                 public static final Color TITLE_GRADIENT_TOP = new Color(250, 251, 253, 255);
+                public static final Color ALPHA_PANEL_COLOR = new Color(239, 241, 242, 255);
             }
         }
         public static final class Swing {
@@ -318,6 +315,7 @@ public final class Constants {
 
     public static final class Sundry {
         public static final String FIREWALL_RULE_NAME = "thinkParity(TM) Platform";
+        public static final Float ALPHA_PANEL_ALPHA = 0.30F;
     }
 
     public static final class WindowUtil {

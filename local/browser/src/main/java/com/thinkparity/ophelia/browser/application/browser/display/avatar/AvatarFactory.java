@@ -8,8 +8,6 @@ import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ConfirmAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorDetailsAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.FileChooserAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.StatusAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.UserInfoAvatar;
@@ -29,16 +27,21 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.Prov
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.ophelia.browser.platform.avatar.ErrorAvatar;
+import com.thinkparity.ophelia.browser.platform.avatar.ErrorDetailsAvatar;
 import com.thinkparity.ophelia.browser.platform.firstrun.*;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 
 /**
- * @author raykroeker@gmail.com
- * @version $Revision$
+ * <b>Title:</b>thinkParity OpheliaUI Avatar Factory<br>
+ * <b>Description:</b>A singleton instance of an avatar instance factory.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.45
  */
-public class AvatarFactory {
+public final class AvatarFactory {
 
 	/** A singleton instance. */
 	private static final AvatarFactory SINGLETON;

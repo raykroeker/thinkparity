@@ -38,7 +38,7 @@ public abstract class SystemFrame extends AbstractJDialog {
      * @throws AWTException
      */
     protected SystemFrame() throws AWTException {
-        super(null, Boolean.FALSE, "");
+        super(null, Boolean.FALSE);
         this.border = new WindowBorder2();
         this.borderAnimating = new WindowBorder2Animating();
         this.frameAnimator = new FrameAnimator(this);

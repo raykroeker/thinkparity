@@ -7,6 +7,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.AbstractJFrame;
 
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.session.InvalidLocationException;
@@ -47,6 +48,12 @@ public class SessionApplication extends AbstractApplication {
     public SessionApplication(final Platform platform) {
         super(platform, null);
     }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#applyBusyIndicator()
+     *
+     */
+    public void applyBusyIndicator() {}
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#end(com.thinkparity.ophelia.browser.platform.Platform)
@@ -101,6 +108,14 @@ public class SessionApplication extends AbstractApplication {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#getMainWindow()
+     *
+     */
+    public AbstractJFrame getMainWindow() {
+        return null;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#hibernate(com.thinkparity.ophelia.browser.platform.Platform)
      * 
      */
@@ -115,6 +130,12 @@ public class SessionApplication extends AbstractApplication {
     public Boolean isDevelopmentMode() {
         return getPlatform().isDevelopmentMode();
     }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#removeBusyIndicator()
+     *
+     */
+    public void removeBusyIndicator() {}
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#restore(com.thinkparity.ophelia.browser.platform.Platform)

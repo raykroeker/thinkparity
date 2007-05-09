@@ -3,7 +3,9 @@
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.HeadlessException;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -12,7 +14,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
-import javax.swing.JLayeredPane;
 import javax.swing.JMenuBar;
 import javax.swing.SwingUtilities;
 
@@ -20,7 +21,6 @@ import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants;
-import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Dimensions;
 import com.thinkparity.ophelia.browser.application.browser.display.DisplayId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
@@ -103,11 +103,8 @@ public class BrowserWindow extends AbstractJFrame {
 	/** The browser application. */
 	private final Browser browser;
 
-	/** The semi-transparent JPanel */
-    private final SemiTransparentJPanel semiTransparentJPanel;
-
 	/**
-	 * Create a BrowserWindow.
+	 * Create BrowserWindow.
 	 * 
 	 * @throws HeadlessException
 	 */
@@ -146,24 +143,8 @@ public class BrowserWindow extends AbstractJFrame {
         bindF1Key();
         installWindowStateListener();
 
-        // Set up the semi-transparent JPanel
-        semiTransparentJPanel = new SemiTransparentJPanel(Boolean.FALSE);
-        getLayeredPane().add(semiTransparentJPanel, JLayeredPane.PALETTE_LAYER);
         new Resizer(browser, this, Boolean.FALSE, Resizer.ResizeEdges.ALL_EDGES);
 	}
-
-    /**
-     * Enable or disable the semi-transparent layer.
-     * 
-     * @param enable
-     *            Flag to enable or disable the semi-transparent layer.
-     */
-    public void enableSemiTransparentLayer(final Boolean enable) {
-        if (null!=semiTransparentJPanel) {
-            semiTransparentJPanel.setEnabled(enable);
-            semiTransparentJPanel.paintImmediately(new Rectangle(0, 0, semiTransparentJPanel.getWidth(), semiTransparentJPanel.getHeight()));
-        }
-    }
 
     /**
 	 * Obtain a display.
@@ -387,48 +368,4 @@ public class BrowserWindow extends AbstractJFrame {
     private void squareCorners() {
         WINDOW_UTIL.applyRectangleEdges(this);
     }
-
-    /**
-     * A semi-transparent JPanel that covers the entire Browser window.
-     */
-    private class SemiTransparentJPanel extends javax.swing.JPanel {
-        
-        /** @see java.io.Serializable */
-        private static final long serialVersionUID = 1;
-        
-        /** Flag indicating if the semi-transparent panel is enabled or not */
-        private Boolean enabled;
-        
-        public SemiTransparentJPanel(final Boolean enabled) {
-            super();
-            setBorder(null);
-            setOpaque(false);
-            setSize(BrowserWindow.this.getSize());
-            setLocation(0,0);
-            this.enabled = enabled;
-        }
-        
-        public void paintComponent(final Graphics g) {
-            super.paintComponent(g);
-            if (enabled) {
-                setSize(BrowserWindow.this.getSize());
-                final Graphics2D g2 = (Graphics2D) g.create();
-                try {
-                    g2.setComposite(makeComposite(Colors.Browser.SemiTransparentLayer.LAYER_ALPHA));
-                    g2.setPaint(Colors.Browser.SemiTransparentLayer.LAYER_COLOR);
-                    g2.fill(new Rectangle(BrowserWindow.this.getSize()));
-                }
-                finally { g2.dispose(); }
-            }
-        }
-        
-        public void setEnabled(final Boolean enabled) {
-            this.enabled = enabled;            
-        }
-        
-        private AlphaComposite makeComposite(float alpha) {
-            int type = AlphaComposite.SRC_OVER;
-            return(AlphaComposite.getInstance(type, alpha));
-        }
-    }   
 }

@@ -109,27 +109,13 @@ public class MainPanelImageCache {
     
     /** All tab panel icons. */
     public enum TabPanelIcon {
-        INVISIBLE("Invisible16x16.png"),
         CONTAINER("IconContainer.png"),
-        CONTAINER_ROLLOVER("IconContainer_Rollover.png"),
         CONTAINER_BOOKMARK("IconContainer_Bookmark.png"),
-        CONTAINER_BOOKMARK_ROLLOVER("IconContainer_Bookmark_Rollover.png"),
         DRAFT("IconDraft.png"),
         VERSION("IconVersion.png"),
         VERSION_WITH_COMMENT("IconVersionWithComment.png"),
         USER("IconUser.png"),
-        USER_NOT_RECEIVED("IconUserNotReceived.png"),
-        FILE_TXT("IconFileTxt.png"),
-        FILE_DOC("IconFileDoc.png"),
-        FILE_XLS("IconFileXls.png"),
-        FILE_PDF("IconFilePdf.png"),
-        FILE_DEFAULT("IconFileDefault.png"),
-        COMMENT("IconComment.png"),
-        
-        // Sort icons
-        SORT_NONE("SortNone.png"),
-        SORT_ASCENDING("SortAscending.png"),
-        SORT_DESCENDING("SortDescending.png");
+        USER_NOT_RECEIVED("IconUserNotReceived.png");
         
         /** The icon file name. */
         private final String iconName;

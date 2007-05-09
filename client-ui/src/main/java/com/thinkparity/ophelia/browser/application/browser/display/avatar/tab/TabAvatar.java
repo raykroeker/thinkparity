@@ -3,38 +3,42 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
-import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
- * <b>Title:</b><br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity OpheliaUI Browser Tab Avatar<br>
+ * <b>Description:</b>An abstraction of the tab avatar.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  * @param <T>
+ *            A type of tab model.
  */
 public abstract class TabAvatar<T extends TabModel> extends Avatar {
     
     /** The avatar's accompanying <code>TabModel</code>.*/
     protected final T model;
 
-    /** A menu item factory. */
-    protected final PopupItemFactory menuItemFactory;
-
     /** The avatar's id. */
     private final AvatarId id;
 
-    /** Creates new form TabAvatar */
+    /**
+     * Create TabAvatar.
+     * 
+     * @param id
+     *            An <code>AvatarId</code>.
+     * @param model
+     *            A tab model <code>T</code>.
+     */
     public TabAvatar(final AvatarId id, final T model) {
         // HACK This null check of an avatar id was done to allow the tab
         // plugin extension framework to create an avatar.  It needs to be
         // refactored in order to work "correctly".
         super(null == id ? "" : id.toString());
         this.id = id;
-        this.menuItemFactory = PopupItemFactory.getInstance();
         this.model = model;
     }
 

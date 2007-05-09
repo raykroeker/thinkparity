@@ -25,6 +25,7 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
+import com.thinkparity.ophelia.browser.application.browser.DefaultBrowserPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.archive.ArchiveTabPanel;
@@ -32,7 +33,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.Delete;
 import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
@@ -50,8 +50,8 @@ import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-final class ArchiveTabPopupDelegateImpl extends DefaultPopupDelegate implements
-        TabPanelPopupDelegate, ArchiveTabPopupDelegate {
+final class ArchiveTabPopupDelegateImpl extends DefaultBrowserPopupDelegate
+        implements TabPanelPopupDelegate, ArchiveTabPopupDelegate {
 
     /** A list of action ids, used for the container popup. */
     private final List<ActionId> actionIds;

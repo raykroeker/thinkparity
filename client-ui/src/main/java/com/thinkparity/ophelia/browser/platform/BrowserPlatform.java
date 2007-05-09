@@ -19,6 +19,7 @@ import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.sort.StringComparator;
+import com.thinkparity.codebase.swing.AbstractJFrame;
 
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
@@ -32,11 +33,12 @@ import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
-import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants;
 import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.Constants.Files;
 import com.thinkparity.ophelia.browser.Constants.ShutdownHooks;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarFactory;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -50,7 +52,8 @@ import com.thinkparity.ophelia.browser.platform.application.Application;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationFactory;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
-import com.thinkparity.ophelia.browser.platform.application.window.WindowRegistry;
+import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.ophelia.browser.platform.avatar.ErrorAvatar;
 import com.thinkparity.ophelia.browser.platform.event.LifeCycleEvent;
 import com.thinkparity.ophelia.browser.platform.event.LifeCycleListener;
 import com.thinkparity.ophelia.browser.platform.firewall.FirewallHelper;
@@ -59,6 +62,8 @@ import com.thinkparity.ophelia.browser.platform.migrator.MigratorHelper;
 import com.thinkparity.ophelia.browser.platform.online.OnlineHelper;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginHelper;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
+import com.thinkparity.ophelia.browser.platform.window.Window;
+import com.thinkparity.ophelia.browser.platform.window.WindowFactory;
 import com.thinkparity.ophelia.browser.profile.Profile;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
 import com.thinkparity.ophelia.browser.util.firewall.FirewallAccessException;
@@ -129,6 +134,9 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     /** A platform <code>EventDispatcher</code>. */
     private EventDispatcher eventDispatcher;
 
+    /** A <code>FirewallUtil</code>. */
+    private final FirewallUtil firewallUtil;
+
     /** The platform's first run helper. */
     private final FirstRunHelper firstRunHelper;
 
@@ -147,23 +155,17 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     /** The parity model factory. */
 	private final ModelFactory modelFactory;
 
-	/** The platform <code>OnlineHelper</code>. */
+    /** The platform <code>OnlineHelper</code>. */
     private final OnlineHelper onlineHelper;
 
-	/** The platform settings. */
+    /** The platform settings. */
 	private final BrowserPlatformPersistence persistence;
 
 	/** The platform <code>PluginHelper</code>. */
     private final PluginHelper pluginHelper;
 
-	/** The thinkParity <code>WindowRegistry</code>. */
-	private final WindowRegistry windowRegistry;
-
-    /** A thinkParity <code>Workspace</code>. */
+	/** A thinkParity <code>Workspace</code>. */
     private final Workspace workspace;
-
-    /** A <code>FirewallUtil</code>. */
-    private final FirewallUtil firewallUtil;
 
 	/**
      * Create BrowserPlatform.
@@ -192,7 +194,6 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
 		this.applicationRegistry = new ApplicationRegistry();
 		this.avatarRegistry = new AvatarRegistry();
         this.firewallUtil = FirewallUtilProvider.getInstance();
-		this.windowRegistry = new WindowRegistry();
 		this.modelFactory = ModelFactory.getInstance();
 
 		this.logger = new Log4JWrapper();
@@ -205,7 +206,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         this.migratorHelper = new MigratorHelper(this);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#addFirewallRules()
      *
      */
@@ -233,7 +234,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         });
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#addListener(com.thinkparity.ophelia.browser.platform.event.LifeCycleListener)
      */
     public void addListener(final LifeCycleListener listener) {
@@ -248,6 +249,45 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         return workspace.createTempFile(suffix);
     }
 
+	/**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#displayErrorDialog(com.thinkparity.ophelia.browser.platform.application.ApplicationId, java.lang.Throwable)
+     *
+     */
+    public void displayErrorDialog(final ApplicationId applicationId, final Throwable error) {
+        final Data input = new Data(1);
+        if (null != error)
+            input.set(ErrorAvatar.DataKey.ERROR, error);
+        displayErrorDialog(applicationId, input);
+    }
+
+	/**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#displayErrorDialog(com.thinkparity.ophelia.browser.platform.application.ApplicationId)
+     * 
+     */
+    public void displayErrorDialog(final ApplicationId applicationId,
+            final Throwable error, final String errorMessageKey,
+            final Object... errorMessageArguments) {
+        final Data input = new Data(3);
+        if (null != errorMessageKey)
+            input.set(ErrorAvatar.DataKey.ERROR_MESSAGE_KEY, errorMessageKey);
+        if (null != errorMessageArguments)
+            input.set(ErrorAvatar.DataKey.ERROR_MESSAGE_ARGUMENTS, errorMessageArguments);
+        if (null != error)
+            input.set(ErrorAvatar.DataKey.ERROR, error);
+        displayErrorDialog(applicationId, input);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#displayErrorDialog(java.lang.Throwable)
+     *
+     */
+    public void displayErrorDialog(final Throwable error) {
+        final Data input = new Data(1);
+        if (null != error)
+            input.set(ErrorAvatar.DataKey.ERROR, error);
+        displayErrorDialog(input);
+    }
+
     /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#end()
      * 
@@ -257,9 +297,9 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         endApplications();
         endPlugins();
         closeWorkspace();
-        notifyLifeCycleEnded();
         // remove the platform as its own lifecycle listener
         removeListener(this);
+        notifyLifeCycleEnded();
     }
 
     /**
@@ -364,7 +404,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         return persistence.getLocale();
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getLogger(java.lang.Class)
 	 * 
 	 */
@@ -386,7 +426,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
 		return persistence;
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getPluginRegistry()
      */
     public PluginRegistry getPluginRegistry() {
@@ -394,7 +434,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         return null;
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getReleaseName()
      *
      */
@@ -409,12 +449,6 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     public TimeZone getTimeZone() {
         return persistence.getTimeZone();
     }
-
-	/**
-	 * @see com.thinkparity.ophelia.browser.platform.Platform#getWindowRegistry()
-	 * 
-	 */
-	public WindowRegistry getWindowRegistry() { return windowRegistry; }
 
     /**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#hibernate(com.thinkparity.ophelia.browser.platform.application.ApplicationId)
@@ -466,7 +500,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         return onlineHelper.isOnline();
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#isSignUpAvailable()
      */
     @Deprecated
@@ -474,7 +508,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         return getModelFactory().getProfileModel(getClass()).isSignUpAvailable();
     }
 
-	/** @see com.thinkparity.ophelia.browser.platform.Platform#isTestingMode() */
+    /** @see com.thinkparity.ophelia.browser.platform.Platform#isTestingMode() */
 	public Boolean isTestingMode() {
         switch (mode) {
         case DEMO:
@@ -488,7 +522,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         }
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#isWorkspaceInitialized(com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
@@ -521,7 +555,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         logVariable("application", application);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyRestore(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */
@@ -530,7 +564,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         logger.logVariable("application", application);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyStart(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */
@@ -564,7 +598,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         });
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#restore(com.thinkparity.ophelia.browser.platform.application.ApplicationId)
      * 
      */
@@ -576,6 +610,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#runContactUs()
+     * 
      */
     public void runContactUs() {
         invoke(ActionId.PLATFORM_CONTACT_US, Data.emptyData());
@@ -607,7 +642,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         invoke(ActionId.PLATFORM_LOGIN, data);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#start()
      * 
      */
@@ -697,7 +732,32 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
                 modelFactory.getWorkspace(getClass()));
     }
 
-	/**
+    /**
+     * Display an application error dialog using the given input.
+     * 
+     * @param applicationId
+     *            An <code>ApplicationId</code>.
+     * @param input
+     *            The error dialog input <code>Data</code>.
+     */
+    private void displayErrorDialog(final ApplicationId applicationId,
+            final Data input) {
+        open(applicationId, isDevelopmentMode()
+                ? AvatarId.DIALOG_ERROR_DETAILS : AvatarId.DIALOG_ERROR, input);
+    }
+
+    /**
+     * Display an error dialog using the given input.
+     * 
+     * @param input
+     *            The error dialog input <code>Data</code>.
+     */
+    private void displayErrorDialog(final Data input) {
+        open(isDevelopmentMode()
+                ? AvatarId.DIALOG_ERROR_DETAILS : AvatarId.DIALOG_ERROR, input);
+    }
+
+    /**
      * End all applications.
      *
      */
@@ -734,7 +794,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         }
     }
 
-    /**
+	/**
      * Initialized the installed release.
      *
      */
@@ -759,12 +819,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      *            The action data.
      */
     private void invoke(final ActionId actionId, final Data data) {
-        try {
-            getAction(actionId).invokeAction(data);
-        } catch(final Throwable t) {
-            logger.logError(t, "Could not invoke action {0} with data {1}.", actionId, data);
-            throw new BrowserException("Could not invoke platform action.", t);
-        }
+        getAction(actionId).invokeAction(this, data);
     }
 
     /**
@@ -795,6 +850,39 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
                 modelFactory.getWorkspace(getClass()));
     }
 
+    /**
+     * Lookup an application.
+     * 
+     * @param id
+     *            An <code>ApplicationId</code>.
+     * @return An <code>Application</code>.
+     */
+    private Application lookupApplication(final ApplicationId id) {
+        return applicationRegistry.get(id);
+    }
+
+    /**
+     * Lookup an avatar. If requested the avatar can be created if it does not
+     * exist.
+     * 
+     * @param id
+     *            An <code>AvatarId</code>.
+     * @param create
+     *            A <code>boolean</code> indicating whether or not to create
+     *            the avatar.
+     * @return An <code>Avatar</code> or null if the avatar has not been
+     *         created and create is false.
+     */
+    private Avatar lookupAvatar(final AvatarId id, final boolean create) {
+        final Avatar avatar = avatarRegistry.get(id);
+        if (null == avatar) {
+            if (create) {
+                return AvatarFactory.create(id);
+            }
+        }
+        return avatar;
+    }
+
     private void notifyLifeCycleEnded() {
         final LifeCycleEvent e = listenerHelper.createEvent();
         listenerHelper.notifyListeners(new EventNotifier<LifeCycleListener>() {
@@ -822,13 +910,52 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         });
     }
 
-	private void notifyLifeCycleStarting() {
+    private void notifyLifeCycleStarting() {
         final LifeCycleEvent e = listenerHelper.createEvent();
         listenerHelper.notifyListeners(new EventNotifier<LifeCycleListener>() {
             public void notifyListener(final LifeCycleListener listener) {
                 listener.starting(e);
             }
         });
+    }
+
+    /**
+     * Display an application avatar in a window.
+     * 
+     * @param applicationId
+     *            An <code>ApplicationId</code>.
+     * @param windowId
+     *            A <code>WindowId</code>.
+     * @param avatarId
+     *            An <code>AvatarId</code>.
+     * @param input
+     *            An avatar's input <code>Data</code>.
+     */
+    private void open(final ApplicationId applicationId,
+            final AvatarId avatarId, final Data input) {
+        final Application application = lookupApplication(applicationId);
+        final AbstractJFrame mainApplicationWindow = application.getMainWindow();
+        final Window window = WindowFactory.create(mainApplicationWindow);
+        final Avatar avatar = lookupAvatar(avatarId, true);
+        avatar.setInput(input);
+        window.open(avatar);
+    }
+
+    /**
+     * Display an avatar in a window.
+     * 
+     * @param windowId
+     *            A <code>WindowId</code>.
+     * @param avatarId
+     *            An <code>AvatarId</code>.
+     * @param input
+     *            An avatar's input <code>Data</code>.
+     */
+    private void open(final AvatarId avatarId, final Data data) {
+        final Window window = WindowFactory.create();
+        final Avatar avatar = lookupAvatar(avatarId, true);
+        avatar.setInput(data);
+        window.open(avatar);
     }
 
     /**

@@ -14,21 +14,19 @@ import javax.swing.JDialog;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
-import org.apache.log4j.Logger;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 /**
- * An abstraction of the swing JDialog.
+ * <b>Title:</b>thinkParity CommonCodebase Abstract JDialog<br>
+ * <b>Description:</b>An abstraction of a swing dialog.<br>
  * 
- * @author raykroeker@gmail.com
- * @version $Revision$
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.4
  */
 public abstract class AbstractJDialog extends JDialog {
 
-	/** @see java.io.Serializable */
-	private static final long serialVersionUID = 1;
-
 	/** An apache logger. */
-	protected final Logger logger;
+	protected final Log4JWrapper logger;
 
 	/**
      * Create a AbstractJDialog.
@@ -37,17 +35,34 @@ public abstract class AbstractJDialog extends JDialog {
      *            The owner <code>AbstractJFrame</code>.
      * @param modal
      *            Whether or not to display the dialog in a modal fashion.
-     * @param l18nContext
-     *            A localization context <code>String</code>.
      */
-	protected AbstractJDialog(final AbstractJFrame owner, final Boolean modal,
-			final String l18Context) {
+	protected AbstractJDialog(final AbstractJFrame owner, final Boolean modal) {
 		super(owner, modal);
-        this.logger = Logger.getLogger(getClass());
+        this.logger = new Log4JWrapper(getClass());
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 	}
 
     /**
+	 * Determine whether the user input for the frame is valid.
+	 * 
+	 * @return True if the input is valid; false otherwise.
+	 */
+	public Boolean isInputValid() { return Boolean.TRUE; }
+
+	/**
+	 * <p>Apply specific renderings for the JFrame.</p>
+	 * <p>The hints applied are:<ul>
+	 * <li>rendering:  render quality
+	 * <li>antialiasing:  on</p>
+	 * 
+	 */
+	protected void applyRenderingHints() {
+		final Graphics2D g2 = (Graphics2D) getGraphics();
+		applyRenderingHint(g2, RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		applyRenderingHint(g2, RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	}
+
+	/**
      * Calculate the location for the window based upon its owner and its size.
      * 
      * @return The location <code>Point</code>.
@@ -78,35 +93,15 @@ public abstract class AbstractJDialog extends JDialog {
     }
 
 	/**
-	 * Determine whether the user input for the frame is valid.
-	 * 
-	 * @return True if the input is valid; false otherwise.
-	 */
-	public Boolean isInputValid() { return Boolean.TRUE; }
-
-	/**
-	 * <p>Apply specific renderings for the JFrame.</p>
-	 * <p>The hints applied are:<ul>
-	 * <li>rendering:  render quality
-	 * <li>antialiasing:  on</p>
-	 * 
-	 */
-	protected void applyRenderingHints() {
-		final Graphics2D g2 = (Graphics2D) getGraphics();
-		applyRenderingHint(g2, RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		applyRenderingHint(g2, RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-	}
-
-	/**
 	 * Debug the geometry of the main window; and all of the children throughout
 	 * the hierarchy.
 	 * 
 	 */
 	protected void debugGeometry() {
-		logger.debug(getClass().getSimpleName());
-		logger.debug("l:" + getLocation());
-		logger.debug("b:" + getBounds());
-		logger.debug("i:" + getInsets());
+		logger.logDebug(getClass().getSimpleName());
+		logger.logDebug("l:" + getLocation());
+		logger.logDebug("b:" + getBounds());
+		logger.logDebug("i:" + getInsets());
 	}
 
 	/**
@@ -114,17 +109,20 @@ public abstract class AbstractJDialog extends JDialog {
 	 *
 	 */
 	protected void debugLookAndFeel() {
-		logger.debug(getClass().getSimpleName());
-		logger.debug("lnf:" + UIManager.getLookAndFeel().getClass().getName());
-		final StringBuffer buffer = new StringBuffer("installed lnf:[");
+		logger.logDebug(getClass().getSimpleName());
+		logger.logDebug("lnf:{0}", UIManager.getLookAndFeel().getClass().getName());
+		final StringBuilder builder = new StringBuilder("installed lnf:[");
 		boolean isFirst = true;
-		for(LookAndFeelInfo lnfi : UIManager.getInstalledLookAndFeels()) {
-			if(isFirst) { isFirst = false; }
-			else { buffer.append(","); }
-			buffer.append(lnfi.getClassName());
+		for (final LookAndFeelInfo lnfi : UIManager.getInstalledLookAndFeels()) {
+			if (isFirst) {
+                isFirst = false;
+			} else {
+                builder.append(",");
+			}
+			builder.append(lnfi.getClassName());
 		}
-		buffer.append("]");
-		logger.debug(buffer);
+		builder.append("]");
+		logger.logDebug(builder.toString());
 	}
 
 	/**

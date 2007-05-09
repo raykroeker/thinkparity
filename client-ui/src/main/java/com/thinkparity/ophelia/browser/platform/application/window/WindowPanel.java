@@ -12,6 +12,7 @@ import java.util.List;
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.ophelia.browser.platform.window.Window;
 
 /**
  * An {@link AbstractJPanel} placed on the {@link Window} used to contain the
@@ -80,13 +81,11 @@ public class WindowPanel extends AbstractJPanel {
      * @param titleText
      *            Whether or not to display title text.              
 	 */
-	public void addPanel(final Avatar avatar, final Boolean titleText) {
+	public void addPanel(final Avatar avatar) {
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
         if (avatar.isAvatarTitle()) {
-            final String title = titleText ? avatar.getAvatarTitle() : null;
-            windowTitle.setTitleText(title);
 		    add(windowTitle, c.clone());
         }
 

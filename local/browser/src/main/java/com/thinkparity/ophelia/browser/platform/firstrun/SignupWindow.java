@@ -103,7 +103,7 @@ public final class SignupWindow extends OpheliaJFrame {
      *            The <code>Avatar</code>.
      */
     private void initComponents(final Avatar avatar) {
-        windowPanel.addPanel(avatar, Boolean.TRUE);
+        windowPanel.addPanel(avatar);
         add(windowPanel);
     }
 

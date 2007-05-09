@@ -40,7 +40,7 @@ public class DemoErrorWindow extends AbstractJDialog {
      *            An owner <code>AbstractJFrame</code>.
      */
     public DemoErrorWindow(final AbstractJFrame owner) {
-        super(owner, Boolean.TRUE, null);
+        super(owner, Boolean.TRUE);
         initComponents();
         WINDOW_UTIL.applyRoundedEdges(this, Constants.WindowUtil.DEFAULT_SIZE);
         setLocation(calculateLocation());

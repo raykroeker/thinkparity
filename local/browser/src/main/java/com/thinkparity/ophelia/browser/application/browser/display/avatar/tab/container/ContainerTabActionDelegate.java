@@ -10,12 +10,14 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+
+import com.thinkparity.ophelia.browser.application.browser.DefaultBrowserActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ActionDelegate;
 import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.DefaultActionDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
 import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
@@ -23,19 +25,15 @@ import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.7
  */
-final class ContainerTabActionDelegate extends DefaultActionDelegate implements
+final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate implements
         ActionDelegate {
-
-    /** A <code>ContainerModel</code>. */
-    private final ContainerTabModel model;
 
     /** The container's add bookmark <code>AbstractAction</code>. */
     private final ActionInvocation containerAddBookmark;
@@ -48,6 +46,9 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
 
     /** The document version <code>AbstractAction</code>. */
     private final ActionInvocation documentOpenVersion;
+
+    /** A <code>ContainerModel</code>. */
+    private final ContainerTabModel model;
 
     /** The profile update <code>AbstractAction</code>. */
     private final ActionInvocation profileUpdate;
@@ -82,10 +83,10 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
         final Data data = new Data(1);
         if (container.isBookmarked()) {
             data.set(RemoveBookmark.DataKey.CONTAINER_ID, container.getId());
-            containerRemoveBookmark.invokeAction(data);
+            containerRemoveBookmark.invokeAction(getApplication(), data);
         } else {
             data.set(AddBookmark.DataKey.CONTAINER_ID, container.getId());
-            containerAddBookmark.invokeAction(data);
+            containerAddBookmark.invokeAction(getApplication(), data);
         }
     }
 
@@ -97,7 +98,7 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
             final Document document) {
         final Data data = new Data(1);
         data.set(Open.DataKey.DOCUMENT_ID, document.getId());
-        invoke(documentOpenDraft, data);
+        invoke(documentOpenDraft, getApplication(), data);
     }
 
     /**
@@ -110,7 +111,7 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
         final Data data = new Data(2);
         data.set(OpenVersion.DataKey.DOCUMENT_ID, version.getArtifactId());
         data.set(OpenVersion.DataKey.VERSION_ID, version.getVersionId());
-        invoke(documentOpenVersion, data);
+        invoke(documentOpenVersion, getApplication(), data);
     }
 
     /**
@@ -121,11 +122,11 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
         if (isLocalUser(user)) {
             final Data data = new Data(1);
             data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-            invoke(profileUpdate, data);
+            invoke(profileUpdate, getApplication(), data);
         } else {
             final Data data = new Data(1);
             data.set(Read.DataKey.CONTACT_ID, user.getId());
-            invoke(userRead, data);
+            invoke(userRead, getApplication(), data);
         }
     }
 
@@ -138,7 +139,7 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
             final Data data = new Data(2);
             data.set(ReadVersion.DataKey.CONTAINER_ID, version.getArtifactId());
             data.set(ReadVersion.DataKey.VERSION_ID, version.getVersionId());
-            invoke(versionRead, data);
+            invoke(versionRead, getApplication(), data);
         }
     }
 

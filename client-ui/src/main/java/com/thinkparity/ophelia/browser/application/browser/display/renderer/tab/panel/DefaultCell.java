@@ -5,12 +5,10 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 
 import javax.swing.Icon;
 
-import com.thinkparity.ophelia.browser.util.ImageIOUtil;
-
-
 /**
- * <b>Title:</b><br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity OpheliaUI Browser Default Cell<br>
+ * <b>Description:</b>A default implementation of a tab cell.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
@@ -35,7 +33,6 @@ public class DefaultCell implements Cell {
     public DefaultCell() {
         super();
         setEnabled(Boolean.TRUE);
-        setIcon(ImageIOUtil.readIcon("Invisible16x16.png"));
     }
 
     /**

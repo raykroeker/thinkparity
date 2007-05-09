@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.platform.action;
 
+import com.thinkparity.ophelia.browser.platform.application.Application;
+
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
@@ -39,14 +41,17 @@ public class DefaultActionDelegate {
     }
 
     /**
-     * Invoke a thinkParity action.
+     * Invoke an application action.
      * 
      * @param action
      *            An <code>ActionInvocation</code>.
-     * @param data
-     *            The action <code>Data</code>.
+     * @param application
+     *            An <code>Application</code>.
+     * @param input
+     *            The action input <code>Data</code>.
      */
-    public void invoke(final ActionInvocation action, final Data data) {
-        action.invokeAction(data);
+    public void invoke(final ActionInvocation action,
+            final Application application, final Data data) {
+        action.invokeAction(application, data);
     }
 }

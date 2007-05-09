@@ -335,7 +335,7 @@ public class ContainerPanel extends DefaultTabPanel {
      * @return True if the draft is set.
      */
     public Boolean isSetDraft() {
-        return null != draft;
+        return null != draft && draft.isSetDraft();
     }
 
     /**

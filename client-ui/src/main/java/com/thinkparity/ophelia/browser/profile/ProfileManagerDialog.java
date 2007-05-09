@@ -12,21 +12,24 @@ import com.thinkparity.codebase.swing.AbstractJDialog;
 import com.thinkparity.codebase.swing.AbstractJFrame;
 
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder;
 
 /**
- *
+ * <b>Title:</b>thinkParity OpheliaUI Profile Manager Dialog<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @revision $Revision$
+ * @version 1.1.2.1
  */
 class ProfileManagerDialog extends AbstractJDialog {
 
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
-
-    /** Create ProfileManagerDialog. */
-    ProfileManagerDialog(final AbstractJFrame window) {
-        super(window, Boolean.TRUE, "ProfileManagerDialog");
+    /**
+     * Create ProfileManagerDialog.
+     * 
+     * @param owner
+     *            The owner <code>AbstractJFrame</code>.
+     */
+    ProfileManagerDialog(final AbstractJFrame owner) {
+        super(owner, Boolean.TRUE);
         setUndecorated(true);
     }
 

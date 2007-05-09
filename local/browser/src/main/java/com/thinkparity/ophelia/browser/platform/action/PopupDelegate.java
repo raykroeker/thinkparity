@@ -26,21 +26,6 @@ public interface PopupDelegate {
     public void initialize(final Component invoker, final int x, final int y);
 
     /**
-     * Initialize the delegate.
-     * 
-     * @param invoker
-     *            A <code>Component</code> invoker.
-     * @param x
-     *            The popup x location.
-     * @param y
-     *            The popup y location.
-     * @param width
-     *            The popup width.
-     */
-    public void initialize(final Component invoker, final int x, final int y,
-            final int width, final int height);
-
-    /**
      * Show the popup.
      * 
      */

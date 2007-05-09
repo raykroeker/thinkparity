@@ -4,6 +4,9 @@
  */
 package com.thinkparity.ophelia.browser.platform.action;
 
+import com.thinkparity.ophelia.browser.platform.Platform;
+import com.thinkparity.ophelia.browser.platform.application.Application;
+
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
@@ -11,12 +14,24 @@ package com.thinkparity.ophelia.browser.platform.action;
 public interface ActionInvocation {
 
     /**
-     * Invoke the action.
+     * Invoke an application action.
      * 
+     * @param application
+     *            An <code>Application</code>.
      * @param data
-     *            The action data.
+     *            The action <code>Data</code>.
      */
-    public void invokeAction(final Data data);
+    public void invokeAction(final Application application, final Data data);
+
+    /**
+     * Invoke a platform action.
+     * 
+     * @param platform
+     *            The <code>Platform</code>.
+     * @param data
+     *            The action <code>Data</code>.
+     */
+    public void invokeAction(final Platform platform, final Data data);
 
     /**
      * Retry invoking the action.

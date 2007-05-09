@@ -15,12 +15,12 @@ import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.profile.Profile;
 
+import com.thinkparity.ophelia.browser.application.browser.DefaultBrowserPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactTabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.PopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.*;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword;
@@ -31,8 +31,8 @@ import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
-        PopupDelegate {
+final class ContactTabPopupDelegate extends DefaultBrowserPopupDelegate
+        implements PopupDelegate {
 
     /** A list of action ids, used for the contact popup. */
     private final List<ActionId> actionIds;

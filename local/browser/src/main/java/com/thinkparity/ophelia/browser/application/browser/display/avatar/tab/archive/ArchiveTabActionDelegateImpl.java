@@ -12,12 +12,12 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
+import com.thinkparity.ophelia.browser.application.browser.DefaultBrowserActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.archive.ArchiveTabActionDelegate;
 import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.DefaultActionDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
 import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
@@ -31,9 +31,9 @@ import com.thinkparity.ophelia.browser.platform.action.profile.Update;
  * <b>Description:</b>The action delegate implementation of the archive tab.<br>
  * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.2
  */
-final class ArchiveTabActionDelegateImpl extends DefaultActionDelegate
+final class ArchiveTabActionDelegateImpl extends DefaultBrowserActionDelegate
         implements ArchiveTabActionDelegate {
 
     /** The container's add bookmark <code>AbstractAction</code>. */
@@ -84,10 +84,10 @@ final class ArchiveTabActionDelegateImpl extends DefaultActionDelegate
         final Data data = new Data(1);
         if (container.isBookmarked()) {
             data.set(RemoveBookmark.DataKey.CONTAINER_ID, container.getId());
-            containerRemoveBookmark.invokeAction(data);
+            containerRemoveBookmark.invokeAction(getApplication(), data);
         } else {
             data.set(AddBookmark.DataKey.CONTAINER_ID, container.getId());
-            containerAddBookmark.invokeAction(data);
+            containerAddBookmark.invokeAction(getApplication(), data);
         }
     }
 
@@ -99,7 +99,7 @@ final class ArchiveTabActionDelegateImpl extends DefaultActionDelegate
             final Document document) {
         final Data data = new Data(1);
         data.set(Open.DataKey.DOCUMENT_ID, document.getId());
-        invoke(documentOpenDraft, data);
+        invoke(documentOpenDraft, getApplication(), data);
     }
 
     /**
@@ -112,7 +112,7 @@ final class ArchiveTabActionDelegateImpl extends DefaultActionDelegate
         final Data data = new Data(2);
         data.set(OpenVersion.DataKey.DOCUMENT_ID, version.getArtifactId());
         data.set(OpenVersion.DataKey.VERSION_ID, version.getVersionId());
-        invoke(documentOpenVersion, data);
+        invoke(documentOpenVersion, getApplication(), data);
     }
 
     /**
@@ -123,11 +123,11 @@ final class ArchiveTabActionDelegateImpl extends DefaultActionDelegate
         if (isLocalUser(user)) {
             final Data data = new Data(1);
             data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-            invoke(profileUpdate, data);
+            invoke(profileUpdate, getApplication(), data);
         } else {
             final Data data = new Data(1);
             data.set(Read.DataKey.CONTACT_ID, user.getId());
-            invoke(userRead, data);
+            invoke(userRead, getApplication(), data);
         }
     }
 
@@ -140,7 +140,7 @@ final class ArchiveTabActionDelegateImpl extends DefaultActionDelegate
             final Data data = new Data(2);
             data.set(ReadVersion.DataKey.CONTAINER_ID, version.getArtifactId());
             data.set(ReadVersion.DataKey.VERSION_ID, version.getVersionId());
-            invoke(versionRead, data);
+            invoke(versionRead, getApplication(), data);
         }
     }
 

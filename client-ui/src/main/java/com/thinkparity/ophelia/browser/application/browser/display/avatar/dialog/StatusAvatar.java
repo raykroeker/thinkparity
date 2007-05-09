@@ -20,15 +20,18 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
- *
- * @author  user
+ * <b>Title:</b>thinkParity OpheliaUI Browser Info Avatar<br>
+ * <b>Description:</b><br>
+ * 
+ * @author robert@thinkparity.com
+ * @version 1.1.2.1
  */
-public class StatusAvatar extends Avatar {
+public final class StatusAvatar extends Avatar {
 
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
-
-    /** Creates new form StatusAvatar */
+    /**
+     * Create StatusAvatar.
+     *
+     */
     public StatusAvatar() {
         super("StatusAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         bindEscapeKey("Cancel", new AbstractAction() {

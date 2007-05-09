@@ -83,6 +83,8 @@ public class AddDocument extends AbstractBrowserAction {
             // Add documents
             for (final File file : addFileList) {
                 addDocument(file, containerId);
+                // allow the cpu to catch-up between documents
+                Thread.yield();
             }
             
             // Update documents
@@ -107,6 +109,8 @@ public class AddDocument extends AbstractBrowserAction {
                         }
                     }
                     browser.runUpdateDocumentDraft(document.getId(), file);
+                    // allow the cpu to catch-up between documents
+                    Thread.yield();
                 }
             }
         }

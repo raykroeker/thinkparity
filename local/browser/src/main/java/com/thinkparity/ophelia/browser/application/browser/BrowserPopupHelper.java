@@ -12,10 +12,14 @@ import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.MouseInputListener;
 
 /**
- * @author rob_masako@shaw.ca
- * @version $Revision$
+ * <b>Title:</b>thinkParity OpheliaUI Browser Popup Helper<br>
+ * <b>Description:</b>A wrapper class that add a popup listener to any swing
+ * component. It displays popup defined within the browser popup delegate.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class BrowserPopupHelper {
+public final class BrowserPopupHelper {
 
     /** The browser popup delegate. */
     private final BrowserPopupDelegate browserPopupDelegate;
@@ -32,7 +36,8 @@ public class BrowserPopupHelper {
     }
 
     /**
-     * Create a BrowserPopupHelper.
+     * Create BrowserPopupHelper.
+     *
      */
     public BrowserPopupHelper() {
         super();
@@ -88,7 +93,7 @@ public class BrowserPopupHelper {
      */
     private void componentMousePressed(final MouseEvent e) {
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
-            showBrowserPopup(e);           
+            showBrowserPopup(e);
         }
     }
 
@@ -100,7 +105,7 @@ public class BrowserPopupHelper {
      */
     private void componentMouseReleased(final MouseEvent e) {
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
-            showBrowserPopup(e);           
+            showBrowserPopup(e);
         }
     }
 
@@ -112,6 +117,6 @@ public class BrowserPopupHelper {
      */
     private void showBrowserPopup(final MouseEvent e) {
         browserPopupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
-        browserPopupDelegate.show();
+        browserPopupDelegate.showForBrowser();
     }
 }

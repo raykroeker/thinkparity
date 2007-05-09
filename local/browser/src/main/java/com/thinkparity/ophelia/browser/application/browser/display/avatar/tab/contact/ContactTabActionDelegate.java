@@ -11,11 +11,11 @@ import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingInvitation;
 import com.thinkparity.codebase.model.profile.Profile;
 
+import com.thinkparity.ophelia.browser.application.browser.DefaultBrowserActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ActionDelegate;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.DefaultActionDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingEMailInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingEMailInvitation;
@@ -27,9 +27,9 @@ import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingUs
  * types presented by the contact tab.<br>
  * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.7
  */
-final class ContactTabActionDelegate extends DefaultActionDelegate implements
+final class ContactTabActionDelegate extends DefaultBrowserActionDelegate implements
         ActionDelegate {
     
     /** The <code>ContactTabModel</code>. */
@@ -83,12 +83,12 @@ final class ContactTabActionDelegate extends DefaultActionDelegate implements
             case ACCEPT:
                 final Data acceptData = new Data(1);
                 acceptData.set(AcceptIncomingEMailInvitation.DataKey.INVITATION_ID, invitation.getId());
-                acceptIncomingEMailInvitation.invokeAction(acceptData);
+                acceptIncomingEMailInvitation.invokeAction(getApplication(), acceptData);
                 break;
             case DECLINE:
                 final Data declineData = new Data(1);
                 declineData.set(DeclineIncomingEMailInvitation.DataKey.INVITATION_ID, invitation.getId());
-                declineIncomingEMailInvitation.invokeAction(declineData);
+                declineIncomingEMailInvitation.invokeAction(getApplication(), declineData);
                 break;
             default:
                 Assert.assertUnreachable("Unknown incoming invitation action.");
@@ -107,12 +107,12 @@ final class ContactTabActionDelegate extends DefaultActionDelegate implements
             case ACCEPT:
                 final Data acceptData = new Data(1);
                 acceptData.set(AcceptIncomingUserInvitation.DataKey.INVITATION_ID, invitation.getId());
-                acceptIncomingUserInvitation.invokeAction(acceptData);
+                acceptIncomingUserInvitation.invokeAction(getApplication(), acceptData);
                 break;
             case DECLINE:
                 final Data declineData = new Data(1);
                 declineData.set(DeclineIncomingUserInvitation.DataKey.INVITATION_ID, invitation.getId());
-                declineIncomingUserInvitation.invokeAction(declineData);
+                declineIncomingUserInvitation.invokeAction(getApplication(), declineData);
                 break;
             default:
                 Assert.assertUnreachable("Unknown incoming invitation action.");

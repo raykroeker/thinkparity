@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.browser.application.browser;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Hashtable;
@@ -22,6 +21,7 @@ import javax.swing.SwingUtilities;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
 
@@ -40,8 +40,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainSt
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatarLink;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ConfirmAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorDetailsAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.FileChooserAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.StatusAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.UserInfoAvatar;
@@ -56,8 +54,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.archive.ArchiveTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabAvatar;
-import com.thinkparity.ophelia.browser.application.browser.window.WindowFactory;
-import com.thinkparity.ophelia.browser.application.browser.window.WindowId;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.*;
@@ -78,11 +74,12 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.browser.platform.application.window.Window;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
+import com.thinkparity.ophelia.browser.platform.window.Window;
+import com.thinkparity.ophelia.browser.platform.window.WindowFactory;
 
 import org.apache.log4j.Logger;
 
@@ -96,10 +93,17 @@ import org.apache.log4j.Logger;
  */
 public class Browser extends AbstractApplication {
 
+    /** A session attribute key <code>String</code> for the main window cursor. */
+    private static final String SAK_MAIN_WINDOW_CURSOR;
+
+    static {
+        SAK_MAIN_WINDOW_CURSOR = "SAK_MAIN_WINDOW_CURSOR";
+    }
+
     /** Action registry. */
 	private final ActionRegistry actionRegistry;
 
-	/**
+    /**
 	 * Provides a map of all avatar input.
 	 * 
 	 */
@@ -108,19 +112,19 @@ public class Browser extends AbstractApplication {
 	/** The browser controller's display helper. */
     private final BrowserDisplayHelper displayHelper;
 
-    /** The browser's event dispatcher. */
+	/** The browser's event dispatcher. */
 	private EventDispatcher ed;
 
-	/** The thinkParity browser application window. */
+    /** The thinkParity browser application window. */
 	private BrowserWindow mainWindow;
 
 	/** A persistence for browser settings. */
     private final Persistence persistence;
-    
-    /** The browser's session implementation. */
-	private final BrowserSessionImpl sessionImpl;
 
-	/**
+	/** The browser's session implementation. */
+	private final BrowserSessionImpl sessionImpl;
+    
+    /**
 	 * Create Browser.
 	 * 
 	 */
@@ -134,6 +138,18 @@ public class Browser extends AbstractApplication {
 	}
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#applyBusyIndicator()
+     *
+     */
+    public void applyBusyIndicator() {
+        // set the window cursor to "wait"
+        getSession().setAttribute(SAK_MAIN_WINDOW_CURSOR, mainWindow.getCursor());
+        SwingUtil.setCursor(mainWindow, Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        // apply an intercept pane
+        mainWindow.applyInterceptPane();
+    }
+
+	/**
      * Apply a search expression to a given tab.
      * 
      * @param expression
@@ -286,7 +302,7 @@ public class Browser extends AbstractApplication {
         final Data input = new Data(1);
         input.set(UserInfoAvatar.DataKey.USER_ID, contactId);
         setInput(AvatarId.DIALOG_CONTACT_INFO, input);
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTACT_INFO);        
+        displayAvatar(AvatarId.DIALOG_CONTACT_INFO);        
     }
 
     /**
@@ -304,7 +320,7 @@ public class Browser extends AbstractApplication {
     public void displayContainerTabAvatar() {
         displayTab(AvatarId.TAB_CONTAINER);
     }
-        
+
     /**
      * Display the container version comment dialog.
      * 
@@ -318,9 +334,9 @@ public class Browser extends AbstractApplication {
         input.set(ContainerVersionCommentAvatar.DataKey.CONTAINER_ID, containerId);
         input.set(ContainerVersionCommentAvatar.DataKey.VERSION_ID, versionId);
         setInput(AvatarId.DIALOG_CONTAINER_VERSION_COMMENT, input);
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_VERSION_COMMENT);
+        displayAvatar(AvatarId.DIALOG_CONTAINER_VERSION_COMMENT);
     }
-    
+        
     /**
      * Display the "new container" dialog (to create new packages).
      * If the user presses OK, runCreateContainer() is called and
@@ -332,7 +348,7 @@ public class Browser extends AbstractApplication {
         final Data input = new Data(1);
         input.set(CreateContainerAvatar.DataKey.NUM_FILES, numFiles);
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_CREATE);
+        displayAvatar(AvatarId.DIALOG_CONTAINER_CREATE);
     }
     
     /**
@@ -351,9 +367,9 @@ public class Browser extends AbstractApplication {
         input.set(CreateContainerAvatar.DataKey.NUM_FILES, numFiles);
         input.set(CreateContainerAvatar.DataKey.FILES, files);        
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_CREATE);
+        displayAvatar(AvatarId.DIALOG_CONTAINER_CREATE);
     }
-
+    
     /**
      * Handle a user error (show an error dialog).
      * 
@@ -388,21 +404,9 @@ public class Browser extends AbstractApplication {
      *            An error (optional).     
      */
     public void displayErrorDialog(final String errorMessageKey,
-            final Object[] errorMessageArguments,
-            final Throwable error) {
-        if ((null != error) && (getPlatform().isDevelopmentMode() || getPlatform().isTestingMode())) {
-            displayErrorDetailsDialog(null, null, error);
-        } else {        
-            final Data input = new Data(3);
-            if (null != errorMessageKey)
-                input.set(ErrorAvatar.DataKey.ERROR_MESSAGE_KEY, errorMessageKey);
-            if (null != errorMessageArguments)
-                input.set(ErrorAvatar.DataKey.ERROR_MESSAGE_ARGUMENTS, errorMessageArguments);
-            if (null != error) {
-                input.set(ErrorAvatar.DataKey.ERROR, error);
-            }
-            open(WindowId.ERROR, AvatarId.DIALOG_ERROR, input);
-        }
+            final Object[] errorMessageArguments, final Throwable error) {
+        getPlatform().displayErrorDialog(getId(), error, errorMessageKey,
+                errorMessageArguments);
     }
 
     /**
@@ -455,9 +459,9 @@ public class Browser extends AbstractApplication {
         input.set(PublishContainerAvatar.DataKey.PUBLISH_TYPE, PublishContainerAvatar.PublishType.PUBLISH);
         input.set(PublishContainerAvatar.DataKey.CONTAINER_ID, containerId);
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
+        displayAvatar(AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
-    
+
     /**
      * Display the "publish container" dialog for a version.
      * If the user presses OK, the CONTAINER_PUBLISH_VERSION action is invoked.
@@ -474,9 +478,9 @@ public class Browser extends AbstractApplication {
         input.set(PublishContainerAvatar.DataKey.CONTAINER_ID, containerId);
         input.set(PublishContainerAvatar.DataKey.VERSION_ID, versionId);
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
+        displayAvatar(AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
-
+    
     /**
      * Display a container rename dialog.
      * 
@@ -491,7 +495,7 @@ public class Browser extends AbstractApplication {
         input.set(RenameContainerAvatar.DataKey.CONTAINER_ID, containerId);
         input.set(RenameContainerAvatar.DataKey.CONTAINER_NAME, containerName);
         setInput(AvatarId.DIALOG_CONTAINER_RENAME, input);
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_RENAME);
+        displayAvatar(AvatarId.DIALOG_CONTAINER_RENAME);
     }
 
     /**
@@ -511,7 +515,7 @@ public class Browser extends AbstractApplication {
         input.set(RenameDocumentAvatar.DataKey.DOCUMENT_ID, documentId);
         input.set(RenameDocumentAvatar.DataKey.DOCUMENT_NAME, documentName);
         setInput(AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT, input);
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT);
+        displayAvatar(AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT);
     }
 
     /**
@@ -538,7 +542,7 @@ public class Browser extends AbstractApplication {
         input.set(StatusAvatar.DataKey.STATUS_MESSAGE_KEY, statusMessageKey);
         if (null != statusMessageArguments)
             input.set(StatusAvatar.DataKey.STATUS_MESSAGE_ARGUMENTS, statusMessageArguments);
-        open(WindowId.STATUS, AvatarId.DIALOG_STATUS, input);
+        open(AvatarId.DIALOG_STATUS, input);
     }
 
     /** Display a tab list extension. */
@@ -550,27 +554,27 @@ public class Browser extends AbstractApplication {
     public void displayTabExtension(final TabPanelExtension tabPanelExtension) {
         displayTab(tabPanelExtension);
     }
-    
+
     /**
      * Display the update password dialog.
      */
     public void displayUpdatePasswordDialog() {
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_UPDATE_PASSWORD);
+        displayAvatar(AvatarId.DIALOG_PROFILE_UPDATE_PASSWORD);
     }
-
+    
     /**
      * Display the update profile dialog.
      *
      */
     public void displayUpdateProfileDialog() {
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_UPDATE);
+        displayAvatar(AvatarId.DIALOG_PROFILE_UPDATE);
     }
 
     /**
      * Display the verify email dialog.
      */
     public void displayVerifyEmailDialog() {
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_VERIFY_EMAIL);        
+        displayAvatar(AvatarId.DIALOG_PROFILE_VERIFY_EMAIL);        
     }
 
     /**
@@ -704,6 +708,14 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#getMainWindow()
+     *
+     */
+    public AbstractJFrame getMainWindow() {
+        return mainWindow;
+    }
+
+    /**
 	 * Obtain the platform.
 	 * 
 	 * @return The platform the application is running on.
@@ -758,7 +770,7 @@ public class Browser extends AbstractApplication {
 	 */
 	public void hibernate() { getPlatform().hibernate(getId()); }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#hibernate()
 	 * 
 	 */
@@ -771,7 +783,7 @@ public class Browser extends AbstractApplication {
 		notifyHibernate();
 	}
 
-	/**
+    /**
      * Iconify (or uniconify) the browser application.
      * 
      * @param iconify
@@ -789,7 +801,7 @@ public class Browser extends AbstractApplication {
         }
     }
 
-	/**
+    /**
      * Determine if the browser window is maximized.
      * 
      * @return true if the browser window is maximized; false otherwise.
@@ -798,12 +810,12 @@ public class Browser extends AbstractApplication {
         return ((mainWindow.getExtendedState() & JFrame.MAXIMIZED_BOTH) > 0);
     }
 
-	/** @see com.thinkparity.ophelia.browser.platform.application.Application#isDevelopmentMode() */
+    /** @see com.thinkparity.ophelia.browser.platform.application.Application#isDevelopmentMode() */
     public Boolean isDevelopmentMode() { 
         return getPlatform().isDevelopmentMode();
     }
 
-    /**
+	/**
      * Determine whether or not the platform is online.
      * 
      * @return True if the platform is online.
@@ -812,7 +824,7 @@ public class Browser extends AbstractApplication {
         return getPlatform().isOnline();
     }
 
-    /**
+	/**
      * Maximize (or unmaximize) the browser application.
      * 
      * @param maximize
@@ -830,7 +842,7 @@ public class Browser extends AbstractApplication {
         }
     }
 
-    /**
+	/**
      * Move and resize the browser window.
      * (See moveBrowserWindow, resizeBrowserWindow)
      *
@@ -850,7 +862,7 @@ public class Browser extends AbstractApplication {
         mainWindow.setMainWindowSizeAndLocation(newL, newS);
     }
 
-    /**
+	/**
 	 * Move the browser window.
 	 * 
 	 * @param l
@@ -875,6 +887,20 @@ public class Browser extends AbstractApplication {
      */
     public void reloadStatusAvatar() {
         getStatusAvatar().reload();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#removeBusyIndicator()
+     *
+     */
+    public void removeBusyIndicator() {
+        final BrowserSession session = getSession();
+        // set the "default" cursor
+        SwingUtil.setCursor(mainWindow,
+                (Cursor) session.getAttribute(SAK_MAIN_WINDOW_CURSOR));
+        session.removeAttribute(SAK_MAIN_WINDOW_CURSOR);
+        // remove the intercept pane
+        mainWindow.removeInterceptPane();
     }
 
     /**
@@ -906,7 +932,7 @@ public class Browser extends AbstractApplication {
         setStatus(ApplicationStatus.RUNNING);
 	}
 
-	/**
+    /**
      * Confirm an attempt to retry an invocation of an action with the user and
      * if positive retry.
      * 
@@ -921,7 +947,7 @@ public class Browser extends AbstractApplication {
             action.retryInvokeAction();
         }
     }
-    
+
     /**
      * Accept an e-mail invitation.
      * 
@@ -933,7 +959,7 @@ public class Browser extends AbstractApplication {
         data.set(AcceptIncomingEMailInvitation.DataKey.INVITATION_ID, invitationId);
         invoke(ActionId.CONTACT_ACCEPT_INCOMING_EMAIL_INVITATION, data);
     }
-    
+
     /**
      * Accept an e-mail invitation.
      * 
@@ -945,8 +971,8 @@ public class Browser extends AbstractApplication {
         data.set(AcceptIncomingUserInvitation.DataKey.INVITATION_ID, invitationId);
         invoke(ActionId.CONTACT_ACCEPT_INCOMING_USER_INVITATION, data);
     }
-    
-    /**
+
+	/**
      * Run the add bookmark action.
      * 
      * @param containerId
@@ -957,8 +983,8 @@ public class Browser extends AbstractApplication {
         data.set(AddBookmark.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_ADD_BOOKMARK, data);
     }
-
-	/**
+    
+    /**
      * Run the create document action, browse to select the document.
      * 
      * @param containerId
@@ -976,7 +1002,7 @@ public class Browser extends AbstractApplication {
             runAddContainerDocuments(containerId, jFileChooser.getSelectedFiles());
         }
     }
-
+    
     /**
      * Run the add document action. This adds and/or updates documents.
      * 
@@ -991,7 +1017,7 @@ public class Browser extends AbstractApplication {
         data.set(AddDocument.DataKey.FILES, files);
         invoke(ActionId.CONTAINER_ADD_DOCUMENT, data);
     }
-
+    
     /**
      * Run the profile's add email action.
      *
@@ -1001,8 +1027,8 @@ public class Browser extends AbstractApplication {
         data.set(AddEmail.DataKey.EMAIL, email);
         invoke(ActionId.PROFILE_ADD_EMAIL, data);
     }
-    
-    /**
+
+	/**
      * Run the apply flag seen action.
      * 
      * @param documentId
@@ -1013,7 +1039,7 @@ public class Browser extends AbstractApplication {
         data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, containerId);
         invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
     }
-    
+
     /**
      * Run the apply flag seen action.
      * 
@@ -1042,7 +1068,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer() {
         runCreateContainer(null, null);
     }
-
+    
     /**
      * Create a container (package) with one or more new documents.
      * The user will determine the container name.
@@ -1053,7 +1079,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer(final List<File> files) {
         runCreateContainer(null, files);
     }
-
+    
     /**
      * Create a container (package) with a specified name.
      * 
@@ -1063,7 +1089,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer(final String name) {
         runCreateContainer(name, null);
     }
-
+  
     /**
      * Run the create container action. If name and files are both not set; a
      * dialog will be used to prompt the user.
@@ -1181,8 +1207,8 @@ public class Browser extends AbstractApplication {
 		data.set(OpenVersion.DataKey.DOCUMENT_ID, documentId);
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
-	}    
-    
+	}
+
     /**
      * Run the platform browser open help action.
      *
@@ -1190,7 +1216,7 @@ public class Browser extends AbstractApplication {
     public void runPlatformBrowserOpenHelp() {
         invoke(ActionId.PLATFORM_BROWSER_OPEN_HELP, Data.emptyData());
     }
-    
+
     /**
      * Run the platform browser restore action.
      *
@@ -1198,14 +1224,14 @@ public class Browser extends AbstractApplication {
     public void runPlatformBrowserRestore() {
         invoke(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
     }
-    
+
     /**
      * Run the profile sign-up action.
      *
      */
     public void runProfileSignUp() {
         invoke(ActionId.PROFILE_SIGN_UP, Data.emptyData());
-    }
+    }    
     
     /**
      * Run the publish container action.
@@ -1243,7 +1269,7 @@ public class Browser extends AbstractApplication {
             }
         });
     }
-
+    
     /**
      * Run the publish container version action.
      * 
@@ -1291,7 +1317,7 @@ public class Browser extends AbstractApplication {
         data.set(Read.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_READ, data);
     }
-
+    
     /**
      * Run the read container version action.
      * 
@@ -1319,7 +1345,7 @@ public class Browser extends AbstractApplication {
         data.set(RemoveBookmark.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_REMOVE_BOOKMARK, data);
     }
-
+    
     /**
      * Run the remove flag seen action.
      * 
@@ -1331,7 +1357,7 @@ public class Browser extends AbstractApplication {
         data.set(RemoveFlagSeen.DataKey.ARTIFACT_ID, containerId);
         invoke(ActionId.ARTIFACT_REMOVE_FLAG_SEEN, data);         
     }
-    
+
     /**
      * Run the profile's remove email action.
      *
@@ -1341,7 +1367,7 @@ public class Browser extends AbstractApplication {
         data.set(RemoveEmail.DataKey.EMAIL_ID, emailId);
         invoke(ActionId.PROFILE_REMOVE_EMAIL, data);
     }
-    
+
     /**
      * Run the container rename action.
      * 
@@ -1357,7 +1383,7 @@ public class Browser extends AbstractApplication {
         data.set(Rename.DataKey.CONTAINER_NAME, containerName);
         invoke(ActionId.CONTAINER_RENAME, data);
     }
-    
+
     /**
      * Run the document rename action.
      * 
@@ -1391,7 +1417,7 @@ public class Browser extends AbstractApplication {
         data.set(UpdateDraft.DataKey.FILE, file);
         invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);
     }
-
+    
     /**
      * Update the user's profile.
      *
@@ -1445,8 +1471,8 @@ public class Browser extends AbstractApplication {
             data.set(Update.DataKey.TITLE, title);
         invoke(ActionId.PROFILE_UPDATE, data);
     }
-
-	/**
+    
+    /**
      * Update the user's profile.
      * 
      * @param credentials
@@ -1465,7 +1491,7 @@ public class Browser extends AbstractApplication {
         data.set(UpdatePassword.DataKey.NEW_PASSWORD_CONFIRM, confirmNewPassword);
         invoke(ActionId.PROFILE_UPDATE_PASSWORD, data);
     }
-
+    
     /**
      * Run the verify email action.
      * 
@@ -1496,14 +1522,25 @@ public class Browser extends AbstractApplication {
         getMainTitleAvatar().setInput(data); 
     }
 
-    /**
-     * Set the cursor.
+	/**
+     * Set the cursor for the resizer.
      * 
      * @param cursor
-     *          The cursor to use.
+     *            A <code>Cursor</code>.
+     * @deprecated the resizer should merely indicate to the browser that it can
+     *             be resized in a given direction and the browser should
+     *             control the visual cues at that point
      */
-    public void setCursor(Cursor cursor) {
-        SwingUtil.setCursor(mainWindow.getContentPane(), cursor);
+    @Deprecated
+    public void setCursorForResizer(final Cursor cursor) {
+        /* if the browser application is currently "busy" we do not allow a
+         * cursor change */
+        if (isBusyIndicatorApplied()) {
+            logger.logInfo("Cannot set resize cursor while application {0} is busy.",
+                    getId());
+        } else {
+            SwingUtil.setCursor(mainWindow, cursor);
+        }
     }
 
     /**
@@ -1597,7 +1634,7 @@ public class Browser extends AbstractApplication {
         });   
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#start()
 	 * 
 	 */
@@ -1616,7 +1653,7 @@ public class Browser extends AbstractApplication {
         setStatus(ApplicationStatus.RUNNING);
 		notifyStart();
 	}
-        
+
     /**
      * Synchronize a contact on the contact tab.
      * 
@@ -1630,7 +1667,7 @@ public class Browser extends AbstractApplication {
         getTabContactAvatar().syncContact(contactId, remote);
     }
 
-    /**
+	/**
      * Synchronize an incoming e-mail invitation on the contact tab.
      * 
      * @param invitationId
@@ -1642,7 +1679,7 @@ public class Browser extends AbstractApplication {
             final Boolean remote) {
         getTabContactAvatar().syncIncomingEMailInvitation(invitationId, remote);
     }
-
+        
     /**
      * Synchronize an incoming user invitation on the contact tab.
      * 
@@ -1695,7 +1732,7 @@ public class Browser extends AbstractApplication {
     public void toggleStatusImage() {
         ((com.thinkparity.ophelia.browser.application.browser.display.StatusDisplay) mainWindow.getDisplay(DisplayId.STATUS)).toggleImage();
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getAvatar(com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId)
      */
@@ -1711,7 +1748,7 @@ public class Browser extends AbstractApplication {
     protected Avatar getAvatar(final TabListExtension tabListExtension) {
         return super.getAvatar(tabListExtension);
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getAvatar(com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension)
      */
@@ -1750,7 +1787,7 @@ public class Browser extends AbstractApplication {
 	Object getAvatarInput(final AvatarId id) {
 		return avatarInputMap.get(id);
 	}
-    
+
     /**
      * Open a confirmation dialogue.
      * 
@@ -1759,10 +1796,10 @@ public class Browser extends AbstractApplication {
      * @return True if the user confirmed.
      */
     private Boolean confirm(final Data input) {
-        open(WindowId.CONFIRM, AvatarId.DIALOG_CONFIRM, input);
+        open(AvatarId.DIALOG_CONFIRM, input);
         return getConfirmAvatar().didConfirm();
     }
-    
+
     /**
 	 * Display an avatar.
 	 * 
@@ -1771,10 +1808,9 @@ public class Browser extends AbstractApplication {
 	 * @param avatarId
 	 *            The avatar to display.
 	 */
-	private void displayAvatar(final WindowId windowId, final AvatarId avatarId) {
-		Assert.assertNotNull("Cannot display on a null window.", windowId);
+	private void displayAvatar(final AvatarId avatarId) {
 		Assert.assertNotNull("Cannot display a null avatar.", avatarId);
-		final Window window = WindowFactory.create(windowId, mainWindow);
+		final Window window = WindowFactory.create(mainWindow);
 
 		final Avatar avatar = getAvatar(avatarId);
 
@@ -1784,36 +1820,13 @@ public class Browser extends AbstractApplication {
 		} else {
             avatar.setInput(getAvatarInput(avatarId));
 		}
-        
-        setUpSemiTransparentLayer(window);
-        
 		SwingUtilities.invokeLater(new Runnable() {
-			public void run() { window.open(avatar); }
+			public void run() {
+                window.open(avatar);
+			}
 		});
 	}
     
-    /**
-     * Display an error dialog including details of the Throwable error.
-     * 
-     * @param errorMessageKey
-     *            An error message key (optional).
-     * @param errorMessageArguments
-     *            Error message arguments (optional).
-     * @param error
-     *            An error.         
-     */
-    private void displayErrorDetailsDialog(final String errorMessageKey,
-        final Object[] errorMessageArguments, final Throwable error) {
-        final Data input = new Data(3);
-        if (null != errorMessageKey)
-            input.set(ErrorDetailsAvatar.DataKey.ERROR_MESSAGE_KEY, errorMessageKey);
-        if (null != errorMessageArguments)
-            input.set(ErrorDetailsAvatar.DataKey.ERROR_MESSAGE_ARGUMENTS, errorMessageArguments);
-        if (null != error)
-            input.set(ErrorDetailsAvatar.DataKey.ERROR, error);
-        open(WindowId.ERROR, AvatarId.DIALOG_ERROR_DETAILS, input);
-    }
-
     /**
      * Open a file chooser dialogue.
      * 
@@ -1822,7 +1835,7 @@ public class Browser extends AbstractApplication {
      * @return A <code>ThinkParityJFileChooser</code>.
      */
     private ThinkParityJFileChooser displayFileChooser(final Data input) {
-        open(WindowId.FILE_CHOOSER, AvatarId.DIALOG_FILE_CHOOSER, input);
+        open(AvatarId.DIALOG_FILE_CHOOSER, input);
         return getFileChooserAvatar().getFileChooser();
     }
 
@@ -1866,7 +1879,7 @@ public class Browser extends AbstractApplication {
         displayHelper.displayTab(tabPanelExtension);
     }
 
-	/**
+    /**
      * Display an avatar on the title display.
      * 
      * @param id
@@ -1882,7 +1895,7 @@ public class Browser extends AbstractApplication {
         mainWindow.dispose();
     }
 
-    /**
+	/**
 	 * Obtain the action from the controller's cache. If the action does not
 	 * exist in the cache it is created and stored.
 	 * 
@@ -1926,7 +1939,7 @@ public class Browser extends AbstractApplication {
         return (MainTitleAvatar) getAvatar(AvatarId.MAIN_TITLE);
     }
 
-	/**
+    /**
      * Obtain the tab input from the main title avatar.
      * 
      * @return A tab.
@@ -1936,6 +1949,15 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Obtain a session interface for use internally by the browser.
+     * 
+     * @return A <code>BrowserSession</code>.
+     */
+    private BrowserSession getSession() {
+        return sessionImpl.getSession(new BrowserContext(this), Boolean.TRUE);
+    }
+
+	/**
      * Obtain the status avatar.
      * 
      * @return A <code>MainStatusAvatar</code>.
@@ -1992,17 +2014,11 @@ public class Browser extends AbstractApplication {
         return (ContainerTabAvatar) getAvatar(AvatarId.TAB_CONTAINER);
     }
 
-	private void invoke(final ActionId actionId, final Data data) {
-		try {
-			getAction(actionId).invokeAction(data);
-		} catch(final Throwable t) {
-            logger.logError(t, "Could not invoke action {0} with data {1}.", actionId, data);
-            // TODO Provide meaningful error messages
-            displayErrorDialog(t);
-		}
+    private void invoke(final ActionId actionId, final Data data) {
+	    getAction(actionId).invokeAction(this, data);
 	}
 
-    private Boolean isBrowserWindowIconified() {
+	private Boolean isBrowserWindowIconified() {
         return ((mainWindow.getExtendedState() & JFrame.ICONIFIED) > 0);
 	}
 
@@ -2011,21 +2027,27 @@ public class Browser extends AbstractApplication {
 	}
 
     /**
+     * Determine if the application is "busy". This will check the session for a
+     * set cursor and if it is set (by applyBusyIndicator) it will return true.
+     * 
+     * @return True if the application is "busy".
+     */
+    private boolean isBusyIndicatorApplied() {
+        return null != getSession().getAttribute(SAK_MAIN_WINDOW_CURSOR);
+    }
+
+    /**
      * Open a window.
      * 
-     * @param windowId
-     *            A <code>WindowId</code>.
      * @param avatarId
      *            An <code>AvatarId</code>.
      * @param input
      *            Input <code>Data</code>.
      */
-	private void open(final WindowId windowId,
-            final AvatarId avatarId, final Data input) {
-        final Window window = WindowFactory.create(windowId, mainWindow);
+	private void open(final AvatarId avatarId, final Data input) {
+        final Window window = WindowFactory.create(mainWindow);
         final Avatar avatar = getAvatar(avatarId);
         avatar.setInput(input);
-        setUpSemiTransparentLayer(window);
         window.open(avatar);
     }
 
@@ -2066,23 +2088,6 @@ public class Browser extends AbstractApplication {
 			avatar.setInput(input);
 		}
 	}
-
-    /**
-     * Set up the semi-transparent layer on the browser window.
-     * It will turn on immediately and turn off when the window
-     * is closed.
-     * 
-     * @param window
-     *          A window.
-     */
-    private void setUpSemiTransparentLayer(final Window window) {
-        mainWindow.enableSemiTransparentLayer(Boolean.TRUE);
-        window.addWindowListener(new WindowAdapter() {
-            public void windowClosed(WindowEvent e) {
-                mainWindow.enableSemiTransparentLayer(Boolean.FALSE);
-            }
-        });
-    }
 
     /**
      * Synchronize a container within the container tab.

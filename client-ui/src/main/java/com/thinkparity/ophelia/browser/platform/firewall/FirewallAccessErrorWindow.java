@@ -51,7 +51,7 @@ public final class FirewallAccessErrorWindow extends OpheliaJFrame {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         avatar = new FirewallAccessErrorAvatar();
-        windowPanel.addPanel(avatar, Boolean.TRUE);
+        windowPanel.addPanel(avatar);
         add(windowPanel);
         pack();
     }

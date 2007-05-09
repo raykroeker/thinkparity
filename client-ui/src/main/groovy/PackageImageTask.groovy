@@ -129,6 +129,10 @@ class PackageImageTask {
 	                writer.write(dependency.getLocation().getName())
 	            }
             }
+            // thinkparity.image-jvmargs
+            newLine(writer)
+            writer.write("thinkparity.image-jvmargs:")
+            writer.write("-Xms36m")
             // thinkparity.image-librarypath
             newLine(writer)
             writer.write("thinkparity.image-librarypath:")

@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.model.container;
 
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.*;
 import java.util.Map.Entry;
@@ -365,8 +364,7 @@ public final class ContainerModelImpl extends
                             public void open(final InputStream stream) throws IOException {
                                 try {
                                     containerIO.createDraftDocument(
-                                            draftDocument, stream,
-                                            getDefaultBufferSize());
+                                            draftDocument, stream, getBufferSize());
                                 } finally {
                                     stream.close();
                                 }
@@ -1782,7 +1780,7 @@ public final class ContainerModelImpl extends
             try {
                 ContainerDraftDocument draftDocument;
                 DocumentDraft documentDraft;
-                FileChannel documentFileChannel;
+                FileChannel readChannel, writeChannel;
                 File file;
                 InputStream stream;
                 for (final Document document : draft.getDocuments()) {
@@ -1792,15 +1790,23 @@ public final class ContainerModelImpl extends
                                 containerId, document.getId());
                         draftDocument.setChecksum(documentDraft.getChecksum());
                         draftDocument.setSize(documentDraft.getSize());
-                        documentFileChannel = locks.get(document).getFileChannel();
-                        documentFileChannel.position(0);
+                        readChannel = locks.get(document).getFileChannel();
+                        readChannel.position(0);
                         file = workspace.createTempFile();
                         try {
-                            FileUtil.write(documentFileChannel, file, getDefaultBufferSize());
+                            writeChannel = new RandomAccessFile(file, "rws").getChannel();
+                            try {
+                                synchronized (workspace.getBufferLock()) {
+                                    FileUtil.write(readChannel, writeChannel,
+                                            workspace.getBuffer());
+                                }
+                            } finally {
+                                writeChannel.close();
+                            }
                             stream = new FileInputStream(file);
                             try {
                                 containerIO.updateDraftDocument(draftDocument,
-                                        stream, getDefaultBufferSize());
+                                        stream, getBufferSize());
                             } finally {
                                 stream.close();
                             }
@@ -2486,8 +2492,7 @@ public final class ContainerModelImpl extends
         draftDocument.setSize(documentDraft.getSize());
         final InputStream stream = getDocumentModel().openDraft(documentId);
         try {
-            containerIO.createDraftDocument(draftDocument, stream,
-                    getDefaultBufferSize());
+            containerIO.createDraftDocument(draftDocument, stream, getBufferSize());
         } finally {
             stream.close();
         }
@@ -2573,9 +2578,8 @@ public final class ContainerModelImpl extends
                                 documentVersion.getVersionId(), new StreamOpener() {
                                     public void open(final InputStream stream)
                                     throws IOException {
-                                        final ByteBuffer buffer = workspace.getDefaultBuffer();
-                                        synchronized (buffer) {
-                                            StreamUtil.copy(stream, outputStream, buffer);
+                                        synchronized (workspace.getBufferLock()) {
+                                            StreamUtil.copy(stream, outputStream, workspace.getBuffer());
                                         }
                                     }
                                 });
@@ -2598,14 +2602,15 @@ public final class ContainerModelImpl extends
 
             // create an archive
             final File zipFile = new File(exportFileSystem.getRoot(), container.getName());
-            final ByteBuffer buffer = workspace.getDefaultBuffer();
-            synchronized (buffer) {
-                ZipUtil.createZipFile(zipFile, exportFileSystem.getRoot(), buffer);
+            synchronized (workspace.getBufferLock()) {
+                ZipUtil.createZipFile(zipFile, exportFileSystem.getRoot(),
+                        workspace.getBuffer());
             }
             final InputStream inputStream = new FileInputStream(zipFile);
             try {
-                synchronized (buffer) {
-                    StreamUtil.copy(inputStream, exportStream, buffer);
+                synchronized (workspace.getBufferLock()) {
+                    StreamUtil.copy(inputStream, exportStream,
+                            workspace.getBuffer());
                 }
             } finally {
                 inputStream.close();
@@ -2641,9 +2646,8 @@ public final class ContainerModelImpl extends
             try {
                 final OutputStream os = new FileOutputStream(file);
                 try {
-                    final ByteBuffer buffer = workspace.getDefaultBuffer();
-                    synchronized (buffer) {
-                        StreamUtil.copy(is, os, buffer);
+                    synchronized (workspace.getBufferLock()) {
+                        StreamUtil.copy(is, os, workspace.getBuffer());
                     }
                 } finally {
                     os.close();
@@ -3141,7 +3145,7 @@ public final class ContainerModelImpl extends
          */
         public void upload(final InputStream stream) throws IOException {
             final InputStream bufferedStream = new BufferedInputStream(stream,
-                    impl.getDefaultBufferSize());
+                    impl.getBufferSize());
             /* NOTE the underlying stream is closed by the document io handler
              * through the document model and is thus not closed here */
             impl.upload(new UploadMonitor() {

@@ -67,7 +67,9 @@ public final class Ticket298Test extends TicketTestCase {
                 final File file = getOutputFile(dv_odt_latest);
                 final OutputStream outputStream = new FileOutputStream(file);
                 try {
-                    StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                    synchronized (getBufferLock()) {
+                        StreamUtil.copy(stream, outputStream, getBuffer());
+                    }
                 } finally {
                     outputStream.close();
                 }

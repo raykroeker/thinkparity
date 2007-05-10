@@ -230,7 +230,9 @@ public class PublishTest extends ContainerTestCase {
                     final File file = getOutputFile(dv_latest);
                     final OutputStream outputStream = new FileOutputStream(file);
                     try {
-                        StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                        synchronized (getBufferLock()) {
+                            StreamUtil.copy(stream, outputStream, getBuffer());
+                        }
                     } finally {
                         outputStream.close();
                     }
@@ -241,7 +243,9 @@ public class PublishTest extends ContainerTestCase {
                     final File file = getOutputFile(dv_latest_x);
                     final OutputStream outputStream = new FileOutputStream(file);
                     try {
-                        StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                        synchronized (getBufferLock()) {
+                            StreamUtil.copy(stream, outputStream, getBuffer());
+                        }
                     } finally {
                         outputStream.close();
                     }
@@ -258,7 +262,9 @@ public class PublishTest extends ContainerTestCase {
                     final File file = getOutputFile(dv_latest);
                     final OutputStream outputStream = new FileOutputStream(file);
                     try {
-                        StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                        synchronized (getBufferLock()) {
+                            StreamUtil.copy(stream, outputStream, getBuffer());
+                        }
                     } finally {
                         outputStream.close();
                     }
@@ -269,7 +275,9 @@ public class PublishTest extends ContainerTestCase {
                     final File file = getOutputFile(dv_latest_y);
                     final OutputStream outputStream = new FileOutputStream(file);
                     try {
-                        StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                        synchronized (getBufferLock()) {
+                            StreamUtil.copy(stream, outputStream, getBuffer());
+                        }
                     } finally {
                         outputStream.close();
                     }

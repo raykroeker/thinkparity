@@ -170,8 +170,8 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
      * 
      * @return An <code>Integer</code> buffer size.
      */
-    protected final Integer getDefaultBufferSize() {
-        return modelImplementation.getDefaultBufferSize();
+    protected final Integer getBufferSize() {
+        return modelImplementation.getBufferSize();
     }
 
     /**

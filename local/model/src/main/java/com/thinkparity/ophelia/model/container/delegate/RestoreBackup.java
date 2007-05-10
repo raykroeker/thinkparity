@@ -218,8 +218,7 @@ public final class RestoreBackup extends ContainerDelegate {
                                         documentVersion.getVersionId());
                             try {
                                 documentIO.createVersion(documentVersion,
-                                        documentVersionStream,
-                                        getDefaultBufferSize());
+                                        documentVersionStream, getBufferSize());
                             } finally {
                                 documentVersionStream.close();
                             }

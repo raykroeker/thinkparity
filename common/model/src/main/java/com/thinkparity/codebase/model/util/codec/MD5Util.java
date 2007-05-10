@@ -6,6 +6,7 @@ package com.thinkparity.codebase.model.util.codec;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -34,30 +35,6 @@ public class MD5Util {
 	}
 
     /**
-     * Create and MD5 hex encoded checksum of a byte channel.
-     * 
-     * @param byteChannel
-     *            A <code>ByteChannel</code>.
-     * @param bufferSize
-     *            A buffer size <code>Integer</code> to use.
-     * @return An MD5 hex encoded checksum.
-     * @throws IOException
-     */
-    public static String md5Hex(final ReadableByteChannel channel,
-            final Integer bufferSize) throws IOException {
-        final MessageDigest messageDigest = getDigest();
-        final byte[] bytes = new byte[bufferSize];
-        final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        int bytesRead;
-        while (-1 != (bytesRead = channel.read(buffer))) {
-            buffer.position(0);
-            buffer.limit(bytesRead);
-            messageDigest.update(bytes, 0, bytesRead);
-        }
-        return new String(Hex.encodeHex(messageDigest.digest()));
-    }
-    
-    /**
      * Create an MD5 hex encoded checksum of an input stream.
      * 
      * @param inputStream
@@ -68,14 +45,50 @@ public class MD5Util {
      * @throws IOException
      */
     public static String md5Hex(final InputStream inputStream,
-            final ByteBuffer buffer) throws IOException {
-        final MessageDigest messageDigest = getDigest();
-        final byte[] bytes = buffer.array();
-        int bytesRead;
-        while (-1 != (bytesRead = inputStream.read(bytes))) {
-            messageDigest.update(bytes, 0, bytesRead);
+            final byte[] buffer) throws IOException {
+        final MessageDigest digest = getDigest();
+        final ByteBuffer bb = ByteBuffer.wrap(buffer);
+        final ReadableByteChannel channel = Channels.newChannel(inputStream);
+        int read;
+        while (true) {
+            bb.clear();
+            read = channel.read(bb);
+            if (-1 == read) {
+                break;
+            }
+            bb.flip();
+            bb.limit(read);
+            digest.update(buffer);
         }
-        return new String(Hex.encodeHex(messageDigest.digest()));
+        return new String(Hex.encodeHex(digest.digest()));
+    }
+    
+    /**
+     * Create and MD5 hex encoded checksum of a byte channel.
+     * 
+     * @param byteChannel
+     *            A <code>ByteChannel</code>.
+     * @param bufferSize
+     *            A buffer size <code>Integer</code> to use.
+     * @return An MD5 hex encoded checksum.
+     * @throws IOException
+     */
+    public static String md5Hex(final ReadableByteChannel channel,
+            final byte[] buffer) throws IOException {
+        final MessageDigest digest = getDigest();
+        final ByteBuffer bb = ByteBuffer.wrap(buffer);
+        int read;
+        while (true) {
+            bb.clear();
+            read = channel.read(bb);
+            if (-1 == read) {
+                break;
+            }
+            bb.flip();
+            bb.limit(read);
+            digest.update(buffer);
+        }
+        return new String(Hex.encodeHex(digest.digest()));
     }
 
 	/**

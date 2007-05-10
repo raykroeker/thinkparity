@@ -93,6 +93,33 @@ public interface Workspace {
     public Iterable<String> getAttributeNames();
 
     /**
+     * Obtain the buffer.
+     * 
+     * @return A <code>ByteBuffer</code>.
+     */
+    public ByteBuffer getBuffer();
+
+    /**
+     * Obtain the buffer array.
+     * 
+     * @return A <code>byte[]</code>.
+     */
+    public byte[] getBufferArray();
+
+    /**
+     * Obtain the buffer synchronization lock.
+     * @return An <code>Object</code>.
+     */
+    public Object getBufferLock();
+
+    /**
+     * Obtain the buffer size used by the workspace.
+     * 
+     * @return An <code>Integer</code> buffer size.
+     */
+    public Integer getBufferSize();
+
+    /**
      * Obtain the data directory.
      * 
      * @return The data directory <code>File</code>.
@@ -105,20 +132,6 @@ public interface Workspace {
      * @return A <code>DataSource</code>.
      */
     public DataSource getDataSource();
-
-    /**
-     * Obtain the default buffer.
-     * 
-     * @return A <code>ByteBuffer</code>.
-     */
-    public ByteBuffer getDefaultBuffer();
-
-    /**
-     * Obtain the default buffer size.
-     * 
-     * @return A buffer size <code>Integer</code>.
-     */
-    public Integer getDefaultBufferSize();
 
     /**
      * Obtain the download directory.

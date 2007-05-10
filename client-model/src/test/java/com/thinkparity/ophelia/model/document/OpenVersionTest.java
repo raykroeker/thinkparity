@@ -66,7 +66,9 @@ public class OpenVersionTest extends DocumentTestCase {
                         final File file = getOutputFile(dv);
                         final OutputStream outputStream = new FileOutputStream(file);
                         try {
-                            StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                            synchronized (getBufferLock()) {
+                                StreamUtil.copy(stream, outputStream, getBuffer());
+                            }
                         } finally {
                             outputStream.close();
                         }
@@ -80,7 +82,10 @@ public class OpenVersionTest extends DocumentTestCase {
                 }
                 is = new FileInputStream(getOutputFile(dv));
                 try {
-                    final String checksum = MD5Util.md5Hex(is, getDefaultBuffer());
+                    final String checksum;
+                    synchronized (getBufferLock()) {
+                        checksum = MD5Util.md5Hex(is, getBufferArray());
+                    }
                     assertEquals("Open version checksum does not match expectation.", getInputFileMD5Checksum("JUnitTestFramework.doc"), checksum);
                 } finally {
                     is.close();
@@ -91,7 +96,10 @@ public class OpenVersionTest extends DocumentTestCase {
                         try {
                             final InputStream is = new FileInputStream(file);
                             try {
-                                final String checksum = MD5Util.md5Hex(is, getDefaultBuffer());
+                                final String checksum;
+                                synchronized (getBufferLock()) {
+                                    checksum = MD5Util.md5Hex(is, getBufferArray());
+                                }
                                 assertEquals("Open version checksum does not match expectation.", getInputFileMD5Checksum("JUnitTestFramework.doc"), checksum);
                             } finally {
                                 is.close();

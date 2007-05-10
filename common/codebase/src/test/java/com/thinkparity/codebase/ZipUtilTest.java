@@ -31,7 +31,9 @@ public class ZipUtilTest extends CodebaseTestCase {
         logger.logTrace("Test zip creation.");
         final FileSystem inputFileSystem = new FileSystem(datum.inputDirectory);
         try {
-    	    ZipUtil.createZipFile(datum.outputZipFile, datum.inputDirectory, getDefaultBuffer());
+            synchronized (getBufferLock()) {
+                ZipUtil.createZipFile(datum.outputZipFile, datum.inputDirectory, getBuffer());
+            }
         } catch (final FileNotFoundException fnfx) {
             fail(createFailMessage(fnfx));
         } catch (final IOException iox) {
@@ -40,7 +42,9 @@ public class ZipUtilTest extends CodebaseTestCase {
         logger.logTrace("Test zip extraction.");
         final FileSystem outputFileSystem = new FileSystem(datum.outputDirectory);
         try {
-            ZipUtil.extractZipFile(datum.outputZipFile, datum.outputDirectory, getDefaultBuffer());
+            synchronized (getBufferLock()) {
+                ZipUtil.extractZipFile(datum.outputZipFile, datum.outputDirectory, getBuffer());
+            }
         } catch (final FileNotFoundException fnfx) {
             fail(createFailMessage(fnfx));
         } catch (final IOException iox) {
@@ -61,13 +65,19 @@ public class ZipUtilTest extends CodebaseTestCase {
         File file;
         for (final File inputFile : getInputFiles()) {
             file = new File(inputDirectoryFileSystem.getRoot(), inputFile.getName());
-            FileUtil.copy(inputFile, file, getDefaultBuffer());
+            synchronized (getBufferLock()) {
+                FileUtil.copy(inputFile, file, getBuffer());
+            }
 
             file = new File(inputDirectoryFileSystem.find("/level 1"), inputFile.getName());
-            FileUtil.copy(inputFile, file, getDefaultBuffer());
+            synchronized (getBufferLock()) {
+                FileUtil.copy(inputFile, file, getBuffer());
+            }
 
             file = new File(inputDirectoryFileSystem.find("/level 1/level 2"), inputFile.getName());
-            FileUtil.copy(inputFile, file, getDefaultBuffer());
+            synchronized (getBufferLock()) {
+                FileUtil.copy(inputFile, file, getBuffer());
+            }
         }
 
 		final File outputZipFile = new File(getTestCaseDirectory(), "zipOutput.zip");

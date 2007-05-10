@@ -32,7 +32,11 @@ public abstract class TestCase extends junit.framework.TestCase {
     /** An apache <code>Log4JWrapper</code> that outputs to the test log.*/
     protected static final Log4JWrapper TEST_LOGGER;
 
-    private static ByteBuffer defaultBuffer;
+    private static byte[] bufferArray;
+
+    private static Object bufferLock;
+
+    private static ByteBuffer buffer;
 
     static {
         TEST_LOGGER = new Log4JWrapper("TEST_LOGGER");
@@ -154,7 +158,7 @@ public abstract class TestCase extends junit.framework.TestCase {
             actualRead = actual.read(actualBuffer);
         }
     }
-
+    
     protected static void assertTrue(final boolean expression,
             final String assertionPattern, final Object... assertionArguments) {
         assertTrue(new MessageFormat(assertionPattern)
@@ -171,7 +175,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 	protected static String createFailMessage(final Throwable cause) {
 		return createFailMessage(cause, "Test failure.");
 	}
-    
+
     /**
      * Create a failure message.
      * 
@@ -212,16 +216,30 @@ public abstract class TestCase extends junit.framework.TestCase {
         fail(createFailMessage(cause, message, arguments));
     }
 
+    protected static final byte[] getBufferArray() {
+        if (null == bufferArray) {
+            bufferArray = new byte[getDefaultBufferSize()];
+        }
+        return bufferArray;
+    }
+
+    protected static final Object getBufferLock() {
+        if (null == bufferLock) {
+            bufferLock = new Object();
+        }
+        return bufferLock;
+    }
+
     /**
      * Obtain the default buffer size for a test case.
      * 
      * @return A buffer size <code>Integer</code>.
      */
-    protected static final ByteBuffer getDefaultBuffer() {
-        if (null == defaultBuffer) {
-            defaultBuffer = ByteBuffer.allocate(getDefaultBufferSize());
+    protected static final ByteBuffer getBuffer() {
+        if (null == buffer) {
+            buffer = ByteBuffer.wrap(getBufferArray());
         }
-        return defaultBuffer;
+        return buffer;
     }
 
     /**
@@ -312,7 +330,7 @@ public abstract class TestCase extends junit.framework.TestCase {
      *            The <code>Integer</code> size of a buffer to use.
      * @return An MD5 checksum <code>String</code>.
      */
-    protected String checksum(final File file, final ByteBuffer buffer)
+    protected String checksum(final File file, final byte[] buffer)
             throws IOException {
         final InputStream stream = new FileInputStream(file);
         try {
@@ -343,8 +361,10 @@ public abstract class TestCase extends junit.framework.TestCase {
         assertTrue(target.canWrite(), "Target must be writable.");
         final File[] inputFiles = getInputFiles();
         for (final File inputFile : inputFiles) {
-            FileUtil.copy(inputFile, new File(target, inputFile.getName()),
-                    getDefaultBuffer());
+            synchronized (getBufferLock()) {
+                FileUtil.copy(inputFile, new File(target, inputFile.getName()),
+                        getBuffer());
+            }
         }
     }
 

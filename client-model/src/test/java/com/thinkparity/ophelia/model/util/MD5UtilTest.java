@@ -45,7 +45,9 @@ public final class MD5UtilTest extends ModelTestCase {
             try {
                 fileChannel = new RandomAccessFile(datum.inputFiles[i], "r").getChannel();
                 try {
-                    md5Checksum = MD5Util.md5Hex(fileChannel, getDefaultBufferSize());
+                    synchronized (getBufferLock()) {
+                        md5Checksum = MD5Util.md5Hex(fileChannel, getBufferArray());
+                    }
                 } catch (final Throwable t) {
                     md5Checksum = null;
                 } finally {
@@ -69,7 +71,9 @@ public final class MD5UtilTest extends ModelTestCase {
             try {
                 inputFileStream = new FileInputStream(datum.inputFiles[i]);
                 try {
-                    md5Checksum = MD5Util.md5Hex(inputFileStream, getDefaultBuffer());
+                    synchronized (getBufferLock()) {
+                        md5Checksum = MD5Util.md5Hex(inputFileStream, getBufferArray());
+                    }
                 } catch (final Throwable t) {
                     md5Checksum = null;
                 } finally {

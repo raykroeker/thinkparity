@@ -5,7 +5,8 @@ package com.thinkparity.codebase;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.channels.ByteChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.text.MessageFormat;
 
 import com.thinkparity.codebase.StringUtil.Separator;
@@ -281,26 +282,26 @@ public abstract class FileUtil {
      *            The size of the buffer to use when writing the file.
      * @throws IOException
      */
-    public static void write(final ByteChannel byteChannel, final File file,
-            final Integer bufferSize) throws IOException {
-        if (null == byteChannel || null == file || null == bufferSize)
+    public static void write(final ReadableByteChannel readChannel,
+            final WritableByteChannel writeChannel, final ByteBuffer buffer)
+            throws IOException {
+        if (null == readChannel || null == writeChannel || null == buffer)
             throw new NullPointerException();
-        if (!byteChannel.isOpen())
-            throw new IllegalArgumentException("Channel is not open.");
-        final OutputStream os = new FileOutputStream(file);
-        final byte[] bytes = new byte[bufferSize];
-        final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        try {
-            int totalAmountRead = 0, amountRead = 0;
-            while (-1 != (amountRead = byteChannel.read(buffer))) {
-                totalAmountRead += amountRead;
-                buffer.position(0);
-                buffer.limit(amountRead);
-                os.write(bytes, 0, amountRead);
-                os.flush();
+        if (!readChannel.isOpen())
+            throw new IllegalArgumentException("Read channel is not open.");
+        if (!writeChannel.isOpen())
+            throw new IllegalArgumentException("Write channel is not open.");
+        int read;
+        while (true) {
+            read = readChannel.read(buffer);
+            if (-1 == read) {
+                break;
             }
-        } finally {
-            os.close();
+            buffer.flip();
+            buffer.limit(read);
+            while (buffer.hasRemaining()) {
+                writeChannel.write(buffer);
+            }
         }
     }
 

@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.model.migrator;
 
 import java.io.*;
 import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -141,9 +140,8 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             final File temp = download(product, latestRelease, downloadManifest);
             try {
                 // copy to a download directory
-                final ByteBuffer buffer = workspace.getDefaultBuffer();
-                synchronized (buffer) {
-                    FileUtil.copy(temp, releaseFile, buffer);
+                synchronized (workspace.getBufferLock()) {
+                    FileUtil.copy(temp, releaseFile, workspace.getBuffer());
                 }
             } finally {
                 // no assertion because it is a temp file
@@ -233,9 +231,8 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             Assert.assertTrue(latest.mkdir(),
                     "Could not create directory {0}.", latest);
             // extract download
-            final ByteBuffer buffer = workspace.getDefaultBuffer();
-            synchronized (buffer) {
-                ZipUtil.extractZipFile(download, latest, buffer);
+            synchronized (workspace.getBufferLock()) {
+                ZipUtil.extractZipFile(download, latest, workspace.getBuffer());
             }
             // copy resources from installed to latest
             final List<Resource> copyManifest = createCopyManifest(
@@ -250,8 +247,9 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
                 try {
                     final OutputStream toStream = new FileOutputStream(to);
                     try {
-                        synchronized (buffer) {
-                            StreamUtil.copy(fromStream, toStream, buffer);
+                        synchronized (workspace.getBufferLock()) {
+                            StreamUtil.copy(fromStream, toStream,
+                                    workspace.getBuffer());
                         }
                     } finally {
                         toStream.close();
@@ -724,7 +722,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
         final InternalSessionModel sessionModel = getSessionModel();
         final StreamSession session = sessionModel.createStreamSession();
         final InputStream stream = new BufferedInputStream(
-                new FileInputStream(file), getDefaultBufferSize());
+                new FileInputStream(file), getBufferSize());
         final Long streamSize = file.length();
         try {
             final String streamId = sessionModel.createStream(session);

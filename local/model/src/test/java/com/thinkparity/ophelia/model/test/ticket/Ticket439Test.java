@@ -110,7 +110,9 @@ public class Ticket439Test extends TicketTestCase {
                     final File file = getOutputFile(cv_latest_dv);
                     final OutputStream outputStream = new FileOutputStream(file);
                     try {
-                        StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                        synchronized (getBufferLock()) {
+                            StreamUtil.copy(stream, outputStream, getBuffer());
+                        }
                     } finally {
                         outputStream.close();
                     }
@@ -121,7 +123,9 @@ public class Ticket439Test extends TicketTestCase {
                     final File file = getOutputFile(cv_latest_dv_x);
                     final OutputStream outputStream = new FileOutputStream(file);
                     try {
-                        StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                        synchronized (getBufferLock()) {
+                            StreamUtil.copy(stream, outputStream, getBuffer());
+                        }
                     } finally {
                         outputStream.close();
                     }
@@ -194,7 +198,9 @@ public class Ticket439Test extends TicketTestCase {
                     final File file = getOutputFile(cv_latest_dv);
                     final OutputStream outputStream = new FileOutputStream(file);
                     try {
-                        StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                        synchronized (getBufferLock()) {
+                            StreamUtil.copy(stream, outputStream, getBuffer());
+                        }
                     } finally {
                         outputStream.close();
                     }
@@ -205,7 +211,9 @@ public class Ticket439Test extends TicketTestCase {
                     final File file = getOutputFile(cv_latest_dv_x);
                     final OutputStream outputStream = new FileOutputStream(file);
                     try {
-                        StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                        synchronized (getBufferLock()) {
+                            StreamUtil.copy(stream, outputStream, getBuffer());
+                        }
                     } finally {
                         outputStream.close();
                     }

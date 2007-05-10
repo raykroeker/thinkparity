@@ -170,7 +170,9 @@ public final class BackupTest extends BackupTestCase {
                         final File file = getOutputFile(dv_local);
                         final OutputStream outputStream = new FileOutputStream(file);
                         try {
-                            StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                            synchronized (getBufferLock()) {
+                                StreamUtil.copy(stream, outputStream, getBuffer());
+                            }
                         } finally {
                             outputStream.close();
                         }
@@ -303,7 +305,9 @@ public final class BackupTest extends BackupTestCase {
                             final File file = getOutputFile(dv_local);
                             final OutputStream outputStream = new FileOutputStream(file);
                             try {
-                                StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                                synchronized (getBufferLock()) {
+                                    StreamUtil.copy(stream, outputStream, getBuffer());
+                                }
                             } finally {
                                 outputStream.close();
                             }

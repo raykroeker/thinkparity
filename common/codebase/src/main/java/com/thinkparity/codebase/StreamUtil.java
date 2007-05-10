@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.ByteChannel;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 /**
  * Stream utility functions.
@@ -18,23 +20,34 @@ import java.nio.channels.ByteChannel;
 public abstract class StreamUtil {
 	
     /**
-     * Copy an input stream to a byte channel.
+     * Copy an input stream to a writable byte channel.
      * 
      * @param is
      *            An <code>InputStream</code>.
-     * @param bc
-     *            A <code>ByteChannel</code>.
-     * @param bufferSize
-     *            A buffer size <code>Integer</code>.
+     * @param writeChannel
+     *            A <code>WritableByteChannel</code>.
+     * @param buffer
+     *            A direct allocation <code>ByteBuffer</code>.
      * @throws IOException
      */
-    public static void copy(final InputStream is, final ByteChannel bc,
-            final ByteBuffer buffer) throws IOException {
-        int bytesRead;
-        while (-1 != (bytesRead = is.read(buffer.array()))) {
-            buffer.position(0);
-            buffer.limit(bytesRead);
-            bc.write(buffer);
+    public static void copy(final InputStream is,
+            final WritableByteChannel writeChannel, final ByteBuffer buffer)
+            throws IOException {
+        if (!buffer.isDirect())
+            throw new IllegalArgumentException("Buffer must be a direct allocation.");
+        final ReadableByteChannel channel = Channels.newChannel(is);
+        int read;
+        while (true) {
+            buffer.clear();
+            read = channel.read(buffer);
+            if (-1 == read) {
+                break;
+            }
+            buffer.flip();
+            buffer.limit(read);
+            while (buffer.hasRemaining()) {
+                writeChannel.write(buffer);
+            }
         }
     }
 

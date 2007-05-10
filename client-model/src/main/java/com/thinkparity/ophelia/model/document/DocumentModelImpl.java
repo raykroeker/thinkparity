@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.model.document;
 
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.Calendar;
@@ -358,10 +357,9 @@ public final class DocumentModelImpl extends
                     if (draftFile.lastModified() == latestVersionCreatedOn) {
                         return Boolean.FALSE;
                     } else {
-                        final ByteBuffer buffer = workspace.getDefaultBuffer();
-                        synchronized (buffer) {
+                        synchronized (workspace.getBufferLock()) {
                             return !latestVersion.getChecksum().equals(
-                                    checksum(draftFile, buffer));
+                                    checksum(draftFile, workspace.getBufferArray()));
                         }
                     }
                 }
@@ -645,9 +643,8 @@ public final class DocumentModelImpl extends
             if (doesExistDraft(documentId)) {
                 final File draftFile = getDraftFile(read(documentId));
                 final DocumentDraft draft = new DocumentDraft();
-                final ByteBuffer buffer = workspace.getDefaultBuffer();
-                synchronized (buffer) {
-                    draft.setChecksum(checksum(draftFile, buffer));
+                synchronized (workspace.getBufferLock()) {
+                    draft.setChecksum(checksum(draftFile, workspace.getBufferArray()));
                 }
                 draft.setChecksumAlgorithm(getChecksumAlgorithm());
                 draft.setDocumentId(documentId);
@@ -975,7 +972,9 @@ public final class DocumentModelImpl extends
     private String checksum(final DocumentFileLock lock) throws IOException {
         final FileChannel fileChannel = lock.getFileChannel();
         fileChannel.position(0);
-        return checksum(fileChannel, getDefaultBufferSize());
+        synchronized (workspace.getBufferLock()) {
+            return checksum(fileChannel, workspace.getBufferArray());
+        }
     }
 
     /**
@@ -993,9 +992,9 @@ public final class DocumentModelImpl extends
         try {
             final InputStream inputStream = new FileInputStream(file);
             try {
-                final ByteBuffer buffer = workspace.getDefaultBuffer();
-                synchronized (buffer) {
-                    StreamUtil.copy(inputStream, outputStream, buffer);
+                synchronized (workspace.getBufferLock()) {
+                    StreamUtil.copy(inputStream, outputStream,
+                            workspace.getBuffer());
                 }
             } finally {
                 inputStream.close();
@@ -1090,9 +1089,8 @@ public final class DocumentModelImpl extends
             // create a temp file containing the stream
             final OutputStream os = new FileOutputStream(temp);
             try {
-                final ByteBuffer buffer = workspace.getDefaultBuffer();
-                synchronized (buffer) {
-                    StreamUtil.copy(stream, os, buffer);
+                synchronized (workspace.getBufferLock()) {
+                    StreamUtil.copy(stream, os, workspace.getBuffer());
                 }
             } finally {
                 os.close();
@@ -1106,9 +1104,9 @@ public final class DocumentModelImpl extends
     		version.setArtifactUniqueId(document.getUniqueId());
             final InputStream checksumStream = new FileInputStream(temp);
 		    try {
-                final ByteBuffer buffer = workspace.getDefaultBuffer();
-                synchronized (buffer) {
-                    version.setChecksum(MD5Util.md5Hex(checksumStream, buffer));
+                synchronized (workspace.getBufferLock()) {
+                    version.setChecksum(MD5Util.md5Hex(checksumStream,
+                            workspace.getBufferArray()));
                 }
             } finally {
                 checksumStream.close();
@@ -1124,8 +1122,7 @@ public final class DocumentModelImpl extends
             // create version content
             InputStream versionStream = new FileInputStream(temp);
             try {
-                documentIO.createVersion(version, versionStream,
-                        getDefaultBufferSize());
+                documentIO.createVersion(version, versionStream, getBufferSize());
             } finally {
                 versionStream.close();
             }
@@ -1389,11 +1386,9 @@ public final class DocumentModelImpl extends
      */
     private void writeFile(final DocumentFileLock lock,
             final InputStream stream) throws IOException {
-        final ByteBuffer buffer = workspace.getDefaultBuffer();
-        synchronized (buffer) {
+        synchronized (workspace.getBufferLock()) {
             final FileChannel fileChannel = lock.getFileChannel();
-            fileChannel.position(0);
-            StreamUtil.copy(stream, fileChannel, buffer);
+            StreamUtil.copy(stream, fileChannel, workspace.getBuffer());
             fileChannel.force(true);
         }
     }
@@ -1409,10 +1404,9 @@ public final class DocumentModelImpl extends
      */
     private void writeVersion(final Long documentId, final Long versionId,
             final DocumentFileLock lock) {
-        final ByteBuffer buffer = workspace.getDefaultBuffer();
-        synchronized (buffer) {
+        synchronized (workspace.getBufferLock()) {
             openVersion(documentId, versionId, new StreamWriterHelper(this,
-                    lock.getFileChannel(), buffer));
+                    lock.getFileChannel(), workspace.getBuffer()));
         }
     }
 }

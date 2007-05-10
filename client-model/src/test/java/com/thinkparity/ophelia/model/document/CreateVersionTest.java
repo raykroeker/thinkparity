@@ -70,7 +70,9 @@ public class CreateVersionTest extends DocumentTestCase {
                         final File file = getOutputFile(dv);
                         final OutputStream outputStream = new FileOutputStream(file);
                         try {
-                            StreamUtil.copy(stream, outputStream, getDefaultBuffer());
+                            synchronized (getBufferLock()) {
+                                StreamUtil.copy(stream, outputStream, getBuffer());
+                            }
                         } finally {
                             outputStream.close();
                         }
@@ -83,7 +85,9 @@ public class CreateVersionTest extends DocumentTestCase {
                         try {
                             final InputStream is = new FileInputStream(getOutputFile(dv));
                             try {
-                                StreamUtil.copy(is, os, getDefaultBuffer());
+                                synchronized (getBufferLock()) {
+                                    StreamUtil.copy(is, os, getBuffer());
+                                }
                             } finally {
                                 is.close();
                             }
@@ -93,7 +97,10 @@ public class CreateVersionTest extends DocumentTestCase {
             
                         final InputStream is = new FileInputStream(file);
                         try {
-                            final String checksum = MD5Util.md5Hex(is, getDefaultBuffer());
+                            final String checksum;
+                            synchronized (getBufferLock()) {
+                                checksum = MD5Util.md5Hex(is, getBufferArray());
+                            }
                             assertEquals("Open version calculated checksum does not match expectation.", dv.getChecksum(), checksum);
                         } finally {
                             is.close();

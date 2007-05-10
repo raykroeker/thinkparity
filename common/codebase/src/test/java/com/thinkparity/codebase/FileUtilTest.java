@@ -25,7 +25,9 @@ public class FileUtilTest extends CodebaseTestCase {
 	public void testCopy() {
 		try {
 			for(final CopyData data : copyData) {
-				FileUtil.copy(data.file, data.target, getDefaultBuffer());
+                synchronized (getBufferLock()) {
+                    FileUtil.copy(data.file, data.target, getBuffer());
+                }
 				FileUtilTest.assertTrue(data.target.exists());
                 final InputStream expected = new FileInputStream(data.file);
                 try {

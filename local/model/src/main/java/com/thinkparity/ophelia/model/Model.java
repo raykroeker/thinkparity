@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -460,11 +459,11 @@ public abstract class Model<T extends EventListener> extends
      * @param file
      *            A <code>File</code>.
      * @param buffer
-     *            The <code>Integer</code> size of a buffer to use.
+     *            A <code>ByteBuffer</code>.
      * @return An MD5 checksum <code>String</code>.
      */
     protected final String checksum(final ByteChannel byteChannel,
-            final Integer buffer) throws IOException {
+            final byte[] buffer) throws IOException {
         return MD5Util.md5Hex(byteChannel, buffer);
     }
 
@@ -477,7 +476,7 @@ public abstract class Model<T extends EventListener> extends
      *            The <code>Integer</code> size of a buffer to use.
      * @return An MD5 checksum <code>String</code>.
      */
-    protected final String checksum(final File file, final ByteBuffer buffer)
+    protected final String checksum(final File file, final byte[] buffer)
             throws IOException {
         final InputStream stream = new FileInputStream(file);
         try {
@@ -742,12 +741,12 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
-     * Obtain the default buffer size.
+     * Obtain the workspace buffer size.
      * 
      * @return An <code>Integer</code> default buffer size.
      */
-    protected Integer getDefaultBufferSize() {
-        return workspace.getDefaultBufferSize();
+    protected Integer getBufferSize() {
+        return workspace.getBufferSize();
     }
 
     /**

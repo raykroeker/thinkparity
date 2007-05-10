@@ -3,8 +3,10 @@
  */
 package com.thinkparity.ophelia.model.container.export;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -17,6 +19,7 @@ import javax.xml.transform.TransformerException;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.StringUtil.Separator;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
@@ -32,6 +35,40 @@ import com.thoughtworks.xstream.XStream;
  */
 final class PDFXMLWriter {
 
+    /** An empty resources xml tag. */
+    private static final String EMPTY_RESOURCES_XML;
+
+    /** A resource begin xml tag. */
+    private static final String RESOURCE_XML_BEGIN;
+
+    /** A resources begin xml tag. */
+    private static final String RESOURCES_XML_BEGIN;
+
+    /** A resources end xml tag. */
+    private static final String RESOURCES_XML_END;
+
+    /** An xml begin close tag. */
+    private static final String TAG_XML_BEGIN_CLOSE;
+
+    /** An xml end tag. */
+    private static final char TAG_XML_END;
+
+    static {
+        EMPTY_RESOURCES_XML = "<resources/>";
+        RESOURCES_XML_BEGIN = "<resources>";
+        RESOURCES_XML_END = new StringBuilder(16)
+            .append(Separator.SystemNewLine.toString())
+            .append("</resources>")
+            .append(Separator.SystemNewLine.toString())
+            .toString();
+        RESOURCE_XML_BEGIN = new StringBuilder(5)
+            .append(Separator.SystemNewLine.toString())
+            .append("  <")
+            .toString();
+        TAG_XML_END = '>';
+        TAG_XML_BEGIN_CLOSE = "</";
+    }
+
     private Container container;
 
     private User containerCreatedBy;
@@ -43,6 +80,8 @@ final class PDFXMLWriter {
     private final FileSystem exportFileSystem;
 
     private final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo;
+
+    private final Map<String, File> resources;
 
     private Statistics statistics;
 
@@ -59,6 +98,7 @@ final class PDFXMLWriter {
        this.documents = new HashMap<ContainerVersion, List<DocumentVersion>>();
        this.documentsSize = new HashMap<DocumentVersion, Long>();
        this.publishedTo = new HashMap<ContainerVersion, List<ArtifactReceipt>>();
+       this.resources = new HashMap<String, File>();
        this.versions = new ArrayList<ContainerVersion>();
        this.versionsPublishedBy = new HashMap<ContainerVersion, User>();
        this.exportFileSystem = exportFileSystem;
@@ -78,10 +118,8 @@ final class PDFXMLWriter {
      * @throws IOException
      * @throws TransformerException
      */
-    void write(
-            final String path,
-            final Container container,
-            final User containerCreatedBy,
+    void write(final String path, final Map<String, File> resources,
+            final Container container, final User containerCreatedBy,
             final List<ContainerVersion> versions,
             final Map<ContainerVersion, User> versionsPublishedBy,
             final Map<ContainerVersion, List<DocumentVersion>> documents,
@@ -96,6 +134,8 @@ final class PDFXMLWriter {
         this.documentsSize.putAll(documentsSize);
         this.publishedTo.clear();
         this.publishedTo.putAll(publishedTo);
+        this.resources.clear();
+        this.resources.putAll(resources);
         this.versions.clear();
         this.versions.addAll(versions);
         this.versionsPublishedBy.clear();
@@ -107,28 +147,26 @@ final class PDFXMLWriter {
         xstream.alias("version", PDFXMLContainerVersion.class);
         xstream.alias("document", PDFXMLDocument.class);
         xstream.alias("user", PDFXMLUser.class);
-        xstream.addImplicitCollection(PDFXMLContainer.class, "versions");
-        xstream.addImplicitCollection(PDFXMLContainerVersion.class, "documents");
-        xstream.addImplicitCollection(PDFXMLContainerVersion.class, "users");
 
         final FileWriter fileWriter = newFileWriter(path);
         try {
-            xstream.toXML(createPDFXML(), fileWriter);
+            streamPDFResourcesXML(fileWriter);
+            xstream.toXML(createPDFContainerXML(), fileWriter);
         } finally {
             fileWriter.close();
         }
     }
 
-    private PDFXMLContainer createPDFXML() {
-        final PDFXMLContainer pdfXML = new PDFXMLContainer();
-        pdfXML.createdBy = containerCreatedBy.getName();
-        pdfXML.createdOn = format(container.getCreatedOn());
-        pdfXML.documentSum = format(statistics.documentSum);
-        pdfXML.name = container.getName();
-        pdfXML.userSum = format(statistics.usersSum);
-        pdfXML.versions = createPDFXMLVersions();
-        pdfXML.versionSum = format(statistics.versionSum);
-        return pdfXML;
+    private PDFXMLContainer createPDFContainerXML() {
+        final PDFXMLContainer pdfContainerXML = new PDFXMLContainer();
+        pdfContainerXML.createdBy = containerCreatedBy.getName();
+        pdfContainerXML.createdOn = format(container.getCreatedOn());
+        pdfContainerXML.documentSum = format(statistics.documentSum);
+        pdfContainerXML.name = container.getName();
+        pdfContainerXML.userSum = format(statistics.usersSum);
+        pdfContainerXML.versions = createPDFXMLVersions();
+        pdfContainerXML.versionSum = format(statistics.versionSum);
+        return pdfContainerXML;
     }
 
     private PDFXMLDocument createPDFXMLDocument(final DocumentVersion version) {
@@ -224,6 +262,31 @@ final class PDFXMLWriter {
             return new FileWriter(exportFileSystem.createFile(path));
         } else {
             return new FileWriter(exportFileSystem.findFile(path));
+        }
+    }
+
+    private void streamPDFResourcesXML(final Writer writer) throws IOException {
+        boolean first = true;
+        boolean didWrite = false;
+        for (final Entry<String, File> entry : resources.entrySet()) {
+            didWrite = true;
+
+            if (first) {
+                writer.write(RESOURCES_XML_BEGIN);
+                first = false;
+            }
+            writer.write(RESOURCE_XML_BEGIN);
+            writer.write(entry.getKey());
+            writer.write(TAG_XML_END);
+            writer.write(entry.getValue().getAbsolutePath());
+            writer.write(TAG_XML_BEGIN_CLOSE);
+            writer.write(entry.getKey());
+            writer.write(TAG_XML_END);
+        }
+        if (didWrite) {
+            writer.write(RESOURCES_XML_END);
+        } else {
+            writer.write(EMPTY_RESOURCES_XML);
         }
     }
 

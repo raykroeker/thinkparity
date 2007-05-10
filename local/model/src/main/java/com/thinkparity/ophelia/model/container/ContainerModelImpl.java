@@ -14,6 +14,7 @@ import javax.xml.transform.TransformerException;
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.Pair;
+import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.assertion.Assert;
@@ -2583,9 +2584,14 @@ public final class ContainerModelImpl extends
                 }
             }
 
+            // copy resources into the export file system
+            final Map<String, File> resources = new HashMap<String, File>();
+            addExportResource(exportFileSystem, resources, "browser-icon",
+                    "images/BrowserIcon.png");
+
             final PDFWriter pdfWriter = new PDFWriter(exportFileSystem);
-            pdfWriter.write(nameGenerator.pdfFileName(container), container,
-                    readUser(container.getCreatedBy()), versions,
+            pdfWriter.write(nameGenerator.pdfFileName(container), resources,
+                    container, readUser(container.getCreatedBy()), versions,
                     versionsPublishedBy, documents, documentsSize, publishedTo);
 
             final File zipFile = new File(exportFileSystem.getRoot(), container.getName());
@@ -2603,6 +2609,48 @@ public final class ContainerModelImpl extends
             }
         } finally {
             exportFileSystem.deleteTree();
+        }
+    }
+
+    /**
+     * Add an export resource to the resource map. The name will be used to
+     * lookup the resource within the classpath as well as the name of the
+     * resource within the map.
+     * 
+     * @param fileSystem
+     *            The export <code>FileSystem</code>.
+     * @param resources
+     *            The existing export <code>Map</code> of resource name
+     *            <code>String</code> to the <code>File</code>.
+     * @param name
+     *            The resource name <code>String</code>.
+     * @param path
+     *            The resource path <code>String</code>.
+     * @throws IOException
+     */
+    private void addExportResource(final FileSystem fileSystem,
+            final Map<String, File> resources, final String name,
+            final String path) throws IOException {
+        File file = fileSystem.find(path);
+        if (null == file) {
+            file = fileSystem.createFile(path);
+            final InputStream is = ResourceUtil.getInputStream(path);
+            try {
+                final OutputStream os = new FileOutputStream(file);
+                try {
+                    final ByteBuffer buffer = workspace.getDefaultBuffer();
+                    synchronized (buffer) {
+                        StreamUtil.copy(is, os, buffer);
+                    }
+                } finally {
+                    os.close();
+                }
+                resources.put(name, file);
+            } finally {
+                is.close();
+            }
+        } else {
+            Assert.assertTrue(file.isFile(), "Export resource must be a file.");
         }
     }
 

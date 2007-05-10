@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.model.container.export;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,7 +18,6 @@ import javax.xml.transform.TransformerException;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
-import com.thinkparity.codebase.StringUtil.Separator;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
@@ -30,68 +28,63 @@ import com.thinkparity.codebase.model.user.User;
 import com.thoughtworks.xstream.XStream;
 
 /**
+ * <b>Title:</b>thinkParity OpheliaModel PDF XML Writer<br>
+ * <b>Description:</b>An xml writer used to serialize the data to xml before
+ * creating the export pdf.<br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.8
  */
 final class PDFXMLWriter {
 
-    /** An empty resources xml tag. */
-    private static final String EMPTY_RESOURCES_XML;
-
-    /** A resource begin xml tag. */
-    private static final String RESOURCE_XML_BEGIN;
-
-    /** A resources begin xml tag. */
-    private static final String RESOURCES_XML_BEGIN;
-
-    /** A resources end xml tag. */
-    private static final String RESOURCES_XML_END;
-
-    /** An xml begin close tag. */
-    private static final String TAG_XML_BEGIN_CLOSE;
-
-    /** An xml end tag. */
-    private static final char TAG_XML_END;
-
-    static {
-        EMPTY_RESOURCES_XML = "<resources/>";
-        RESOURCES_XML_BEGIN = "<resources>";
-        RESOURCES_XML_END = new StringBuilder(16)
-            .append(Separator.SystemNewLine.toString())
-            .append("</resources>")
-            .append(Separator.SystemNewLine.toString())
-            .toString();
-        RESOURCE_XML_BEGIN = new StringBuilder(5)
-            .append(Separator.SystemNewLine.toString())
-            .append("  <")
-            .toString();
-        TAG_XML_END = '>';
-        TAG_XML_BEGIN_CLOSE = "</";
-    }
-
+    /** A <code>Container</code>. */
     private Container container;
 
-    private User containerCreatedBy;
+    /** A created by <code>User</code>. */
+    private User createdBy;
 
+    /**
+     * A <code>Map</code> of all of the <code>ContainerVersion</code>s to
+     * their <code>List</code> of respective <code>DocumentVersion</code>s.
+     */
     private final Map<ContainerVersion, List<DocumentVersion>> documents;
 
+    /**
+     * A <code>Map</code> of all of the <code>DocumentVersion</code>s to
+     * their respective sizes <code>Long</code>.
+     */
     private final Map<DocumentVersion, Long> documentsSize;
 
+    /** The export <code>FileSystem</code>. */
     private final FileSystem exportFileSystem;
 
+    /**
+     * A <code>Map</code> of all of the <code>ContainerVersion</code>s to
+     * their <code>List</code> of respective published to
+     * <code>ArtifactReceipt</code>s.
+     */
     private final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo;
 
+    /** A <code>Map</code> of named resource <code>File</code>s. */
     private final Map<String, File> resources;
 
+    /** A collection of <code>Statistics</code>. */
     private Statistics statistics;
 
+    /** A <code>List</code> of <code>ContainerVersion</code>s to export. */
     private final List<ContainerVersion> versions;
 
+    /**
+     * A <code>Map</code> of all of the <code>ContainerVersion</code>s to
+     * their respective published by <code>User</code>.
+     */
     private final Map<ContainerVersion, User> versionsPublishedBy;
 
     /**
      * Create XMLWriter.
-     *
+     * 
+     * @param exportFileSystem
+     *            An export <code>FileSystem</code>.
      */
     public PDFXMLWriter(final FileSystem exportFileSystem) {
        super();
@@ -105,16 +98,38 @@ final class PDFXMLWriter {
     }
 
     /**
-     * Write a pdf.
+     * Write the pdf xml. Build an in-memory map of all of the model objects to
+     * temporary xml serialization objects then use xstream xml serialization to
+     * store the data.
+     * 
      * @param path
+     *            The xml file path <code>String</code> within the export file
+     *            system.
+     * @param resources
+     *            A <code>Map</code> of named resource <code>File</code>s.
      * @param container
-     * @param containerCreatedBy
+     *            A <code>Container</code>.
+     * @param createdBy
+     *            A created by <code>User</code>.
      * @param versions
+     *            A <code>List</code> of <code>ContainerVersion</code>s to
+     *            export.
      * @param versionsPublishedBy
+     *            A <code>Map</code> of all of the
+     *            <code>ContainerVersion</code>s to their respective
+     *            published by <code>User</code>.
      * @param documents
+     *            A <code>Map</code> of all of the
+     *            <code>ContainerVersion</code>s to their <code>List</code>
+     *            of respective <code>DocumentVersion</code>s.
      * @param documentsSize
+     *            A <code>Map</code> of all of the
+     *            <code>DocumentVersion</code>s to their respective sizes
+     *            <code>Long</code>.
      * @param publishedTo
-     * @param sharedWith
+     *            A <code>Map</code> of all of the
+     *            <code>ContainerVersion</code>s to their <code>List</code>
+     *            of respective published to <code>ArtifactReceipt</code>s.
      * @throws IOException
      * @throws TransformerException
      */
@@ -127,7 +142,7 @@ final class PDFXMLWriter {
             final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo)
             throws IOException, TransformerException {
         this.container = container;
-        this.containerCreatedBy = containerCreatedBy;
+        this.createdBy = containerCreatedBy;
         this.documents.clear();
         this.documents.putAll(documents);
         this.documentsSize.clear();
@@ -143,6 +158,8 @@ final class PDFXMLWriter {
         generateStatistics();
 
         final XStream xstream = new XStream();
+        xstream.alias("export", PDFXMLExport.class);
+        xstream.alias("resource", PDFXMLResource.class);
         xstream.alias("container", PDFXMLContainer.class);
         xstream.alias("version", PDFXMLContainerVersion.class);
         xstream.alias("document", PDFXMLDocument.class);
@@ -150,16 +167,20 @@ final class PDFXMLWriter {
 
         final FileWriter fileWriter = newFileWriter(path);
         try {
-            streamPDFResourcesXML(fileWriter);
-            xstream.toXML(createPDFContainerXML(), fileWriter);
+            xstream.toXML(createPDFExportXML(xstream), fileWriter);
         } finally {
             fileWriter.close();
         }
     }
 
+    /**
+     * Create the container xml.
+     * 
+     * @return An instance of <code>PDFXMLContainer</code>.
+     */
     private PDFXMLContainer createPDFContainerXML() {
         final PDFXMLContainer pdfContainerXML = new PDFXMLContainer();
-        pdfContainerXML.createdBy = containerCreatedBy.getName();
+        pdfContainerXML.createdBy = createdBy.getName();
         pdfContainerXML.createdOn = format(container.getCreatedOn());
         pdfContainerXML.documentSum = format(statistics.documentSum);
         pdfContainerXML.name = container.getName();
@@ -169,6 +190,47 @@ final class PDFXMLWriter {
         return pdfContainerXML;
     }
 
+    /**
+     * Create the export xml.
+     * 
+     * @param xstream
+     *            An <code>XStream</code> reference.
+     * @return An instance of <code>PDFXMLExport</code>.
+     */
+    private PDFXMLExport createPDFExportXML(final XStream xstream) {
+        final PDFXMLExport pdfExportXML = new PDFXMLExport();
+        pdfExportXML.container = createPDFContainerXML();
+        pdfExportXML.resources = createPDFResourcesXML(xstream);
+        return pdfExportXML;
+    }
+
+    /**
+     * Create the resources xml. Each resource string will become an alias for
+     * the resource path field.
+     * 
+     * @param xstream
+     *            An <code>XStream</code> reference.
+     * @return An <code>List</code> instance of <code>PDFXMLResource</code>.
+     */
+    private List<PDFXMLResource> createPDFResourcesXML(final XStream xstream) {
+        final List<PDFXMLResource> resources = new ArrayList<PDFXMLResource>();
+        PDFXMLResource resource;
+        for (final Entry<String, File> entry : this.resources.entrySet()) {
+            xstream.aliasField(entry.getKey(), PDFXMLResource.class, "path");
+            resource = new PDFXMLResource();
+            resource.path = entry.getValue().getAbsolutePath();
+            resources.add(resource);
+        }
+        return resources;
+    }
+
+    /**
+     * Create the document xml.
+     * 
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @return An instance of <code>PDFXMLDocument</code>.
+     */
     private PDFXMLDocument createPDFXMLDocument(final DocumentVersion version) {
         final PDFXMLDocument pdfXML = new PDFXMLDocument();
         pdfXML.name = version.getName();
@@ -176,6 +238,13 @@ final class PDFXMLWriter {
         return pdfXML;
     }
 
+    /**
+     * Create the document list xml for a container version.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @return A <code>List</code> of <code>PDFXMLDocument</code>.
+     */
     private List<PDFXMLDocument> createPDFXMLDocuments(final ContainerVersion version) {
         final List<PDFXMLDocument> pdfXML = new ArrayList<PDFXMLDocument>(documents.size());
         for (final DocumentVersion documentVersion : documents.get(version)) {
@@ -184,16 +253,31 @@ final class PDFXMLWriter {
         return pdfXML;
     }
 
+    /**
+     * Create the user xml.
+     * 
+     * @param receipt
+     *            An <code>ArtifactReceipt</code>.
+     * @return An instance of <code>PDFXMLUser</code>.
+     */
     private PDFXMLUser createPDFXMLUser(final ArtifactReceipt receipt) {
         final PDFXMLUser pdfXML = new PDFXMLUser();
         pdfXML.name = receipt.getUser().getName();
-        if (receipt.isSetReceivedOn())
+        if (receipt.isSetReceivedOn()) {
             pdfXML.receivedOn = format(receipt.getReceivedOn());
-        else
+        } else {
             pdfXML.receivedOn = "";
+        }
         return pdfXML;
     }
 
+    /**
+     * Create the user xml.
+     * 
+     * @param version
+     *            A <code>ContaienrVersion</code>.
+     * @return A <code>List</code> of <code>PDFXMLUser</code>.
+     */
     private List<PDFXMLUser> createPDFXMLUsers(final ContainerVersion version) {
         final List<ArtifactReceipt> publishedTo = this.publishedTo.get(version);
         final List<PDFXMLUser> pdfXML = new ArrayList<PDFXMLUser>(publishedTo.size());
@@ -203,6 +287,16 @@ final class PDFXMLWriter {
         return pdfXML;
     }
 
+    /**
+     * Create the container version xml.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param versionId
+     *            The container version id <code>Integer</code> relative to
+     *            the user.
+     * @return An instance of <code>PDFXMLContainerVersion</code>.
+     */
     private PDFXMLContainerVersion createPDFXMLVersion(
             final ContainerVersion version, final Integer versionId) {
         final PDFXMLContainerVersion pdfXML = new PDFXMLContainerVersion();
@@ -216,6 +310,11 @@ final class PDFXMLWriter {
         return pdfXML;
     }
 
+    /**
+     * Create the container version xml.
+     * 
+     * @return A <code>List</code> of <code>PDFXMLContainerVersion</code>.
+     */
     private List<PDFXMLContainerVersion> createPDFXMLVersions() {
         final List<PDFXMLContainerVersion> pdfXML = new ArrayList<PDFXMLContainerVersion>(versions.size());
         for (int i = 0; i < versions.size(); i++) {
@@ -224,10 +323,25 @@ final class PDFXMLWriter {
         return pdfXML;
     }
 
+    /**
+     * Format a calendar as a string.
+     * 
+     * @param calendar
+     *            A <code>Calendar</code>.
+     * @return A formatted <code>String</code>.
+     */
     private String format(final Calendar calendar) {
-        return MessageFormat.format("{0,date,MMMM d, yyyy h:mm a}", calendar.getTime());
+        return MessageFormat.format("{0,date,MMMM d, yyyy h:mm a}",
+                calendar.getTime());
     }
 
+    /**
+     * Format an integer as a number string.
+     * 
+     * @param integer
+     *            An <code>Integer</code>.
+     * @return A formatted <code>String</code>.
+     */
     private String format(final Integer integer) {
         return MessageFormat.format("{0}", integer);
     }
@@ -257,6 +371,14 @@ final class PDFXMLWriter {
         }
     }
 
+    /**
+     * Create an xml file writer at the given path.
+     * 
+     * @param path
+     *            A path <code>String</code> within the export file system.
+     * @return A <code>FileWriter</code>.
+     * @throws IOException
+     */
     private FileWriter newFileWriter(final String path) throws IOException {
         if (null == exportFileSystem.find(path)) {
             return new FileWriter(exportFileSystem.createFile(path));
@@ -265,31 +387,10 @@ final class PDFXMLWriter {
         }
     }
 
-    private void streamPDFResourcesXML(final Writer writer) throws IOException {
-        boolean first = true;
-        boolean didWrite = false;
-        for (final Entry<String, File> entry : resources.entrySet()) {
-            didWrite = true;
-
-            if (first) {
-                writer.write(RESOURCES_XML_BEGIN);
-                first = false;
-            }
-            writer.write(RESOURCE_XML_BEGIN);
-            writer.write(entry.getKey());
-            writer.write(TAG_XML_END);
-            writer.write(entry.getValue().getAbsolutePath());
-            writer.write(TAG_XML_BEGIN_CLOSE);
-            writer.write(entry.getKey());
-            writer.write(TAG_XML_END);
-        }
-        if (didWrite) {
-            writer.write(RESOURCES_XML_END);
-        } else {
-            writer.write(EMPTY_RESOURCES_XML);
-        }
-    }
-
+    /**
+     * <b>Title:</b>Output Statistics<br>
+     * <b>Description:</b>A series of output statistics.<br>
+     */
     private class Statistics {
         private final Map<ContainerVersion, Integer> documentsPerVersion = new HashMap<ContainerVersion, Integer>();
         private Integer documentSum;

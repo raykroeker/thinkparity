@@ -2541,6 +2541,7 @@ public final class ContainerModelImpl extends
                 workspace.createTempDirectory(
                         nameGenerator.exportDirectoryName(container)));
 
+        // prepare the data model
         try {
             final InternalDocumentModel documentModel = getDocumentModel();
             final DocumentNameGenerator documentNameGenerator = documentModel.getNameGenerator();
@@ -2589,11 +2590,13 @@ public final class ContainerModelImpl extends
             addExportResource(exportFileSystem, resources, "browser-icon",
                     "images/BrowserIcon.png");
 
+            // generate a pdf
             final PDFWriter pdfWriter = new PDFWriter(exportFileSystem);
             pdfWriter.write(nameGenerator.pdfFileName(container), resources,
                     container, readUser(container.getCreatedBy()), versions,
                     versionsPublishedBy, documents, documentsSize, publishedTo);
 
+            // create an archive
             final File zipFile = new File(exportFileSystem.getRoot(), container.getName());
             final ByteBuffer buffer = workspace.getDefaultBuffer();
             synchronized (buffer) {

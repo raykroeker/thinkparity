@@ -33,6 +33,10 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.fop.apps.Driver;
 
 /**
+ * <b>Title:</b>thinkParity OpheliaModel PDF Writer<br>
+ * <b>Description:</b>A pdf writer that serializes the data model to xml then
+ * uses an xsl style sheet to generate a pdf.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
@@ -59,25 +63,41 @@ public final class PDFWriter  {
     }
 
     /**
-     * Write a pdf.
+     * Write a pdf file. Generate an xml serialization of the data, combine it
+     * with an xsl sheet via the apache fop library and create a pdf.
      * 
      * @param pdfPath
+     *            The pdf file path within the export file system.
+     * @param resources
+     *            A <code>Map</code> of named resource <code>File</code>s.
      * @param container
-     * @param containerCreatedBy
+     *            A <code>Container</code>.
+     * @param createdBy
+     *            A created by <code>User</code>.
      * @param versions
+     *            A <code>List</code> of <code>ContainerVersion</code>s to
+     *            export.
      * @param versionsPublishedBy
+     *            A <code>Map</code> of all of the
+     *            <code>ContainerVersion</code>s to their respective
+     *            published by <code>User</code>.
      * @param documents
+     *            A <code>Map</code> of all of the
+     *            <code>ContainerVersion</code>s to their <code>List</code>
+     *            of respective <code>DocumentVersion</code>s.
      * @param documentsSize
+     *            A <code>Map</code> of all of the
+     *            <code>DocumentVersion</code>s to their respective sizes
+     *            <code>Long</code>.
      * @param publishedTo
-     * @param sharedWith
+     *            A <code>Map</code> of all of the
+     *            <code>ContainerVersion</code>s to their <code>List</code>
+     *            of respective published to <code>ArtifactReceipt</code>s.
      * @throws TransformerException
      * @throws IOException
      */
-    public void write(
-            final String pdfPath,
-            final Map<String, File> resources,
-            final Container container,
-            final User containerCreatedBy,
+    public void write(final String pdfPath, final Map<String, File> resources,
+            final Container container, final User createdBy,
             final List<ContainerVersion> versions,
             final Map<ContainerVersion, User> versionsPublishedBy,
             final Map<ContainerVersion, List<DocumentVersion>> documents,
@@ -85,16 +105,15 @@ public final class PDFWriter  {
             final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo)
             throws TransformerException, IOException {
         final String xmlPath = "pdfWriter.xml";
-        xmlWriter.write(xmlPath, resources, container, containerCreatedBy,
-                versions, versionsPublishedBy, documents, documentsSize,
-                publishedTo);
+        xmlWriter.write(xmlPath, resources, container, createdBy, versions,
+                versionsPublishedBy, documents, documentsSize, publishedTo);
 
         final Driver driver = new Driver();
         final Logger logger = new ConsoleLogger(ConsoleLogger.LEVEL_DEBUG);
         driver.setLogger(logger);
         driver.setRenderer(Driver.RENDER_PDF);
 
-        final OutputStream outStream = new FileOutputStream(newFile(pdfPath));
+        final OutputStream outStream = new FileOutputStream(resolvePDFFile(pdfPath));
         final InputStream xslStream = ResourceUtil.getInputStream("xml/xslt/pdfWriter.xsl");
         try {
             driver.setOutputStream(outStream);
@@ -120,7 +139,16 @@ public final class PDFWriter  {
         }
     }
 
-    private File newFile(final String path) throws IOException {
+    /**
+     * Resolve the pdf export file. The file will be created if it does not
+     * exist.
+     * 
+     * @param path
+     *            The pdf file path within the export file system.
+     * @return The pdf <code>File</code>.
+     * @throws IOException
+     */
+    private File resolvePDFFile(final String path) throws IOException {
         if (null == exportFileSystem.find(path)) {
             return exportFileSystem.createFile(path);
         } else {

@@ -1366,25 +1366,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      */
     protected final void publishToEMails(final OpheliaTestUser publishAs,
             final Long localContainerId, final String... emailAddresses) {
-        publishToEMailsWithComment(publishAs, localContainerId, null,
-                emailAddresses);
-    }
-
-    /**
-     * Publish to a list of e-mail addresses.
-     * 
-     * @param publishAs
-     *            An <code>OpheliaTestUser</code> to publish as.
-     * @param localContainerId
-     *            A container id <code>Long</code> relative to publish as.
-     * @param comment
-     *            An optional commment <code>String</code>.
-     * @param emailAddresses
-     *            A list of e-mail address <code>String</code>s.
-     */
-    protected final void publishToEMailsWithComment(
-            final OpheliaTestUser publishAs, final Long localContainerId,
-            final String comment, final String... emailAddresses) {
         final List<EMail> emails = new ArrayList<EMail>(emailAddresses.length);
         for (final String emailAddress : emailAddresses) {
             emails.add(EMailBuilder.parse(emailAddress));
@@ -1401,7 +1382,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         }
         try {
             getContainerModel(publishAs).publish(PUBLISH_MONITOR,
-                    localContainerId, comment, emails, contacts, teamMembers);
+                    localContainerId, emails, contacts, teamMembers);
         } catch (final OfflineException ox) {
             fail(ox, "Cannot publish container {0}.", c.getName());
         } catch (final CannotLockException clx) {
@@ -1422,25 +1403,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      */
     protected void publishToUsers(final OpheliaTestUser publishAs,
             final Long localContainerId, final String... userNames) {
-        publishToUsersWithComment(publishAs, localContainerId, null, userNames);
-    }
-
-    /**
-     * Publish to a discrete set of team members.
-     * 
-     * @param publishAs
-     *            The <code>OpheliaTestUser</code> to publish as.
-     * @param localContainerId
-     *            A container id <code>Long</code> local to publishAs.
-     * @param comment
-     *            A publish comment <code>String</code>.
-     * @param userNames
-     *            A <code>String</code> list of <code>TeamMember</code>
-     *            and/or <code>Contact</code> names.
-     */
-    protected void publishToUsersWithComment(final OpheliaTestUser publishAs,
-            final Long localContainerId, final String comment,
-            final String... userNames) {
         final List<EMail> emails = Collections.emptyList();
         final List<Contact> contacts = readContacts(publishAs);
         final List<TeamMember> teamMembers = readTeam(publishAs, localContainerId);
@@ -1472,7 +1434,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         }
         try {
             getContainerModel(publishAs).publish(PUBLISH_MONITOR,
-                    localContainerId, comment, emails, contacts, teamMembers);
+                    localContainerId, emails, contacts, teamMembers);
         } catch (final OfflineException ox) {
             fail(ox, "Cannot publish container {0}.", c.getName());
         } catch (final CannotLockException clx) {
@@ -2012,6 +1974,11 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	protected void tearDown() throws Exception {
         super.tearDown();
 	}
+
+    protected void updateDraftComment(final OpheliaTestUser updateAs,
+            final Long localContainerId, final String comment) {
+        getContainerModel(updateAs).updateDraftComment(localContainerId, comment);
+    }
 
     /**
      * Extract a separated list of names from a list of users.

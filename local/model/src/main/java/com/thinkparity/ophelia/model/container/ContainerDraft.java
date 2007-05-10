@@ -33,6 +33,9 @@ public class ContainerDraft {
     /** A list of the draft <code>Artifact</code>'s states. */
     private final Map<Long, ArtifactState> artifactsState;
 
+    /** A comment <code>String</code>. */
+    private String comment;
+
     /** The container the draft belongs to. */
     private Long containerId;
 
@@ -45,7 +48,10 @@ public class ContainerDraft {
     /** The <code>TeamMember</code> the draft belongs to. */
     private TeamMember owner;
 
-    /** Create ContainerDraft. */
+    /**
+     * Create ContainerDraft.
+     *
+     */
     public ContainerDraft() {
         super();
         this.artifacts = new ArrayList<Artifact>();
@@ -102,6 +108,15 @@ public class ContainerDraft {
         final List<Artifact> artifacts = new ArrayList<Artifact>(this.artifacts.size());
         artifacts.addAll(this.artifacts);
         return Collections.unmodifiableList(artifacts);
+    }
+
+    /**
+     * Obtain comment.
+     *
+     * @return A String.
+     */
+    public String getComment() {
+        return comment;
     }
 
     /**
@@ -234,6 +249,16 @@ public class ContainerDraft {
             artifactsState.remove(document.getId());
             return artifacts.remove(indexOfDocument(document.getId()));
         }
+    }
+
+    /**
+     * Set comment.
+     *
+     * @param comment
+     *		A String.
+     */
+    public void setComment(final String comment) {
+        this.comment = comment;
     }
 
     /**

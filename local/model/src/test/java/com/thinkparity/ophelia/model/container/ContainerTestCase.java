@@ -172,6 +172,9 @@ public abstract class ContainerTestCase extends ModelTestCase {
         public void draftDeleted(ContainerEvent e) {
             fail(getName() + " - Draft deleted event was fired.");
         }
+        public void draftUpdated(ContainerEvent e) {
+            fail(getName() + " - Draft updated event was fired.");
+        }
         public void teamMemberAdded(ContainerEvent e) {
             fail(getName() + " - Team member added event was fired.");
         }

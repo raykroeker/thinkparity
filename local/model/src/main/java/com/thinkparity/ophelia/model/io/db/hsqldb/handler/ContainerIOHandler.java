@@ -111,7 +111,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         new StringBuilder("delete from CONTAINER ")
         .append("where CONTAINER_ID=?")
         .toString();
-    
+
     /** Sql to delete a container version delta. */
     private static final String SQL_DELETE_ARTIFACT_DELTA =
         new StringBuilder("delete from CONTAINER_VERSION_ARTIFACT_VERSION_DELTA ")
@@ -133,7 +133,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("(COMPARE_CONTAINER_VERSION_ID=? or ")
         .append("COMPARE_TO_CONTAINER_VERSION_ID=?))")
         .toString();
-
+    
     /** Sql to delete a container version delta. */
     private static final String SQL_DELETE_DELTA =
         new StringBuilder("delete from CONTAINER_VERSION_DELTA ")
@@ -374,7 +374,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to read a draft by its primary key. */
     private static final String SQL_READ_DRAFT_PK =
-        new StringBuilder("select CD.CONTAINER_ID,CD.LOCAL,")
+        new StringBuilder("select CD.CONTAINER_ID,CD.LOCAL,CD.COMMENT,")
         .append("OWNER.JABBER_ID \"OWNER_JABBER_ID\",")
         .append("OWNER.USER_ID \"OWNER_USER_ID\",")
         .append("OWNER.NAME \"OWNER_NAME\",")
@@ -522,6 +522,13 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
         .toString();
 
+    /** Sql to update the draft comment. */
+    private static final String SQL_UPDATE_DRAFT_COMMENT =
+        new StringBuilder("update CONTAINER_DRAFT ")
+        .append("set COMMENT=? ")
+        .append("where CONTAINER_ID=?")
+        .toString();
+
     /** Sql to update a draft document. */
     private static final String SQL_UPDATE_DRAFT_DOCUMENT =
         new StringBuilder("update CONTAINER_DRAFT_DOCUMENT ")
@@ -545,13 +552,13 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Generic artifact io. */
     private final ArtifactIOHandler artifactIO;
-    
+
     /** Document io. */
     private final DocumentIOHandler documentIO;
     
     /** User io. */
     private final UserIOHandler userIO;
-
+    
     /**
      * Create ContainerIOHandler.
      * 
@@ -1383,7 +1390,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.close();
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#removeVersions(java.lang.Long, java.lang.Long)
      */
@@ -1398,7 +1405,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.close();
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#restore(com.thinkparity.codebase.model.container.Container)
      */
@@ -1429,6 +1436,24 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(3, versionId);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not update comment.");
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#updateDraftComment(java.lang.Long, java.lang.String)
+     *
+     */
+    public void updateDraftComment(final Long containerId, final String comment) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_DRAFT_COMMENT);
+            session.setString(1, comment);
+            session.setLong(2, containerId);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not update container draft.");
+
         } finally {
             session.close();
         }
@@ -1550,6 +1575,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
      */
     ContainerDraft extractDraft(final Session session) {
         final ContainerDraft draft = new ContainerDraft();
+        draft.setComment(session.getString("COMMENT"));
         draft.setContainerId(session.getLong("CONTAINER_ID"));
         draft.setLocal(session.getBoolean("LOCAL"));
         final TeamMember owner = new TeamMember();

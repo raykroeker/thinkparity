@@ -13,6 +13,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerConstraints;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionDelta;
 import com.thinkparity.codebase.model.document.Document;
@@ -68,7 +69,6 @@ public abstract class ContainerDelegate extends
         this.containerIO = modelImplementation.getContainerIO();
         this.documentIO = modelImplementation.getDocumentIO();
     }
-
     /**
      * @see ContainerModelImpl#calculateDelta(Container, ContainerVersion,
      *      ContainerVersion)
@@ -136,6 +136,14 @@ public abstract class ContainerDelegate extends
      */
     protected final Boolean doesExistLocalDraft(final Long containerId) {
         return modelImplementation.doesExistLocalDraft(containerId);
+    }
+
+    /**
+     * @see ContainerModelImpl#getContainerConstraints()
+     * 
+     */
+    protected final ContainerConstraints getContainerConstraints() {
+        return modelImplementation.getContainerConstraints();
     }
 
     /**

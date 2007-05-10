@@ -469,6 +469,11 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             logger.logInfo("Deleting previous release {0}.", previousRelease.getName());
             final File previous = new File(installDirectory, previousRelease.getName());
             FileUtil.deleteTree(previous);
+
+            final List<String> migrationSql = new ArrayList<String>();
+            migrationSql.add("alter table ARTIFACT_VERSION alter column COMMENT set data type varchar(4096)");
+            migrationSql.add("alter table ARTIFACT_VERSION add column COMMENT varchar(4096) default null");
+            migratorIO.execute(migrationSql);
         }
 
         migratorIO.updateReleaseInitialization(installedRelease);

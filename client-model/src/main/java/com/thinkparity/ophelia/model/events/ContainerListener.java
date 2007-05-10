@@ -134,6 +134,14 @@ public interface ContainerListener extends EventListener {
     public void draftDeleted(final ContainerEvent e);
 
     /**
+     * A container draft was updated.
+     * 
+     * @param e
+     *            The container event.
+     */
+    public void draftUpdated(final ContainerEvent e);
+
+    /**
      * A team member was added to a container.
      * 
      * @param e

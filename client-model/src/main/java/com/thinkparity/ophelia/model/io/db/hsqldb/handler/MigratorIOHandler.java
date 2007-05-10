@@ -284,6 +284,19 @@ public final class MigratorIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#execute(java.util.List)
+     *
+     */
+    public void execute(final List<String> sql) {
+        final Session session = openSession();
+        try {
+            session.execute(sql.toArray(new String[] {}));
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.MigratorIOHandler#readInstalledRelease(com.thinkparity.codebase.model.migrator.Product)
      *
      */

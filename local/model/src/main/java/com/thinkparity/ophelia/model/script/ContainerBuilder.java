@@ -193,16 +193,15 @@ public class ContainerBuilder {
      * @param comment
      *            A publish comment <code>String</code>.
      */
-    public ContainerBuilder publish(final String comment) {
+    public ContainerBuilder publish() {
         logger.logApiId();
-        logger.logVariable("comment", comment);
         final ContainerModel containerModel = getContainerModel();
         final List<EMail> emails = Collections.emptyList();
         final List<Contact> contacts = Collections.emptyList();
         final List<TeamMember> teamMembers = containerModel.readTeam(id);
         try {
-            containerModel.publish(PUBLISH_MONITOR, id, comment, emails,
-                    contacts, teamMembers);
+            containerModel.publish(PUBLISH_MONITOR, id, emails, contacts,
+                    teamMembers);
         } catch (final OfflineException ox) {
             throw panic(ox, "User is not online.");
         } catch (final CannotLockException clx) {
@@ -219,9 +218,8 @@ public class ContainerBuilder {
      * @param names
      *            A list of user's names to publsh to.
      */
-    public ContainerBuilder publish(final String comment, final String... names) {
+    public ContainerBuilder publish(final String... names) {
         logger.logApiId();
-        logger.logVariable("comment", comment);
         logger.logVariable("names", names);
         final ContactModel contactModel = getContactModel();
         final ContainerModel containerModel = getContainerModel();
@@ -231,8 +229,8 @@ public class ContainerBuilder {
         filter(teamMembers, names);
         filter(contacts, names);
         try {
-            containerModel.publish(PUBLISH_MONITOR, id, comment, emails,
-                    contacts, teamMembers);
+            containerModel.publish(PUBLISH_MONITOR, id, emails, contacts,
+                    teamMembers);
         } catch (final OfflineException ox) {
             throw panic(ox, "User is not online.");
         } catch (final CannotLockException clx) {

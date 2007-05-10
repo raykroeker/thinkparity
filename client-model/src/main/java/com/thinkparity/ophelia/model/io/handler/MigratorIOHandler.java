@@ -61,6 +61,15 @@ public interface MigratorIOHandler {
     public Boolean doesExistProduct(final String name);
 
     /**
+     * Execute sql.
+     * 
+     * @param sql
+     *            A <code>List</code> of sql statement <code>String</code>s
+     *            to execute.
+     */
+    public void execute(final List<String> sql);
+
+    /**
      * Determine if the release has been initialized.
      * 
      * @param release

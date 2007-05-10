@@ -37,6 +37,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerConstraints;
 import com.thinkparity.codebase.model.container.ContainerDraftDocument;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta;
@@ -126,6 +127,9 @@ public final class ContainerModelImpl extends
     /** The artifact io layer. */
     private ArtifactIOHandler artifactIO;
 
+    /** The container constraints. */
+    private final ContainerConstraints containerConstraints;
+
     /** The container io layer. */
     private ContainerIOHandler containerIO;
 
@@ -173,6 +177,7 @@ public final class ContainerModelImpl extends
      */
     public ContainerModelImpl() {
         super();
+        this.containerConstraints = ContainerConstraints.getInstance();
         this.defaultComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
         this.defaultDocumentComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
         this.defaultDocumentFilter = FilterManager.createDefault();
@@ -860,18 +865,16 @@ public final class ContainerModelImpl extends
 
     /**
      * @see com.thinkparity.ophelia.model.container.ContainerModel#publish(com.thinkparity.ophelia.model.util.ProcessMonitor,
-     *      java.lang.Long, java.lang.String, java.util.List, java.util.List)
+     *      java.lang.Long, java.util.List, java.util.List, java.util.List)
      * 
      */
     public void publish(final ProcessMonitor monitor, final Long containerId,
-            final String comment, final List<EMail> emails,
-            final List<Contact> contacts, final List<TeamMember> teamMembers)
-            throws CannotLockException {
+            final List<EMail> emails, final List<Contact> contacts,
+            final List<TeamMember> teamMembers) throws CannotLockException {
         try {
             final ContainerDraft draft = readDraft(containerId);
             // publish
             final Publish delegate = createDelegate(Publish.class);
-            delegate.setComment(comment);
             delegate.setContacts(contacts);
             delegate.setContainerId(containerId);
             delegate.setEmails(emails);
@@ -1874,6 +1877,24 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#updateDraftComment(java.lang.Long, java.lang.String)
+     *
+     */
+    public void updateDraftComment(final Long containerId, final String comment) {
+        try {
+            final UpdateDraftComment delegate = createDelegate(UpdateDraftComment.class);
+            delegate.setComment(comment);
+            delegate.setContainerId(containerId);
+            delegate.updateDraftComment();
+            // fire event
+            notifyDraftUpdated(read(containerId), readDraft(containerId),
+                    localEventGenerator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
@@ -2069,6 +2090,15 @@ public final class ContainerModelImpl extends
      */
     ArtifactIOHandler getArtifactIO() {
         return artifactIO;
+    }
+
+    /**
+     * Obtain containerConstraints.
+     *
+     * @return A ContainerConstraints.
+     */
+    ContainerConstraints getContainerConstraints() {
+        return containerConstraints;
     }
 
     /**
@@ -2976,8 +3006,7 @@ public final class ContainerModelImpl extends
             final ContainerEventGenerator eventGenerator) {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
-                listener
-                        .draftCreated(eventGenerator.generate(container, draft));
+                listener.draftCreated(eventGenerator.generate(container, draft));
             }
         });
     }
@@ -2998,6 +3027,26 @@ public final class ContainerModelImpl extends
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
                 listener.draftDeleted(eventGenerator.generate(container, draft));
+            }
+        });
+    }
+
+    /**
+     * Notify that a container draft was updated.
+     * 
+     * @param container
+     *            The <code>Container</code>.
+     * @param draft
+     *            The <code>ContainerDraft</code>.
+     * @param eventGenerator
+     *            The container event generator.
+     */
+    private void notifyDraftUpdated(final Container container,
+            final ContainerDraft draft,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.draftUpdated(eventGenerator.generate(container, draft));
             }
         });
     }

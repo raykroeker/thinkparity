@@ -253,7 +253,7 @@ public class TestCaseHelper {
 
 	static ByteBuffer getBuffer() {
         if (null == buffer) {
-            buffer = ByteBuffer.wrap(getBufferArray());
+            buffer = ByteBuffer.allocateDirect(getBufferSize());
         }
         return buffer;
     }

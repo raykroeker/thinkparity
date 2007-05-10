@@ -49,9 +49,6 @@ import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
  */
 public final class Publish extends ContainerDelegate {
 
-    /** A comment to apply to the new version. */
-    private String comment;
-
     /** A list of contacts to publish to. */
     private List<Contact> contacts;
 
@@ -119,8 +116,8 @@ public final class Publish extends ContainerDelegate {
             notifyProcessBegin(monitor);
             notifyStepBegin(monitor, PublishStep.CREATE_VERSION);
             final ContainerVersion version = createVersion(container.getId(),
-                    readNextVersionId(containerId), comment, localUserId(),
-                    publishedOn);
+                    readNextVersionId(containerId), draft.getComment(),
+                    localUserId(), publishedOn);
             // attach artifacts to the version
             final InternalDocumentModel documentModel = getDocumentModel();
             DocumentVersion draftDocumentLatestVersion;
@@ -193,16 +190,6 @@ public final class Publish extends ContainerDelegate {
         } finally {
             releaseLocks(locks.values());
         }
-    }
-
-    /**
-     * Set the comment.
-     *
-     * @param comment
-     *		A comment <code>String</code>.
-     */
-    public void setComment(final String comment) {
-        this.comment = comment;
     }
 
     /**

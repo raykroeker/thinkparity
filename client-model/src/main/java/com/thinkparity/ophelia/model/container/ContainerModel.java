@@ -40,6 +40,16 @@ import com.thinkparity.ophelia.model.util.ProcessMonitor;
 public interface ContainerModel {
 
     /**
+     * Update the local draft comment.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param comment
+     *            The comment <code>String</code>.
+     */
+    public void updateDraftComment(final Long containerId, final String comment);
+
+    /**
      * Apply a bookmark to a container.
      * 
      * @param containerId
@@ -207,8 +217,6 @@ public interface ContainerModel {
      *            A <code>ProgressMonitor</code>.
      * @param containerId
      *            A container id <code>Long</code>.
-     * @param comment
-     *            An optional comment <code>String</code>.
      * @param emails
      *            A <code>List</code> of <code>EMail</code>s to publish to.
      * @param contacts
@@ -223,9 +231,8 @@ public interface ContainerModel {
      */
     @ThinkParityOnline
     public void publish(final ProcessMonitor monitor, final Long containerId,
-            final String comment, final List<EMail> emails,
-            final List<Contact> contacts, final List<TeamMember> teamMembers)
-            throws CannotLockException;
+            final List<EMail> emails, final List<Contact> contacts,
+            final List<TeamMember> teamMembers) throws CannotLockException;
 
     /**
      * Publish the container version.

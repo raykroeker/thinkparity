@@ -14,10 +14,6 @@ import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.text.AbstractDocument;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.DocumentFilter;
 
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
@@ -26,9 +22,11 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.text.JTextAreaLengthFilter;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.container.ContainerConstraints;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
@@ -37,6 +35,7 @@ import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
+import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.PublishContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.dialog.container.PublishContainerAvatarUserCellRenderer;
@@ -46,11 +45,11 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity OpheliaUI Publish Container Avatar<br>
  * <b>Description:</b><br>
  * 
  * @author robert@thinkparity.com, raymond@thinkparity.com
- * @verison 1.1.2.18
+ * @verison 1.1.2.61
  */
 public final class PublishContainerAvatar extends Avatar implements
         PublishContainerSwingDisplay {
@@ -65,7 +64,7 @@ public final class PublishContainerAvatar extends Avatar implements
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPanel buttonBarJPanel = new javax.swing.JPanel();
     private final javax.swing.JScrollPane commentJScrollPane = new javax.swing.JScrollPane();
-    private final javax.swing.JTextArea commentJTextArea = new javax.swing.JTextArea();
+    private final javax.swing.JTextArea commentJTextArea = TextFactory.createArea(Fonts.DialogTextEntryFont);
     private final javax.swing.JTextArea emailsJTextArea = new javax.swing.JTextArea();
     private final javax.swing.JTextField labelJTextField = new javax.swing.JTextField();
     private final javax.swing.JList namesJList = new javax.swing.JList();
@@ -76,6 +75,9 @@ public final class PublishContainerAvatar extends Avatar implements
     private final javax.swing.JLabel statusJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 
+    /** The container constraints. */
+    private final ContainerConstraints containerConstraints;
+
     /** The publish to list <code>PublishContainerAvatarUserListModel</code>. */
     private final PublishContainerAvatarUserListModel namesListModel;
 
@@ -85,6 +87,7 @@ public final class PublishContainerAvatar extends Avatar implements
      */
     public PublishContainerAvatar() {
         super("PublishContainerAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
+        this.containerConstraints = ContainerConstraints.getInstance();
         this.namesListModel = new PublishContainerAvatarUserListModel();
         initComponents();
         addValidationListener(emailsJTextArea);
@@ -171,7 +174,6 @@ public final class PublishContainerAvatar extends Avatar implements
         if (input != null) { 
             reloadPublishTo();
             reloadEMails();
-            reloadComment();
             publishJButton.setEnabled(isInputValid());
             namesJScrollPane.getViewport().setViewPosition(new Point(0,0));
         }
@@ -256,29 +258,6 @@ public final class PublishContainerAvatar extends Avatar implements
 
     private ThinkParitySwingMonitor createMonitor() {
         return new PublishContainerSwingMonitor(this, getInputContainerId());
-    }
-
-    /**
-     * Enable or disable user entry in a text component.
-     * 
-     * @param jTextComponent
-     *            A <code>JTextComponent</code>.
-     * @param enable
-     *            Enable or disable <code>boolean</code>.
-     */
-    private void enableUserEntry(final javax.swing.text.JTextComponent jTextComponent, final boolean enable) {
-        jTextComponent.setEditable(enable);
-        jTextComponent.setFocusable(enable);
-        jTextComponent.setOpaque(enable);
-    }
-
-    /**
-     * Extract the user comment.
-     * 
-     * @return The user comment <code>String</code>.
-     */
-    private String extractComment() {
-        return SwingUtil.extract(commentJTextArea, Boolean.TRUE);
     }
 
     /**
@@ -383,8 +362,8 @@ public final class PublishContainerAvatar extends Avatar implements
         namesJList.setOpaque(false);
         namesJList.setVisibleRowCount(7);
         namesJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                namesJListMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                namesJListMousePressed(e);
             }
         });
 
@@ -409,9 +388,9 @@ public final class PublishContainerAvatar extends Avatar implements
         commentJLabel.setFocusable(false);
 
         commentJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        commentJTextArea.setFont(Fonts.DialogTextEntryFont);
         commentJTextArea.setLineWrap(true);
         commentJTextArea.setWrapStyleWord(true);
+        ((AbstractDocument) commentJTextArea.getDocument()).setDocumentFilter(new JTextAreaLengthFilter(containerConstraints.getDraftComment()));
         commentJScrollPane.setViewportView(commentJTextArea);
 
         buttonBarJPanel.setOpaque(false);
@@ -421,16 +400,16 @@ public final class PublishContainerAvatar extends Avatar implements
         publishJButton.setFont(Fonts.DialogButtonFont);
         publishJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.Publish"));
         publishJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                publishJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                publishJButtonActionPerformed(e);
             }
         });
 
         cancelJButton.setFont(Fonts.DialogButtonFont);
         cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelJButtonActionPerformed(e);
             }
         });
 
@@ -473,8 +452,8 @@ public final class PublishContainerAvatar extends Avatar implements
         progressBarJPanel.setLayout(progressBarJPanelLayout);
         progressBarJPanelLayout.setHorizontalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-            .add(statusJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+            .add(publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
+            .add(statusJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
         );
         progressBarJPanelLayout.setVerticalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -495,12 +474,12 @@ public final class PublishContainerAvatar extends Avatar implements
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-                    .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
+                    .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
                     .add(labelJLabel)
-                    .add(labelJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, commentJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .add(labelJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, commentJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
                     .add(commentJScrollPane))
                 .addContainerGap())
         );
@@ -578,7 +557,7 @@ public final class PublishContainerAvatar extends Avatar implements
         switch (publishType) {
         case PUBLISH:
             getController().runPublishContainer(createMonitor(), containerId,
-                    extractComment(), emails, contacts, teamMembers);
+                    emails, contacts, teamMembers);
             break;
         case PUBLISH_VERSION:
             final Long versionId = getInputVersionId();
@@ -650,44 +629,6 @@ public final class PublishContainerAvatar extends Avatar implements
      */
     private void reloadEMails() {
         emailsJTextArea.setText(null);
-    }
-
-    /**
-     * Reload the comment control. Normally the control is blank and editable.
-     * If we are publishing a specific version then load the existing comment
-     * and don't allow edit.
-     */
-    private void reloadComment() {
-        switch (getInputPublishType()) {
-        case PUBLISH_VERSION:
-            final Long containerId = getInputContainerId();
-            final Long versionId = getInputVersionId();
-            final String comment = ((PublishContainerProvider) contentProvider).readContainerVersionComment(containerId, versionId);
-            // TODO Populate label field
-            labelJTextField.setText(null);
-            enableUserEntry(labelJTextField, false);
-            commentJTextArea.setText(comment);
-            enableUserEntry(commentJTextArea, false);
-            commentJScrollPane.setOpaque(false);
-            commentJScrollPane.getViewport().setOpaque(false);
-            break;
-        case PUBLISH:
-            labelJTextField.setText(null);
-            enableUserEntry(labelJTextField, true);
-            commentJTextArea.setText(null);
-            enableUserEntry(commentJTextArea, true);
-            commentJScrollPane.setOpaque(true);
-            commentJScrollPane.getViewport().setOpaque(true);
-
-            // NOCOMMIT This is here as a stopgap until more general code is in place.
-            final Document document = commentJTextArea.getDocument();
-            if (document instanceof AbstractDocument) {
-                ((AbstractDocument)document).setDocumentFilter(new DocumentSizeFilter(4096));
-            }
-            break;
-        default:
-            Assert.assertUnreachable("Unknown publish type.");
-        }
     }
 
     private void reloadProgressBar() {
@@ -791,46 +732,6 @@ public final class PublishContainerAvatar extends Avatar implements
 
     public enum PublishType { PUBLISH, PUBLISH_VERSION }
         
-    // NOCOMMIT This is here as a stopgap to prevent a possible crash in beta, until more general
-    // code is in place to handle max string length (ticket #610). Insert text is truncated if
-    // too long. If replace text is too long it is ignored.
-    private class DocumentSizeFilter extends DocumentFilter {
-        final int maxCharacters;
-
-        private DocumentSizeFilter(final int maxCharacters) {
-            this.maxCharacters = maxCharacters;
-        }
-        /**
-         * @see javax.swing.text.DocumentFilter#insertString(javax.swing.text.DocumentFilter.FilterBypass,
-         *      int, java.lang.String, javax.swing.text.AttributeSet)
-         * 
-         */
-        public void insertString(final FilterBypass fb, final int offs,
-                                 final String str, final AttributeSet a)
-            throws BadLocationException {
-            if (null == str || (fb.getDocument().getLength() + str.length()) <= maxCharacters) {
-                super.insertString(fb, offs, str, a);
-            } else {
-                final int length = maxCharacters - fb.getDocument().getLength();
-                super.insertString(fb, offs, str.substring(0, length), a);
-            }
-        }
-        /**
-         * @see javax.swing.text.DocumentFilter#replace(javax.swing.text.DocumentFilter.FilterBypass,
-         *      int, int, java.lang.String, javax.swing.text.AttributeSet)
-         * 
-         */
-        public void replace(FilterBypass fb, int offs,
-                            int length, 
-                            String str, AttributeSet a)
-            throws BadLocationException {
-            if (null == str || (fb.getDocument().getLength() + str.length()
-                    - length) <= maxCharacters) {
-                super.replace(fb, offs, length, str, a);
-            }
-        }
-    }
-
     private class PublishContainerAvatarUserListModel extends DefaultListModel {
         
         private PublishContainerAvatarUserListModel() {

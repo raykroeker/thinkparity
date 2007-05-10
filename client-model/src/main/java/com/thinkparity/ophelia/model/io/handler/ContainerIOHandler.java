@@ -31,6 +31,16 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 public interface ContainerIOHandler {
 
     /**
+     * Update the draft comment.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param comment
+     *            The draft comment <code>String</code>.
+     */
+    public void updateDraftComment(final Long containerId, final String comment);
+
+    /**
      * Add an artifact version to a container version.
      * 
      * @param containerId

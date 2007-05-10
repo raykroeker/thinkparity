@@ -292,10 +292,11 @@ public class PublishTest extends ContainerTestCase {
      * Test the publish api but include a comment.
      *
      */
-    public void testPublishWithComment() {
+    public void testPublishComment() {
         Container c = createContainer(datum.junit, getName());
         final List<Document> documents = addDocuments(datum.junit, c.getId());
-        publishToUsersWithComment(datum.junit, c.getId(), NAME, "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        updateDraftComment(datum.junit, c.getId(), NAME);
+        publishToUsers(datum.junit, c.getId(), NAME, "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
 
         c  = readContainer(datum.junit, c.getUniqueId());

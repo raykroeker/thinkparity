@@ -43,13 +43,13 @@ public class ContainerAdapter implements ContainerListener {
      *
      */
     public void containerFlagged(final ContainerEvent e) {}
-    
+
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerPublished(com.thinkparity.ophelia.model.events.ContainerEvent)
      * 
      */
     public void containerPublished(final ContainerEvent e) {}
-
+    
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerReceived(com.thinkparity.ophelia.model.events.ContainerEvent)
      */
@@ -101,6 +101,12 @@ public class ContainerAdapter implements ContainerListener {
      * @see com.thinkparity.ophelia.model.events.ContainerListener#draftDeleted(com.thinkparity.ophelia.model.events.ContainerEvent)
      */
     public void draftDeleted(final ContainerEvent e) {}
+
+    /**
+     * @see com.thinkparity.ophelia.model.events.ContainerListener#draftUpdated(com.thinkparity.ophelia.model.events.ContainerEvent)
+     *
+     */
+    public void draftUpdated(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#teamMemberAdded(com.thinkparity.ophelia.model.events.ContainerEvent)

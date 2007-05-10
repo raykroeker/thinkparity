@@ -44,8 +44,14 @@ import com.thinkparity.ophelia.model.workspace.WorkspaceException;
  */
 public final class WorkspaceImpl implements Workspace {
 
-    /** The workspace default <code>ByteBuffer</code>. */
-    private ByteBuffer defaultBuffer;
+    /** The workspace <code>ByteBuffer</code>. */
+    private ByteBuffer buffer;
+
+    /** The workspace buffer <code>byte[]</code>. */
+    private byte[] bufferArray;
+
+    /** The workspace buffer synchronization lock <code>Object</code>. */
+    private Object bufferLock;
 
     /** A list of event listeners for each of the implementation classes. */
     private ListenersImpl listenersImpl;
@@ -209,7 +215,7 @@ public final class WorkspaceImpl implements Workspace {
      */
     public void finishInitialize() {
         persistenceManagerImpl.finishInitialize();
-    }
+    }            
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getAttribute(java.lang.String)
@@ -218,6 +224,7 @@ public final class WorkspaceImpl implements Workspace {
     public Object getAttribute(final String name) {
         return sessionData.get(name);
     }
+
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getAttributeNames()
@@ -228,11 +235,55 @@ public final class WorkspaceImpl implements Workspace {
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getDefaultBuffer()
+     *
+     */
+    public ByteBuffer getBuffer() {
+        if (null == buffer) {
+            // BUFFER - WorkspaceImpl#getBuffer() - 2MB
+            buffer = ByteBuffer.allocateDirect(getBufferSize());
+        }
+        return buffer;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getBufferArray()
+     *
+     */
+    public byte[] getBufferArray() {
+        if (null == bufferArray) {
+            // BUFFER - WorkspaceImpl#getBuffer() - 2MB
+            bufferArray = new byte[getBufferSize()];
+        }
+        return bufferArray;
+    }            
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getBufferLock()
+     *
+     */
+    public Object getBufferLock() {
+        if (null == bufferLock) {
+            bufferLock = new Object();
+        }
+        return bufferLock;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getBufferSize()
+     * 
+     */
+    public Integer getBufferSize() {
+        // BUFFER - 2MB - WorkspaceImpl#getBufferSize()
+        return 1024 * 1024 * 2;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getDataDirectory()
      */
     public File getDataDirectory() {
         return initChild(DirectoryNames.Workspace.DATA);
-    }            
+    }
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getDataSource()
@@ -240,26 +291,6 @@ public final class WorkspaceImpl implements Workspace {
      */
     public DataSource getDataSource() {
         return persistenceManagerImpl.getDataSource();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.workspace.Workspace#getDefaultBuffer()
-     *
-     */
-    public ByteBuffer getDefaultBuffer() {
-        if (null == defaultBuffer) {
-            defaultBuffer = ByteBuffer.allocate(getDefaultBufferSize());
-        }
-        return defaultBuffer;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.workspace.Workspace#getDefaultBufferSize()
-     *
-     */
-    public Integer getDefaultBufferSize() {
-        // BUFFER - 2MB - WorkspaceImpl#getDefaultBufferSize()
-        return 1024 * 1024 * 2;
     }
 
     /**

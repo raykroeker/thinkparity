@@ -3,85 +3,25 @@
  */
 package com.thinkparity.codebase;
 
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 
 /**
- * File util contains io utilities as well as commonly used file routines.
+ * <b>Title:</b>thinkParity CommonCodebase File Util<br>
+ * <b>Description:</b><br>
  * 
- * @author raykroeker@gmail.com
- * @version 1.2.2.9
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.29
  */
-public abstract class FileUtil {
+public final class FileUtil {
 
-    /**
-	 * Copy a file.
-	 * 
-	 * @param file
-	 *            The file to copy.
-	 * @param target
-	 *            The target to copy the file to.
-	 */
-	public static void copy(final File file, final File target,
-            final ByteBuffer buffer) throws FileNotFoundException, IOException {
-		final InputStream input = new FileInputStream(file);
-		Assert.assertTrue("copy(File,File)", target.createNewFile());
-		final OutputStream output = new FileOutputStream(target);
-		try {
-            StreamUtil.copy(input, output, buffer);
-		} finally {
-			try {
-                input.close();
-            } finally {
-                output.close();
-            }
-		}
-	}
-
-    /**
-     * Copy a source file to a target file.
-     * 
-     * @param source
-     *            The source <code>File</code>.
-     * @param target
-     *            The target <code>File</code>.
-     * @param nice
-     *            Whether or not to try incrementing names if the target exists.
-     * @param niceMessage
-     *            A message format to use when constructing a file name. The
-     *            arguments will be
-     *            <ol start="0">
-     *            <li>name
-     *            <li>index
-     *            <li>extension
-     *            </ol>
-     */
-    public static void copy(final File source, final File target,
-            final ByteBuffer buffer, final Boolean nice,
-            final String niceMessage) throws FileNotFoundException, IOException {
-        final File realTarget;
-        if (Boolean.TRUE == nice) {
-            File niceTarget = target;
-            final String name = getName(target);
-            final String extension = getExtension(target);
-            int index = 1;
-            while (niceTarget.exists()) {
-                niceTarget = new File(target.getParentFile(),
-                        MessageFormat.format(niceMessage,
-                                name, index++, extension));
-            }
-            realTarget = niceTarget;
-        } else {
-            realTarget = target;
-        }
-        copy(source, realTarget, buffer);
-    }
 	/**
 	 * Delete a filesystem tree.
 	 * 
@@ -269,40 +209,6 @@ public abstract class FileUtil {
         }
         // TIME - This a local timestamp.
         file.setLastModified(System.currentTimeMillis());
-    }
-
-    /**
-     * Write a byte channel to a file.
-     * 
-     * @param byteChannel
-     *            A <code>ByteChannel</code>.
-     * @param file
-     *            A <code>File</code>.
-     * @param bufferSize
-     *            The size of the buffer to use when writing the file.
-     * @throws IOException
-     */
-    public static void write(final ReadableByteChannel readChannel,
-            final WritableByteChannel writeChannel, final ByteBuffer buffer)
-            throws IOException {
-        if (null == readChannel || null == writeChannel || null == buffer)
-            throw new NullPointerException();
-        if (!readChannel.isOpen())
-            throw new IllegalArgumentException("Read channel is not open.");
-        if (!writeChannel.isOpen())
-            throw new IllegalArgumentException("Write channel is not open.");
-        int read;
-        while (true) {
-            read = readChannel.read(buffer);
-            if (-1 == read) {
-                break;
-            }
-            buffer.flip();
-            buffer.limit(read);
-            while (buffer.hasRemaining()) {
-                writeChannel.write(buffer);
-            }
-        }
     }
 
     /**

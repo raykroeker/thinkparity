@@ -5,7 +5,11 @@ package com.thinkparity.desdemona.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,12 +25,14 @@ import javax.mail.internet.MimeMessage;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StackUtil;
+import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+import com.thinkparity.codebase.nio.ChannelUtil;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.DownloadMonitor;
@@ -104,6 +110,7 @@ public abstract class AbstractModelImpl
 	 */
 	protected Session session;
 
+    
     /** A thinkParity configuration sql interface. */
     private final ConfigurationSql configurationSql;
 
@@ -234,7 +241,7 @@ public abstract class AbstractModelImpl
                 "User {0} is not a system user.", session.getJabberId());
     }
 
-	/**
+    /**
      * Assert that the thinkParity system is the current key holder.
      * 
      * @param assertion
@@ -259,7 +266,7 @@ public abstract class AbstractModelImpl
 		return JIDBuilder.build(username);
 	}
 
-	/**
+    /**
      * Build a unique id for a user in time. Use the user id plus the current
      * timestamp to generate a unique id.
      * 
@@ -275,6 +282,38 @@ public abstract class AbstractModelImpl
        final String hashString = new StringBuffer(userId.toString())
            .append(currentTimeMillis()).toString();
        return MD5Util.md5Hex(hashString);
+    }
+
+    /**
+     * Calculate a checksum for a file's contents. Create a channel to read the
+     * file.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @return An MD5 checksum <code>String</code>.
+     */
+    protected final String checksum(final File file) throws IOException {
+        final ReadableByteChannel channel = ChannelUtil.openReadChannel(file);
+        try {
+            return checksum(channel);
+        } finally {
+            channel.close();
+        }
+    }
+
+    /**
+     * Calculate a checksum for a readable byte channel. Use the workspace
+     * buffer as an intermediary.
+     * 
+     * @param channel
+     *            A <code>ReadableByteChannel</code>.
+     * @return An MD5 checksum <code>String</code>.
+     */
+    protected final String checksum(final ReadableByteChannel channel)
+            throws IOException {
+        synchronized (getBufferLock()) {
+            return MD5Util.md5Hex(channel, getBufferArray());
+        }
     }
 
     /**
@@ -424,7 +463,7 @@ public abstract class AbstractModelImpl
         backupEvent(userId, userId, event);
     }
 
-    /**
+	/**
      * Enqueue a priority event for a user.
      * 
      * @param userId
@@ -440,6 +479,7 @@ public abstract class AbstractModelImpl
         eventUserIds.add(eventUserId);
         enqueuePriorityEvent(userId, eventUserIds, event);
     }
+
     /**
      * Enqueue a priority event for a user.
      * 
@@ -466,6 +506,46 @@ public abstract class AbstractModelImpl
         backupEvent(userId, userId, event);
     }
 
+	/**
+     * Copy the content of a file to another file. Create a channel to read the
+     * file.
+     * 
+     * @param readFile
+     *            A <code>File</code>.
+     * @param writeFile
+     *            A <code>File</code>.
+     * @throws IOException
+     */
+    protected final void fileToFile(final File readFile, final File writeFile)
+            throws IOException {
+        final ReadableByteChannel readChannel = ChannelUtil.openReadChannel(readFile);
+        try {
+            channelToFile(readChannel, writeFile);
+        } finally {
+            readChannel.close();
+        }
+    }
+
+    /**
+     * Copy the content of a file to a stream. Create a channel to read the
+     * file.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @param stream
+     *            An <code>OutputStream</code>.
+     * @throws IOException
+     */
+    protected final void fileToStream(final File file, final OutputStream stream)
+            throws IOException {
+        final ReadableByteChannel channel = ChannelUtil.openReadChannel(file);
+        try {
+            channelToStream(channel, stream);
+        } finally {
+            channel.close();
+        }
+    }
+
     /**
      * Obtain the parity artifact interface.
      * 
@@ -482,6 +562,56 @@ public abstract class AbstractModelImpl
      */
     protected final InternalBackupModel getBackupModel() {
         return InternalModelFactory.getInstance(getContext(), session).getBackupModel();
+    }
+
+    /**
+     * Obtain the default buffer size.
+     * 
+     * @return A buffer size <code>Integer</code>.
+     */
+    protected final ByteBuffer getBuffer() {
+        // BUFFER - AbstractModelImpl#getBuffer() - 2MB
+        return ByteBuffer.allocate(getBufferSize());
+    }
+
+    /**
+     * Obtain a buffer byte array.
+     * 
+     * @return A <code>byte[]</code>.
+     */
+    protected final byte[] getBufferArray() {
+        // BUFFER - AbstractModelImpl#getBufferArray() - 2MB
+        return new byte[getBufferSize()];
+    }
+
+    /**
+     * Obtain a buffer lock. In the server model the buffer is not shared.
+     * 
+     * @return A buffer lock synchronization <code>Object</code>.
+     */
+    protected final Object getBufferLock() {
+        return new Object();
+    }
+
+    /**
+     * Obtain the default buffer size.
+     * 
+     * @return A buffer size <code>Integer</code>.
+     */
+    protected final Integer getBufferSize() {
+        return 1024 * 1024 * 2; // BUFFER 2MB  - AbstractModelImpl#getBufferSize()
+    }
+    /**
+     * Obtain the default buffer size.
+     * 
+     * @return A buffer size <code>Integer</code>.
+     */
+    protected final Integer getBufferSize(final String context) {
+        if ("stream-session".equals(context)) {
+            return 1024 * 1; // BUFFER 1KB - AbstractModelImpl#getBufferSize(String)
+        } else {
+            return getBufferSize();
+        }
     }
 
     /**
@@ -526,37 +656,6 @@ public abstract class AbstractModelImpl
      */
     protected final InternalContainerModel getContainerModel() {
         return InternalModelFactory.getInstance(getContext(), session).getContainerModel();
-    }
-
-    /**
-     * Obtain the default buffer size.
-     * 
-     * @return A buffer size <code>Integer</code>.
-     */
-    protected final ByteBuffer getDefaultBuffer() {
-        return ByteBuffer.allocate(getDefaultBufferSize());
-    }
-
-	/**
-     * Obtain the default buffer size.
-     * 
-     * @return A buffer size <code>Integer</code>.
-     */
-    protected final Integer getDefaultBufferSize() {
-        return 1024 * 1024 * 2; // BUFFER 2MB  - AbstractModelImpl#getDefaultBufferSize()
-    }
-
-    /**
-     * Obtain the default buffer size.
-     * 
-     * @return A buffer size <code>Integer</code>.
-     */
-    protected final Integer getDefaultBufferSize(final String context) {
-        if ("stream-session".equals(context)) {
-            return 1024 * 1; // BUFFER 1KB - AbstractModelImpl#getDefaultBufferSize(String)
-        } else {
-            return getDefaultBufferSize();
-        }
     }
 
     /**
@@ -605,7 +704,7 @@ public abstract class AbstractModelImpl
         return InternalModelFactory.getInstance(getContext(), session).getMigratorModel();
     }
 
-	protected final InternalProfileModel getProfileModel() {
+    protected final InternalProfileModel getProfileModel() {
         return InternalModelFactory.getInstance(getContext(), session).getProfileModel();
     }
 
@@ -625,7 +724,7 @@ public abstract class AbstractModelImpl
 		return UserModel.getInternalModel(getContext(), session);
 	}
 
-    /**
+	/**
      * Obtain the index of a user in the list.
      * 
      * @param <U>
@@ -675,7 +774,7 @@ public abstract class AbstractModelImpl
         this.modelConfiguration = ModelConfiguration.getInstance(getClass());
     }
 
-	/**
+    /**
      * Intialize the model.
      * 
      * @param session
@@ -714,7 +813,7 @@ public abstract class AbstractModelImpl
         return session.getJabberId().equals(userId);
     }
 
-	/**
+    /**
      * Determine whether or not the user represented by the jabber id is
      * currently online.
      * 
@@ -733,7 +832,7 @@ public abstract class AbstractModelImpl
 		return readKeyHolder(uniqueId).equals(session.getJabberId());
 	}
 
-    /**
+	/**
      * Determine if the user id is a system user.
      * 
      * @param userId
@@ -759,7 +858,7 @@ public abstract class AbstractModelImpl
         logger.logApiId();
     }
 
-    /**
+	/**
      * Log an info message.
      * 
      * @param infoPattern
@@ -772,12 +871,12 @@ public abstract class AbstractModelImpl
         logger.logInfo(infoPattern, infoArguments);
     }
 
-	/** Log a trace id. */
+    /** Log a trace id. */
     protected final void logTraceId() {
         logger.logApiId();
     }
 
-	/**
+    /**
      * Log a named variable. Note that the logging renderer will be used only
      * for the value.
      * 
@@ -791,7 +890,7 @@ public abstract class AbstractModelImpl
         return logger.logVariable(name, value);
     }
 
-    /**
+	/**
      * Log a warning.
      * 
      * @param warning
@@ -829,7 +928,7 @@ public abstract class AbstractModelImpl
         session.process(query);
     }
 
-    /**
+	/**
      * Read thinkParity configuration.
      * 
      * @return A configuration <code>Properties</code>.
@@ -854,7 +953,7 @@ public abstract class AbstractModelImpl
         return Environment.valueOf(thinkParityEnvironment);
     }
 
-	/**
+    /**
      * Read the key holder.
      * 
      * @param uniqueId
@@ -879,6 +978,26 @@ public abstract class AbstractModelImpl
     }
 
     /**
+     * Copy the content of a stream to a file. Use a channel to write to the
+     * file.
+     * 
+     * @param stream
+     *            An <code>InputStream</code>.
+     * @param file
+     *            A <code>File</code>.
+     * @throws IOException
+     */
+    protected final void streamToFile(final InputStream stream, final File file)
+            throws IOException {
+        final WritableByteChannel channel = ChannelUtil.openWriteChannel(file);
+        try {
+            streamToChannel(stream, channel);
+        } finally {
+            channel.close();
+        }
+    }
+
+    /**
      * Translate an error into a parity unchecked error.
      * 
      * @param t
@@ -888,7 +1007,7 @@ public abstract class AbstractModelImpl
         return panic(t);
     }
 
-    /**
+	/**
      * Send an event to the user's backup.
      * 
      * @param userId
@@ -908,7 +1027,7 @@ public abstract class AbstractModelImpl
         }
     }
 
-    /**
+	/**
      * Build a local file to back a stream. Note that the file is transient in
      * nature and will be deleted when the user logs out or the next time the
      * session is established.
@@ -922,6 +1041,59 @@ public abstract class AbstractModelImpl
         return session.createTempFile(streamId);
     }
 
+    /**
+     * Copy the content of one channel to another. Use the workspace buffer as
+     * an intermediary.
+     * 
+     * @param readChannel
+     *            A <code>ReadableByteChannel</code>.
+     * @param writeChannel
+     *            A <code>WritableByteChannel</code>.
+     * @throws IOException
+     */
+    private void channelToChannel(final ReadableByteChannel readChannel,
+            final WritableByteChannel writeChannel) throws IOException {
+        synchronized (getBufferLock()) {
+            ChannelUtil.copy(readChannel, writeChannel, getBuffer());
+        }
+    }
+
+    /**
+     * Copy the content of a channel to a file. Create a channel to write to the
+     * file.
+     * 
+     * @param channel
+     *            A <code>ReadableByteChannel</code>.
+     * @param file
+     *            A <code>File</code>.
+     * @throws IOException
+     */
+    private void channelToFile(final ReadableByteChannel channel,
+            final File file) throws IOException {
+        final WritableByteChannel writeChannel = ChannelUtil.openWriteChannel(file);
+        try {
+            channelToChannel(channel, writeChannel);
+        } finally {
+            writeChannel.close();
+        }
+    }
+
+    /**
+     * Copy the content of a channel to a stream. Use the workspace buffer as an
+     * intermediary.
+     * 
+     * @param channel
+     *            A <code>ReadableByteChannel</code>.
+     * @param stream
+     *            An <code>OutputStream</code>.
+     * @throws IOException
+     */
+    private void channelToStream(final ReadableByteChannel channel,
+            final OutputStream stream) throws IOException {
+        synchronized (getBufferLock()) {
+            StreamUtil.copy(channel, stream, getBuffer());
+        }
+    }
 
     /**
      * Create a client session filter for a user.
@@ -935,6 +1107,7 @@ public abstract class AbstractModelImpl
         filter.setUsername(userId.getUsername());
         return filter;
     }
+
 
     /**
      * Create an event for user.
@@ -1048,5 +1221,22 @@ public abstract class AbstractModelImpl
         for (final ClientSession session : getClientSessions(userId)) {
             process(session, query);
         }        
+    }
+
+    /**
+     * Copy the content of a stream to a channel. Use the workspace byte buffer
+     * as an intermediary.
+     * 
+     * @param stream
+     *            An <code>InputStream</code>.
+     * @param channel
+     *            A <code>WritableByteChannel</code>.
+     * @throws IOException
+     */
+    private void streamToChannel(final InputStream stream,
+            final WritableByteChannel channel) throws IOException {
+        synchronized (getBufferLock()) {
+            StreamUtil.copy(stream, channel, getBuffer());
+        }
     }
 }

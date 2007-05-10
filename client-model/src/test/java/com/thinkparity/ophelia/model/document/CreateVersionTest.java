@@ -5,20 +5,16 @@ package com.thinkparity.ophelia.model.document;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Calendar;
 
-import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamOpener;
-import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 
@@ -67,50 +63,20 @@ public class CreateVersionTest extends DocumentTestCase {
                  
                 getDocumentModel(datum.junit).openVersion(dv.getArtifactId(), dv.getVersionId(), new StreamOpener() {
                     public void open(final InputStream stream) throws IOException {
-                        final File file = getOutputFile(dv);
-                        final OutputStream outputStream = new FileOutputStream(file);
-                        try {
-                            synchronized (getBufferLock()) {
-                                StreamUtil.copy(stream, outputStream, getBuffer());
-                            }
-                        } finally {
-                            outputStream.close();
-                        }
+                        streamToFile(stream, getOutputFile(dv));
                     }
                 });
-                final File file = new File(getOutputDirectory(), d.getName());
+                final File readFile = getOutputFile(dv);
                 try {
-                    try {
-                        final OutputStream os = new FileOutputStream(file);
-                        try {
-                            final InputStream is = new FileInputStream(getOutputFile(dv));
-                            try {
-                                synchronized (getBufferLock()) {
-                                    StreamUtil.copy(is, os, getBuffer());
-                                }
-                            } finally {
-                                is.close();
-                            }
-                        } finally {
-                            os.close();
-                        }
-            
-                        final InputStream is = new FileInputStream(file);
-                        try {
-                            final String checksum;
-                            synchronized (getBufferLock()) {
-                                checksum = MD5Util.md5Hex(is, getBufferArray());
-                            }
-                            assertEquals("Open version calculated checksum does not match expectation.", dv.getChecksum(), checksum);
-                        } finally {
-                            is.close();
-                        }
-                    } finally {
-                        Assert.assertTrue("Could not delete file {0}.", file.delete());
-                    }
-                } catch (final IOException iox) {
-                    fail(iox, "Could not test create version.");
+                    final File writeFile = new File(getOutputDirectory(), d.getName());
+                    fileToFile(readFile, writeFile);
+    
+                    final String checksum = checksum(readFile);
+                    assertEquals("Open version calculated checksum does not match expectation.", dv.getChecksum(), checksum);
+                } finally {
+                    Assert.assertTrue("Could not delete file {0}.", readFile.delete());
                 }
+                
             } finally {
                 dv_is.close();
             }

@@ -12,11 +12,8 @@ import java.text.MessageFormat;
 import java.util.Calendar;
 
 import com.thinkparity.codebase.DateUtil;
-import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
-import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 
 /**
@@ -31,12 +28,6 @@ public abstract class TestCase extends junit.framework.TestCase {
 
     /** An apache <code>Log4JWrapper</code> that outputs to the test log.*/
     protected static final Log4JWrapper TEST_LOGGER;
-
-    private static byte[] bufferArray;
-
-    private static Object bufferLock;
-
-    private static ByteBuffer buffer;
 
     static {
         TEST_LOGGER = new Log4JWrapper("TEST_LOGGER");
@@ -140,7 +131,7 @@ public abstract class TestCase extends junit.framework.TestCase {
     protected static void assertEquals(final String assertion,
             final InputStream expected, final InputStream actual)
             throws IOException {
-        final byte[] expectedBuffer = new byte[getDefaultBufferSize()];
+        final byte[] expectedBuffer = new byte[TestCaseHelper.getBufferSize()];
         final byte[] actualBuffer = new byte[expectedBuffer.length];
 
         int offset = 0;
@@ -158,13 +149,25 @@ public abstract class TestCase extends junit.framework.TestCase {
             actualRead = actual.read(actualBuffer);
         }
     }
-    
+
     protected static void assertTrue(final boolean expression,
             final String assertionPattern, final Object... assertionArguments) {
         assertTrue(new MessageFormat(assertionPattern)
                 .format(assertionArguments), expression);
     }
-    
+
+    /**
+     * Calculate a checksum for a file's contents. Create a channel to read the
+     * file.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @return An MD5 checksum <code>String</code>.
+     */
+    protected static final String checksum(final File file) throws IOException {
+        return TestCaseHelper.checksum(file);
+    }
+
     /**
 	 * Create a failure message for the throwable.
 	 * 
@@ -216,18 +219,19 @@ public abstract class TestCase extends junit.framework.TestCase {
         fail(createFailMessage(cause, message, arguments));
     }
 
-    protected static final byte[] getBufferArray() {
-        if (null == bufferArray) {
-            bufferArray = new byte[getDefaultBufferSize()];
-        }
-        return bufferArray;
-    }
-
-    protected static final Object getBufferLock() {
-        if (null == bufferLock) {
-            bufferLock = new Object();
-        }
-        return bufferLock;
+    /**
+     * Copy the content of a file to another file. Create a channel to read the
+     * file.
+     * 
+     * @param readFile
+     *            A <code>File</code>.
+     * @param writeFile
+     *            A <code>File</code>.
+     * @throws IOException
+     */
+    protected static final void fileToFile(final File readFile,
+            final File writeFile) throws IOException {
+        TestCaseHelper.fileToFile(readFile, writeFile);
     }
 
     /**
@@ -236,23 +240,18 @@ public abstract class TestCase extends junit.framework.TestCase {
      * @return A buffer size <code>Integer</code>.
      */
     protected static final ByteBuffer getBuffer() {
-        if (null == buffer) {
-            buffer = ByteBuffer.wrap(getBufferArray());
-        }
-        return buffer;
+        return TestCaseHelper.getBuffer();
     }
 
-    /**
-     * Obtain the default buffer size for a test case.
-     * 
-     * @return A buffer size <code>Integer</code>.
-     */
-    protected static final Integer getDefaultBufferSize() {
-        // BUFFER - 2MB - TestCase#getDefaultBufferSize()
-        return 1024 * 1024 * 2;
+	protected static final byte[] getBufferArray() {
+        return TestCaseHelper.getBufferArray();
     }
 
-    protected static final File getSequenceFile(final Integer sequence,
+	protected static final Object getBufferLock() {
+        return TestCaseHelper.getBufferLock();
+    }
+
+	protected static final File getSequenceFile(final Integer sequence,
             final Integer index) {
         return TestCaseHelper.getSequenceFile(sequence, index);
     }
@@ -266,6 +265,21 @@ public abstract class TestCase extends junit.framework.TestCase {
 		return TestCaseHelper.getTestSession();
 	}
 
+    /**
+     * Copy the content of a stream to a file. Use a channel to write to the
+     * file.
+     * 
+     * @param stream
+     *            An <code>InputStream</code>.
+     * @param file
+     *            A <code>File</code>.
+     * @throws IOException
+     */
+    protected static final void streamToFile(final InputStream stream,
+            final File file) throws IOException {
+        TestCaseHelper.streamToFile(stream, file);
+    }
+
 	/**
      * Return the current date and time as a GMT ISO string.
      * 
@@ -277,7 +291,7 @@ public abstract class TestCase extends junit.framework.TestCase {
         return DateUtil.toGMTISO(DateUtil.getInstance());
     }
 
-	/**
+    /**
      * Write a string to a file.
      * 
      * @param file
@@ -294,10 +308,10 @@ public abstract class TestCase extends junit.framework.TestCase {
 	/** An apache logger wrapper. */
 	protected final Log4JWrapper logger;
 
-	/** A <code>TestCaseHelper</code>. */
+    /** A <code>TestCaseHelper</code>. */
 	private final TestCaseHelper testCaseHelper;
 
-	/**
+    /**
      * Create TestCase.
      * 
      * @param name
@@ -321,25 +335,6 @@ public abstract class TestCase extends junit.framework.TestCase {
 		testCaseHelper.addSessionDataItem(key, value);
 	}
 
-	/**
-     * Calculate a checksum for a file's contents.
-     * 
-     * @param file
-     *            A <code>File</code>.
-     * @param buffer
-     *            The <code>Integer</code> size of a buffer to use.
-     * @return An MD5 checksum <code>String</code>.
-     */
-    protected String checksum(final File file, final byte[] buffer)
-            throws IOException {
-        final InputStream stream = new FileInputStream(file);
-        try {
-            return MD5Util.md5Hex(stream, buffer);
-        } finally {
-            stream.close();
-        }
-    }
-
     /**
 	 * Clear the session data.
 	 *
@@ -348,7 +343,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 		testCaseHelper.clearSessionData();
 	}
 
-	/**
+    /**
      * Copy the input files to a target directory.
      * 
      * @param target
@@ -361,14 +356,11 @@ public abstract class TestCase extends junit.framework.TestCase {
         assertTrue(target.canWrite(), "Target must be writable.");
         final File[] inputFiles = getInputFiles();
         for (final File inputFile : inputFiles) {
-            synchronized (getBufferLock()) {
-                FileUtil.copy(inputFile, new File(target, inputFile.getName()),
-                        getBuffer());
-            }
+            fileToFile(inputFile, new File(target, inputFile.getName()));
         }
     }
 
-	/**
+    /**
 	 * Create a test directory.
 	 * 
 	 * @param directoryName

@@ -11,7 +11,6 @@ import java.util.List;
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
-import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
@@ -140,9 +139,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             final File temp = download(product, latestRelease, downloadManifest);
             try {
                 // copy to a download directory
-                synchronized (workspace.getBufferLock()) {
-                    FileUtil.copy(temp, releaseFile, workspace.getBuffer());
-                }
+                fileToFile(temp, releaseFile);
             } finally {
                 // no assertion because it is a temp file
                 temp.delete();
@@ -232,7 +229,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
                     "Could not create directory {0}.", latest);
             // extract download
             synchronized (workspace.getBufferLock()) {
-                ZipUtil.extractZipFile(download, latest, workspace.getBuffer());
+                ZipUtil.extractZipFile(download, latest, workspace.getBufferArray());
             }
             // copy resources from installed to latest
             final List<Resource> copyManifest = createCopyManifest(
@@ -243,20 +240,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             for (final Resource copy : copyManifest) {
                 from = installFS.find(copy.getPath());
                 to = latestFS.createFile(copy.getPath());
-                final InputStream fromStream = new FileInputStream(from);
-                try {
-                    final OutputStream toStream = new FileOutputStream(to);
-                    try {
-                        synchronized (workspace.getBufferLock()) {
-                            StreamUtil.copy(fromStream, toStream,
-                                    workspace.getBuffer());
-                        }
-                    } finally {
-                        toStream.close();
-                    }
-                } finally {
-                    fromStream.close();
-                }
+                fileToFile(from, to);
             }
             // delete download
             Assert.assertTrue(download.delete(),

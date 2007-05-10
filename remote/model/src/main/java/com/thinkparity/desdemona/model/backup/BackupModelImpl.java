@@ -471,7 +471,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             documentModel.uploadVersion(documentId, versionId, new StreamUploader() {
                 public void upload(final InputStream stream) throws IOException {
                     final InputStream bufferedStream =
-                        new BufferedInputStream(stream, getDefaultBufferSize());
+                        new BufferedInputStream(stream, getBufferSize());
                     /* NOTE the underlying stream is closed by the document
                      * io handler through the document model and is thus not
                      * closed here */
@@ -1063,7 +1063,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             documentModel.uploadVersion(documentId, versionId, new StreamUploader() {
                 public void upload(final InputStream stream) throws IOException {
                     final InputStream bufferedStream =
-                        new BufferedInputStream(stream, getDefaultBufferSize());
+                        new BufferedInputStream(stream, getBufferSize());
                     /* NOTE the underlying stream is closed by the document
                      * io handler through the document model and is thus not
                      * closed here */

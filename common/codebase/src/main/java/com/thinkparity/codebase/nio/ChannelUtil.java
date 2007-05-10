@@ -3,7 +3,10 @@
  */
 package com.thinkparity.codebase.nio;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -16,6 +19,32 @@ import java.nio.channels.WritableByteChannel;
  * @version 1.1.2.1
  */
 public final class ChannelUtil {
+
+    /**
+     * Open a readable byte channel for a file.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @return A <code>ReadableByteChannel</code>.
+     * @throws FileNotFoundException
+     */
+    public static ReadableByteChannel openReadChannel(final File file)
+            throws FileNotFoundException {
+        return new RandomAccessFile(file, "r").getChannel();
+    }
+
+    /**
+     * Open a writable byte channel for a file.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @return A <code>WritableByteChannel</code>.
+     * @throws FileNotFoundException
+     */
+    public static WritableByteChannel openWriteChannel(final File file)
+            throws FileNotFoundException {
+        return new RandomAccessFile(file, "rws").getChannel();
+    }
 
     /**
      * Copy the content from a readable channel to a writable one.

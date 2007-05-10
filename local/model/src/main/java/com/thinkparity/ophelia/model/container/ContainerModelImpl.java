@@ -3,20 +3,21 @@
  */
 package com.thinkparity.ophelia.model.container;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.util.*;
 import java.util.Map.Entry;
 
 import javax.xml.transform.TransformerException;
 
 import com.thinkparity.codebase.FileSystem;
-import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.Pair;
 import com.thinkparity.codebase.ResourceUtil;
-import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
@@ -1809,8 +1810,8 @@ public final class ContainerModelImpl extends
             try {
                 ContainerDraftDocument draftDocument;
                 DocumentDraft documentDraft;
-                FileChannel readChannel, writeChannel;
-                File file;
+                FileChannel channel;
+                File tempFile;
                 InputStream stream;
                 for (final Document document : draft.getDocuments()) {
                     if (documentModel.isDraftModified(locks.get(document), document.getId())) {
@@ -1819,20 +1820,12 @@ public final class ContainerModelImpl extends
                                 containerId, document.getId());
                         draftDocument.setChecksum(documentDraft.getChecksum());
                         draftDocument.setSize(documentDraft.getSize());
-                        readChannel = locks.get(document).getFileChannel();
-                        readChannel.position(0);
-                        file = workspace.createTempFile();
+                        channel = locks.get(document).getFileChannel();
+                        tempFile = workspace.createTempFile();
+                        channel.position(0);
+                        channelToFile(channel, tempFile);
                         try {
-                            writeChannel = new RandomAccessFile(file, "rws").getChannel();
-                            try {
-                                synchronized (workspace.getBufferLock()) {
-                                    FileUtil.write(readChannel, writeChannel,
-                                            workspace.getBuffer());
-                                }
-                            } finally {
-                                writeChannel.close();
-                            }
-                            stream = new FileInputStream(file);
+                            stream = new FileInputStream(tempFile);
                             try {
                                 containerIO.updateDraftDocument(draftDocument,
                                         stream, getBufferSize());
@@ -1840,8 +1833,9 @@ public final class ContainerModelImpl extends
                                 stream.close();
                             }
                         } finally {
-                            Assert.assertTrue(file.delete(),
-                                    "Could not delete temporary file {0}.", file);
+                            Assert.assertTrue(tempFile.delete(),
+                                    "Could not delete temporary file {0}.",
+                                    tempFile);
                         }
                     }
                 }
@@ -2515,13 +2509,6 @@ public final class ContainerModelImpl extends
         Assert.assertNotTrue(assertion, isDistributed(containerId));
     }
 
-    private void channelToStream(final ReadableByteChannel channel,
-            final OutputStream stream) throws IOException {
-        synchronized (workspace.getBufferLock()) {
-            StreamUtil.copy(channel, stream, workspace.getBuffer());
-        }
-    }
-
     /**
      * Create an instance of a delegate.
      * 
@@ -2674,17 +2661,6 @@ public final class ContainerModelImpl extends
             fileToStream(zipFile, exportStream);
         } finally {
             exportFileSystem.deleteTree();
-        }
-    }
-
-    private void fileToStream(final File file, final OutputStream stream)
-            throws IOException {
-        final ReadableByteChannel channel =
-            new RandomAccessFile(file, "r").getChannel();
-        try {
-            channelToStream(channel, stream);
-        } finally {
-            channel.close();
         }
     }
 
@@ -3120,24 +3096,6 @@ public final class ContainerModelImpl extends
         }
         // create draft document
         createDraftDocument(containerId, documentId);
-    }
-
-    private void streamToChannel(final InputStream stream,
-            final WritableByteChannel channel) throws IOException {
-        synchronized (workspace.getBufferLock()) {
-            StreamUtil.copy(stream, channel, workspace.getBuffer());
-        }
-    }
-
-    private void streamToFile(final InputStream stream, final File file)
-            throws IOException {
-        final WritableByteChannel channel =
-            new RandomAccessFile(file, "rws").getChannel();
-        try {
-            streamToChannel(stream, channel);
-        } finally {
-            channel.close();
-        }
     }
 
     /**

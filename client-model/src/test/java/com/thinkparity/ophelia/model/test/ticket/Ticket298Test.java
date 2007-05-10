@@ -5,12 +5,8 @@ package com.thinkparity.ophelia.model.test.ticket;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-
-import com.thinkparity.codebase.StreamUtil;
 
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
@@ -64,15 +60,7 @@ public final class Ticket298Test extends TicketTestCase {
         final DocumentVersion dv_odt_latest = readDocumentLatestVersion(datum.junit, d_odt.getId());
         getDocumentModel(datum.junit).openVersion(d_odt.getId(), dv_odt_latest.getVersionId(), new StreamOpener() {
             public void open(final InputStream stream) throws IOException {
-                final File file = getOutputFile(dv_odt_latest);
-                final OutputStream outputStream = new FileOutputStream(file);
-                try {
-                    synchronized (getBufferLock()) {
-                        StreamUtil.copy(stream, outputStream, getBuffer());
-                    }
-                } finally {
-                    outputStream.close();
-                }
+                streamToFile(stream, getOutputFile(dv_odt_latest));
             }
         });
         getDocumentModel(datum.junit).open(d_odt.getId(), new Opener() {

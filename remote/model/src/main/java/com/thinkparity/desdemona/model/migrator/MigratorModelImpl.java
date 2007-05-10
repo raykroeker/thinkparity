@@ -4,7 +4,6 @@
 package com.thinkparity.desdemona.model.migrator;
 
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -17,7 +16,6 @@ import javax.mail.internet.MimeMultipart;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.OS;
-import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
@@ -93,10 +91,9 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                             migratorSql.openResource(localResource,
                                     new ResourceOpener() {
                                         public void open(final InputStream stream) throws IOException {
-                                            final ByteBuffer buffer = getDefaultBuffer();
-                                            synchronized (buffer) {
-                                                StreamUtil.copy(stream, resourceOutput, buffer);
-                                            }
+                                            streamToFile(stream,
+                                                    streamFileSystem.createFile(
+                                                            resource.getPath()));
                                         }
                                     });
                         } finally {
@@ -104,16 +101,15 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                         }
                     }
                     // archive the resources
-                    final ByteBuffer buffer = getDefaultBuffer();
-                    synchronized (buffer) {
+                    synchronized (getBufferLock()) {
                         ZipUtil.createZipFile(streamFile,
-                                streamFileSystem.getRoot(), buffer);
+                                streamFileSystem.getRoot(), getBufferArray());
                     }
                     // upload the stream
                     final Long streamSize = streamFile.length();
                     final InputStream stream = new BufferedInputStream(
                             new FileInputStream(streamFile),
-                            getDefaultBufferSize());
+                            getBufferSize());
                     final StreamSession session = getStreamModel().createSession(userId);
                     upload(new UploadMonitor() {
                         public void chunkUploaded(int chunkSize) {
@@ -163,10 +159,9 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                 final FileSystem tempFileSystem = new FileSystem(session.createTempDirectory());
                 try {
                     // extract the release
-                    final ByteBuffer buffer = getDefaultBuffer();
-                    synchronized (buffer) {
+                    synchronized (getBufferLock()) {
                         ZipUtil.extractZipFile(releaseFile,
-                                tempFileSystem.getRoot(), buffer);
+                                tempFileSystem.getRoot(), getBufferArray());
                     }
                     // create
                     createRelease(localProduct, release, readPreviousRelease(
@@ -223,8 +218,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                 final InputStream inputStream = new FileInputStream(tempErrorFile);
                 try {
                     migratorSql.createError(user, localRelease, inputStream,
-                            tempErrorFile.length(), getDefaultBufferSize(),
-                            error);
+                            tempErrorFile.length(), getBufferSize(), error);
                 } finally {
                     inputStream.close();
                 }
@@ -373,7 +367,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
             // create the resource
             stream = new FileInputStream(releaseFileSystem.findFile(resource.getPath()));
             try {
-                migratorSql.createResource(resource, stream, getDefaultBufferSize());
+                migratorSql.createResource(resource, stream, getBufferSize());
             } finally {
                 stream.close();
             }

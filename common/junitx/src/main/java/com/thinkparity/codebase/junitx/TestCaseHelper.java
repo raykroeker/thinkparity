@@ -4,11 +4,12 @@
 package com.thinkparity.codebase.junitx;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -24,6 +25,9 @@ import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+import com.thinkparity.codebase.nio.ChannelUtil;
+
+import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 
 /**
@@ -31,15 +35,24 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
  */
 public class TestCaseHelper {
 
+    /** A test case <code>ByteBuffer</code>. */
+	private static ByteBuffer buffer;
+
+    /** A test case buffer <code>byte[]</code>. */
+    private static byte[] bufferArray;
+
+    /** A test case buffer lock <code>Object</code>. */
+    private static Object bufferLock;
+    
 	/** A <code>List</code> of input file md5 checksum <code>String</code>s. */
     private static List<String> inputFileMD5Checksums;
 
-    /** A <code>List</code> of input file name <code>String</code>s. */
+	/** A <code>List</code> of input file name <code>String</code>s. */
     private static List<String> inputFileNames;
 
-    /** A <code>List</code> of input <code>File</code>s. */
+	/** A <code>List</code> of input <code>File</code>s. */
 	private static List<File> inputFiles;
-    
+
 	/**
 	 * The directory that contains the input files.
 	 * 
@@ -47,15 +60,15 @@ public class TestCaseHelper {
 	 */
 	private static File inputFilesDirectory;
 
-	private static FileSystem inputFilesFileSystem;
+    private static FileSystem inputFilesFileSystem;
 
-	/**
+    /**
 	 * List of modified input files to use for testing.
 	 * 
 	 */
 	private static List<File> modFiles;
 
-	/**
+    /**
 	 * JUnit root directory. Either the "${basedir}/target" or
 	 * "${user.dir}/target" directories must exist in order to use the JUnit
 	 * extensions. The root directory will be "test-sessions" beneath the first
@@ -65,24 +78,24 @@ public class TestCaseHelper {
 	 */
 	private static File rootDirectory;
 
-	/**
+    /**
 	 * Test randomizer.
 	 */
 	private static Random testRandomizer;
 
-	/**
+    /**
 	 * Session id of the current jUnit runtime session.
 	 * 
 	 */
 	private static final TestSession testSession;
 
-	/**
+    /**
 	 * The alphabet used to obtain test text.
 	 * 
 	 */
 	private static char[] testTextAlphabet;
 
-	static {
+    static {
 		try {
 		    testSession = new TestSession(getRootDirectory());
 		    TestInitializer.initialize(testSession);
@@ -92,6 +105,93 @@ public class TestCaseHelper {
 		}
 		new Log4JWrapper("TEST_LOGGER").logInfo(JUnitX.MESSAGE_INIT);
 	}
+
+	/**
+     * Copy the content of one channel to another. Use the workspace buffer as
+     * an intermediary.
+     * 
+     * @param readChannel
+     *            A <code>ReadableByteChannel</code>.
+     * @param writeChannel
+     *            A <code>WritableByteChannel</code>.
+     * @throws IOException
+     */
+    static final void channelToChannel(
+            final ReadableByteChannel readChannel,
+            final WritableByteChannel writeChannel) throws IOException {
+        synchronized (getBufferLock()) {
+            ChannelUtil.copy(readChannel, writeChannel, getBuffer());
+        }
+    }
+
+	/**
+     * Copy the content of a channel to a file. Create a channel to write to the
+     * file.
+     * 
+     * @param channel
+     *            A <code>ReadableByteChannel</code>.
+     * @param file
+     *            A <code>File</code>.
+     * @throws IOException
+     */
+    static final void channelToFile(final ReadableByteChannel channel,
+            final File file) throws IOException {
+        final WritableByteChannel writeChannel = ChannelUtil.openWriteChannel(file);
+        try {
+            channelToChannel(channel, writeChannel);
+        } finally {
+            writeChannel.close();
+        }
+    }
+
+	/**
+     * Copy the content of a channel to a stream. Use the workspace buffer as an
+     * intermediary.
+     * 
+     * @param channel
+     *            A <code>ReadableByteChannel</code>.
+     * @param stream
+     *            An <code>OutputStream</code>.
+     * @throws IOException
+     */
+    static final void channelToStream(final ReadableByteChannel channel,
+            final OutputStream stream) throws IOException {
+        synchronized (getBufferLock()) {
+            StreamUtil.copy(channel, stream, getBuffer());
+        }
+    }
+
+	/**
+     * Calculate a checksum for a file's contents. Create a channel to read the
+     * file.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @return An MD5 checksum <code>String</code>.
+     */
+    static final String checksum(final File file) throws IOException {
+        final ReadableByteChannel channel = ChannelUtil.openReadChannel(file);
+        try {
+            return checksum(channel);
+        } finally {
+            channel.close();
+        }
+    }
+
+    /**
+     * Calculate a checksum for a readable byte channel. Use the workspace
+     * buffer as an intermediary.
+     * 
+     * @param channel
+     *            A <code>ReadableByteChannel</code>.
+     * @return An MD5 checksum <code>String</code>.
+     */
+    static final String checksum(final ReadableByteChannel channel)
+            throws IOException {
+        synchronized (getBufferLock()) {
+            return MD5Util.md5Hex(channel, getBufferArray());
+        }
+    }
 
     /**
      * Create a formatted failure message.
@@ -111,6 +211,76 @@ public class TestCaseHelper {
 		failMessageBuilder.append(StringUtil.printStackTrace(cause));
         return failMessageBuilder.toString();
 	}
+	/**
+     * Copy the content of a file to another file. Create a channel to read the
+     * file.
+     * 
+     * @param readFile
+     *            A <code>File</code>.
+     * @param writeFile
+     *            A <code>File</code>.
+     * @throws IOException
+     */
+    static final void fileToFile(final File readFile,
+            final File writeFile) throws IOException {
+        final ReadableByteChannel readChannel = ChannelUtil.openReadChannel(readFile);
+        try {
+            channelToFile(readChannel, writeFile);
+        } finally {
+            readChannel.close();
+        }
+    }
+
+    /**
+     * Copy the content of a file to a stream. Create a channel to read the
+     * file.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @param stream
+     *            An <code>OutputStream</code>.
+     * @throws IOException
+     */
+    static final void fileToStream(final File file,
+            final OutputStream stream) throws IOException {
+        final ReadableByteChannel channel = ChannelUtil.openReadChannel(file);
+        try {
+            channelToStream(channel, stream);
+        } finally {
+            channel.close();
+        }
+    }
+
+	static ByteBuffer getBuffer() {
+        if (null == buffer) {
+            buffer = ByteBuffer.wrap(getBufferArray());
+        }
+        return buffer;
+    }
+
+	static final byte[] getBufferArray() {
+        if (null == bufferArray) {
+            bufferArray = new byte[getBufferSize()];
+        }
+        return bufferArray;
+    }
+
+	static final Object getBufferLock() {
+        if (null == bufferLock) {
+            bufferLock = new Object();
+        }
+        return bufferLock;
+    }
+
+    /**
+     * Obtain the buffer size for a test case.
+     * 
+     * @return A buffer size <code>Integer</code>.
+     */
+    static final Integer getBufferSize() {
+        // BUFFER - 2MB - TestCase#getDefaultBufferSize()
+        return 1024 * 1024 * 2;
+    }
 
     static String[] getInputFileMD5Checksums() {
         if (null == inputFileMD5Checksums) {
@@ -129,7 +299,8 @@ public class TestCaseHelper {
         }
         return inputFileMD5Checksums.toArray(new String[] {});
     }
-	/**
+
+    /**
      * Obtain a list of the input file names.
      * 
      * @return A <code>String[]</code>.
@@ -167,7 +338,7 @@ public class TestCaseHelper {
 		return inputFiles.toArray(new File[] {});
 	}
 
-	/**
+    /**
 	 * Obtain the directory within which the input files will reside.
 	 * 
 	 * @return The input directory.
@@ -181,7 +352,7 @@ public class TestCaseHelper {
 		return inputFilesDirectory;
 	}
 
-	static File[] getModFiles() throws IOException {
+    static File[] getModFiles() throws IOException {
 		if(null == modFiles) {
 			modFiles = new LinkedList<File>();
             modFiles.add(copyFile("JUnitTestFrameworkMod"));
@@ -198,7 +369,7 @@ public class TestCaseHelper {
 		return modFiles.toArray(new File[] {});
 	}
 
-	static final File getSequenceFile(final Integer sequence,
+    static final File getSequenceFile(final Integer sequence,
             final Integer index) {
         final FileSystem target = getInputFilesFileSystem();
         final String pathPrefix = new StringBuilder("sequence-")
@@ -226,6 +397,43 @@ public class TestCaseHelper {
 	static TestSession getTestSession() { return testSession; }
 
     /**
+     * Copy the content of a stream to a channel. Use the workspace byte buffer
+     * as an intermediary.
+     * 
+     * @param stream
+     *            An <code>InputStream</code>.
+     * @param channel
+     *            A <code>WritableByteChannel</code>.
+     * @throws IOException
+     */
+    static final void streamToChannel(final InputStream stream,
+            final WritableByteChannel channel) throws IOException {
+        synchronized (getBufferLock()) {
+            StreamUtil.copy(stream, channel, getBuffer());
+        }
+    }
+    
+    /**
+     * Copy the content of a stream to a file. Use a channel to write to the
+     * file.
+     * 
+     * @param stream
+     *            An <code>InputStream</code>.
+     * @param file
+     *            A <code>File</code>.
+     * @throws IOException
+     */
+    static final void streamToFile(final InputStream stream,
+            final File file) throws IOException {
+        final WritableByteChannel channel = ChannelUtil.openWriteChannel(file);
+        try {
+            streamToChannel(stream, channel);
+        } finally {
+            channel.close();
+        }
+    }
+
+	/**
      * Copy the input file of the given name to the input files directory. This
      * api will use the classloader to read the resource then copy the stream
      * directly to a file of the same name in the input directory.
@@ -238,26 +446,20 @@ public class TestCaseHelper {
         return copyFile(path, path);
     }
 
-    private static File copyFile(final String sourcePath,
-            final String targetPath) throws IOException {
+    private static File copyFile(final String readPath, final String writePath)
+            throws IOException {
         final FileSystem target = getInputFilesFileSystem();
-        if (null == target.findFile(targetPath)) {
-            final File targetFile = target.createFile(targetPath);
-            final OutputStream output = new FileOutputStream(targetFile);
+        if (null == target.findFile(writePath)) {
+            final File writeFile = target.createFile(writePath);
+            final String inputPath = "junitx-files/" + readPath;
+            final InputStream stream = getInputStream(inputPath);
             try {
-                final String inputPath = "junitx-files/" + sourcePath;
-                final InputStream input = getInputStream(inputPath);
-                try {
-                    // BUFFER - 1KB - TestCaseHelper#copyInputFile(String, String)
-                    StreamUtil.copy(input, output, ByteBuffer.allocate(1024));
-                } finally {
-                    input.close();
-                }
+                streamToFile(stream, writeFile);
             } finally {
-                output.close();
+                stream.close();
             }
         }
-		return target.findFile(targetPath);
+		return target.findFile(writePath);
 	}
 
 	private static FileSystem getInputFilesFileSystem() {
@@ -267,7 +469,7 @@ public class TestCaseHelper {
         return inputFilesFileSystem;
     }
 
-    /**
+	/**
      * Obtain a resource as an input stream from the class.
      * 
      * @param name
@@ -441,8 +643,8 @@ public class TestCaseHelper {
 		}
 		return textBuffer.toString();
 	}
-
-	/**
+    
+    /**
 	 * Remove a data item from the test session
 	 * @param key The data item key.
 	 */
@@ -452,7 +654,7 @@ public class TestCaseHelper {
 		testSession.setData(key, null);
 	}
 
-	/**
+    /**
 	 * Obtain a randomizer for the test session.
 	 * 
 	 * @return A randomizer.

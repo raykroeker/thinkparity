@@ -54,7 +54,7 @@ public abstract class OpheliaTestCase extends TestCase {
         OpheliaTestUser.class.getName();
 	}
 
-    /**
+	/**
      * Assert that two byte arrays are equal.
      * 
      * @param assertion

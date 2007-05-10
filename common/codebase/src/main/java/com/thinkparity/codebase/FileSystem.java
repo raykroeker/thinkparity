@@ -9,11 +9,13 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.nio.ChannelUtil;
 
 /**
  * A file system is a simple wrapper around a single root directory. It
@@ -91,6 +93,18 @@ public class FileSystem {
         Assert.assertTrue(absoluteFile.createNewFile(),
                 "Cannot create file:  {0}", absoluteFile);
         return findFile(path);
+    }
+
+    /**
+     * Create a file at the given path and open a write channel.
+     * 
+     * @param path
+     *            A path.
+     * @return A <code>FileChannel</code>.
+     */
+    public WritableByteChannel createWriteChannel(final String path)
+            throws IOException {
+        return ChannelUtil.openWriteChannel(createFile(path));
     }
 
     /**

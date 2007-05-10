@@ -59,25 +59,6 @@ public abstract class StreamUtil {
     }
 
 	/**
-	 * Copy bytes from an input stream to an output stream. Note that the
-	 * streams are not closed upon completion.
-	 * 
-	 * @param is
-	 *            The input to copy from.
-	 * @param os
-	 *            The output to copy to.
-	 * @param buffer
-	 *            A <code>ByteBuffer</code> to use.
-	 * @throws IOException
-	 */
-	public static void copy(final InputStream is, final OutputStream os,
-            final ByteBuffer buffer) throws IOException {
-		if (!buffer.hasArray())
-            throw new IllegalArgumentException("Buffer needs to be array based.");
-        copy(is, os, buffer.array());
-	}
-
-	/**
      * Copy an input stream into a writable byte channel.
      * 
      * @param is
@@ -117,7 +98,10 @@ public abstract class StreamUtil {
     }
 
 	/**
-	 * Create a new StreamUtil [Singleton]
+	 * Create StreamUtil.
+     * 
 	 */
-	private StreamUtil() {super();}
+	private StreamUtil() {
+        super();
+	}
 }

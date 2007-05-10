@@ -252,6 +252,7 @@ public final class WorkspaceImpl implements Workspace {
      */
     public ByteBuffer getBuffer() {
         if (null == buffer) {
+            // BUFFER - WorkspaceImpl#getBuffer() - 2MB
             buffer = ByteBuffer.allocateDirect(getBufferSize());
         }
         return buffer;
@@ -263,6 +264,7 @@ public final class WorkspaceImpl implements Workspace {
      */
     public byte[] getBufferArray() {
         if (null == bufferArray) {
+            // BUFFER - WorkspaceImpl#getBufferArray() - 2MB
             bufferArray = new byte[getBufferSize()];
         }
         return bufferArray;

@@ -4,10 +4,11 @@
 package com.thinkparity.ophelia.model;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.channels.ByteChannel;
+import java.io.OutputStream;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
@@ -22,6 +23,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
@@ -29,6 +31,7 @@ import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+import com.thinkparity.codebase.nio.ChannelUtil;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.DownloadMonitor;
@@ -100,6 +103,34 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
+     * Determine if the list of team members contains the user id..
+     * 
+     * @param team
+     *            A <code>List&lt;TeamMember&gt;</code>.
+     * @param user
+     *            A user id <code>JabberId</code>.
+     * @return True if the user id matches one of the team members.
+     */
+    protected static final <U extends User> Boolean contains(
+            final List<U> users, final JabberId userId) {
+        return USER_UTILS.contains(users, userId);
+    }
+
+    /**
+     * Determine if the list of team members contains the user.
+     * 
+     * @param team
+     *            A list of team members.
+     * @param user
+     *            A user.
+     * @return True if the id of the user matches one of the team members.
+     */
+    protected static final <U extends User, V extends User> Boolean contains(
+            final List<U> users, final V user) {
+        return USER_UTILS.contains(users, user);
+    }
+
+    /**
 	 * Obtain the current date\time.
 	 * 
 	 * @return The current date\time.
@@ -107,6 +138,37 @@ public abstract class Model<T extends EventListener> extends
 	protected static Calendar currentDateTime() {
         return DateUtil.getInstance();
 	}
+
+    /**
+     * Extract the user's ids into a list.
+     * 
+     * @param <T>
+     *            A user type.
+     * @param users
+     *            A <code>List</code> of <code>T</code>.
+     * @param userIds
+     *            A <code>List</code> to populate.
+     * @return A <code>List</code> of <code>JabberId</code>s.
+     */
+    protected static final <U extends User> List<JabberId> getIds(
+            final List<U> users, final List<JabberId> userIds) {
+        return USER_UTILS.getIds(users, userIds);
+    }
+
+    /**
+     * Obtain the index of a user id in a list of users.
+     * 
+     * @param users
+     *            A list of <code>User</code>s.
+     * @param userId
+     *            A user id.
+     * @return The index of the user id in the list; or -1 if the user does not
+     *         exist in the list.
+     */
+    protected static final <U extends User> int indexOf(final List<U> users,
+            final JabberId userId) {
+        return USER_UTILS.indexOf(users, userId);
+    }
 
     /**
      * Notify a process monitor that a given number of steps is upcoming.
@@ -133,7 +195,7 @@ public abstract class Model<T extends EventListener> extends
         monitor.beginProcess();
     }
 
-    /**
+	/**
      * Notify a process monitor that a given process will end.
      * 
      * @param monitor
@@ -145,7 +207,7 @@ public abstract class Model<T extends EventListener> extends
         monitor.endProcess();
     }
 
-    /**
+	/**
      * Notify a process monitor that a given step will begin.
      * 
      * @param monitor
@@ -158,7 +220,7 @@ public abstract class Model<T extends EventListener> extends
         notifyStepBegin(monitor, step, null);
     }
 
-    /**
+	/**
      * Notify a process monitor that a given step will begin.
      * 
      * @param monitor
@@ -186,13 +248,13 @@ public abstract class Model<T extends EventListener> extends
         monitor.endStep(step);
     }
 
-	/** The configuration io. */
+    /** The configuration io. */
     protected ConfigurationIOHandler configurationIO;
 
-	/** A thinkParity <code>Environment</code>. */
+    /** A thinkParity <code>Environment</code>. */
     protected Environment environment;
 
-	/** A thinkParity <code>InternalModelFactory</code>. */
+    /** A thinkParity <code>InternalModelFactory</code>. */
     protected InternalModelFactory modelFactory;
 
     /** A thinkParity <code>Workspace</code>. */
@@ -201,7 +263,7 @@ public abstract class Model<T extends EventListener> extends
     /** The decryption cipher. */
     private transient Cipher decryptionCipher;
 
-    /** The encryption cipher. */
+	/** The encryption cipher. */
     private transient Cipher encryptionCipher;
 
     /** The <code>ModelInvocationContext</code>. */
@@ -213,7 +275,7 @@ public abstract class Model<T extends EventListener> extends
     /** The secret key spec. */
     private transient SecretKeySpec secretKeySpec;
 
-	/**
+    /**
      * Create an Model
      * 
      */
@@ -236,7 +298,7 @@ public abstract class Model<T extends EventListener> extends
                 workspace, this, listener);
     }
 
-    /**
+	/**
      * Assert that the artifact does not exist.
      * 
      * @param uniqueId
@@ -268,7 +330,7 @@ public abstract class Model<T extends EventListener> extends
                 assertion, assertionArguments);
     }
 
-    /**
+	/**
      * Assert that a container draft exists.
      * 
      * @param containerId
@@ -298,7 +360,7 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertTrue(assertion, doesExistLatestVersion(artifactId));
     }
 
-	/**
+    /**
      * Assert that a version exists.
      * 
      * @param assertion
@@ -327,7 +389,7 @@ public abstract class Model<T extends EventListener> extends
         Assert.assertTrue(assertion, isClosed(artifact));
     }
 
-	/**
+    /**
      * Assert the user id does not match the local user id.
      * 
      * @param userId
@@ -454,64 +516,55 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
-     * Calculate a checksum for a file's contents.
+     * Copy the content of a channel to a file. Create a channel to write to the
+     * file.
      * 
+     * @param channel
+     *            A <code>ReadableByteChannel</code>.
      * @param file
      *            A <code>File</code>.
-     * @param buffer
-     *            A <code>ByteBuffer</code>.
-     * @return An MD5 checksum <code>String</code>.
+     * @throws IOException
      */
-    protected final String checksum(final ByteChannel byteChannel,
-            final byte[] buffer) throws IOException {
-        return MD5Util.md5Hex(byteChannel, buffer);
-    }
-
-    /**
-     * Calculate a checksum for a file's contents.
-     * 
-     * @param file
-     *            A <code>File</code>.
-     * @param buffer
-     *            The <code>Integer</code> size of a buffer to use.
-     * @return An MD5 checksum <code>String</code>.
-     */
-    protected final String checksum(final File file, final byte[] buffer)
-            throws IOException {
-        final InputStream stream = new FileInputStream(file);
+    protected final void channelToFile(final ReadableByteChannel channel,
+            final File file) throws IOException {
+        final WritableByteChannel writeChannel = ChannelUtil.openWriteChannel(file);
         try {
-            return MD5Util.md5Hex(stream, buffer);
+            channelToChannel(channel, writeChannel);
         } finally {
-            stream.close();
+            writeChannel.close();
         }
     }
 
     /**
-     * Determine if the list of team members contains the user id..
+     * Calculate a checksum for a file's contents. Create a channel to read the
+     * file.
      * 
-     * @param team
-     *            A <code>List&lt;TeamMember&gt;</code>.
-     * @param user
-     *            A user id <code>JabberId</code>.
-     * @return True if the user id matches one of the team members.
+     * @param file
+     *            A <code>File</code>.
+     * @return An MD5 checksum <code>String</code>.
      */
-    protected static final <U extends User> Boolean contains(
-            final List<U> users, final JabberId userId) {
-        return USER_UTILS.contains(users, userId);
+    protected final String checksum(final File file) throws IOException {
+        final ReadableByteChannel channel = ChannelUtil.openReadChannel(file);
+        try {
+            return checksum(channel);
+        } finally {
+            channel.close();
+        }
     }
 
     /**
-     * Determine if the list of team members contains the user.
+     * Calculate a checksum for a readable byte channel. Use the workspace
+     * buffer as an intermediary.
      * 
-     * @param team
-     *            A list of team members.
-     * @param user
-     *            A user.
-     * @return True if the id of the user matches one of the team members.
+     * @param channel
+     *            A <code>ReadableByteChannel</code>.
+     * @return An MD5 checksum <code>String</code>.
      */
-    protected static final <U extends User, V extends User> Boolean contains(
-            final List<U> users, final V user) {
-        return USER_UTILS.contains(users, user);
+    protected final String checksum(final ReadableByteChannel channel)
+            throws IOException {
+        synchronized (workspace.getBufferLock()) {
+            return MD5Util.md5Hex(channel, workspace.getBufferArray());
+        }
     }
 
     /**
@@ -672,10 +725,71 @@ public abstract class Model<T extends EventListener> extends
      * Assert the session is online. We are throwing a specific error here in
      * order to allow a client of the model an opportunity to display an
      * appropriate message.
+     * 
      */
     protected final void ensureOnline() {
         if (!getSessionModel().isOnline().booleanValue())
             throw new OfflineException();
+    }
+
+	/**
+     * Copy the content of a file to a channel. Create a channel to read the
+     * file.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @param channel
+     *            A <code>WritableByteChannel</code>.
+     * @throws IOException
+     */
+    protected final void fileToChannel(final File file,
+            final WritableByteChannel channel) throws IOException {
+        final ReadableByteChannel readChannel = ChannelUtil.openReadChannel(file);
+        try {
+            channelToChannel(readChannel, channel);
+        } finally {
+            readChannel.close();
+        }
+    }
+
+    /**
+     * Copy the content of a file to another file. Create a channel to read the
+     * file.
+     * 
+     * @param readFile
+     *            A <code>File</code>.
+     * @param writeFile
+     *            A <code>File</code>.
+     * @throws IOException
+     */
+    protected final void fileToFile(final File readFile, final File writeFile)
+            throws IOException {
+        final ReadableByteChannel readChannel = ChannelUtil.openReadChannel(readFile);
+        try {
+            channelToFile(readChannel, writeFile);
+        } finally {
+            readChannel.close();
+        }
+    }
+
+    /**
+     * Copy the content of a file to a stream. Create a channel to read the
+     * file.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @param stream
+     *            An <code>OutputStream</code>.
+     * @throws IOException
+     */
+    protected final void fileToStream(final File file, final OutputStream stream)
+            throws IOException {
+        final ReadableByteChannel channel = ChannelUtil.openReadChannel(file);
+        try {
+            channelToStream(channel, stream);
+        } finally {
+            channel.close();
+        }
     }
 
     /**
@@ -718,11 +832,20 @@ public abstract class Model<T extends EventListener> extends
         return modelFactory.getBackupModel();
     }
 
+    /**
+     * Obtain the workspace buffer size.
+     * 
+     * @return An <code>Integer</code> default buffer size.
+     */
+    protected Integer getBufferSize() {
+        return workspace.getBufferSize();
+    }
+
     protected final String getChecksumAlgorithm() {
         return ChecksumAlgorithm.MD5.name();
     }
 
-	/**
+    /**
      * Obtain an internal contact model.
      * 
      * @return An instance of <code>InternalContactModel</code>.
@@ -738,15 +861,6 @@ public abstract class Model<T extends EventListener> extends
      */
     protected final InternalContainerModel getContainerModel() {
         return modelFactory.getContainerModel();
-    }
-
-    /**
-     * Obtain the workspace buffer size.
-     * 
-     * @return An <code>Integer</code> default buffer size.
-     */
-    protected Integer getBufferSize() {
-        return workspace.getBufferSize();
     }
 
     /**
@@ -801,37 +915,6 @@ public abstract class Model<T extends EventListener> extends
      */
     protected final InternalUserModel getUserModel() {
         return modelFactory.getUserModel();
-    }
-
-    /**
-     * Obtain the index of a user id in a list of users.
-     * 
-     * @param users
-     *            A list of <code>User</code>s.
-     * @param userId
-     *            A user id.
-     * @return The index of the user id in the list; or -1 if the user does not
-     *         exist in the list.
-     */
-    protected static final <U extends User> int indexOf(final List<U> users,
-            final JabberId userId) {
-        return USER_UTILS.indexOf(users, userId);
-    }
-
-    /**
-     * Extract the user's ids into a list.
-     * 
-     * @param <T>
-     *            A user type.
-     * @param users
-     *            A <code>List</code> of <code>T</code>.
-     * @param userIds
-     *            A <code>List</code> to populate.
-     * @return A <code>List</code> of <code>JabberId</code>s.
-     */
-    protected static final <U extends User> List<JabberId> getIds(
-            final List<U> users, final List<JabberId> userIds) {
-        return USER_UTILS.getIds(users, userIds);
     }
 
     /**
@@ -1097,6 +1180,43 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
+     * Copy the content of a stream to a channel. Use the workspace byte buffer
+     * as an intermediary.
+     * 
+     * @param stream
+     *            An <code>InputStream</code>.
+     * @param channel
+     *            A <code>WritableByteChannel</code>.
+     * @throws IOException
+     */
+    protected final void streamToChannel(final InputStream stream,
+            final WritableByteChannel channel) throws IOException {
+        synchronized (workspace.getBufferLock()) {
+            StreamUtil.copy(stream, channel, workspace.getBuffer());
+        }
+    }
+
+    /**
+     * Copy the content of a stream to a file. Use a channel to write to the
+     * file.
+     * 
+     * @param stream
+     *            An <code>InputStream</code>.
+     * @param file
+     *            A <code>File</code>.
+     * @throws IOException
+     */
+    protected final void streamToFile(final InputStream stream, final File file)
+            throws IOException {
+        final WritableByteChannel channel = ChannelUtil.openWriteChannel(file);
+        try {
+            streamToChannel(stream, channel);
+        } finally {
+            channel.close();
+        }
+    }
+
+    /**
      * Update the credentials from the configuration.
      * 
      * @param credentials
@@ -1135,6 +1255,40 @@ public abstract class Model<T extends EventListener> extends
      */
     private File buildStreamFile(final String streamId) throws IOException {
         return workspace.createTempFile(streamId);
+    }
+
+    /**
+     * Copy the content of one channel to another. Use the workspace buffer as
+     * an intermediary.
+     * 
+     * @param readChannel
+     *            A <code>ReadableByteChannel</code>.
+     * @param writeChannel
+     *            A <code>WritableByteChannel</code>.
+     * @throws IOException
+     */
+    private void channelToChannel(final ReadableByteChannel readChannel,
+            final WritableByteChannel writeChannel) throws IOException {
+        synchronized (workspace.getBufferLock()) {
+            ChannelUtil.copy(readChannel, writeChannel, workspace.getBuffer());
+        }
+    }
+
+    /**
+     * Copy the content of a channel to a stream. Use the workspace buffer as an
+     * intermediary.
+     * 
+     * @param channel
+     *            A <code>ReadableByteChannel</code>.
+     * @param stream
+     *            An <code>OutputStream</code>.
+     * @throws IOException
+     */
+    private void channelToStream(final ReadableByteChannel channel,
+            final OutputStream stream) throws IOException {
+        synchronized (workspace.getBufferLock()) {
+            StreamUtil.copy(channel, stream, workspace.getBuffer());
+        }
     }
 
     /**
@@ -1280,7 +1434,9 @@ public abstract class Model<T extends EventListener> extends
      * 
      * @return True if the credentials have been set; false otherwise.
      */
-    private Boolean isSetCredentials() { return null != readCredentials(); }
+    private Boolean isSetCredentials() {
+        return null != readCredentials();
+    }
 
     /** Configuration keys. */
     private static class ConfigurationKeys {

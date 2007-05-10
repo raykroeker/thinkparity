@@ -108,6 +108,7 @@ public interface Workspace {
 
     /**
      * Obtain the buffer synchronization lock.
+     * 
      * @return An <code>Object</code>.
      */
     public Object getBufferLock();

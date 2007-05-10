@@ -4,14 +4,11 @@
 package com.thinkparity.ophelia.model.container.backup;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -167,15 +164,7 @@ public final class BackupTest extends BackupTestCase {
                 dv_stream_backup = getBackupModel(datum.junit_z).openDocumentVersion(dv_backup.getArtifactUniqueId(), dv_backup.getVersionId());
                 getDocumentModel(datum.junit_z).openVersion(dv_local.getArtifactId(), dv_local.getVersionId(), new StreamOpener() {
                     public void open(final InputStream stream) throws IOException {
-                        final File file = getOutputFile(dv_local);
-                        final OutputStream outputStream = new FileOutputStream(file);
-                        try {
-                            synchronized (getBufferLock()) {
-                                StreamUtil.copy(stream, outputStream, getBuffer());
-                            }
-                        } finally {
-                            outputStream.close();
-                        }
+                        streamToFile(stream, getOutputFile(dv_local));
                     }
                 });
                 try {
@@ -302,15 +291,7 @@ public final class BackupTest extends BackupTestCase {
                     dv_stream_backup = getBackupModel(datum.junit_z).openDocumentVersion(dv_backup.getArtifactUniqueId(), dv_backup.getVersionId());
                     getDocumentModel(datum.junit_z).openVersion(dv_local.getArtifactId(), dv_local.getVersionId(), new StreamOpener() {
                         public void open(final InputStream stream) throws IOException {
-                            final File file = getOutputFile(dv_local);
-                            final OutputStream outputStream = new FileOutputStream(file);
-                            try {
-                                synchronized (getBufferLock()) {
-                                    StreamUtil.copy(stream, outputStream, getBuffer());
-                                }
-                            } finally {
-                                outputStream.close();
-                            }
+                            streamToFile(stream, getOutputFile(dv_local));
                         }
                     });
                     try {

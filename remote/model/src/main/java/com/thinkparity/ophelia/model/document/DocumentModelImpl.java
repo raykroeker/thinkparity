@@ -3,8 +3,11 @@
  */
 package com.thinkparity.ophelia.model.document;
 
-import java.io.*;
-import java.nio.ByteBuffer;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.Calendar;
@@ -14,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
@@ -28,7 +30,6 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamUploader;
-import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
@@ -225,11 +226,8 @@ public final class DocumentModelImpl extends
                     if (draftFile.lastModified() == latestVersionCreatedOn) {
                         return Boolean.FALSE;
                     } else {
-                        final ByteBuffer buffer = workspace.getDefaultBuffer();
-                        synchronized (buffer) {
-                            return !latestVersion.getChecksum().equals(
-                                    checksum(draftFile, buffer));
-                        }
+                        return !latestVersion.getChecksum().equals(
+                                checksum(draftFile));
                     }
                 }
             } else {
@@ -511,18 +509,10 @@ public final class DocumentModelImpl extends
             final Long versionId, final InputStream stream,
             final JabberId createdBy, final Calendar createdOn)
             throws CannotLockException, IOException {
-	    final File temp = workspace.createTempFile();
+	    final File tempFile = workspace.createTempFile();
         try {
             // create a temp file containing the stream
-            final OutputStream os = new FileOutputStream(temp);
-            try {
-                final ByteBuffer buffer = workspace.getDefaultBuffer();
-                synchronized (buffer) {
-                    StreamUtil.copy(stream, os, buffer);
-                }
-            } finally {
-                os.close();
-            }
+            streamToFile(stream, tempFile);
 
     		// create version
             final Document document = read(documentId);
@@ -530,42 +520,30 @@ public final class DocumentModelImpl extends
     		version.setArtifactId(documentId);
     		version.setArtifactType(document.getType());
     		version.setArtifactUniqueId(document.getUniqueId());
-            final InputStream checksumStream = new FileInputStream(temp);
-		    try {
-                final ByteBuffer buffer = workspace.getDefaultBuffer();
-                synchronized (buffer) {
-                    version.setChecksum(MD5Util.md5Hex(checksumStream, buffer));
-                }
-            } finally {
-                checksumStream.close();
-            }
+            version.setChecksum(checksum(tempFile));
             version.setChecksumAlgorithm(ChecksumAlgorithm.MD5.name());
     		version.setCreatedBy(createdBy);
     		version.setCreatedOn(createdOn);
     		version.setName(document.getName());
     		version.setUpdatedBy(version.getCreatedBy());
     		version.setUpdatedOn(version.getCreatedOn());
-            version.setSize(temp.length());
+            version.setSize(tempFile.length());
             version.setVersionId(versionId);
             // create version content
-            InputStream versionStream = new FileInputStream(temp);
+            final InputStream databaseStream = new FileInputStream(tempFile);
             try {
-                documentIO.createVersion(version, versionStream,
-                        getDefaultBufferSize());
+                documentIO.createVersion(version, databaseStream, getBufferSize());
             } finally {
-                versionStream.close();
+                databaseStream.close();
             }
     		// write local version file
             final DocumentFileLock versionLock = lockVersion(version, "rws");
             try {
-                versionStream = new FileInputStream(temp);
-                try {
-                    writeFile(versionLock, versionStream);
-                    versionLock.getFile().setLastModified(version.getCreatedOn().getTimeInMillis());
-                    versionLock.getFile().setReadOnly();
-                } finally {
-                    versionStream.close();
-                }
+                final FileChannel channel = versionLock.getFileChannel();
+                channel.position(0);
+                fileToChannel(tempFile, channel);
+                versionLock.getFile().setLastModified(version.getCreatedOn().getTimeInMillis());
+                versionLock.getFile().setReadOnly();
             } finally {
                 release(versionLock);
             }
@@ -575,7 +553,8 @@ public final class DocumentModelImpl extends
     		documentIO.update(document);
     		return readVersion(documentId, versionId);
         } finally {
-            Assert.assertTrue(temp.delete(), "Cannot delete temp file {0}.", temp);
+            Assert.assertTrue(tempFile.delete(),
+                    "Cannot delete temp file {0}.", tempFile);
         }
 	}
 
@@ -704,24 +683,4 @@ public final class DocumentModelImpl extends
 			}
 		});
 	}
-
-    /**
-     * Write a file.
-     * 
-     * @param lock
-     *            A <code>DocumentFileLock</code> to write to.
-     * @param stream
-     *            The content <code>InputStream</code> to write.
-     * @throws IOException
-     */
-    private void writeFile(final DocumentFileLock lock,
-            final InputStream stream) throws IOException {
-        final ByteBuffer buffer = workspace.getDefaultBuffer();
-        synchronized (buffer) {
-            final FileChannel fileChannel = lock.getFileChannel();
-            fileChannel.position(0);
-            StreamUtil.copy(stream, fileChannel, buffer);
-            fileChannel.force(true);
-        }
-    }
 }

@@ -4,7 +4,6 @@
 package com.thinkparity.codebase;
 
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -81,7 +80,7 @@ public class ZipUtil {
      * @throws IOException
      */
     public static void extractZipFile(final File zipFile,
-            final File outputDirectory, final ByteBuffer buffer)
+            final File outputDirectory, final byte[] buffer)
             throws FileNotFoundException, IOException {
         if (null == zipFile)
             throw new NullPointerException("zipFile cannot be null.");
@@ -99,10 +98,11 @@ public class ZipUtil {
             ZipEntry zipEntry;
             while (entries.hasMoreElements()) {
                 zipEntry = entries.nextElement();
-                if (zipEntry.isDirectory())
+                if (zipEntry.isDirectory()) {
                     createDirectory(outputDirectory, zipEntry);
-                else
+                } else {
                     extractFile(outputDirectory, zip, zipEntry, buffer);
+                }
             }
         } finally {
             zip.close();
@@ -161,7 +161,7 @@ public class ZipUtil {
      *            A <code>ZipEntry</code>.
      */
     private static void extractFile(final File outputDirectory,
-            final ZipFile zipFile, ZipEntry zipEntry, final ByteBuffer buffer)
+            final ZipFile zipFile, ZipEntry zipEntry, final byte[] buffer)
             throws IOException {
         final InputStream zipEntryStream = zipFile.getInputStream(zipEntry);
         try {

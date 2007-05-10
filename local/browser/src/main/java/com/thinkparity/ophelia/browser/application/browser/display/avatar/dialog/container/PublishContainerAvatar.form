@@ -18,12 +18,12 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="buttonBarJPanel" alignment="0" max="32767" attributes="0"/>
                   <Component id="progressBarJPanel" alignment="0" max="32767" attributes="0"/>
-                  <Component id="namesJScrollPane" alignment="1" pref="360" max="32767" attributes="0"/>
-                  <Component id="emailsJLabel" alignment="1" pref="360" max="32767" attributes="0"/>
-                  <Component id="emailsJScrollPane" alignment="0" pref="360" max="32767" attributes="0"/>
+                  <Component id="namesJScrollPane" alignment="1" pref="362" max="32767" attributes="0"/>
+                  <Component id="emailsJLabel" alignment="1" pref="362" max="32767" attributes="0"/>
+                  <Component id="emailsJScrollPane" alignment="0" pref="362" max="32767" attributes="0"/>
                   <Component id="labelJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="labelJTextField" alignment="0" pref="360" max="32767" attributes="0"/>
-                  <Component id="commentJLabel" alignment="1" pref="360" max="32767" attributes="0"/>
+                  <Component id="labelJTextField" alignment="0" pref="362" max="32767" attributes="0"/>
+                  <Component id="commentJLabel" alignment="1" pref="362" max="32767" attributes="0"/>
                   <Component id="commentJScrollPane" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -185,13 +185,12 @@
       <SubComponents>
         <Component class="javax.swing.JTextArea" name="commentJTextArea">
           <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="Fonts.DialogTextEntryFont" type="code"/>
-            </Property>
             <Property name="lineWrap" type="boolean" value="true"/>
             <Property name="wrapStyleWord" type="boolean" value="true"/>
           </Properties>
           <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.createArea(Fonts.DialogTextEntryFont);"/>
+            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="((AbstractDocument) commentJTextArea.getDocument()).setDocumentFilter(new JTextAreaLengthFilter(containerConstraints.getPublishComment()));"/>
             <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
           </AuxValues>
         </Component>
@@ -302,8 +301,8 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="publishJProgressBar" alignment="0" pref="360" max="32767" attributes="0"/>
-              <Component id="statusJLabel" alignment="0" pref="360" max="32767" attributes="0"/>
+              <Component id="publishJProgressBar" alignment="0" pref="362" max="32767" attributes="0"/>
+              <Component id="statusJLabel" alignment="0" pref="362" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">

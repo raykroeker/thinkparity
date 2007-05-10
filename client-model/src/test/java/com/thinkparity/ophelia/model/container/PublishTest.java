@@ -4,15 +4,11 @@
  */
 package com.thinkparity.ophelia.model.container;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
-import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
@@ -227,28 +223,12 @@ public class PublishTest extends ContainerTestCase {
 
             getDocumentModel(datum.junit).openVersion(d.getId(), dv_latest.getVersionId(), new StreamOpener() {
                 public void open(final InputStream stream) throws IOException {
-                    final File file = getOutputFile(dv_latest);
-                    final OutputStream outputStream = new FileOutputStream(file);
-                    try {
-                        synchronized (getBufferLock()) {
-                            StreamUtil.copy(stream, outputStream, getBuffer());
-                        }
-                    } finally {
-                        outputStream.close();
-                    }
+                    streamToFile(stream, getOutputFile(dv_latest));
                 }
             });
             getDocumentModel(datum.junit_x).openVersion(d_x.getId(), dv_latest_x.getVersionId(), new StreamOpener() {
                 public void open(final InputStream stream) throws IOException {
-                    final File file = getOutputFile(dv_latest_x);
-                    final OutputStream outputStream = new FileOutputStream(file);
-                    try {
-                        synchronized (getBufferLock()) {
-                            StreamUtil.copy(stream, outputStream, getBuffer());
-                        }
-                    } finally {
-                        outputStream.close();
-                    }
+                    streamToFile(stream, getOutputFile(dv_latest_x));
                 }
             });
             try {
@@ -259,28 +239,12 @@ public class PublishTest extends ContainerTestCase {
 
             getDocumentModel(datum.junit).openVersion(d.getId(), dv_latest.getVersionId(), new StreamOpener() {
                 public void open(final InputStream stream) throws IOException {
-                    final File file = getOutputFile(dv_latest);
-                    final OutputStream outputStream = new FileOutputStream(file);
-                    try {
-                        synchronized (getBufferLock()) {
-                            StreamUtil.copy(stream, outputStream, getBuffer());
-                        }
-                    } finally {
-                        outputStream.close();
-                    }
+                    streamToFile(stream, getOutputFile(dv_latest));
                 }
             });
             getDocumentModel(datum.junit_y).openVersion(d_y.getId(), dv_latest_y.getVersionId(), new StreamOpener() {
                 public void open(final InputStream stream) throws IOException {
-                    final File file = getOutputFile(dv_latest_y);
-                    final OutputStream outputStream = new FileOutputStream(file);
-                    try {
-                        synchronized (getBufferLock()) {
-                            StreamUtil.copy(stream, outputStream, getBuffer());
-                        }
-                    } finally {
-                        outputStream.close();
-                    }
+                    streamToFile(stream, getOutputFile(dv_latest_y));
                 }
             });
             try {

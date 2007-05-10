@@ -237,7 +237,7 @@ final class StreamModelImpl extends AbstractModelImpl {
             final InetAddress inetAddress) {
         final ServerSession session = new ServerSession();
         session.setCharset(CHARSET);
-        session.setBufferSize(getDefaultBufferSize("stream-session"));
+        session.setBufferSize(getBufferSize("stream-session"));
         session.setEnvironment(readEnvironment());
         session.setId(buildSessionId(userId));
         session.setInetAddress(inetAddress);

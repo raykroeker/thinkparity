@@ -43,7 +43,7 @@ public class ZipUtilTest extends CodebaseTestCase {
         final FileSystem outputFileSystem = new FileSystem(datum.outputDirectory);
         try {
             synchronized (getBufferLock()) {
-                ZipUtil.extractZipFile(datum.outputZipFile, datum.outputDirectory, getBuffer());
+                ZipUtil.extractZipFile(datum.outputZipFile, datum.outputDirectory, getBufferArray());
             }
         } catch (final FileNotFoundException fnfx) {
             fail(createFailMessage(fnfx));
@@ -65,19 +65,13 @@ public class ZipUtilTest extends CodebaseTestCase {
         File file;
         for (final File inputFile : getInputFiles()) {
             file = new File(inputDirectoryFileSystem.getRoot(), inputFile.getName());
-            synchronized (getBufferLock()) {
-                FileUtil.copy(inputFile, file, getBuffer());
-            }
+            fileToFile(inputFile, file);
 
             file = new File(inputDirectoryFileSystem.find("/level 1"), inputFile.getName());
-            synchronized (getBufferLock()) {
-                FileUtil.copy(inputFile, file, getBuffer());
-            }
+            fileToFile(inputFile, file);
 
             file = new File(inputDirectoryFileSystem.find("/level 1/level 2"), inputFile.getName());
-            synchronized (getBufferLock()) {
-                FileUtil.copy(inputFile, file, getBuffer());
-            }
+            fileToFile(inputFile, file);
         }
 
 		final File outputZipFile = new File(getTestCaseDirectory(), "zipOutput.zip");

@@ -4,11 +4,12 @@
 package com.thinkparity.ophelia.browser.mode.demo;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 import java.text.MessageFormat;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -332,15 +333,17 @@ public final class DemoManager implements DemoProvider {
      */
     private void writeFile(final String path, ClassLoader fileLoader,
             final FileSystem fileSystem) throws IOException {
-        final File file = fileSystem.createFile(path);
-        final InputStream input = fileLoader.getResourceAsStream(path);
-        final FileOutputStream output = new FileOutputStream(file);
+        final WritableByteChannel channel = fileSystem.createWriteChannel(path);
         try {
-            StreamUtil.copy(input, output);
+            final InputStream stream = fileLoader.getResourceAsStream(path);
+            try {
+                // BUFFER - DemoManager#writeFile() - 2MB
+                StreamUtil.copy(stream, channel, ByteBuffer.allocateDirect(1024 * 1024 * 2));
+            } finally {
+                stream.close();
+            }
         } finally {
-            output.flush();
-            output.close();
-            input.close();
+            channel.close();
         }
     }
 }

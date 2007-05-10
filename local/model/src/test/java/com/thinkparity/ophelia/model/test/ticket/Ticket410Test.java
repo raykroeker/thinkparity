@@ -4,15 +4,10 @@
  */
 package com.thinkparity.ophelia.model.test.ticket;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
-
-import com.thinkparity.codebase.StreamUtil;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
@@ -94,28 +89,12 @@ public class Ticket410Test extends TicketTestCase {
             assertSimilar("Document version does not match expectation.", cv_latest_dv, cv_latest_dv_x);
             getDocumentModel(datum.junit).openVersion(cv_latest_dv.getArtifactId(), cv_latest_dv.getVersionId(), new StreamOpener() {
                 public void open(final InputStream stream) throws IOException {
-                    final File file = getOutputFile(cv_latest_dv);
-                    final OutputStream outputStream = new FileOutputStream(file);
-                    try {
-                        synchronized (getBufferLock()) {
-                            StreamUtil.copy(stream, outputStream, getBuffer());
-                        }
-                    } finally {
-                        outputStream.close();
-                    }
+                    streamToFile(stream, getOutputFile(cv_latest_dv));
                 }
             });
             getDocumentModel(datum.junit_x).openVersion(cv_latest_dv_x.getArtifactId(), cv_latest_dv_x.getVersionId(), new StreamOpener() {
                 public void open(InputStream stream) throws IOException {
-                    final File file = getOutputFile(cv_latest_dv_x);
-                    final OutputStream outputStream = new FileOutputStream(file);
-                    try {
-                        synchronized (getBufferLock()) {
-                            StreamUtil.copy(stream, outputStream, getBuffer());
-                        }
-                    } finally {
-                        outputStream.close();
-                    }
+                    streamToFile(stream, getOutputFile(cv_latest_dv_x));
                 }
             });
             try {
@@ -182,28 +161,12 @@ public class Ticket410Test extends TicketTestCase {
             assertSimilar("Document version does not match expectation.", cv_latest_dv, cv_latest_dv_x);
             getDocumentModel(datum.junit).openVersion(cv_latest_dv.getArtifactId(), cv_latest_dv.getVersionId(), new StreamOpener() {
                 public void open(final InputStream stream) throws IOException {
-                    final File file = getOutputFile(cv_latest_dv);
-                    final OutputStream outputStream = new FileOutputStream(file);
-                    try {
-                        synchronized (getBufferLock()) {
-                            StreamUtil.copy(stream, outputStream, getBuffer());
-                        }
-                    } finally {
-                        outputStream.close();
-                    }
+                    streamToFile(stream, getOutputFile(cv_latest_dv));
                 }
             });
             getDocumentModel(datum.junit_x).openVersion(cv_latest_dv_x.getArtifactId(), cv_latest_dv_x.getVersionId(), new StreamOpener() {
                 public void open(final InputStream stream) throws IOException {
-                    final File file = getOutputFile(cv_latest_dv_x);
-                    final OutputStream outputStream = new FileOutputStream(file);
-                    try {
-                        synchronized (getBufferLock()) {
-                            StreamUtil.copy(stream, outputStream, getBuffer());
-                        }
-                    } finally {
-                        outputStream.close();
-                    }
+                    streamToFile(stream, getOutputFile(cv_latest_dv_x));
                 }
             });
             try {
@@ -271,28 +234,12 @@ public class Ticket410Test extends TicketTestCase {
             assertSimilar("Document version does not match expectation.", cv_latest_dv, cv_latest_dv_x);
             getDocumentModel(datum.junit).openVersion(cv_latest_dv.getArtifactId(), cv_latest_dv.getVersionId(), new StreamOpener() {
                 public void open(final InputStream stream) throws IOException {
-                    final File file = getOutputFile(cv_latest_dv);
-                    final OutputStream outputStream = new FileOutputStream(file);
-                    try {
-                        synchronized (getBufferLock()) {
-                            StreamUtil.copy(stream, outputStream, getBuffer());
-                        }
-                    } finally {
-                        outputStream.close();
-                    }
+                    streamToFile(stream, getOutputFile(cv_latest_dv));
                 }
             });
             getDocumentModel(datum.junit_x).openVersion(cv_latest_dv_x.getArtifactId(), cv_latest_dv_x.getVersionId(), new StreamOpener() {
                 public void open(final InputStream stream) throws IOException {
-                    final File file = getOutputFile(cv_latest_dv_x);
-                    final OutputStream outputStream = new FileOutputStream(file);
-                    try {
-                        synchronized (getBufferLock()) {
-                            StreamUtil.copy(stream, outputStream, getBuffer());
-                        }
-                    } finally {
-                        outputStream.close();
-                    }
+                    streamToFile(stream, getOutputFile(cv_latest_dv_x));
                 }
             });
             try {
@@ -343,28 +290,12 @@ public class Ticket410Test extends TicketTestCase {
             assertSimilar("Document version does not match expectation.", cv_latest_dv, cv_latest_dv_y);
             getDocumentModel(datum.junit).openVersion(cv_latest_dv.getArtifactId(), cv_latest_dv.getVersionId(), new StreamOpener() {
                 public void open(final InputStream stream) throws IOException {
-                    final File file = getOutputFile(cv_latest_dv);
-                    final OutputStream outputStream = new FileOutputStream(file);
-                    try {
-                        synchronized (getBufferLock()) {
-                            StreamUtil.copy(stream, outputStream, getBuffer());
-                        }
-                    } finally {
-                        outputStream.close();
-                    }
+                    streamToFile(stream, getOutputFile(cv_latest_dv));
                 }
             });
             getDocumentModel(datum.junit_y).openVersion(cv_latest_dv_y.getArtifactId(), cv_latest_dv_y.getVersionId(), new StreamOpener() {
                 public void open(final InputStream stream) throws IOException {
-                    final File file = getOutputFile(cv_latest_dv_y);
-                    final OutputStream outputStream = new FileOutputStream(file);
-                    try {
-                        synchronized (getBufferLock()) {
-                            StreamUtil.copy(stream, outputStream, getBuffer());
-                        }
-                    } finally {
-                        outputStream.close();
-                    }
+                    streamToFile(stream, getOutputFile(cv_latest_dv_y));
                 }
             });
             try {

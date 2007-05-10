@@ -16,8 +16,8 @@ import java.util.Map.Entry;
 
 import javax.xml.transform.TransformerException;
 
+import com.thinkparity.codebase.BytesFormat;
 import com.thinkparity.codebase.FileSystem;
-import com.thinkparity.codebase.FileUtil;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
@@ -36,6 +36,9 @@ import com.thoughtworks.xstream.XStream;
  * @version 1.1.2.8
  */
 final class PDFXMLWriter {
+
+    /** An instance of <code>BytesFormat</code>. */
+    private final BytesFormat bytesFormat;
 
     /** A <code>Container</code>. */
     private Container container;
@@ -88,6 +91,7 @@ final class PDFXMLWriter {
      */
     public PDFXMLWriter(final FileSystem exportFileSystem) {
        super();
+       this.bytesFormat = new BytesFormat();
        this.documents = new HashMap<ContainerVersion, List<DocumentVersion>>();
        this.documentsSize = new HashMap<DocumentVersion, Long>();
        this.publishedTo = new HashMap<ContainerVersion, List<ArtifactReceipt>>();
@@ -234,7 +238,7 @@ final class PDFXMLWriter {
     private PDFXMLDocument createPDFXMLDocument(final DocumentVersion version) {
         final PDFXMLDocument pdfXML = new PDFXMLDocument();
         pdfXML.name = version.getName();
-        pdfXML.size = FileUtil.formatSize(documentsSize.get(version));
+        pdfXML.size = bytesFormat.format(documentsSize.get(version));
         return pdfXML;
     }
 

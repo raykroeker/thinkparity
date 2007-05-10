@@ -32,7 +32,7 @@ public class ZipUtilTest extends CodebaseTestCase {
         final FileSystem inputFileSystem = new FileSystem(datum.inputDirectory);
         try {
             synchronized (getBufferLock()) {
-                ZipUtil.createZipFile(datum.outputZipFile, datum.inputDirectory, getBuffer());
+                ZipUtil.createZipFile(datum.outputZipFile, datum.inputDirectory, getBufferArray());
             }
         } catch (final FileNotFoundException fnfx) {
             fail(createFailMessage(fnfx));

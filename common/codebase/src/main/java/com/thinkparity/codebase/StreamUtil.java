@@ -11,6 +11,8 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
+import com.thinkparity.codebase.nio.ChannelUtil;
+
 /**
  * Stream utility functions.
  * 
@@ -20,38 +22,6 @@ import java.nio.channels.WritableByteChannel;
 public abstract class StreamUtil {
 	
     /**
-     * Copy an input stream to a writable byte channel.
-     * 
-     * @param is
-     *            An <code>InputStream</code>.
-     * @param writeChannel
-     *            A <code>WritableByteChannel</code>.
-     * @param buffer
-     *            A direct allocation <code>ByteBuffer</code>.
-     * @throws IOException
-     */
-    public static void copy(final InputStream is,
-            final WritableByteChannel writeChannel, final ByteBuffer buffer)
-            throws IOException {
-        if (!buffer.isDirect())
-            throw new IllegalArgumentException("Buffer must be a direct allocation.");
-        final ReadableByteChannel channel = Channels.newChannel(is);
-        int read;
-        while (true) {
-            buffer.clear();
-            read = channel.read(buffer);
-            if (-1 == read) {
-                break;
-            }
-            buffer.flip();
-            buffer.limit(read);
-            while (buffer.hasRemaining()) {
-                writeChannel.write(buffer);
-            }
-        }
-    }
-
-	/**
 	 * Copy the input stream to the output stream using a default buffer size of
 	 * 512 bytes. Note that the streams are note closed upon completion.
 	 * 
@@ -66,6 +36,27 @@ public abstract class StreamUtil {
 	    // BUFFER - 512B - StreamUtil#copy(InputStream, OutputStream)
 		copy(is, os, new byte[512]);
 	}
+
+    /**
+     * Copy a stream from an input to an output using a pre-allocated buffer.
+     * 
+     * @param is
+     *            An <code>InputStream</code>.
+     * @param os
+     *            An <code>OutputStream</code>.
+     * @param buffer
+     *            A buffer <code>byte[]</code>.
+     * @throws IOException
+     */
+    public static void copy(final InputStream is, final OutputStream os,
+            final byte[] buffer) throws IOException {
+        int len;
+        while ((len = is.read(buffer)) > 0) {
+            os.write(buffer, 0, len);
+            os.flush();
+        }
+        os.flush();
+    }
 
 	/**
 	 * Copy bytes from an input stream to an output stream. Note that the
@@ -86,25 +77,43 @@ public abstract class StreamUtil {
         copy(is, os, buffer.array());
 	}
 
-    /**
-     * Copy a stream from an input to an output using a pre-allocated buffer.
+	/**
+     * Copy an input stream into a writable byte channel.
      * 
      * @param is
      *            An <code>InputStream</code>.
-     * @param os
-     *            An <code>OutputStream</code>.
+     * @param writeChannel
+     *            A <code>WritableByteChannel</code>.
      * @param buffer
-     *            A buffer <code>byte[]</code>.
+     *            A direct allocation <code>ByteBuffer</code>.
      * @throws IOException
      */
-    private static void copy(final InputStream is, final OutputStream os,
-            final byte[] buffer) throws IOException {
-        int len;
-        while((len = is.read(buffer)) > 0) {
-            os.write(buffer, 0, len);
-            os.flush();
-        }
-        os.flush();
+    public static void copy(final InputStream is,
+            final WritableByteChannel writeChannel, final ByteBuffer buffer)
+            throws IOException {
+        if (!buffer.isDirect())
+            throw new IllegalArgumentException("Buffer must be a direct allocation.");
+        final ReadableByteChannel readChannel = Channels.newChannel(is);
+        ChannelUtil.copy(readChannel, writeChannel, buffer);
+    }
+
+    /**
+     * Copy an readable channel into an output stream.
+     * 
+     * @param is
+     *            An <code>InputStream</code>.
+     * @param writeChannel
+     *            A <code>WritableByteChannel</code>.
+     * @param buffer
+     *            A direct allocation <code>ByteBuffer</code>.
+     * @throws IOException
+     */
+    public static void copy(final ReadableByteChannel readChannel,
+            final OutputStream os, final ByteBuffer buffer) throws IOException {
+        if (!buffer.isDirect())
+            throw new IllegalArgumentException("Buffer must be a direct allocation.");
+        final WritableByteChannel writeChannel = Channels.newChannel(os);
+        ChannelUtil.copy(readChannel, writeChannel, buffer);
     }
 
 	/**

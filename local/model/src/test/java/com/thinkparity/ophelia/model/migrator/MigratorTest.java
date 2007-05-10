@@ -100,7 +100,8 @@ public final class MigratorTest extends MigratorTestCase {
             seedProduct.setName("JUnit Test Product");
 
             synchronized (getBufferLock()) {
-                ZipUtil.createZipFile(seedFile, getTestCaseDirectory(), getBuffer());
+                ZipUtil.createZipFile(seedFile, getTestCaseDirectory(),
+                        getBufferArray());
             }
 
             seedRelease = new Release();

@@ -5,6 +5,8 @@ package com.thinkparity.ophelia.model.container;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -1180,29 +1182,20 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#readDraft(java.lang.Long)
+     *
+     */
+    public ContainerDraft readDraft(Long containerId) {
+        return readDraft(containerId, defaultComparator, defaultFilter);
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.container.ContainerModel#readDraft(java.lang.Long, java.util.Comparator)
      *
      */
     public ContainerDraft readDraft(final Long containerId,
             final Comparator<Artifact> comparator) {
         return readDraft(containerId, comparator, defaultFilter);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.container.ContainerModel#readDraft(java.lang.Long, com.thinkparity.codebase.filter.Filter)
-     *
-     */
-    public ContainerDraft readDraft(final Long containerId,
-            final Filter<? super Artifact> filter) {
-        return readDraft(containerId, defaultComparator, defaultFilter);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.container.ContainerModel#readDraft(java.lang.Long)
-     *
-     */
-    public ContainerDraft readDraft(Long containerId) {
-        return readDraft(containerId, defaultComparator, defaultFilter);
     }
 
     /**
@@ -1237,6 +1230,15 @@ public final class ContainerModelImpl extends
         } catch (final Throwable t) {
             throw panic(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#readDraft(java.lang.Long, com.thinkparity.codebase.filter.Filter)
+     *
+     */
+    public ContainerDraft readDraft(final Long containerId,
+            final Filter<? super Artifact> filter) {
+        return readDraft(containerId, defaultComparator, defaultFilter);
     }
 
     /**
@@ -2336,6 +2338,41 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Add an export resource to the resource map. The name will be used to
+     * lookup the resource within the classpath as well as the name of the
+     * resource within the map.
+     * 
+     * @param fileSystem
+     *            The export <code>FileSystem</code>.
+     * @param resources
+     *            The existing export <code>Map</code> of resource name
+     *            <code>String</code> to the <code>File</code>.
+     * @param name
+     *            The resource name <code>String</code>.
+     * @param path
+     *            The resource path <code>String</code>.
+     * @throws IOException
+     */
+    private void addExportResource(final FileSystem fileSystem,
+            final Map<String, File> resources, final String name,
+            final String path) throws IOException {
+        final File file;
+        if (null != fileSystem.find(path)) {
+            final File existingFile = fileSystem.find(path);
+            Assert.assertTrue(existingFile.delete(),
+                    "Cannot delete existing export resource.", existingFile);
+        }
+        file = fileSystem.createFile(path);
+        final InputStream stream = ResourceUtil.getInputStream(path);
+        try {
+            streamToFile(stream, file);
+            resources.put(name, file);
+        } finally {
+            stream.close();
+        }
+    }
+
+    /**
      * Assert that a draft exists.
      * 
      * @param containerId
@@ -2478,6 +2515,13 @@ public final class ContainerModelImpl extends
         Assert.assertNotTrue(assertion, isDistributed(containerId));
     }
 
+    private void channelToStream(final ReadableByteChannel channel,
+            final OutputStream stream) throws IOException {
+        synchronized (workspace.getBufferLock()) {
+            StreamUtil.copy(channel, stream, workspace.getBuffer());
+        }
+    }
+
     /**
      * Create an instance of a delegate.
      * 
@@ -2584,7 +2628,7 @@ public final class ContainerModelImpl extends
             final Map<DocumentVersion, Long> documentsSize = new HashMap<DocumentVersion, Long>();
             final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo =
                 new HashMap<ContainerVersion, List<ArtifactReceipt>>(versions.size(), 1.0F);
-            File directory, file;
+            File directory;
             for (final ContainerVersion version : versions) {
                 versionsPublishedBy.put(version, readUser(version.getUpdatedBy()));
                 publishedTo.put(version, readPublishedTo(
@@ -2596,23 +2640,15 @@ public final class ContainerModelImpl extends
                         nameGenerator.exportDirectoryName(version));
                 for (final DocumentVersion documentVersion : documents.get(version)) {
                     documentsSize.put(documentVersion, documentVersion.getSize());
-                    file = new File(directory,
+                    final File file = new File(directory,
                             documentNameGenerator.exportFileName(documentVersion));
-                    final OutputStream outputStream = new FileOutputStream(file);
-                    try {
-                        documentModel.openVersion(
-                                documentVersion.getArtifactId(),
-                                documentVersion.getVersionId(), new StreamOpener() {
-                                    public void open(final InputStream stream)
-                                    throws IOException {
-                                        synchronized (workspace.getBufferLock()) {
-                                            StreamUtil.copy(stream, outputStream, workspace.getBuffer());
-                                        }
-                                    }
-                                });
-                    } finally {
-                        outputStream.close();
-                    }
+                    documentModel.openVersion(documentVersion.getArtifactId(),
+                            documentVersion.getVersionId(), new StreamOpener() {
+                                public void open(final InputStream stream)
+                                        throws IOException {
+                                    streamToFile(stream, file);
+                                }
+                            });
                 }
             }
 
@@ -2631,60 +2667,24 @@ public final class ContainerModelImpl extends
             final File zipFile = new File(exportFileSystem.getRoot(), container.getName());
             synchronized (workspace.getBufferLock()) {
                 ZipUtil.createZipFile(zipFile, exportFileSystem.getRoot(),
-                        workspace.getBuffer());
+                        workspace.getBufferArray());
             }
-            final InputStream inputStream = new FileInputStream(zipFile);
-            try {
-                synchronized (workspace.getBufferLock()) {
-                    StreamUtil.copy(inputStream, exportStream,
-                            workspace.getBuffer());
-                }
-            } finally {
-                inputStream.close();
-            }
+
+            // copy it
+            fileToStream(zipFile, exportStream);
         } finally {
             exportFileSystem.deleteTree();
         }
     }
 
-    /**
-     * Add an export resource to the resource map. The name will be used to
-     * lookup the resource within the classpath as well as the name of the
-     * resource within the map.
-     * 
-     * @param fileSystem
-     *            The export <code>FileSystem</code>.
-     * @param resources
-     *            The existing export <code>Map</code> of resource name
-     *            <code>String</code> to the <code>File</code>.
-     * @param name
-     *            The resource name <code>String</code>.
-     * @param path
-     *            The resource path <code>String</code>.
-     * @throws IOException
-     */
-    private void addExportResource(final FileSystem fileSystem,
-            final Map<String, File> resources, final String name,
-            final String path) throws IOException {
-        File file = fileSystem.find(path);
-        if (null == file) {
-            file = fileSystem.createFile(path);
-            final InputStream is = ResourceUtil.getInputStream(path);
-            try {
-                final OutputStream os = new FileOutputStream(file);
-                try {
-                    synchronized (workspace.getBufferLock()) {
-                        StreamUtil.copy(is, os, workspace.getBuffer());
-                    }
-                } finally {
-                    os.close();
-                }
-                resources.put(name, file);
-            } finally {
-                is.close();
-            }
-        } else {
-            Assert.assertTrue(file.isFile(), "Export resource must be a file.");
+    private void fileToStream(final File file, final OutputStream stream)
+            throws IOException {
+        final ReadableByteChannel channel =
+            new RandomAccessFile(file, "r").getChannel();
+        try {
+            channelToStream(channel, stream);
+        } finally {
+            channel.close();
         }
     }
 
@@ -2724,7 +2724,7 @@ public final class ContainerModelImpl extends
     private boolean isLocalTeamMember(final Long containerId) {
         return contains(getArtifactModel().readTeam2(containerId), localUser());
     }
-    
+
     /**
      * Lock a list of documents' versions.
      * 
@@ -2763,7 +2763,7 @@ public final class ContainerModelImpl extends
             }
         });
     }
-
+    
     /**
      * Fire a container created notification.
      * 
@@ -3120,6 +3120,24 @@ public final class ContainerModelImpl extends
         }
         // create draft document
         createDraftDocument(containerId, documentId);
+    }
+
+    private void streamToChannel(final InputStream stream,
+            final WritableByteChannel channel) throws IOException {
+        synchronized (workspace.getBufferLock()) {
+            StreamUtil.copy(stream, channel, workspace.getBuffer());
+        }
+    }
+
+    private void streamToFile(final InputStream stream, final File file)
+            throws IOException {
+        final WritableByteChannel channel =
+            new RandomAccessFile(file, "rws").getChannel();
+        try {
+            streamToChannel(stream, channel);
+        } finally {
+            channel.close();
+        }
     }
 
     /**

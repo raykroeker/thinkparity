@@ -34,7 +34,7 @@ public class ZipUtil {
 	 * @throws IOException
 	 */
 	public static void createZipFile(final File zipFile,
-            final File inputDirectory, final ByteBuffer buffer)
+            final File inputDirectory, final byte[] buffer)
             throws FileNotFoundException, IOException {
         if (null == zipFile)
             throw new NullPointerException("zipFile cannot be null.");
@@ -121,7 +121,7 @@ public class ZipUtil {
      * @throws IOException
      */
     private static void addFile(final File inputDirectory, final File file,
-            final ZipOutputStream zipOutputStream, final ByteBuffer buffer)
+            final ZipOutputStream zipOutputStream, final byte[] buffer)
             throws IOException {
         zipOutputStream.putNextEntry(new ZipEntry(resolveName(inputDirectory, file)));
         try {

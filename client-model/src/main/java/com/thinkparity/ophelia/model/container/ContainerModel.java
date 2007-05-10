@@ -389,6 +389,45 @@ public interface ContainerModel {
     public ContainerDraft readDraft(final Long containerId);
 
     /**
+     * Read a draft for the container.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param comparator
+     *            An artifact <code>Comparator</code>.
+     * @return A container draft; or null if none exists.
+     */
+    public ContainerDraft readDraft(final Long containerId,
+            final Comparator<Artifact> comparator);
+
+    /**
+     * Read a draft for the container.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param comparator
+     *            An artifact <code>Comparator</code>.
+     * @param filter
+     *            A document <code>Filter</code>.
+     * @return A container draft; or null if none exists.
+     */
+    public ContainerDraft readDraft(final Long containerId,
+            final Comparator<Artifact> comparator,
+            final Filter<? super Artifact> filter);
+
+    /**
+     * Read a draft for the container.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param filter
+     *            A document <code>Filter</code>.
+     * @return A container draft; or null if none exists.
+     */
+    public ContainerDraft readDraft(final Long containerId,
+            final Filter<? super Artifact> filter);
+
+    /**
      * Read the latest container version.
      * 
      * @param containerId

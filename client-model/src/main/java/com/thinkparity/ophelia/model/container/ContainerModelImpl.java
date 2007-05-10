@@ -1180,22 +1180,49 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#readDraft(java.lang.Long, java.util.Comparator)
+     *
+     */
+    public ContainerDraft readDraft(final Long containerId,
+            final Comparator<Artifact> comparator) {
+        return readDraft(containerId, comparator, defaultFilter);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#readDraft(java.lang.Long, com.thinkparity.codebase.filter.Filter)
+     *
+     */
+    public ContainerDraft readDraft(final Long containerId,
+            final Filter<? super Artifact> filter) {
+        return readDraft(containerId, defaultComparator, defaultFilter);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#readDraft(java.lang.Long)
+     *
+     */
+    public ContainerDraft readDraft(Long containerId) {
+        return readDraft(containerId, defaultComparator, defaultFilter);
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.container.ContainerModel#readDraft(java.lang.Long)
      * 
      */
-    public ContainerDraft readDraft(final Long containerId) {
+    public ContainerDraft readDraft(final Long containerId,
+            final Comparator<Artifact> comparator,
+            final Filter<? super Artifact> filter) {
         try {
             final InternalDocumentModel documentModel = getDocumentModel();
             final ContainerDraft draft = containerIO.readDraft(containerId);
     
-            // NOTE-Begin:this should be a parameterized comparator
             if (null != draft) {
                 final List<Document> documents = new ArrayList<Document>();
                 documents.addAll(draft.getDocuments());
-                ModelSorter.sortDocuments(documents, defaultComparator);
+                FilterManager.filter(documents, filter);
+                ModelSorter.sortDocuments(documents, comparator);
                 draft.setDocuments(documents);
             }
-            // NOTE-End:this should be a parameterized comparator
     
             if (null != draft) {
                 for (final Document document : draft.getDocuments()) {

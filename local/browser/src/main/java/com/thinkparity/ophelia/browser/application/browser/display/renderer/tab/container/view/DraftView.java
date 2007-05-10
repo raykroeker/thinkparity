@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view;
 
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,20 +43,7 @@ public class DraftView {
      * @return A <code>List</code> of <code>Document</code>s.
      */
     public List<Document> getDocuments() {
-        return draft.getDocuments(new Comparator<Artifact>() {
-            public int compare(final Artifact o1, final Artifact o2) {
-                // Oldest documents are first in the list.
-                int result = isSetFirstPublishedOn(o1).compareTo(isSetFirstPublishedOn(o2));
-                if (result != 0) {
-                    return -1*result;
-                } else if (isSetFirstPublishedOn(o1)) {
-                    return getFirstPublishedOn(o1).compareTo(
-                           getFirstPublishedOn(o2));
-                } else {
-                    return -1;
-                }
-            }
-        });
+        return draft.getDocuments();
     }
 
     /**
@@ -96,17 +82,6 @@ public class DraftView {
      */
     public Boolean isSetDraft() {
         return null != draft;
-    }
-
-    /**
-     * Determine whether or not the first published on date is set.
-     * 
-     * @param artifact
-     *            An <code>Artifact</code>.
-     * @return True if the first published on date is set.
-     */
-    public Boolean isSetFirstPublishedOn(final Artifact artifact) {
-        return null != getFirstPublishedOn(artifact);
     }
 
     /**

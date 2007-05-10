@@ -270,7 +270,12 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 	 */
     public DraftView readDraftView(final Long containerId) {
         final DraftView draftView = new DraftView();
-        draftView.setDraft(containerModel.readDraft(containerId));
+        final Comparator<Artifact> comparator = new Comparator<Artifact>() {
+            public int compare(final Artifact o1, final Artifact o2) {
+                return o1.getCreatedOn().compareTo(o2.getCreatedOn());
+            }
+        };
+        draftView.setDraft(containerModel.readDraft(containerId, comparator));
         DocumentVersion firstVersion;
         if (draftView.isSetDraft()) {
             for (final Document document : draftView.getDraft().getDocuments()) {

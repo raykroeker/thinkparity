@@ -11,7 +11,6 @@ insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.product-name','Desd
 insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.release-name','20070325');
 insert into jiveProperty(NAME,PROPVALUE) values('thinkparity.migrator.logerror.notify','false');
 
-
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD)
     values('thinkparity','parity','What is my username?','thinkparity','0','<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>thinkParity Services Inc.</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>');
 insert into TPSD_EMAIL(EMAIL)
@@ -21,6 +20,10 @@ insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
 
 insert into TPSD_PRODUCT(PRODUCT_NAME) values('OpheliaProduct');
 insert into TPSD_PRODUCT(PRODUCT_NAME) values('DesdemonaProduct');
+insert into TPSD_PRODUCT_RELEASE(PRODUCT_ID,RELEASE_NAME,RELEASE_OS,RELEASE_DATE)
+    values(1000,'DEVELOPMENT','LINUX',CURRENT_TIMESTAMP);
+insert into TPSD_PRODUCT_RELEASE(PRODUCT_ID,RELEASE_NAME,RELEASE_OS,RELEASE_DATE)
+    values(1000,'DEVELOPMENT','WINDOWS_XP',CURRENT_TIMESTAMP);
 insert into TPSD_PRODUCT_FEATURE(PRODUCT_ID,FEATURE_NAME) values(1000,'CORE');
 insert into TPSD_PRODUCT_FEATURE(PRODUCT_ID,FEATURE_NAME) values(1000,'BACKUP');
 

@@ -46,21 +46,8 @@ public class MD5Util {
      */
     public static String md5Hex(final InputStream inputStream,
             final byte[] buffer) throws IOException {
-        final MessageDigest digest = getDigest();
-        final ByteBuffer bb = ByteBuffer.wrap(buffer);
         final ReadableByteChannel channel = Channels.newChannel(inputStream);
-        int read;
-        while (true) {
-            bb.clear();
-            read = channel.read(bb);
-            if (-1 == read) {
-                break;
-            }
-            bb.flip();
-            bb.limit(read);
-            digest.update(buffer);
-        }
-        return new String(Hex.encodeHex(digest.digest()));
+        return md5Hex(channel, buffer);
     }
     
     /**
@@ -86,7 +73,7 @@ public class MD5Util {
             }
             bb.flip();
             bb.limit(read);
-            digest.update(buffer);
+            digest.update(buffer, 0, read);
         }
         return new String(Hex.encodeHex(digest.digest()));
     }

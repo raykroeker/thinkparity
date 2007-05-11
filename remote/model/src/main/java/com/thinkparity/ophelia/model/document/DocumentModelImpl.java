@@ -541,9 +541,7 @@ public final class DocumentModelImpl extends
     		// write local version file
             final DocumentFileLock versionLock = lockVersion(version, "rws");
             try {
-                final FileChannel channel = versionLock.getFileChannel();
-                channel.position(0);
-                fileToChannel(tempFile, channel);
+                fileToChannel(tempFile, versionLock.getFileChannel(0L));
                 versionLock.getFile().setLastModified(version.getCreatedOn().getTimeInMillis());
                 versionLock.getFile().setReadOnly();
             } finally {

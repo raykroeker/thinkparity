@@ -327,7 +327,7 @@ public final class DocumentModelImpl extends
                         return Boolean.FALSE;
                     } else {
                         return !latestVersion.getChecksum().equals(
-                                checksum(lock.getFileChannel()));
+                                checksum(lock.getFileChannel(0L)));
                     }
                 }
             } else {
@@ -622,7 +622,7 @@ public final class DocumentModelImpl extends
             if (doesExistDraft(lock)) {
                 final File draftFile = getDraftFile(lock);
                 final DocumentDraft draft = new DocumentDraft();
-                draft.setChecksum(checksum(lock.getFileChannel()));
+                draft.setChecksum(checksum(lock.getFileChannel(0L)));
                 draft.setChecksumAlgorithm(getChecksumAlgorithm());
                 draft.setDocumentId(documentId);
                 draft.setSize(draftFile.length());
@@ -852,9 +852,7 @@ public final class DocumentModelImpl extends
             final InputStream content) {
         try {
             try {
-                final FileChannel channel = lock.getFileChannel();
-                channel.position(0);
-                streamToChannel(content, channel);
+                streamToChannel(content, lock.getFileChannel(0L));
                 lock.getFile().setLastModified(currentDateTime().getTimeInMillis());
             } finally {
                 release(lock);
@@ -986,9 +984,7 @@ public final class DocumentModelImpl extends
         final Document document = create(uniqueId, name, createdBy, createdOn);
         final DocumentFileLock lock = lock(document);
         try {
-            final FileChannel channel = lock.getFileChannel();
-            channel.position(0);
-            streamToChannel(content, channel);
+            streamToChannel(content, lock.getFileChannel(0L));
             lock.getFile().setLastModified(createdOn.getTimeInMillis());
         } finally {
             release(lock);
@@ -1077,9 +1073,7 @@ public final class DocumentModelImpl extends
     		// write local version file
             final DocumentFileLock versionLock = lockVersion(version, "rws");
             try {
-                final FileChannel channel = versionLock.getFileChannel();
-                channel.position(0);
-                fileToChannel(tempFile, channel);
+                fileToChannel(tempFile, versionLock.getFileChannel(0L));
                 versionLock.getFile().setLastModified(version.getCreatedOn().getTimeInMillis());
                 versionLock.getFile().setReadOnly();
             } finally {
@@ -1334,9 +1328,7 @@ public final class DocumentModelImpl extends
             final DocumentFileLock lock) {
         openVersion(documentId, versionId, new StreamOpener() {
             public void open(final InputStream stream) throws IOException {
-                final FileChannel channel = lock.getFileChannel();
-                channel.position(0);
-                streamToChannel(stream, channel);
+                streamToChannel(stream, lock.getFileChannel(0L));
             }
         });
     }

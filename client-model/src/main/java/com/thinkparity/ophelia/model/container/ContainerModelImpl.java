@@ -1825,9 +1825,8 @@ public final class ContainerModelImpl extends
                                 containerId, document.getId());
                         draftDocument.setChecksum(documentDraft.getChecksum());
                         draftDocument.setSize(documentDraft.getSize());
-                        channel = locks.get(document).getFileChannel();
+                        channel = locks.get(document).getFileChannel(0L);
                         tempFile = workspace.createTempFile();
-                        channel.position(0);
                         channelToFile(channel, tempFile);
                         try {
                             stream = new FileInputStream(tempFile);

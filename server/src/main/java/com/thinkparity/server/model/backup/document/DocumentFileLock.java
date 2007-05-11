@@ -57,6 +57,18 @@ public class DocumentFileLock {
     }
 
     /**
+     * Obtain fileChannel at a given position.
+     * 
+     * @param postion
+     *            A position <code>Long</code> within the content.
+     * @return A FileChannel.
+     */
+    public FileChannel getFileChannel(final Long position) throws IOException {
+        fileChannel.position(position);
+        return fileChannel;
+    }
+
+    /**
      * Obtain fileLock.
      *
      * @return A FileLock.

@@ -326,7 +326,8 @@ public final class DocumentModelImpl extends
                     if (draftFile.lastModified() == latestVersionCreatedOn) {
                         return Boolean.FALSE;
                     } else {
-                        return !latestVersion.getChecksum().equals(checksum(lock.getFileChannel()));
+                        return !latestVersion.getChecksum().equals(
+                                checksum(lock.getFileChannel()));
                     }
                 }
             } else {

@@ -255,10 +255,11 @@ public class ElementBuilder {
             addElement(element, "comment", value.getComment());
             addElement(element, "createdBy", value.getCreatedBy());
             addElement(element, "createdOn", value.getCreatedOn());
-            addElement(element, "name", value.getName());
+            addElement(element, "artifactName", value.getArtifactName());
             addElement(element, "updatedBy", value.getUpdatedBy());
             addElement(element, "updatedOn", value.getUpdatedOn());
             addElement(element, "versionId", value.getVersionId());
+            addElement(element, "name", value.getName());
             return element;
         }
     }
@@ -293,11 +294,12 @@ public class ElementBuilder {
             addElement(element, "checksumAlgorithm", value.getChecksumAlgorithm());
             addElement(element, "createdBy", value.getCreatedBy());
             addElement(element, "createdOn", value.getCreatedOn());
-            addElement(element, "name", value.getName());
+            addElement(element, "artifactName", value.getArtifactName());
             addElement(element, "size", value.getSize());
             addElement(element, "updatedBy", value.getUpdatedBy());
             addElement(element, "updatedOn", value.getUpdatedOn());
             addElement(element, "versionId", value.getVersionId());
+            addElement(element, "name", value.getName());
             return element;
         }
     }

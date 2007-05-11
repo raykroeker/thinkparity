@@ -49,8 +49,8 @@ public final class DocumentNameGenerator {
      */
     public String exportFileName(final DocumentVersion version) {
         return MessageFormat.format("{0}{1}",
-                FileUtil.getName(version.getName()),
-                FileUtil.getExtension(version.getName()));
+                FileUtil.getName(version.getArtifactName()),
+                FileUtil.getExtension(version.getArtifactName()));
     }
 
     /**
@@ -62,9 +62,9 @@ public final class DocumentNameGenerator {
      */
     public String localFileName(final DocumentVersion version) {
         return MessageFormat.format("{0}.{1,date,MMM dd, yyyy h mm ss a}{2}",
-                FileUtil.getName(version.getName()),
+                FileUtil.getName(version.getArtifactName()),
                 version.getUpdatedOn().getTime(),
-                FileUtil.getExtension(version.getName()));
+                FileUtil.getExtension(version.getArtifactName()));
     }
 
     /**

@@ -48,8 +48,7 @@ public final class DocumentUtil {
      * @return The document's name extension <code>String</code>.
      */
     public String getNameExtension(final Document document) {
-        final String name = document.getName();
-        return FileUtil.getExtension(name);
+        return FileUtil.getExtension(document.getName());
     }
 
     /**
@@ -60,7 +59,6 @@ public final class DocumentUtil {
      * @return A version's name extension <code>String</code>.
      */
     public String getNameExtension(final DocumentVersion version) {
-        final String name = version.getName();
-        return FileUtil.getExtension(name);
+        return FileUtil.getExtension(version.getArtifactName());
     }
 }

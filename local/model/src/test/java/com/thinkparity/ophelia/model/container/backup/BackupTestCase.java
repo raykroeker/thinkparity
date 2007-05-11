@@ -53,7 +53,7 @@ public abstract class BackupTestCase extends ContainerTestCase {
         assertEquals(assertion + " [CONTAINER VERSION'S ARTIFACT TYPE DOES NOT MATCH EXPECTATION]", expected.getArtifactType(), actual.getArtifactType());
         assertEquals(assertion + " [CONTAINER VERSION'S ARTIFACT UNIQUE ID DOES NOT MATCH EXPECTATION]", expected.getArtifactUniqueId(), actual.getArtifactUniqueId());
         assertEquals(assertion + " [CONTAINER VERSION'S CREATED BY DOES NOT MATCH EXPECTATION]", expected.getCreatedBy(), actual.getCreatedBy());
-        assertEquals(assertion + " [CONTAINER VERSION'S NAME DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
+        assertEquals(assertion + " [CONTAINER VERSION'S NAME DOES NOT MATCH EXPECTATION]", expected.getArtifactName(), actual.getArtifactName());
         assertEquals(assertion + " [CONTAINER VERSION'S UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getUpdatedBy(), actual.getUpdatedBy());
         assertEquals(assertion + " [CONTAINER VERSION'S VERSION ID DOES NOT MATCH EXPECTATION]", expected.getVersionId(), actual.getVersionId());
     }
@@ -98,7 +98,7 @@ public abstract class BackupTestCase extends ContainerTestCase {
         assertNotNull(assertion + " [CONTAINER VERSION'S UNIQUE ID IS NULL]", version.getArtifactUniqueId());
         assertNotNull(assertion + " [CONTAINER VERSION'S CREATED BY IS NULL]", version.getCreatedBy());
         assertNotNull(assertion + " [CONTAINER VERSION'S CREATED ON IS NULL]", version.getCreatedOn());
-        assertNotNull(assertion + " [CONTAINER VERSION'S NAME IS NULL]", version.getName());
+        assertNotNull(assertion + " [CONTAINER VERSION'S NAME IS NULL]", version.getArtifactName());
         assertNotNull(assertion + " [CONTAINER VERSION'S UPDATED BY IS NULL]", version.getUpdatedBy());
         assertNotNull(assertion + " [CONTAINER VERSION'S UPDATED ON IS NULL]", version.getUpdatedOn());
         assertNotNull(assertion + " [CONTAINER VERSION'S VERSION ID IS NULL]", version.getVersionId());
@@ -165,7 +165,7 @@ public abstract class BackupTestCase extends ContainerTestCase {
         assertEquals(assertion + " [CHECKSUM DOES NOT MATCH EXPECTATION]", expected.getChecksum(), actual.getChecksum());
         assertEquals(assertion + " [CHECKSUM ALGORITHM DOES NOT MATCH EXPECTATION]", expected.getChecksumAlgorithm(), actual.getChecksumAlgorithm());
         assertEquals(assertion + " [CREATED BY DOES NOT MATCH EXPECTATION]", expected.getCreatedBy(), actual.getCreatedBy());
-        assertEquals(assertion + " [NAME DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
+        assertEquals(assertion + " [NAME DOES NOT MATCH EXPECTATION]", expected.getArtifactName(), actual.getArtifactName());
         assertEquals(assertion + " [UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getUpdatedBy(), actual.getUpdatedBy());
         assertEquals(assertion + " [VERSION ID DOES NOT MATCH EXPECTATION]", expected.getVersionId(), actual.getVersionId());
     }
@@ -185,7 +185,7 @@ public abstract class BackupTestCase extends ContainerTestCase {
         assertNotNull(assertion + " [DOCUMENT VERSION CHECKSUM ALGORITHM IS NULL]", version.getChecksumAlgorithm());
         assertNotNull(assertion + " [DOCUMENT VERSION CREATED BY IS NULL]", version.getCreatedBy());
         assertNotNull(assertion + " [DOCUMENT VERSION CREATED ON IS NULL]", version.getCreatedOn());
-        assertNotNull(assertion + " [DOCUMENT VERSION NAME IS NULL]", version.getName());
+        assertNotNull(assertion + " [DOCUMENT VERSION NAME IS NULL]", version.getArtifactName());
         assertNotNull(assertion + " [DOCUMENT VERSION UPDATED ON IS NULL]", version.getUpdatedBy());
         assertNotNull(assertion + " [DOCUMENT VERSION UPDATED BY IS NULL]", version.getUpdatedOn());
         assertNotNull(assertion + " [DOCUMENT VERSION VERSION ID IS NULL]", version.getVersionId());

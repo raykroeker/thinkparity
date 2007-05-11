@@ -861,6 +861,8 @@ public final class ContainerModelImpl extends
      *            A container id <code>Long</code>.
      * @param versionId
      *            A container version id <code>Long</code>.
+     * @param name
+     *            A name <code>String</code>.
      * @param comment
      *            A comment <code>String</code>.
      * @param createdBy
@@ -870,18 +872,19 @@ public final class ContainerModelImpl extends
      * @return The new <code>ContainerVersion</code>.
      */
     ContainerVersion createVersion(final Long containerId,
-            final Long versionId, final String comment,
+            final Long versionId, final String name, final String comment,
             final JabberId createdBy, final Calendar createdOn) {
         final Container container = read(containerId);
 
         final ContainerVersion version = new ContainerVersion();
         version.setArtifactId(container.getId());
+        version.setArtifactName(container.getName());
         version.setArtifactType(container.getType());
         version.setArtifactUniqueId(container.getUniqueId());
         version.setComment(comment);
         version.setCreatedBy(createdBy);
         version.setCreatedOn(createdOn);
-        version.setName(container.getName());
+        version.setName(name);
         version.setUpdatedBy(version.getCreatedBy());
         version.setUpdatedOn(version.getCreatedOn());
         version.setVersionId(versionId);

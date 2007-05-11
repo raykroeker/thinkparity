@@ -32,6 +32,9 @@ public final class ContainerConstraints {
     /** A draft comment <code>StringConstraint</code>. */
     private final StringConstraint draftComment;
 
+    /** A version name <code>StringConstraint</code>. */
+    private final StringConstraint versionName;
+
     /**
      * Create ContainerConstraints.
      *
@@ -43,6 +46,12 @@ public final class ContainerConstraints {
         this.draftComment.setMinLength(1);
         this.draftComment.setName("Draft comment");
         this.draftComment.setNullable(Boolean.TRUE);
+
+        this.versionName = new StringConstraint();
+        this.versionName.setMaxLength(64);
+        this.versionName.setMinLength(1);
+        this.versionName.setName("Version name");
+        this.versionName.setNullable(Boolean.TRUE);
     }
 
     /**
@@ -52,5 +61,14 @@ public final class ContainerConstraints {
      */
     public StringConstraint getDraftComment() {
         return draftComment;
+    }
+
+    /**
+     * Obtain version name.
+     * 
+     * @return A <code>StringConstraint</code>.
+     */
+    public StringConstraint getVersionName() {
+        return versionName;
     }
 }

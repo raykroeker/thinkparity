@@ -65,8 +65,8 @@ public final class HandleVersionPublished extends ContainerDelegate {
         final Container container = handleResolution();
         final ContainerVersion version = handleVersionResolution(
                 container.getUniqueId(), event.getVersion().getVersionId(),
-                event.getVersion().getComment(), event.getPublishedBy(),
-                event.getPublishedOn());
+                event.getVersion().getName(), event.getVersion().getComment(),
+                event.getPublishedBy(), event.getPublishedOn());
         final InternalSessionModel sessionModel = getSessionModel();
         final Calendar receivedOn = sessionModel.readDateTime();
         // apply the latest flag
@@ -197,7 +197,7 @@ public final class HandleVersionPublished extends ContainerDelegate {
     private Container handleResolution() {
         return handleResolution(event.getVersion().getArtifactUniqueId(),
                 event.getPublishedBy(), event.getPublishedOn(),
-                event.getVersion().getName());
+                event.getVersion().getArtifactName());
     }
 
     /**
@@ -208,6 +208,10 @@ public final class HandleVersionPublished extends ContainerDelegate {
      *            A container unique id <code>UUID</code>.
      * @param versionId
      *            A container version id <code>Long</code>.
+     * @param versionName
+     *            An optional version name <code>String</code>.
+     * @param versionComment
+     *            An optional version comment <code>String</code>.
      * @param publishedBy
      *            A container published by user id <code>JabberId</code>.
      * @param publishedOn
@@ -215,16 +219,17 @@ public final class HandleVersionPublished extends ContainerDelegate {
      * @return A <code>ContainerVersion</code>.
      */
     private ContainerVersion handleVersionResolution(final UUID uniqueId,
-            final Long versionId, final String comment,
-            final JabberId publishedBy, final Calendar publishedOn) {
+            final Long versionId, final String versionName,
+            final String versionComment, final JabberId publishedBy,
+            final Calendar publishedOn) {
         final InternalArtifactModel artifactModel = getArtifactModel();
         final Long containerId = artifactModel.readId(uniqueId);
         final ContainerVersion version;
         if (artifactModel.doesVersionExist(containerId, versionId).booleanValue()) {
             version = readVersion(containerId, versionId);
         } else {
-            version = createVersion(containerId, versionId, comment,
-                    publishedBy, publishedOn);
+            version = createVersion(containerId, versionId, versionName,
+                    versionComment, publishedBy, publishedOn);
         }
         return version;
     }

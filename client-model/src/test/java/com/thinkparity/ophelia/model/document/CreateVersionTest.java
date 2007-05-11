@@ -57,7 +57,7 @@ public class CreateVersionTest extends DocumentTestCase {
                  assertEquals("Document version artifact type does not match expectation.", d.getType(), dv.getArtifactType());
                  assertEquals("Document version unique id does not match expectation.", d.getUniqueId(), dv.getArtifactUniqueId());
                  assertEquals("Document version created by does not match expectation.", d.getCreatedBy(), dv.getCreatedBy());
-                 assertEquals("Document version name does not match expectation.", d.getName(), dv.getName());
+                 assertEquals("Document version name does not match expectation.", d.getName(), dv.getArtifactName());
                  assertEquals("Document version version id does not match expectation.", d.getUpdatedBy(), dv.getUpdatedBy());
                  assertEquals("Document version checksum does not match expectation.", getInputFileMD5Checksum("JUnitTestFramework.doc"), dv.getChecksum());
                  

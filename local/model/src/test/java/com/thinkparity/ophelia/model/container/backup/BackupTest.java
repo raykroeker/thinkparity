@@ -156,11 +156,11 @@ public final class BackupTest extends BackupTestCase {
             for (int n = 0; n < dv_list_backup.size(); n++) {
                 dv_backup = dv_list_backup.get(n);
                 assertNotNull("Document version has not been properly backed up.", dv_backup);
-                logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\".", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getName(), dv_backup.getVersionId());
+                logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\".", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getArtifactName(), dv_backup.getVersionId());
                 final DocumentVersion dv_local = dv_list_local.get(n);
                 assertEquals("Document version has not been properly backed up.", dv_local, dv_backup);
 
-                logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\" stream.", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getName(), dv_backup.getVersionId());
+                logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\" stream.", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getArtifactName(), dv_backup.getVersionId());
                 dv_stream_backup = getBackupModel(datum.junit_z).openDocumentVersion(dv_backup.getArtifactUniqueId(), dv_backup.getVersionId());
                 getDocumentModel(datum.junit_z).openVersion(dv_local.getArtifactId(), dv_local.getVersionId(), new StreamOpener() {
                     public void open(final InputStream stream) throws IOException {
@@ -283,11 +283,11 @@ public final class BackupTest extends BackupTestCase {
                 for (int n = 0; n < dv_list_backup.size(); n++) {
                     dv_backup = dv_list_backup.get(n);
                     assertNotNull("Document version has not been properly backed up.", dv_backup);
-                    logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\".", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getName(), dv_backup.getVersionId());
+                    logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\".", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getArtifactName(), dv_backup.getVersionId());
                     final DocumentVersion dv_local = dv_list_local.get(n);
                     assertSimilar("Document version has not been properly backed up.", dv_local, dv_backup);
 
-                    logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\" stream.", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getName(), dv_backup.getVersionId());
+                    logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\" stream.", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getArtifactName(), dv_backup.getVersionId());
                     dv_stream_backup = getBackupModel(datum.junit_z).openDocumentVersion(dv_backup.getArtifactUniqueId(), dv_backup.getVersionId());
                     getDocumentModel(datum.junit_z).openVersion(dv_local.getArtifactId(), dv_local.getVersionId(), new StreamOpener() {
                         public void open(final InputStream stream) throws IOException {

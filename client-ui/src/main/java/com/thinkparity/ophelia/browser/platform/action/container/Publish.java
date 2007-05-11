@@ -70,6 +70,12 @@ public class Publish extends AbstractBrowserAction {
     private List<TeamMember> teamMembers;
 
     /**
+     * The version name <code>String</code> used by invoke and retry invoke
+     * action.
+     */
+    private String versionName;
+
+    /**
      * Create Publish.
      * 
      * @param browser
@@ -104,6 +110,7 @@ public class Publish extends AbstractBrowserAction {
                     break;
             }
             if (isPublishable) {
+                final String versionName = (String) data.get(DataKey.VERSION_NAME);
                 final List<EMail> emails = data.getList(DataKey.EMAILS);
                 final List<Contact> contacts = data.getList(DataKey.CONTACTS);
                 final List<TeamMember> teamMembers = data.getList(DataKey.TEAM_MEMBERS);
@@ -112,7 +119,8 @@ public class Publish extends AbstractBrowserAction {
                     browser.displayPublishContainerDialog(containerId);
                 } else {
                     final ThinkParitySwingMonitor monitor = (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
-                    invoke(monitor, container, emails, contacts, teamMembers);
+                    invoke(monitor, container, versionName, emails, contacts,
+                            teamMembers);
                 }
             } else {
                 browser.displayErrorDialog("Publish.NoDocumentToPublish",
@@ -130,32 +138,44 @@ public class Publish extends AbstractBrowserAction {
      */
     @Override
     public void retryInvokeAction() {
-        invoke(monitor, container, emails, contacts, teamMembers);
+        invoke(monitor, container, versionName, emails, contacts, teamMembers);
     }
 
-	/**
-     * Invoke publish.
+    /**
+     * Create a swing worker/monitor and invoke publish.
      * 
-     * @param worker
-     *            A <code>ThinkParitySwingWorker</code>.
+     * @param monitor
+     *            A <code>ThinkParitySwingMonitor</code>.
+     * @param container
+     *            A <code>Container</code>.
+     * @param versionName
+     *            A version name <code>String</code>.
+     * @param emails
+     *            A <code>List</code> of <code>EMail</code> addresses.
+     * @param contacts
+     *            A <code>List</code> of <code>Contact</code>s.
+     * @param teamMembers
+     *            A <code>List</code> of <code>TeamMember</code>s.
      */
     private void invoke(final ThinkParitySwingMonitor monitor,
-            final Container container, final List<EMail> emails,
-            final List<Contact> contacts, final List<TeamMember> teamMembers) {
+            final Container container, final String versionName,
+            final List<EMail> emails, final List<Contact> contacts,
+            final List<TeamMember> teamMembers) {
         this.monitor = monitor;
         this.container = container;
         this.emails = emails;
         this.contacts = contacts;
         this.teamMembers = teamMembers;
+        this.versionName = versionName;
         final ThinkParitySwingWorker worker = new PublishWorker(this,
-                container, emails, contacts, teamMembers);
+                container, versionName, emails, contacts, teamMembers);
         worker.setMonitor(monitor);
         worker.start();
     }
 
     /** Data keys. */
 	public enum DataKey {
-        CONTACTS, CONTAINER_ID, EMAILS, MONITOR, TEAM_MEMBERS
+        CONTACTS, CONTAINER_ID, EMAILS, MONITOR, TEAM_MEMBERS, VERSION_NAME
     }
 
     /** A publish action worker object. */
@@ -168,14 +188,16 @@ public class Publish extends AbstractBrowserAction {
         private final List<EMail> emails;
         private ProcessMonitor publishMonitor;
         private final List<TeamMember> teamMembers;
+        private final String versionName;
         private PublishWorker(final Publish publish, final Container container,
-                final List<EMail> emails, final List<Contact> contacts,
-                final List<TeamMember> teamMembers) {
+                final String versionName, final List<EMail> emails,
+                final List<Contact> contacts, final List<TeamMember> teamMembers) {
             super(publish);
             this.container = container;
             this.emails = emails;
             this.contacts = contacts;
             this.teamMembers = teamMembers;
+            this.versionName = versionName;
 
             this.artifactModel = publish.getArtifactModel();
             this.contactModel = publish.getContactModel();
@@ -216,7 +238,7 @@ public class Publish extends AbstractBrowserAction {
             }
             try {
                 containerModel.publish(publishMonitor, container.getId(),
-                        emails, contacts, teamMembers);
+                        versionName, emails, contacts, teamMembers);
             } catch (final OfflineException ox) {
                 // TODO implement a "you are offline" notification
                 monitor.reset();

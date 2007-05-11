@@ -58,7 +58,7 @@ public class DocumentView {
      * @return A document name <code>String</code>.
      */
     public String getDocumentName() {
-        return version.getName();
+        return version.getArtifactName();
     }
 
     /**

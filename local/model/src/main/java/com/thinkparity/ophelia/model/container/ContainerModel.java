@@ -40,16 +40,6 @@ import com.thinkparity.ophelia.model.util.ProcessMonitor;
 public interface ContainerModel {
 
     /**
-     * Update the local draft comment.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param comment
-     *            The comment <code>String</code>.
-     */
-    public void updateDraftComment(final Long containerId, final String comment);
-
-    /**
      * Apply a bookmark to a container.
      * 
      * @param containerId
@@ -187,7 +177,7 @@ public interface ContainerModel {
      */
     public Boolean isLocalDraftModified(final Long containerId);
 
-	/**
+    /**
      * Print a container draft.
      * 
      * @param containerId
@@ -210,13 +200,16 @@ public interface ContainerModel {
     public void printVersion(final Long containerId, final Long versionId,
             final ContainerVersionPrinter printer);
 
-    /**
+	/**
      * Publish a container.
      * 
      * @param monitor
      *            A <code>ProgressMonitor</code>.
      * @param containerId
      *            A container id <code>Long</code>.
+     * @param versionName
+     *            An optional name <code>String</code> to apply to the
+     *            version.
      * @param emails
      *            A <code>List</code> of <code>EMail</code>s to publish to.
      * @param contacts
@@ -231,8 +224,9 @@ public interface ContainerModel {
      */
     @ThinkParityOnline
     public void publish(final ProcessMonitor monitor, final Long containerId,
-            final List<EMail> emails, final List<Contact> contacts,
-            final List<TeamMember> teamMembers) throws CannotLockException;
+            final String versionName, final List<EMail> emails,
+            final List<Contact> contacts, final List<TeamMember> teamMembers)
+            throws CannotLockException;
 
     /**
      * Publish the container version.
@@ -554,7 +548,7 @@ public interface ContainerModel {
     public ContainerVersion readVersion(final Long containerId,
             final Long versionId);
 
-	/**
+    /**
      * Read a list of versions for the container.
      * 
      * @param containerId
@@ -563,7 +557,7 @@ public interface ContainerModel {
      */
     public List<ContainerVersion> readVersions(final Long containerId);
 
-    /**
+	/**
      * Read a list of versions for the container.
      * 
      * @param containerId
@@ -696,4 +690,14 @@ public interface ContainerModel {
      * @return A <code>List&lt;Long&gt;</code>.
      */
     public List<Long> search(final String expression);
+
+    /**
+     * Update the local draft comment.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param comment
+     *            The comment <code>String</code>.
+     */
+    public void updateDraftComment(final Long containerId, final String comment);
 }

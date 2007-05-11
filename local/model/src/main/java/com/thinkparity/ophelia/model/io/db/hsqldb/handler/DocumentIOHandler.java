@@ -59,7 +59,8 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
 		new StringBuffer("select DOCUMENT_ID,DOCUMENT_VERSION_ID,")
 		.append("ARTIFACT_NAME,ARTIFACT_TYPE,ARTIFACT_UNIQUE_ID,")
 		.append("CONTENT_CHECKSUM,CHECKSUM_ALGORITHM,CONTENT_SIZE,")
-        .append("UC.JABBER_ID CREATED_BY,CREATED_ON,UU.JABBER_ID UPDATED_BY,UPDATED_ON ")
+        .append("UC.JABBER_ID CREATED_BY,CREATED_ON,UU.JABBER_ID UPDATED_BY,UPDATED_ON,")
+        .append("AV.COMMENT,AV.NAME ")
 		.append("from DOCUMENT_VERSION DV ")
         .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID = AV.ARTIFACT_ID ")
         .append("and DV.DOCUMENT_VERSION_ID = AV.ARTIFACT_VERSION_ID ")
@@ -72,7 +73,8 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
 		new StringBuffer("select DOCUMENT_ID,DOCUMENT_VERSION_ID,")
 		.append("ARTIFACT_NAME,ARTIFACT_TYPE,ARTIFACT_UNIQUE_ID,")
 		.append("CONTENT_CHECKSUM,CHECKSUM_ALGORITHM,CONTENT_SIZE,")
-        .append("UC.JABBER_ID CREATED_BY,CREATED_ON,UU.JABBER_ID UPDATED_BY,UPDATED_ON ")
+        .append("UC.JABBER_ID CREATED_BY,CREATED_ON,UU.JABBER_ID UPDATED_BY,")
+        .append("UPDATED_ON,AV.COMMENT,AV.NAME ")
 		.append("from DOCUMENT_VERSION DV ")
         .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID=AV.ARTIFACT_ID ")
         .append("and DV.DOCUMENT_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
@@ -492,13 +494,15 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
 	DocumentVersion extractVersion(final Session session) {
 		final DocumentVersion dv = new DocumentVersion();
 		dv.setArtifactId(session.getLong("DOCUMENT_ID"));
+		dv.setArtifactName(session.getString("ARTIFACT_NAME"));
 		dv.setArtifactType(session.getTypeFromString("ARTIFACT_TYPE"));
 		dv.setArtifactUniqueId(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
 		dv.setChecksum(session.getString("CONTENT_CHECKSUM"));
         dv.setChecksumAlgorithm(session.getString("CHECKSUM_ALGORITHM"));
+        dv.setComment(session.getString("COMMENT"));
 		dv.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		dv.setCreatedOn(session.getCalendar("CREATED_ON"));
-		dv.setName(session.getString("ARTIFACT_NAME"));
+        dv.setName(session.getString("NAME"));
         dv.setSize(session.getLong("CONTENT_SIZE"));
 		dv.setUpdatedBy(session.getQualifiedUsername("UPDATED_BY"));
 		dv.setUpdatedOn(session.getCalendar("UPDATED_ON"));

@@ -285,7 +285,7 @@ public final class DocumentModelImpl extends
             }
             else {
                 document = create(version.getArtifactUniqueId(),
-                        version.getName(), publishedBy, publishedOn);
+                        version.getArtifactName(), publishedBy, publishedOn);
                 final File streamFile = downloadStream(new DownloadMonitor() {
                     public void chunkDownloaded(final int chunkSize) {}
                 }, streamId);
@@ -1053,13 +1053,15 @@ public final class DocumentModelImpl extends
             final Document document = read(documentId);
     		final DocumentVersion version = new DocumentVersion();
     		version.setArtifactId(documentId);
+    		version.setArtifactName(document.getName());
     		version.setArtifactType(document.getType());
     		version.setArtifactUniqueId(document.getUniqueId());
             version.setChecksum(checksum(tempFile));
             version.setChecksumAlgorithm(ChecksumAlgorithm.MD5.name());
+            version.setComment(null);
     		version.setCreatedBy(createdBy);
     		version.setCreatedOn(createdOn);
-    		version.setName(document.getName());
+            version.setName(null);
     		version.setUpdatedBy(version.getCreatedBy());
     		version.setUpdatedOn(version.getCreatedOn());
             version.setSize(tempFile.length());

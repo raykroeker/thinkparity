@@ -869,8 +869,9 @@ public final class ContainerModelImpl extends
      * 
      */
     public void publish(final ProcessMonitor monitor, final Long containerId,
-            final List<EMail> emails, final List<Contact> contacts,
-            final List<TeamMember> teamMembers) throws CannotLockException {
+            final String versionName, final List<EMail> emails,
+            final List<Contact> contacts, final List<TeamMember> teamMembers)
+            throws CannotLockException {
         try {
             final ContainerDraft draft = readDraft(containerId);
             // publish
@@ -879,6 +880,7 @@ public final class ContainerModelImpl extends
             delegate.setContainerId(containerId);
             delegate.setEmails(emails);
             delegate.setMonitor(monitor);
+            delegate.setVersionName(versionName);
             delegate.setTeamMembers(teamMembers);
             delegate.publish();
             // fire event
@@ -2008,6 +2010,8 @@ public final class ContainerModelImpl extends
      *            A container id <code>Long</code>.
      * @param versionId
      *            A container version id <code>Long</code>.
+     * @param name
+     *            A name <code>String</code>.
      * @param comment
      *            A comment <code>String</code>.
      * @param createdBy
@@ -2017,18 +2021,19 @@ public final class ContainerModelImpl extends
      * @return The new <code>ContainerVersion</code>.
      */
     ContainerVersion createVersion(final Long containerId,
-            final Long versionId, final String comment,
+            final Long versionId, final String name, final String comment,
             final JabberId createdBy, final Calendar createdOn) {
         final Container container = read(containerId);
 
         final ContainerVersion version = new ContainerVersion();
         version.setArtifactId(container.getId());
+        version.setArtifactName(container.getName());
         version.setArtifactType(container.getType());
         version.setArtifactUniqueId(container.getUniqueId());
         version.setComment(comment);
         version.setCreatedBy(createdBy);
         version.setCreatedOn(createdOn);
-        version.setName(container.getName());
+        version.setName(name);
         version.setUpdatedBy(version.getCreatedBy());
         version.setUpdatedOn(version.getCreatedOn());
         version.setVersionId(versionId);
@@ -2349,7 +2354,7 @@ public final class ContainerModelImpl extends
         final InternalDocumentModel documentModel = modelFactory.getDocumentModel();
         final StreamSession streamSession = sessionModel.createStreamSession();
         for (final DocumentVersion version : versions) {
-            notifyStepBegin(monitor, PublishStep.UPLOAD_STREAM, version.getName());
+            notifyStepBegin(monitor, PublishStep.UPLOAD_STREAM, version.getArtifactName());
             final String streamId = sessionModel.createStream(streamSession);
             documentModel.uploadVersion(version.getArtifactId(),
                     version.getVersionId(), new StreamUploader(this, monitor,

@@ -974,10 +974,11 @@ public class XMPPMethod extends IQ {
                         ((ContainerVersion) javaValue).setComment((String) parseJavaValue(parser, String.class));
                         ((ContainerVersion) javaValue).setCreatedBy((JabberId) parseJavaValue(parser, JabberId.class));
                         ((ContainerVersion) javaValue).setCreatedOn((Calendar) parseJavaValue(parser, Calendar.class));
-                        ((ContainerVersion) javaValue).setName((String) parseJavaValue(parser, String.class));
+                        ((ContainerVersion) javaValue).setArtifactName((String) parseJavaValue(parser, String.class));
                         ((ContainerVersion) javaValue).setUpdatedBy((JabberId) parseJavaValue(parser, JabberId.class));
                         ((ContainerVersion) javaValue).setUpdatedOn((Calendar) parseJavaValue(parser, Calendar.class));
                         ((ContainerVersion) javaValue).setVersionId((Long) parseJavaValue(parser, Long.class));
+                        ((ContainerVersion) javaValue).setName((String) parseJavaValue(parser, String.class));
                     } else if (javaType.equals(Document.class)) {
                         javaValue = new Document();
                         ((Document) javaValue).setCreatedBy((JabberId) parseJavaValue(parser, JabberId.class));
@@ -996,11 +997,12 @@ public class XMPPMethod extends IQ {
                         ((DocumentVersion) javaValue).setChecksumAlgorithm((String) parseJavaValue(parser, String.class));
                         ((DocumentVersion) javaValue).setCreatedBy((JabberId) parseJavaValue(parser, JabberId.class));
                         ((DocumentVersion) javaValue).setCreatedOn((Calendar) parseJavaValue(parser, Calendar.class));
-                        ((DocumentVersion) javaValue).setName((String) parseJavaValue(parser, String.class));
+                        ((DocumentVersion) javaValue).setArtifactName((String) parseJavaValue(parser, String.class));
                         ((DocumentVersion) javaValue).setSize((Long) parseJavaValue(parser, Long.class));
                         ((DocumentVersion) javaValue).setUpdatedBy((JabberId) parseJavaValue(parser, JabberId.class));
                         ((DocumentVersion) javaValue).setUpdatedOn((Calendar) parseJavaValue(parser, Calendar.class));
                         ((DocumentVersion) javaValue).setVersionId((Long) parseJavaValue(parser, Long.class));
+                        ((DocumentVersion) javaValue).setName((String) parseJavaValue(parser, String.class));
                     } else if (javaType.equals(EMail.class)) {
                         javaValue = EMailBuilder.parse(parser.getText());
                         parser.next();

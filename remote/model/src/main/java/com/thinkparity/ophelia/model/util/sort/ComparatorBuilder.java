@@ -77,11 +77,11 @@ public class ComparatorBuilder {
 	}
 
 	/**
-     * Create a version by name comparator.
+     * Create a version artifact name comparator.
      * 
      * @return An <code>ArtifactVersion</code> <code>Comparator</code>.
      */
     public Comparator<ArtifactVersion> createVersionByName() {
-        return new VersionNameComparator(Boolean.TRUE);
+        return new VersionArtifactNameComparator(Boolean.TRUE);
     }
 }

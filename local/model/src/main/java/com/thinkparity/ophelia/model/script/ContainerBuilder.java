@@ -190,18 +190,17 @@ public class ContainerBuilder {
     /**
      * Publish a container to the exsiting team.
      * 
-     * @param comment
-     *            A publish comment <code>String</code>.
+     * @param versionName
+     *            A version name <code>String</code>.
      */
-    public ContainerBuilder publish() {
-        logger.logApiId();
+    public ContainerBuilder publish(final String versionName) {
         final ContainerModel containerModel = getContainerModel();
         final List<EMail> emails = Collections.emptyList();
         final List<Contact> contacts = Collections.emptyList();
         final List<TeamMember> teamMembers = containerModel.readTeam(id);
         try {
-            containerModel.publish(PUBLISH_MONITOR, id, emails, contacts,
-                    teamMembers);
+            containerModel.publish(PUBLISH_MONITOR, id, versionName, emails,
+                    contacts, teamMembers);
         } catch (final OfflineException ox) {
             throw panic(ox, "User is not online.");
         } catch (final CannotLockException clx) {
@@ -218,8 +217,10 @@ public class ContainerBuilder {
      * @param names
      *            A list of user's names to publsh to.
      */
-    public ContainerBuilder publish(final String... names) {
+    public ContainerBuilder publish(final String versionName,
+            final String... names) {
         logger.logApiId();
+        logger.logVariable("versionName", versionName);
         logger.logVariable("names", names);
         final ContactModel contactModel = getContactModel();
         final ContainerModel containerModel = getContainerModel();
@@ -229,8 +230,8 @@ public class ContainerBuilder {
         filter(teamMembers, names);
         filter(contacts, names);
         try {
-            containerModel.publish(PUBLISH_MONITOR, id, emails, contacts,
-                    teamMembers);
+            containerModel.publish(PUBLISH_MONITOR, id, versionName, emails,
+                    contacts, teamMembers);
         } catch (final OfflineException ox) {
             throw panic(ox, "User is not online.");
         } catch (final CannotLockException clx) {

@@ -85,7 +85,7 @@ public final class HandlePublished extends ContainerDelegate {
         final InternalArtifactModel artifactModel = getArtifactModel();
         final Container container = handleResolution();
         final ContainerVersion version = createVersion(container.getId(),
-                event.getVersion().getVersionId(),
+                event.getVersion().getVersionId(), event.getVersion().getName(),
                 event.getVersion().getComment(), event.getPublishedBy(),
                 event.getVersion().getCreatedOn());
         // update documents
@@ -151,6 +151,6 @@ public final class HandlePublished extends ContainerDelegate {
     private Container handleResolution() {
         return handleResolution(event.getVersion().getArtifactUniqueId(),
                 event.getPublishedBy(), event.getPublishedOn(),
-                event.getVersion().getName());
+                event.getVersion().getArtifactName());
     }
 }

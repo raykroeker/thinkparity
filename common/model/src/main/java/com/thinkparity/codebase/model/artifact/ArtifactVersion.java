@@ -21,6 +21,9 @@ import com.thinkparity.codebase.jabber.JabberId;
  */
 public abstract class ArtifactVersion {
 
+    /** The artifact name <code>String</code>. */
+	private String artifactName;
+
     /** A comment applied to a version. */
 	private String comment;
 
@@ -36,8 +39,8 @@ public abstract class ArtifactVersion {
 	/** The meta data <code>Properties</code>. */
 	private final Properties metaData;
 
-	/** The name <code>String</code>. */
-	private String name;
+	/** The version name <code>String</code>. */
+    private String name;
 
 	/** The type <code>ArtifactType</code>. */
 	private ArtifactType type;
@@ -99,6 +102,15 @@ public abstract class ArtifactVersion {
 	}
 
 	/**
+     * Obtain the artifact name.
+     * 
+     * @return A name <code>String</code>.
+     */
+	public String getArtifactName() {
+        return artifactName;
+	}
+
+	/**
 	 * Obtain the artifact type.
 	 * 
 	 * @return The artifactType.
@@ -116,7 +128,7 @@ public abstract class ArtifactVersion {
         return uniqueId;
 	}
 
-	/**
+    /**
      * Obtain the comment applient to the version.
      * 
      * @return A version comment <code>String</code>.
@@ -148,7 +160,7 @@ public abstract class ArtifactVersion {
 	 */
 	public Properties getMetaData() { return metaData; }
 
-    /**
+	/**
 	 * Obtain a meta data item.
 	 * 
 	 * @param key
@@ -173,10 +185,13 @@ public abstract class ArtifactVersion {
 	}
 
 	/**
-	 * Obtain the artifact name.
-	 * @return The artifact name.
-	 */
-	public String getName() { return name; }
+     * Obtain the version name.
+     *
+     * @return A name <code>String</code>.
+     */
+    public String getName() {
+        return name;
+    }
 
 	/**
 	 * Obtain the artifact updator.
@@ -194,7 +209,7 @@ public abstract class ArtifactVersion {
 	 */
 	public Calendar getUpdatedOn() { return updatedOn; }
 
-	/**
+    /**
 	 * Obtain the version id.
 	 * 
 	 * @return The version id.
@@ -216,7 +231,7 @@ public abstract class ArtifactVersion {
         return result;
     }
 
-    /**
+	/**
      * Determine whether or not the comment is set for the version.
      * 
      * @return True if the comment is set.
@@ -225,7 +240,7 @@ public abstract class ArtifactVersion {
         return null != comment;
     }
 
-	/**
+    /**
 	 * Set the artifact id.
 	 * 
 	 * @param artifactId
@@ -233,6 +248,16 @@ public abstract class ArtifactVersion {
 	 */
 	public void setArtifactId(final Long id) {
 		this.id = id;
+	}
+
+	/**
+	 * Set the artifact name.
+	 * 
+	 * @param name
+	 *            A name <code>String</code>.
+	 */
+	public void setArtifactName(final String artifactName) {
+        this.artifactName = artifactName;
 	}
 
     /**
@@ -253,7 +278,7 @@ public abstract class ArtifactVersion {
 		this.uniqueId = uniqueId;
 	}
 
-    /**
+	/**
      * Set the comment for the artifact version.
      * 
      * @param comment
@@ -307,15 +332,17 @@ public abstract class ArtifactVersion {
 		return (String) metaData.setProperty(key, value);
 	}
 
-	/**
-	 * Set the artifact name.
-	 * 
-	 * @param name
-	 *            The artifact name.
-	 */
-	public void setName(final String name) { this.name = name; }
+    /**
+     * Set the version name.
+     *
+     * @param name
+     *		A name <code>String</code>.
+     */
+    public void setName(final String name) {
+        this.name = name;
+    }
 
-	/**
+    /**
 	 * Set the artifact updator.
 	 * 
 	 * @param updatedBy

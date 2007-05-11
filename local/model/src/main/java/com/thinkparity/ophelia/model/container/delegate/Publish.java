@@ -64,6 +64,9 @@ public final class Publish extends ContainerDelegate {
     /** A publish <code>ProcessMonitor</code>. */
     private ProcessMonitor monitor;
 
+    /** The version name <code>String</code>. */
+    private String versionName;
+
     /** A list of team members to publish to. */
     private List<TeamMember> teamMembers;
 
@@ -116,8 +119,8 @@ public final class Publish extends ContainerDelegate {
             notifyProcessBegin(monitor);
             notifyStepBegin(monitor, PublishStep.CREATE_VERSION);
             final ContainerVersion version = createVersion(container.getId(),
-                    readNextVersionId(containerId), draft.getComment(),
-                    localUserId(), publishedOn);
+                    readNextVersionId(containerId), versionName,
+                    draft.getComment(), localUserId(), publishedOn);
             // attach artifacts to the version
             final InternalDocumentModel documentModel = getDocumentModel();
             DocumentVersion draftDocumentLatestVersion;
@@ -233,6 +236,16 @@ public final class Publish extends ContainerDelegate {
     }
 
     /**
+     * Set the version name.
+     * 
+     * @param name
+     *            A name <code>String</code>.
+     */
+    public void setVersionName(final String versionName) {
+        this.versionName = versionName;
+    }
+
+    /**
      * Set teamMembers.
      *
      * @param teamMembers
@@ -289,6 +302,7 @@ public final class Publish extends ContainerDelegate {
         Assert.assertTrue(doesExistLocalDraft(containerId), "A local draft does not exist.");
         Assert.assertTrue(isLocalDraftSaved(containerId), "The local draft has not been saved.");
         Assert.assertTrue(isLocalDraftModified(containerId), "The local draft has not been modified.");
+        getContainerConstraints().getVersionName().validate(versionName);
         assertIsNotContact(emails);
         assertIsNotRestricted(contacts);
         assertIsNotRestricted(teamMembers);

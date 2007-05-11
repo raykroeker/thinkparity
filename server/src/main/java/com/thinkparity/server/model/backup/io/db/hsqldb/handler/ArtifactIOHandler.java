@@ -764,7 +764,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		session.prepareStatement(INSERT_ARTIFACT_VERSION);
 		session.setLong(1, version.getArtifactId());
 		session.setLong(2, version.getVersionId());
-		session.setString(3, version.getName());
+		session.setString(3, version.getArtifactName());
 		session.setTypeAsString(4, version.getArtifactType());
 		session.setUniqueId(5, version.getArtifactUniqueId());
         session.setString(6, version.getComment());

@@ -260,7 +260,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertEquals(assertion + " [CONTAINER'S UNIQUE ID DOES NOT MATCH THE VERSION'S]", container.getUniqueId(), version.getArtifactUniqueId());
         assertEquals(assertion + " [CONTAINER'S CREATED BY DOES NOT MATCH THE VERSION'S]", container.getCreatedBy(), version.getCreatedBy());
         assertEquals(assertion + " [CONTAINER'S CREATED ON DOES NOT MATCH THE VERSION'S]", container.getCreatedOn(), version.getCreatedOn());
-        assertEquals(assertion + " [CONTAINER'S NAME DOES NOT MATCH THE VERSION'S]", container.getName(), version.getName());
+        assertEquals(assertion + " [CONTAINER'S NAME DOES NOT MATCH THE VERSION'S]", container.getName(), version.getArtifactName());
         assertEquals(assertion + " [CONTAINER'S UPDATED BY DOES NOT MATCH THE VERSION'S]", container.getUpdatedBy(), version.getUpdatedBy());
         assertEquals(assertion + " [CONTAINER'S UPDATED ON DOES NOT MATCH THE VERSION'S]", container.getUpdatedOn(), version.getUpdatedOn());
     }
@@ -282,7 +282,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertEquals(assertion + " [CONTAINER VERSION'S ARTIFACT UNIQUE ID DOES NOT MATCH EXPECTATION]", expected.getArtifactUniqueId(), actual.getArtifactUniqueId());
         assertEquals(assertion + " [CONTAINER VERSION'S CREATED BY DOES NOT MATCH EXPECTATION]", expected.getCreatedBy(), actual.getCreatedBy());
         assertEquals(assertion + " [CONTAINER VERSION'S CREATED ON DOES NOT MATCH EXPECTATION]", expected.getCreatedOn(), actual.getCreatedOn());
-        assertEquals(assertion + " [CONTAINER VERSION'S NAME DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
+        assertEquals(assertion + " [CONTAINER VERSION'S NAME DOES NOT MATCH EXPECTATION]", expected.getArtifactName(), actual.getArtifactName());
         assertEquals(assertion + " [CONTAINER VERSION'S UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getUpdatedBy(), actual.getUpdatedBy());
         assertEquals(assertion + " [CONTAINER VERSION'S UPDATED ON DOES NOT MATCH EXPECTATION]", expected.getUpdatedOn(), actual.getUpdatedOn());
         assertEquals(assertion + " [CONTAINER VERSION'S VERSION ID DOES NOT MATCH EXPECTATION]", expected.getVersionId(), actual.getVersionId());
@@ -331,7 +331,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertEquals(assertion + " [CHECKSUM ALGORITHM DOES NOT MATCH EXPECTATION]", expected.getChecksumAlgorithm(), actual.getChecksumAlgorithm());
         assertEquals(assertion + " [CREATED BY DOES NOT MATCH EXPECTATION]", expected.getCreatedBy(), actual.getCreatedBy());
         assertEquals(assertion + " [CREATED ON DOES NOT MATCH EXPECTATION]", expected.getCreatedOn(), actual.getCreatedOn());
-        assertEquals(assertion + " [NAME DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
+        assertEquals(assertion + " [NAME DOES NOT MATCH EXPECTATION]", expected.getArtifactName(), actual.getArtifactName());
         assertEquals(assertion + " [UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getUpdatedBy(), actual.getUpdatedBy());
         assertEquals(assertion + " [UPDATED ON DOES NOT MATCH EXPECTATION]", expected.getUpdatedOn(), actual.getUpdatedOn());
         assertEquals(assertion + " [VERSION ID DOES NOT MATCH EXPECTATION]", expected.getVersionId(), actual.getVersionId());
@@ -420,7 +420,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [CONTAINER VERSION'S UNIQUE ID IS NULL]", version.getArtifactUniqueId());
         assertNotNull(assertion + " [CONTAINER VERSION'S CREATED BY IS NULL]", version.getCreatedBy());
         assertNotNull(assertion + " [CONTAINER VERSION'S CREATED ON IS NULL]", version.getCreatedOn());
-        assertNotNull(assertion + " [CONTAINER VERSION'S NAME IS NULL]", version.getName());
+        assertNotNull(assertion + " [CONTAINER VERSION'S NAME IS NULL]", version.getArtifactName());
         assertNotNull(assertion + " [CONTAINER VERSION'S UPDATED BY IS NULL]", version.getUpdatedBy());
         assertNotNull(assertion + " [CONTAINER VERSION'S UPDATED ON IS NULL]", version.getUpdatedOn());
         assertNotNull(assertion + " [CONTAINER VERSION'S VERSION ID IS NULL]", version.getVersionId());
@@ -464,7 +464,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [DOCUMENT VERSION CHECKSUM ALGORITHM IS NULL]", version.getChecksumAlgorithm());
         assertNotNull(assertion + " [DOCUMENT VERSION CREATED BY IS NULL]", version.getCreatedBy());
         assertNotNull(assertion + " [DOCUMENT VERSION CREATED ON IS NULL]", version.getCreatedOn());
-        assertNotNull(assertion + " [DOCUMENT VERSION NAME IS NULL]", version.getName());
+        assertNotNull(assertion + " [DOCUMENT VERSION NAME IS NULL]", version.getArtifactName());
         assertNotNull(assertion + " [DOCUMENT VERSION UPDATED ON IS NULL]", version.getUpdatedBy());
         assertNotNull(assertion + " [DOCUMENT VERSION UPDATED BY IS NULL]", version.getUpdatedOn());
         assertNotNull(assertion + " [DOCUMENT VERSION VERSION ID IS NULL]", version.getVersionId());
@@ -593,7 +593,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertEquals(assertion + " [CONTAINER VERSION'S ARTIFACT TYPE DOES NOT MATCH EXPECTATION]", expected.getArtifactType(), actual.getArtifactType());
         assertEquals(assertion + " [CONTAINER VERSION'S ARTIFACT UNIQUE ID DOES NOT MATCH EXPECTATION]", expected.getArtifactUniqueId(), actual.getArtifactUniqueId());
         assertEquals(assertion + " [CONTAINER VERSION'S CREATED BY DOES NOT MATCH EXPECTATION]", expected.getCreatedBy(), actual.getCreatedBy());
-        assertEquals(assertion + " [CONTAINER VERSION'S NAME DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
+        assertEquals(assertion + " [CONTAINER VERSION'S NAME DOES NOT MATCH EXPECTATION]", expected.getArtifactName(), actual.getArtifactName());
         assertEquals(assertion + " [CONTAINER VERSION'S UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getUpdatedBy(), actual.getUpdatedBy());
         assertEquals(assertion + " [CONTAINER VERSION'S VERSION ID DOES NOT MATCH EXPECTATION]", expected.getVersionId(), actual.getVersionId());
     }
@@ -638,7 +638,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertEquals(assertion + " [CHECKSUM DOES NOT MATCH EXPECTATION]", expected.getChecksum(), actual.getChecksum());
         assertEquals(assertion + " [CHECKSUM ALGORITHM DOES NOT MATCH EXPECTATION]", expected.getChecksumAlgorithm(), actual.getChecksumAlgorithm());
         assertEquals(assertion + " [CREATED BY DOES NOT MATCH EXPECTATION]", expected.getCreatedBy(), actual.getCreatedBy());
-        assertEquals(assertion + " [NAME DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
+        assertEquals(assertion + " [NAME DOES NOT MATCH EXPECTATION]", expected.getArtifactName(), actual.getArtifactName());
         assertEquals(assertion + " [UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getUpdatedBy(), actual.getUpdatedBy());
         assertEquals(assertion + " [VERSION ID DOES NOT MATCH EXPECTATION]", expected.getVersionId(), actual.getVersionId());
     }
@@ -1366,6 +1366,24 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      */
     protected final void publishToEMails(final OpheliaTestUser publishAs,
             final Long localContainerId, final String... emailAddresses) {
+        publishToEMails(publishAs, localContainerId, null, emailAddresses);
+    }
+
+    /**
+     * Publish to a series of e-mail addresses.
+     * 
+     * @param publishAs
+     *            An <code>OpheliaTestUser</code> to publish as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to publish as.
+     * @param versionName
+     *            An optional version name <code>String</code>.
+     * @param emailAddresses
+     *            An optional list of e-mail address <code>String[]</code>.
+     */
+    protected final void publishToEMails(final OpheliaTestUser publishAs,
+            final Long localContainerId, final String versionName,
+            final String... emailAddresses) {
         final List<EMail> emails = new ArrayList<EMail>(emailAddresses.length);
         for (final String emailAddress : emailAddresses) {
             emails.add(EMailBuilder.parse(emailAddress));
@@ -1382,7 +1400,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         }
         try {
             getContainerModel(publishAs).publish(PUBLISH_MONITOR,
-                    localContainerId, emails, contacts, teamMembers);
+                    localContainerId, versionName, emails, contacts, teamMembers);
         } catch (final OfflineException ox) {
             fail(ox, "Cannot publish container {0}.", c.getName());
         } catch (final CannotLockException clx) {
@@ -1403,6 +1421,25 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      */
     protected void publishToUsers(final OpheliaTestUser publishAs,
             final Long localContainerId, final String... userNames) {
+        publishToUsersIncludingName(publishAs, localContainerId, null,
+                userNames);
+    }
+
+    /**
+     * Publish a package.
+     * 
+     * @param publishAs
+     *            A publish as <code>OpheliaTestUser</code>.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to publish as.
+     * @param versionName
+     *            An optional verison name <code>String</code>.
+     * @param userNames
+     *            An optional user name <code>String[]</code>.
+     */
+    protected final void publishToUsersIncludingName(
+            final OpheliaTestUser publishAs, final Long localContainerId,
+            final String versionName, final String... userNames) {
         final List<EMail> emails = Collections.emptyList();
         final List<Contact> contacts = readContacts(publishAs);
         final List<TeamMember> teamMembers = readTeam(publishAs, localContainerId);
@@ -1434,7 +1471,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         }
         try {
             getContainerModel(publishAs).publish(PUBLISH_MONITOR,
-                    localContainerId, emails, contacts, teamMembers);
+                    localContainerId, versionName, emails, contacts, teamMembers);
         } catch (final OfflineException ox) {
             fail(ox, "Cannot publish container {0}.", c.getName());
         } catch (final CannotLockException clx) {

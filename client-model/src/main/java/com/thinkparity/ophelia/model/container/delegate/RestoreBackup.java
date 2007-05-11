@@ -167,7 +167,7 @@ public final class RestoreBackup extends ContainerDelegate {
         List<ArtifactReceipt> publishedTo;
         for (final ContainerVersion version : versions) {
             logger.logTrace("Restoring container \"{0}\" version \"{1}.\"",
-                    version.getName(), version.getVersionId());
+                    version.getArtifactName(), version.getVersionId());
             userModel.readLazyCreate(version.getCreatedBy());
             userModel.readLazyCreate(version.getUpdatedBy());
             version.setArtifactId(container.getId());
@@ -193,7 +193,7 @@ public final class RestoreBackup extends ContainerDelegate {
             documentVersions = backupModel.readDocumentVersions(container.getUniqueId(), version.getVersionId());
             for (final Document document : documents) {
                 logger.logTrace("Restoring container \"{0}\" version \"{1}\" document \"{2}.\"",
-                        version.getName(), version.getVersionId(),
+                        version.getArtifactName(), version.getVersionId(),
                         document.getName());
                 userModel.readLazyCreate(document.getCreatedBy());
                 userModel.readLazyCreate(document.getUpdatedBy());
@@ -207,8 +207,8 @@ public final class RestoreBackup extends ContainerDelegate {
                         if (!artifactIO.doesVersionExist(document.getId(),
                                 documentVersion.getVersionId())) {
                             logger.logTrace("Restoring container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}.\"",
-                                    version.getName(), version.getVersionId(),
-                                    documentVersion.getName(), documentVersion.getVersionId());
+                                    version.getArtifactName(), version.getVersionId(),
+                                    documentVersion.getArtifactName(), documentVersion.getVersionId());
                             userModel.readLazyCreate(documentVersion.getCreatedBy());
                             userModel.readLazyCreate(documentVersion.getUpdatedBy());
                             documentVersion.setArtifactId(document.getId());

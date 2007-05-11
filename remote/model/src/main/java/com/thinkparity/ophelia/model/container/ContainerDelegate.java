@@ -66,15 +66,15 @@ public abstract class ContainerDelegate extends
     }
 
     /**
-     * @see ContainerModelImpl#createVersion(Long, Long, String, JabberId,
-     *      Calendar)
+     * @see ContainerModelImpl#createVersion(Long, Long, String, String,
+     *      JabberId, Calendar)
      * 
      */
     protected final ContainerVersion createVersion(final Long containerId,
-            final Long versionId, final String comment,
+            final Long versionId, final String name, final String comment,
             final JabberId createdBy, final Calendar createdOn) {
         return modelImplementation.createVersion(containerId, versionId,
-                comment, createdBy, createdOn);
+                name, comment, createdBy, createdOn);
     }
 
     /**

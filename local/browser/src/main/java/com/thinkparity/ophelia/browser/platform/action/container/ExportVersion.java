@@ -39,7 +39,7 @@ public class ExportVersion extends AbstractBrowserAction  {
      */
     private static String exportFileName(final ContainerVersion version) {
         return MessageFormat.format("{0} {1,date,MMM dd, yyyy h mm ss a}.zip",
-                version.getName(), version.getUpdatedOn().getTime());
+                version.getArtifactName(), version.getUpdatedOn().getTime());
     }
 
     /** The browser application. */

@@ -64,7 +64,8 @@ public class PrintVersion extends AbstractBrowserAction {
                     public void print(final DocumentVersion version, final InputStream content) {
                         final File file;
                         try {
-                            file = File.createTempFile(Constants.File.TEMP_FILE_PREFIX, version.getName());
+                            file = File.createTempFile(Constants.File.TEMP_FILE_PREFIX,
+                                    version.getArtifactName());
                             file.deleteOnExit();
                             FileUtil.write(content, file);
                         } catch (final IOException iox) {
@@ -77,7 +78,8 @@ public class PrintVersion extends AbstractBrowserAction {
                                 throw translateError(dx);
                             }
                         } else {
-                            browser.displayErrorDialog("ErrorPrintVersionNotPrintable", new Object[] {version.getName()});         
+                            browser.displayErrorDialog("ErrorPrintVersionNotPrintable",
+                                    new Object[] { version.getArtifactName() });
                         }
                     }
                 });

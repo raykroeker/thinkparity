@@ -1364,7 +1364,7 @@ public class ContainerPanel extends DefaultTabPanel {
             default:
                 throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
             }
-            setText(version.getName());
+            setText(version.getArtifactName());
         }
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#invokeAction()
@@ -1705,7 +1705,7 @@ public class ContainerPanel extends DefaultTabPanel {
             default:
                 throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
             }
-            setText(version.getName());
+            setText(version.getArtifactName());
         }
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#invokeAction()

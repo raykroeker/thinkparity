@@ -237,7 +237,7 @@ final class PDFXMLWriter {
      */
     private PDFXMLDocument createPDFXMLDocument(final DocumentVersion version) {
         final PDFXMLDocument pdfXML = new PDFXMLDocument();
-        pdfXML.name = version.getName();
+        pdfXML.name = version.getArtifactName();
         pdfXML.size = bytesFormat.format(documentsSize.get(version));
         return pdfXML;
     }

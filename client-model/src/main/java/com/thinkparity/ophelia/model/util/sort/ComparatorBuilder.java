@@ -82,6 +82,6 @@ public class ComparatorBuilder {
      * @return An <code>ArtifactVersion</code> <code>Comparator</code>.
      */
     public Comparator<ArtifactVersion> createVersionByName() {
-        return new VersionNameComparator(Boolean.TRUE);
+        return new VersionArtifactNameComparator(Boolean.TRUE);
     }
 }

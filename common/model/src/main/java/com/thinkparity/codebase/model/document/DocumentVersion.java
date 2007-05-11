@@ -13,7 +13,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
  * information used to store the content.
  * 
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.4
  * @see DocumentVersionContent
  */
 public class DocumentVersion extends ArtifactVersion {
@@ -27,15 +27,22 @@ public class DocumentVersion extends ArtifactVersion {
     /** The content size. */
     private Long size;
 
-	/** Create DocumentVersion. */
-	public DocumentVersion() { super(); }
+	/**
+     * Create DocumentVersion.
+     *
+	 */
+	public DocumentVersion() {
+        super();
+	}
 
     /**
      * Obtain the checksum
      *
      * @return The String.
      */
-    public String getChecksum() { return checksum; }
+    public String getChecksum() {
+        return checksum;
+    }
 
     /**
      * Obtain checksumAlgorithm.

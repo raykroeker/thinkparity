@@ -14,7 +14,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class VersionNameComparator implements Comparator<ArtifactVersion> {
+class VersionArtifactNameComparator implements Comparator<ArtifactVersion> {
 
     /** A general purpose string comparator. */
     private final StringComparator comparator;
@@ -23,7 +23,7 @@ class VersionNameComparator implements Comparator<ArtifactVersion> {
 	 * Create a NameComparator.
 	 * 
 	 */
-	VersionNameComparator(final Boolean doCompareAscending) {
+	VersionArtifactNameComparator(final Boolean doCompareAscending) {
 		super();
         this.comparator = new StringComparator(doCompareAscending);
 	}
@@ -33,6 +33,6 @@ class VersionNameComparator implements Comparator<ArtifactVersion> {
 	 * 
 	 */
 	public int compare(final ArtifactVersion o1, final ArtifactVersion o2) {
-		return comparator.compare(o1.getName(), o2.getName());
+		return comparator.compare(o1.getArtifactName(), o2.getArtifactName());
 	}
 }

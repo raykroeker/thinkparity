@@ -15,10 +15,6 @@
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/fop/0.20.5/fop.jar" sourcepath="/THINKPARITY_HOME/vendor/fop/0.20.5/fop-sources.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/groovy/1.0/groovy.jar" sourcepath="/THINKPARITY_HOME/vendor/groovy/1.0/groovy-sources.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/swing-layout/1.0/swing-layout.jar" sourcepath="/THINKPARITY_HOME/vendor/swing-layout/1.0/swing-layout-sources.jar"/>
-	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jdic/20061102/linux/jdic.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/home/raymond/Projects/thinkParity/vendor/i686/linux/jdic/20061102"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jdic/0.9.1/win32/jdic.jar" sourcepath="/THINKPARITY_HOME/vendor/jdic/0.9.1/win32/jdic-sources.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

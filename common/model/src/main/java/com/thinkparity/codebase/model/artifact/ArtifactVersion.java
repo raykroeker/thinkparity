@@ -241,6 +241,15 @@ public abstract class ArtifactVersion {
     }
 
     /**
+     * Determine whether or not the name is set for the version.
+     * 
+     * @return True if the name is set for the version.
+     */
+    public Boolean isSetName() {
+        return null != name;
+    }
+
+    /**
 	 * Set the artifact id.
 	 * 
 	 * @param artifactId

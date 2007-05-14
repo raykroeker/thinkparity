@@ -212,9 +212,6 @@ final class PDFXMLWriter {
         xstream.alias("documentSummary", PDFXMLDocumentSummary.class);
         xstream.alias("user", PDFXMLUser.class);
         xstream.alias("teamMember", PDFXMLTeamMember.class);
-        //xstream.addImplicitCollection(PDFXMLContainer.class, "versions");
-        //xstream.addImplicitCollection(PDFXMLContainerVersion.class, "documents");
-        //xstream.addImplicitCollection(PDFXMLContainerVersion.class, "users");
 
         final FileWriter fileWriter = newFileWriter(path);
         try {

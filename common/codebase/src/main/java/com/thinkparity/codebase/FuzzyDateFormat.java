@@ -105,7 +105,7 @@ public class FuzzyDateFormat {
      * Format a <code>Calendar</code> using named pattern.
      * 
      * @param patternName
-     *            The name of a format pattern, can be one of "Default",
+     *            The name of a format pattern, can be one of "Default", "Long",
      *            "SameDay", "SameMonth", "SameYear", "Verbose" or "WithinWeek".
      * @param target
      *            A target calendar.

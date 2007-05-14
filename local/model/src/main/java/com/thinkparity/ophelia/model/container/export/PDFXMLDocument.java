@@ -9,12 +9,12 @@ package com.thinkparity.ophelia.model.container.export;
  */
 final class PDFXMLDocument {
 
+    String delta;
+
     String name;
 
-    String size;
-
     /**
-     * Create PDFXMLContainer.
+     * Create PDFXMLDocument.
      * 
      */
     PDFXMLDocument() {

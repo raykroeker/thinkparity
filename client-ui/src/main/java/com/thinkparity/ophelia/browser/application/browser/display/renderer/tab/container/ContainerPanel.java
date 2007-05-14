@@ -521,8 +521,6 @@ public class ContainerPanel extends DefaultTabPanel {
                 renderer.paintExpandedBackgroundWest(g, westWidth, getHeight(), selectionIndex, this);
                 renderer.paintExpandedBackgroundCenter(g, westWidth, getHeight(), selectionIndex, this);
                 renderer.paintExpandedBackgroundEast(g, westWidth, getHeight(), selectionIndex, this);
-                // TODO This paints on top of above images. Images should be adjusted.
-                renderer.paintBackground(g, getWidth(), ANIMATION_MINIMUM_HEIGHT);
             }
         } else {
             renderer.paintBackground(g, getWidth(), getHeight());

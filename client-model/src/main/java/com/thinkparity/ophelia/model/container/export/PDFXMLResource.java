@@ -11,6 +11,8 @@ package com.thinkparity.ophelia.model.container.export;
  */
 public class PDFXMLResource {
 
+    String name;
+
     String path;
 
     /**

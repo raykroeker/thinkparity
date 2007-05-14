@@ -11,17 +11,25 @@ import java.util.List;
  */
 final class PDFXMLContainer {
 
-    String createdBy;
-
-    String createdOn;
+    List<PDFXMLDocumentSummary> documentSummaries;
 
     String documentSum;
 
+    String firstPublished;
+
+    String lastPublished;
+
     String name;
+
+    List<PDFXMLTeamMember> teamMembers;
+
+    String teamMemberSum;
 
     String userSum;
 
     List<PDFXMLContainerVersion> versions;
+
+    List<PDFXMLContainerVersionSummary> versionSummaries;
 
     String versionSum;
 

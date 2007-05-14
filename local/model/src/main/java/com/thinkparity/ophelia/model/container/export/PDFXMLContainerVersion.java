@@ -15,6 +15,10 @@ final class PDFXMLContainerVersion {
 
     String documentSum;
 
+    String name;
+
+    String note;
+
     String publishedBy;
 
     String publishedOn;
@@ -26,7 +30,7 @@ final class PDFXMLContainerVersion {
     String versionId;
 
     /**
-     * Create PDFXMLContainer.
+     * Create PDFXMLContainerVersion.
      * 
      */
     PDFXMLContainerVersion() {

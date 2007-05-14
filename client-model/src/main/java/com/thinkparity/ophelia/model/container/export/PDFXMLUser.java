@@ -14,7 +14,7 @@ final class PDFXMLUser {
     String receivedOn;
 
     /**
-     * Create PDFXMLContainer.
+     * Create PDFXMLUser.
      * 
      */
     PDFXMLUser() {

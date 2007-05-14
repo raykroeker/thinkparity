@@ -25,7 +25,9 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import org.apache.avalon.framework.logger.ConsoleLogger;
@@ -74,6 +76,8 @@ public final class PDFWriter  {
      *            A <code>Container</code>.
      * @param createdBy
      *            A created by <code>User</code>.
+     * @param latestVersion
+     *            A latest version <code>ContainerVersion</code>.   
      * @param versions
      *            A <code>List</code> of <code>ContainerVersion</code>s to
      *            export.
@@ -93,20 +97,30 @@ public final class PDFWriter  {
      *            A <code>Map</code> of all of the
      *            <code>ContainerVersion</code>s to their <code>List</code>
      *            of respective published to <code>ArtifactReceipt</code>s.
+     * @param deltas
+     *            A <code>Map</code> of all of the
+     *            <code>ContainerVersion</code>s to their <code>Map</code>
+     *            of <code>DocumentVersion</code> to <code>Delta</code>s.
+     * @param teamMembers
+     *            A <code>List</code> of <code>TeamMember</code>s.
      * @throws TransformerException
      * @throws IOException
      */
     public void write(final String pdfPath, final Map<String, File> resources,
             final Container container, final User createdBy,
+            final ContainerVersion latestVersion,
             final List<ContainerVersion> versions,
             final Map<ContainerVersion, User> versionsPublishedBy,
             final Map<ContainerVersion, List<DocumentVersion>> documents,
             final Map<DocumentVersion, Long> documentsSize,
-            final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo)
+            final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo,
+            final Map<ContainerVersion, Map<DocumentVersion, Delta>> deltas,
+            final List<TeamMember> teamMembers)
             throws TransformerException, IOException {
         final String xmlPath = "pdfWriter.xml";
-        xmlWriter.write(xmlPath, resources, container, createdBy, versions,
-                versionsPublishedBy, documents, documentsSize, publishedTo);
+        xmlWriter.write(xmlPath, resources, container, createdBy,
+                latestVersion, versions, versionsPublishedBy, documents,
+                documentsSize, publishedTo, deltas, teamMembers);
 
         final Driver driver = new Driver();
         final Logger logger = new ConsoleLogger(ConsoleLogger.LEVEL_DEBUG);

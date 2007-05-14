@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,14 +17,20 @@ import java.util.Map.Entry;
 
 import javax.xml.transform.TransformerException;
 
-import com.thinkparity.codebase.BytesFormat;
 import com.thinkparity.codebase.FileSystem;
+import com.thinkparity.codebase.FuzzyDateFormat;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.ophelia.model.artifact.ArtifactUtil;
+import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -37,14 +44,15 @@ import com.thoughtworks.xstream.XStream;
  */
 final class PDFXMLWriter {
 
-    /** An instance of <code>BytesFormat</code>. */
-    private final BytesFormat bytesFormat;
-
     /** A <code>Container</code>. */
     private Container container;
 
-    /** A created by <code>User</code>. */
-    private User createdBy;
+    /**
+     * A <code>Map</code> of all of the
+     * <code>ContainerVersion</code>s to their <code>Map</code>
+     * of <code>DocumentVersion</code> to <code>Delta</code>s.
+     */
+    private final Map<ContainerVersion, Map<DocumentVersion, Delta>> deltas;
 
     /**
      * A <code>Map</code> of all of the <code>ContainerVersion</code>s to
@@ -61,6 +69,15 @@ final class PDFXMLWriter {
     /** The export <code>FileSystem</code>. */
     private final FileSystem exportFileSystem;
 
+    /** The first version <code>ContainerVersion</code>. */
+    private ContainerVersion firstVersion;
+
+    /** A <code>FuzzyDateFormat</code>. */
+    private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
+
+    /** The latest version <code>ContainerVersion</code>. */
+    private ContainerVersion latestVersion;
+
     /**
      * A <code>Map</code> of all of the <code>ContainerVersion</code>s to
      * their <code>List</code> of respective published to
@@ -74,6 +91,9 @@ final class PDFXMLWriter {
     /** A collection of <code>Statistics</code>. */
     private Statistics statistics;
 
+    /** A <code>List</code> of <code>TeamMember</code>s. */
+    private final List<TeamMember> teamMembers;
+
     /** A <code>List</code> of <code>ContainerVersion</code>s to export. */
     private final List<ContainerVersion> versions;
 
@@ -83,6 +103,10 @@ final class PDFXMLWriter {
      */
     private final Map<ContainerVersion, User> versionsPublishedBy;
 
+    static {
+        FUZZY_DATE_FORMAT = new FuzzyDateFormat();
+    }
+
     /**
      * Create XMLWriter.
      * 
@@ -91,11 +115,12 @@ final class PDFXMLWriter {
      */
     public PDFXMLWriter(final FileSystem exportFileSystem) {
        super();
-       this.bytesFormat = new BytesFormat();
+       this.deltas = new HashMap<ContainerVersion, Map<DocumentVersion, Delta>>();
        this.documents = new HashMap<ContainerVersion, List<DocumentVersion>>();
        this.documentsSize = new HashMap<DocumentVersion, Long>();
        this.publishedTo = new HashMap<ContainerVersion, List<ArtifactReceipt>>();
        this.resources = new HashMap<String, File>();
+       this.teamMembers = new ArrayList<TeamMember>();
        this.versions = new ArrayList<ContainerVersion>();
        this.versionsPublishedBy = new HashMap<ContainerVersion, User>();
        this.exportFileSystem = exportFileSystem;
@@ -113,8 +138,10 @@ final class PDFXMLWriter {
      *            A <code>Map</code> of named resource <code>File</code>s.
      * @param container
      *            A <code>Container</code>.
-     * @param createdBy
+     * @param containerCreatedBy
      *            A created by <code>User</code>.
+     * @param latestVersion
+     *            A latest version <code>ContainerVersion</code>.   
      * @param versions
      *            A <code>List</code> of <code>ContainerVersion</code>s to
      *            export.
@@ -134,19 +161,31 @@ final class PDFXMLWriter {
      *            A <code>Map</code> of all of the
      *            <code>ContainerVersion</code>s to their <code>List</code>
      *            of respective published to <code>ArtifactReceipt</code>s.
+     * @param deltas
+     *            A <code>Map</code> of all of the
+     *            <code>ContainerVersion</code>s to their <code>Map</code>
+     *            of <code>DocumentVersion</code> to <code>Delta</code>s.
+     * @param teamMembers
+     *            A <code>List</code> of <code>TeamMember</code>s.
      * @throws IOException
      * @throws TransformerException
      */
     void write(final String path, final Map<String, File> resources,
             final Container container, final User containerCreatedBy,
+            final ContainerVersion latestVersion,
             final List<ContainerVersion> versions,
             final Map<ContainerVersion, User> versionsPublishedBy,
             final Map<ContainerVersion, List<DocumentVersion>> documents,
             final Map<DocumentVersion, Long> documentsSize,
-            final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo)
+            final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo,
+            final Map<ContainerVersion, Map<DocumentVersion, Delta>> deltas,
+            final List<TeamMember> teamMembers)
             throws IOException, TransformerException {
         this.container = container;
-        this.createdBy = containerCreatedBy;
+        this.firstVersion = getFirstVersion(versions);
+        this.latestVersion = latestVersion;
+        this.deltas.clear();
+        this.deltas.putAll(deltas);
         this.documents.clear();
         this.documents.putAll(documents);
         this.documentsSize.clear();
@@ -155,6 +194,8 @@ final class PDFXMLWriter {
         this.publishedTo.putAll(publishedTo);
         this.resources.clear();
         this.resources.putAll(resources);
+        this.teamMembers.clear();
+        this.teamMembers.addAll(teamMembers);
         this.versions.clear();
         this.versions.addAll(versions);
         this.versionsPublishedBy.clear();
@@ -166,8 +207,14 @@ final class PDFXMLWriter {
         xstream.alias("resource", PDFXMLResource.class);
         xstream.alias("container", PDFXMLContainer.class);
         xstream.alias("version", PDFXMLContainerVersion.class);
+        xstream.alias("versionSummary", PDFXMLContainerVersionSummary.class);
         xstream.alias("document", PDFXMLDocument.class);
+        xstream.alias("documentSummary", PDFXMLDocumentSummary.class);
         xstream.alias("user", PDFXMLUser.class);
+        xstream.alias("teamMember", PDFXMLTeamMember.class);
+        //xstream.addImplicitCollection(PDFXMLContainer.class, "versions");
+        //xstream.addImplicitCollection(PDFXMLContainerVersion.class, "documents");
+        //xstream.addImplicitCollection(PDFXMLContainerVersion.class, "users");
 
         final FileWriter fileWriter = newFileWriter(path);
         try {
@@ -184,12 +231,16 @@ final class PDFXMLWriter {
      */
     private PDFXMLContainer createPDFContainerXML() {
         final PDFXMLContainer pdfContainerXML = new PDFXMLContainer();
-        pdfContainerXML.createdBy = createdBy.getName();
-        pdfContainerXML.createdOn = format(container.getCreatedOn());
-        pdfContainerXML.documentSum = format(statistics.documentSum);
+        pdfContainerXML.documentSummaries = createPDFXMLDocumentSummaries(latestVersion);
+        pdfContainerXML.documentSum = format(documents.get(latestVersion).size());
+        pdfContainerXML.firstPublished = format(firstVersion.getCreatedOn());
+        pdfContainerXML.lastPublished = format(latestVersion.getCreatedOn());
         pdfContainerXML.name = container.getName();
+        pdfContainerXML.teamMembers = createPDFXMLTeamMembers(teamMembers);
+        pdfContainerXML.teamMemberSum = format(teamMembers.size());
         pdfContainerXML.userSum = format(statistics.usersSum);
         pdfContainerXML.versions = createPDFXMLVersions();
+        pdfContainerXML.versionSummaries = createPDFXMLVersionSummaries();
         pdfContainerXML.versionSum = format(statistics.versionSum);
         return pdfContainerXML;
     }
@@ -220,9 +271,10 @@ final class PDFXMLWriter {
         final List<PDFXMLResource> resources = new ArrayList<PDFXMLResource>();
         PDFXMLResource resource;
         for (final Entry<String, File> entry : this.resources.entrySet()) {
-            xstream.aliasField(entry.getKey(), PDFXMLResource.class, "path");
             resource = new PDFXMLResource();
-            resource.path = entry.getValue().getAbsolutePath();
+            resource.name = entry.getKey();
+            final StringBuffer file = new StringBuffer("file:").append(entry.getValue().getAbsolutePath());
+            resource.path = file.toString();
             resources.add(resource);
         }
         return resources;
@@ -233,12 +285,22 @@ final class PDFXMLWriter {
      * 
      * @param version
      *            A <code>DocumentVersion</code>.
+     * @param versionDeltas
+     *            A <code>Map</code>of <code>DocumentVersion</code> to <code>Delta</code>.   
      * @return An instance of <code>PDFXMLDocument</code>.
      */
-    private PDFXMLDocument createPDFXMLDocument(final DocumentVersion version) {
+    private PDFXMLDocument createPDFXMLDocument(final DocumentVersion version,
+            final Map<DocumentVersion, Delta> versionDeltas) {
         final PDFXMLDocument pdfXML = new PDFXMLDocument();
         pdfXML.name = version.getArtifactName();
-        pdfXML.size = bytesFormat.format(documentsSize.get(version));
+        final Delta delta = versionDeltas.get(version);
+        if (Delta.NONE == delta) {
+            pdfXML.delta = "";
+        } else {
+            // TODO HACK localize properly, we want for example " (modified)"
+            final StringBuffer buffer = new StringBuffer(" (").append(delta.toString().toLowerCase()).append(")");
+            pdfXML.delta = buffer.toString();
+        }
         return pdfXML;
     }
 
@@ -251,8 +313,67 @@ final class PDFXMLWriter {
      */
     private List<PDFXMLDocument> createPDFXMLDocuments(final ContainerVersion version) {
         final List<PDFXMLDocument> pdfXML = new ArrayList<PDFXMLDocument>(documents.size());
+        final Map<DocumentVersion, Delta> versionDeltas = deltas.get(version);
         for (final DocumentVersion documentVersion : documents.get(version)) {
-            pdfXML.add(createPDFXMLDocument(documentVersion));
+            pdfXML.add(createPDFXMLDocument(documentVersion, versionDeltas));
+        }
+        return pdfXML;
+    }
+
+    /**
+     * Create the document summary xml.
+     * 
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @return An instance of <code>PDFXMLDocument</code>.
+     */
+    private PDFXMLDocumentSummary createPDFXMLDocumentSummary(final DocumentVersion version) {
+        final PDFXMLDocumentSummary pdfXML = new PDFXMLDocumentSummary();
+        pdfXML.name = version.getArtifactName();
+        return pdfXML;
+    }
+
+    /**
+     * Create the document summary list xml for a container.
+     * 
+     * @param latestVersion
+     *            A latest version <code>ContainerVersion</code>.
+     * @return A <code>List</code> of <code>PDFXMLDocumentSummary</code>.
+     */
+    private List<PDFXMLDocumentSummary> createPDFXMLDocumentSummaries(final ContainerVersion latestVersion) {
+        final List<PDFXMLDocumentSummary> pdfXML = new ArrayList<PDFXMLDocumentSummary>(documents.size());
+        for (final DocumentVersion documentVersion : documents.get(latestVersion)) {
+            pdfXML.add(createPDFXMLDocumentSummary(documentVersion));
+        }
+        return pdfXML;
+    }
+
+    /**
+     * Create the team member xml.
+     * 
+     * @param teamMember
+     *            A <code>TeamMember</code>.
+     * @return A <code>PDFXMLTeamMember</code>.
+     */
+    private PDFXMLTeamMember createPDFXMLTeamMember(final TeamMember teamMember) {
+        final PDFXMLTeamMember pdfXML = new PDFXMLTeamMember();
+        pdfXML.name = teamMember.getName();
+        pdfXML.organization = teamMember.getOrganization();
+        pdfXML.title = teamMember.getTitle();
+        return pdfXML;
+    }
+
+    /**
+     * Create the team member xml.
+     * 
+     * @param teamMembers
+     *            A <code>List</code> of <code>TeamMember</code>.
+     * @return A <code>List</code> of <code>PDFXMLTeamMember</code>.
+     */
+    private List<PDFXMLTeamMember> createPDFXMLTeamMembers(final List<TeamMember> teamMembers) {
+        final List<PDFXMLTeamMember> pdfXML = new ArrayList<PDFXMLTeamMember>(teamMembers.size());
+        for (final TeamMember teamMember : teamMembers) {
+            pdfXML.add(createPDFXMLTeamMember(teamMember));
         }
         return pdfXML;
     }
@@ -268,9 +389,11 @@ final class PDFXMLWriter {
         final PDFXMLUser pdfXML = new PDFXMLUser();
         pdfXML.name = receipt.getUser().getName();
         if (receipt.isSetReceivedOn()) {
-            pdfXML.receivedOn = format(receipt.getReceivedOn());
+            // TODO HACK localize properly, we want for example " (received Jan 17)"
+            final StringBuffer buffer = new StringBuffer(" (received ").append(format(receipt.getReceivedOn())).append(")");
+            pdfXML.receivedOn = buffer.toString();
         } else {
-            pdfXML.receivedOn = "";
+            pdfXML.receivedOn = " (not received)";
         }
         return pdfXML;
     }
@@ -279,7 +402,7 @@ final class PDFXMLWriter {
      * Create the user xml.
      * 
      * @param version
-     *            A <code>ContaienrVersion</code>.
+     *            A <code>ContainerVersion</code>.
      * @return A <code>List</code> of <code>PDFXMLUser</code>.
      */
     private List<PDFXMLUser> createPDFXMLUsers(final ContainerVersion version) {
@@ -306,6 +429,8 @@ final class PDFXMLWriter {
         final PDFXMLContainerVersion pdfXML = new PDFXMLContainerVersion();
         pdfXML.documents = createPDFXMLDocuments(version);
         pdfXML.documentSum = format(statistics.documentsPerVersion.get(version));
+        pdfXML.name = ArtifactUtil.getInstance().getVersionName(version, versionsPublishedBy.get(version));
+        pdfXML.note = version.getComment();
         pdfXML.publishedBy = versionsPublishedBy.get(version).getName();
         pdfXML.publishedOn = format(version.getUpdatedOn());
         pdfXML.users = createPDFXMLUsers(version);
@@ -328,6 +453,39 @@ final class PDFXMLWriter {
     }
 
     /**
+     * Create the container version summary xml.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param versionId
+     *            The container version id <code>Integer</code> relative to
+     *            the user.
+     * @return An instance of <code>PDFXMLContainerVersionSummary</code>.
+     */
+    private PDFXMLContainerVersionSummary createPDFXMLVersionSummary(
+            final ContainerVersion version, final Integer versionId) {
+        final PDFXMLContainerVersionSummary pdfXML = new PDFXMLContainerVersionSummary();
+        pdfXML.name = ArtifactUtil.getInstance().getVersionName(version, versionsPublishedBy.get(version));
+        pdfXML.publishedBy = versionsPublishedBy.get(version).getName();
+        pdfXML.publishedOn = format(version.getUpdatedOn());
+        pdfXML.versionId = format(versionId);
+        return pdfXML;
+    }
+
+    /**
+     * Create the container version summary xml.
+     * 
+     * @return A <code>List</code> of <code>PDFXMLContainerVersionSummary</code>.
+     */
+    private List<PDFXMLContainerVersionSummary> createPDFXMLVersionSummaries() {
+        final List<PDFXMLContainerVersionSummary> pdfXML = new ArrayList<PDFXMLContainerVersionSummary>(versions.size());
+        for (int i = 0; i < versions.size(); i++) {
+            pdfXML.add(createPDFXMLVersionSummary(versions.get(i), versions.size() - i));
+        }
+        return pdfXML;
+    }
+
+    /**
      * Format a calendar as a string.
      * 
      * @param calendar
@@ -335,8 +493,7 @@ final class PDFXMLWriter {
      * @return A formatted <code>String</code>.
      */
     private String format(final Calendar calendar) {
-        return MessageFormat.format("{0,date,MMMM d, yyyy h:mm a}",
-                calendar.getTime());
+        return FUZZY_DATE_FORMAT.format(calendar, "Long");
     }
 
     /**
@@ -373,6 +530,22 @@ final class PDFXMLWriter {
             this.statistics.usersPerVersion.put(version, publishedTo.get(version).size());
             this.statistics.usersSum += publishedTo.get(version).size();
         }
+    }
+
+    /**
+     * Get the first container version.
+     * 
+     * @param versions
+     *            A <code>List</code> of <code>ContainerVersion</code>.
+     * @return The first <code>ContainerVersion</code>.
+     */
+    private ContainerVersion getFirstVersion(final List<ContainerVersion> versions) {
+        ModelSorter.sortContainerVersions(versions, new Comparator<ArtifactVersion>() {
+            public int compare(final ArtifactVersion o1, final ArtifactVersion o2) {
+                return o1.getCreatedOn().compareTo(o2.getCreatedOn());
+            }
+        });
+        return versions.get(0);
     }
 
     /**

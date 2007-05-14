@@ -2649,14 +2649,28 @@ public final class ContainerModelImpl extends
             final Map<DocumentVersion, Long> documentsSize = new HashMap<DocumentVersion, Long>();
             final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo =
                 new HashMap<ContainerVersion, List<ArtifactReceipt>>(versions.size(), 1.0F);
+            final Map<ContainerVersion, Map<DocumentVersion, Delta>> deltas =
+                new HashMap<ContainerVersion, Map<DocumentVersion, Delta>>(versions.size(), 1.0F);
             File directory;
             for (final ContainerVersion version : versions) {
                 versionsPublishedBy.put(version, readUser(version.getUpdatedBy()));
                 publishedTo.put(version, readPublishedTo(
                         version.getArtifactId(), version.getVersionId()));
-
                 documents.put(version, readDocumentVersions(
                         version.getArtifactId(), version.getVersionId()));
+
+                final Map<DocumentVersion, Delta> versionDeltas;
+                final ContainerVersion previousVersion =
+                    readPreviousVersion(version.getArtifactId(), version.getVersionId());
+                if (null == previousVersion) {
+                    versionDeltas = readDocumentVersionDeltas(version.getArtifactId(),
+                            version.getVersionId());
+                } else {
+                    versionDeltas = readDocumentVersionDeltas(version.getArtifactId(),
+                            version.getVersionId(), previousVersion.getVersionId());
+                }
+                deltas.put(version, versionDeltas);
+
                 directory = exportFileSystem.createDirectory(
                         nameGenerator.exportDirectoryName(version));
                 for (final DocumentVersion documentVersion : documents.get(version)) {
@@ -2675,14 +2689,18 @@ public final class ContainerModelImpl extends
 
             // copy resources into the export file system
             final Map<String, File> resources = new HashMap<String, File>();
-            addExportResource(exportFileSystem, resources, "browser-icon",
-                    "images/BrowserIcon.png");
+            addExportResource(exportFileSystem, resources, "header-image",
+                    "images/PDFHeader.jpg");
+            addExportResource(exportFileSystem, resources, "footer-image",
+                    "images/PDFFooter.jpg");
 
             // generate a pdf
             final PDFWriter pdfWriter = new PDFWriter(exportFileSystem);
             pdfWriter.write(nameGenerator.pdfFileName(container), resources,
-                    container, readUser(container.getCreatedBy()), versions,
-                    versionsPublishedBy, documents, documentsSize, publishedTo);
+                    container, readUser(container.getCreatedBy()),
+                    readLatestVersion(container.getId()), versions,
+                    versionsPublishedBy, documents, documentsSize, publishedTo,
+                    deltas, readTeam(container.getId()));
 
             // create an archive
             final File zipFile = new File(exportFileSystem.getRoot(), container.getName());

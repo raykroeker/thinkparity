@@ -187,6 +187,13 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=?")
         .toString();
 
+    /** Sql to determine draft artifact existence. */
+    private static final String SQL_DOES_EXIST_DRAFT_ARTIFACT =
+        new StringBuilder("select count(ARTIFACT_ID) \"ARTIFACT_COUNT\" ")
+        .append("from CONTAINER_DRAFT_ARTIFACT_REL CDAR ")
+        .append("where CDAR.CONTAINER_ID=? and CDAR.ARTIFACT_ID=?")
+        .toString();
+
     /** Sql to determine if the container version to artifact version exists. */
     private static final String SQL_DOES_EXIST_VERSION =
         new StringBuilder("select COUNT(ARTIFACT_ID) \"COUNT\" ")
@@ -195,6 +202,13 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("and CVAVR.CONTAINER_VERSION_ID=? ")
         .append("and CVAVR.ARTIFACT_ID=? ")
         .append("and CVAVR.ARTIFACT_VERSION_ID=?")
+        .toString();
+
+    /** Sql to determine version artifact existence. */
+    private static final String SQL_DOES_EXIST_VERSION_ARTIFACT =
+        new StringBuilder("select count(ARTIFACT_ID) \"ARTIFACT_COUNT\" ")
+        .append("from CONTAINER_VERSION_ARTIFACT_VERSION_REL CVAVR ")
+        .append("where CVAVR.CONTAINER_ID=? and CVAVR.ARTIFACT_ID=?")
         .toString();
 
     /** Sql to extract the artifact version delta. */
@@ -549,16 +563,16 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=? and USER_ID=? ")
         .append("and PUBLISHED_ON=?")
         .toString();
-
+    
     /** Generic artifact io. */
     private final ArtifactIOHandler artifactIO;
-
+    
     /** Document io. */
     private final DocumentIOHandler documentIO;
-    
+
     /** User io. */
     private final UserIOHandler userIO;
-    
+
     /**
      * Create ContainerIOHandler.
      * 
@@ -932,6 +946,51 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#doesExistArtifact(java.lang.Long,
+     *      java.lang.Long)
+     * 
+     */
+    public Boolean doesExistArtifact(final Long containerId, final Long artifactId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_DRAFT_ARTIFACT);
+            session.setLong(1, containerId);
+            session.setLong(2, artifactId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int draftArtifactCount = session.getInteger("ARTIFACT_COUNT");
+                if (1 == draftArtifactCount) {
+                    return Boolean.TRUE;
+                } else if (0 == draftArtifactCount) {
+                    session.prepareStatement(SQL_DOES_EXIST_VERSION_ARTIFACT);
+                    session.setLong(1, containerId);
+                    session.setLong(2, artifactId);
+                    session.executeQuery();
+                    if (session.nextResult()) {
+                        final int versionArtifactCount =
+                            session.getInteger("ARTIFACT_COUNT");
+                        if (0 == versionArtifactCount) {
+                            return Boolean.FALSE;
+                        } else if (1 < versionArtifactCount) {
+                            return Boolean.TRUE;
+                        } else {
+                            throw new HypersonicException("Could not determine version artifact count.");
+                        }
+                    } else {
+                        throw new HypersonicException("Could not determine version artifact count.");
+                    }
+                } else {
+                    throw new HypersonicException("Could not determine draft artifact count.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine artifact count.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#doesExistDraft(java.lang.Long)
      *
      */
@@ -1111,7 +1170,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readDocuments(java.lang.Long, java.lang.Long)
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readDocuments(java.lang.Long,
+     *      java.lang.Long)
+     * 
      */
     public List<Document> readDocuments(final Long containerId,
             final Long versionId) {

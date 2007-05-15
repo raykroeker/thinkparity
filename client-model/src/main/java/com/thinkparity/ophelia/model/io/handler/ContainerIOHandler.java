@@ -31,16 +31,6 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 public interface ContainerIOHandler {
 
     /**
-     * Update the draft comment.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param comment
-     *            The draft comment <code>String</code>.
-     */
-    public void updateDraftComment(final Long containerId, final String comment);
-
-    /**
      * Add an artifact version to a container version.
      * 
      * @param containerId
@@ -204,6 +194,18 @@ public interface ContainerIOHandler {
      *            The version id.
      */
     public void deleteVersion(final Long containerId, final Long versionId);
+
+    /**
+     * Determine whether or not an artifact exists for a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @return True if the document exists for a container.
+     */
+    public Boolean doesExistArtifact(final Long containerId,
+            final Long artifactId);
 
     /**
      * Determine the existence of a draft.
@@ -416,6 +418,7 @@ public interface ContainerIOHandler {
     public void removeVersion(final Long containerId,
             final Long containerVersionId, final Long artifactId,
             final Long artifactVersionId);
+
     /**
      * Remove all artifact versions.
      * 
@@ -445,6 +448,15 @@ public interface ContainerIOHandler {
     @Deprecated
     public void updateComment(final Long containerId, final Long versionId,
             final String comment);
+    /**
+     * Update the draft comment.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param comment
+     *            The draft comment <code>String</code>.
+     */
+    public void updateDraftComment(final Long containerId, final String comment);
     // TODO-javadoc ContainerIOHandler#updateDraftDocument
     public void updateDraftDocument(final ContainerDraftDocument draftDocument,
             final InputStream stream, final Integer bufferSize);

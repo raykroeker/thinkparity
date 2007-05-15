@@ -1067,6 +1067,12 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                     return file;
                 }
             }
+            // the super implementation will provide some additional files
+            for (final File file : super.getInputFiles()) {
+                if (file.getName().equals(name)) {
+                    return file;
+                }
+            }
             return null;
         } catch (final IOException iox) {
             throw new TestException(iox);

@@ -186,6 +186,26 @@ public final class DocumentModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#delete(java.lang.Long)
+     * 
+     */
+    public void delete(final Long documentId) {
+        try {
+            final Document document = read(documentId);
+            final File draftFile = getDraftFile(document);
+            Assert.assertNotTrue(draftFile.exists(),
+                    "Draft file {0} for document {1} still exists.", draftFile,
+                    document.getName());
+            // delete local data
+            deleteLocal(documentId);
+            // fire event
+            notifyDocumentDeleted(document, localEventGen);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#deleteDraft(com.thinkparity.codebase.model.document.DocumentLock,
      *      java.lang.Long)
      * 
@@ -1108,23 +1128,40 @@ public final class DocumentModelImpl extends
      * Delete the local document data.
      * 
      * @param lock
+     *            A <code>DocumentFileLock</code>.
      * @param versionLocks
+     *            A <code>Map</code> of <code>DocumentVersion</code>s to
+     *            their <code>DocumentFileLock</code>s.
      * @param documentId
+     *            A document id <code>Long</code>.
      */
     private void deleteLocal(final DocumentFileLock lock,
             final Map<DocumentVersion, DocumentFileLock> versionLocks,
             final Long documentId) {
         // delete versions
         final List<DocumentVersion> versions = readVersions(documentId);
-		for (final DocumentVersion version : versions) {
+        for (final DocumentVersion version : versions) {
             deleteFile(versionLocks.get(version));
-			documentIO.deleteVersion(version.getArtifactId(), version.getVersionId());
+            documentIO.deleteVersion(version.getArtifactId(), version.getVersionId());
         }
         // delete  index
         getIndexModel().deleteDocument(documentId);
         // delete document
         deleteFile(lock);
-		documentIO.delete(documentId);
+        documentIO.delete(documentId);
+    }
+
+    /**
+     * Delete the local document data.  This will delete only the index data
+     * and the document meta-data.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     */
+    private void deleteLocal(final Long documentId) {
+        // delete  index
+        getIndexModel().deleteDocument(documentId);
+        documentIO.delete(documentId);
     }
 
     /**

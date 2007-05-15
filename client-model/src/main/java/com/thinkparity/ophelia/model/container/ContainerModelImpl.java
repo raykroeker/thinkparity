@@ -466,11 +466,16 @@ public final class ContainerModelImpl extends
                     }
                 }
                 // delete local data
+                containerIO.deleteDraftDocuments(containerId);
                 for (final Document draftDocument : draftDocuments) {
                     documentModel.deleteDraft(locks.get(draftDocument), draftDocument.getId());
                     containerIO.deleteDraftArtifactRel(containerId, draftDocument.getId());
+                    /* the document doesn't exist as in relation to the package
+                     * so we delete it */
+                    if (!doesExistArtifact(containerId, draftDocument.getId())) {
+                        documentModel.delete(draftDocument.getId());
+                    }
                 }
-                containerIO.deleteDraftDocuments(containerId);
                 containerIO.deleteDraft(containerId);
                 notifyDraftDeleted(container, draft, localEventGenerator);
             } finally {
@@ -493,6 +498,20 @@ public final class ContainerModelImpl extends
         } catch (final Throwable t) {
             throw panic(t);
         }
+    }
+
+    /**
+     * Determine if an artifact still exists as a reference to a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @return True if the artifact still exists.
+     */
+    private boolean doesExistArtifact(final Long containerId,
+            final Long artifactId) {
+        return containerIO.doesExistArtifact(containerId, artifactId).booleanValue();
     }
 
     /**
@@ -3074,7 +3093,7 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Read the documents for the container.
+     * Read the documents for the container version.
      * 
      * @param containerId
      *            A container id <code>Long</code>.

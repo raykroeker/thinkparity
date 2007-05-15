@@ -83,6 +83,16 @@ public interface InternalDocumentModel extends DocumentModel {
             final Long documentId);
 
     /**
+     * Delete a document.
+     * 
+     * @param lock
+     *            A <code>DocumentFileLock</code>.
+     * @param documentId
+     *            A document id.
+     */
+    public void delete(final Long documentId);
+
+    /**
      * Delete the document draft.
      * 
      * @param lock

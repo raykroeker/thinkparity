@@ -12,7 +12,16 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  * @version 1.1.2.1
  */
 public interface TabDelegate {
-    
+
+    /**
+     * Determine if the next panel is expanded.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @return True if the next panel is expanded.
+     */
+    public Boolean isNextPanelExpanded(final TabPanel tabPanel);
+
     /**
      * Select the panel.
      * 

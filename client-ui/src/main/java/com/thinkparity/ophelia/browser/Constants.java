@@ -68,10 +68,12 @@ public final class Constants {
                 public static final Color BG_GRAD_START = new Color(251, 252, 252, 255);                
             }
             public static final class Panel {
-                public static final Color PANEL_ADDITIONAL_TEXT_FG = new Color(49, 102, 148, 255);
-                public static final Color PANEL_BORDER = new Color(212, 212, 212, 255);
+                public static final Color PANEL_ADDITIONAL_TEXT_FG = new Color(118, 123, 141, 255);
+                public static final Color PANEL_COLLAPSED_BORDER = new Color(212, 212, 212, 255);
                 public static final Color PANEL_COLLAPSED_BACKGROUND = new Color(234, 234, 234, 255);
-                public static final Color PANEL_SELECTION_LINE = new Color(215, 201, 185, 255);
+                public static final Color PANEL_COLLAPSED_SELECTED_BACKGROUND = new Color(196, 198, 208, 255);
+                public static final Color PANEL_COLLAPSED_SELECTED_BORDER = Color.WHITE;
+                public static final Color PANEL_EXPANDED_BORDER = new Color(157, 143, 130, 255);
                 public static final Color PANEL_LIST_SELECTION_LINE[] = new Color[] {
                     new Color(215, 201, 185, 255),
                     new Color(211, 197, 182, 255),

@@ -38,8 +38,11 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     /** The minimum height of a panel. */
     protected static final int ANIMATION_MINIMUM_HEIGHT;
     
-	/** The panel <code>Border</code>. */
-    protected static final Border BORDER;
+	/** The collapsed panel <code>Border</code>. */
+    protected static final Border BORDER_COLLAPSED;
+
+    /** The expanded panel <code>Border</code>. */
+    protected static final Border BORDER_EXPANDED;
 
     /** An image cache. */
     protected static final MainPanelImageCache IMAGE_CACHE;
@@ -51,11 +54,12 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
         ANIMATION_HEIGHT_ADJUSTMENT = 12;
         ANIMATION_MAXIMUM_HEIGHT = 165;
         ANIMATION_MINIMUM_HEIGHT = 25;
-        BORDER = new BottomBorder(Colors.Browser.Panel.PANEL_BORDER);
+        BORDER_COLLAPSED = new BottomBorder(Colors.Browser.Panel.PANEL_COLLAPSED_BORDER);
+        BORDER_EXPANDED = new BottomBorder(Colors.Browser.Panel.PANEL_EXPANDED_BORDER);
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
         IMAGE_CACHE = new MainPanelImageCache();
     }
-    
+
     /**
      * Format a calendar as a fuzzy date.
      * 
@@ -125,6 +129,15 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     }
 
     /**
+     * Handle a mouse press on the expand/collapse icon.
+     * 
+     * @param e
+     *          A <code>MouseEvent</code>.
+     */
+    public void expandIconMousePressed(final java.awt.event.MouseEvent e) {
+    }
+
+    /**
      * Obtain a session attribute.
      * 
      * @param name
@@ -174,7 +187,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
      */
     public void panelCellMousePressed(final Cell cell, final Boolean onIcon, final java.awt.event.MouseEvent e) {        
     }
-    
+
     /**
      * Handle a change of selection in the panel cell.
      * 
@@ -223,10 +236,25 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     public void setTabDelegate(final TabDelegate tabDelegate) {
         this.tabDelegate = tabDelegate;
     }
-    
+
     /**
      * Repaint the lists.
-     *
      */
     protected abstract void repaintLists();
+
+    /**
+     * Adjust the border color.
+     * 
+     * @param expanded
+     *            The expanded <code>Boolean</code>.
+     */
+    protected void adjustBorderColor(final Boolean expanded) {
+        if (!expanded) {
+            if (tabDelegate.isNextPanelExpanded(this)) {
+                ((BottomBorder)BORDER_COLLAPSED).setColor(Colors.Browser.Panel.PANEL_EXPANDED_BORDER);
+            } else {
+                ((BottomBorder)BORDER_COLLAPSED).setColor(Colors.Browser.Panel.PANEL_COLLAPSED_BORDER);
+            }
+        }
+    }
 }

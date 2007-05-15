@@ -18,6 +18,7 @@ import javax.swing.SwingUtilities;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
@@ -47,6 +48,7 @@ import com.thinkparity.ophelia.browser.util.localization.Localization;
 public class ContactTabPanel extends DefaultTabPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel collapseIconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel collapsedAdditionalTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel collapsedContactJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel collapsedIconJLabel = new javax.swing.JLabel();
@@ -62,6 +64,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     private final javax.swing.JLabel contactMobilePhoneValueJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel contactPhoneValueJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel contactTextJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel expandIconJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel expandedContactJPanel = new javax.swing.JPanel();
     private final javax.swing.JPanel expandedDataValuesJPanel = new javax.swing.JPanel();
     private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
@@ -129,6 +132,7 @@ public class ContactTabPanel extends DefaultTabPanel {
      *
      */
     public void collapse(final boolean animate) {
+        setBorder(BORDER_COLLAPSED);
         doCollapse(animate);
     }
 
@@ -137,7 +141,18 @@ public class ContactTabPanel extends DefaultTabPanel {
      *
      */
     public void expand(final boolean animate) {
+        setBorder(BORDER_EXPANDED);
         doExpand(animate);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#expandIconMousePressed(java.awt.event.MouseEvent)
+     */
+    @Override
+    public void expandIconMousePressed(final MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON1 && isExpandable()) {
+            tabDelegate.toggleExpansion(this);
+        }
     }
 
     /**
@@ -340,9 +355,9 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     public void setExpanded(final Boolean expanded) {
         if (expanded.booleanValue())
-            doExpand(false);
+            expand(false);
         else
-            doCollapse(false);
+            collapse(false);
     }
 
     /**
@@ -361,6 +376,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         initCollapsedPanel();
         
         collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
+        expandIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.EXPAND));
         reload(collapsedTextJLabel, contact.getName());
         reload(collapsedAdditionalTextJLabel, getAdditionalText(contact));
 
@@ -429,6 +445,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         initCollapsedPanel();
 
         collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
+        expandIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.INVISIBLE));
         reload(collapsedTextJLabel, outgoingEMail.getInvitationEMail());
         reload(collapsedAdditionalTextJLabel, localization.getString("OutgoingInvitationAdditionalText"));
     }
@@ -444,6 +461,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         initCollapsedPanel();
 
         collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
+        expandIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.INVISIBLE));
         reload(collapsedTextJLabel, outgoingUser.getInvitationUser().getName());
         reload(collapsedAdditionalTextJLabel, localization.getString("OutgoingInvitationAdditionalText"));
     }
@@ -467,6 +485,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         initCollapsedPanel();
 
         collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
+        expandIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.EXPAND));
         reload(collapsedTextJLabel, profile.getName());
         reload(collapsedAdditionalTextJLabel, getAdditionalText(profile));
 
@@ -505,13 +524,16 @@ public class ContactTabPanel extends DefaultTabPanel {
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
+        final int height = getHeight() - getBorder().getBorderInsets(this).top
+                - getBorder().getBorderInsets(this).bottom;
+        adjustBorderColor(expanded);
         if (expanded || animating) {
             renderer.paintExpandedBackground(g, this);
             final Point location = SwingUtilities.convertPoint(expandedDataValuesJPanel, new Point(0,0), this);
             renderer.paintExpandedBackgroundFields(g, location.x,
                     expandedDataValuesJPanel.getWidth(), this);
         } else {
-            renderer.paintBackground(g, getWidth(), getHeight());
+            renderer.paintBackground(g, getWidth(), height, selected);
         }
     }
 
@@ -537,6 +559,19 @@ public class ContactTabPanel extends DefaultTabPanel {
     private void collapsedIncomingInvitationJPanelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedIncomingInvitationJPanelMouseReleased
         jPanelMouseReleased((javax.swing.JPanel) e.getSource(), e);
     }//GEN-LAST:event_collapsedIncomingInvitationJPanelMouseReleased
+
+    private void collapseIconJLabelMouseEntered(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapseIconJLabelMouseEntered
+        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+    }//GEN-LAST:event_collapseIconJLabelMouseEntered
+
+    private void collapseIconJLabelMouseExited(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapseIconJLabelMouseExited
+        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
+    }//GEN-LAST:event_collapseIconJLabelMouseExited
+
+    private void collapseIconJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapseIconJLabelMousePressed
+        selectPanel();
+        expandIconMousePressed(e);
+    }//GEN-LAST:event_collapseIconJLabelMousePressed
 
     /**
      * Collapse the panel.
@@ -599,6 +634,7 @@ public class ContactTabPanel extends DefaultTabPanel {
      *            Whether or not to animate.
      */
     private void doExpand(final boolean animate) {
+        selectPanel();
         expandedJPanel.removeAll();
         if (isSetContact() || isSetProfile())
             expandedJPanel.add(expandedContactJPanel, innerJPanelConstraints.clone());
@@ -646,6 +682,22 @@ public class ContactTabPanel extends DefaultTabPanel {
     private void expandedContactJPanelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedContactJPanelMouseReleased
         jPanelMouseReleased((javax.swing.JPanel) e.getSource(), e);
     }//GEN-LAST:event_expandedContactJPanelMouseReleased
+
+    private void expandIconJLabelMouseEntered(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMouseEntered
+        if (isExpandable()) {
+            SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+        }
+    }//GEN-LAST:event_expandIconJLabelMouseEntered
+
+    private void expandIconJLabelMouseExited(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMouseExited
+        if (isExpandable()) {
+            SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
+        }
+    }//GEN-LAST:event_expandIconJLabelMouseExited
+
+    private void expandIconJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMousePressed
+        expandIconMousePressed(e);
+    }//GEN-LAST:event_expandIconJLabelMousePressed
 
     /**
      * Extract additional text from a user.
@@ -736,7 +788,7 @@ public class ContactTabPanel extends DefaultTabPanel {
 
     private void incomingInvitationAcceptJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_incomingInvitationAcceptJLabelMousePressed
         if (e.getButton() == MouseEvent.BUTTON1) {
-            tabDelegate.selectPanel(this);
+            selectPanel();
             if (isSetIncomingEMail())
                 actionDelegate.invokeForInvitation(getIncomingEMail(), ActionDelegate.Action.ACCEPT);
             else if (isSetIncomingUser())
@@ -748,7 +800,7 @@ public class ContactTabPanel extends DefaultTabPanel {
 
     private void incomingInvitationDeclineJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_incomingInvitationDeclineJLabelMousePressed
         if (e.getButton() == MouseEvent.BUTTON1) {
-            tabDelegate.selectPanel(this);
+            selectPanel();
             if (isSetIncomingEMail())
                 actionDelegate.invokeForInvitation(getIncomingEMail(), ActionDelegate.Action.DECLINE);
             else if (isSetIncomingUser())
@@ -814,17 +866,37 @@ public class ContactTabPanel extends DefaultTabPanel {
             }
         });
 
-        collapsedIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconUser.png")));
+        expandIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconExpand.png")));
+        expandIconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                expandIconJLabelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                expandIconJLabelMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                expandIconJLabelMousePressed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.insets = new java.awt.Insets(4, 27, 0, 5);
+        gridBagConstraints.insets = new java.awt.Insets(4, 10, 0, 0);
+        collapsedContactJPanel.add(expandIconJLabel, gridBagConstraints);
+
+        collapsedIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconUser.png")));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.insets = new java.awt.Insets(4, 1, 0, 5);
         collapsedContactJPanel.add(collapsedIconJLabel, gridBagConstraints);
 
         collapsedTextJLabel.setText("!Contact Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
@@ -935,17 +1007,37 @@ public class ContactTabPanel extends DefaultTabPanel {
         row1JPanel.setLayout(new java.awt.GridBagLayout());
 
         row1JPanel.setOpaque(false);
-        contactIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconUser.png")));
+        collapseIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconCollapse.png")));
+        collapseIconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                collapseIconJLabelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                collapseIconJLabelMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                collapseIconJLabelMousePressed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.insets = new java.awt.Insets(4, 27, 0, 5);
+        gridBagConstraints.insets = new java.awt.Insets(4, 10, 0, 0);
+        row1JPanel.add(collapseIconJLabel, gridBagConstraints);
+
+        contactIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconUser.png")));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.insets = new java.awt.Insets(4, 1, 0, 5);
         row1JPanel.add(contactIconJLabel, gridBagConstraints);
 
         contactTextJLabel.setText("!Name!");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
         row1JPanel.add(contactTextJLabel, gridBagConstraints);
@@ -1100,8 +1192,17 @@ public class ContactTabPanel extends DefaultTabPanel {
 
         setLayout(new java.awt.GridBagLayout());
 
-        setBorder(BORDER);
+        setBorder(BORDER_COLLAPSED);
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Determine if the panel is expandable.
+     * 
+     * @return True if the panel is expandable.
+     */
+    public Boolean isExpandable() {
+        return (isSetContact() || isSetProfile());
+    }
 
     /**
      * Handle the mouse pressed event for any one of the jpanels in this tab.
@@ -1116,7 +1217,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     private void jPanelMousePressed(final javax.swing.JPanel jPanel,
             final java.awt.event.MouseEvent e) {
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
-            tabDelegate.selectPanel(this);
+            selectPanel();
             popupDelegate.initialize(jPanel, e.getX(), e.getY());
             if (isSetContact())
                 popupDelegate.showForContact(contact, isExpanded());
@@ -1133,9 +1234,9 @@ public class ContactTabPanel extends DefaultTabPanel {
             else
                 Assert.assertUnreachable("Inconsistent contact tab panel state.");
         } else if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
-            tabDelegate.selectPanel(this);
+            selectPanel();
         } else if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
-            if (isSetContact() || isSetProfile()) {
+            if (isExpandable()) {
                 tabDelegate.toggleExpansion(this);
             }
         }
@@ -1154,7 +1255,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     private void jPanelMouseReleased(final javax.swing.JPanel jPanel,
             final java.awt.event.MouseEvent e) {
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
-            tabDelegate.selectPanel(this);
+            selectPanel();
             popupDelegate.initialize(jPanel, e.getX(), e.getY());
             if (isSetContact())
                 popupDelegate.showForContact(contact, isExpanded());
@@ -1197,5 +1298,12 @@ public class ContactTabPanel extends DefaultTabPanel {
     private void reload(final javax.swing.JLabel jLabel,
             final String value) {
         jLabel.setText(null == value ? Separator.Space.toString() : value);
+    }
+
+    /**
+     * Select this panel.
+     */
+    private void selectPanel() {
+        tabDelegate.selectPanel(this);
     }
 }

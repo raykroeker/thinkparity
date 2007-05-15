@@ -79,7 +79,7 @@ public class ContainerPanel extends DefaultTabPanel {
         CONTAINER_TEXT_X = 56;
         CONTAINER_TEXT_Y = 5;
         DEFAULT_SELECTED_ROW_EAST = 0;
-        DEFAULT_SELECTED_ROW_WEST = 1;
+        DEFAULT_SELECTED_ROW_WEST = 0;
         NUMBER_VISIBLE_ROWS = 6;
     }
 
@@ -92,6 +92,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private javax.swing.JPanel eastListJPanel;
     private final javax.swing.JLabel eastNextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JLabel eastPreviousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel expandIconJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
@@ -184,7 +185,7 @@ public class ContainerPanel extends DefaultTabPanel {
         this.westCells = new ArrayList<Cell>();
         this.westCellPanels = new ArrayList<PanelCellRenderer>();
         for (int index = 0; index < NUMBER_VISIBLE_ROWS; index++) {
-            eastCellPanels.add(new EastCellRenderer(this));
+            eastCellPanels.add(new EastCellRenderer(this, index));
             if (0 == index) {
                 westCellPanels.add(new TopWestCellRenderer(this));
             } else {
@@ -202,12 +203,13 @@ public class ContainerPanel extends DefaultTabPanel {
                 westNextJLabel, westLastJLabel);
         initComponents();
     }
-    
+
     /**
      * Collapse the panel.
      * 
      */
     public void collapse(final boolean animate) {
+        setBorder(BORDER_COLLAPSED);
         doCollapse(animate);
     }
 
@@ -216,7 +218,19 @@ public class ContainerPanel extends DefaultTabPanel {
      *
      */
     public void expand(final boolean animate) {
+        setBorder(BORDER_EXPANDED);
         doExpand(animate);
+    }
+
+    /**
+     * Handle mouse press on the cell expand/collapse icon.
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#expandIconMousePressed(java.awt.event.MouseEvent)
+     */
+    @Override
+    public void expandIconMousePressed(final MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            tabDelegate.toggleExpansion(this);
+        }
     }
 
     /**
@@ -339,28 +353,34 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * Handle mouse press on cells. 
+     * Handle mouse press on cells.
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellMousePressed(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, java.lang.Boolean, java.awt.event.MouseEvent)
      */
     @Override
     public void panelCellMousePressed(final Cell cell, final Boolean onIcon, final MouseEvent e) {
         if (cell instanceof WestCell) {
-            if (0 == westListModel.getIndexOf(cell)) {
-                selectPanel();
-            } else {
+            westListModel.setSelectedCell(cell);
+            if (0 < westListModel.getIndexOf(cell)) {
                 PanelFocusHelper.setFocus(PanelFocusHelper.Focus.WEST);
-                westListModel.setSelectedCell(cell);
+            }
+            if (0 == westListModel.getIndexOf(cell) && !onIcon
+                    && e.getClickCount() % 2 == 0
+                    && e.getButton() == MouseEvent.BUTTON1) {
+                tabDelegate.toggleExpansion(this);
             }
         } else if (cell instanceof EastCell) {
-            if (0 == eastListModel.getIndexOf(cell)) {
-                selectPanel();
-            } else {
+            eastListModel.setSelectedCell(cell);
+            if (0 < eastListModel.getIndexOf(cell)) {
                 PanelFocusHelper.setFocus(PanelFocusHelper.Focus.EAST);
-                eastListModel.setSelectedCell(cell);
             }
-        }
-        if (!onIcon && e.getClickCount() % 2 == 0 && e.getButton() == MouseEvent.BUTTON1) {
-            tabDelegate.toggleExpansion(this);
+            if (!onIcon && e.getClickCount() % 2 == 0
+                    && e.getButton() == MouseEvent.BUTTON1) {
+                if (0 == eastListModel.getIndexOf(cell)) {
+                    tabDelegate.toggleExpansion(this);
+                } else if (cell.isActionAvailable()) {
+                    cell.invokeAction();
+                }
+            }
         }
         repaint();
     }
@@ -412,9 +432,9 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     public void setExpanded(final Boolean expanded) {
         if (expanded.booleanValue())
-            doExpand(false);
+            expand(false);
         else
-            doCollapse(false);
+            collapse(false);
     }
 
     /**
@@ -512,27 +532,32 @@ public class ContainerPanel extends DefaultTabPanel {
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
+        final int borderHeight = getBorder().getBorderInsets(this).top
+                + getBorder().getBorderInsets(this).bottom;
+        final int height = getHeight() - borderHeight;
+        final int finalHeight = ANIMATION_MAXIMUM_HEIGHT - borderHeight;
+        adjustBorderColor(expanded);
         if (expanded || animating) {
             renderer.paintExpandedBackground(g, this);
             if (!westListModel.isSelectionEmpty()) {
                 final int selectionIndex = westListModel.getSelectedIndex();
                 final int westWidth = westJPanel.getWidth()
                         + SwingUtilities.convertPoint(westJPanel, new Point(0, 0), this).x;
-                renderer.paintExpandedBackgroundWest(g, westWidth, getHeight(), selectionIndex, this);
-                renderer.paintExpandedBackgroundCenter(g, westWidth, getHeight(), selectionIndex, this);
-                renderer.paintExpandedBackgroundEast(g, westWidth, getHeight(), selectionIndex, this);
+                renderer.paintExpandedBackgroundWest(g, westWidth, height, selectionIndex, this);
+                renderer.paintExpandedBackgroundCenter(g, westWidth, height, selectionIndex, this);
+                renderer.paintExpandedBackgroundEast(g, westWidth, getWidth()
+                        - westWidth, finalHeight, selectionIndex, this);
             }
         } else {
-            renderer.paintBackground(g, getWidth(), getHeight());
+            renderer.paintBackground(g, getWidth(), height, selected);
         }
 
-        // Paint text and selection.
+        // Paint text.
         // Text is painted (instead of using JLabels) so that when the container
         // is expanded the top west row can paint all the way across.
         final Graphics2D g2 = (Graphics2D)g.create();
         try {
             paintText(g2);
-            paintSelection(g2);
         }
         finally { g2.dispose(); }
     }
@@ -642,6 +667,10 @@ public class ContainerPanel extends DefaultTabPanel {
      *            Whether or not to animate.
      */
     private void doExpand(final boolean animate) {
+        if (!expanded) {
+            westListModel.showFirstPage();
+            westListModel.setSelectedCell(westCells.get(0));
+        }
         if (isAncestorOf(expandedJPanel))
             remove(expandedJPanel);
         if (isAncestorOf(collapsedJPanel))
@@ -678,24 +707,12 @@ public class ContainerPanel extends DefaultTabPanel {
 
     private void eastJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJPanelMousePressed
         selectPanel();
-        if (e.isPopupTrigger()) {
-            if (!westListModel.isSelectionEmpty()) {
-                getPopupDelegate().initialize((Component) e.getSource(), e.getX(), e.getY());
-                westListModel.getSelectedCell().showPopup();
-            }
-        }
         if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
             tabDelegate.toggleExpansion(this);
         }
     }//GEN-LAST:event_eastJPanelMousePressed
 
     private void eastJPanelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJPanelMouseReleased
-        if (e.isPopupTrigger()) {
-            if (!westListModel.isSelectionEmpty()) {
-                getPopupDelegate().initialize((Component) e.getSource(), e.getX(), e.getY());
-                westListModel.getSelectedCell().showPopup();
-            }
-        }
     }//GEN-LAST:event_eastJPanelMouseReleased
 
     private void expandedJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMousePressed
@@ -709,6 +726,18 @@ public class ContainerPanel extends DefaultTabPanel {
 
     private void expandedJPanelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMouseReleased
     }//GEN-LAST:event_expandedJPanelMouseReleased
+
+    private void expandIconJLabelMouseEntered(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMouseEntered
+        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+    }//GEN-LAST:event_expandIconJLabelMouseEntered
+
+    private void expandIconJLabelMouseExited(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMouseExited
+        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
+    }//GEN-LAST:event_expandIconJLabelMouseExited
+
+    private void expandIconJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMousePressed
+        expandIconMousePressed(e);
+    }//GEN-LAST:event_expandIconJLabelMousePressed
 
     /**
      * Get additional text associated with the container.
@@ -807,7 +836,7 @@ public class ContainerPanel extends DefaultTabPanel {
     
     private void iconJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMousePressed
         if (e.getButton() == MouseEvent.BUTTON1) {
-            tabDelegate.selectPanel(this);
+            selectPanel();
             actionDelegate.invokeForContainer(container);
         }
     }//GEN-LAST:event_iconJLabelMousePressed
@@ -832,7 +861,7 @@ public class ContainerPanel extends DefaultTabPanel {
 
         setLayout(new java.awt.GridBagLayout());
 
-        setBorder(BORDER);
+        setBorder(BORDER_COLLAPSED);
         collapsedJPanel.setLayout(new java.awt.GridBagLayout());
 
         collapsedJPanel.setOpaque(false);
@@ -844,6 +873,26 @@ public class ContainerPanel extends DefaultTabPanel {
                 collapsedJPanelMouseReleased(evt);
             }
         });
+
+        expandIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconExpand.png")));
+        expandIconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                expandIconJLabelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                expandIconJLabelMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                expandIconJLabelMousePressed(evt);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.insets = new java.awt.Insets(4, 10, 0, 0);
+        collapsedJPanel.add(expandIconJLabel, gridBagConstraints);
 
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
         iconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -859,10 +908,10 @@ public class ContainerPanel extends DefaultTabPanel {
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.insets = new java.awt.Insets(4, 27, 0, 5);
+        gridBagConstraints.insets = new java.awt.Insets(4, 1, 0, 5);
         collapsedJPanel.add(iconJLabel, gridBagConstraints);
 
         textJLabel.setText("!Package Text!");
@@ -1060,25 +1109,6 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * Paint selection.
-     * 
-     * @param g2
-     *            The <code>Graphics2D</code>.
-     */
-    private void paintSelection(final Graphics2D g2) {
-        if (selected && PanelFocusHelper.Focus.PANEL == PanelFocusHelper.getFocus()) {
-            g2.setFont(getContainerTextFont());
-            final Point location = new Point(CONTAINER_TEXT_X, CONTAINER_TEXT_Y);
-            final int height = SwingUtil.getStringHeight(g2);
-            int width = SwingUtil.getStringWidth(clippedText, g2);
-            if (null != clippedAdditionalText) {
-                width += CONTAINER_TEXT_SPACE_BETWEEN + SwingUtil.getStringWidth(clippedAdditionalText, g2);
-            }
-            renderer.paintSelectionLine(g2, location.x, location.y, width, height);
-        }
-    }
-
-    /**
      * Paint text on the panel.
      * 
      * @param g2
@@ -1188,7 +1218,8 @@ public class ContainerPanel extends DefaultTabPanel {
                 final Map<ContainerVersion, List<DocumentView>> documentViews,
                 final List<TeamMember> team) {
             super(Boolean.TRUE);
-            if (isLocalDraft()) {
+            // TODO remove permanently
+/*            if (isLocalDraft()) {
                 addDraftDocumentCells(draftView);
             } else if (null != latestVersion) {
                 addActiveVersionDocumentCells(latestVersion, documentViews.get(latestVersion));
@@ -1196,7 +1227,7 @@ public class ContainerPanel extends DefaultTabPanel {
             for (final ContainerVersion version : versions) {
                 addRemovedVersionDocumentCells(version, documentViews.get(version));
             }
-            addUserCells(team);
+            addUserCells(team);*/
         }
         @Override
         public Icon getIcon() {
@@ -1221,7 +1252,7 @@ public class ContainerPanel extends DefaultTabPanel {
         public void showPopup() {
             popupDelegate.showForContainer(container, getDraft());
         }
-        private void addActiveVersionDocumentCells(
+/*        private void addActiveVersionDocumentCells(
                 final ContainerVersion containerVersion,
                 final List<DocumentView> documentViews) {
             for (final DocumentView documentView : documentViews) {
@@ -1250,7 +1281,7 @@ public class ContainerPanel extends DefaultTabPanel {
             for (final TeamMember teamMember : team) {
                 add(new ContainerTeamMemberCell(this, teamMember));
             }
-        }
+        }*/
     }
 
     /** A container draft document cell. */

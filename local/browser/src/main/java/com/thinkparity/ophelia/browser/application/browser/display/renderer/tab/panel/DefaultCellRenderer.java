@@ -4,12 +4,8 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Path2D;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJPanel;
@@ -146,60 +142,6 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
     }
 
     /**
-     * Paint a selection line.
-     * 
-     * @param g2
-     *            A <code>Graphics2D</code> context.
-     * @param x
-     *            The x location <code>int</code>.
-     * @param y
-     *            The y location <code>int</code>.
-     * @param width
-     *            The width <code>int</code>.
-     * @param height
-     *            The height <code>int</code>.
-     */
-    protected void paintSelectionLine(final Graphics2D g2, final int x, final int y, final int width, final int height) {
-        final int insetX = 5;
-        final int insetY = 2;
-        final Path2D path = getSelectionPath(x - insetX, y - insetY, width + 2*insetX, height + 2*insetY);
-        paintLine(g2, path, Colors.Browser.Panel.PANEL_LIST_SELECTION_LINE[index], Boolean.TRUE);
-    }
-
-    /**
-     * Get a path for the selection line.
-     * 
-     * @param x
-     *            A x offset <code>int</code>.
-     * @param y
-     *            A y offset <code>int</code>.
-     * @param width
-     *            A width <code>int</code>.
-     * @param height
-     *            A height <code>int</code>.   
-     * @return A <code>Path2D</code>.
-     */
-    private Path2D getSelectionPath(final int x, final int y, final int width, final int height) {
-        final Path2D path = new Path2D.Double();           
-        final int radius = 2;   // Radius of the curves on the corners
-        final int quad = 0;     // Inset to the control point for defining curves
-        final int minX = x;
-        final int maxX = x + width - 1;
-        final int minY = y;
-        final int maxY = y + height - 1;
-        path.moveTo(minX + radius, minY);
-        path.lineTo(maxX - radius, minY);
-        path.quadTo(maxX - quad, minY + quad, maxX, minY + radius);
-        path.lineTo(maxX, maxY - radius);
-        path.quadTo(maxX - quad, maxY - quad, maxX - radius, maxY);
-        path.lineTo(minX + radius, maxY);
-        path.quadTo(minX + quad, maxY - quad, minX, maxY - radius);
-        path.lineTo(minX, minY + radius);
-        path.quadTo(minX + quad, minY + quad, minX + radius, minY);
-        return path;
-    }
-
-    /**
      * Maybe show a popup.
      */
     private void maybeShowPopup(final java.awt.event.MouseEvent e) {
@@ -209,28 +151,5 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
                 cell.showPopup();
             }
         }
-    }
-
-    /**
-     * Paint a solid or dashed line.
-     * 
-     * @param g2
-     *            A <code>Graphics2D</code> context.
-     * @param path
-     *            A <code>Path2D</code>.
-     * @param color
-     *            A <code>Color</code>.
-     * @param dashed
-     *            A dashed <code>Boolean</code>. 
-     */
-    private void paintLine(final Graphics2D g2, final Path2D path, final Color color, final Boolean dashed) {
-        final float dashes[] = {1};
-        if (dashed) {
-            g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f, dashes, 0));
-        } else {
-            g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f));
-        }
-        g2.setColor(color);
-        g2.draw(path);
     }
 }

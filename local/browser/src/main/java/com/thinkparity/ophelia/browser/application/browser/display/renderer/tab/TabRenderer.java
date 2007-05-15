@@ -3,13 +3,12 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
-import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 
@@ -57,9 +56,15 @@ public final class TabRenderer {
 
     /** The fields background, center <code>Image</code>. */
     private static BufferedImage backgroundFieldsCenter;
-    
+
     /** The height of image BACKGROUND_FIELDS_CENTER. */
     private static int backgroundFieldsCenterHeight;
+
+    /** The background logo <code>Image</code>, used on the east when row 0 is selected. */
+    private static Image BACKGROUND_LOGO;
+
+    /** The background logo image dimensions. */
+    private static Dimension backgroundLogoDimension;
 
     /** The version panel's center background <code>BufferedImage</code>. */ 
     private static BufferedImage[] VERSION_IMAGES_CENTER;
@@ -128,6 +133,10 @@ public final class TabRenderer {
         backgroundFieldsCenterHeight = buffer.getHeight();
         BACKGROUND_FIELDS_CENTER = buffer.getScaledInstance(bounds.width,
                 buffer.getHeight(), Image.SCALE_SMOOTH);
+        BACKGROUND_LOGO = ImageIOUtil.read("thinkParityCurves.png");
+        backgroundLogoDimension = new Dimension(
+                ((BufferedImage) BACKGROUND_LOGO).getWidth(),
+                ((BufferedImage) BACKGROUND_LOGO).getHeight());
         BACKGROUND_FIELDS_EAST = ImageIOUtil.read("PanelBackgroundFieldsEast.png");
         BACKGROUND_FIELDS_WEST = ImageIOUtil.read("PanelBackgroundFieldsWest.png");
         VERSION_IMAGES_CENTER = new BufferedImage[] {
@@ -196,38 +205,26 @@ public final class TabRenderer {
      *            A width <code>int</code>.
      * @param height
      *            A height <code>int</code>.   
+     * @param selected
+     *            A selected <code>Boolean</code>.   
      */
     public void paintBackground(final Graphics g, final int width,
-            final int height) {
+            final int height, final Boolean selected) {
         final Graphics2D g2 = (Graphics2D)g.create();
         try {
             // Paint the background for a collapsed panel.
-            // This is a simple color fill.
-            g2.setColor(Colors.Browser.Panel.PANEL_COLLAPSED_BACKGROUND);
-            g2.fillRect(0, 0, width, height);
+            if (selected) {
+                g2.setColor(Colors.Browser.Panel.PANEL_COLLAPSED_SELECTED_BORDER);
+                g2.drawLine(0, 0, width-1, 0);
+                g2.drawLine(0, height-1, width-1, height-1);
+                g2.setColor(Colors.Browser.Panel.PANEL_COLLAPSED_SELECTED_BACKGROUND);
+                g2.fillRect(0, 1, width, height-2);
+            } else {
+                g2.setColor(Colors.Browser.Panel.PANEL_COLLAPSED_BACKGROUND);
+                g2.fillRect(0, 0, width, height);
+            }
         }
         finally { g2.dispose(); }
-    }
-
-    /**
-     * Paint a selection line.
-     * 
-     * @param g2
-     *            A <code>Graphics2D</code> context.
-     * @param x
-     *            The x location <code>int</code>.
-     * @param y
-     *            The y location <code>int</code>.
-     * @param width
-     *            The width <code>int</code>.
-     * @param height
-     *            The height <code>int</code>.
-     */
-    public void paintSelectionLine(final Graphics2D g2, final int x, final int y, final int width, final int height) {
-        final int insetX = 5;
-        final int insetY = 2;
-        final Path2D path = getSelectionPath(x - insetX, y - insetY, width + 2*insetX, height + 2*insetY);
-        paintLine(g2, path, Colors.Browser.Panel.PANEL_SELECTION_LINE, Boolean.TRUE);
     }
 
     /**
@@ -280,19 +277,25 @@ public final class TabRenderer {
      *            The <code>Graphics</code>.
      * @param x
      *            The <code>int</code> x coordinate.
-     * @param height
-     *            A height <code>int</code>.
+     * @param width
+     *            A width <code>int</code>.
+     * @param finalHeight
+     *            A final height <code>int</code> (height when animation is complete).
      * @param selectionIndex
      *            The <code>int</code> selection index.
      * @param observer
      *            An <code>ImageObserver</code>.    
      */
     public void paintExpandedBackgroundEast(final Graphics g, final int x,
-            final int height, final int selectionIndex,
-            final ImageObserver observer) {
-        // paint a solid gradient image on the eastern side of the version panel
+            final int width, final int finalHeight,
+            final int selectionIndex, final ImageObserver observer) {
+        // paint a solid gradient image on the eastern side of the version panel.
+        // If row 0 is selected then a centred logo is also displayed.
         if (selectionIndex==0) {
             g.drawImage(BACKGROUND_EAST_ROW0_SELECTED, x, 0, observer);
+            g.drawImage(BACKGROUND_LOGO,
+                    x + (width - backgroundLogoDimension.width) / 2,
+                    (finalHeight - backgroundLogoDimension.height) / 2, observer);
         } else {
             g.drawImage(BACKGROUND_EAST, x, 0, observer);
         }
@@ -366,61 +369,5 @@ public final class TabRenderer {
                     observer);
         }
         g.drawImage(versionImagesWest[selectionIndex], 0, rowOffset, observer);
-    }
-
-    /**
-     * Get a path for the selection line.
-     * 
-     * @param x
-     *            A x offset <code>int</code>.
-     * @param y
-     *            A y offset <code>int</code>.
-     * @param width
-     *            A width <code>int</code>.
-     * @param height
-     *            A height <code>int</code>.   
-     * @return A <code>Path2D</code>.
-     */
-    private Path2D getSelectionPath(final int x, final int y, final int width, final int height) {
-        final Path2D path = new Path2D.Double();           
-        final int radius = 2;   // Radius of the curves on the corners
-        final int quad = 0;     // Inset to the control point for defining curves
-        final int minX = x;
-        final int maxX = x + width - 1;
-        final int minY = y;
-        final int maxY = y + height - 1;
-        path.moveTo(minX + radius, minY);
-        path.lineTo(maxX - radius, minY);
-        path.quadTo(maxX - quad, minY + quad, maxX, minY + radius);
-        path.lineTo(maxX, maxY - radius);
-        path.quadTo(maxX - quad, maxY - quad, maxX - radius, maxY);
-        path.lineTo(minX + radius, maxY);
-        path.quadTo(minX + quad, maxY - quad, minX, maxY - radius);
-        path.lineTo(minX, minY + radius);
-        path.quadTo(minX + quad, minY + quad, minX + radius, minY);
-        return path;
-    }
-
-    /**
-     * Paint a solid or dashed line.
-     * 
-     * @param g2
-     *            A <code>Graphics2D</code> context.
-     * @param path
-     *            A <code>Path2D</code>.
-     * @param color
-     *            A <code>Color</code>.
-     * @param dashed
-     *            A dashed <code>Boolean</code>. 
-     */
-    private void paintLine(final Graphics2D g2, final Path2D path, final Color color, final Boolean dashed) {
-        final float dashes[] = {1};
-        if (dashed) {
-            g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f, dashes, 0));
-        } else {
-            g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f));
-        }
-        g2.setColor(color);
-        g2.draw(path);
     }
 }

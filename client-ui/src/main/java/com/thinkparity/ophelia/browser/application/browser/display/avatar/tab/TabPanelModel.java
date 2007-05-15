@@ -154,7 +154,19 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     public boolean isDevelopmentMode() {
         return browser.isDevelopmentMode();
     }
-    
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate#isNextPanelExpanded(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    public Boolean isNextPanelExpanded(final TabPanel tabPanel) {
+        final int visibleIndex = visiblePanels.indexOf(tabPanel);
+        if (visibleIndex<0 || visibleIndex>=visiblePanels.size()-1) {
+            return Boolean.FALSE;
+        } else {
+            return isExpanded(visiblePanels.get(visibleIndex+1));
+        }
+    }
+
     /**
      * Determine whether or not the user is online.
      * 
@@ -332,6 +344,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     
                                         tabPanel.expand(animate);
                                         expandedState.put(tabPanel, Boolean.TRUE);
+                                        synchronize();
                                     }
                                 });
                         otherTabPanel.collapse(animate);

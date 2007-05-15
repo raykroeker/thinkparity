@@ -112,6 +112,8 @@ public class MainPanelImageCache {
         CONTAINER("IconContainer.png"),
         CONTAINER_BOOKMARK("IconContainer_Bookmark.png"),
         DRAFT("IconDraft.png"),
+        EXPAND("IconExpand.png"),
+        INVISIBLE("Invisible16x16.png"),
         VERSION("IconVersion.png"),
         VERSION_WITH_COMMENT("IconVersionWithComment.png"),
         USER("IconUser.png"),

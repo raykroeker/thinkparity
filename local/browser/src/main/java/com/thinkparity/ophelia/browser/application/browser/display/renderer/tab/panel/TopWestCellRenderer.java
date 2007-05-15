@@ -6,6 +6,8 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 
@@ -16,6 +18,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCellRenderer {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel collapseIconJLabel = new javax.swing.JLabel();
     private javax.swing.JLabel iconJLabel;
     private javax.swing.JLabel textJLabel;
     // End of variables declaration//GEN-END:variables
@@ -43,13 +46,25 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
      */
     @Override
     public void renderComponent(final Cell cell, final int index) {
-        // Override behavior of DefaultCellRenderer.
         // The top west cell text is painted by the ContainerPanel.
         // This makes it possible to draw text all the way across the panel.
         this.cell = cell;
         iconJLabel.setIcon(cell.getIcon());
         textJLabel.setText(" ");
     }
+
+    private void collapseIconJLabelMouseEntered(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_collapseIconJLabelMouseEntered
+        SwingUtil.setCursor(TopWestCellRenderer.this, java.awt.Cursor.HAND_CURSOR);
+    }//GEN-LAST:event_collapseIconJLabelMouseEntered
+
+    private void collapseIconJLabelMouseExited(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_collapseIconJLabelMouseExited
+        SwingUtil.setCursor(TopWestCellRenderer.this, java.awt.Cursor.DEFAULT_CURSOR);
+    }//GEN-LAST:event_collapseIconJLabelMouseExited
+
+    private void collapseIconJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_collapseIconJLabelMousePressed
+        tabPanel.panelCellMousePressed(cell, Boolean.TRUE, evt);
+        tabPanel.expandIconMousePressed(evt);
+    }//GEN-LAST:event_collapseIconJLabelMousePressed
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -69,9 +84,30 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
         setMinimumSize(new java.awt.Dimension(20, 24));
         setOpaque(false);
         setPreferredSize(new java.awt.Dimension(20, 24));
+        collapseIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconCollapse.png")));
+        collapseIconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                collapseIconJLabelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                collapseIconJLabelMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                collapseIconJLabelMousePressed(evt);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        add(collapseIconJLabel, gridBagConstraints);
+
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(0, 27, 0, 5);
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 5);
         add(iconJLabel, gridBagConstraints);
 
         textJLabel.setFont(Fonts.DefaultFont);

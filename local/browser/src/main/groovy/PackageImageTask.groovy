@@ -132,7 +132,7 @@ class PackageImageTask {
             // thinkparity.image-jvmargs
             newLine(writer)
             writer.write("thinkparity.image-jvmargs:")
-            writer.write("-Xms36m")
+            writer.write("-Xms36m -Djava.net.useSystemProxies=true")
             // thinkparity.image-librarypath
             newLine(writer)
             writer.write("thinkparity.image-librarypath:")

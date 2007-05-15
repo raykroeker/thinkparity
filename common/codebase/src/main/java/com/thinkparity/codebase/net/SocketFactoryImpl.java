@@ -5,9 +5,8 @@ package com.thinkparity.codebase.net;
 
 import java.io.IOException;
 import java.net.*;
+import java.text.MessageFormat;
 import java.util.List;
-
-import javax.net.SocketFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -18,18 +17,22 @@ import com.thinkparity.codebase.assertion.Assert;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-final class SocketFactoryImpl extends SocketFactory {
+final class SocketFactoryImpl extends javax.net.SocketFactory {
 
     /** A <code>ProxySelector</code>. */
     private final ProxySelector proxySelector;
 
+    /** The select proxies uri pattern <code>String</code>. */
+    private final String uriPattern;
+
     /**
      * Create SocketFactory.
-     *
+     * 
      */
     SocketFactoryImpl() {
         super();
         this.proxySelector = ProxySelector.getDefault();
+        this.uriPattern = "socket://{0}";
     }
 
     /**
@@ -43,10 +46,13 @@ final class SocketFactoryImpl extends SocketFactory {
         final SocketAddress addr = new InetSocketAddress(host, port);
         /* attempt to establish a connection to a host/port through a specified
          * proxy - the first connection wins */
-        final List<Proxy> proxies = selectProxies(host, port);
+        final List<Proxy> proxies = selectProxies(host);
         for (final Proxy proxy : proxies) {
             socket = new Socket(proxy);
             socket.connect(addr);
+            SocketFactory.LOGGER.logInfo(
+                    "Socket endpoint to {0}:{1} has been established via {2}.",
+                    host, port, proxy);
             break;
         }
         return socket;
@@ -95,15 +101,10 @@ final class SocketFactoryImpl extends SocketFactory {
      *            A port <code>int</code>.
      * @return A <code>Proxy</code> <code>List</code>.
      */
-    private List<Proxy> selectProxies(final InetAddress host, final int port) {
-        final String uri = new StringBuilder(32)
-            .append("socket://")
-            .append(host.getHostName())
-            .append(":")
-            .append(port)
-            .toString();
+    private List<Proxy> selectProxies(final InetAddress host) {
         try {
-            return proxySelector.select(new URI(uri));
+            return proxySelector.select(new URI(MessageFormat.format(
+                    uriPattern, host.getHostName())));
         } catch (final URISyntaxException urisx) {
             throw new IllegalArgumentException(urisx);
         }

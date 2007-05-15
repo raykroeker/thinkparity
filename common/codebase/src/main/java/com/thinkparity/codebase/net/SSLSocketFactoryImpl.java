@@ -5,9 +5,9 @@ package com.thinkparity.codebase.net;
 
 import java.io.IOException;
 import java.net.*;
+import java.text.MessageFormat;
 import java.util.List;
 
-import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -19,13 +19,16 @@ import com.thinkparity.codebase.assertion.Assert;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-final class SSLSocketFactoryImpl extends SocketFactory {
+final class SSLSocketFactoryImpl extends javax.net.SocketFactory {
 
     /** A <code>ProxySelector</code>. */
     private final ProxySelector proxySelector;
 
     /** A <code>javax.net.SocketFactory</code>. */
     private final javax.net.SocketFactory socketFactory;
+
+    /** The select proxies uri pattern <code>String</code>. */
+    private final String uriPattern;
 
     /**
      * Create SocketFactory.
@@ -35,6 +38,7 @@ final class SSLSocketFactoryImpl extends SocketFactory {
         super();
         this.proxySelector = ProxySelector.getDefault();
         this.socketFactory = socketFactory;
+        this.uriPattern = "socket://{0}";
     }
 
     /**
@@ -44,24 +48,20 @@ final class SSLSocketFactoryImpl extends SocketFactory {
     @Override
     public Socket createSocket(final InetAddress host, final int port)
             throws IOException {
-        final List<Proxy> proxies = selectProxies(host, port);
-        Socket socket = null;
+        final SocketAddress socketAddress = new InetSocketAddress(host, port);
+        /* attempt to tunnel an SSL socket through a proxied socket - the first
+         * connection wins */
+        final List<Proxy> proxies = selectProxies(host);
+        Socket proxySocket = null, socket = null;
         for (final Proxy proxy : proxies) {
-            switch (proxy.type()) {
-            case DIRECT:
-                socket = socketFactory.createSocket(host, port);
-                break;
-            case SOCKS:
-                final Socket proxySocket = new Socket(
-                        ((InetSocketAddress) proxy.address()).getHostName(),
-                        ((InetSocketAddress) proxy.address()).getPort());
-                socket = ((SSLSocketFactory) socketFactory).createSocket(
-                        proxySocket, host.getHostName(), port, true);
-                break;
-            case HTTP:
-            default:
-                Assert.assertUnreachable("Unsupported proxy type.");
-            }
+            proxySocket = new Socket(proxy);
+            proxySocket.connect(socketAddress);
+            socket = ((SSLSocketFactory) socketFactory).createSocket(
+                    proxySocket, host.getHostName(), port, false);
+            SocketFactory.LOGGER.logInfo(
+                    "Socket endpoint to {0}:{1} has been established via {2}.",
+                    host, port, proxy);
+
             break;
         }
         return socket;
@@ -110,15 +110,10 @@ final class SSLSocketFactoryImpl extends SocketFactory {
      *            A port <code>int</code>.
      * @return A <code>Proxy</code> <code>List</code>.
      */
-    private List<Proxy> selectProxies(final InetAddress host, final int port) {
-        final String uri = new StringBuilder(32)
-            .append("socket://")
-            .append(host.getHostName())
-            .append(":")
-            .append(port)
-            .toString();
+    private List<Proxy> selectProxies(final InetAddress host) {
         try {
-            return proxySelector.select(new URI(uri));
+            return proxySelector.select(new URI(MessageFormat.format(
+                    uriPattern, host.getHostName())));
         } catch (final URISyntaxException urisx) {
             throw new IllegalArgumentException(urisx);
         }

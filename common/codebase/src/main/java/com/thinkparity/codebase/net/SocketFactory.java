@@ -13,14 +13,27 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
 import com.thinkparity.codebase.ResourceUtil;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 /**
- * <b>Title:</b><br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity CommonCodebase Socket Factory<br>
+ * <b>Description:</b>A client socket factory that is system proxy aware. In
+ * order for system proxies to be considered, the &quot;&quot; system property
+ * must have been set prior to initializing the java.net framework.<br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.3
  */
 public final class SocketFactory {
+
+    /** A <code>Log4JWrapper</code>. */
+    static final Log4JWrapper LOGGER;
+
+    static {
+        LOGGER = new Log4JWrapper(SocketFactory.class);
+        LOGGER.logVariable("java.net.useSystemProxies",
+                System.getProperty("java.net.useSystemProxies"));
+    }
 
     /**
      * Obtain an instance of a socket factory.

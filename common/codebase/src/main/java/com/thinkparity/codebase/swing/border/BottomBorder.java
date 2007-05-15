@@ -180,4 +180,16 @@ public class BottomBorder extends AbstractBorder {
         }
 		g.setColor(oColor);
 	}
+
+    /**
+     * Set the colour.
+     * 
+     * @param color
+     *            The border <code>Color</code>.
+     */
+    public void setColor(final Color color) {
+        for (int i=0; i<thickness; i++) {
+            this.colors[i] = color;
+        }
+    }
 }

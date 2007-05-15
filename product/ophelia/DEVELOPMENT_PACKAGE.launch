@@ -10,7 +10,7 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ophelia"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dthinkparity-directory=&quot;${THINKPARITY_HOME}/ophelia\target\package&quot; -Dthinkparity.mode=DEVELOPMENT -Dthinkparity.environment=DEVELOPMENT_ROBERT -Dthinkparity.product-name=OpheliaProduct -Dthinkparity.release-name=DEVELOPMENT  -XX:+PrintConcurrentLocks"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dthinkparity-directory=&quot;${THINKPARITY_HOME}/ophelia\target\package&quot; -Dthinkparity-executable=&quot;C:\Program Files\Java\jre1.6.0_01\bin\javaw.exe&quot; -Dthinkparity.mode=DEVELOPMENT -Dthinkparity.environment=DEVELOPMENT_ROBERT -Dthinkparity.product-name=OpheliaProduct -Dthinkparity.release-name=DEVELOPMENT  -XX:+PrintConcurrentLocks"/>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>

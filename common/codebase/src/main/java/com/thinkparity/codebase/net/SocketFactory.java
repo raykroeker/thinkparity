@@ -5,16 +5,7 @@ package com.thinkparity.codebase.net;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.SecureRandom;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.CertificateException;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -29,7 +20,7 @@ import com.thinkparity.codebase.ResourceUtil;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class SocketFactory extends javax.net.SocketFactory {
+public final class SocketFactory {
 
     /**
      * Obtain an instance of a socket factory.
@@ -37,7 +28,7 @@ public final class SocketFactory extends javax.net.SocketFactory {
      * @return A <code>javax.net.SocketFactory</code>.
      */
     public static javax.net.SocketFactory getInstance() {
-        return new SocketFactory(javax.net.SocketFactory.getDefault());
+        return new SocketFactoryImpl();
     }
 
     /**
@@ -95,61 +86,6 @@ public final class SocketFactory extends javax.net.SocketFactory {
                 trustManagerFactory.getTrustManagers(), new SecureRandom());
 
         // create the factory
-        return new SocketFactory(sslContext.getSocketFactory());
-    }
-
-    /** A <code>javax.net.SocketFactory</code>. */
-    private final javax.net.SocketFactory socketFactory;
-
-    /**
-     * Create SocketFactory.
-     *
-     */
-    private SocketFactory(final javax.net.SocketFactory socketFactory) {
-        super();
-        this.socketFactory = socketFactory;
-    }
-
-    /**
-     * @see javax.net.SocketFactory#createSocket(java.net.InetAddress, int)
-     *
-     */
-    @Override
-    public Socket createSocket(final InetAddress host, final int port)
-            throws IOException {
-        return socketFactory.createSocket(host, port);
-    }
-
-    /**
-     * @see javax.net.SocketFactory#createSocket(java.net.InetAddress, int,
-     *      java.net.InetAddress, int)
-     * 
-     */
-    @Override
-    public Socket createSocket(final InetAddress address, final int port,
-            final InetAddress localAddress, final int localPort)
-            throws IOException {
-        return socketFactory.createSocket(address, port, localAddress,
-                localPort);
-    }
-
-    /**
-     * @see javax.net.SocketFactory#createSocket(java.lang.String, int)
-     *
-     */
-    @Override
-    public Socket createSocket(final String host, final int port) throws IOException,
-            UnknownHostException {
-        return socketFactory.createSocket(host, port);
-    }
-
-    /**
-     * @see javax.net.SocketFactory#createSocket(java.lang.String, int, java.net.InetAddress, int)
-     *
-     */
-    @Override
-    public Socket createSocket(String host, int port, InetAddress localHost,
-            int localPort) throws IOException, UnknownHostException {
-        return socketFactory.createSocket(host, port, localHost, localPort);
+        return new SSLSocketFactoryImpl(sslContext.getSocketFactory());
     }
 }

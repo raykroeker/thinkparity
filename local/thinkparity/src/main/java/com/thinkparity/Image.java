@@ -122,6 +122,7 @@ final class Image {
         try {
             final JVMUtil jvmUtil = JVMUtil.getInstance();
             final List<String> jvmArgs = new ArrayList<String>();
+            jvmArgs.addAll(this.jvmArgs);
             if (null != javaLibraryPath)
                 jvmArgs.add(formatSystemProperty(PropertyNames.System.JavaLibraryPath, javaLibraryPath));
             jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.Directory, System.getProperties()));
@@ -132,7 +133,6 @@ final class Image {
             jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.ReleaseOs, properties));
             jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.Environment, System.getProperties()));
             jvmArgs.add(formatSystemProperty(PropertyNames.ThinkParity.Mode, System.getProperties()));
-            jvmArgs.addAll(this.jvmArgs);
             final String[] jvmArgsArray = jvmArgs.toArray(new String[] {});
             jvmUtil.print(rootDirectory, jvmArgsArray, classPath, mainClassName,
                     mainArgs);
@@ -168,14 +168,10 @@ final class Image {
         // thinkparity.image-jvmargs
         jvmArgs = new ArrayList<String>();
         if (properties.containsKey(PropertyNames.ThinkParity.ImageJVMArgs)) {
-            tokenizer = new StringTokenizer(properties.getProperty(PropertyNames.ThinkParity.ImageJVMArgs), ",");
+            tokenizer = new StringTokenizer(properties.getProperty(PropertyNames.ThinkParity.ImageJVMArgs), " ");
             while (tokenizer.hasMoreTokens()) {
                 token = tokenizer.nextToken();
-                if (!token.contains("=")) {
-                    System.err.println("Invalid jvm arg format " + token + ".");
-                    System.exit(1);
-                }
-                jvmArgs.add("-D" + token);
+                jvmArgs.add(token);
             }
         }
 

@@ -568,13 +568,13 @@ Examples:
     <!-- package-installer -->
     <target name="package-installer"
             description="compile a null-soft installer for the package">
-        <copy todir="${target.package.dir}" file="${target.classes.dir}/InstallThinkParity.nsi"/>
+        <copy todir="${target.package.dir}" file="${target.classes.dir}/InstallThinkParity-${thinkparity.mode}.nsi"/>
         <exec executable="${env.NSIS_HOME}/makensis.exe" dir="${target.package.dir}">
-            <arg value="${target.package.dir}/InstallThinkParity.nsi"/>
+            <arg value="InstallThinkParity-${thinkparity.mode}.nsi"/>
         </exec>
         <checksum file="${target.package.dir}/InstallThinkParity.exe" algorithm="MD5"/>
         <checksum file="${target.package.dir}/InstallThinkParity.exe" algorithm="SHA"/>
-        <delete file="${target.package.dir}/InstallThinkParity.nsi"/>
+        <delete file="${target.package.dir}/InstallThinkParity-${thinkparity.mode}.nsi"/>
     </target>
 
     <!-- pathinfo -->

@@ -488,14 +488,14 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the published to invitation count. */
     private static final String SQL_READ_PUBLISHED_TO_EMAIL_COUNT =
-        new StringBuilder("select COUNT(*) PUBLISHED_TO_COUNT ")
+        new StringBuilder("select COUNT(CVPTE.EMAIL_ID) \"PUBLISHED_TO_COUNT\" ")
         .append("from CONTAINER_VERSION_PUBLISHED_TO_EMAIL CVPTE ")
-        .append("where CVPTI.CONTAINER_ID=? and CVPTI.CONTAINER_VERSION_ID=?")
+        .append("where CVPTE.CONTAINER_ID=? and CVPTE.CONTAINER_VERSION_ID=?")
         .toString();
 
-    /** Sql to read the published to invitation count. */
-    private static final String SQL_READ_PUBLISHED_TO_EMAIL_COUNT_INVITATION_ID =
-        new StringBuilder("select COUNT(*) PUBLISHED_TO_COUNT ")
+    /** Sql to read the published to e-mail count. */
+    private static final String SQL_READ_PUBLISHED_TO_EMAIL_COUNT_EMAIL_ID =
+        new StringBuilder("select COUNT(CVPTE.EMAIL_ID) \"PUBLISHED_TO_COUNT\" ")
         .append("from CONTAINER_VERSION_PUBLISHED_TO_EMAIL CVPTE ")
         .append("where CVPTE.EMAIL_ID=?")
         .toString();
@@ -2129,7 +2129,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
      */
     private int readPublishedToInvitationCount(final Session session,
             final Long emailId) {
-        session.prepareStatement(SQL_READ_PUBLISHED_TO_EMAIL_COUNT_INVITATION_ID);
+        session.prepareStatement(SQL_READ_PUBLISHED_TO_EMAIL_COUNT_EMAIL_ID);
         session.setLong(1, emailId);
         session.executeQuery();
         session.nextResult();

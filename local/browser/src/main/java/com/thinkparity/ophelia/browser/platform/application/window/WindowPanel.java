@@ -86,6 +86,7 @@ public class WindowPanel extends AbstractJPanel {
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
         if (avatar.isAvatarTitle()) {
+            windowTitle.setTitleText(avatar.getAvatarTitle());
 		    add(windowTitle, c.clone());
         }
 

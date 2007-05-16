@@ -554,12 +554,15 @@ public class MainStatusAvatar extends Avatar {
      */
     private void reloadBackupStatistics() {
         backupStatisticsJLabel.setText("");
-        if (null != statistics) {
+        // HACK TODO Move backup stats to the profile dialog.
+        // In the meantime Omid has asked to simply not show them, this is a quick hack,
+        // will remove shortly.
+/*        if (null != statistics) {
             reloadBackupStatistics(statistics);
         } else if (isOnline() && isBackupEnabled()) {
             this.statistics = readBackupStatistics();
             reloadBackupStatistics(statistics);
-        }
+        }*/
     }
 
     /**

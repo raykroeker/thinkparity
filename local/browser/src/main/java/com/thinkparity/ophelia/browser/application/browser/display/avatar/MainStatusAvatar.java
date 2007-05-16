@@ -56,7 +56,6 @@ import com.thinkparity.ophelia.browser.platform.util.State;
 public class MainStatusAvatar extends Avatar {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel backupStatisticsJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel connectionJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel linkJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JLabel optionalLinkJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
@@ -323,18 +322,10 @@ public class MainStatusAvatar extends Avatar {
         gridBagConstraints.weighty = 1.0;
         add(fillJLabel, gridBagConstraints);
 
-        backupStatisticsJLabel.setFont(Fonts.DefaultFont);
-        backupStatisticsJLabel.setText("1.0GB");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 2);
-        add(backupStatisticsJLabel, gridBagConstraints);
-
         userJLabel.setFont(Fonts.DefaultFont);
         userJLabel.setText("Dr. Who");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 2);
         add(userJLabel, gridBagConstraints);
@@ -343,7 +334,7 @@ public class MainStatusAvatar extends Avatar {
         connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);
         connectionJLabel.setText("Offline");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 7;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
         add(connectionJLabel, gridBagConstraints);
@@ -370,7 +361,7 @@ public class MainStatusAvatar extends Avatar {
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 8;
+        gridBagConstraints.gridx = 7;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
         add(resizeJLabel, gridBagConstraints);

@@ -118,8 +118,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         }
 
         // export
-        // This menu is not shown if there is a new package with no draft and no versions.
-        if (isLocalDraft(draft) || isDistributed(container.getId())) {
+        if (isDistributed(container.getId())) {
             if (needSeparator) {
                 addSeparator();
             }

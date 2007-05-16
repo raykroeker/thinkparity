@@ -1088,7 +1088,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                             session.getInteger("ARTIFACT_COUNT");
                         if (0 == versionArtifactCount) {
                             return Boolean.FALSE;
-                        } else if (1 < versionArtifactCount) {
+                        } else if (0 < versionArtifactCount) {
                             return Boolean.TRUE;
                         } else {
                             throw new HypersonicException("Could not determine version artifact count.");

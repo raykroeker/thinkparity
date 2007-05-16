@@ -2720,6 +2720,11 @@ public final class ContainerModelImpl extends
                     versionsPublishedBy, documents, documentsSize, publishedTo,
                     deltas, readTeam(container.getId()));
 
+            /* HACK this is bad; however the jpeg image reader class is not
+             * closing the stream within its class
+             * @see org.apache.fop.image.JpegImage#loadImage() */
+            Runtime.getRuntime().gc();
+
             // create an archive
             final File zipFile = new File(exportFileSystem.getRoot(), container.getName());
             synchronized (workspace.getBufferLock()) {

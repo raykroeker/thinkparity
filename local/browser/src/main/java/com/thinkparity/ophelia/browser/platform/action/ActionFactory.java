@@ -207,8 +207,8 @@ public class ActionFactory extends AbstractFactory {
         case CONTAINER_UNSUBSCRIBE:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Unsubscribe(getBrowser());
             break;
-        case CONTAINER_UPDATE_VERSION_NOTE:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.UpdateNote(getBrowser());
+        case CONTAINER_UPDATE_DRAFT_COMMENT:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.UpdateDraftComment(getBrowser());
             break;
 
         case DOCUMENT_OPEN:

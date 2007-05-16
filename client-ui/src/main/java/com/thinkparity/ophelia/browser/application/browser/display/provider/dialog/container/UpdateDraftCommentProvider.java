@@ -13,13 +13,13 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.Cont
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class UpdateNoteProvider extends ContentProvider {
+public class UpdateDraftCommentProvider extends ContentProvider {
 
     /** A thinkParity container interface. */
     private final ContainerModel containerModel;
 
     /**
-     * Create UpdateNoteProvider.
+     * Create UpdateCommentProvider.
      * 
      * @param profileModel
      *            An instance of <code>ProfileModel</code>.
@@ -30,7 +30,7 @@ public class UpdateNoteProvider extends ContentProvider {
      * @param contactModel
      *            An instance of <code>ContactModel</code>.
      */
-    public UpdateNoteProvider(final ProfileModel profileModel,
+    public UpdateDraftCommentProvider(final ProfileModel profileModel,
             final ContainerModel containerModel) {
         super(profileModel);
         this.containerModel = containerModel;

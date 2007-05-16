@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.event;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
@@ -45,9 +44,6 @@ public class EventDispatcherFactory {
         return SINGLETON.doGetDispatcher(avatarId);
     }
 
-    /** An instance of <code>BackupModel</code>. */
-    private final BackupModel backupModel;
-
     /** An instance of <code>ContainerModel</code>. */
     private final ContainerModel containerModel;
 
@@ -67,7 +63,6 @@ public class EventDispatcherFactory {
     private EventDispatcherFactory() {
         super();
         final ModelFactory modelFactory = ModelFactory.getInstance();
-        this.backupModel = modelFactory.getBackupModel(getClass());
         this.contactModel = modelFactory.getContactModel(getClass());
         this.containerModel = modelFactory.getContainerModel(getClass());
         this.profileModel = modelFactory.getProfileModel(getClass());
@@ -94,8 +89,8 @@ public class EventDispatcherFactory {
             eventDispatcher = new ContainerTabDispatcher(containerModel);
             break;
         case MAIN_STATUS:
-            eventDispatcher = new MainStatusDispatcher(backupModel,
-                    contactModel, containerModel, profileModel, sessionModel);
+            eventDispatcher = new MainStatusDispatcher(contactModel,
+                    containerModel, profileModel, sessionModel);
             break;
         default:
             throw Assert.createUnreachable("No dispatcher available for avatar:  {0}", avatarId);

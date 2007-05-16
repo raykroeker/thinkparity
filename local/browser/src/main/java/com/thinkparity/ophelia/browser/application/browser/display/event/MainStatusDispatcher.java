@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.event;
 
-import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.events.*;
@@ -23,12 +22,6 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Event
  */
 public final class MainStatusDispatcher implements
         EventDispatcher<MainStatusAvatar> {
-
-    /** A <code>BackupListener</code>. */
-    private BackupListener backupListener;
-
-    /** An instance of <code>BackupModel</code>. */
-    private final BackupModel backupModel;
 
     /** A <code>ContactListener</code>. */
     private ContactListener contactListener;
@@ -66,12 +59,10 @@ public final class MainStatusDispatcher implements
      * @param profileModel
      *            An instance of <code>ProfileModel</code>.
      */
-    public MainStatusDispatcher(final BackupModel backupModel,
-            final ContactModel contactModel,
+    public MainStatusDispatcher(final ContactModel contactModel,
             final ContainerModel containerModel,
             final ProfileModel profileModel, final SessionModel sessionModel) {
         super();
-        this.backupModel = backupModel;
         this.contactModel = contactModel;
         this.containerModel = containerModel;
         this.profileModel = profileModel;
@@ -83,15 +74,6 @@ public final class MainStatusDispatcher implements
      *
      */
     public void addListeners(final MainStatusAvatar avatar) {
-        if (profileModel.isBackupEnabled()) {
-            backupListener = new BackupAdapter() {
-                @Override
-                public void statisticsUpdated(final BackupEvent e) {
-                    avatar.fireBackupEvent(e);
-                }
-            };
-            backupModel.addListener(backupListener);
-        }
         profileListener = new ProfileAdapter() {
             @Override
             public void emailAdded(final ProfileEvent e) {
@@ -181,10 +163,6 @@ public final class MainStatusDispatcher implements
      * 
      */
     public void removeListeners(final MainStatusAvatar avatar) {
-        if (profileModel.isBackupEnabled()) {
-            backupModel.removeListener(backupListener);
-            backupListener = null;
-        }
         profileModel.removeListener(profileListener);
         profileListener = null;
         contactModel.removeListener(contactListener);

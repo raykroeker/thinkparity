@@ -13,7 +13,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class UpdateNote extends AbstractBrowserAction {
+public final class UpdateDraftComment extends AbstractBrowserAction {
 
     /** The browser application. */
     private final Browser browser;
@@ -24,8 +24,8 @@ public class UpdateNote extends AbstractBrowserAction {
      * @param browser
      *            The browser application.
      */
-    public UpdateNote(final Browser browser) {
-        super(ActionId.CONTAINER_UPDATE_VERSION_NOTE);
+    public UpdateDraftComment(final Browser browser) {
+        super(ActionId.CONTAINER_UPDATE_DRAFT_COMMENT);
         this.browser = browser;
     }
 
@@ -35,16 +35,16 @@ public class UpdateNote extends AbstractBrowserAction {
      */
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
-        final String note = (String) data.get(DataKey.NOTE);
+        final String comment = (String) data.get(DataKey.COMMENT);
 
-        if (null == note) {
+        if (null == comment) {
             // launch the dialog
-            browser.displayUpdateNoteDialog(containerId);
+            browser.displayUpdateDraftCommentDialog(containerId);
         } else {
             // update the note
-            getContainerModel().updateDraftComment(containerId, note);
+            getContainerModel().updateDraftComment(containerId, comment);
         }                  
     }
 
-    public enum DataKey { CONTAINER_ID, NOTE }
+    public enum DataKey { CONTAINER_ID, COMMENT }
 }

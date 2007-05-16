@@ -16,7 +16,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameDocumentAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.UpdateNoteAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.UpdateDraftCommentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpdatePasswordAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpdateProfileAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
@@ -174,8 +174,8 @@ public final class AvatarFactory {
             avatar = newAvatar(RenameDocumentAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
-        case DIALOG_CONTAINER_UPDATE_NOTE:
-            avatar = newAvatar(UpdateNoteAvatar.class);
+        case DIALOG_CONTAINER_UPDATE_DRAFT_COMMENT:
+            avatar = newAvatar(UpdateDraftCommentAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_CONTAINER_VERSION_COMMENT:

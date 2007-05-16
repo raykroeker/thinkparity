@@ -17,7 +17,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.UpdateNoteProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.UpdateDraftCommentProvider;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
@@ -26,13 +26,13 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  *
  * @author  user
  */
-public class UpdateNoteAvatar extends Avatar {
+public class UpdateDraftCommentAvatar extends Avatar {
 
     /** An instance of <code>ContainerConstraints</code>. */
     private final ContainerConstraints containerConstraints;
 
     /** Creates new form ContainerUpdateNoteAvatar */
-    public UpdateNoteAvatar() {
+    public UpdateDraftCommentAvatar() {
         super("UpdateNoteAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         this.containerConstraints = ContainerConstraints.getInstance();
         initComponents();
@@ -46,12 +46,12 @@ public class UpdateNoteAvatar extends Avatar {
     }
 
     public AvatarId getId() {
-        return AvatarId.DIALOG_CONTAINER_UPDATE_NOTE;
+        return AvatarId.DIALOG_CONTAINER_UPDATE_DRAFT_COMMENT;
     }
 
     public void reload() {
         if (input != null) {
-            reloadNote();
+            reloadComment();
             noteJTextArea.setCaretPosition(0); //scroll to top
         }
     }
@@ -59,7 +59,7 @@ public class UpdateNoteAvatar extends Avatar {
     /**
      * Extract the note.
      */
-    private String extractNote() {
+    private String extractComment() {
         return SwingUtil.extract(noteJTextArea, Boolean.TRUE);
     }
 
@@ -157,9 +157,9 @@ public class UpdateNoteAvatar extends Avatar {
     /**
      * Reload the note.
      */
-    private void reloadNote() {
+    private void reloadComment() {
         final Long containerId = getInputContainerId();
-        noteJTextArea.setText(((UpdateNoteProvider) contentProvider).readComment(containerId));
+        noteJTextArea.setText(((UpdateDraftCommentProvider) contentProvider).readComment(containerId));
     }
 
     /**
@@ -167,8 +167,8 @@ public class UpdateNoteAvatar extends Avatar {
      */
     private void updateNote() {
         final Long containerId = getInputContainerId();
-        final String note = extractNote();
-        getController().runUpdateNote(containerId, note);
+        final String comment = extractComment();
+        getController().runUpdateDraftComment(containerId, comment);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

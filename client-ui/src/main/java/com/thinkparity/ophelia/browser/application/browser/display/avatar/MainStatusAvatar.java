@@ -17,21 +17,17 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
-import com.thinkparity.codebase.BytesFormat;
-import com.thinkparity.codebase.BytesFormat.Unit;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
-import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.profile.Profile;
 
-import com.thinkparity.ophelia.model.events.BackupEvent;
 import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 import com.thinkparity.ophelia.model.events.ProfileEvent;
@@ -55,49 +51,32 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  * window.
  * 
  * @author raymond@thinkparity.com
+ * @version 1.1.2.33
  */
 public class MainStatusAvatar extends Avatar {
 
-    /** A size format to use for the backup statistics. */
-    private static final BytesFormat BYTES_FORMAT;
-
-    static {
-        BYTES_FORMAT = new BytesFormat();
-    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel backupStatisticsJLabel = new javax.swing.JLabel();
-
-    /** The unit to use when displaying the backup information. */
-    private final Unit backupUnit;    
-
     private final javax.swing.JLabel connectionJLabel = new javax.swing.JLabel();
-
     private final javax.swing.JLabel linkJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel optionalLinkJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel optionalTextJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel resizeJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel userJLabel = new javax.swing.JLabel();
+    // End of variables declaration//GEN-END:variables
 
+    /** A <code>Runnable</code> used to display the status bar link. */
     private Runnable linkRunnable;
 
-    private final javax.swing.JLabel optionalLinkJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-
+    /** A <code>Runnable</code> used to display the optional status bar link. */
     private Runnable optionalLinkRunnable;
-
-    private final javax.swing.JLabel optionalTextJLabel = new javax.swing.JLabel();
-
-    private final javax.swing.JLabel resizeJLabel = new javax.swing.JLabel();
 
     /** The resize offset size in the x direction. */
     private int resizeOffsetX;
 
     /** The resize offset size in the y direction. */
     private int resizeOffsetY;
-
-    /** Backup statistics */
-    private Statistics statistics;
-
-    private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
-
-    private final javax.swing.JLabel userJLabel = new javax.swing.JLabel();
-    // End of variables declaration//GEN-END:variables
 
     /**
      * Create MainStatusAvatar.
@@ -118,20 +97,8 @@ public class MainStatusAvatar extends Avatar {
                             MainStatusAvatar.this);
             }
         });
-        this.backupUnit = Unit.AUTO;
     }
     
-    /**
-     * Fire a backup event.
-     * 
-     * @param e
-     *            A <code>BackupEvent</code>.
-     */
-    public void fireBackupEvent(final BackupEvent e) {
-        this.statistics = e.getStatistics();
-        reloadBackupStatistics(statistics);
-    }
-
     /**
      * Fire a contact event.
      * 
@@ -180,7 +147,6 @@ public class MainStatusAvatar extends Avatar {
      */
     public void fireSessionEvent() {
         reloadConnection();
-        reloadBackupStatistics();
     }
 
     /**
@@ -209,7 +175,6 @@ public class MainStatusAvatar extends Avatar {
      */
     @Override
     public void reload() {
-        reloadBackupStatistics();
         reloadLinks();
         reloadProfile();
         reloadConnection();
@@ -448,15 +413,6 @@ public class MainStatusAvatar extends Avatar {
     }
 
     /**
-     * Determine if the backup feature is enabled.
-     * 
-     * @return True if the backup feature is enabled.
-     */
-    private boolean isBackupEnabled() {
-        return ((MainStatusProvider) contentProvider).isBackupEnabled().booleanValue();
-    }
-
-    /**
      * Determine if the window event indicates a maximized JFrame window.
      * 
      * @param e
@@ -491,15 +447,6 @@ public class MainStatusAvatar extends Avatar {
     private void optionalLinkJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_optionalLinkJLabelMousePressed
         optionalLinkRunnable.run();
     }//GEN-LAST:event_optionalLinkJLabelMousePressed
-
-    /**
-     * Read the backup statistics.
-     * 
-     * @return An instance of <code>Statistics</code>.
-     */
-    private Statistics readBackupStatistics() {
-        return ((MainStatusProvider) contentProvider).readBackupStatistics();
-    }
 
     /**
      * Read the incoming e-mail invitations.
@@ -545,38 +492,6 @@ public class MainStatusAvatar extends Avatar {
      */
     private List<EMail> readUnverifiedEMails() {
         return ((MainStatusProvider) contentProvider).readUnverifiedEMails();
-    }
-    
-    /**
-     * Reload the backup statistics.  If the backup is enabled and online, the
-     * backup statistics are displayed.
-     *
-     */
-    private void reloadBackupStatistics() {
-        backupStatisticsJLabel.setText("");
-        // HACK TODO Move backup stats to the profile dialog.
-        // In the meantime Omid has asked to simply not show them, this is a quick hack,
-        // will remove shortly.
-/*        if (null != statistics) {
-            reloadBackupStatistics(statistics);
-        } else if (isOnline() && isBackupEnabled()) {
-            this.statistics = readBackupStatistics();
-            reloadBackupStatistics(statistics);
-        }*/
-    }
-
-    /**
-     * Reload the backup statistics.  If the backup is enabled and online, the
-     * backup statistics are displayed.
-     *
-     */
-    private void reloadBackupStatistics(final Statistics statistics) {
-        if (null == backupUnit)
-            backupStatisticsJLabel.setText(BYTES_FORMAT.format(
-                    statistics.getDiskUsage()));
-        else
-            backupStatisticsJLabel.setText(BYTES_FORMAT.format(backupUnit,
-                    statistics.getDiskUsage()));
     }
     
     /**

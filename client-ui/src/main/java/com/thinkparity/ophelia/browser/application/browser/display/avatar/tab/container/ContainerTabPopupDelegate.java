@@ -233,11 +233,11 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             needSeparator = true;
         }
 
-        // update version note
+        // update draft comment
         if (online) {
-            final Data noteData = new Data(1);
-            noteData.set(UpdateNote.DataKey.CONTAINER_ID, draft.getContainerId());
-            add(ActionId.CONTAINER_UPDATE_VERSION_NOTE, noteData);
+            final Data data = new Data(1);
+            data.set(UpdateDraftComment.DataKey.CONTAINER_ID, draft.getContainerId());
+            add(ActionId.CONTAINER_UPDATE_DRAFT_COMMENT, data);
             needSeparator = true;
         }
 

@@ -48,7 +48,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameDocumentAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.UpdateNoteAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.UpdateDraftCommentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
@@ -557,16 +557,16 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Display the update note dialog.
+     * Display the update draft comment dialog.
      * 
      * @param containerId
      *            The container id.
      */
-    public void displayUpdateNoteDialog(final Long containerId) {
+    public void displayUpdateDraftCommentDialog(final Long containerId) {
         final Data input = new Data(1);
-        input.set(UpdateNoteAvatar.DataKey.CONTAINER_ID, containerId);
-        setInput(AvatarId.DIALOG_CONTAINER_UPDATE_NOTE, input);
-        displayAvatar(AvatarId.DIALOG_CONTAINER_UPDATE_NOTE);
+        input.set(UpdateDraftCommentAvatar.DataKey.CONTAINER_ID, containerId);
+        setInput(AvatarId.DIALOG_CONTAINER_UPDATE_DRAFT_COMMENT, input);
+        displayAvatar(AvatarId.DIALOG_CONTAINER_UPDATE_DRAFT_COMMENT);
     }
 
     /**
@@ -1433,18 +1433,18 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Update the container note.
+     * Update the draft comment.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
-     * @param note
-     *            A note <code>String</code>.
+     * @param comment
+     *            A comment <code>String</code>.
      */
-    public void runUpdateNote(final Long containerId, final String note) {
+    public void runUpdateDraftComment(final Long containerId, final String comment) {
         final Data data = new Data(2);
-        data.set(UpdateNote.DataKey.CONTAINER_ID, containerId);
-        data.set(UpdateNote.DataKey.NOTE, note);
-        invoke(ActionId.CONTAINER_UPDATE_VERSION_NOTE, data);
+        data.set(UpdateDraftComment.DataKey.CONTAINER_ID, containerId);
+        data.set(UpdateDraftComment.DataKey.COMMENT, comment);
+        invoke(ActionId.CONTAINER_UPDATE_DRAFT_COMMENT, data);
     }
 
     /**

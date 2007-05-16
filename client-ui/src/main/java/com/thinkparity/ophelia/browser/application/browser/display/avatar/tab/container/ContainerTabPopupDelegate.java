@@ -233,6 +233,14 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             needSeparator = true;
         }
 
+        // update version note
+        if (online) {
+            final Data noteData = new Data(1);
+            noteData.set(UpdateNote.DataKey.CONTAINER_ID, draft.getContainerId());
+            add(ActionId.CONTAINER_UPDATE_VERSION_NOTE, noteData);
+            needSeparator = true;
+        }
+
         // delete draft
         // This menu is shown if online, or if it has never been published.
         if (online || !isDistributed(container.getId())) {
@@ -328,7 +336,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             needSeparator = true;
         }
 
-        // Show version comment
+        // Show version note
         if (version.isSetComment()) {
             final Data commentData = new Data(2);
             commentData.set(DisplayVersionInfo.DataKey.CONTAINER_ID, version.getArtifactId());

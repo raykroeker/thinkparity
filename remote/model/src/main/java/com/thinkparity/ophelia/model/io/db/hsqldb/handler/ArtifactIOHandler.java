@@ -64,9 +64,9 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 	private static final String INSERT_ARTIFACT_VERSION =
 		new StringBuffer("insert into ARTIFACT_VERSION ")
 		.append("(ARTIFACT_ID,ARTIFACT_VERSION_ID,ARTIFACT_NAME,ARTIFACT_TYPE,")
-		.append("ARTIFACT_UNIQUE_ID,COMMENT,CREATED_BY,CREATED_ON,UPDATED_BY,")
+		.append("ARTIFACT_UNIQUE_ID,NAME,COMMENT,CREATED_BY,CREATED_ON,UPDATED_BY,")
 		.append("UPDATED_ON) ")
-		.append("values (?,?,?,?,?,?,?,?,?,?)")
+		.append("values (?,?,?,?,?,?,?,?,?,?,?)")
 		.toString();
 
 	private static final String INSERT_ARTIFACT_VERSION_META_DATA =
@@ -767,11 +767,12 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		session.setString(3, version.getArtifactName());
 		session.setTypeAsString(4, version.getArtifactType());
 		session.setUniqueId(5, version.getArtifactUniqueId());
-        session.setString(6, version.getComment());
-		session.setLong(7, readLocalId(version.getCreatedBy()));
-		session.setCalendar(8, version.getCreatedOn());
-		session.setLong(9, readLocalId(version.getUpdatedBy()));
-		session.setCalendar(10, version.getUpdatedOn());
+        session.setString(6, version.getName());
+        session.setString(7, version.getComment());
+		session.setLong(8, readLocalId(version.getCreatedBy()));
+		session.setCalendar(9, version.getCreatedOn());
+		session.setLong(10, readLocalId(version.getUpdatedBy()));
+		session.setCalendar(11, version.getUpdatedOn());
 		if(1 != session.executeUpdate())
 			throw new HypersonicException("Could not create version.");
 

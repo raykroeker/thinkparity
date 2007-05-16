@@ -127,6 +127,11 @@ public class VerifyEMailAvatar extends Avatar {
         keyJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("VerifyEMailAvatar.VerificationKey"));
 
         keyJTextField.setFont(Fonts.DialogTextEntryFont);
+        keyJTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                keyJTextFieldActionPerformed(evt);
+            }
+        });
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
@@ -212,6 +217,10 @@ public class VerifyEMailAvatar extends Avatar {
         };
         keyJTextField.getDocument().addDocumentListener(documentListener);
     }
+
+    private void keyJTextFieldActionPerformed(final java.awt.event.ActionEvent e) {//GEN-FIRST:event_keyJTextFieldActionPerformed
+        verifyJButtonActionPerformed(e);
+    }//GEN-LAST:event_keyJTextFieldActionPerformed
 
     /**
      * Read the email addresses from the content provider.

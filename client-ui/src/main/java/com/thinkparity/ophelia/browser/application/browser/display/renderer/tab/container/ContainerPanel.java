@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -70,6 +72,12 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The default east selected row. */
     private static final int DEFAULT_SELECTED_ROW_WEST;
 
+    /** The east data card name. */
+    private static final String EAST_DATA_CARD_NAME;
+
+    /** The east summary card name. */
+    private static final String EAST_SUMMARY_CARD_NAME;
+
     /** The number of rows in the version panel. */
     private static final int NUMBER_VISIBLE_ROWS;
 
@@ -80,11 +88,15 @@ public class ContainerPanel extends DefaultTabPanel {
         CONTAINER_TEXT_Y = 5;
         DEFAULT_SELECTED_ROW_EAST = 0;
         DEFAULT_SELECTED_ROW_WEST = 0;
+        EAST_DATA_CARD_NAME = "eastJPanel";
+        EAST_SUMMARY_CARD_NAME = "eastSummaryJPanel";
         NUMBER_VISIBLE_ROWS = 6;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPanel collapsedJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel documentsJLabel = new javax.swing.JLabel();
+    private final javax.swing.JPanel eastContentJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel eastCountJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel eastFirstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JPanel eastJPanel = new javax.swing.JPanel();
@@ -94,8 +106,12 @@ public class ContainerPanel extends DefaultTabPanel {
     private final javax.swing.JLabel eastPreviousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JLabel expandIconJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel firstPublishedJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel lastPublishedJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel participantsJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel versionsJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel westCountJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel westFiller2JLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel westFirstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
@@ -391,6 +407,13 @@ public class ContainerPanel extends DefaultTabPanel {
     @Override
     public void panelCellSelectionChanged(final Cell cell) {
         if (cell instanceof WestCell) {
+            if (0 == westListModel.getIndexOf(cell)) {
+                ((java.awt.CardLayout) eastContentJPanel.getLayout()).show(
+                        eastContentJPanel, EAST_SUMMARY_CARD_NAME);
+            } else {
+                ((java.awt.CardLayout) eastContentJPanel.getLayout()).show(
+                        eastContentJPanel, EAST_DATA_CARD_NAME);
+            }
             if (westListModel.isSelectionEmpty()) {
                 eastListModel.initialize(null);
             } else {
@@ -855,6 +878,16 @@ public class ContainerPanel extends DefaultTabPanel {
         final javax.swing.JPanel fixedSizeJPanel = new javax.swing.JPanel();
         westListJPanel = new PanelCellListJPanel(westListModel, ListType.WEST_LIST);
         westFillerJLabel = new javax.swing.JLabel();
+        final javax.swing.JPanel eastSummaryJPanel = new javax.swing.JPanel();
+        final javax.swing.JPanel eastSummaryTitlesJPanel = new javax.swing.JPanel();
+        final javax.swing.JLabel firstPublishedTitleJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel lastPublishedTitleJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel participantsTitleJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel documentsTitleJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel versionsTitleJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel eastSummaryTitleFillerJLabel = new javax.swing.JLabel();
+        final javax.swing.JPanel eastSummaryContentJPanel = new javax.swing.JPanel();
+        final javax.swing.JLabel eastSummaryContentFillerJLabel = new javax.swing.JLabel();
         eastListJPanel = new PanelCellListJPanel(eastListModel, ListType.EAST_LIST);
         eastFillerJLabel = new javax.swing.JLabel();
         final javax.swing.JPanel fillerJPanel = new javax.swing.JPanel();
@@ -1006,6 +1039,141 @@ public class ContainerPanel extends DefaultTabPanel {
 
         fixedSizeJPanel.add(westJPanel);
 
+        eastContentJPanel.setLayout(new java.awt.CardLayout());
+
+        eastContentJPanel.setOpaque(false);
+        eastSummaryJPanel.setLayout(new java.awt.GridLayout(1, 0));
+
+        eastSummaryJPanel.setOpaque(false);
+        eastSummaryTitlesJPanel.setLayout(new java.awt.GridBagLayout());
+
+        eastSummaryTitlesJPanel.setOpaque(false);
+        firstPublishedTitleJLabel.setFont(Fonts.DialogFont);
+        firstPublishedTitleJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        firstPublishedTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.firstPublishedJLabel"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(43, 0, 0, 5);
+        eastSummaryTitlesJPanel.add(firstPublishedTitleJLabel, gridBagConstraints);
+
+        lastPublishedTitleJLabel.setFont(Fonts.DialogFont);
+        lastPublishedTitleJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        lastPublishedTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.lastPublishedJLabel"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(2, 0, 0, 5);
+        eastSummaryTitlesJPanel.add(lastPublishedTitleJLabel, gridBagConstraints);
+
+        participantsTitleJLabel.setFont(Fonts.DialogFont);
+        participantsTitleJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        participantsTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.participantsJLabel"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(2, 0, 0, 5);
+        eastSummaryTitlesJPanel.add(participantsTitleJLabel, gridBagConstraints);
+
+        documentsTitleJLabel.setFont(Fonts.DialogFont);
+        documentsTitleJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        documentsTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.documentsJLabel"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(2, 0, 0, 5);
+        eastSummaryTitlesJPanel.add(documentsTitleJLabel, gridBagConstraints);
+
+        versionsTitleJLabel.setFont(Fonts.DialogFont);
+        versionsTitleJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        versionsTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.versionsJLabel"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(2, 0, 0, 5);
+        eastSummaryTitlesJPanel.add(versionsTitleJLabel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.weighty = 1.0;
+        eastSummaryTitlesJPanel.add(eastSummaryTitleFillerJLabel, gridBagConstraints);
+
+        eastSummaryJPanel.add(eastSummaryTitlesJPanel);
+
+        eastSummaryContentJPanel.setLayout(new java.awt.GridBagLayout());
+
+        eastSummaryContentJPanel.setOpaque(false);
+        firstPublishedJLabel.setFont(Fonts.DialogFont);
+        firstPublishedJLabel.setText("!date!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(43, 5, 0, 0);
+        eastSummaryContentJPanel.add(firstPublishedJLabel, gridBagConstraints);
+
+        lastPublishedJLabel.setFont(Fonts.DialogFont);
+        lastPublishedJLabel.setText("!date!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
+        eastSummaryContentJPanel.add(lastPublishedJLabel, gridBagConstraints);
+
+        participantsJLabel.setFont(Fonts.DialogFont);
+        participantsJLabel.setText("!number!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
+        eastSummaryContentJPanel.add(participantsJLabel, gridBagConstraints);
+
+        documentsJLabel.setFont(Fonts.DialogFont);
+        documentsJLabel.setText("!number!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
+        eastSummaryContentJPanel.add(documentsJLabel, gridBagConstraints);
+
+        versionsJLabel.setFont(Fonts.DialogFont);
+        versionsJLabel.setText("!number!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
+        eastSummaryContentJPanel.add(versionsJLabel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.weighty = 1.0;
+        eastSummaryContentJPanel.add(eastSummaryContentFillerJLabel, gridBagConstraints);
+
+        eastSummaryJPanel.add(eastSummaryContentJPanel);
+
+        eastContentJPanel.add(eastSummaryJPanel, "eastSummaryJPanel");
+
         eastJPanel.setLayout(new java.awt.GridBagLayout());
 
         eastJPanel.setOpaque(false);
@@ -1071,7 +1239,9 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 0);
         eastJPanel.add(eastLastJLabel, gridBagConstraints);
 
-        fixedSizeJPanel.add(eastJPanel);
+        eastContentJPanel.add(eastJPanel, "eastJPanel");
+
+        fixedSizeJPanel.add(eastContentJPanel);
 
         org.jdesktop.layout.GroupLayout expandedJPanelLayout = new org.jdesktop.layout.GroupLayout(expandedJPanel);
         expandedJPanel.setLayout(expandedJPanelLayout);
@@ -1218,16 +1388,25 @@ public class ContainerPanel extends DefaultTabPanel {
                 final Map<ContainerVersion, List<DocumentView>> documentViews,
                 final List<TeamMember> team) {
             super(Boolean.TRUE);
-            // TODO remove permanently
-/*            if (isLocalDraft()) {
-                addDraftDocumentCells(draftView);
-            } else if (null != latestVersion) {
-                addActiveVersionDocumentCells(latestVersion, documentViews.get(latestVersion));
+            if (!isDistributed()) {
+                firstPublishedJLabel.setText(localization.getString("notApplicable"));
+                lastPublishedJLabel.setText(localization.getString("notApplicable"));
+                participantsJLabel.setText(localization.getString("notApplicable"));
+            } else {
+                firstPublishedJLabel.setText(formatFuzzy(firstVersion.getCreatedOn()));
+                lastPublishedJLabel.setText(formatFuzzy(latestVersion.getCreatedOn()));
+                participantsJLabel.setText(MessageFormat.format("{0}", team.size()));
             }
-            for (final ContainerVersion version : versions) {
-                addRemovedVersionDocumentCells(version, documentViews.get(version));
+            if (isLocalDraft()) {
+                documentsJLabel.setText(MessageFormat.format("{0}",
+                        countActiveDocuments(draftView)));
+            } else if (isDistributed()) {
+                documentsJLabel.setText(MessageFormat.format("{0}",
+                        countActiveDocuments(documentViews.get(latestVersion))));
+            } else {
+                documentsJLabel.setText(localization.getString("notApplicable"));
             }
-            addUserCells(team);*/
+            versionsJLabel.setText(MessageFormat.format("{0}", versions.size()));
         }
         @Override
         public Icon getIcon() {
@@ -1252,155 +1431,25 @@ public class ContainerPanel extends DefaultTabPanel {
         public void showPopup() {
             popupDelegate.showForContainer(container, getDraft());
         }
-/*        private void addActiveVersionDocumentCells(
-                final ContainerVersion containerVersion,
-                final List<DocumentView> documentViews) {
+        
+        private int countActiveDocuments(final DraftView draftView) {
+            int count = 0;
+            for (final Document document : draftView.getDocuments()) {
+                if (ArtifactState.REMOVED != draftView.getDraft().getState(document)) {
+                    count++;
+                }
+            }
+            return count;
+        }
+        
+        private int countActiveDocuments(final List<DocumentView> documentViews) {
+            int count = 0;
             for (final DocumentView documentView : documentViews) {
                 if (Delta.REMOVED != documentView.getDelta()) {
-                    add(new ContainerVersionDocumentCell(this, containerVersion,
-                            documentView));
+                    count++;
                 }
             }
-        }
-        private void addDraftDocumentCells(final DraftView draftView) {
-            for (final Document document : draftView.getDocuments()) {
-                add(new ContainerDraftDocumentCell(this, document, draftView));
-            }
-        }        
-        private void addRemovedVersionDocumentCells(
-                final ContainerVersion containerVersion,
-                final List<DocumentView> documentViews) {
-            for (final DocumentView documentView : documentViews) {
-                if (Delta.REMOVED == documentView.getDelta()) {
-                    add(new ContainerVersionDocumentCell(this, containerVersion,
-                            documentView));
-                }
-            }
-        }
-        private void addUserCells(final List<TeamMember> team) {
-            for (final TeamMember teamMember : team) {
-                add(new ContainerTeamMemberCell(this, teamMember));
-            }
-        }*/
-    }
-
-    /** A container draft document cell. */
-    private final class ContainerDraftDocumentCell extends AbstractEastCell {
-        /** A <code>Document</code>. */
-        private final Document document;
-        /**
-         * Create ContainerDraftDocumentCell.
-         * 
-         * @param parent
-         *            A <code>WestCell</code>.
-         * @param document
-         *            A <code>Document</code>.
-         * @param draftView
-         *            A <code>DraftView</code>.        
-         */
-        private ContainerDraftDocumentCell(final WestCell parent, final Document document,
-                final DraftView draftView) {
-            super(parent);
-            this.document = document;
-            setIcon(fileIconReader.getIcon(document));
-            switch (draftView.getDraft().getState(document)) {
-            case ADDED:
-                setAdditionalText(localization.getString("DocumentSummaryDraftAdded"));
-                break;
-            case MODIFIED:
-                setAdditionalText(localization.getString("DocumentSummaryDraftModified",
-                        new Object[] {formatFuzzy(draftView.getFirstPublishedOn(document))}));
-                break;
-            case REMOVED:
-                setAdditionalText(localization.getString("DocumentSummaryDraftRemoved",
-                        new Object[] {formatFuzzy(draftView.getFirstPublishedOn(document))}));
-                break;
-            case NONE:
-                setAdditionalText(localization.getString("DocumentSummary",
-                        new Object[] {formatFuzzy(draftView.getFirstPublishedOn(document))}));
-                break;
-            default:
-                throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
-            }
-            setText(document.getName());
-        }
-        @Override
-        public void invokeAction() {
-            actionDelegate.invokeForDocument(getDraft(), document);
-        }
-    }
-    
-    /** A container team member cell. */
-    private final class ContainerTeamMemberCell extends AbstractEastCell {
-        /** A <code>User</code>. */
-        private final User user;
-        /**
-         * Create ContainerVersionUserCell.
-         * 
-         * @param parent
-         *            A <code>WestCell</code>.
-         * @param user
-         *            A <code>User</code>.
-         */
-        private ContainerTeamMemberCell(final WestCell parent, final User user) {
-            super(parent);
-            this.user = user;
-            setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
-            setText(user.getName());
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#invokeAction()
-         */
-        @Override
-        public void invokeAction() {
-            actionDelegate.invokeForUser(user);
-        }
-    }
-    
-    /** A container version document cell. */
-    private final class ContainerVersionDocumentCell extends AbstractEastCell {
-        /** A <code>Delta</code>. */
-        private final Delta delta;
-        /** A <code>DocumentVersion</code>. */
-        private final DocumentVersion version;
-        /**
-         * Create ContainerVersionDocumentCell.
-         * 
-         * @param parent
-         *            A <code>WestCell</code>.
-         * @param containerVersion
-         *            A <code>ContainerVersion</code>.
-         * @param documentView
-         *            A <code>DocumentView</code>.
-         */
-        private ContainerVersionDocumentCell(final WestCell parent, final ContainerVersion containerVersion,
-                final DocumentView documentView) {
-            super(parent);
-            this.delta = documentView.getDelta();
-            this.version = documentView.getVersion();
-            setIcon(fileIconReader.getIcon(version));
-            switch (delta) {
-            case ADDED:
-            case MODIFIED:
-            case NONE:
-                setAdditionalText(localization.getString("DocumentSummary",
-                        new Object[] {formatFuzzy(documentView.getFirstPublishedOn())}));
-                break;
-            case REMOVED:
-                setAdditionalText(localization.getString("DocumentSummaryVersionRemoved",
-                        new Object[] {formatFuzzy(documentView.getFirstPublishedOn()), formatFuzzy(containerVersion.getCreatedOn())}));
-                break;
-            default:
-                throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
-            }
-            setText(version.getArtifactName());
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#invokeAction()
-         */
-        @Override
-        public void invokeAction() {
-            actionDelegate.invokeForDocument(version, delta);
+            return count;
         }
     }
 

@@ -38,7 +38,7 @@ public final class Constants {
                 public static final Color BORDER_COLOR = new Color(130, 130, 130, 255);
             }
             public static final class Link {
-                public static final Color LINK_FOREGROUND = new Color(49, 102, 148, 255);
+                public static final Color LINK_FOREGROUND = new Color(118, 123, 141, 255);
             }
             public static final class List {
                 // TODO Can remove these if the tab cell code is stripped out

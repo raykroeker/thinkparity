@@ -6,7 +6,12 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
+import javax.swing.text.AbstractDocument;
+
 import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.text.JTextAreaLengthFilter;
+
+import com.thinkparity.codebase.model.container.ContainerConstraints;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -22,12 +27,13 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  */
 public class UpdateNoteAvatar extends Avatar {
 
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
+    /** An instance of <code>ContainerConstraints</code>. */
+    private final ContainerConstraints containerConstraints;
 
     /** Creates new form ContainerUpdateNoteAvatar */
     public UpdateNoteAvatar() {
         super("UpdateNoteAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
+        this.containerConstraints = ContainerConstraints.getInstance();
         initComponents();
     }
 
@@ -100,6 +106,7 @@ public class UpdateNoteAvatar extends Avatar {
         noteJTextArea.setLineWrap(true);
         noteJTextArea.setRows(5);
         noteJTextArea.setWrapStyleWord(true);
+        ((AbstractDocument) noteJTextArea.getDocument()).setDocumentFilter(new JTextAreaLengthFilter(containerConstraints.getDraftComment()));
         noteJScrollPane.setViewportView(noteJTextArea);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

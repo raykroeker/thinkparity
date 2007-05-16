@@ -98,6 +98,9 @@
             <Property name="rows" type="int" value="5"/>
             <Property name="wrapStyleWord" type="boolean" value="true"/>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) noteJTextArea.getDocument()).setDocumentFilter(new JTextAreaLengthFilter(containerConstraints.getDraftComment()));"/>
+          </AuxValues>
         </Component>
       </SubComponents>
     </Container>

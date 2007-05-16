@@ -22,6 +22,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
@@ -42,6 +43,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.M
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.PublishedToView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.*;
 import com.thinkparity.ophelia.browser.util.localization.BrowserLocalization;
 import com.thinkparity.ophelia.browser.util.localization.Localization;
@@ -501,7 +503,7 @@ public class ContainerPanel extends DefaultTabPanel {
             final ContainerVersion latestVersion,
             final List<ContainerVersion> versions,
             final Map<ContainerVersion, List<DocumentView>> documentViews,
-            final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo,
+            final Map<ContainerVersion, PublishedToView> publishedTo,
             final Map<ContainerVersion, User> publishedBy,
             final List<TeamMember> team) {
         this.container = container;
@@ -1665,8 +1667,8 @@ public class ContainerPanel extends DefaultTabPanel {
         private final List<DocumentView> documentViews;
         /** A published to <code>User</code>. */
         private final User publishedBy;
-        /** A list of <code>ArtifactReceipt</code>s. */
-        private final List<ArtifactReceipt> publishedTo;
+        /** A <code>PublishedToView</code>. */
+        private final PublishedToView publishedTo;
         /** A <code>ContainerVersion</code>. */
         private final ContainerVersion version;
         /**
@@ -1676,15 +1678,14 @@ public class ContainerPanel extends DefaultTabPanel {
          *            A <code>ContainerVersion</code>.
          * @param documentVersions
          *            A <code>List</code> of <code>DocumentVersion</code>s.
-         * @param users
-         *            A <code>List</code> of published to
-         *            <code>ArtifactReceipt</code>s and <code>User</code>.
+         * @param publishedTo
+         *            A <code>PublishedToView</code>.
          * @param publishedBy
          *            A published by <code>User</code>.
          */
         private VersionCell(final ContainerVersion version,
                 final List<DocumentView> documentViews,
-                final List<ArtifactReceipt> publishedTo,
+                final PublishedToView publishedTo,
                 final User publishedBy) {
             super(Boolean.FALSE);
             this.documentViews = documentViews;
@@ -1696,8 +1697,11 @@ public class ContainerPanel extends DefaultTabPanel {
                         documentView.getDelta()));
             }
             add(new VersionUserCell(this, publishedBy, version.getCreatedOn()));
-            for (final ArtifactReceipt artifactReceipt : publishedTo) {
+            for (final ArtifactReceipt artifactReceipt : publishedTo.getArtifactReceipts()) {
                 add(new VersionUserCell(this, artifactReceipt));
+            }
+            for (final PublishedToEMail publishedToEMail : publishedTo.getEMails()) {
+                add(new PublishedToEMailCell(this, publishedToEMail));
             }
         }
         @Override
@@ -1726,8 +1730,8 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public void showPopup() {
-            popupDelegate.showForVersion(version, documentViews, publishedTo,
-                    publishedBy);
+            popupDelegate.showForVersion(version, documentViews,
+                    publishedTo.getArtifactReceipts(), publishedBy);
         }
     }
 
@@ -1779,7 +1783,29 @@ public class ContainerPanel extends DefaultTabPanel {
             popupDelegate.showForDocument(version);
         }
     }
-    
+
+    /**
+     * <b>Title:</b>Conainer Panel Published To EMail East Cell<br>
+     * 
+     */
+    private final class PublishedToEMailCell extends AbstractEastCell {
+
+        /**
+         * Create PublishedToEMailCell.
+         * 
+         * @param parent
+         *            A parent <code>WestCell</code>.
+         * @param publishedTo
+         *            A <code>PublishedToEMail</code>.
+         */
+        private PublishedToEMailCell(final WestCell parent,
+                final PublishedToEMail publishedTo) {
+            super(parent);
+            setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
+            setText(publishedTo.getEMail().toString());
+        }
+    }
+
     /** A user cell. */
     private final class VersionUserCell extends AbstractEastCell {
         /** A <code>User</code>. */

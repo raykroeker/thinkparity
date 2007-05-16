@@ -42,6 +42,7 @@ import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.container.delegate.HandlePublished;
 import com.thinkparity.ophelia.model.container.delegate.HandlePublishedNotification;
+import com.thinkparity.ophelia.model.container.delegate.HandleReceived;
 import com.thinkparity.ophelia.model.container.delegate.HandleVersionPublished;
 import com.thinkparity.ophelia.model.container.delegate.HandleVersionPublishedNotification;
 import com.thinkparity.ophelia.model.document.CannotLockException;
@@ -284,6 +285,26 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent)
+     * 
+     */
+    public void handleEvent(final PublishedNotificationEvent event) {
+        try {
+            final HandlePublishedNotification delegate =
+                createDelegate(HandlePublishedNotification.class);
+            delegate.setEvent(event);
+            delegate.handlePublishedNotification();
+            // fire event
+            final Long containerId = getArtifactModel().readId(
+                    event.getVersion().getArtifactUniqueId());
+            final Container container = read(containerId);
+            notifyContainerFlagged(container, remoteEventGenerator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedEvent)
      *
      */
@@ -325,43 +346,13 @@ public final class ContainerModelImpl extends
         }
     }
 
-    /**
-     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent)
-     * 
-     */
-    public void handleEvent(final PublishedNotificationEvent event) {
-        try {
-            final HandlePublishedNotification delegate =
-                createDelegate(HandlePublishedNotification.class);
-            delegate.setEvent(event);
-            delegate.handlePublishedNotification();
-            // fire event
-            final Long containerId = getArtifactModel().readId(
-                    event.getVersion().getArtifactUniqueId());
-            final Container container = read(containerId);
-            notifyContainerFlagged(container, remoteEventGenerator);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
     public void handleReceived(final ArtifactReceivedEvent event) {
-        logger.logApiId();
-        logger.logVariable("event", event);
         try {
-            final Long containerId = artifactIO.readId(event.getUniqueId());
-            final User receivedBy = getUserModel().readLazyCreate(event.getReceivedBy());
-            final ArtifactReceipt receipt = containerIO.readPublishedToReceipt(
-                    containerId, event.getVersionId(), event.getPublishedOn(),
-                    receivedBy);
-            if (null == receipt) {
-                containerIO.createPublishedTo(containerId, event.getVersionId(),
-                        receivedBy, event.getPublishedOn());
-            }
-            containerIO.updatePublishedTo(containerId, event.getVersionId(),
-                    event.getPublishedOn(), event.getReceivedBy(),
-                    event.getReceivedOn());
-            notifyContainerReceived(read(containerId), remoteEventGenerator);
+            final HandleReceived delegate = createDelegate(HandleReceived.class);
+            delegate.setEvent(event);
+            delegate.handleReceived();
+            // fire event
+            notifyContainerReceived(delegate.getContainer(), remoteEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -894,6 +885,15 @@ public final class ContainerModelImpl extends
                 versionId));
         return containerIO.readVersion(version.getArtifactId(),
                 version.getVersionId());
+    }
+
+    /**
+     * Obtain the artifact persitence io.
+     * 
+     * @return An instance of <code>ArtifactIOHandler</code>.
+     */
+    ArtifactIOHandler getArtifactIO() {
+        return artifactIO;
     }
 
     /**

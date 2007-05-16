@@ -18,6 +18,7 @@ import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.model.DefaultDelegate;
 import com.thinkparity.ophelia.model.document.CannotLockException;
+import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
 
 /**
@@ -32,6 +33,9 @@ import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
  */
 public abstract class ContainerDelegate extends
         DefaultDelegate<ContainerModelImpl> {
+
+    /** An instance of a artifact persistence interface. */ 
+    protected ArtifactIOHandler artifactIO;
 
     /** An instance of a container persistence interface. */ 
     protected ContainerIOHandler containerIO;
@@ -51,6 +55,7 @@ public abstract class ContainerDelegate extends
     @Override
     public void initialize(final ContainerModelImpl modelImplementation) {
         super.initialize(modelImplementation);
+        this.artifactIO = modelImplementation.getArtifactIO();
         this.containerIO = modelImplementation.getContainerIO();
     }
 
@@ -125,6 +130,14 @@ public abstract class ContainerDelegate extends
             final String name) {
         return modelImplementation.handleResolution(uniqueId, publishedBy,
                 publishedOn, name);
+    }
+
+    /**
+     * @see ContainerModelImpl#read(Long)
+     * 
+     */
+    protected final Container read(final Long containerId) {
+        return modelImplementation.read(containerId);
     }
 
     /**

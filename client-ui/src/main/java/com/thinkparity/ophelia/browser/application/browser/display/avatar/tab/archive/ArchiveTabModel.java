@@ -18,7 +18,6 @@ import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -42,6 +41,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.PublishedToView;
 import com.thinkparity.ophelia.browser.platform.application.Application;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
 
@@ -352,8 +352,8 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
         final List<ContainerVersion> versions = readVersions(container.getId());
         final Map<ContainerVersion, List<DocumentView>> documentViews =
             new HashMap<ContainerVersion, List<DocumentView>>(versions.size(), 1.0F);
-        final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo =
-            new HashMap<ContainerVersion, List<ArtifactReceipt>>(versions.size(), 1.0F);
+        final Map<ContainerVersion, PublishedToView> publishedTo =
+            new HashMap<ContainerVersion, PublishedToView>(versions.size(), 1.0F);
         final Map<ContainerVersion, User> publishedBy = new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
         List<DocumentView> versionDocumentViews;
         for (final ContainerVersion version : versions) {
@@ -363,7 +363,8 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
                 containerIdLookup.put(versionDocumentView.getDocumentId(), container.getId());
             }
             documentViews.put(version, versionDocumentViews);
-            publishedTo.put(version, readUsers(version.getArtifactId(), version.getVersionId()));
+            publishedTo.put(version, readPublishedTo(version.getArtifactId(),
+                    version.getVersionId()));
             publishedBy.put(version, readUser(version.getUpdatedBy()));
         }
         panels.add(index, toDisplay(container, draftView, latestVersion,
@@ -621,12 +622,11 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      *            A container id <code>Long</code>.
      * @param versionId
      *            A container version id <code>Long</code>.
-     * @return A <code>List&lt;ArtifactReceipt&gt;</code>.
+     * @return A <code>PublishedToView</code>.
      */
-    private List<ArtifactReceipt> readUsers(final Long containerId,
+    private PublishedToView readPublishedTo(final Long containerId,
             final Long versionId) {
-        return getProvider().readPublishedTo(
-                containerId, versionId);
+        return getProvider().readPublishedTo(containerId, versionId);
     }
 
     /**
@@ -758,7 +758,7 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
             final ContainerVersion latestVersion,
             final List<ContainerVersion> versions,
             final Map<ContainerVersion, List<DocumentView>> documentViews,
-            final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo,
+            final Map<ContainerVersion, PublishedToView> publishedTo,
             final Map<ContainerVersion, User> publishedBy,
             final List<TeamMember> team) {
         final ArchiveTabPanel panel = new ArchiveTabPanel(session);

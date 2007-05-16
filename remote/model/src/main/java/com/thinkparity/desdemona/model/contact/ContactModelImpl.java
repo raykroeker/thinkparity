@@ -13,6 +13,8 @@ import javax.mail.internet.MimeMultipart;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.filter.Filter;
+import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -52,6 +54,9 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     /** The thinkParity contact io. */
 	private ContactSql contactSql;
 
+    /** A default (filters none) invitation attachment filter. */
+    private final Filter<Attachment> defaultInvitationAttachmentFilter;
+
     /** The thinkParity invitation io. */
 	private InvitationSql invitationSql;
 
@@ -61,6 +66,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
 	 */
 	public ContactModelImpl() {
 		super();
+        this.defaultInvitationAttachmentFilter = FilterManager.createDefault();
 	}
 
     /**
@@ -82,8 +88,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
             contactSql.create(invitationUser, user, user, acceptedOn);
 
             /* check the outgoing e-mail invitation for any attachments, and
-             * send to the invitation user if they exist
-             */
+             * send to the invitation user if they exist */
             final OutgoingEMailInvitation outgoingEMailInvitation =
                 invitationSql.readOutgoingEMail(invitationUser,
                         invitation.getInvitationEMail());
@@ -503,6 +508,35 @@ public final class ContactModelImpl extends AbstractModelImpl implements
 	}
 
     /**
+     * @see com.thinkparity.desdemona.model.contact.InternalContactModel#readContainerVersionInvitationAttachments(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.model.contact.ContactInvitation)
+     * 
+     */
+    public List<ContainerVersionAttachment> readContainerVersionInvitationAttachments(
+            final JabberId userId, final ContactInvitation invitation) {
+        try {
+            final List<Attachment> attachments = readInvitationAttachments(
+                    userId, invitation, new Filter<Attachment>() {
+                        public Boolean doFilter(final Attachment o) {
+                            return Attachment.ReferenceType.CONTAINER_VERSION !=
+                                o.getReferenceType();
+                        }
+                    });
+            final List<ContainerVersionAttachment> cvas =
+                new ArrayList<ContainerVersionAttachment>(attachments.size());
+            for (final Attachment attachment : attachments) {
+                final ContainerVersionAttachment cva = new ContainerVersionAttachment();
+                cva.setInvitationId(attachment.getInvitationId());
+                cva.setReferenceId(attachment.getReferenceId());
+                cvas.add(cva);
+            }
+            return cvas;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.contact.ContactModel#readIncomingEMailInvitations(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
@@ -542,7 +576,8 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     public List<Attachment> readInvitationAttachments(final JabberId userId,
             final ContactInvitation invitation) {
         try {
-            return invitationSql.readAttachments(invitation);
+            return readInvitationAttachments(userId, invitation,
+                    defaultInvitationAttachmentFilter);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -713,6 +748,29 @@ public final class ContactModelImpl extends AbstractModelImpl implements
         final Multipart invitation = new MimeMultipart();
         invitation.addBodyPart(invitationBody);
         mimeMessage.setContent(invitation);
+    }
+
+    /**
+     * Read a list of invitation attachments.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitation
+     *            A <code>ContactInvitation</code>.
+     * @param filter
+     *            A <code>Filter<Attachment></code>.
+     * @return A <code>List<Attachment></code>.
+     */
+    private List<Attachment> readInvitationAttachments(final JabberId userId,
+            final ContactInvitation invitation, final Filter<Attachment> filter) {
+        try {
+            final List<Attachment> attachments = invitationSql.readAttachments(
+                    invitation);
+            FilterManager.filter(attachments, filter);
+            return attachments;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**

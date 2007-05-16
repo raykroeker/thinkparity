@@ -9,6 +9,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -115,6 +116,20 @@ public interface BackupModel {
      * @return A <code>List</code> of <code>ArtifactReceipt</code>s.
      */
     public List<ArtifactReceipt> readContainerPublishedTo(
+            final JabberId userId, final UUID uniqueId, final Long versionId);
+
+    /**
+     * Read the container published to e-mails.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List<PublishedToEMail></code>.
+     */
+    public List<PublishedToEMail> readContainerPublishedToEMails(
             final JabberId userId, final UUID uniqueId, final Long versionId);
 
     /**

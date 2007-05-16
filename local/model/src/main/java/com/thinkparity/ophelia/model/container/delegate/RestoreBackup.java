@@ -13,6 +13,7 @@ import com.thinkparity.codebase.Pair;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -158,13 +159,14 @@ public final class RestoreBackup extends ContainerDelegate {
         // restore version info
         final List<ContainerVersion> versions =
             backupModel.readContainerVersions(container.getUniqueId());
-        // we want to restore in from first to last chronologically
+        // we want to restore from first to last chronologically
         ModelSorter.sortContainerVersions(versions, new ComparatorBuilder().createVersionById(Boolean.TRUE));
         List<Document> documents;
         List<DocumentVersion> documentVersions;
         InputStream documentVersionStream;
         ContainerVersion previous;
         List<ArtifactReceipt> publishedTo;
+        List<PublishedToEMail> publishedToEMails;
         for (final ContainerVersion version : versions) {
             logger.logTrace("Restoring container \"{0}\" version \"{1}.\"",
                     version.getArtifactName(), version.getVersionId());
@@ -187,6 +189,14 @@ public final class RestoreBackup extends ContainerDelegate {
                             receipt.getUser().getId(),
                             receipt.getReceivedOn());
                 }
+            }
+            // published to invitations
+            publishedToEMails = backupModel.readPublishedToEMails(
+                    version.getArtifactUniqueId(), version.getVersionId());
+            for (final PublishedToEMail publishedToEMail : publishedToEMails) {
+                containerIO.createPublishedTo(container.getId(),
+                        version.getVersionId(), publishedToEMail.getEMail(),
+                        publishedToEMail.getPublishedOn());
             }
             // restore version links
             documents = backupModel.readDocuments(container.getUniqueId(), version.getVersionId());

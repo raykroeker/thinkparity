@@ -30,6 +30,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.ContactInvitation;
@@ -922,6 +923,12 @@ public class XMPPMethod extends IQ {
                     parser.next();
                     parser.next();
                     return token;
+                } else if (javaType.equals(PublishedToEMail.class)) {
+                    PublishedToEMail publishedTo = null;
+                    publishedTo = (PublishedToEMail) xstreamUtil.unmarshal(new SmackXppReader(parser), publishedTo);
+                    parser.next();
+                    parser.next();
+                    return publishedTo;
                 } else if (ContactInvitation.class.isAssignableFrom(javaType)) {
                     ContactInvitation invitation = null;
                     invitation = (ContactInvitation) xstreamUtil.unmarshal(new SmackXppReader(parser), invitation);

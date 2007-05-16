@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -210,6 +211,18 @@ public interface InternalBackupModel extends BackupModel {
      */
     public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId, final Filter<? super ArtifactReceipt> filter);
+
+    /**
+     * Read a list of published to e-mail addresses.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @param versionId
+     *            An artifact version id <code>Long</code>.
+     * @return A <code>List<PublishedToEMail></code>.
+     */
+    public List<PublishedToEMail> readPublishedToEMails(final UUID uniqueId,
+            final Long versionId);
 
     /**
      * @see com.thinkparity.ophelia.model.archive.ArchiveReader#readTeamIds(java.util.UUID)

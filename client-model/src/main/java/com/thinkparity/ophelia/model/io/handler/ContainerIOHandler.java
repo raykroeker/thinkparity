@@ -9,10 +9,12 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerDraftDocument;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -88,6 +90,20 @@ public interface ContainerIOHandler {
     // TODO-javadoc ContainerIOHandler#createDraftDocument
     public void createDraftDocument(final ContainerDraftDocument draftDocument,
             final InputStream stream, final Integer bufferSize);
+
+    /**
+     * Create a published to entry for a container version for an e-mail
+     * address.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param publishedTo
+     *            A published to <code>EMail</code>.
+     */
+    public void createPublishedTo(final Long containerId, final Long versionId,
+            final EMail publishedTo, final Calendar publishedOn);
 
     /**
      * Create a published to list for a container version.
@@ -184,6 +200,14 @@ public interface ContainerIOHandler {
 
     // TODO-javadoc ContainerIOHandler#deleteDraftDocument
     public void deleteDraftDocuments(final Long containerDraftId);
+
+    /**
+     * Delete the published to e-mail references.
+     * 
+     * @param publishedTo
+     *            A published to <code>EMail</code> address.
+     */
+    public void deletePublishedTo(final EMail publishedTo);
 
     /**
      * Delete a container version.
@@ -319,6 +343,15 @@ public interface ContainerIOHandler {
             final Long documentId);
 
     /**
+     * Read a list of containers for a published to e-mail.
+     * 
+     * @param publishedTo
+     *            An <code>EMail</code> address.
+     * @return A <code>List<Container></code>.
+     */
+    public List<Container> readForPublishedToEMail(final EMail publishedTo);
+
+    /**
      * Read a list of containers for a team member.
      * 
      * @param teamMemberId
@@ -338,11 +371,26 @@ public interface ContainerIOHandler {
 
     /**
      * Read the published to list of users.
+     * 
      * @param containerId
+     *            A container id <code>Long</code>.
      * @param versionId
-     * @return
+     *            A container version id <code>Long</code>.
+     * @return A <code>List<User></code>.
      */
     public List<User> readPublishedTo(final Long containerId, final Long versionId);
+
+    /**
+     * Read the published to list of e-mail addresses.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List<PublishedToEMail></code>.
+     */
+    public List<PublishedToEMail> readPublishedToEMails(final Long containerId,
+            final Long versionId);
 
     /**
      * Read the published to receipt.

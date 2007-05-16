@@ -13,6 +13,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
@@ -655,8 +656,13 @@ public interface XMPPSession {
      */
     public List<DocumentVersion> readBackupDocumentVersions(
             final JabberId userId, final UUID uniqueId, final Long versionId);
+
     public List<ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
             final UUID uniqueId, final Long versionId);
+
+    public List<PublishedToEMail> readBackupPublishedToEMails(
+            final JabberId userId, final UUID uniqueId, final Long versionId);
+
     /**
      * Read the backup's team for a user.
      * 

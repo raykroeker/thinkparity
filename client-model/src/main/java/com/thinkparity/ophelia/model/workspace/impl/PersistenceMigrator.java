@@ -74,6 +74,7 @@ public class PersistenceMigrator {
                 CONFIG.getProperty("CreateContainerVersionDelta"),
                 CONFIG.getProperty("CreateContainerVersionArtifactVersionDelta"),
                 CONFIG.getProperty("CreateContainerVersionPublishedTo"),
+                CONFIG.getProperty("CreateContainerVersionPublishedToInvitation"),
                 CONFIG.getProperty("CreateContainerDraft"),
                 CONFIG.getProperty("CreateContainerDraftArtifactRel"),
                 CONFIG.getProperty("CreateDocument"),

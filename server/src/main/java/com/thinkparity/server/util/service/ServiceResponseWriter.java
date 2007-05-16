@@ -12,6 +12,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
@@ -89,10 +90,10 @@ public interface ServiceResponseWriter {
     public void writeCalendar(final String name, Calendar value);
 
     public void writeContainer(final String name, Container value);
-    
+
     public void writeContainers(final String parentName,
             String name, List<Container> values);
-
+    
     public void writeContainerVersions(final String parentName,
             String name, List<ContainerVersion> values);
 
@@ -205,6 +206,9 @@ public interface ServiceResponseWriter {
 
     public void writeProfileEMails(final String name,
             final List<ProfileEMail> values);
+
+    public void writePublishedToEMails(final String name,
+            final List<PublishedToEMail> value);
 
     /**
      * Write the resources to the query.

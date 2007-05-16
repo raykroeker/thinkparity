@@ -103,6 +103,15 @@ class EmailIOHandler extends AbstractIOHandler {
         return session.getEMail("EMAIL");
     }
 
+    Long readId(final EMail email) {
+        final Session session = openSession();
+        try {
+            return readId(session, email);
+        } finally {
+            session.close();
+        }
+    }
+
     Long readId(final Session session, final EMail email) {
         session.prepareStatement(SQL_READ_ID);
         session.setEMail(1, email);

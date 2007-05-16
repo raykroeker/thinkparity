@@ -17,7 +17,9 @@ import com.thinkparity.codebase.model.UploadMonitor;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.backup.Statistics;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -35,6 +37,8 @@ import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants.Product.Ophelia;
 import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
+import com.thinkparity.desdemona.model.contact.InternalContactModel;
+import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.io.sql.BackupSql;
 import com.thinkparity.desdemona.model.session.Session;
@@ -250,6 +254,27 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             final User user = getUserModel().read(userId);
             if (isBackupEnabled(user)) {
                 return readContainerPublishedToImpl(user, uniqueId, versionId);
+            } else {
+                logger.logWarning("User {0} has no backup feature.", userId);
+                return Collections.emptyList();
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainerPublishedToEMails(com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.UUID, java.lang.Long)
+     * 
+     */
+    public List<PublishedToEMail> readContainerPublishedToEMails(
+            final JabberId userId, final UUID uniqueId, final Long versionId) {
+        try {
+            final User user = getUserModel().read(userId);
+            if (isBackupEnabled(user)) {
+                return readContainerPublishedToEMailsImpl(user, uniqueId,
+                        versionId);
             } else {
                 logger.logWarning("User {0} has no backup feature.", userId);
                 return Collections.emptyList();
@@ -844,6 +869,50 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             return modelFactory.getContainerModel().readLatestVersion(containerId);
         } else {
             logger.logWarning("Container {0} is not backed up.", uniqueId);
+            return null;
+        }
+    }
+
+    /**
+     * Read the container version published to e-mails implementation. If the
+     * user is a member of the team read the published to e-mail list is
+     * interpolated from the user's outgoing e-mail invitation attachments.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List<PublishedToEMail></code>.
+     */
+    private List<PublishedToEMail> readContainerPublishedToEMailsImpl(
+            final User user, final UUID uniqueId, final Long versionId) {
+        if (isContainerBackedUp(user, uniqueId)) {
+            final List<PublishedToEMail> publishedTo = new ArrayList<PublishedToEMail>();
+            final InternalContactModel contactModel = getContactModel();
+            final List<OutgoingEMailInvitation> invitations =
+                getContactModel().readOutgoingEMailInvitations(user.getId());
+            final List<ContainerVersionAttachment> attachments =
+                new ArrayList<ContainerVersionAttachment>();
+            for (final OutgoingEMailInvitation invitation : invitations) {
+                attachments.clear();
+                attachments.addAll(
+                        contactModel.readContainerVersionInvitationAttachments(
+                                user.getId(), invitation));
+                for (final ContainerVersionAttachment attachment : attachments) {
+                    if (attachment.getUniqueId().equals(uniqueId)) {
+                        final PublishedToEMail pte = new PublishedToEMail();
+                        pte.setEMail(invitation.getInvitationEMail());
+                        pte.setPublishedOn(invitation.getCreatedOn());
+                        publishedTo.add(pte);
+                    }
+                }
+            }
+            return publishedTo;
+        } else {
+            logger.logWarning("Container {0} is not backed up for user {1}.",
+                    uniqueId, user.getId());
             return null;
         }
     }

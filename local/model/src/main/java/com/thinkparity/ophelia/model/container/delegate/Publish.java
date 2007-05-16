@@ -168,12 +168,17 @@ public final class Publish extends ContainerDelegate {
             /* the remote publish invocation will potentially generate new
              * outgoing e-mail invitations that need to be pre-created */
             final InternalContactModel contactModel = getContactModel();
+            OutgoingEMailInvitation invitation;
             for (final EMail email : emails) {
-                if (!contactModel.doesExistOutgoingEMailInvitation(email).booleanValue()) {
-                    invitations.add(
-                            contactModel.createLocalOutgoingEMailInvitation(
-                                    email, publishedOn));
+                if (contactModel.doesExistOutgoingEMailInvitation(email).booleanValue()) {
+                    invitation = contactModel.readOutgoingEMailInvitation(email);
+                } else {
+                    invitation = contactModel.createLocalOutgoingEMailInvitation(
+                                    email, publishedOn);
+                    invitations.add(invitation);
                 }
+                containerIO.createPublishedTo(version.getArtifactId(),
+                        version.getVersionId(), email, publishedOn);
             }
             // upload
             final Map<DocumentVersion, String> documentVersions =

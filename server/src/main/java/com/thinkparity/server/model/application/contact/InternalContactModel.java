@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.annotation.ThinkParityAuthenticate;
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
+import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.util.AuthenticationType;
 
 /**
@@ -62,6 +63,10 @@ public interface InternalContactModel extends ContactModel {
     @ThinkParityAuthenticate(AuthenticationType.USER)
     public List<Attachment> readInvitationAttachments(final JabberId userId,
             final ContactInvitation invitation);
+
+    @ThinkParityAuthenticate(AuthenticationType.USER)
+    public List<ContainerVersionAttachment> readContainerVersionInvitationAttachments(
+            final JabberId userId, final ContactInvitation invitation);
 
     /**
      * Read the outgoing e-mail invitations for the e-mail address.

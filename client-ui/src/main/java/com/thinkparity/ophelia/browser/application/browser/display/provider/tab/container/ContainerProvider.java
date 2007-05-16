@@ -15,7 +15,6 @@ import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
-import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
@@ -36,6 +35,7 @@ import com.thinkparity.ophelia.model.user.UserModel;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.PublishedToView;
 
 /**
  * <b>Title:</b>thinkParity Container Tab Provider<br>
@@ -113,6 +113,28 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     }
 
     /**
+     * Determine if the user is a contact.
+     * 
+     * @param userId
+     *            A user id <code>Long</code>.
+     * @return True if the user is a contact.
+     */
+    public Boolean doesExistContact(final Long userId) {
+        return contactModel.doesExist(userId);
+    }
+
+    /**
+     * Determine if there exists an outgoing user invitation.
+     * 
+     * @param userId
+     *            A user id <code>Long</code>.
+     * @return True if the user is a contact.
+     */
+    public Boolean doesExistOutgoingUserInvitationForUser(final Long userId) {
+        return contactModel.doesExistOutgoingUserInvitationForUser(userId);
+    }
+
+	/**
      * Obtain a draft monitor for a container.
      * 
      * @param containerId
@@ -125,7 +147,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             final ContainerDraftListener listener) {
         return containerModel.getDraftMonitor(containerId, listener);
     }
-
+    
     @Override
 	public Object getElement(Integer index, Object input) {
 		throw Assert.createNotYetImplemented("ContainerProvider#getElement");
@@ -135,7 +157,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 	public Object[] getElements(Integer index, Object input) {
 		throw Assert.createNotYetImplemented("ContainerProvider#getElements");
 	}
-    
+
     /**
      * Determine if the container has been distributed.
      * 
@@ -147,7 +169,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
         return containerModel.isDistributed(containerId);
     }
 
-	/**
+    /**
      * Determine if the draft document has been modified.
      * 
      * @param documentId
@@ -157,7 +179,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public Boolean isDraftDocumentModified(final Long documentId) {
         return documentModel.isDraftModified(documentId);
     }
-
+    
     /**
      * Determine if the local draft is modified, ie. at least one document changed.
      * 
@@ -177,7 +199,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public List<Container> read() {
     	return containerModel.read(filter);
     }
-    
+
     /**
 	 * Read a container.
 	 * 
@@ -193,7 +215,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             return container;
         }
     }
-
+    
     /**
      * Read and generate a list of document views for a document version. The
      * document view will consist of a document version; its delta as well as
@@ -237,28 +259,6 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             }
         });
         return views;
-    }
-
-    /**
-     * Determine if the user is a contact.
-     * 
-     * @param userId
-     *            A user id <code>Long</code>.
-     * @return True if the user is a contact.
-     */
-    public Boolean doesExistContact(final Long userId) {
-        return contactModel.doesExist(userId);
-    }
-    
-    /**
-     * Determine if there exists an outgoing user invitation.
-     * 
-     * @param userId
-     *            A user id <code>Long</code>.
-     * @return True if the user is a contact.
-     */
-    public Boolean doesExistOutgoingUserInvitationForUser(final Long userId) {
-        return contactModel.doesExistOutgoingUserInvitationForUser(userId);
     }
     
     /**
@@ -309,17 +309,22 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     }
 
     /**
-     * Read the published to user list.
+     * Read the published to view.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
      * @param versionId
      *            A version id <code>Long</code>.
-     * @return A list of <code>ArtifactReceipt</code>s.
+     * @return A <code>PublishedToView</code>.
      */
-    public List<ArtifactReceipt> readPublishedTo(final Long containerId,
+    public PublishedToView readPublishedTo(final Long containerId,
             final Long versionId) {
-        return containerModel.readPublishedTo(containerId, versionId);
+        final PublishedToView view = new PublishedToView();
+        view.setArtifactReceipts(containerModel.readPublishedTo(containerId,
+                versionId));
+        view.setEMails(containerModel.readPublishedToEMails(containerId,
+                versionId));
+        return view;
     }
 
     /**

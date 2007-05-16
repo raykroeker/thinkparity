@@ -16,6 +16,7 @@ import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
@@ -1319,6 +1320,24 @@ public final class SessionModelImpl extends Model<SessionListener>
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 return xmppSession.readBackupPublishedTo(userId, uniqueId,
+                        versionId);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readBackupPublishedToEMails(com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.UUID, java.lang.Long)
+     * 
+     */
+    public List<PublishedToEMail> readBackupPublishedToEMails(JabberId userId,
+            UUID uniqueId, Long versionId) {
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readBackupPublishedToEMails(userId, uniqueId,
                         versionId);
             }
         } catch (final Throwable t) {

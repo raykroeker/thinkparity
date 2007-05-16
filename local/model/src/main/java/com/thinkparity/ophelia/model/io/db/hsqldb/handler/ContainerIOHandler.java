@@ -12,11 +12,13 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerDraftDocument;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -93,6 +95,13 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .toString();
 
     /** Sql to read the container published to list. */
+    private static final String SQL_CREATE_EMAIL_PUBLISHED_TO =
+        new StringBuilder("insert into CONTAINER_VERSION_PUBLISHED_TO_EMAIL ")
+        .append("(CONTAINER_ID,CONTAINER_VERSION_ID,EMAIL_ID,PUBLISHED_ON) ")
+        .append("values (?,?,?,?)")
+        .toString();
+
+    /** Sql to read the container published to list. */
     private static final String SQL_CREATE_PUBLISHED_TO =
         new StringBuilder("insert into CONTAINER_VERSION_PUBLISHED_TO ")
         .append("(CONTAINER_ID,CONTAINER_VERSION_ID,USER_ID,PUBLISHED_ON) ")
@@ -110,6 +119,12 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     private static final String SQL_DELETE =
         new StringBuilder("delete from CONTAINER ")
         .append("where CONTAINER_ID=?")
+        .toString();
+
+    /** Sql to delete an e-mail published to reference. */
+    private static final String SQL_DELETE_ALL_EMAIL_PUBLISHED_TO =
+        new StringBuilder("delete from CONTAINER_VERSION_PUBLISHED_TO_EMAIL ")
+        .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=?")
         .toString();
 
     /** Sql to delete a container version delta. */
@@ -173,6 +188,12 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     private static final String SQL_DELETE_DRAFT_DOCUMENTS =
         new StringBuilder("delete from CONTAINER_DRAFT_DOCUMENT ")
         .append("where CONTAINER_ID=?")
+        .toString();
+
+    /** Sql to delete an invitation published to reference. */
+    private static final String SQL_DELETE_EMAIL_PUBLISHED_TO =
+        new StringBuilder("delete from CONTAINER_VERSION_PUBLISHED_TO_EMAIL ")
+        .append("where EMAIL_ID=?")
         .toString();
 
     /** Sql to delete the published to user list. */
@@ -404,6 +425,29 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .toString();
 
     /** Sql to read the container published to list. */
+    private static final String SQL_READ_EMAIL_PUBLISHED_TO =
+        new StringBuilder("select CVPTE.CONTAINER_ID,CVPTE.PUBLISHED_ON,E.EMAIL ")
+        .append("from CONTAINER C ")
+        .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
+        .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
+        .append("inner join CONTAINER_VERSION CV on AV.ARTIFACT_ID=CV.CONTAINER_ID ")
+        .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
+        .append("inner join CONTAINER_VERSION_PUBLISHED_TO_EMAIL CVPTE ")
+        .append("on CV.CONTAINER_ID=CVPTE.CONTAINER_ID ")
+        .append("and CV.CONTAINER_VERSION_ID=CVPTE.CONTAINER_VERSION_ID ")
+        .append("inner join EMAIL E on E.EMAIL_ID=CVPTE.EMAIL_ID ")
+        .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=?")
+        .toString();
+
+    /** Sql to read container ids for the published to e-mail address. */
+    private static final String SQL_READ_IDS_FOR_PUBLISHED_TO_EMAIL =
+        new StringBuilder("select distinct(CONTAINER_ID) \"CONTAINER_ID\" ")
+        .append("from CONTAINER_VERSION_PUBLISHED_TO_EMAIL CVPTE ")
+        .append("inner join EMAIL E on E.EMAIL_ID=CVPTE.EMAIL_ID ")
+        .append("where E.EMAIL=?")
+        .toString();
+
+    /** Sql to read the container published to list. */
     private static final String SQL_READ_PUBLISHED_TO =
         new StringBuilder("select U.JABBER_ID,U.USER_ID,U.NAME,")
         .append("U.ORGANIZATION,U.TITLE,U.FLAGS ")
@@ -440,6 +484,20 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         new StringBuilder("select COUNT(*) PUBLISHED_TO_COUNT ")
         .append("from CONTAINER_VERSION_PUBLISHED_TO CVPT ")
         .append("where CVPT.CONTAINER_ID=? and CVPT.CONTAINER_VERSION_ID=?")
+        .toString();
+
+    /** Sql to read the published to invitation count. */
+    private static final String SQL_READ_PUBLISHED_TO_EMAIL_COUNT =
+        new StringBuilder("select COUNT(*) PUBLISHED_TO_COUNT ")
+        .append("from CONTAINER_VERSION_PUBLISHED_TO_EMAIL CVPTE ")
+        .append("where CVPTI.CONTAINER_ID=? and CVPTI.CONTAINER_VERSION_ID=?")
+        .toString();
+
+    /** Sql to read the published to invitation count. */
+    private static final String SQL_READ_PUBLISHED_TO_EMAIL_COUNT_INVITATION_ID =
+        new StringBuilder("select COUNT(*) PUBLISHED_TO_COUNT ")
+        .append("from CONTAINER_VERSION_PUBLISHED_TO_EMAIL CVPTE ")
+        .append("where CVPTE.EMAIL_ID=?")
         .toString();
 
     /** Sql to read the container published to list. */
@@ -563,12 +621,15 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=? and USER_ID=? ")
         .append("and PUBLISHED_ON=?")
         .toString();
-    
+
     /** Generic artifact io. */
     private final ArtifactIOHandler artifactIO;
-    
+
     /** Document io. */
     private final DocumentIOHandler documentIO;
+    
+    /** An e-mail io. */
+    private final EmailIOHandler emailIO;
 
     /** User io. */
     private final UserIOHandler userIO;
@@ -583,6 +644,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         super(dataSource);
         this.artifactIO = new ArtifactIOHandler(dataSource);
         this.documentIO = new DocumentIOHandler(dataSource);
+        this.emailIO = new EmailIOHandler(dataSource);
         this.userIO = new UserIOHandler(dataSource);
     }
 
@@ -718,6 +780,31 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setString(6, draftDocument.getChecksumAlgorithm());
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not create draft document.");
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createPublishedTo(java.lang.Long,
+     *      java.lang.Long,
+     *      com.thinkparity.codebase.model.contact.OutgoingEMailInvitation,
+     *      java.util.Calendar)
+     * 
+     */
+    public void createPublishedTo(final Long containerId, final Long versionId,
+            final EMail publishedTo, final Calendar publishedOn) {
+        final Session session = openSession();
+        try {
+            final Long publishedToId = emailIO.readId(publishedTo);
+            
+            session.prepareStatement(SQL_CREATE_EMAIL_PUBLISHED_TO);
+            session.setLong(1, containerId);
+            session.setLong(2, versionId);
+            session.setLong(3, publishedToId);
+            session.setCalendar(4, publishedOn);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not create invitation published to.");
         } finally {
             session.close();
         }
@@ -916,6 +1003,25 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#deletePublishedTo(com.thinkparity.codebase.email.EMail)
+     * 
+     */
+    public void deletePublishedTo(final EMail publishedTo) {
+        final Session session = openSession();
+        try {
+            final Long publishedToId = emailIO.readId(publishedTo);
+            final int publishedToCount =
+                readPublishedToInvitationCount(session, publishedToId);
+            session.prepareStatement(SQL_DELETE_EMAIL_PUBLISHED_TO);
+            session.setLong(1, publishedToId);
+            if (publishedToCount != session.executeUpdate())
+                throw new HypersonicException("Could not delete invitation published to.");
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#deleteVersion(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -923,15 +1029,26 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     public void deleteVersion(Long containerId, Long versionId) {
         final Session session = openSession();
         try {
-            final int publishedToCount =
+            int publishedToCount =
                 readPublishedToCount(session, containerId, versionId);
             session.prepareStatement(SQL_DELETE_PUBLISHED_TO);
             session.setLong(1, containerId);
             session.setLong(2, versionId);
-            final int publishedToDeleted = session.executeUpdate();
+            int publishedToDeleted = session.executeUpdate();
             if (publishedToCount != publishedToDeleted)
                 throw translateError(
                         "Could only delete {0} of {1} published to rows.",
+                        publishedToDeleted, publishedToCount);
+
+            publishedToCount =
+                readPublishedToInvitationCount(session, containerId, versionId);
+            session.prepareStatement(SQL_DELETE_ALL_EMAIL_PUBLISHED_TO);
+            session.setLong(1, containerId);
+            session.setLong(2, versionId);
+            publishedToDeleted = session.executeUpdate();
+            if (publishedToCount != publishedToDeleted)
+                throw translateError(
+                        "Could only delete {0} of {1} published to e-mail rows.",
                         publishedToDeleted, publishedToCount);
 
             session.prepareStatement(SQL_DELETE_VERSION);
@@ -1257,6 +1374,26 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readForPublishedToEMail(com.thinkparity.codebase.email.EMail)
+     * 
+     */
+    public List<Container> readForPublishedToEMail(final EMail publishedTo) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_IDS_FOR_PUBLISHED_TO_EMAIL);
+            session.setEMail(1, publishedTo);
+            session.executeQuery();
+            final List<Container> containers = new ArrayList<Container>();
+            while (session.nextResult()) {
+                containers.add(read(session.getLong("CONTAINER_ID")));
+            }
+            return containers;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readForTeamMember(com.thinkparity.codebase.model.user.User)
      * 
      */
@@ -1306,6 +1443,29 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             final List<User> publishedTo = new ArrayList<User>();
             while (session.nextResult()) {
                 publishedTo.add(userIO.extractUser(session));
+            }
+            return publishedTo;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readPublishedToInvitations(java.lang.Long,
+     *      java.lang.Long)
+     * 
+     */
+    public List<PublishedToEMail> readPublishedToEMails(final Long containerId,
+            final Long versionId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_EMAIL_PUBLISHED_TO);
+            session.setLong(1, containerId);
+            session.setLong(2, versionId);
+            session.executeQuery();
+            final List<PublishedToEMail> publishedTo = new ArrayList<PublishedToEMail>();
+            while (session.nextResult()) {
+                publishedTo.add(extractPublishedToEMail(session));
             }
             return publishedTo;
         } finally {
@@ -1669,6 +1829,14 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         return draftDocument;
     }
 
+    PublishedToEMail extractPublishedToEMail(final Session session) {
+        final PublishedToEMail publishedTo = new PublishedToEMail();
+        publishedTo.setArtifactId(session.getLong("CONTAINER_ID"));
+        publishedTo.setEMail(session.getEMail("EMAIL"));
+        publishedTo.setPublishedOn(session.getCalendar("PUBLISHED_ON"));
+        return publishedTo;
+    }
+
     /**
      * Extract an artifact receipt from the published to table.
      * 
@@ -1945,6 +2113,41 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     private int readPublishedToCount(final Session session,
             final Long containerId, final Long versionId) {
         session.prepareStatement(SQL_READ_PUBLISHED_TO_COUNT);
+        session.setLong(1, containerId);
+        session.setLong(2, versionId);
+        session.executeQuery();
+        session.nextResult();
+        return session.getInteger("PUBLISHED_TO_COUNT");
+    }
+
+    /**
+     * Read the number of published to rows.
+     * 
+     * @param emailId
+     *            An e-mail address id <code>Long</code>.
+     * @return A row count <code>Integer</code>.
+     */
+    private int readPublishedToInvitationCount(final Session session,
+            final Long emailId) {
+        session.prepareStatement(SQL_READ_PUBLISHED_TO_EMAIL_COUNT_INVITATION_ID);
+        session.setLong(1, emailId);
+        session.executeQuery();
+        session.nextResult();
+        return session.getInteger("PUBLISHED_TO_COUNT");
+    }
+
+    /**
+     * Read the number of published to e-mail rows.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A row count <code>Integer</code>.
+     */
+    private int readPublishedToInvitationCount(final Session session,
+            final Long containerId, final Long versionId) {
+        session.prepareStatement(SQL_READ_PUBLISHED_TO_EMAIL_COUNT);
         session.setLong(1, containerId);
         session.setLong(2, versionId);
         session.executeQuery();

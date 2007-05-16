@@ -9,6 +9,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.ContactInvitation;
 import com.thinkparity.codebase.model.contact.ContactVCard;
@@ -184,6 +185,10 @@ public class XMPPMethodResponse extends IQ {
 
     public ProfileVCard readResultProfileVCard(final String name) {
         return (ProfileVCard) readResult(name);
+    }
+
+    public List<PublishedToEMail> readResultPublishedToEMails(final String name) {
+        return (List<PublishedToEMail>) readResult(name);
     }
 
     public final Release readResultRelease(final String name) {

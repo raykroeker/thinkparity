@@ -14,6 +14,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
@@ -351,6 +352,16 @@ public final class IQWriter implements ServiceResponseWriter {
     public void writeProfileEMails(final String name,
             final List<ProfileEMail> values) {
         ElementBuilder.addProfileEMailElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.util.service.ServiceResponseWriter#writePublishedToEMails(java.lang.String, java.util.List)
+     *
+     */
+    public void writePublishedToEMails(final String name,
+            final List<PublishedToEMail> values) {
+        ElementBuilder.addPublishedToEMailElements(XSTREAM_UTIL,
+                iq.getChildElement(), name, values);
     }
 
     /**

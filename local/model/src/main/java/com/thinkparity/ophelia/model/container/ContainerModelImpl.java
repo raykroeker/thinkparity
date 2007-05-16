@@ -34,6 +34,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.Container;
@@ -489,6 +490,24 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#deletePublishedTo(com.thinkparity.codebase.email.EMail)
+     * 
+     */
+    public void deletePublishedTo(final EMail publishedTo) {
+        try {
+            final List<Container> containers =
+                containerIO.readForPublishedToEMail(publishedTo);
+            containerIO.deletePublishedTo(publishedTo);
+            // fire event
+            for (final Container container : containers) {
+                notifyContainerReceived(container, remoteEventGenerator);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.container.InternalContainerModel#doesExistDraft(java.lang.Long)
      * 
      */
@@ -498,20 +517,6 @@ public final class ContainerModelImpl extends
         } catch (final Throwable t) {
             throw panic(t);
         }
-    }
-
-    /**
-     * Determine if an artifact still exists as a reference to a container.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param artifactId
-     *            An artifact id <code>Long</code>.
-     * @return True if the artifact still exists.
-     */
-    private boolean doesExistArtifact(final Long containerId,
-            final Long artifactId) {
-        return containerIO.doesExistArtifact(containerId, artifactId).booleanValue();
     }
 
     /**
@@ -744,22 +749,12 @@ public final class ContainerModelImpl extends
      * 
      */
     public void handleReceived(final ArtifactReceivedEvent event) {
-        logger.logApiId();
-        logger.logVariable("event", event);
         try {
-            final Long containerId = artifactIO.readId(event.getUniqueId());
-            final User receivedBy = getUserModel().readLazyCreate(event.getReceivedBy());
-            final ArtifactReceipt receipt = containerIO.readPublishedToReceipt(
-                    containerId, event.getVersionId(), event.getPublishedOn(),
-                    receivedBy);
-            if (null == receipt) {
-                containerIO.createPublishedTo(containerId, event.getVersionId(),
-                        receivedBy, event.getPublishedOn());
-            }
-            containerIO.updatePublishedTo(containerId, event.getVersionId(),
-                    event.getPublishedOn(), event.getReceivedBy(),
-                    event.getReceivedOn());
-            notifyContainerReceived(read(containerId), remoteEventGenerator);
+            final HandleReceived delegate = createDelegate(HandleReceived.class);
+            delegate.setEvent(event);
+            delegate.handleReceived();
+            // fire event
+            notifyContainerReceived(delegate.getContainer(), remoteEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1439,6 +1434,19 @@ public final class ContainerModelImpl extends
         try {
             return readPublishedTo(containerId, versionId,
                     defaultReceiptComparator, filter); 
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#readPublishedToEMails(java.lang.Long, java.lang.Long)
+     *
+     */
+    public List<PublishedToEMail> readPublishedToEMails(
+            final Long containerId, final Long versionId) {
+        try {
+            return containerIO.readPublishedToEMails(containerId, versionId);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -2638,6 +2646,20 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Determine if an artifact still exists as a reference to a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @return True if the artifact still exists.
+     */
+    private boolean doesExistArtifact(final Long containerId,
+            final Long artifactId) {
+        return containerIO.doesExistArtifact(containerId, artifactId).booleanValue();
+    }
+
+    /**
      * Export a container and a list of versions.
      * 
      * @param exportDirectory
@@ -2776,7 +2798,7 @@ public final class ContainerModelImpl extends
     private boolean isLocalTeamMember(final Long containerId) {
         return contains(getArtifactModel().readTeam2(containerId), localUser());
     }
-
+    
     /**
      * Lock a list of documents' versions.
      * 
@@ -2815,7 +2837,7 @@ public final class ContainerModelImpl extends
             }
         });
     }
-    
+
     /**
      * Fire a container created notification.
      * 

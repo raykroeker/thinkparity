@@ -134,4 +134,13 @@ public interface InternalContactModel extends ContactModel {
      */
     public void handleUserInvitationExtended(
             final ContactUserInvitationExtendedEvent event);
+
+    /**
+     * Read an outgoing e-mail invitation.
+     * 
+     * @param email
+     *            An <code>EMail</code> address.
+     * @return An <code>OutgoingEMailInvitation</code>.
+     */
+    public OutgoingEMailInvitation readOutgoingEMailInvitation(final EMail email);
 }

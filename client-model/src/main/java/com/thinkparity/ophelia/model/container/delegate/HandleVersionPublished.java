@@ -86,6 +86,7 @@ public final class HandleVersionPublished extends ContainerDelegate {
                     version.getVersionId(), localUser(),
                     event.getPublishedOn());
         }
+        // update published to for the local user
         containerIO.updatePublishedTo(container.getId(), version.getVersionId(),
                 event.getPublishedOn(), localUserId(), receivedOn);
         // add the published by user to the local team

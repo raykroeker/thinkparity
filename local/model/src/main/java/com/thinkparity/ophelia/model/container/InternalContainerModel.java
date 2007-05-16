@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.container;
 import java.util.Calendar;
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
@@ -32,6 +33,14 @@ import com.thinkparity.ophelia.model.util.ProcessMonitor;
  */
 @ThinkParityTransaction(TransactionType.REQUIRED)
 public interface InternalContainerModel extends ContainerModel {
+
+    /**
+     * Delete the published to reference for the invitation.
+     * 
+     * @param publishedTo
+     *            A published to <code>EMail</code> e-mail address.
+     */
+    public void deletePublishedTo(final EMail publishedTo);
 
     /**
      * Determine whether or not a draft exists.

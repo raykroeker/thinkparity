@@ -19,6 +19,7 @@ import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -395,6 +396,19 @@ public final class BackupModelImpl extends Model<BackupListener> implements
         try {
             return readPublishedTo(uniqueId, versionId,
                     defaultReceiptComparator, filter); 
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#readPublishedToEMails(java.util.UUID, java.lang.Long)
+     *
+     */
+    public List<PublishedToEMail> readPublishedToEMails(UUID uniqueId, Long versionId) {
+        try {
+            return getSessionModel().readBackupPublishedToEMails(localUserId(),
+                        uniqueId, versionId);
         } catch (final Throwable t) {
             throw panic(t);
         }

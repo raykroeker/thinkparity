@@ -9,6 +9,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -168,6 +169,15 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         readDocumentVersions.setParameter("uniqueId", uniqueId);
         readDocumentVersions.setParameter("versionId", versionId);
         return execute(readDocumentVersions, Boolean.TRUE).readResultUserArtifactReceipts("publishedTo");
+    }
+
+    List<PublishedToEMail> readPublishedToEMails(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        final XMPPMethod readPublishedToEMails = xmppCore.createMethod("backup:readpublishedtoemails");
+        readPublishedToEMails.setParameter("userId", userId);
+        readPublishedToEMails.setParameter("uniqueId", uniqueId);
+        readPublishedToEMails.setParameter("versionId", versionId);
+        return execute(readPublishedToEMails, Boolean.TRUE).readResultPublishedToEMails("publishedTo");
     }
 
     List<JabberId> readTeamIds(final JabberId userId, final UUID uniqueId) {

@@ -183,6 +183,9 @@ public final class ContactModelImpl extends Model<ContactListener>
             final List<OutgoingEMailInvitation> outgoingEMailInvitations =
                 contactIO.readOutgoingEMailInvitations(contact.getEmails());
             for (final OutgoingEMailInvitation oei : outgoingEMailInvitations) {
+                // delete the published to reference
+                getContainerModel().deletePublishedTo(oei.getInvitationEMail());
+                // delete the invitation and e-mail
                 contactIO.deleteInvitation(oei);
                 indexModel.deleteOutgoingEMailInvitation(oei.getId());
             }
@@ -404,6 +407,8 @@ public final class ContactModelImpl extends Model<ContactListener>
             // delete outgoing e-mail invitation
             final OutgoingEMailInvitation outgoingEMailInvitation =
                 contactIO.readOutgoingEMailInvitation(invitationId);
+            // delete the published to reference
+            getContainerModel().deletePublishedTo(outgoingEMailInvitation.getInvitationEMail());
             contactIO.deleteInvitation(outgoingEMailInvitation);
 
             // delete index
@@ -598,6 +603,8 @@ public final class ContactModelImpl extends Model<ContactListener>
             // delete outgoing e-mail invitation
             final OutgoingEMailInvitation outgoingEMailInvitation =
                 contactIO.readOutgoingEMailInvitation(event.getInvitedAs());
+            // delete the published to reference
+            getContainerModel().deletePublishedTo(outgoingEMailInvitation.getInvitationEMail());
             contactIO.deleteInvitation(outgoingEMailInvitation);
 
             // delete index
@@ -724,6 +731,9 @@ public final class ContactModelImpl extends Model<ContactListener>
            final List<OutgoingEMailInvitation> outgoingEMailInvitations =
                contactIO.readOutgoingEMailInvitations(contact.getEmails());
            for (final OutgoingEMailInvitation oei : outgoingEMailInvitations) {
+               // delete the published to reference
+               getContainerModel().deletePublishedTo(oei.getInvitationEMail());
+               // delete invitation and e-mail
                contactIO.deleteInvitation(oei);
                indexModel.deleteOutgoingEMailInvitation(oei.getId());
            }
@@ -980,6 +990,18 @@ public final class ContactModelImpl extends Model<ContactListener>
     public List<IncomingUserInvitation> readIncomingUserInvitations() {
         try {
             return contactIO.readIncomingUserInvitations();
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#readOutgoingEMailInvitation(com.thinkparity.codebase.email.EMail)
+     *
+     */
+    public OutgoingEMailInvitation readOutgoingEMailInvitation(final EMail email) {
+        try {
+            return contactIO.readOutgoingEMailInvitation(email);
         } catch (final Throwable t) {
             throw panic(t);
         }

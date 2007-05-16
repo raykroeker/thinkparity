@@ -22,6 +22,7 @@ import com.thinkparity.codebase.log4j.Log4JContext;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
@@ -928,6 +929,15 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     public List<ArtifactReceipt> readBackupPublishedTo(
             final JabberId userId, final UUID uniqueId, final Long versionId) {
         return xmppBackup.readPublishedTo(userId, uniqueId, versionId);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readBackupPublishedToEMails(com.thinkparity.codebase.jabber.JabberId, java.util.UUID, java.lang.Long)
+     *
+     */
+    public List<PublishedToEMail> readBackupPublishedToEMails(
+            final JabberId userId, final UUID uniqueId, final Long versionId) {
+        return xmppBackup.readPublishedToEMails(userId, uniqueId, versionId);
     }
 
     /**

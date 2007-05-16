@@ -23,6 +23,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
@@ -531,6 +532,18 @@ public class ElementBuilder {
     }
 
     public static final Element addElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final PublishedToEMail value) {
+        if (null == value) {
+            return addNullElement(parent, name, PublishedToEMail.class);
+        } else {
+            final Element element = addElement(parent, name, value.getClass());
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
+            return element;
+        }
+    }
+
+    public static final Element addElement(final XStreamUtil xstreamUtil,
             final Element parent, final String name, final Release value) {
         if (null == value) {
             return addNullElement(parent, name, Release.class);
@@ -786,6 +799,20 @@ public class ElementBuilder {
         } else {
             final Element element = addElement(parent, name, List.class);
             for (final ProfileEMail value : values) {
+                addElement(xstreamUtil, element, XmlRpc.LIST_ITEM, value);
+            }
+            return element;
+        }
+    }
+
+    public static final Element addPublishedToEMailElements(
+            final XStreamUtil xstreamUtil, final Element parent,
+            final String name, final List<PublishedToEMail> values) {
+        if (values.size() < 1) {
+            return addNullElement(parent, name, List.class);
+        } else {
+            final Element element = addElement(parent, name, List.class);
+            for (final PublishedToEMail value : values) {
                 addElement(xstreamUtil, element, XmlRpc.LIST_ITEM, value);
             }
             return element;

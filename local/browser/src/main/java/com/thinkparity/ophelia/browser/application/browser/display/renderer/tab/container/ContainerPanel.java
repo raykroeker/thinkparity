@@ -1695,6 +1695,7 @@ public class ContainerPanel extends DefaultTabPanel {
                 add(new VersionDocumentCell(this, documentView.getVersion(),
                         documentView.getDelta()));
             }
+            add(new VersionUserCell(this, publishedBy, version.getCreatedOn()));
             for (final ArtifactReceipt artifactReceipt : publishedTo) {
                 add(new VersionUserCell(this, artifactReceipt));
             }
@@ -1787,6 +1788,28 @@ public class ContainerPanel extends DefaultTabPanel {
         /**
          * Create VersionUserCell.
          * 
+         * @param parent
+         *            The parent <code>WestCell</code>.
+         * @param publisher
+         *            The publisher <code>User</code>.
+         * @param publishedOn
+         *            The published on date <code>Calendar</code>.
+         */
+        private VersionUserCell(final WestCell parent,
+                final User publisher, final Calendar publishedOn) {
+            super(parent);
+            this.user = publisher;
+            setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
+            setText(publisher.getName());
+            setAdditionalText(localization.getString("UserPublished",
+                    new Object[] {formatFuzzy(publishedOn)}));
+        }
+
+        /**
+         * Create VersionUserCell.
+         * 
+         * @param parent
+         *            The parent <code>WestCell</code>.
          * @param receipt
          *            An <code>ArtifactReceipt</code>.
          */

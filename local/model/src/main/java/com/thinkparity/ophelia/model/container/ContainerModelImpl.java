@@ -540,7 +540,7 @@ public final class ContainerModelImpl extends
         try {
             final Container container = read(containerId);
             final List<ContainerVersion> versions = readVersions(containerId);
-            export(exportStream, container, versions);
+            export(exportStream, container, versions, Boolean.TRUE);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -563,7 +563,7 @@ public final class ContainerModelImpl extends
             final List<ContainerVersion> versions = new ArrayList<ContainerVersion>(1);
             final ContainerVersion version = readVersion(containerId, versionId);
             versions.add(version);
-            export(exportStream, container, versions);
+            export(exportStream, container, versions, Boolean.FALSE);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -2646,11 +2646,14 @@ public final class ContainerModelImpl extends
      *            A <code>Container</code>.
      * @param versions
      *            A <code>List&lt;ContainerVersion&gt;</code>.
+     * @param generatePDF
+     *            A <code>Boolean</code> indicating if a PDF should be generated.
      * @throws IOException
      * @throws TransformerException
      */
     private void export(final OutputStream exportStream,
-            final Container container, final List<ContainerVersion> versions)
+            final Container container, final List<ContainerVersion> versions,
+            final Boolean generatePDF)
             throws IOException, TransformerException {
         final ContainerNameGenerator nameGenerator = getNameGenerator();
         final FileSystem exportFileSystem = new FileSystem(
@@ -2706,20 +2709,22 @@ public final class ContainerModelImpl extends
                 }
             }
 
-            // copy resources into the export file system
-            final Map<String, File> resources = new HashMap<String, File>();
-            addExportResource(exportFileSystem, resources, "header-image",
-                    "images/PDFHeader.jpg");
-            addExportResource(exportFileSystem, resources, "footer-image",
-                    "images/PDFFooter.jpg");
+            if (generatePDF) {
+                // copy resources into the export file system
+                final Map<String, File> resources = new HashMap<String, File>();
+                addExportResource(exportFileSystem, resources, "header-image",
+                        "images/PDFHeader.jpg");
+                addExportResource(exportFileSystem, resources, "footer-image",
+                        "images/PDFFooter.jpg");
 
-            // generate a pdf
-            final PDFWriter pdfWriter = new PDFWriter(exportFileSystem);
-            pdfWriter.write(nameGenerator.pdfFileName(container), resources,
-                    container, readUser(container.getCreatedBy()),
-                    readLatestVersion(container.getId()), versions,
-                    versionsPublishedBy, documents, documentsSize, publishedTo,
-                    deltas, readTeam(container.getId()));
+                // generate a pdf
+                final PDFWriter pdfWriter = new PDFWriter(exportFileSystem);
+                pdfWriter.write(nameGenerator.pdfFileName(container), resources,
+                        container, readUser(container.getCreatedBy()),
+                        readLatestVersion(container.getId()), versions,
+                        versionsPublishedBy, documents, documentsSize, publishedTo,
+                        deltas, readTeam(container.getId()));
+            }
 
             // create an archive
             final File zipFile = new File(exportFileSystem.getRoot(), container.getName());

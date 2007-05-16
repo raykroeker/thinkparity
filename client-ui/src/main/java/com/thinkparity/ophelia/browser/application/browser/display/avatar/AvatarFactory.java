@@ -176,6 +176,7 @@ public final class AvatarFactory {
             break;
         case DIALOG_CONTAINER_UPDATE_NOTE:
             avatar = newAvatar(UpdateNoteAvatar.class);
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_CONTAINER_VERSION_COMMENT:
             avatar = newAvatar(ContainerVersionCommentAvatar.class);

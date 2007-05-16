@@ -19,6 +19,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.dial
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.ContainerVersionProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.PublishContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.RenameDocumentProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.UpdateNoteProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.UpdatePasswordProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.UpdateProfileProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.VerifyEMailProvider;
@@ -117,7 +118,10 @@ public class ProviderFactory {
             break; 
         case DIALOG_CONTAINER_RENAME_DOCUMENT:
             provider = new RenameDocumentProvider(profileModel, containerModel);
-            break;     
+            break;   
+        case DIALOG_CONTAINER_UPDATE_NOTE:
+            provider = new UpdateNoteProvider(profileModel, containerModel);
+            break;
         case DIALOG_CONTAINER_VERSION_COMMENT:
             provider = new ContainerVersionProvider(profileModel, containerModel, userModel);
             break;

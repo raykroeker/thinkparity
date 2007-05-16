@@ -17,6 +17,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.UpdateNoteProvider;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
@@ -49,7 +50,10 @@ public class UpdateNoteAvatar extends Avatar {
     }
 
     public void reload() {
-        // TODO
+        if (input != null) {
+            reloadNote();
+            noteJTextArea.setCaretPosition(0); //scroll to top
+        }
     }
 
     /**
@@ -149,6 +153,14 @@ public class UpdateNoteAvatar extends Avatar {
     private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
         disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
+
+    /**
+     * Reload the note.
+     */
+    private void reloadNote() {
+        final Long containerId = getInputContainerId();
+        noteJTextArea.setText(((UpdateNoteProvider) contentProvider).readComment(containerId));
+    }
 
     /**
      * Update the version note.

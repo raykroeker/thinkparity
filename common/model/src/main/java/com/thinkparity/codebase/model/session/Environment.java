@@ -39,12 +39,12 @@ public enum Environment {
     /** Production environment. */
     PRODUCTION("thinkparity.net", 5223, Boolean.TRUE, "thinkparity.net",
             "yvr.thinkparity.net", 20000, Boolean.TRUE,
-            "thinkparity.com", 80, Boolean.TRUE),
+            "thinkparity.com", 80, Boolean.FALSE),
 
     /** Testing environment. */
     TESTING("thinkparity.dyndns.org", 5225, Boolean.TRUE, "thinkparity.net",
             "thinkparity.dyndns.org", 20001, Boolean.TRUE,
-            "thinkparity.dyndns.org", 80, Boolean.TRUE),
+            "thinkparity.com", 80, Boolean.FALSE),
 
     /** A localhost testing environment. */
     TESTING_LOCALHOST("localhost", 5225, Boolean.TRUE, "thinkparity.net",

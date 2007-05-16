@@ -3,16 +3,10 @@
  */
 package com.thinkparity.ophelia.model.artifact;
 
-import java.text.MessageFormat;
-import java.util.Calendar;
 import java.util.List;
-
-import com.thinkparity.codebase.FuzzyDateFormat;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
-import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.user.User;
 
 /**
  * <b>Title:</b>thinkParity OpheliaModel Artifact Util<br>
@@ -26,9 +20,6 @@ public final class ArtifactUtil {
 
     /** An instance of <code>ArtifactUtil</code>. */
 	private static ArtifactUtil INSTANCE;
-
-    /** A <code>FuzzyDateFormat</code>. */
-    private final FuzzyDateFormat fuzzyDateFormat;
 
 	/**
      * Obtain an artifact util.
@@ -48,7 +39,6 @@ public final class ArtifactUtil {
 	 */
 	private ArtifactUtil() {
         super();
-        fuzzyDateFormat = new FuzzyDateFormat();
 	}
 
     /**
@@ -68,36 +58,6 @@ public final class ArtifactUtil {
     public <T extends Artifact, U extends ArtifactVersion> boolean contains(
             final List<T> list, final U element) {
         return -1 < indexOf(list, element);
-    }
-
-	/**
-     * Get the version name.
-     * 
-     * @param version
-     *            A <code>ContainerVersion</code>.
-     * @param publishedBy
-     *            A published by <code>User</code>.
-     * @return A version name <code>String</code>.
-     */
-    public String getVersionName(final ContainerVersion version,
-            final User publishedBy) {
-        if (version.isSetName()) {
-            return version.getName();
-        } else {
-            return MessageFormat.format("{0}, {1}", format(version
-                    .getUpdatedOn()), publishedBy.getName());
-        }
-    }
-
-    /**
-     * Format a calendar as a string.
-     * 
-     * @param calendar
-     *            A <code>Calendar</code>.
-     * @return A formatted <code>String</code>.
-     */
-    private String format(final Calendar calendar) {
-        return fuzzyDateFormat.format(calendar, "Long");
     }
 
     /**

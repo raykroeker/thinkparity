@@ -29,7 +29,6 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.artifact.ArtifactUtil;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 
 import com.thoughtworks.xstream.XStream;
@@ -426,7 +425,7 @@ final class PDFXMLWriter {
         final PDFXMLContainerVersion pdfXML = new PDFXMLContainerVersion();
         pdfXML.documents = createPDFXMLDocuments(version);
         pdfXML.documentSum = format(statistics.documentsPerVersion.get(version));
-        pdfXML.name = ArtifactUtil.getInstance().getVersionName(version, versionsPublishedBy.get(version));
+        pdfXML.name = getVersionName(version);
         pdfXML.note = version.getComment();
         pdfXML.publishedBy = versionsPublishedBy.get(version).getName();
         pdfXML.publishedOn = format(version.getUpdatedOn());
@@ -462,7 +461,7 @@ final class PDFXMLWriter {
     private PDFXMLContainerVersionSummary createPDFXMLVersionSummary(
             final ContainerVersion version, final Integer versionId) {
         final PDFXMLContainerVersionSummary pdfXML = new PDFXMLContainerVersionSummary();
-        pdfXML.name = ArtifactUtil.getInstance().getVersionName(version, versionsPublishedBy.get(version));
+        pdfXML.name = getVersionName(version);
         pdfXML.publishedBy = versionsPublishedBy.get(version).getName();
         pdfXML.publishedOn = format(version.getUpdatedOn());
         pdfXML.versionId = format(versionId);
@@ -543,6 +542,21 @@ final class PDFXMLWriter {
             }
         });
         return versions.get(0);
+    }
+
+    /**
+     * Get the version name.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @return A version name <code>String</code>.
+     */
+    private String getVersionName(final ContainerVersion version) {
+        if (version.isSetName()) {
+            return version.getName();
+        } else {
+            return MessageFormat.format("{0}", format(version.getUpdatedOn()));
+        }
     }
 
     /**

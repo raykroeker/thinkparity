@@ -106,7 +106,6 @@ public class ContainerPanel extends DefaultTabPanel {
     private final javax.swing.JLabel eastPreviousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JLabel expandIconJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel firstPublishedJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel lastPublishedJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel participantsJLabel = new javax.swing.JLabel();
@@ -880,7 +879,6 @@ public class ContainerPanel extends DefaultTabPanel {
         westFillerJLabel = new javax.swing.JLabel();
         final javax.swing.JPanel eastSummaryJPanel = new javax.swing.JPanel();
         final javax.swing.JPanel eastSummaryTitlesJPanel = new javax.swing.JPanel();
-        final javax.swing.JLabel firstPublishedTitleJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel lastPublishedTitleJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel participantsTitleJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel documentsTitleJLabel = new javax.swing.JLabel();
@@ -1048,26 +1046,15 @@ public class ContainerPanel extends DefaultTabPanel {
         eastSummaryTitlesJPanel.setLayout(new java.awt.GridBagLayout());
 
         eastSummaryTitlesJPanel.setOpaque(false);
-        firstPublishedTitleJLabel.setFont(Fonts.DialogFont);
-        firstPublishedTitleJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        firstPublishedTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.firstPublishedJLabel"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(43, 0, 0, 5);
-        eastSummaryTitlesJPanel.add(firstPublishedTitleJLabel, gridBagConstraints);
-
         lastPublishedTitleJLabel.setFont(Fonts.DialogFont);
         lastPublishedTitleJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         lastPublishedTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.lastPublishedJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(2, 0, 0, 5);
+        gridBagConstraints.insets = new java.awt.Insets(55, 0, 0, 5);
         eastSummaryTitlesJPanel.add(lastPublishedTitleJLabel, gridBagConstraints);
 
         participantsTitleJLabel.setFont(Fonts.DialogFont);
@@ -1075,7 +1062,7 @@ public class ContainerPanel extends DefaultTabPanel {
         participantsTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.participantsJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(2, 0, 0, 5);
@@ -1086,7 +1073,7 @@ public class ContainerPanel extends DefaultTabPanel {
         documentsTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.documentsJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(2, 0, 0, 5);
@@ -1097,7 +1084,7 @@ public class ContainerPanel extends DefaultTabPanel {
         versionsTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.versionsJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(2, 0, 0, 5);
@@ -1114,31 +1101,21 @@ public class ContainerPanel extends DefaultTabPanel {
         eastSummaryContentJPanel.setLayout(new java.awt.GridBagLayout());
 
         eastSummaryContentJPanel.setOpaque(false);
-        firstPublishedJLabel.setFont(Fonts.DialogFont);
-        firstPublishedJLabel.setText("!date!");
+        lastPublishedJLabel.setFont(Fonts.DialogFont);
+        lastPublishedJLabel.setText("!date!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(43, 5, 0, 0);
-        eastSummaryContentJPanel.add(firstPublishedJLabel, gridBagConstraints);
-
-        lastPublishedJLabel.setFont(Fonts.DialogFont);
-        lastPublishedJLabel.setText("!date!");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(55, 5, 0, 0);
         eastSummaryContentJPanel.add(lastPublishedJLabel, gridBagConstraints);
 
         participantsJLabel.setFont(Fonts.DialogFont);
         participantsJLabel.setText("!number!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
@@ -1148,7 +1125,7 @@ public class ContainerPanel extends DefaultTabPanel {
         documentsJLabel.setText("!number!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
@@ -1158,7 +1135,7 @@ public class ContainerPanel extends DefaultTabPanel {
         versionsJLabel.setText("!number!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
@@ -1389,11 +1366,9 @@ public class ContainerPanel extends DefaultTabPanel {
                 final List<TeamMember> team) {
             super(Boolean.TRUE);
             if (!isDistributed()) {
-                firstPublishedJLabel.setText(localization.getString("notApplicable"));
                 lastPublishedJLabel.setText(localization.getString("notApplicable"));
                 participantsJLabel.setText(localization.getString("notApplicable"));
             } else {
-                firstPublishedJLabel.setText(formatFuzzy(firstVersion.getCreatedOn()));
                 lastPublishedJLabel.setText(formatFuzzy(latestVersion.getCreatedOn()));
                 participantsJLabel.setText(MessageFormat.format("{0}", team.size()));
             }
@@ -1734,8 +1709,11 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public String getText() {
-            return localization.getString("Version",
-                    new Object[] {formatFuzzy(version.getCreatedOn()), publishedBy.getName()});
+            if (version.isSetName()) {
+                return version.getName();
+            } else {
+                return formatFuzzy(version.getCreatedOn());
+            }
         }
         @Override
         public void invokeAction() {

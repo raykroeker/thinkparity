@@ -171,5 +171,20 @@ public class PublishContainerProvider extends ContentProvider {
      */
     public List<TeamMember> readPublishToTeam(final Long containerId) {
         return containerModel.readPublishToTeam(containerId);
-    }    
+    }
+    
+    /**
+     * Read the version name.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return The version name <code>String</code>.
+     */
+    public String readVersionName(final Long containerId, final Long versionId) {
+        final ContainerVersion version = containerModel.readVersion(containerId,
+                versionId);
+        return version.getName();
+    }
 }

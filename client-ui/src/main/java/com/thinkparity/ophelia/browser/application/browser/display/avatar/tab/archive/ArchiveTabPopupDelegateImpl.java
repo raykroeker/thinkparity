@@ -213,12 +213,6 @@ final class ArchiveTabPopupDelegateImpl extends DefaultBrowserPopupDelegate
             addSeparator();
         }
 
-        // export version
-        final Data exportData = new Data(2);
-        exportData.set(com.thinkparity.ophelia.browser.platform.action.container.ExportVersion.DataKey.CONTAINER_ID, version.getArtifactId());
-        exportData.set(com.thinkparity.ophelia.browser.platform.action.container.ExportVersion.DataKey.VERSION_ID, version.getVersionId());
-        add(ActionId.CONTAINER_EXPORT_VERSION, exportData);
-
         // print
         final List<DocumentView> documentViewsNotDeleted = getDocumentViewsNotDeleted(documentViews);
         if (documentViewsNotDeleted.size() > 0) {

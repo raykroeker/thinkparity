@@ -327,7 +327,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         final boolean online = isOnline();
         boolean needSeparator = false;
 
-        // Forward
+        // publish version
         if (online) {
             final Data shareData = new Data(2);
             shareData.set(PublishVersion.DataKey.CONTAINER_ID, version.getArtifactId());
@@ -336,7 +336,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             needSeparator = true;
         }
 
-        // Show version note
+        // display version comment
         if (version.isSetComment()) {
             final Data commentData = new Data(2);
             commentData.set(DisplayVersionInfo.DataKey.CONTAINER_ID, version.getArtifactId());
@@ -351,13 +351,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             needSeparator = false;
         }
 
-        // Export
-        final Data exportData = new Data(2);
-        exportData.set(com.thinkparity.ophelia.browser.platform.action.container.ExportVersion.DataKey.CONTAINER_ID, version.getArtifactId());
-        exportData.set(com.thinkparity.ophelia.browser.platform.action.container.ExportVersion.DataKey.VERSION_ID, version.getVersionId());
-        add(ActionId.CONTAINER_EXPORT_VERSION, exportData);
-
-        // Print
+        // print
         final List<DocumentView> documentViewsNotDeleted = getDocumentViewsNotDeleted(documentViews);
         if (documentViewsNotDeleted.size() > 0) {
             final Data printData = new Data(2);

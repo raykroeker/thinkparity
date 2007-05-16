@@ -12,7 +12,7 @@
 
   ;Name and file
   Name "thinkParity Testing"
-  OutFile "InstallThinkParityTesting.exe"
+  OutFile "InstallThinkParity.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES\thinkParity Testing"

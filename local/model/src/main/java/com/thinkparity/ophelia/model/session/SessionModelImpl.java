@@ -668,12 +668,6 @@ public final class SessionModelImpl extends Model<SessionListener>
      */
     public void handleSessionTerminated() {
         try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                logger.logVariable("xmppSession.isOnline()", xmppSession.isOnline());
-                xmppSession.logout();
-                logger.logVariable("xmppSession.isOnline()", xmppSession.isOnline());
-            }
             // fire event
             notifySessionTerminated();
         } catch (final Throwable t) {

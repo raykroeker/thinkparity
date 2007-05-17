@@ -1483,7 +1483,12 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         logger.logVariable("listeners.size()", listeners.size());
         synchronized (listeners) {
             for (final SessionListener listener : listeners) {
-                notifier.notifyListener(listener);
+                try {
+                    notifier.notifyListener(listener);
+                } catch (final Throwable t) {
+                    logger.logError(t, "Event notification {0}:{1} failed.",
+                        notifier, listener);
+                }
             }
         }
     }

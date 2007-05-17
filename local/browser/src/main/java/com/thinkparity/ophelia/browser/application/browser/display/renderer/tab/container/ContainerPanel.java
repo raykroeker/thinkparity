@@ -246,6 +246,7 @@ public class ContainerPanel extends DefaultTabPanel {
     @Override
     public void expandIconMousePressed(final MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
+            selectPanel();
             tabDelegate.toggleExpansion(this);
         }
     }
@@ -691,10 +692,6 @@ public class ContainerPanel extends DefaultTabPanel {
      *            Whether or not to animate.
      */
     private void doExpand(final boolean animate) {
-        if (!expanded) {
-            westListModel.showFirstPage();
-            westListModel.setSelectedCell(westCells.get(0));
-        }
         if (isAncestorOf(expandedJPanel))
             remove(expandedJPanel);
         if (isAncestorOf(collapsedJPanel))

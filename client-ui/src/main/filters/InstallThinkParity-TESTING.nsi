@@ -72,8 +72,9 @@ Section "thinkParity Testing" SecParityBrowser
   ;Create shortcuts
   CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
   CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
-  CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\thinkParity.lnk" "$INSTDIR\thinkParity.exe"
-  CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall thinkParity.lnk" "$INSTDIR\Uninstall thinkParity.exe"
+  CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\thinkParity Testing.lnk" "$INSTDIR\thinkParity.exe"
+  CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall thinkParity Testing.lnk" "$INSTDIR\Uninstall thinkParity.exe"
+  CreateShortCut "$DESKTOP\thinkParity Testing.lnk" "$INSTDIR\thinkParity.exe"
 
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall thinkParity.exe"
@@ -101,8 +102,9 @@ Section "Uninstall"
   ; extract the location of the start menu
   !insertmacro MUI_STARTMENU_GETFOLDER Application $MUI_TEMP
 
-  Delete "$SMPROGRAMS\$MUI_TEMP\thinkParity.lnk"
-  Delete "$SMPROGRAMS\$MUI_TEMP\Uninstall thinkParity.lnk"
+  Delete "$SMPROGRAMS\$MUI_TEMP\thinkParity Testing.lnk"
+  Delete "$SMPROGRAMS\$MUI_TEMP\Uninstall thinkParity Testing.lnk"
+  Delete "$DESKTOP\thinkParity Testing.lnk"
 
   ; Delete empty start menu parent diretories
   StrCpy $MUI_TEMP "$SMPROGRAMS\$MUI_TEMP"

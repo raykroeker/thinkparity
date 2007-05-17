@@ -431,6 +431,24 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Synchronize a document for the case of added document.
+     * Performance is a concern so unnecessary steps are avoided.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param document
+     *            A <code>Document</code>.
+     * @param draft
+     *      A <code>ContainerDraft</code>.
+     */
+    void syncDocumentAdded(final Container container, final Document document,
+            final ContainerDraft draft) {
+        containerIdLookup.put(document.getId(), container.getId());
+        lookupContainerPanel(container.getId()).setPanelData(container, draft);
+        synchronize();
+    }
+
+    /**
      * Add an application listener. The session draft monitor is
      * stopped before the application ends.
      */

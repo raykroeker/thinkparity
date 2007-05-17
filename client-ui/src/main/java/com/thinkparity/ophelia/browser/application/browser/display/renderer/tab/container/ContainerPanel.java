@@ -1315,26 +1315,14 @@ public class ContainerPanel extends DefaultTabPanel {
     /** An east list cell. */
     private abstract class AbstractEastCell extends DefaultCell implements
             EastCell {
-        
-        /** A <code>WestCell</code> parent. */
-        private final WestCell parent;
-        
+
         /**
          * Create AbstractEastCell.
          *
          */
         private AbstractEastCell(final WestCell parent) {
             super();
-            this.parent = parent;
             setEnabled(isLatest());
-        }
-        
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
-         */
-        @Override
-        public void showPopup() {
-            parent.showPopup();
         }
     }
 
@@ -1800,6 +1788,20 @@ public class ContainerPanel extends DefaultTabPanel {
             super(parent);
             setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
             setText(publishedTo.getEMail().toString());
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#isActionAvailable()
+         */
+        @Override
+        public Boolean isActionAvailable() {
+            return Boolean.FALSE;
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#isPopupAvailable()
+         */
+        @Override
+        public Boolean isPopupAvailable() {
+            return Boolean.FALSE;
         }
     }
 

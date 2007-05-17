@@ -149,6 +149,7 @@
         </Property>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="((AbstractDocument) versionNameJTextField.getDocument()).setDocumentFilter(new JTextAreaLengthFilter(containerConstraints.getVersionName()));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>

@@ -13,6 +13,7 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.text.AbstractDocument;
 
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
@@ -21,9 +22,11 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.text.JTextAreaLengthFilter;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.container.ContainerConstraints;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
@@ -49,6 +52,9 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  */
 public final class PublishContainerAvatar extends Avatar implements
         PublishContainerSwingDisplay {
+
+    /** An instance of <code>ContainerConstraints</code>. */
+    private final ContainerConstraints containerConstraints;
 
     /** An instance of <code>UserUtils</code>. */
     private static final UserUtils USER_UTIL;
@@ -78,6 +84,7 @@ public final class PublishContainerAvatar extends Avatar implements
      */
     public PublishContainerAvatar() {
         super("PublishContainerAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
+        this.containerConstraints = ContainerConstraints.getInstance();
         this.namesListModel = new PublishContainerAvatarUserListModel();
         initComponents();
         addValidationListener(emailsJTextArea);
@@ -381,6 +388,7 @@ public final class PublishContainerAvatar extends Avatar implements
         versionNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.VersionName"));
 
         versionNameJTextField.setFont(Fonts.DialogTextEntryFont);
+        ((AbstractDocument) versionNameJTextField.getDocument()).setDocumentFilter(new JTextAreaLengthFilter(containerConstraints.getVersionName()));
 
         buttonBarJPanel.setOpaque(false);
         fillerJLabel.setFont(Fonts.DialogFont);

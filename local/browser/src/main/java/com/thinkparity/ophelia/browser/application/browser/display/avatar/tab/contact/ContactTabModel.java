@@ -825,8 +825,8 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         panel.setActionDelegate(actionDelegate);
         panel.setPanelData(profile, readEmails(), locale, availableLocales);
         panel.setPopupDelegate(popupDelegate);
-        panel.setExpanded(isExpanded(panel));
         panel.setTabDelegate(this);
+        panel.setExpanded(isExpanded(panel));
         return panel;
     }
 

@@ -116,7 +116,6 @@ Local Configuration:            ${localconfig}
     <property name="target.analyze-report.dir" value="${basedir}/target/analyze-report"/>   
     <property name="target.package.dir" value="${target.dir}/package"/>
     <property name="target.classes.dir" value="${target.dir}/classes"/>
-    <property name="target.include.dir" value="${target.dir}/include"/>
     <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
     <property name="target.native.dir" value="${target.dir}/i686/${thinkparity.os-platform}"/>
     <property name="target.test-javadoc.dir" value="${target.dir}/test-docs/api"/>
@@ -319,7 +318,6 @@ Examples:
     <target name="init">
         <mkdir dir="${target.analyze-report.dir}"/>
         <mkdir dir="${target.classes.dir}"/>
-        <mkdir dir="${target.include.dir}"/>
         <mkdir dir="${target.javadoc.dir}"/>
         <mkdir dir="${target.package.dir}"/>
         <mkdir dir="${target.test-javadoc.dir}"/>

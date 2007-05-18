@@ -14,7 +14,6 @@ import com.thinkparity.codebase.model.util.http.LinkFactory;
 
 import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
-import com.thinkparity.ophelia.model.events.MigratorEvent;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -438,16 +437,6 @@ public final class SystemApplication extends AbstractApplication {
                 }
             });
         }
-    }
-
-    /**
-     * Fire a product release installed event.
-     * 
-     * @param e
-     *            A <code>MigratorEvent</code>.
-     */
-    void fireProductReleaseInstalled(final MigratorEvent e) {
-        getPlatform().restart();
     }
 
     /**

@@ -22,9 +22,6 @@ class EventDispatcher {
     /** A thinkParity document listener. */
 	private DocumentListener documentListener;
 
-	/** An instance of <code>MigratorListener</code>. */
-    private MigratorListener migratorListener;
-
     /** A thinkParity session listener. */
     private SessionListener sessionListener;
 
@@ -76,9 +73,6 @@ class EventDispatcher {
 		documentListener = createDocumentListener();
 		systemApplication.getDocumentModel().addListener(documentListener);
 
-        migratorListener = createMigratorListener();
-        systemApplication.getMigratorModel().addListener(migratorListener);
-
         sessionListener = createSessionListener();
         systemApplication.getSessionModel().addListener(sessionListener);
 	}
@@ -124,22 +118,6 @@ class EventDispatcher {
 	private DocumentListener createDocumentListener() {
 		return new DocumentAdapter() {};
 	}
-
-    /**
-     * Create the system application migrator listener. The only events that are
-     * interesting for the user are when a release has been installed. The
-     * system application will restart the platform when this event is fired.
-     * 
-     * @return A <code>MigratorListener</code>.
-     */
-    private MigratorListener createMigratorListener() {
-        return new MigratorAdapter() {
-            @Override
-            public void productReleaseInstalled(final MigratorEvent e) {
-                systemApplication.fireProductReleaseInstalled(e);
-            }
-        };
-    }
 
     /**
      * Create a session listener.

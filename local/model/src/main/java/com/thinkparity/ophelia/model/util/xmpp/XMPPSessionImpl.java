@@ -91,7 +91,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
     private static final ProcessMonitor EVENT_QUEUE_MONITOR;
 
     /** An apache logger wrapper. */
-	private static final Log4JWrapper logger = new Log4JWrapper();
+	private static final Log4JWrapper logger;
 
     static {
         EVENT_QUEUE_MONITOR = new ProcessAdapter() {
@@ -108,6 +108,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         };
         // TIMEOUT - XMPPSessionImpl#<cinit> - -1
         SmackConfiguration.setKeepAliveInterval(-1);
+        logger = new Log4JWrapper(XMPPSessionImpl.class);
         logger.logInfo("Smack v{0}", SmackConfiguration.getVersion());
         // register a custom packet creator for remote events.
         ProviderManager.addIQProvider("query",
@@ -311,6 +312,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * 
      */
     public void clearListeners() {
+        logger.logApiId();
         // clear remote queue listener
         if (null != queueListener)
             xmppConnection.removePacketListener(queueListener.listener);
@@ -648,6 +650,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      *
      */
     public void handleError(final Throwable t) {
+        logger.logApiId();
         notifyListeners(new EventNotifier<SessionListener>() {
             public void notifyListener(final SessionListener listener) {
                 listener.sessionError(t);
@@ -1282,6 +1285,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      *
      */
     private void disconnect() {
+        logger.logApiId();
         clearListeners();
         credentials = null;
 
@@ -1323,6 +1327,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * xmppSessionListeners list and fire the sessionTerminated event.
 	 */
 	private void handleConnectionClosed() {
+        logger.logApiId();
 	    notifyListeners(new EventNotifier<SessionListener>() {
             public void notifyListener(final SessionListener listener) {
                 listener.sessionTerminated();
@@ -1342,6 +1347,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      *            An <code>Exception</code>
      */
 	private void handleConnectionClosed(final Exception x) {
+        logger.logApiId();
 	    logger.logError(x, "A connection error has occured.");
 	    notifyListeners(new EventNotifier<SessionListener>() {
             public void notifyListener(final SessionListener listener) {
@@ -1360,6 +1366,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 *            <code>org.jivesoftware.smack.XMPPConnection</code>
 	 */
 	private void handleConnectionEstablished() {
+        logger.logApiId();
         notifyListeners(new EventNotifier<SessionListener>() {
             public void notifyListener(final SessionListener listener) {
                 listener.sessionEstablished();
@@ -1480,6 +1487,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      *            A session listener notifier.
      */
     private void notifyListeners(final EventNotifier<SessionListener> notifier) {
+        logger.logApiId();
         logger.logVariable("listeners.size()", listeners.size());
         synchronized (listeners) {
             for (final SessionListener listener : listeners) {

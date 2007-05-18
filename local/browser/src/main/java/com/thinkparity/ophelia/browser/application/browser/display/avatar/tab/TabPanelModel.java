@@ -199,7 +199,11 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     public void selectPanel(final T panelId) {
         checkThread();
         final TabPanel panel = lookupPanel(panelId);
-        selectPanel(panel);
+        // Panel can be null in some cases, for example if a notification refers
+        // to an invitation which has already been accepted.
+        if (null != panel) {
+            selectPanel(panel);
+        }
     }
 
     /**

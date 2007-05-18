@@ -211,7 +211,6 @@ public final class TabRenderer {
             final int height, final Boolean selected) {
         final Graphics2D g2 = (Graphics2D)g.create();
         try {
-            // Paint the background for a collapsed panel.
             if (selected) {
                 g2.setColor(Colors.Browser.Panel.PANEL_COLLAPSED_SELECTED_BORDER);
                 g2.drawLine(0, 0, width-1, 0);
@@ -272,6 +271,9 @@ public final class TabRenderer {
     /**
      * Paint the eastern background.
      * 
+     * Paint a solid gradient image on the eastern side of the version panel.
+     * If row 0 is selected then a centred logo is also displayed.
+     * 
      * @param g
      *            The <code>Graphics</code>.
      * @param x
@@ -280,17 +282,15 @@ public final class TabRenderer {
      *            A width <code>int</code>.
      * @param finalHeight
      *            A final height <code>int</code> (height when animation is complete).
-     * @param selectionIndex
-     *            The <code>int</code> selection index.
+     * @param westSelectionIndex
+     *            The <code>int</code> west selection index.
      * @param observer
      *            An <code>ImageObserver</code>.    
      */
     public void paintExpandedBackgroundEast(final Graphics g, final int x,
             final int width, final int finalHeight,
-            final int selectionIndex, final ImageObserver observer) {
-        // paint a solid gradient image on the eastern side of the version panel.
-        // If row 0 is selected then a centred logo is also displayed.
-        if (selectionIndex==0) {
+            final int westSelectionIndex, final ImageObserver observer) {
+        if (westSelectionIndex==0) {
             g.drawImage(BACKGROUND_EAST_ROW0_SELECTED, x, 0, observer);
             g.drawImage(BACKGROUND_LOGO,
                     x + (width - backgroundLogoDimension.width) / 2,
@@ -298,6 +298,39 @@ public final class TabRenderer {
         } else {
             g.drawImage(BACKGROUND_EAST, x, 0, observer);
         }
+    }
+
+    /**
+     * Paint the eastern background selection.
+     * 
+     * East selection is painted here (rather than in the EastCellRenderer) because
+     * the selection color extends past the end of the cell.
+     * 
+     * @param g
+     *            The <code>Graphics</code>.
+     * @param x
+     *            The <code>int</code> x coordinate.
+     * @param width
+     *            A width <code>int</code>.
+     * @param eastSelectionIndex
+     *            The <code>int</code> east selection index.
+     * @param observer
+     *            An <code>ImageObserver</code>.    
+     */
+    public void paintExpandedBackgroundEastSelection(final Graphics g, final int x,
+            final int width, final int eastSelectionIndex, final ImageObserver observer) {
+        final Graphics2D g2 = (Graphics2D)g.create();
+        try {
+            if (eastSelectionIndex > 0) {
+                final int rowHeight;
+                final int rowOffset;
+                rowHeight = 22;
+                rowOffset = eastSelectionIndex * 24 + 1;
+                g2.setColor(Colors.Browser.Panel.PANEL_EAST_SELECTION_BACKGROUND[eastSelectionIndex-1]);
+                g2.fillRect(x, rowOffset, width, rowHeight);
+            }
+        }
+        finally { g2.dispose(); }
     }
 
     /**

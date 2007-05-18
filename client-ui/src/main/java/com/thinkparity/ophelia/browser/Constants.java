@@ -74,13 +74,12 @@ public final class Constants {
                 public static final Color PANEL_COLLAPSED_SELECTED_BACKGROUND = new Color(196, 198, 208, 255);
                 public static final Color PANEL_COLLAPSED_SELECTED_BORDER = Color.WHITE;
                 public static final Color PANEL_EXPANDED_BORDER = new Color(157, 143, 130, 255);
-                public static final Color PANEL_LIST_SELECTION_LINE[] = new Color[] {
-                    new Color(215, 201, 185, 255),
-                    new Color(211, 197, 182, 255),
-                    new Color(206, 192, 178, 255),
-                    new Color(201, 187, 174, 255),
-                    new Color(196, 182, 170, 255),
-                    new Color(191, 177, 166, 255)
+                public static final Color PANEL_EAST_SELECTION_BACKGROUND[] = new Color[] {
+                    new Color(252, 239, 222, 255),
+                    new Color(252, 233, 210, 255),
+                    new Color(251, 227, 199, 255),
+                    new Color(250, 222, 188, 255),
+                    new Color(250, 218, 180, 255)
                 };
                 public static final Color PANEL_CONTAINER_TEXT_FG = Color.BLACK;
                 public static final Color PANEL_DISABLED_TEXT_FG = new Color(100, 100, 100, 255);

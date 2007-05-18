@@ -202,7 +202,7 @@ public class ContainerPanel extends DefaultTabPanel {
         this.westCells = new ArrayList<Cell>();
         this.westCellPanels = new ArrayList<PanelCellRenderer>();
         for (int index = 0; index < NUMBER_VISIBLE_ROWS; index++) {
-            eastCellPanels.add(new EastCellRenderer(this, index));
+            eastCellPanels.add(new EastCellRenderer(this));
             if (0 == index) {
                 westCellPanels.add(new TopWestCellRenderer(this));
             } else {
@@ -565,13 +565,18 @@ public class ContainerPanel extends DefaultTabPanel {
         if (expanded || animating) {
             renderer.paintExpandedBackground(g, this);
             if (!westListModel.isSelectionEmpty()) {
-                final int selectionIndex = westListModel.getSelectedIndex();
+                final int westSelectionIndex = westListModel.getSelectedIndex();
+                final int eastSelectionIndex = eastListModel.getSelectedIndex();
                 final int westWidth = westJPanel.getWidth()
                         + SwingUtilities.convertPoint(westJPanel, new Point(0, 0), this).x;
-                renderer.paintExpandedBackgroundWest(g, westWidth, height, selectionIndex, this);
-                renderer.paintExpandedBackgroundCenter(g, westWidth, height, selectionIndex, this);
+                renderer.paintExpandedBackgroundWest(g, westWidth, height, westSelectionIndex, this);
+                renderer.paintExpandedBackgroundCenter(g, westWidth, height, westSelectionIndex, this);
                 renderer.paintExpandedBackgroundEast(g, westWidth, getWidth()
-                        - westWidth, finalHeight, selectionIndex, this);
+                        - westWidth, finalHeight, westSelectionIndex, this);
+                if (westSelectionIndex>0 && eastSelectionIndex>0 && PanelFocusHelper.Focus.EAST == PanelFocusHelper.getFocus()) {
+                    renderer.paintExpandedBackgroundEastSelection(g, westWidth,
+                            getWidth() - westWidth, eastSelectionIndex, this);
+                }
             }
         } else {
             renderer.paintBackground(g, getWidth(), height, selected);

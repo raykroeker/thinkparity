@@ -62,8 +62,7 @@ public final class HandlePublishedNotification extends
         }
         // if a draft exists locally delete it
         if (doesExistDraft()) {
-            Assert.assertNotTrue(doesExistLocalDraft(),
-                    "Invalid state.  Local draft for event {0} should not exist.",
+            logger.logWarning("Invalid state.  Local draft for event {0} should not exist.",
                     event);
             deleteDraft();
         }

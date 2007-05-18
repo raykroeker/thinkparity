@@ -165,7 +165,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         ((Data) input).set(SignupData.DataKey.FEATURE_SET, extractFeatureSet());
         ((Data) input).set(SignupData.DataKey.EMAIL, extractEMail());
         ((Data) input).set(SignupData.DataKey.CREDENTIALS, extractCredentials());
-        ((Data) input).set(SignupData.DataKey.USERNAME_RESERVATION, usernameReservations.get(extractUsername()));
+        ((Data) input).set(SignupData.DataKey.USERNAME_RESERVATION, usernameReservations.get(extractUsername().toLowerCase()));
         ((Data) input).set(SignupData.DataKey.EMAIL_RESERVATION, emailReservations.get(extractEMail()));
         ((Data) input).set(SignupData.DataKey.SECURITY_QUESTION, extractSecurityQuestion());
         ((Data) input).set(SignupData.DataKey.SECURITY_ANSWER, extractSecurityAnswer());
@@ -201,7 +201,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
             addInputError(getString("ErrorUsernameTooShort", new Object[] {MINIMUM_USERNAME_LENGTH}));
         }
         if (null != username && null != unacceptableUsername
-                && username.equals(unacceptableUsername)) {
+                && username.equalsIgnoreCase(unacceptableUsername)) {
             addInputError(getString("ErrorUsernameTaken", new Object[] {username}));
         }
 
@@ -289,7 +289,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
             if (null == usernameReservation) {
                 unacceptableUsername = username;
             } else {
-                usernameReservations.put(username, usernameReservation);
+                usernameReservations.put(username.toLowerCase(), usernameReservation);
             }
             if (null == emailReservation) {
                 unacceptableEMail = email;
@@ -308,11 +308,12 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      * @return A <code>UsernameReservation</code>.
      */
     private UsernameReservation createUsernameReservation(final String username) {
-        if (usernameReservations.containsKey(username)) {
-            return usernameReservations.get(username);
+        final String lowerCaseUsername = username.toLowerCase();
+        if (usernameReservations.containsKey(lowerCaseUsername)) {
+            return usernameReservations.get(lowerCaseUsername);
         } else {
             return ((SignupProvider) contentProvider)
-                    .createUsernameReservation(username);
+                    .createUsernameReservation(lowerCaseUsername);
         }
     }
 
@@ -333,7 +334,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
     private Credentials extractCredentials() {
         final Credentials credentials = new Credentials();
         credentials.setPassword(extractPassword());
-        credentials.setUsername(extractUsername());
+        credentials.setUsername(extractUsername().toLowerCase());
         return credentials;
     }
 
@@ -477,11 +478,6 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         usernameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.UsernameLabel"));
 
         usernameJTextField.setFont(Fonts.DialogTextEntryFont);
-        usernameJTextField.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                usernameJTextFieldFocusLost(evt);
-            }
-        });
 
         passwordJLabel.setFont(Fonts.DialogFont);
         passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.PasswordLabel"));
@@ -694,7 +690,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      * @return True if the username has been reserved, false otherwise.
      */
     private Boolean isReserved(final String username) {
-        return usernameReservations.containsKey(username);
+        return usernameReservations.containsKey(username.toLowerCase());
     }
 
     private void learnMoreJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_learnMoreJLabelMousePressed
@@ -726,15 +722,6 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
     }
     */
-
-    private void usernameJTextFieldFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_usernameJTextFieldFocusLost
-        final String username = SwingUtil.extract(usernameJTextField, Boolean.TRUE);
-        if (null != username) {
-            // TODO - SignupAccountInfoAvatar#usernameJTextFieldFocusLost - Add SwingUtil.insert().
-            // HACK - SignupAccountInfoAvatar#usernameJTextFieldFocusLost - Username should not be case sensitive.
-            usernameJTextField.setText(username.toLowerCase());
-        }
-    }//GEN-LAST:event_usernameJTextFieldFocusLost
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JRadioButton accountTypeGuestJRadioButton = new javax.swing.JRadioButton();

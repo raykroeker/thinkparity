@@ -196,7 +196,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
     private Credentials extractCredentials() {
         final Credentials credentials = new Credentials();
         credentials.setPassword(extractPassword());
-        credentials.setUsername(extractUsername());
+        credentials.setUsername(extractUsername().toLowerCase());
         return credentials;
     }
 

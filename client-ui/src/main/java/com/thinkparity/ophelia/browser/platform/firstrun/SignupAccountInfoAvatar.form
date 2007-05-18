@@ -273,9 +273,6 @@
           <Connection code="Fonts.DialogTextEntryFont" type="code"/>
         </Property>
       </Properties>
-      <Events>
-        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="usernameJTextFieldFocusLost"/>
-      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>

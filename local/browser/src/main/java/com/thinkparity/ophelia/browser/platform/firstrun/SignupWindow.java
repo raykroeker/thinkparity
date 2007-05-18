@@ -4,8 +4,6 @@
  */
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
-import com.thinkparity.codebase.model.session.Credentials;
-
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -45,30 +43,12 @@ public final class SignupWindow extends OpheliaJFrame {
     }
 
     /**
-     * Get the credentials.
-     * 
-     * @return The <code>Credentials</code>.
-     */
-    public Credentials getCredentials() {
-        return (Credentials)signupData.get(SignupData.DataKey.CREDENTIALS);
-    }
-
-    /**
      * Determine if signup has been cancelled.
      * 
      * @return true if the signup has been cancelled.
      */
     public Boolean isCancelled() {
         return signupAvatar.isCancelled();
-    }
-
-    /**
-     * Determine if the credentials are set.
-     * 
-     * @return true if the credentials are set, false otherwise.
-     */
-    public Boolean isSetCredentials() {
-        return (null != getCredentials());
     }
 
     /**

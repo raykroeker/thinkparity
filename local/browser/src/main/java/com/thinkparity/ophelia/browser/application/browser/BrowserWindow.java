@@ -1,8 +1,9 @@
- /*
+/*
  * Dec 30, 2005
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Point;
@@ -17,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.SwingUtilities;
 
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.SwingUtil;
 
@@ -30,8 +32,6 @@ import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.util.window.WindowUtil;
 import com.thinkparity.ophelia.browser.util.window.WindowUtilProvider;
-
-import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -55,12 +55,9 @@ public class BrowserWindow extends AbstractJFrame {
 	 */
 	private static Dimension mainWindowSize;
 
-	/** @see java.io.Serializable */
-	private static final long serialVersionUID = 1;
-
-	/** An instance of <code>WindowUtil</code>. */
+    /** An instance of <code>WindowUtil</code>. */
     private static final WindowUtil WINDOW_UTIL;
-
+    
     static {
         WINDOW_UTIL = WindowUtilProvider.getInstance().getWindowUtil();
     }
@@ -94,16 +91,19 @@ public class BrowserWindow extends AbstractJFrame {
 	/** The main panel. */
 	public MainPanel mainPanel;
 
-    /** An apache logger. */
-	protected final Logger logger;
- 
+    /** A <code>Log4JWrapper</code>. */
+	protected final Log4JWrapper logger;
+
     /** A parity persistence. */
     protected final Persistence persistence;
 
-	/** The browser application. */
+    /** The browser application. */
 	private final Browser browser;
 
-	/**
+    /** An boolean indicating whether the "busy" indicator is applied. */
+    private boolean busyIndicator;
+ 
+    /**
 	 * Create BrowserWindow.
 	 * 
 	 * @throws HeadlessException
@@ -111,8 +111,9 @@ public class BrowserWindow extends AbstractJFrame {
 	BrowserWindow(final Browser browser) throws HeadlessException {
 		super("BrowserWindow");
 		this.browser = browser;
-		this.logger = Logger.getLogger(getClass());
+		this.logger = new Log4JWrapper(getClass());
         this.persistence = PersistenceFactory.getPersistence(getClass());
+        this.busyIndicator = false;
         final Boolean maximized = persistence.get("maximized", Boolean.FALSE);
 		getRootPane().setBorder(new WindowBorder2());
         addWindowListener(new WindowAdapter() {
@@ -146,7 +147,7 @@ public class BrowserWindow extends AbstractJFrame {
         new Resizer(browser, this, Boolean.FALSE, Resizer.ResizeEdges.ALL_EDGES);
 	}
 
-    /**
+	/**
 	 * Obtain a display.
 	 * 
 	 * @param displayId
@@ -157,12 +158,25 @@ public class BrowserWindow extends AbstractJFrame {
 		return mainPanel.getDisplay(displayId);
 	}
 
-    /**
+	/**
 	 * Obtain the displays in the main window.
 	 * 
 	 * @return The displays in the main window.
 	 */
 	public Display[] getDisplays() { return mainPanel.getDisplays(); }
+
+    /**
+     * @see java.awt.Window#setCursor(java.awt.Cursor)
+     *
+     */
+    @Override
+    public void setCursor(final Cursor cursor) {
+        if (busyIndicator) {
+            logger.logInfo("Cursor has been disabled.");
+        } else {
+            super.setCursor(cursor);
+        }
+    }
 
     /**
      * Set the window size.
@@ -247,7 +261,30 @@ public class BrowserWindow extends AbstractJFrame {
         }
     }
 
-	/**
+    /**
+     * Apply a busy indicator for the browser window.
+     *
+     */
+    void applyBusyIndicator() {
+        // set the window cursor to "wait"
+        SwingUtil.setCursor(this, Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        // the the busy flag
+        busyIndicator = true;
+        // apply an intercept pane
+        applyInterceptPane();
+    }
+
+    /**
+     * Determine if the application is "busy". This will check the session for a
+     * set cursor and if it is set (by applyBusyIndicator) it will return true.
+     * 
+     * @return True if the application is "busy".
+     */
+    Boolean isBusyIndicatorApplied() {
+        return busyIndicator;
+    }
+
+    /**
      * Open the main window.
      * 
      * @return The main window.
@@ -262,6 +299,19 @@ public class BrowserWindow extends AbstractJFrame {
         } catch (final InvocationTargetException itx) {
             throw new RuntimeException(itx);
         }
+    }
+
+	/**
+     * Remove the busy indicator for the browser window.
+     *
+     */
+    void removeBusyIndicator() {
+        // reset the "busy" indicator
+        busyIndicator = false;
+        // set the "default" cursor
+        SwingUtil.setCursor(this, Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        // remove the intercept pane
+        removeInterceptPane();
     }
 
     /**
@@ -281,6 +331,7 @@ public class BrowserWindow extends AbstractJFrame {
 
     /**
      * Bind the F1 key to the appropriate action.
+     * 
      */
     private void bindF1Key() {
         mainPanel.bindF1Key(new AbstractAction() {

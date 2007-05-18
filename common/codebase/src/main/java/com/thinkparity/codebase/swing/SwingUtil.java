@@ -208,7 +208,7 @@ public class SwingUtil {
 		return SINGLETON.doesRegionContain(region, point);
 	}
 
-    public static void setCursor(final java.awt.Component component, final int cursor) {
+    public static void setCursor(final java.awt.Component component, final Cursor cursor) {
         SINGLETON.doSetCursor(component, cursor);
     }
 
@@ -216,8 +216,8 @@ public class SwingUtil {
         SINGLETON.doSetCursor(window, cursor);
     }
 
-    public static void setCursor(final javax.swing.JComponent jComponent, final int cursor) {
-        SINGLETON.doSetCursor(jComponent, cursor);
+    public static void setCursor(final java.awt.Component component, final int cursor) {
+        SINGLETON.doSetCursor(component, cursor);
     }
 
     /**

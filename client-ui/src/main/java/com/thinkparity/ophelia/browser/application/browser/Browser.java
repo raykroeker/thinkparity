@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowEvent;
@@ -22,7 +21,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.swing.AbstractJFrame;
-import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
 
 import com.thinkparity.codebase.model.contact.Contact;
@@ -94,13 +92,6 @@ import org.apache.log4j.Logger;
  */
 public class Browser extends AbstractApplication {
 
-    /** A session attribute key <code>String</code> for the main window cursor. */
-    private static final String SAK_MAIN_WINDOW_CURSOR;
-
-    static {
-        SAK_MAIN_WINDOW_CURSOR = "SAK_MAIN_WINDOW_CURSOR";
-    }
-
     /** Action registry. */
 	private final ActionRegistry actionRegistry;
 
@@ -143,11 +134,7 @@ public class Browser extends AbstractApplication {
      *
      */
     public void applyBusyIndicator() {
-        // set the window cursor to "wait"
-        getSession().setAttribute(SAK_MAIN_WINDOW_CURSOR, mainWindow.getCursor());
-        SwingUtil.setCursor(mainWindow, Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        // apply an intercept pane
-        mainWindow.applyInterceptPane();
+        mainWindow.applyBusyIndicator();
     }
 
 	/**
@@ -752,7 +739,7 @@ public class Browser extends AbstractApplication {
      * @return A <code>BrowserSession</code>.
      */
     public BrowserSession getSession(final AvatarId avatarId) {
-        return sessionImpl.getSession(new BrowserContext(avatarId), Boolean.TRUE);
+        return getSession(new BrowserContext(avatarId), Boolean.TRUE);
     }
 
     /**
@@ -766,7 +753,7 @@ public class Browser extends AbstractApplication {
      * @return A <code>BrowserSession</code>.
      */
     public BrowserSession getSession(final AvatarId avatarId, final Boolean create) {
-        return sessionImpl.getSession(new BrowserContext(avatarId), create);
+        return getSession(new BrowserContext(avatarId), create);
     }
 
     /**
@@ -829,7 +816,7 @@ public class Browser extends AbstractApplication {
         return getPlatform().isDevelopmentMode();
     }
 
-	/**
+    /**
      * Determine whether or not the platform is online.
      * 
      * @return True if the platform is online.
@@ -889,7 +876,7 @@ public class Browser extends AbstractApplication {
 		mainWindow.setLocation(newL);
 	}
 
-    /**
+	/**
      * Call <code>toFront()</code> on the browser's main window.
      *
      */
@@ -908,13 +895,7 @@ public class Browser extends AbstractApplication {
      *
      */
     public void removeBusyIndicator() {
-        final BrowserSession session = getSession();
-        // set the "default" cursor
-        SwingUtil.setCursor(mainWindow,
-                (Cursor) session.getAttribute(SAK_MAIN_WINDOW_CURSOR));
-        session.removeAttribute(SAK_MAIN_WINDOW_CURSOR);
-        // remove the intercept pane
-        mainWindow.removeInterceptPane();
+        mainWindow.removeBusyIndicator();
     }
 
     /**
@@ -986,7 +967,7 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.CONTACT_ACCEPT_INCOMING_USER_INVITATION, data);
     }
 
-	/**
+    /**
      * Run the add bookmark action.
      * 
      * @param containerId
@@ -997,8 +978,8 @@ public class Browser extends AbstractApplication {
         data.set(AddBookmark.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_ADD_BOOKMARK, data);
     }
-    
-    /**
+
+	/**
      * Run the create document action, browse to select the document.
      * 
      * @param containerId
@@ -1041,8 +1022,8 @@ public class Browser extends AbstractApplication {
         data.set(AddEmail.DataKey.EMAIL, email);
         invoke(ActionId.PROFILE_ADD_EMAIL, data);
     }
-
-	/**
+    
+    /**
      * Run the apply flag seen action.
      * 
      * @param documentId
@@ -1054,7 +1035,7 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
     }
 
-    /**
+	/**
      * Run the apply flag seen action.
      * 
      * @param documentId
@@ -1082,7 +1063,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer() {
         runCreateContainer(null, null);
     }
-    
+
     /**
      * Create a container (package) with one or more new documents.
      * The user will determine the container name.
@@ -1103,7 +1084,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer(final String name) {
         runCreateContainer(name, null);
     }
-  
+    
     /**
      * Run the create container action. If name and files are both not set; a
      * dialog will be used to prompt the user.
@@ -1121,7 +1102,7 @@ public class Browser extends AbstractApplication {
             data.set(Create.DataKey.FILES, files);
         invoke(ActionId.CONTAINER_CREATE, data);
     }
-
+  
     /**
      * Create a draft for the container.
      * 
@@ -1245,7 +1226,7 @@ public class Browser extends AbstractApplication {
      */
     public void runProfileSignUp() {
         invoke(ActionId.PROFILE_SIGN_UP, Data.emptyData());
-    }    
+    }
 
     /**
      * Run the publish container action.
@@ -1282,8 +1263,8 @@ public class Browser extends AbstractApplication {
                 invoke(ActionId.CONTAINER_PUBLISH, data);
             }
         });
-    }
-    
+    }    
+
     /**
      * Run the publish container version action.
      * 
@@ -1347,7 +1328,7 @@ public class Browser extends AbstractApplication {
         data.set(ReadVersion.DataKey.VERSION_ID, versionId);
         invoke(ActionId.CONTAINER_READ_VERSION, data);
     }
-
+    
     /**
      * Run the remove bookmark action.
      * 
@@ -1359,7 +1340,7 @@ public class Browser extends AbstractApplication {
         data.set(RemoveBookmark.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_REMOVE_BOOKMARK, data);
     }
-    
+
     /**
      * Run the remove flag seen action.
      * 
@@ -1371,7 +1352,7 @@ public class Browser extends AbstractApplication {
         data.set(RemoveFlagSeen.DataKey.ARTIFACT_ID, containerId);
         invoke(ActionId.ARTIFACT_REMOVE_FLAG_SEEN, data);         
     }
-
+    
     /**
      * Run the profile's remove email action.
      *
@@ -1500,7 +1481,7 @@ public class Browser extends AbstractApplication {
             data.set(Update.DataKey.TITLE, title);
         invoke(ActionId.PROFILE_UPDATE, data);
     }
-    
+
     /**
      * Update the user's profile.
      * 
@@ -1540,36 +1521,18 @@ public class Browser extends AbstractApplication {
         }
         invoke(ActionId.PROFILE_VERIFY_EMAIL, data);
     }
-
+    
     /**
-     * Select a tab. This displays the tab and also causes the
-     * tab buttons to update.
+     * Select a tab. This displays the tab and also causes the tab buttons to
+     * update.
+     * 
+     * @param tabId
+     *            A <code>TabId</code>.
      */
     public void selectTab(final MainTitleAvatar.TabId tabId) {
         final Data data = (Data) ((Data) getMainTitleAvatar().getInput()).clone();
         data.set(MainTitleAvatar.DataKey.TAB_ID, tabId);
         getMainTitleAvatar().setInput(data); 
-    }
-
-	/**
-     * Set the cursor for the resizer.
-     * 
-     * @param cursor
-     *            A <code>Cursor</code>.
-     * @deprecated the resizer should merely indicate to the browser that it can
-     *             be resized in a given direction and the browser should
-     *             control the visual cues at that point
-     */
-    @Deprecated
-    public void setCursorForResizer(final Cursor cursor) {
-        /* if the browser application is currently "busy" we do not allow a
-         * cursor change */
-        if (isBusyIndicatorApplied()) {
-            logger.logInfo("Cannot set resize cursor while application {0} is busy.",
-                    getId());
-        } else {
-            SwingUtil.setCursor(mainWindow, cursor);
-        }
     }
 
     /**
@@ -1696,7 +1659,7 @@ public class Browser extends AbstractApplication {
         getTabContactAvatar().syncContact(contactId, remote);
     }
 
-	/**
+    /**
      * Synchronize an incoming e-mail invitation on the contact tab.
      * 
      * @param invitationId
@@ -1708,8 +1671,8 @@ public class Browser extends AbstractApplication {
             final Boolean remote) {
         getTabContactAvatar().syncIncomingEMailInvitation(invitationId, remote);
     }
-        
-    /**
+
+	/**
      * Synchronize an incoming user invitation on the contact tab.
      * 
      * @param invitationId
@@ -1721,7 +1684,7 @@ public class Browser extends AbstractApplication {
             final Boolean remote) {
         getTabContactAvatar().syncIncomingUserInvitation(invitationId, remote);
     }
-
+        
     /**
      * Synchronize an outgoing e-mail invitation on the contact tab.
      * 
@@ -1777,7 +1740,7 @@ public class Browser extends AbstractApplication {
     protected Avatar getAvatar(final TabListExtension tabListExtension) {
         return super.getAvatar(tabListExtension);
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getAvatar(com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension)
      */
@@ -1785,7 +1748,7 @@ public class Browser extends AbstractApplication {
     protected Avatar getAvatar(final TabPanelExtension tabPanelExtension) {
         return super.getAvatar(tabPanelExtension);
     }
-
+    
     /**
      * Display the status avatar.
      *
@@ -1855,7 +1818,7 @@ public class Browser extends AbstractApplication {
 			}
 		});
 	}
-    
+
     /**
      * Open a file chooser dialogue.
      * 
@@ -1867,7 +1830,7 @@ public class Browser extends AbstractApplication {
         open(AvatarId.DIALOG_FILE_CHOOSER, input);
         return getFileChooserAvatar().getFileChooser();
     }
-
+    
     /**
      * Display an avatar on the status display.
      * 
@@ -1924,7 +1887,7 @@ public class Browser extends AbstractApplication {
         mainWindow.dispose();
     }
 
-	/**
+    /**
 	 * Obtain the action from the controller's cache. If the action does not
 	 * exist in the cache it is created and stored.
 	 * 
@@ -1942,7 +1905,7 @@ public class Browser extends AbstractApplication {
         }
 	}
 
-    /**
+	/**
      * Obtain the confirmation avatar.
      * @return The confirmation avatar.
      */
@@ -1978,12 +1941,18 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Obtain a session interface for use internally by the browser.
+     * Obtain a session for a context.
      * 
+     * @param context
+     *            A <code>BrowserContext</code>.
+     * @param create
+     *            Whether or not to create the session if it does not already
+     *            exist.
      * @return A <code>BrowserSession</code>.
      */
-    private BrowserSession getSession() {
-        return sessionImpl.getSession(new BrowserContext(this), Boolean.TRUE);
+    private BrowserSession getSession(final BrowserContext context,
+            final Boolean create) {
+        return sessionImpl.getSession(context, create);
     }
 
 	/**
@@ -2054,16 +2023,6 @@ public class Browser extends AbstractApplication {
     private Boolean isBrowserWindowOpen() {
 		return null != mainWindow && mainWindow.isVisible();
 	}
-
-    /**
-     * Determine if the application is "busy". This will check the session for a
-     * set cursor and if it is set (by applyBusyIndicator) it will return true.
-     * 
-     * @return True if the application is "busy".
-     */
-    private boolean isBusyIndicatorApplied() {
-        return null != getSession().getAttribute(SAK_MAIN_WINDOW_CURSOR);
-    }
 
     /**
      * Open a window.

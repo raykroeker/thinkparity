@@ -179,43 +179,45 @@ public class Resizer {
     private void adjustCursor(final ResizeDirection resizeDirection, final Component component) {       
         switch (resizeDirection) {
         case NW:
-            setCursor(Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR));
+            setCursor(component, Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR));
             break;
         case NE:
-            setCursor(Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR));
+            setCursor(component, Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR));
             break;
         case SW:
-            setCursor(Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR));
+            setCursor(component, Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR));
             break;
         case SE:
-            setCursor(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
+            setCursor(component, Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
             break;
         case W:
-            setCursor(Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR));
+            setCursor(component, Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR));
             break;
         case E:
-            setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
+            setCursor(component, Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
             break;
         case N:
-            setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
+            setCursor(component, Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
             break;
         case S:
-            setCursor(Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR));
+            setCursor(component, Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR));
             break;
         default:
-            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            setCursor(component, Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             break;
         }
     }
 
     /**
-     * Set the browser cursor.
+     * Set the component cursor.
      * 
+     * @param component
+     *            A <code>Component</code>.
      * @param cursor
      *            A <code>Cursor</code>.
      */
-    private void setCursor(final Cursor cursor) {
-        browser.setCursorForResizer(cursor);
+    private void setCursor(final Component component, final Cursor cursor) {
+        SwingUtil.setCursor(component, cursor);
     }
 
     /**
@@ -414,7 +416,7 @@ public class Resizer {
     private void formMouseExited(final java.awt.event.MouseEvent evt, final Component component) {
         if ((!resizeDragging) && (!moveDragging)) {
             resizeDirection = ResizeDirection.NONE;
-            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            setCursor(component, Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
@@ -448,7 +450,7 @@ public class Resizer {
         // best to reset the cursor rather than hope for the 
         // mouse exit event.
         resizeDirection = ResizeDirection.NONE;
-        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        setCursor(component, Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     /**

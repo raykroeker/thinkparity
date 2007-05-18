@@ -55,7 +55,7 @@ public class Create extends AbstractBrowserAction {
         else {
             // Create the container
             final Container container = getContainerModel().create(containerName);
-            getArtifactModel().applyFlagSeen(container.getId());
+            getContainerModel().applyFlagSeen(container.getId());
             
             // if there are files then add them to the container
             if (null != files) {

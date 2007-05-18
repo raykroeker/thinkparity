@@ -56,8 +56,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.co
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.*;
-import com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen;
-import com.thinkparity.ophelia.browser.platform.action.artifact.RemoveFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.contact.*;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
@@ -1022,29 +1020,17 @@ public class Browser extends AbstractApplication {
         data.set(AddEmail.DataKey.EMAIL, email);
         invoke(ActionId.PROFILE_ADD_EMAIL, data);
     }
-    
+
     /**
      * Run the apply flag seen action.
      * 
-     * @param documentId
-     *            A document id <code>Long</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
      */
     public void runApplyContainerFlagSeen(final Long containerId) {
         final Data data = new Data(1);
-        data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, containerId);
-        invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
-    }
-
-	/**
-     * Run the apply flag seen action.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     */
-    public void runApplyDocumentFlagSeen(final Long documentId) {
-        final Data data = new Data(1);
-        data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, documentId);
-        invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
+        data.set(ApplyFlagSeen.DataKey.CONTAINER_ID, containerId);
+        invoke(ActionId.CONTAINER_APPLY_FLAG_SEEN, data);               
     }
 
     /**
@@ -1349,8 +1335,8 @@ public class Browser extends AbstractApplication {
      */
     public void runRemoveContainerFlagSeen(final Long containerId) {
         final Data data = new Data(1);
-        data.set(RemoveFlagSeen.DataKey.ARTIFACT_ID, containerId);
-        invoke(ActionId.ARTIFACT_REMOVE_FLAG_SEEN, data);         
+        data.set(RemoveFlagSeen.DataKey.CONTAINER_ID, containerId);
+        invoke(ActionId.CONTAINER_REMOVE_FLAG_SEEN, data);         
     }
     
     /**

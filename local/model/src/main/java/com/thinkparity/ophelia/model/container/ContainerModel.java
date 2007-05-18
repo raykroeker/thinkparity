@@ -68,6 +68,14 @@ public interface ContainerModel {
     public void addListener(final ContainerListener listener);
 
     /**
+     * Apply the seen flag to the container.
+     * 
+     * @param containerId
+     *            The container id.
+     */
+    public void applyFlagSeen(final Long containerId);
+
+    /**
      * Archive a container.
      * 
      * @param containerId
@@ -146,6 +154,15 @@ public interface ContainerModel {
      */
     public ContainerDraftMonitor getDraftMonitor(final Long containerId,
             final ContainerDraftListener listener);
+
+    /**
+     * Determine whether or not the container has been seen.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if the container has been seen; false otherwise.
+     */
+    public Boolean hasBeenSeen(final Long containerId);
 
     /**
      * Determine whether or not the container has been distributed.
@@ -647,6 +664,14 @@ public interface ContainerModel {
      */
     public void renameDocument(final Long containerId, final Long documentId,
             final String name) throws CannotLockException;
+
+    /**
+     * Remove the seen flag from the container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void removeFlagSeen(final Long containerId);
 
     /**
      * Restore a container from an archive.

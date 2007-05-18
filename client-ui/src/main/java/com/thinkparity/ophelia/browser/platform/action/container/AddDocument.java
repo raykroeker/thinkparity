@@ -130,7 +130,6 @@ public class AddDocument extends AbstractBrowserAction {
             try {
                 final Document document = getDocumentModel().create(file.getName(), inputStream);
                 getContainerModel().addDocument(containerId, document.getId());
-                getArtifactModel().applyFlagSeen(document.getId());
             } finally {
                 inputStream.close();
             }

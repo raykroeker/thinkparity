@@ -12,7 +12,6 @@ import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.user.TeamMember;
 
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -180,7 +179,6 @@ public class Publish extends AbstractBrowserAction {
 
     /** A publish action worker object. */
     private static class PublishWorker extends ThinkParitySwingWorker<Publish> {
-        private final ArtifactModel artifactModel;
         private final ContactModel contactModel;
         private final List<Contact> contacts;
         private final Container container;
@@ -199,7 +197,6 @@ public class Publish extends AbstractBrowserAction {
             this.teamMembers = teamMembers;
             this.versionName = versionName;
 
-            this.artifactModel = publish.getArtifactModel();
             this.contactModel = publish.getContactModel();
             this.containerModel = publish.getContainerModel();
             
@@ -257,7 +254,7 @@ public class Publish extends AbstractBrowserAction {
                 action.browser.retry(action, container.getName());
                 return null;
             }
-            artifactModel.applyFlagSeen(container.getId());
+            containerModel.applyFlagSeen(container.getId());
             return containerModel.readLatestVersion(container.getId());
         }
 		/**

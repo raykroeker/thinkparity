@@ -5,14 +5,15 @@ package com.thinkparity.ophelia.browser.platform.action.document;
 
 import java.io.File;
 
-import org.jdesktop.jdic.desktop.DesktopException;
+import com.thinkparity.ophelia.model.util.Opener;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
-import com.thinkparity.ophelia.model.util.Opener;
+
+import org.jdesktop.jdic.desktop.DesktopException;
 
 
 /**
@@ -23,9 +24,6 @@ public class Open extends AbstractBrowserAction {
 
 	/** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
-    
-    /** The browser application. */
-    private final Browser browser;
 
 	/**
      * Create Open.
@@ -35,7 +33,6 @@ public class Open extends AbstractBrowserAction {
      */
 	public Open(final Browser browser) {
 		super(ActionId.DOCUMENT_OPEN);
-        this.browser = browser;
 	}
 
 	/**
@@ -53,9 +50,6 @@ public class Open extends AbstractBrowserAction {
                 }
             }
         });
-
-        // Flag the document as having been seen
-        browser.runApplyDocumentFlagSeen(documentId);
 	}
 
 	/** Data keys. */

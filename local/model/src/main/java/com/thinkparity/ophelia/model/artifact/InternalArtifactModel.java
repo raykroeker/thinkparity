@@ -82,6 +82,14 @@ public interface InternalArtifactModel extends ArtifactModel {
     public void removeFlagLatest(final Long artifactId);
 
     /**
+     * Apply the seen flag.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     */
+    public void applyFlagSeen(final Long artifactId);
+
+    /**
      * Create the team. This will add the current user to the team.
      * 
      * @param artifactId
@@ -196,6 +204,15 @@ public interface InternalArtifactModel extends ArtifactModel {
             final ArtifactTeamMemberRemovedEvent event);
 
     /**
+     * Determine whether or not the artifact has been seen.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @return True if the artifact has been seen; false otherwise.
+     */
+    public Boolean hasBeenSeen(final Long artifactId);
+
+    /**
      * Read the earliest version id for an artifact.
      * 
      * @param artifactId
@@ -285,7 +302,15 @@ public interface InternalArtifactModel extends ArtifactModel {
      *            An artifact id <code>Long</code>.
      */
     public void removeFlagKey(final Long artifactId);
-    
+
+    /**
+     * Remove the seen flag.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     */
+    public void removeFlagSeen(final Long artifactId);
+
     /**
      * Remove the team member. Removes the user from the local team data.
      * 

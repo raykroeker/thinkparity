@@ -22,23 +22,6 @@ import com.thinkparity.codebase.model.util.jta.TransactionType;
 public interface ArtifactModel {
 
 	/**
-	 * Apply the seen flag to the artifact.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 */
-	public void applyFlagSeen(final Long artifactId);
-
-	/**
-	 * Determine whether or not the artifact has been seen.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @return True if the artifact has been seen; false otherwise.
-	 */
-	public Boolean hasBeenSeen(final Long artifactId);
-
-	/**
 	 * Determine whether or not an artifact has a flag applied.
 	 * 
 	 * @param artifactId
@@ -66,12 +49,4 @@ public interface ArtifactModel {
      * @return An <code>ArtifactType</code>.
      */
     public ArtifactType readType(final Long artifactId);
-
-    /**
-	 * Remove the seen flag from the artifact.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 */
-	public void removeFlagSeen(final Long artifactId);
 }

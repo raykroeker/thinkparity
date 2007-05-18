@@ -85,13 +85,6 @@ public class ActionFactory extends AbstractFactory {
 	private AbstractAction doCreateAction(final ActionId id) {
         final AbstractAction action;
 		switch (id) {
-        case ARTIFACT_APPLY_FLAG_SEEN:
-            action = new com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen(getBrowser());
-            break;
-        case ARTIFACT_REMOVE_FLAG_SEEN:
-            action = new com.thinkparity.ophelia.browser.platform.action.artifact.RemoveFlagSeen(getBrowser());
-            break;
-
         case CONTACT_ACCEPT_INCOMING_EMAIL_INVITATION:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingEMailInvitation(getBrowser());
             break;
@@ -134,6 +127,9 @@ public class ActionFactory extends AbstractFactory {
             break;
         case CONTAINER_ADD_DOCUMENT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.AddDocument(getBrowser());
+            break;
+        case CONTAINER_APPLY_FLAG_SEEN:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.ApplyFlagSeen(getBrowser());
             break;
         case CONTAINER_ARCHIVE:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Archive(getBrowser());
@@ -182,6 +178,9 @@ public class ActionFactory extends AbstractFactory {
             break;
         case CONTAINER_REMOVE_DOCUMENT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.RemoveDocument(getBrowser());
+            break;
+        case CONTAINER_REMOVE_FLAG_SEEN:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.RemoveFlagSeen(getBrowser());
             break;
         case CONTAINER_RENAME:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Rename(getBrowser());

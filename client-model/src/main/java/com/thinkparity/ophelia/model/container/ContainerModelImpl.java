@@ -251,6 +251,20 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#applyFlagSeen(java.lang.Long)
+     */
+    public void applyFlagSeen(final Long containerId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        try {
+            getArtifactModel().applyFlagSeen(containerId);
+            notifyContainerFlagged(read(containerId), localEventGenerator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.container.ContainerModel#archive(java.lang.Long)
      * 
      */
@@ -732,6 +746,19 @@ public final class ContainerModelImpl extends
             delegate.handleReceived();
             // fire event
             notifyContainerReceived(delegate.getContainer(), remoteEventGenerator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#hasBeenSeen(java.lang.Long)
+     */
+    public Boolean hasBeenSeen(final Long containerId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        try {
+            return getArtifactModel().hasBeenSeen(containerId);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1619,6 +1646,20 @@ public final class ContainerModelImpl extends
             }
         } catch (final CannotLockException clx) {
             throw clx;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#removeFlagSeen(java.lang.Long)
+     */
+    public void removeFlagSeen(final Long containerId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        try {
+            getArtifactModel().removeFlagSeen(containerId);
+            notifyContainerFlagged(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }

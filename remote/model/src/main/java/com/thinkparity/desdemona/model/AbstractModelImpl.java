@@ -571,7 +571,7 @@ public abstract class AbstractModelImpl
      */
     protected final ByteBuffer getBuffer() {
         // BUFFER - AbstractModelImpl#getBuffer() - 2MB
-        return ByteBuffer.allocate(getBufferSize());
+        return ByteBuffer.allocateDirect(getBufferSize());
     }
 
     /**

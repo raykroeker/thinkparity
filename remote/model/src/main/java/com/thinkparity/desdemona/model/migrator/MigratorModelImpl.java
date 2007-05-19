@@ -84,21 +84,14 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                     for (final Resource resource : resources) {
                         localResource = migratorSql.readResource(localRelease,
                                 resource.getPath());
-                        final OutputStream resourceOutput =
-                            new FileOutputStream(streamFileSystem.createFile(
-                                    resource.getPath()));
-                        try {
-                            migratorSql.openResource(localResource,
-                                    new ResourceOpener() {
-                                        public void open(final InputStream stream) throws IOException {
-                                            streamToFile(stream,
-                                                    streamFileSystem.createFile(
-                                                            resource.getPath()));
-                                        }
-                                    });
-                        } finally {
-                            resourceOutput.close();
-                        }
+                        migratorSql.openResource(localResource,
+                                new ResourceOpener() {
+                                    public void open(final InputStream stream) throws IOException {
+                                        streamToFile(stream,
+                                                streamFileSystem.createFile(
+                                                        resource.getPath()));
+                                    }
+                                });
                     }
                     // archive the resources
                     synchronized (getBufferLock()) {

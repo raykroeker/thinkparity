@@ -1477,6 +1477,13 @@ public class ContainerPanel extends DefaultTabPanel {
             actionDelegate.invokeForDocument(getDraft(), document);
         }
         /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#isActionAvailable()
+         */
+        @Override
+        public Boolean isActionAvailable() {
+            return (getDraft().getState(document) != ArtifactState.REMOVED);
+        }
+        /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
          */
         @Override
@@ -1764,6 +1771,20 @@ public class ContainerPanel extends DefaultTabPanel {
         @Override
         public void invokeAction() {
             actionDelegate.invokeForDocument(version, delta);
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#isActionAvailable()
+         */
+        @Override
+        public Boolean isActionAvailable() {
+            return (delta != Delta.REMOVED);
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#isPopupAvailable()
+         */
+        @Override
+        public Boolean isPopupAvailable() {
+            return (delta != Delta.REMOVED);
         }
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()

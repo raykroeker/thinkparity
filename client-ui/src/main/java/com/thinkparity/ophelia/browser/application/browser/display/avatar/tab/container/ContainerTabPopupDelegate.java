@@ -162,9 +162,11 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
      */
     public void showForDocument(final ContainerDraft draft, final Document document) {
         // open
-        final Data data = new Data(1);
-        data.set(Open.DataKey.DOCUMENT_ID, document.getId());
-        add(ActionId.DOCUMENT_OPEN, data);
+        if (ArtifactState.REMOVED != draft.getState(document)) {
+            final Data data = new Data(1);
+            data.set(Open.DataKey.DOCUMENT_ID, document.getId());
+            add(ActionId.DOCUMENT_OPEN, data);
+        }
 
         // rename document
         if (ArtifactState.ADDED == draft.getState(document)) {

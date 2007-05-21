@@ -124,23 +124,16 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
      */
     @Override
     public final void validateInput() {
-        super.validateInput();
-        // TODO This is temporary, remove when beta is done.
-        final String betaActivationCode = SwingUtil.extract(betaActivationCodeJTextField, Boolean.TRUE);
-        if (null == betaActivationCode) {
-            addInputError(Separator.Space.toString());
-        } else if (!betaActivationCode.equalsIgnoreCase(BETA_ACTIVATION_CODE)) {
-            addInputError(getString("ErrorIncorrectBetaActivationCode"));
-        }
+        validateInput(Boolean.FALSE);
+    }
 
-        errorMessageJLabel.setText(" ");
-        if (containsInputErrors()) {
-            errorMessageJLabel.setText(getInputErrors().get(0));
-        }
-
-        if (isSignupDelegateInitialized()) {
-            signupDelegate.enableNextButton(!containsInputErrors());
-        }
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isInputValid()
+     */
+    @Override
+    protected Boolean isInputValid() {
+        validateInput(Boolean.TRUE);
+        return !containsInputErrors();
     }
 
     // TODO Remove this after beta.
@@ -383,6 +376,34 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
             errorMessageJLabel.setText(getInputErrors().get(0));
         }
         SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+    }
+
+    /**
+     * Validate input.
+     * 
+     * @param ignoreFocus
+     *            A <code>Boolean</code> to ignore focus or not.
+     */
+    private void validateInput(final Boolean ignoreFocus) {
+        super.validateInput();
+        // TODO This is temporary, remove when beta is done.
+        final String betaActivationCode = SwingUtil.extract(betaActivationCodeJTextField, Boolean.TRUE);
+        if (null == betaActivationCode) {
+            addInputError(Separator.Space.toString());
+        } else if (!betaActivationCode.equalsIgnoreCase(BETA_ACTIVATION_CODE)) {
+            if (ignoreFocus || !betaActivationCodeJTextField.isFocusOwner()) {
+                addInputError(getString("ErrorIncorrectBetaActivationCode"));
+            }
+        }
+
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors()) {
+            errorMessageJLabel.setText(getInputErrors().get(0));
+        }
+
+        if (isSignupDelegateInitialized()) {
+            signupDelegate.enableNextButton(!containsInputErrors());
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

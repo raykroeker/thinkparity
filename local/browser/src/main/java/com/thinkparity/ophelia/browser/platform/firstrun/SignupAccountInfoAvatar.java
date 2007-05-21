@@ -177,61 +177,16 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      */
     @Override
     public final void validateInput() {
-        super.validateInput();
-        final String emailAddress = extractEMailAddress();
-        final String username = extractUsername();
-        final String password = extractPassword();
-        final String confirmPassword = extractConfirmPassword();
-        final String securityQuestion = extractSecurityQuestion();
-        final String securityAnswer = extractSecurityAnswer();
+        validateInput(Boolean.FALSE);
+    }
 
-        if (null == emailAddress) {
-            addInputError(Separator.Space.toString());
-        } else if (!emailJTextField.isFocusOwner() && !isEmailAddressValid()) {
-            addInputError(getString("ErrorInvalidEmail"));
-        }
-        if (null != emailAddress && null != unacceptableEMail
-                && emailAddress.equals(unacceptableEMail.toString())) {
-            addInputError(getString("ErrorEMailTaken"));
-        }
-
-        if (null == username) {
-            addInputError(Separator.Space.toString());
-        } else if (username.length() < MINIMUM_USERNAME_LENGTH) {
-            addInputError(getString("ErrorUsernameTooShort", new Object[] {MINIMUM_USERNAME_LENGTH}));
-        }
-        if (null != username && null != unacceptableUsername
-                && username.equalsIgnoreCase(unacceptableUsername)) {
-            addInputError(getString("ErrorUsernameTaken", new Object[] {username}));
-        }
-
-        if (null == password) {
-            addInputError(Separator.Space.toString());
-        } else if (password.length() < MINIMUM_PASSWORD_LENGTH) {
-            addInputError(getString("ErrorPasswordTooShort", new Object[] {MINIMUM_PASSWORD_LENGTH}));
-        }
-
-        if (null == confirmPassword) {
-            addInputError(Separator.Space.toString());
-        } else if (null != password && !password.equals(confirmPassword)) {
-            addInputError(getString("ErrorPasswordsDoNotMatch"));
-        }
-
-        if (null == securityQuestion) {
-            addInputError(Separator.Space.toString());
-        }
-
-        if (null == securityAnswer) {
-            addInputError(Separator.Space.toString());
-        }
-
-        errorMessageJLabel.setText(" ");
-        if (containsInputErrors()) {
-            errorMessageJLabel.setText(getInputErrors().get(0));
-        }
-        if (isSignupDelegateInitialized()) {
-            signupDelegate.enableNextButton(!containsInputErrors());
-        }
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isInputValid()
+     */
+    @Override
+    protected Boolean isInputValid() {
+        validateInput(Boolean.TRUE);
+        return !containsInputErrors();
     }
 
     /**
@@ -722,6 +677,72 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
     }
     */
+
+    /**
+     * Validate input.
+     * 
+     * @param ignoreFocus
+     *            A <code>Boolean</code> to ignore focus or not.
+     */
+    private void validateInput(final Boolean ignoreFocus) {
+        super.validateInput();
+        final String emailAddress = extractEMailAddress();
+        final String username = extractUsername();
+        final String password = extractPassword();
+        final String confirmPassword = extractConfirmPassword();
+        final String securityQuestion = extractSecurityQuestion();
+        final String securityAnswer = extractSecurityAnswer();
+
+        if (null == emailAddress) {
+            addInputError(Separator.Space.toString());
+        } else if (!isEmailAddressValid()) {
+            if (ignoreFocus || !emailJTextField.isFocusOwner()) {
+                addInputError(getString("ErrorInvalidEmail"));
+            }
+        }
+        if (null != emailAddress && null != unacceptableEMail
+                && emailAddress.equals(unacceptableEMail.toString())) {
+            addInputError(getString("ErrorEMailTaken"));
+        }
+
+        if (null == username) {
+            addInputError(Separator.Space.toString());
+        } else if (username.length() < MINIMUM_USERNAME_LENGTH) {
+            addInputError(getString("ErrorUsernameTooShort", new Object[] {MINIMUM_USERNAME_LENGTH}));
+        }
+        if (null != username && null != unacceptableUsername
+                && username.equalsIgnoreCase(unacceptableUsername)) {
+            addInputError(getString("ErrorUsernameTaken", new Object[] {username}));
+        }
+
+        if (null == password) {
+            addInputError(Separator.Space.toString());
+        } else if (password.length() < MINIMUM_PASSWORD_LENGTH) {
+            addInputError(getString("ErrorPasswordTooShort", new Object[] {MINIMUM_PASSWORD_LENGTH}));
+        }
+
+        if (null == confirmPassword) {
+            addInputError(Separator.Space.toString());
+        } else if (null != password && !password.equals(confirmPassword)) {
+            addInputError(getString("ErrorPasswordsDoNotMatch"));
+        }
+
+        if (null == securityQuestion) {
+            addInputError(Separator.Space.toString());
+        }
+
+        if (null == securityAnswer) {
+            addInputError(Separator.Space.toString());
+        }
+
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors()) {
+            errorMessageJLabel.setText(getInputErrors().get(0));
+        }
+        if (isSignupDelegateInitialized()) {
+            signupDelegate.enableNextButton(!containsInputErrors());
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JRadioButton accountTypeGuestJRadioButton = new javax.swing.JRadioButton();

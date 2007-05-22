@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import javax.xml.transform.TransformerException;
 
 import com.thinkparity.codebase.FileSystem;
+import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.Pair;
 import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.ZipUtil;
@@ -2765,6 +2766,9 @@ public final class ContainerModelImpl extends
              * closing the stream within its class
              * @see org.apache.fop.image.JpegImage#loadImage() */
             Runtime.getRuntime().gc();
+
+            // delete the resources so they are not included in the zip file
+            FileUtil.deleteTree(exportFileSystem.findDirectory("images"));
 
             // create an archive
             final File zipFile = new File(exportFileSystem.getRoot(), container.getName());

@@ -120,7 +120,7 @@ class PackageImageTask {
             writer.write("# thinkParity Image")
             // thinkparity.image-classpath
             newLine(writer)
-            writer.write("thinkparity.image-classpath:core/codebase.jar,core/model.jar,core/browser.jar")
+            writer.write("thinkparity.image-classpath:thinkParity.jar,core/codebase.jar,core/model.jar,core/browser.jar")
             for (dependency in dependencies) {
                 if (dependency.getType().equals(Dependency.Type.JAVA)) {
 	                writer.write(",")

@@ -1440,11 +1440,15 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
             if (!credentials.isSetResource()) {
                 final XMPPConnection xmppAnonymousConnection = new XMPPConnection(
                 		configuration, socketFactory);
-            	xmppAnonymousConnection.loginAnonymously();
-                final XMPPMethod createResource = new XMPPMethod("system:createresource");
-                credentials.setResource(execute(createResource,
-                		xmppAnonymousConnection, Boolean.TRUE).readResultString(
-                				"resource"));
+                try {
+                	xmppAnonymousConnection.loginAnonymously();
+                    final XMPPMethod createResource = new XMPPMethod("system:createresource");
+                    credentials.setResource(execute(createResource,
+                    		xmppAnonymousConnection, Boolean.TRUE).readResultString(
+                    				"resource"));
+                } finally {
+                    xmppAnonymousConnection.close();
+                }
             }
             // login
             xmppConnection.login(credentials.getUsername(),

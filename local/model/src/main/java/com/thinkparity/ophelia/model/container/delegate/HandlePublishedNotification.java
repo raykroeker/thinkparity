@@ -5,8 +5,6 @@ package com.thinkparity.ophelia.model.container.delegate;
 
 import java.util.List;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent;
@@ -112,15 +110,6 @@ public final class HandlePublishedNotification extends
      */
     private boolean doesExistDraft() {
         return doesExistDraft(getContainerId()).booleanValue();
-    }
-
-    /**
-     * Determine whether or not a local draft exists.
-     * 
-     * @return True if a local draft eixsts.
-     */
-    private boolean doesExistLocalDraft() {
-        return doesExistLocalDraft(getContainerId()).booleanValue();
     }
 
     /**

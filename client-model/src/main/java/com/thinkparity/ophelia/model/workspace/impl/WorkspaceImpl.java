@@ -529,8 +529,8 @@ public final class WorkspaceImpl implements Workspace {
      * 
      */
     private void bootstrapLog4J() {
-        final Properties logging = bootstrapLog4JConfig(mode);
-        final File loggingRoot = bootstrapLog4JRoot(mode);
+        final Properties logging = ConfigFactory.newInstance("log4j.properties");
+        final File loggingRoot = new File(workspace.getRoot(), "logs");
         // console appender
         logging.setProperty("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
         logging.setProperty("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
@@ -670,48 +670,6 @@ public final class WorkspaceImpl implements Workspace {
         new Log4JWrapper("SQL_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
         new Log4JWrapper("XA_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
         new Log4JWrapper("XMPP_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
-    }
-
-    /**
-     * Create a logging configuration for the operating mode.
-     * 
-     * @param mode
-     *            A thinkParity <code>Mode</code>.
-     * @return A log4j configuration <code>Properties</code>.
-     */
-    private Properties bootstrapLog4JConfig(final Mode mode) {
-        switch (mode) {
-        case DEMO:
-        case PRODUCTION:
-        case TESTING:
-            return new Properties();
-        case DEVELOPMENT:
-            return ConfigFactory.newInstance("log4j.properties");
-        default:
-            throw Assert.createUnreachable("Unknown operating mode.");
-        }
-    }
-
-    /**
-     * Bootstrap the log4j root directory. If a thinkparity.logging.root exists
-     * use it as the logging root directory; otherwise use workspace/logs.
-     * 
-     * 
-     * @param mode
-     *            The thinkParity operating <code>Mode</code>.
-     * @return The logging root directory <code>File</code>.
-     */
-    private File bootstrapLog4JRoot(final Mode mode) {
-        final String loggingRootProperty = System.getProperty("thinkparity.logging.root");
-        if (null == loggingRootProperty) {
-            return new File(workspace.getRoot(), "logs");
-        } else {
-            final File loggingRoot = new File(loggingRootProperty);
-            Assert.assertTrue(loggingRoot.exists() && loggingRoot.isDirectory()
-                    && loggingRoot.canRead() && loggingRoot.canWrite(),
-                    "Specified logging root {0} is not valid.", loggingRoot);
-            return loggingRoot;
-        }
     }
 
     /**

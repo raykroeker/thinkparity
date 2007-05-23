@@ -70,11 +70,8 @@ import com.thinkparity.ophelia.browser.util.ModelFactory;
 import com.thinkparity.ophelia.browser.util.firewall.FirewallAccessException;
 import com.thinkparity.ophelia.browser.util.firewall.FirewallUtil;
 import com.thinkparity.ophelia.browser.util.firewall.FirewallUtilProvider;
-import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
 
 import org.apache.log4j.Logger;
-
-import org.jdesktop.jdic.desktop.DesktopException;
 
 import com.thinkparity.ThinkParity;
 

@@ -3,10 +3,12 @@
  */
 package com.thinkparity.codebase.model.util.logging.or;
 
-import org.apache.log4j.or.ObjectRenderer;
+import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.codebase.StringUtil.Separator;
 
 import com.thinkparity.codebase.model.user.User;
 
+import org.apache.log4j.or.ObjectRenderer;
 
 /**
  * This class is used whenever a logger is required to output a User.
@@ -16,31 +18,25 @@ import com.thinkparity.codebase.model.user.User;
  */
 public class UserRenderer implements ObjectRenderer {
 
-	/**
-	 * Prefix to the log statement.
+    /**
+	 * Create UserRenderer.
+     * 
 	 */
-	private static final String PREFIX =
-		new StringBuffer(User.class.getCanonicalName()).append(":  ").toString();
-
-	/**
-	 * Null user rendering.
-	 */
-	private static final String NULL_USER =
-		new StringBuffer(PREFIX).append("null").toString();
-
-	/**
-	 * Create a UserRenderer.
-	 */
-	public UserRenderer() { super(); }
+	public UserRenderer() {
+        super();
+	}
 
 	/**
 	 * @see org.apache.log4j.or.ObjectRenderer#doRender(java.lang.Object)
 	 */
 	public String doRender(Object o) {
-		if(null == o) { return NULL_USER; }
+		if (null == o) {
+            return Separator.Null.toString();
+		}
 		else {
-			return new StringBuffer(PREFIX)
-				.append(((User) o).getSimpleUsername()).toString();
+            final User user = (User) o;
+            return StringUtil.toString(getClass(), "id", user.getId(),
+                    "localId", user.getLocalId(), "name", user.getName());
 		}
 	}
 }

@@ -2082,23 +2082,27 @@ public final class SessionModelImpl extends Model<SessionListener>
                                 final Calendar now = model.readDateTime();
                                 if (run && null == now) {
                                     impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                                    impl.logout();
                                     model.handleSessionTerminated();
                                 }
                             } catch (final XMPPTimeoutException xmpptx) {
                                 if (run) {
                                     impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                                    impl.logout();
                                     model.handleSessionTerminated();
                                 }
                             }
                         } else {
                             if (run) {
                                 impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                                impl.logout();
                                 model.handleSessionTerminated();
                             }
                         }
                     } catch (final Throwable t) {
                         if (run) {
                             impl.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                            impl.logout();
                             model.handleSessionError(t);
                             model.handleSessionTerminated();
                         }

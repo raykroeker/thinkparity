@@ -209,6 +209,9 @@ final class Image {
         ThinkParity.checkProperty(properties, PropertyNames.ThinkParity.ImageClassPath);
         tokenizer = new StringTokenizer(properties.getProperty(PropertyNames.ThinkParity.ImageClassPath), ",");
         final List<String> imageClassPath = new ArrayList<String>();
+        // add thinkParity.jar
+        imageClassPath.add(Files.ThinkParity.Jar.getAbsolutePath());
+
         File classPathFile;
         while (tokenizer.hasMoreTokens()) {
             token = tokenizer.nextToken().replace('/', File.separatorChar);

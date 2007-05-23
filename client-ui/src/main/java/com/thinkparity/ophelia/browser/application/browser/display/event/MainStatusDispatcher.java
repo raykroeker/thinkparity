@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.event;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.events.*;
+import com.thinkparity.ophelia.model.migrator.MigratorModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 
@@ -35,6 +36,12 @@ public final class MainStatusDispatcher implements
     /** An instance of <code>ContainerModel</code>. */
     private final ContainerModel containerModel;
 
+    /** A <code>MigratorListener</code>. */
+    private MigratorListener migratorListener;
+
+    /** AN instance of <code>MigratorModel</code>. */
+    private final MigratorModel migratorModel;
+
     /** A <code>ProfileListener</code>. */
     private ProfileListener profileListener;
 
@@ -56,15 +63,19 @@ public final class MainStatusDispatcher implements
      *            An instance of <code>ContactModel</code>.
      * @param containerModel
      *            An instance of <code>ContainerModel</code>.
+     * @param migratorModel
+     *            An instance of <code>MigratorModel</code>.
      * @param profileModel
      *            An instance of <code>ProfileModel</code>.
      */
     public MainStatusDispatcher(final ContactModel contactModel,
             final ContainerModel containerModel,
-            final ProfileModel profileModel, final SessionModel sessionModel) {
+            final MigratorModel migratorModel, final ProfileModel profileModel,
+            final SessionModel sessionModel) {
         super();
         this.contactModel = contactModel;
         this.containerModel = containerModel;
+        this.migratorModel = migratorModel;
         this.profileModel = profileModel;
         this.sessionModel = sessionModel;
     }
@@ -74,6 +85,13 @@ public final class MainStatusDispatcher implements
      *
      */
     public void addListeners(final MainStatusAvatar avatar) {
+        migratorListener = new MigratorAdapter() {
+            @Override
+            public void productReleaseInstalled(final MigratorEvent e) {
+                avatar.fireProductReleaseInstalled(e);
+            }
+        };
+        migratorModel.addListener(migratorListener);
         profileListener = new ProfileAdapter() {
             @Override
             public void emailAdded(final ProfileEvent e) {
@@ -163,6 +181,8 @@ public final class MainStatusDispatcher implements
      * 
      */
     public void removeListeners(final MainStatusAvatar avatar) {
+        migratorModel.removeListener(migratorListener);
+        migratorListener = null;
         profileModel.removeListener(profileListener);
         profileListener = null;
         contactModel.removeListener(contactListener);

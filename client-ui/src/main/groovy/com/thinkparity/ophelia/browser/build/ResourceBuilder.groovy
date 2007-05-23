@@ -135,7 +135,7 @@ class ResourceBuilder {
     String checksum(final File file) {
         final InputStream stream = new FileInputStream(file)
         try {
-            return MD5Util.md5Hex(stream, configuration["thinkparity.buffer"])
+            return MD5Util.md5Hex(stream, configuration["thinkparity.buffer-array"])
         } finally {
             stream.close()
         }

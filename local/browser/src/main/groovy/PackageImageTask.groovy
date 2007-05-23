@@ -87,6 +87,7 @@ class PackageImageTask {
             jar(destfile:new File(imageCoreDir,"model.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
                 fileset(dir:classesDir) {
                     include(name:"com/thinkparity/ophelia/model/")
+                    include(name:"org/jivesoftware/smack/")
                     include(name:"database/")
                     include(name:"localization/Model_Messages*")
                     include(name:"security/*_client_*")
@@ -120,7 +121,7 @@ class PackageImageTask {
             writer.write("# thinkParity Image")
             // thinkparity.image-classpath
             newLine(writer)
-            writer.write("thinkparity.image-classpath:thinkParity.jar,core/codebase.jar,core/model.jar,core/browser.jar")
+            writer.write("thinkparity.image-classpath:core/codebase.jar,core/model.jar,core/browser.jar")
             for (dependency in dependencies) {
                 if (dependency.getType().equals(Dependency.Type.JAVA)) {
 	                writer.write(",")

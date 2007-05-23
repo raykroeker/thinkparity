@@ -35,6 +35,7 @@ import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 import com.thinkparity.ophelia.browser.Constants;
 import com.thinkparity.ophelia.browser.Version;
+import com.thinkparity.ophelia.browser.Constants.Directories;
 import com.thinkparity.ophelia.browser.Constants.Files;
 import com.thinkparity.ophelia.browser.Constants.ShutdownHooks;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarFactory;
@@ -69,8 +70,11 @@ import com.thinkparity.ophelia.browser.util.ModelFactory;
 import com.thinkparity.ophelia.browser.util.firewall.FirewallAccessException;
 import com.thinkparity.ophelia.browser.util.firewall.FirewallUtil;
 import com.thinkparity.ophelia.browser.util.firewall.FirewallUtilProvider;
+import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
 
 import org.apache.log4j.Logger;
+
+import org.jdesktop.jdic.desktop.DesktopException;
 
 import com.thinkparity.ThinkParity;
 
@@ -585,17 +589,20 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      *
      */
     public void restart() {
-        end();
         Runtime.getRuntime().addShutdownHook(new Thread("TPS-OpheliaUI-Restart") {
+            final String[] command = new String[] { "rundll32.exe",
+                "shell32.dll,ShellExec_RunDLL",
+                Files.EXECUTABLE.getAbsolutePath() };
             @Override
             public void run() {
                 try {
-                    Runtime.getRuntime().exec(Files.EXECUTABLE.getAbsolutePath());
+                    Runtime.getRuntime().exec(command, null, Directories.ThinkParity.DIRECTORY);
                 } catch (final IOException iox) {
-                    logger.logError(iox, "Cannot restart platform.");
+                    logger.logFatal(iox, "Could not restart thinkParity.");
                 }
             }
         });
+        end();
     }
 
     /**
@@ -708,7 +715,6 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     void fireProductReleaseInstalled(final MigratorEvent e) {
         try {
             ThinkParity.setImage(e.getRelease().getName());
-            restart();
         } catch (final IOException iox) {
             logger.logFatal(iox, "Cannot upgrade to release {0}.",
                     e.getRelease().getName());

@@ -37,11 +37,13 @@ public final class Constants {
     public static final class FileNames {
         public static final String ThinkParityImageProperties = "thinkParityImage.properties";
         public static final String ThinkParityProperties = "thinkParity.properties";
+        public static final String ThinkParityJar = "thinkParity.jar";
     }
 
     public static final class Files {
         public static final class ThinkParity {
             public static final File Executable = new File(System.getProperty(PropertyNames.ThinkParity.Executable));
+            public static final File Jar = new File(Directories.ThinkParity.Directory, FileNames.ThinkParityJar);
         }
     }
 

@@ -60,6 +60,7 @@ class ConfigurationHelper {
         configuration["ant.base-dir"] = extractAntBasedir()
 
         configuration["thinkparity.buffer"] = extractBuffer()
+        configuration["thinkparity.buffer-array"] = extractBufferArray()
         configuration["thinkparity.charset-name"] = extractCharsetName()
         configuration["thinkparity.credentials"] = extractCredentials()
         configuration["thinkparity.environment"] = extractEnvironment()
@@ -105,6 +106,16 @@ class ConfigurationHelper {
     ByteBuffer extractBuffer() {
         // BUFFER - 2MB - ConfigurationHelper#extractBuffer()
         return ByteBuffer.allocate(1024 * 1024 * 2)
+    }
+
+    /**
+     * Extract the buffer.
+     *
+     * @return A <code>ByteBuffer</code>.
+     */
+    byte[] extractBufferArray() {
+        // BUFFER - 2MB - ConfigurationHelper#extractBuffer()
+        return new byte[1024 * 1024 * 2]
     }
 
     /**

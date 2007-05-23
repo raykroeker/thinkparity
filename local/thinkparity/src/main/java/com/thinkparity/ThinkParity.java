@@ -145,12 +145,8 @@ public final class ThinkParity {
     private void executeImage() throws IOException {
         loadProperties();
         final Image image = new Image(getProperty(PropertyNames.ThinkParity.Image));
-        try {
-            image.mount();
-            image.execute();
-        } finally {
-            storeProperties();
-        }
+        image.mount();
+        image.execute();
     }
 
     /**

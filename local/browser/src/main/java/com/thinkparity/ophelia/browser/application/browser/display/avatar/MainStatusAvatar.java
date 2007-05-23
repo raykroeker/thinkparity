@@ -30,6 +30,7 @@ import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.ophelia.model.events.MigratorEvent;
 import com.thinkparity.ophelia.model.events.ProfileEvent;
 import com.thinkparity.ophelia.model.session.OfflineCode;
 
@@ -116,6 +117,33 @@ public class MainStatusAvatar extends Avatar {
      */
     public void fireContainerEvent(final ContainerEvent e) {
         reloadLinks();
+    }
+
+    /**
+     * Fire a migrator event.
+     *
+     * @param e
+     *      A <code>MigratorEvent</code>.
+     */
+    public void fireProductReleaseInstalled(final MigratorEvent e) {
+        final MainStatusAvatarLink restartLink = new MainStatusAvatarLink() {
+            public String getLinkText() {
+                return getString("ProductInstalledLinkText");
+            }
+            public Runnable getTarget() {
+                return new Runnable() {
+                    public void run() {
+                        getController().getPlatform().restart();
+                    }
+                };
+            }
+            public String getText() {
+                return getString("ProductInstalledText");
+            }
+        };
+        final Data input = new Data(1);
+        input.set(DataKey.LINK, restartLink);
+        setInput(input);
     }
 
     /**

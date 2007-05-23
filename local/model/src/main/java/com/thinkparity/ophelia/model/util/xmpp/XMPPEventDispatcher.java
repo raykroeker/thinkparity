@@ -90,7 +90,9 @@ final class XMPPEventDispatcher {
         logger.logVariable("xmppEvent", xmppEvent);
         synchronized (xmppEvent.getClass()) {
             final List<XMPPEventListener<T>> listeners = getListeners(xmppEvent.getClass());
-            for (final XMPPEventListener<T> listener : listeners) {
+            final List<XMPPEventListener<T>> copy = new ArrayList<XMPPEventListener<T>>();
+            copy.addAll(listeners);
+            for (final XMPPEventListener<T> listener : copy) {
                 try {
                     listener.handleEvent(xmppEvent);
                 } catch (final Throwable t) {

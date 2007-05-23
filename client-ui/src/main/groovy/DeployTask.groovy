@@ -42,8 +42,8 @@ class DeployTask {
         if (!sessionHelper.isOnline())
             sessionHelper.login()
         try {
-            def product = new ProductBuilder(configuration:configuration).create()
-            def release = new ReleaseBuilder(configuration:configuration).create()
+            def product = new ProductBuilder(ant:ant,configuration:configuration).create()
+            def release = new ReleaseBuilder(ant:ant,configuration:configuration,product:product).create()
             def resources = new ResourceBuilder(configuration:configuration,product:product,release:release).create()
             new DeployHelper(ant:ant,configuration:configuration).deploy(product, release, resources)
         } catch (final Throwable t) {

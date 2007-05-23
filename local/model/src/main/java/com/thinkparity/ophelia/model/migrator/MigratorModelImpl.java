@@ -475,22 +475,22 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             } else {
                 logger.logWarning("Previous release {0} was not installed.", previous);
             }
-        }
 
-        final List<String> migrationSql = new ArrayList<String>();
-        migrationSql.add("alter table ARTIFACT_VERSION alter column COMMENT set data type varchar(4096)");
-        migrationSql.add("alter table ARTIFACT_VERSION add column NAME varchar(64) default null");
-        migrationSql.add("alter table CONTAINER_DRAFT add column COMMENT varchar(4096) default null");
-        migrationSql.add(new StringBuilder("create table CONTAINER_VERSION_PUBLISHED_TO_EMAIL(")
-            .append("CONTAINER_ID bigint not null,")
-            .append("CONTAINER_VERSION_ID bigint not null,")
-            .append("EMAIL_ID bigint not null,")
-            .append("PUBLISHED_ON timestamp,")
-            .append("primary key(CONTAINER_ID,CONTAINER_VERSION_ID,EMAIL_ID,PUBLISHED_ON),")
-            .append("foreign key(CONTAINER_ID,CONTAINER_VERSION_ID) references CONTAINER_VERSION(CONTAINER_ID,CONTAINER_VERSION_ID),")
-            .append("foreign key(EMAIL_ID) references EMAIL(EMAIL_ID))")
-            .toString());
-        migratorIO.execute(migrationSql);
+            final List<String> migrationSql = new ArrayList<String>();
+            migrationSql.add("alter table ARTIFACT_VERSION alter column COMMENT set data type varchar(4096)");
+            migrationSql.add("alter table ARTIFACT_VERSION add column NAME varchar(64) default null");
+            migrationSql.add("alter table CONTAINER_DRAFT add column COMMENT varchar(4096) default null");
+            migrationSql.add(new StringBuilder("create table CONTAINER_VERSION_PUBLISHED_TO_EMAIL(")
+                .append("CONTAINER_ID bigint not null,")
+                .append("CONTAINER_VERSION_ID bigint not null,")
+                .append("EMAIL_ID bigint not null,")
+                .append("PUBLISHED_ON timestamp,")
+                .append("primary key(CONTAINER_ID,CONTAINER_VERSION_ID,EMAIL_ID,PUBLISHED_ON),")
+                .append("foreign key(CONTAINER_ID,CONTAINER_VERSION_ID) references CONTAINER_VERSION(CONTAINER_ID,CONTAINER_VERSION_ID),")
+                .append("foreign key(EMAIL_ID) references EMAIL(EMAIL_ID))")
+                .toString());
+            migratorIO.execute(migrationSql);
+        }
 
         migratorIO.updateReleaseInitialization(installedRelease);
     }

@@ -23,6 +23,7 @@ import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -91,6 +92,7 @@ public class Publish extends AbstractBrowserAction {
 	 */
 	public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
+        final Boolean displayAvatar = (Boolean) data.get(DataKey.DISPLAY_AVATAR);
         final ContainerModel containerModel = getContainerModel();
         final Container container = containerModel.read(containerId);
         if (containerModel.isLocalDraftModified(containerId)) {
@@ -109,14 +111,13 @@ public class Publish extends AbstractBrowserAction {
                     break;
             }
             if (isPublishable) {
-                final String versionName = (String) data.get(DataKey.VERSION_NAME);
-                final List<EMail> emails = data.getList(DataKey.EMAILS);
-                final List<Contact> contacts = data.getList(DataKey.CONTACTS);
-                final List<TeamMember> teamMembers = data.getList(DataKey.TEAM_MEMBERS);
-                if (0 == emails.size() && 0 == contacts.size()
-                        && teamMembers.size() == 0) {
+                if (displayAvatar) {
                     browser.displayPublishContainerDialog(containerId);
                 } else {
+                    final String versionName = (String) data.get(DataKey.VERSION_NAME);
+                    final List<EMail> emails = data.getList(DataKey.EMAILS);
+                    final List<Contact> contacts = data.getList(DataKey.CONTACTS);
+                    final List<TeamMember> teamMembers = data.getList(DataKey.TEAM_MEMBERS);
                     final ThinkParitySwingMonitor monitor = (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
                     invoke(monitor, container, versionName, emails, contacts,
                             teamMembers);
@@ -174,7 +175,7 @@ public class Publish extends AbstractBrowserAction {
 
     /** Data keys. */
 	public enum DataKey {
-        CONTACTS, CONTAINER_ID, EMAILS, MONITOR, TEAM_MEMBERS, VERSION_NAME
+        CONTACTS, CONTAINER_ID, DISPLAY_AVATAR, EMAILS, MONITOR, TEAM_MEMBERS, VERSION_NAME
     }
 
     /** A publish action worker object. */
@@ -216,7 +217,8 @@ public class Publish extends AbstractBrowserAction {
             /* if any e-mail addresses are contact e-mails, convert them to
              * contact references */
             Contact contact;
-            for (final EMail email : emails) {
+            final EMail[] duplicateEmails = (EMail[])emails.toArray(new EMail[0]);
+            for (final EMail email : duplicateEmails) {
                 if (contactModel.doesExist(email)) {
                     contact = contactModel.read(email);
                     if (!contacts.contains(contact)) {

@@ -11,7 +11,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -89,7 +88,31 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             final Data createDraftData = new Data(1);
             createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_CREATE_DRAFT, createDraftData, container);  
+            needSeparator = true;
+        }
+
+        // publish
+        if (null != draft && online && isLocalDraftModified(container.getId())) {
+            final Data publishData = new Data(2);
+            publishData.set(Publish.DataKey.CONTAINER_ID, draft.getContainerId());
+            publishData.set(Publish.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            add(ActionId.CONTAINER_PUBLISH, publishData);
+            needSeparator = true;
+        }
+
+        // add document
+        if (null != draft) {
+            final Data addDocumentData = new Data(2);
+            addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+            addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
+            add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
+            needSeparator = true;
+        }
+
+        // separator
+        if (needSeparator) {
             addSeparator();
+            needSeparator = false;
         }
 
         // Rename container
@@ -223,24 +246,26 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
      */
     public void showForDraft(final Container container, final ContainerDraft draft) {
         final boolean online = isOnline();
-        boolean needSeparator = false;
 
         // publish
         if (online && isLocalDraftModified(container.getId())) {
-            final Data publishData = new Data(1);
+            final Data publishData = new Data(2);
             publishData.set(Publish.DataKey.CONTAINER_ID, draft.getContainerId());
-            publishData.set(Publish.DataKey.CONTACTS, Collections.emptyList());
-            publishData.set(Publish.DataKey.TEAM_MEMBERS, Collections.emptyList());
+            publishData.set(Publish.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
             add(ActionId.CONTAINER_PUBLISH, publishData);
-            needSeparator = true;
         }
+
+        // add document
+        final Data addDocumentData = new Data(2);
+        addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+        addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
+        add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
 
         // update draft comment
         if (online) {
             final Data data = new Data(1);
             data.set(UpdateDraftComment.DataKey.CONTAINER_ID, draft.getContainerId());
             add(ActionId.CONTAINER_UPDATE_DRAFT_COMMENT, data);
-            needSeparator = true;
         }
 
         // delete draft
@@ -249,20 +274,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             final Data deleteData = new Data(2);
             deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, draft.getContainerId());
             add(ActionId.CONTAINER_DELETE_DRAFT, deleteData);
-            needSeparator = true;
         }
-
-        // separator
-        if (needSeparator) {
-            addSeparator();
-            needSeparator = false;
-        }
-
-        // add document
-        final Data addDocumentData = new Data(2);
-        addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-        addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
-        add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
 
         // print
         final List<Document> documentsNotDeleted = getDocumentsNotDeleted(draft);
@@ -331,10 +343,11 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
 
         // publish version
         if (online) {
-            final Data shareData = new Data(2);
-            shareData.set(PublishVersion.DataKey.CONTAINER_ID, version.getArtifactId());
-            shareData.set(PublishVersion.DataKey.VERSION_ID, version.getVersionId());
-            add(ActionId.CONTAINER_PUBLISH_VERSION, shareData);
+            final Data publishData = new Data(3);
+            publishData.set(PublishVersion.DataKey.CONTAINER_ID, version.getArtifactId());
+            publishData.set(PublishVersion.DataKey.VERSION_ID, version.getVersionId());
+            publishData.set(PublishVersion.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            add(ActionId.CONTAINER_PUBLISH_VERSION, publishData);
             needSeparator = true;
         }
 
@@ -370,7 +383,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
                     version.getCreatedOn().getTime()));
             add(MessageFormat.format(
                     "updatedOn():{0,date,yyyy-MM-dd HH:mm:ss.SSS Z}",
-                    version.getCreatedOn().getTime()));
+                    version.getUpdatedOn().getTime()));
         }
 
         show();

@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.browser.platform.action.container;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
@@ -37,7 +36,7 @@ public class PublishVersion extends AbstractBrowserAction {
 
     /** Data keys. */
     public enum DataKey {
-        CONTACTS, CONTAINER_ID, EMAILS, MONITOR, TEAM_MEMBERS, VERSION_ID
+        CONTACTS, CONTAINER_ID, DISPLAY_AVATAR, EMAILS, MONITOR, TEAM_MEMBERS, VERSION_ID
     }
 
     /** A publish action worker object. */
@@ -124,7 +123,8 @@ public class PublishVersion extends AbstractBrowserAction {
             /* if any e-mail addresses are contact e-mails, convert them to
              * contact references */
             Contact contact;
-            for (final EMail email : emails) {
+            final EMail[] duplicateEmails = (EMail[])emails.toArray(new EMail[0]);
+            for (final EMail email : duplicateEmails) {
                 if (contactModel.doesExist(email)) {
                     contact = contactModel.read(email);
                     if (!contacts.contains(contact)) {
@@ -161,19 +161,18 @@ public class PublishVersion extends AbstractBrowserAction {
     @Override
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
+        final Boolean displayAvatar = (Boolean) data.get(DataKey.DISPLAY_AVATAR);
         final Long versionId = (Long) data.get(DataKey.VERSION_ID);
-        final ContainerVersion version = getContainerModel().readVersion(
-                containerId, versionId);
+        final List<EMail> emails = data.getList(DataKey.EMAILS);
         final List<User> contactsIn = getDataUsers(data, DataKey.CONTACTS);
         final List<User> teamMembersIn = getDataUsers(data, DataKey.TEAM_MEMBERS);
-
-        if ((null == contactsIn || contactsIn.isEmpty()) &&
-            (null == teamMembersIn || teamMembersIn.isEmpty())) {
-                // Launch publish dialog
-                browser.displayPublishContainerDialog(containerId, versionId);
+        final ContainerVersion version = getContainerModel().readVersion(
+                containerId, versionId);
+        if (displayAvatar) {
+            // Launch publish dialog
+            browser.displayPublishContainerDialog(containerId, versionId);
         } else {
             final Profile profile = getProfileModel().read();
-            final List<EMail> emails = Collections.emptyList();
             final List<Contact> contacts = new ArrayList<Contact>();
             final List<TeamMember> teamMembers = new ArrayList<TeamMember>();
             

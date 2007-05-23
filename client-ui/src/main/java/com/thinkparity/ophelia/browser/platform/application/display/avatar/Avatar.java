@@ -17,10 +17,10 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
-import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.JTextComponent;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJPanel;
@@ -364,13 +364,13 @@ public abstract class Avatar extends AbstractJPanel {
     }
 
     /**
-     * Add an avatar validation listener to the text area.
+     * Add an avatar validation listener to the text component.
      *
-     * @param jTextArea A swing <code>JTextArea</code>.
+     * @param jTextComponent A swing <code>JTextComponent</code>.
      */
-    protected final void addValidationListener(final JTextArea jTextArea) {
+    protected final void addValidationListener(final JTextComponent jTextComponent) {
         final String listenerId = getId().name() + "#documentListener";
-        DocumentListener listener = (DocumentListener) jTextArea.getClientProperty(listenerId);
+        DocumentListener listener = (DocumentListener) jTextComponent.getClientProperty(listenerId);
         if (null == listener) {
             listener = new DocumentListener() {
                 public void changedUpdate(final DocumentEvent e) {
@@ -384,9 +384,9 @@ public abstract class Avatar extends AbstractJPanel {
                 }
             };
         }
-        jTextArea.putClientProperty(listenerId, listener);
-        jTextArea.getDocument().removeDocumentListener(listener);
-        jTextArea.getDocument().addDocumentListener(listener);
+        jTextComponent.putClientProperty(listenerId, listener);
+        jTextComponent.getDocument().removeDocumentListener(listener);
+        jTextComponent.getDocument().addDocumentListener(listener);
     }
 
     /**

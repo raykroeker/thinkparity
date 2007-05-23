@@ -1235,7 +1235,8 @@ public class Browser extends AbstractApplication {
             final Long containerId, final String versionName,
             final List<EMail> emails, final List<Contact> contacts,
             final List<TeamMember> teamMembers) {
-        final Data data = new Data(6);
+        final Data data = new Data(7);
+        data.set(Publish.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
         data.set(Publish.DataKey.CONTAINER_ID, containerId);
         data.set(Publish.DataKey.CONTACTS, contacts);
         data.set(Publish.DataKey.EMAILS, emails);
@@ -1272,7 +1273,8 @@ public class Browser extends AbstractApplication {
             final ThinkParitySwingMonitor monitor, final Long containerId,
             final Long versionId, final List<EMail> emails,
             final List<Contact> contacts, final List<TeamMember> teamMembers) {
-        final Data data = new Data(6);
+        final Data data = new Data(7);
+        data.set(PublishVersion.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
         data.set(PublishVersion.DataKey.CONTACTS, contacts);
         data.set(PublishVersion.DataKey.CONTAINER_ID, containerId);
         data.set(PublishVersion.DataKey.EMAILS, emails);

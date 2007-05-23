@@ -65,7 +65,7 @@ public final class PublishContainerAvatar extends Avatar implements
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPanel buttonBarJPanel = new javax.swing.JPanel();
-    private final javax.swing.JTextArea emailsJTextArea = new javax.swing.JTextArea();
+    private final javax.swing.JTextField emailsJTextField = new javax.swing.JTextField();
     private final javax.swing.JList namesJList = new javax.swing.JList();
     private final javax.swing.JScrollPane namesJScrollPane = new javax.swing.JScrollPane();
     private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
@@ -87,7 +87,7 @@ public final class PublishContainerAvatar extends Avatar implements
         this.containerConstraints = ContainerConstraints.getInstance();
         this.namesListModel = new PublishContainerAvatarUserListModel();
         initComponents();
-        addValidationListener(emailsJTextArea);
+        addValidationListener(emailsJTextField);
         bindEscapeKey();
         namesJScrollPane.getViewport().setOpaque(false);
     }
@@ -265,7 +265,7 @@ public final class PublishContainerAvatar extends Avatar implements
      * @return A <code>List</code> of <code>EMail</code> addresses.
      */
     private List<EMail> extractEMails() {
-        final String text = SwingUtil.extract(emailsJTextArea, Boolean.TRUE);
+        final String text = SwingUtil.extract(emailsJTextField, Boolean.TRUE);
         final List<EMail> emails;
         if (null == text) {
             emails = Collections.emptyList();
@@ -355,7 +355,6 @@ public final class PublishContainerAvatar extends Avatar implements
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         final javax.swing.JLabel emailsJLabel = new javax.swing.JLabel();
-        final javax.swing.JScrollPane emailsJScrollPane = new javax.swing.JScrollPane();
         final javax.swing.JLabel versionNameJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
         final javax.swing.JButton cancelJButton = ButtonFactory.create();
@@ -378,11 +377,7 @@ public final class PublishContainerAvatar extends Avatar implements
         emailsJLabel.setFont(Fonts.DialogFont);
         emailsJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.Emails"));
 
-        emailsJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        emailsJTextArea.setColumns(20);
-        emailsJTextArea.setFont(Fonts.DialogTextEntryFont);
-        emailsJTextArea.setLineWrap(true);
-        emailsJScrollPane.setViewportView(emailsJTextArea);
+        emailsJTextField.setFont(Fonts.DialogTextEntryFont);
 
         versionNameJLabel.setFont(Fonts.DialogFont);
         versionNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.VersionName"));
@@ -473,9 +468,9 @@ public final class PublishContainerAvatar extends Avatar implements
                     .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
-                    .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
                     .add(versionNameJLabel)
-                    .add(versionNameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE))
+                    .add(versionNameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
+                    .add(emailsJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -486,12 +481,12 @@ public final class PublishContainerAvatar extends Avatar implements
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(emailsJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(emailsJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(versionNameJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(versionNameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 15, Short.MAX_VALUE)
                 .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -620,7 +615,7 @@ public final class PublishContainerAvatar extends Avatar implements
      *
      */
     private void reloadEMails() {
-        emailsJTextArea.setText(null);
+        emailsJTextField.setText(null);
     }
 
     private void reloadProgressBar() {

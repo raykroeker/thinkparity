@@ -301,8 +301,8 @@ public final class Constants {
     }
 
     public static final class Session {
-        public static final Long CONNECT_TIMER_PERIOD = 1 * 60 * 1000L;
-        public static final Long RECONNECT_DELAY = 1 * 60 * 1000L;
+        public static final Long CONNECT_TIMER_PERIOD = 1 * 5 * 1000L;
+        public static final Long RECONNECT_DELAY = 1 * 5 * 1000L;
     }
     
     public static final class ShutdownHooks {

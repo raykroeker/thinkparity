@@ -19,7 +19,6 @@ import javax.sql.DataSource;
 import com.thinkparity.codebase.Constants;
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
-import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
@@ -33,6 +32,7 @@ import com.thinkparity.codebase.model.util.jta.Transaction;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.Constants.FileNames;
+import com.thinkparity.ophelia.model.Constants.Release;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
@@ -67,9 +67,6 @@ public final class WorkspaceImpl implements Workspace {
     /** An apache logger. */
     private final Log4JWrapper logger;
 
-    /** The operating <code>Mode</code>. */
-    private final Mode mode;
-
     /** The persistence manager. */
     private PersistenceManagerImpl persistenceManagerImpl;
 
@@ -89,7 +86,6 @@ public final class WorkspaceImpl implements Workspace {
 	public WorkspaceImpl(final File workspace) {
         super();
         this.logger = new Log4JWrapper(getClass());
-        this.mode = Mode.valueOf(System.getProperty("thinkparity.mode"));
         this.workspace = initRoot(workspace);
         bootstrapLog4J();
 	}
@@ -551,6 +547,8 @@ public final class WorkspaceImpl implements Workspace {
         logging.setProperty("log4j.appender.METRIX_DEBUGGER.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity Metrics.log"));
+        // metrics additivity
+        logging.setProperty("log4j.additivity.METRIX_DEBUGGER", "false");
         // sql appender
         logging.setProperty("log4j.appender.SQL_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.SQL_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
@@ -559,6 +557,8 @@ public final class WorkspaceImpl implements Workspace {
         logging.setProperty("log4j.appender.SQL_DEBUGGER.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity SQL.log"));
+        // sql additivity
+        logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
         // xa appender
         logging.setProperty("log4j.appender.XA_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.XA_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
@@ -567,6 +567,8 @@ public final class WorkspaceImpl implements Workspace {
         logging.setProperty("log4j.appender.XA_DEBUGGER.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity XA.log"));
+        // xa additivity
+        logging.setProperty("log4j.additivity.XA_DEBUGGER", "false");
         // xmpp appender
         logging.setProperty("log4j.appender.XMPP_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
@@ -575,66 +577,10 @@ public final class WorkspaceImpl implements Workspace {
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity XMPP.log"));
+        // xmpp additivity
+        logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
         // loggers
-        switch (mode) {
-        case DEMO:
-        case PRODUCTION:
-            logging.setProperty("log4j.rootLogger", "WARN, DEFAULT");
-
-            logging.setProperty("log4j.logger.com.thinkparity.ophelia", "WARN, DEFAULT");
-            logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
-
-            logging.setProperty("log4j.logger.METRIX_DEBUGGER", "NONE");
-            logging.setProperty("log4j.additivity.METRIX_DEBUGGER", "false");
-
-            logging.setProperty("log4j.logger.SQL_DEBUGGER", "NONE");
-            logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
-
-            logging.setProperty("log4j.logger.XA_DEBUGGER", "NONE");
-            logging.setProperty("log4j.additivity.XA_DEBUGGER", "false");
-
-            logging.setProperty("log4j.logger.XMPP_DEBUGGER", "NONE");
-            logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
-            break;
-        case DEVELOPMENT:
-            logging.setProperty("log4j.rootLogger", "INFO, CONSOLE, DEFAULT");
-
-            logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, CONSOLE, DEFAULT");
-            logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
-
-            logging.setProperty("log4j.logger.METRIX_DEBUGGER", "TRACE, METRIX_DEBUGGER");
-            logging.setProperty("log4j.additivity.METRIX_DEBUGGER", "false");
-
-            logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
-            logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
-
-            logging.setProperty("log4j.logger.XA_DEBUGGER", "TRACE, XA_DEBUGGER");
-            logging.setProperty("log4j.additivity.XA_DEBUGGER", "false");
-
-            logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
-            logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
-            break;
-        case TESTING:
-            logging.setProperty("log4j.rootLogger", "INFO, DEFAULT");
-
-            logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, DEFAULT");
-            logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
-
-            logging.setProperty("log4j.logger.METRIX_DEBUGGER", "DEBUG, METRIX_DEBUGGER");
-            logging.setProperty("log4j.additivity.METRIX_DEBUGGER", "false");
-
-            logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
-            logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
-
-            logging.setProperty("log4j.logger.XA_DEBUGGER", "INFO, XA_DEBUGGER");
-            logging.setProperty("log4j.additivity.XA_DEBUGGER", "false");
-
-            logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
-            logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
-            break;
-        default:
-            throw Assert.createUnreachable("Unknown operating mode.");
-        }
+        logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
         // renderers
         logging.setProperty(
                 "log4j.renderer.com.thinkparity.codebase.jabber.JabberId",
@@ -658,6 +604,9 @@ public final class WorkspaceImpl implements Workspace {
                 "log4j.renderer.com.thinkparity.codebase.model.document.DocumentVersion",
                 "com.thinkparity.codebase.model.util.logging.or.DocumentVersionRenderer");
         logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.migrator.Release",
+                "com.thinkparity.codebase.model.util.logging.or.ReleaseRenderer");
+        logging.setProperty(
                 "log4j.renderer.com.thinkparity.codebase.model.user.User",
                 "com.thinkparity.codebase.model.util.logging.or.UserRenderer");
         logging.setProperty(
@@ -665,11 +614,11 @@ public final class WorkspaceImpl implements Workspace {
                 "com.thinkparity.ophelia.model.util.logging.or.PacketRenderer");
         LogManager.resetConfiguration();
         PropertyConfigurator.configure(logging);
-        new Log4JWrapper("DEFAULT").logInfo("{0} - {1}", "thinkParity", "1.0");
-        new Log4JWrapper("METRIX_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
-        new Log4JWrapper("SQL_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
-        new Log4JWrapper("XA_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
-        new Log4JWrapper("XMPP_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
+        new Log4JWrapper("DEFAULT").logInfo("{0} - {1}", "thinkParity", Release.NAME);
+        new Log4JWrapper("METRIX_DEBUGGER").logInfo("{0} - {1}", "thinkParity", Release.NAME);
+        new Log4JWrapper("SQL_DEBUGGER").logInfo("{0} - {1}", "thinkParity", Release.NAME);
+        new Log4JWrapper("XA_DEBUGGER").logInfo("{0} - {1}", "thinkParity", Release.NAME);
+        new Log4JWrapper("XMPP_DEBUGGER").logInfo("{0} - {1}", "thinkParity", Release.NAME);
     }
 
     /**

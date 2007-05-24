@@ -27,15 +27,16 @@ public class UserRenderer implements ObjectRenderer {
 	}
 
 	/**
-	 * @see org.apache.log4j.or.ObjectRenderer#doRender(java.lang.Object)
-	 */
+     * @see org.apache.log4j.or.ObjectRenderer#doRender(java.lang.Object)
+     * 
+     */
 	public String doRender(Object o) {
 		if (null == o) {
             return Separator.Null.toString();
 		}
 		else {
             final User user = (User) o;
-            return StringUtil.toString(getClass(), "id", user.getId(),
+            return StringUtil.toString(user.getClass(), "id", user.getId(),
                     "localId", user.getLocalId(), "name", user.getName());
 		}
 	}

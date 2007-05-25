@@ -5,10 +5,6 @@ package com.thinkparity.ophelia.model.io.handler;
 
 import java.util.List;
 
-import com.thinkparity.codebase.model.migrator.Product;
-import com.thinkparity.codebase.model.migrator.Release;
-import com.thinkparity.codebase.model.migrator.Resource;
-
 /**
  * <b>Title:</b>thinkParity Migrator IO Handler<br>
  * <b>Description:</b><br>
@@ -21,44 +17,20 @@ public interface MigratorIOHandler {
     /**
      * Create the product.
      * 
-     * @param product
-     *            A <code>Product</code>.
-     * @param release
-     *            A <code>Release</code>.
-     * @param releaseResources
-     *            A <code>List</code> of <code>Resource</code>s.
+     * @param name
+     *            A product name <code>String</code>.
+     * @param releaseName
+     *            A release name <code>String</code>.
      */
-    public void createProduct(final Product product,
-            final Release release,
-            final List<Resource> releaseResources);
+    public void createProduct(final String name, final String releaseName);
 
     /**
-     * Create the release.
-     * 
-     * @param release
-     *            A <code>Release</code>.
-     * @param releaseResources
-     *            A <code>List</code> of <code>Resource</code>s.
-     */
-    public void createRelease(final Release release,
-            final List<Resource> releaseResources);
-
-    /**
-     * Delete a release.
-     * 
-     * @param release
-     *            A <code>Release</code>.
-     */
-    public void delete(final Release release);
-
-    /**
-     * Determine if the product exists.
+     * Delete the current downloaded release.
      * 
      * @param name
-     *            The product name <code>String</code>.
-     * @return True if the product has been initialized.
+     *            A product name <code>String</code>.
      */
-    public Boolean doesExistProduct(final String name);
+    public void deleteDownloadedProductRelease(final String name);
 
     /**
      * Execute sql.
@@ -70,112 +42,41 @@ public interface MigratorIOHandler {
     public void execute(final List<String> sql);
 
     /**
-     * Determine if the release has been initialized.
-     * 
-     * @param release
-     *            A <code>Release</code>.
-     * @return True if the release has been initialized.
-     */
-    public Boolean isReleaseInitialized(final Release release);
-
-    /**
-     * Read the installed release.
-     * 
-     * @param product
-     *            A <code>Product</code>.
-     * @return A <code>Release</code>.
-     */
-    public Release readInstalledRelease(final Product product);
-
-    /**
-     * Read the installed resources for a product.
-     * 
-     * @param product
-     *            A <code>Product</code>.
-     * @return A <code>List</code> of <code>Resource</code>s.
-     */
-    public List<Resource> readInstalledResources(final Product product);
-
-    /**
-     * Read the latest release.
-     * 
-     * @param product
-     *            A <code>Product</code>.
-     * @return A <code>Release</code>.
-     */
-    public Release readLatestRelease(final Product product);
-
-    /**
-     * Read the latest resources for a product.
-     * 
-     * @param product
-     *            A <code>Product</code>.
-     * @return A <code>List</code> of <code>Resource</code>s.
-     */
-    public List<Resource> readLatestResources(final Product product);
-
-    /**
-     * Read the previous release.
-     * 
-     * @param product
-     *            A <code>Product</code>.
-     * @return A <code>Release</code>.
-     */
-    public Release readPreviousRelease(final Product product);
-
-    /**
-     * Read the product.
+     * Read the downloaded product release.
      * 
      * @param name
      *            A product name <code>String</code>.
-     * @return A <code>Product</code>.
+     * @return A release name <code>String</code>.
      */
-    public Product readProduct(final String name);
+    public String readDownloadedProductRelease(final String name);
 
     /**
-     * Read all releases.
+     * Read the product release.
      * 
-     * @return A <code>List</code> of <code>Release</code>s.
+     * @param name
+     *            A product name <code>String</code>.
+     * @return A release name <code>String</code>.
      */
-    public List<Release> readReleases();
+    public String readProductRelease(final String name);
 
     /**
-     * Update the installed release.
+     * Set the current downloaded release.
      * 
-     * @param product
-     *            A <code>Product</code>.
-     * @param release
-     *            A <code>Release</code>.
+     * @param name
+     *            A product name <code>String</code>.
+     * @param releaseName
+     *            A release name <code>String</code>.
      */
-    public void updateInstalledRelease(final Product product,
-            final Release release);
+    public void updateDownloadedProductRelease(final String name,
+            final String releaseName);
 
     /**
-     * Update the latest release.
+     * Set the current product release.
      * 
-     * @param product
-     *            A <code>Product</code>.
-     * @param release
-     *            A <code>Release</code>.
+     * @param name
+     *            A product name <code>String</code>.
+     * @param releaseName
+     *            A release name <code>String</code>.
      */
-    public void updateLatestRelease(final Product product, final Release release);
-
-    /**
-     * Update the previous release.
-     * 
-     * @param product
-     *            A <code>Product</code>.
-     * @param release
-     *            A <code>Release</code>.
-     */
-    public void updatePreviousRelease(final Product product,
-            final Release release);
-
-    /**
-     * Update the release initialization.
-     * 
-     * @param release
-     *            A <code>Release</code>.
-     */
-    public void updateReleaseInitialization(final Release release);
+    public void updateProductRelease(final String name, final String releaseName);
 }

@@ -25,7 +25,7 @@ public interface InternalMigratorModel extends MigratorModel {
      * Download the latest release.
      *
      */
-    public void downloadLatestRelease(final ProcessMonitor monitor);
+    public void downloadRelease(final ProcessMonitor monitor);
 
     /**
      * Handle the product release deployed remote event.
@@ -37,17 +37,18 @@ public interface InternalMigratorModel extends MigratorModel {
             final ProductReleaseDeployedEvent event);
 
     /**
-     * Initialize the migrator model. We create the product the installed
-     * release and the latest release.
+     * Initialize the migrator model. We create a product and the release. A
+     * check for the latest version is also made and a download/install process
+     * started if we are not.
      * 
      */
     public void initialize(final ProcessMonitor monitor);
 
     /**
-     * Install the latest release.
+     * Install the downloaded release.
      * 
      */
-    public void installLatestRelease(final ProcessMonitor monitor);
+    public void installRelease(final ProcessMonitor monitor);
 
     /**
      * Log an error.

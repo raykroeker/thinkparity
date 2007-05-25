@@ -5,12 +5,16 @@ package com.thinkparity.ophelia.model.migrator;
 
 import java.io.*;
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
+import com.thinkparity.codebase.ResourceUtil;
+import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
@@ -32,6 +36,7 @@ import com.thinkparity.ophelia.model.events.MigratorAdapter;
 import com.thinkparity.ophelia.model.events.MigratorEvent;
 import com.thinkparity.ophelia.model.events.MigratorListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
+import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.handler.MigratorIOHandler;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
@@ -48,8 +53,10 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 public final class MigratorModelImpl extends Model<MigratorListener> implements
         MigratorModel, InternalMigratorModel {
 
+    /** An empty process monitory for the download thread. */
     private static final ProcessMonitor DOWNLOAD_MONITOR;
 
+    /** An empty process monitory for the installation thread. */
     private static final ProcessMonitor INSTALL_MONITOR;
 
     /** A workspace attribute key for the download thread. */
@@ -63,7 +70,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
 
     static {
         DOWNLOAD_MONITOR = new ProcessAdapter() {};
-        INSTALL_MONITOR = new ProcessAdapter() {};
+        INSTALL_MONITOR = DOWNLOAD_MONITOR;
         WS_ATTRIBUTE_KEY_DOWNLOAD = "MigratorModelImpl#download";
         WS_ATTRIBUTE_KEY_INSTALL = "MigratorModelImpl#install";
         WS_ATTRIBUTE_KEY_LISTENER = "MigratorModelImpl#listener";
@@ -122,21 +129,25 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.migrator.InternalMigratorModel#downloadLatestRelease(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     * @see com.thinkparity.ophelia.model.migrator.InternalMigratorModel#downloadRelease(com.thinkparity.ophelia.model.util.ProcessMonitor)
      * 
      */
-    public void downloadLatestRelease(final ProcessMonitor monitor) {
+    public void downloadRelease(final ProcessMonitor monitor) {
         try {
-            final Product product = readProduct();
-            final Release latestRelease = readLatestRelease();
-            final List<Resource> installedResources = readInstalledResources();
-            final List<Resource> latestResources = readLatestResources();
+            // the product
+            final Product product = readRemoteProduct(Constants.Product.NAME);
+            // the installed resources
+            final List<Resource> resources = readReleaseResources(
+                    Constants.Release.NAME, new FileSystem(installDirectory));
+            // the latest release/resources
+            final Release latestRelease = readRemoteLatestRelease();
+            final List<Resource> latestResources = readRemoteResources(latestRelease);
             // calculate the resources that need to be downloaded
-            final List<Resource> downloadManifest = createDownloadManifest(
-                    installedResources, latestResources);
+            final List<Resource> downloadResources = resolveDownloadResources(
+                    resources, latestResources);
             final File releaseFile = new File(downloadDirectory, latestRelease.getName()); 
             // download
-            final File temp = download(product, latestRelease, downloadManifest);
+            final File temp = download(product, latestRelease, downloadResources);
             try {
                 // copy to a download directory
                 fileToFile(temp, releaseFile);
@@ -144,6 +155,8 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
                 // no assertion because it is a temp file
                 temp.delete();
             }
+            migratorIO.updateDownloadedProductRelease(Constants.Product.NAME,
+                    latestRelease.getName());
             // fire event
             notifyLatestReleaseDownloaded(product, latestRelease,
                     localEventGenerator);
@@ -159,18 +172,18 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     public void handleProductReleaseDeployed(
             final ProductReleaseDeployedEvent event) {
         try {
-            // create release
-            final Release release = event.getRelease();
-            final List<Resource> resources = event.getResources();
-            migratorIO.createRelease(release, resources);
-            // update latest release
-            final Product product = migratorIO.readProduct(Constants.Product.NAME);
-            migratorIO.updateLatestRelease(product, release);
-            // go offline
-            getSessionModel().notifyClientMaintenance();
-            // fire event
-            notifyProductReleaseDeployed(event.getProduct(), event.getRelease(),
-                    remoteEventGenerator);
+            /* the scenario can exist that the event is fired _after_ the
+             * release has been downloaded/installed/initialized */
+            if (event.getRelease().getName().equals(Constants.Release.NAME)) {
+                logger.logInfo("Release {0} has already been installed.",
+                        event.getRelease().getName());
+            } else {
+                // go offline
+                getSessionModel().notifyClientMaintenance();
+                // fire event
+                notifyProductReleaseDeployed(event.getProduct(), event.getRelease(),
+                        remoteEventGenerator);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -182,47 +195,47 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      */
     public void initialize(final ProcessMonitor monitor) {
         try {
-            initializeProduct();
-            initializeInstalledRelease();
+            migratorIO.createProduct(Constants.Product.NAME, Constants.Release.NAME);
+            final Release latestRelease = readRemoteLatestRelease();
+            if (!latestRelease.getName().equals(Constants.Release.NAME)) {
+                getSessionModel().notifyClientMaintenance();
+                startDownloadRelease();
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.migrator.MigratorModel#initializeInstalledRelease(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     * @see com.thinkparity.ophelia.model.migrator.MigratorModel#initializeRelease(com.thinkparity.ophelia.model.util.ProcessMonitor)
      *
      */
-    public void initializeInstalledRelease(final ProcessMonitor monitor) {
+    public void initializeRelease(final ProcessMonitor monitor) {
         try {
-            initializeInstalledRelease();
+            initializeRelease();
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.migrator.InternalMigratorModel#installLatestRelease(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     * @see com.thinkparity.ophelia.model.migrator.InternalMigratorModel#installRelease(com.thinkparity.ophelia.model.util.ProcessMonitor)
      * 
      */
-    public void installLatestRelease(final ProcessMonitor monitor) {
+    public void installRelease(final ProcessMonitor monitor) {
         try {
             // ensure the migration can be done
-            final Product product = migratorIO.readProduct(Constants.Product.NAME);
-            final Release installedRelease = migratorIO.readInstalledRelease(product);
-            final Release latestRelease = migratorIO.readLatestRelease(product);
-            Assert.assertNotTrue(installedRelease.equals(latestRelease),
-                    "Installed release {0} equals latest release {1}.",
-                    installedRelease, latestRelease);
-    
-            final List<Resource> installedResources = migratorIO.readInstalledResources(product);
-            final List<Resource> latestResources = migratorIO.readLatestResources(product);
-    
-            final File download = new File(downloadDirectory, latestRelease.getName());
+            final String release = migratorIO.readProductRelease(Constants.Product.NAME);
+            final String downloadedRelease = migratorIO.readDownloadedProductRelease(Constants.Product.NAME);
+            Assert.assertNotTrue(downloadedRelease.equals(release),
+                    "Installed release {0} equals downloaded release {1}.",
+                    release, downloadedRelease);
+
+            final File download = new File(downloadDirectory, downloadedRelease);
             // reference install
-            final File install = new File(installDirectory, installedRelease.getName());
-            // createlatest
-            final File latest = new File(installDirectory, latestRelease.getName());
+            final File install = new File(installDirectory, release);
+            // create latest
+            final File latest = new File(installDirectory, release);
             if (latest.exists())
                 FileUtil.deleteTree(latest);
             Assert.assertTrue(latest.mkdir(),
@@ -231,9 +244,15 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             synchronized (workspace.getBufferLock()) {
                 ZipUtil.extractZipFile(download, latest, workspace.getBufferArray());
             }
+
+            final List<Resource> resources = readReleaseResources(release,
+                    new FileSystem(installDirectory));
+            final List<Resource> downloadedResources = readReleaseResources(
+                    downloadedRelease, new FileSystem(downloadDirectory));
+
             // copy resources from installed to latest
-            final List<Resource> copyManifest = createCopyManifest(
-                    installedResources, latestResources);
+            final List<Resource> copyManifest = resolveCopyResources(
+                    resources, downloadedResources);
             File from, to;
             final FileSystem latestFS = new FileSystem(latest);
             final FileSystem installFS = new FileSystem(install);
@@ -246,10 +265,11 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             Assert.assertTrue(download.delete(),
                     "Could not delete file {0}.", download);
             // install release
-            migratorIO.updateInstalledRelease(product, latestRelease);
-            migratorIO.updatePreviousRelease(product, installedRelease);
+            migratorIO.updateProductRelease(Constants.Product.NAME, downloadedRelease);
+            migratorIO.deleteDownloadedProductRelease(Constants.Product.NAME);
             // fire event
-            notifyLatestReleaseInstalled(product, latestRelease, localEventGenerator);
+            notifyLatestReleaseInstalled(Constants.Product.NAME,
+                    downloadedRelease, localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -259,28 +279,38 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      * @see com.thinkparity.ophelia.model.migrator.MigratorModel#isInstalledReleaseInitialized()
      *
      */
-    public Boolean isInstalledReleaseInitialized() {
+    public Boolean isReleaseInitialized() {
         try {
-            return migratorIO.isReleaseInitialized(readInstalledRelease());
+            /* determine if the release has been initialized */
+            try {
+                final String release = migratorIO.readProductRelease(Constants.Product.NAME);
+                return release.equals(Constants.Release.NAME);
+            } catch (final HypersonicException hx) {
+                // TODO remove after release - table does not exist error
+                final SQLException cause = (SQLException) hx.getCause();
+                if ("42X05".equals(cause.getSQLState())) {
+                    return Boolean.FALSE;
+                } else {
+                    throw hx;
+                }
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.migrator.InternalMigratorModel#isLatestRelease()
-     * 
+     * @see com.thinkparity.ophelia.model.migrator.MigratorModel#isReleaseInstalled()
+     *
      */
-    public Boolean isLatestRelease() {
-        /* NOTE if the product is not initialized the latest release cannot
-         * possibly be initialized or installed */
-        if (isProductInitialized()) {
-            final Product product = readProduct();
-            final Release installed = migratorIO.readInstalledRelease(product);
-            final Release latest = migratorIO.readLatestRelease(product);
-            return installed.equals(latest);
-        } else {
-            return Boolean.FALSE;
+    public Boolean isReleaseInstalled() {
+        try {
+            final String downloaded = migratorIO.readDownloadedProductRelease(
+                    Constants.Product.NAME);
+            // if there exists a downloaded release, it needs to be installed
+            return null == downloaded;
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 
@@ -307,22 +337,11 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
                 error.setStack(writer.toString());
                 error.setMethod(method.toGenericString());
                 error.setOccuredOn(sessionModel.readDateTime());
-                final Product product = migratorIO.readProduct(Constants.Product.NAME);
-                sessionModel.logError(product,
-                        migratorIO.readInstalledRelease(product), error);
+                final Product product = readRemoteProduct(Constants.Product.NAME);
+                final Release release = readRemoteProductRelease(
+                        Constants.Product.NAME, Constants.Release.NAME);
+                sessionModel.logError(product, release, error);
             }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.migrator.MigratorModel#readInstalledRelease()
-     * 
-     */
-    public Release readInstalledRelease() {
-        try {
-            return migratorIO.readInstalledRelease(readProduct());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -341,7 +360,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      * @see com.thinkparity.ophelia.model.migrator.MigratorModel#startDownloadLatestRelease()
      * 
      */
-    public void startDownloadLatestRelease() {
+    public void startDownloadRelease() {
         if (isLatestReleaseDownloadInProgress()) {
             logger.logInfo("Release download in progress.");
         } else {
@@ -350,7 +369,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
                 @Override
                 public void run() {
                     try {
-                        getMigratorModel().downloadLatestRelease(DOWNLOAD_MONITOR);
+                        getMigratorModel().downloadRelease(DOWNLOAD_MONITOR);
                     } finally {
                         workspace.removeAttribute(WS_ATTRIBUTE_KEY_DOWNLOAD);                    
                     }
@@ -359,6 +378,26 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             workspace.setAttribute(WS_ATTRIBUTE_KEY_DOWNLOAD, download);
             download.start();
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.migrator.MigratorModel#startInstallRelease(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     * 
+     */
+    public void startInstallRelease(final ProcessMonitor monitor) {
+        // THREAD MigratorModelImpl#startInstallLatestRelease
+        final Thread install = new Thread("TPS-OpheliaModel-InstallRelease") {
+            @Override
+            public void run() {
+                try {
+                    getMigratorModel().installRelease(monitor);
+                } finally {
+                    workspace.removeAttribute(WS_ATTRIBUTE_KEY_INSTALL);                    
+                }
+            }
+        };
+        workspace.setAttribute(WS_ATTRIBUTE_KEY_INSTALL, install);
+        install.start();
     }
 
     /**
@@ -375,11 +414,11 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             final MigratorListener listener = new MigratorAdapter() {
                 @Override
                 public void productReleaseDeployed(final MigratorEvent e) {
-                    startDownloadLatestRelease();
+                    startDownloadRelease();
                 }
                 @Override
                 public void productReleaseDownloaded(final MigratorEvent e) {
-                    startInstallLatestRelease();
+                    startInstallRelease(INSTALL_MONITOR);
                 }
             };
             workspace.setAttribute(WS_ATTRIBUTE_KEY_LISTENER, listener);
@@ -398,7 +437,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      *            A <code>List</code> of latest <code>Resource</code>s.
      * @return A <code>List</code> of <code>Resource</code>s.
      */
-    private List<Resource> createCopyManifest(final List<Resource> installed,
+    private List<Resource> resolveCopyResources(final List<Resource> installed,
             final List<Resource> latest) {
         final List<Resource> copy = new ArrayList<Resource>();
         for (final Resource resource : installed) {
@@ -406,27 +445,6 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
                 copy.add(resource);
         }
         return copy;
-    }
-
-    /**
-     * Create a list of resources that need to be downloaded.  Compare the list
-     * of resources in the installed list with that of the latest list.  Those
-     * in the latest that are not installed need to be downloaded.
-     * 
-     * @param installed
-     *            A <code>List</code> of installed <code>Resource</code>s.
-     * @param latest
-     *            A <code>List</code> of latest <code>Resource</code>s.
-     * @return A <code>List</code> of <code>Resource</code>s.
-     */
-    private List<Resource> createDownloadManifest(final List<Resource> installed,
-            final List<Resource> latest) {
-        final List<Resource> download = new ArrayList<Resource>();
-        for (final Resource resource : latest) {
-            if (!installed.contains(resource))
-                download.add(resource);
-        }
-        return download;
     }
 
     /**
@@ -452,71 +470,60 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     }
 
     /**
-     * Initialize the installed release. Here we perform any custom logic
-     * required to upgrade the product from one release to another.
+     * Fiter out any comment text from the buffer. A comment is represented by a
+     * beginning of a line, two dashes, whitespace, any text an end of a line.
      * 
-     * Then we update the installed release and its initialization information.
-     * 
+     * @param sql
+     *            An sql buffer <code>String</code>.
+     * @return The filtered sql buffer <code>String</code>.
      */
-    private void initializeInstalledRelease() {
-        final Release installedRelease = readInstalledRelease();
-        final Release previousRelease = readPreviousRelease();
-        logger.logVariable("installedRelease", installedRelease);
-        logger.logVariable("previousRelease", previousRelease);
-
-        // delete previous release
-        if (null == previousRelease) {
-            logger.logInfo("First installed release {0}.", installedRelease.getName());
-        } else {
-            logger.logInfo("Deleting previous release {0}.", previousRelease.getName());
-            final File previous = new File(installDirectory, previousRelease.getName());
-            if (previous.exists()) {
-                FileUtil.deleteTree(previous);
-            } else {
-                logger.logWarning("Previous release {0} was not installed.", previous);
-            }
-
-            final List<String> migrationSql = new ArrayList<String>();
-            migrationSql.add("alter table ARTIFACT_VERSION alter column COMMENT set data type varchar(4096)");
-            migrationSql.add("alter table ARTIFACT_VERSION add column NAME varchar(64) default null");
-            migrationSql.add("alter table CONTAINER_DRAFT add column COMMENT varchar(4096) default null");
-            migrationSql.add(new StringBuilder("create table CONTAINER_VERSION_PUBLISHED_TO_EMAIL(")
-                .append("CONTAINER_ID bigint not null,")
-                .append("CONTAINER_VERSION_ID bigint not null,")
-                .append("EMAIL_ID bigint not null,")
-                .append("PUBLISHED_ON timestamp,")
-                .append("primary key(CONTAINER_ID,CONTAINER_VERSION_ID,EMAIL_ID,PUBLISHED_ON),")
-                .append("foreign key(CONTAINER_ID,CONTAINER_VERSION_ID) references CONTAINER_VERSION(CONTAINER_ID,CONTAINER_VERSION_ID),")
-                .append("foreign key(EMAIL_ID) references EMAIL(EMAIL_ID))")
-                .toString());
-            migratorIO.execute(migrationSql);
-        }
-
-        migratorIO.updateReleaseInitialization(installedRelease);
+    private String filterSqlComments(String sql) {
+        sql = sql.replaceAll("--\\s.*", "");
+        return sql;
     }
 
     /**
-     * Initialize the product. Download the product and release meta-data from
-     * the server and create them locally. Also read the latest release
-     * meta-data from the server and if it differs from the installed release,
-     * create it and update the latest release info.
+     * Fiter out any end-of-line characters from the statement.
+     * 
+     * @param statement
+     *            An sql statement <code>String</code>.
+     * @return The filtered statement <code>String</code>.
      */
-    private void initializeProduct() {
-        // create the product
-        final Product product = readRemoteProduct(Constants.Product.NAME);
-        final Release release = readRemoteRelease(product, Constants.Release.NAME);
-        final List<Resource> resources = readRemoteResources(release);
-        migratorIO.createProduct(product, release, resources);
-        // set the latest release
-        final Release latestRelease = readRemoteLatestRelease(product);
-        if (!release.equals(latestRelease)) {
-            final List<Resource> latestReleaseResources = readRemoteResources(
-                    latestRelease);
-            migratorIO.createRelease(latestRelease, latestReleaseResources);
-            migratorIO.updateLatestRelease(product, latestRelease);
-            // go offline
-            getSessionModel().notifyClientMaintenance();
+    private String filterSqlStatementEOL(String statement) {
+        statement = statement.replaceAll("\\r", "");
+        statement = statement.replaceAll("\\n", "");
+        return statement;
+    }
+
+    /**
+     * Initialize the release.
+     * 
+     */
+    private void initializeRelease() throws IOException {
+        // the previous release
+        final String release = "v1_0-20070430-1500";
+        logger.logVariable("release", release);
+
+        // TODO - iterate all releases
+
+        final File releaseInstall = new File(installDirectory, release);
+        // a release will only not exist in a test/dev environment
+        if (releaseInstall.exists()) {
+            logger.logInfo("Deleting release {0}.", release);
+            FileUtil.deleteTree(releaseInstall);
         }
+
+        // migrate the schema
+        logger.logInfo("Migrating schema to {0}.", Constants.Release.NAME);
+        final String sql = loadSql(Constants.Release.NAME);
+        logger.logVariable("sql", sql);
+        filterSqlComments(sql);
+        logger.logVariable("sql", sql);
+        final List<String> sqlStatements = tokenizeSqlStatements(sql);
+        logger.logVariable("sqlStatements", sqlStatements);
+        migratorIO.execute(sqlStatements);
+
+        migratorIO.createProduct(Constants.Product.NAME, Constants.Release.NAME);
     }
 
     /**
@@ -529,12 +536,29 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     }
 
     /**
-     * Determine if the product is initialized.
+     * Load the sql migration statements for a release.
      * 
-     * @return True if the product is initialized.
+     * @param name
+     *            A release name <code>String</code>.
+     * @return A sql buffer <code>String</code> containing tokenized
+     *         statements.
+     * @throws IOException
      */
-    private boolean isProductInitialized() {
-        return migratorIO.doesExistProduct(Constants.Product.NAME).booleanValue();
+    private String loadSql(final String name) throws IOException {
+        // load the content of the sql file into a buffer
+        final Reader reader = new InputStreamReader(
+                ResourceUtil.getInputStream("database/" + name + ".sql"),
+                StringUtil.Charset.ISO_8859_1.getCharset());
+        try {
+            final StringBuilder buffer = new StringBuilder(2048);
+            int character;
+            while (-1 != (character = reader.read())) {
+                buffer.append((char) character);
+            }
+            return buffer.toString();
+        } finally {
+            reader.close();
+        }            
     }
 
     /**
@@ -559,18 +583,18 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     /**
      * Fire a product release installed event.
      * 
-     * @param product
-     *            The <code>Product</code>.
-     * @param release
-     *            The <code>Release</code>.
+     * @param name
+     *            The product name <code>String</code>.
+     * @param releaseName
+     *            The release name <code>String</code>.
      * @param meg
      *            The <code>MigratorEventGenerator</code>.
      */
-    private void notifyLatestReleaseInstalled(final Product product,
-            final Release release, final MigratorEventGenerator meg) {
+    private void notifyLatestReleaseInstalled(final String name,
+            final String releaseName, final MigratorEventGenerator meg) {
         notifyListeners(new EventNotifier<MigratorListener>() {
             public void notifyListener(final MigratorListener listener) {
-                listener.productReleaseInstalled(meg.generate(product, release));
+                listener.productReleaseInstalled(meg.generate(null, null));
             }
         });
     }
@@ -595,52 +619,28 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     }
 
     /**
-     * Read the installed release's resources.
+     * Read a release's file-system resources.
      * 
+     * @param name
+     *            A release name <code>String</code>.
+     * @param fileSystem
+     *            A <code>FileSystem</code>.
      * @return A <code>List</code> of <code>Resource</code>s.
      */
-    private List<Resource> readInstalledResources() {
-        return migratorIO.readInstalledResources(readProduct());
-    }
-
-    /**
-     * Read the latest release.
-     * 
-     * @return A <code>Release</code>.
-     */
-    private Release readLatestRelease() {
-        return migratorIO.readLatestRelease(readProduct());
-    }
-
-    /**
-     * Read the latest release's resources.
-     * 
-     * @return A <code>List</code> of <code>Resource</code>s.
-     */
-    private List<Resource> readLatestResources() {
-        return migratorIO.readLatestResources(readProduct());
-    }
-
-    /**
-     * Read the previously installed release.
-     * 
-     * @return A <code>Release</code>.
-     */
-    private Release readPreviousRelease() {
-        try {
-            return migratorIO.readPreviousRelease(readProduct());
-        } catch (final Throwable t) {
-            throw panic(t);
+    private List<Resource> readReleaseResources(final String name,
+            final FileSystem fileSystem) throws IOException {
+        final File[] files = fileSystem.listFiles("/", Boolean.TRUE);
+        final List<Resource> resources = new ArrayList<Resource>(files.length);
+        Resource resource;
+        for (final File file : files) {
+            resource = new Resource();
+            resource.setChecksum(checksum(file));
+            resource.setChecksumAlgorithm(getChecksumAlgorithm());
+            resource.setPath(FileUtil.getRelativePath(fileSystem.getRoot(), file, '/'));
+            resource.setReleaseName(name);
+            resource.setSize(file.length());
         }
-    }
-
-    /**
-     * Read the product.
-     * 
-     * @return A <code>Product</code>.
-     */
-    private Product readProduct() {
-        return migratorIO.readProduct(Constants.Product.NAME);
+        return resources;
     }
 
     /**
@@ -650,9 +650,9 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      *            A <code>Product</code>.
      * @return A <code>Release</code>.
      */
-    private Release readRemoteLatestRelease(final Product product) {
+    private Release readRemoteLatestRelease() {
         return getSessionModel().readMigratorLatestRelease(
-                product.getName(), OSUtil.getOs());
+                Constants.Product.NAME, OSUtil.getOs());
     }
 
     /**
@@ -667,17 +667,18 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     }
 
     /**
-     * Read the release from the server.
+     * Read a product release from the server.
      * 
-     * @param product
-     *            A <code>Product</code>.
      * @param name
+     *            A product name <code>String</code>.
+     * @param releaseName
      *            A release name <code>String</code>.
      * @return A <code>Release</code>.
      */
-    private Release readRemoteRelease(final Product product, final String name) {
-        return getSessionModel().readMigratorRelease(product.getName(),
-                name, OSUtil.getOs());
+    private Release readRemoteProductRelease(final String name,
+            final String releaseName) {
+        return getSessionModel().readMigratorRelease(name, releaseName,
+                OSUtil.getOS());
     }
 
     /**
@@ -693,23 +694,46 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     }
 
     /**
-     * Start a thread to install the latest release.
+     * Create a list of resources that need to be downloaded.  Compare the list
+     * of resources in the installed list with that of the latest list.  Those
+     * in the latest that are not installed need to be downloaded.
      * 
+     * @param installed
+     *            A <code>List</code> of installed <code>Resource</code>s.
+     * @param latest
+     *            A <code>List</code> of latest <code>Resource</code>s.
+     * @return A <code>List</code> of <code>Resource</code>s.
      */
-    private void startInstallLatestRelease() {
-        // THREAD MigratorModelImpl#startInstallLatestRelease
-        final Thread install = new Thread("TPS-OpheliaModel-InstallRelease") {
-            @Override
-            public void run() {
-                try {
-                    getMigratorModel().installLatestRelease(INSTALL_MONITOR);
-                } finally {
-                    workspace.removeAttribute(WS_ATTRIBUTE_KEY_INSTALL);                    
-                }
+    private List<Resource> resolveDownloadResources(
+            final List<Resource> installed, final List<Resource> latest) {
+        final List<Resource> download = new ArrayList<Resource>();
+        for (final Resource resource : latest) {
+            if (!installed.contains(resource))
+                download.add(resource);
+        }
+        return download;
+    }
+
+    /**
+     * Tokenize an sql buffer into a list of statements. Empty text is ignored.
+     * The statement separator is a semi-colon.
+     * 
+     * @param sql
+     *            An sql buffer <code>String</code>.
+     * @return A <code>List<String></code>.
+     */
+    private List<String> tokenizeSqlStatements(final String sql) {
+        final StringTokenizer tokenizer = new StringTokenizer(sql, ";");
+        final List<String> sqlStatements = new ArrayList<String>(tokenizer.countTokens());
+        String token;
+        while (tokenizer.hasMoreTokens()) {
+            token = tokenizer.nextToken().trim();
+            if (!"".equals(token)) {
+                filterSqlStatementEOL(token);
+                sqlStatements.add(token);
             }
-        };
-        workspace.setAttribute(WS_ATTRIBUTE_KEY_INSTALL, install);
-        install.start();
+        }
+        return sqlStatements;
     }
 
     /**

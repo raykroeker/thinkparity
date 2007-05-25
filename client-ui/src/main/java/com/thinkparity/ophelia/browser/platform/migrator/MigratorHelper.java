@@ -38,8 +38,8 @@ public final class MigratorHelper {
      * @param monitor
      *            A <code>ProcessMonitor</code>.
      */
-    public void initializeInstalledRelease(final ProcessMonitor monitor) {
-        model.initializeInstalledRelease(monitor);
+    public void initializeRelease(final ProcessMonitor monitor) {
+        model.initializeRelease(monitor);
     }
 
     /**
@@ -47,24 +47,24 @@ public final class MigratorHelper {
      * 
      * @return True if the installed release is initialized.
      */
-    public Boolean isInstalledReleaseInitialized() {
-        return model.isInstalledReleaseInitialized();
+    public Boolean isReleaseInitialized() {
+        return model.isReleaseInitialized();
     }
 
     /**
-     * Determine if this is the latest release.
+     * Detemine if the downloaded release is installed.
      * 
-     * @return True if this is the latest release.
+     * @return True if the downloaded release is installed.
      */
-    public Boolean isLatestRelease() {
-        return model.isLatestRelease();
+    public Boolean isReleaseInstalled() {
+        return model.isReleaseInstalled();
     }
 
     /**
-     * Start a thread to download the latest release.
-     *
+     * Install the release.
+     * @param monitor A <code>ProcessMonitor</cod
      */
-    public void startDownloadLatestRelease() {
-        model.startDownloadLatestRelease();
+    public void startInstallRelease(final ProcessMonitor monitor) {
+        model.startInstallRelease(monitor);
     }
 }

@@ -662,8 +662,15 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
             deleteWorkspace();
             terminate();
         } else {
-            if (!isInstalledReleaseInitialized()) {
-                initializeInstalledRelease();
+            /* a release has been installed, and subsequently needs to be
+             * initialized */
+            if (!isReleaseInitialized()) {
+                initializeRelease();
+            }
+            /* a release has been downloaded after which the software has ended
+             * and now the release needs to be installed */
+            if (!isReleaseInstalled()) {
+                startInstallRelease();
             }
             startPlugins();
             startApplications();
@@ -679,10 +686,6 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         // start an event dispatcher
         eventDispatcher = new EventDispatcher(this);
         eventDispatcher.start();
-
-        /* if we are not running the latest release, start a download task */
-        if (!isLatestRelease())
-            startDownloadLatestRelease();
     }
 
     /**
@@ -798,12 +801,12 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         }
     }
 
-	/**
+    /**
      * Initialized the installed release.
      *
      */
-    private void initializeInstalledRelease() {
-        migratorHelper.initializeInstalledRelease(new ProcessAdapter() {});
+    private void initializeRelease() {
+        migratorHelper.initializeRelease(new ProcessAdapter() {});
     }
 
     /**
@@ -831,17 +834,17 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      * 
      * @return True if the installed release is initialized.
      */
-    private boolean isInstalledReleaseInitialized() {
-        return migratorHelper.isInstalledReleaseInitialized();
+    private boolean isReleaseInitialized() {
+        return migratorHelper.isReleaseInitialized();
     }
 
     /**
-     * Determine whether or not we are running the latest release.
+     * Determine whether or not the installed release is initialized.
      * 
-     * @return True if we are running the latest release.
+     * @return True if the installed release is initialized.
      */
-    private boolean isLatestRelease() {
-        return migratorHelper.isLatestRelease();
+    private boolean isReleaseInstalled() {
+        return migratorHelper.isReleaseInstalled();
     }
 
     /**
@@ -973,11 +976,11 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     }
 
     /**
-     * Start the download of the latest release.
+     * Initialized the installed release.
      *
      */
-    private void startDownloadLatestRelease() {
-        migratorHelper.startDownloadLatestRelease();
+    private void startInstallRelease() {
+        migratorHelper.startInstallRelease(new ProcessAdapter() {});
     }
 
     /**

@@ -10,6 +10,7 @@ import java.util.Stack;
 import java.util.UUID;
 
 import com.thinkparity.codebase.OS;
+import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
@@ -47,6 +48,7 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.Token;
 
+import com.thinkparity.ophelia.model.Constants;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.events.SessionAdapter;
@@ -830,38 +832,47 @@ public final class SessionModelImpl extends Model<SessionListener>
         try {
             assertNotIsOnline();
             assertXMPPIsReachable(environment);
-            notifyProcessBegin(monitor);
-            final Credentials credentials = readCredentials();
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                // check that the credentials match
-                final Credentials localCredentials = readCredentials();
-                Assert.assertTrue(
-                        localCredentials.getUsername().equals(credentials.getUsername()) &&
-                        localCredentials.getPassword().equals(credentials.getPassword()),
-                        "Credentials {0} do not match local credentials {1}.",
-                        credentials, localCredentials);
-                credentials.setResource(localCredentials.getResource());
-                // register xmpp event listeners
-                new SessionModelEventDispatcher(workspace, modelFactory, xmppSession);
-                // login
-                try {
-                    xmppSession.login(environment, credentials);
-                } catch (final InvalidCredentialsException icx) {
-                    xmppSession.logout();
-                    throw icx;
+            /* if the latest release is newer than this software, start a
+             * download */
+            final Release latestRelease = readMigratorLatestRelease(
+                    Constants.Product.NAME, OSUtil.getOS());
+            if (latestRelease.getName().equals(Constants.Release.NAME)) {
+                notifyProcessBegin(monitor);
+                final Credentials credentials = readCredentials();
+                final XMPPSession xmppSession = workspace.getXMPPSession();
+                synchronized (xmppSession) {
+                    // check that the credentials match
+                    final Credentials localCredentials = readCredentials();
+                    Assert.assertTrue(
+                            localCredentials.getUsername().equals(credentials.getUsername()) &&
+                            localCredentials.getPassword().equals(credentials.getPassword()),
+                            "Credentials {0} do not match local credentials {1}.",
+                            credentials, localCredentials);
+                    credentials.setResource(localCredentials.getResource());
+                    // register xmpp event listeners
+                    new SessionModelEventDispatcher(workspace, modelFactory, xmppSession);
+                    // login
+                    try {
+                        xmppSession.login(environment, credentials);
+                    } catch (final InvalidCredentialsException icx) {
+                        xmppSession.logout();
+                        throw icx;
+                    }
+                    // ensure environment integrity
+                    final Token localToken = readToken();
+                    final Token remoteToken = xmppSession.readToken(localUserId());
+                    if (localToken.equals(remoteToken)) {
+                        // process queued events
+                        xmppSession.processEventQueue(monitor, localUserId());
+                        xmppSession.registerQueueListener();
+                    } else {
+                        xmppSession.logout();
+                        throw new InvalidLocationException();
+                    }
                 }
-                // ensure environment integrity
-                final Token localToken = readToken();
-                final Token remoteToken = xmppSession.readToken(localUserId());
-                if (localToken.equals(remoteToken)) {
-                    // process queued events
-                    xmppSession.processEventQueue(monitor, localUserId());
-                    xmppSession.registerQueueListener();
-                } else {
-                    xmppSession.logout();
-                    throw new InvalidLocationException();
-                }
+            } else {
+                notifyClientMaintenance();
+                getMigratorModel().startDownloadRelease();
             }
         } catch (final InvalidCredentialsException icx) {
             throw icx;
@@ -1462,8 +1473,13 @@ public final class SessionModelImpl extends Model<SessionListener>
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                return xmppSession.readMigratorLatestRelease(localUserId(),
-                        productName, os);
+                authenticateAsSystem(xmppSession);
+                try {
+                    return xmppSession.readMigratorLatestRelease(
+                            User.THINKPARITY.getId(), productName, os);
+                } finally {
+                    unauthenticate(xmppSession);
+                }
             }
         } catch (final Throwable t) {
             throw panic(t);

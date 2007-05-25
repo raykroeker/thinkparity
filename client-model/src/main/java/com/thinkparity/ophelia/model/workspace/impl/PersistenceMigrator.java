@@ -80,9 +80,7 @@ public class PersistenceMigrator {
                 CONFIG.getProperty("CreateDocument"),
                 CONFIG.getProperty("CreateDocumentVersion"),
                 CONFIG.getProperty("CreateContainerDraftDocument"),
-                CONFIG.getProperty("CreateProductRelease"),
-                CONFIG.getProperty("CreateProductReleaseResource"),
-                CONFIG.getProperty("CreateProduct"),
+                CONFIG.getProperty("CreateMigrator"),
                 CONFIG.getProperty("CreateIndexUserName"),
                 CONFIG.getProperty("CreateIndexUserOrganization"),
                 CONFIG.getProperty("CreateIndexEmail")

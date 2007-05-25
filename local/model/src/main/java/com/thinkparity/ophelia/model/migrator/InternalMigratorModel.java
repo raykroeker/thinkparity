@@ -22,12 +22,6 @@ import com.thinkparity.ophelia.model.util.ProcessMonitor;
 public interface InternalMigratorModel extends MigratorModel {
 
     /**
-     * Download the latest release.
-     *
-     */
-    public void downloadRelease(final ProcessMonitor monitor);
-
-    /**
      * Handle the product release deployed remote event.
      * 
      * @param event
@@ -45,12 +39,6 @@ public interface InternalMigratorModel extends MigratorModel {
     public void initialize(final ProcessMonitor monitor);
 
     /**
-     * Install the downloaded release.
-     * 
-     */
-    public void installRelease(final ProcessMonitor monitor);
-
-    /**
      * Log an error.
      * 
      * @param cause
@@ -62,4 +50,8 @@ public interface InternalMigratorModel extends MigratorModel {
      */
     public void logError(final Throwable cause, final Method method,
             final Object[] arguments);
+
+    public void updateDownloadedRelease(final String name);
+
+    public void updateInstalledRelease(final String name);
 }

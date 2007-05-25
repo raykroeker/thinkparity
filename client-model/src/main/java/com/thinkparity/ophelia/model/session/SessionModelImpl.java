@@ -830,49 +830,51 @@ public final class SessionModelImpl extends Model<SessionListener>
     public void login(final ProcessMonitor monitor)
             throws InvalidCredentialsException, InvalidLocationException {
         try {
+            if (isClientMaintenance())
+                return;
+
             assertNotIsOnline();
             assertXMPPIsReachable(environment);
-            /* if the latest release is newer than this software, start a
-             * download */
-            final Release latestRelease = readMigratorLatestRelease(
-                    Constants.Product.NAME, OSUtil.getOS());
-            if (latestRelease.getName().equals(Constants.Release.NAME)) {
-                notifyProcessBegin(monitor);
-                final Credentials credentials = readCredentials();
-                final XMPPSession xmppSession = workspace.getXMPPSession();
-                synchronized (xmppSession) {
-                    // check that the credentials match
-                    final Credentials localCredentials = readCredentials();
-                    Assert.assertTrue(
-                            localCredentials.getUsername().equals(credentials.getUsername()) &&
-                            localCredentials.getPassword().equals(credentials.getPassword()),
-                            "Credentials {0} do not match local credentials {1}.",
-                            credentials, localCredentials);
-                    credentials.setResource(localCredentials.getResource());
-                    // register xmpp event listeners
-                    new SessionModelEventDispatcher(workspace, modelFactory, xmppSession);
-                    // login
-                    try {
-                        xmppSession.login(environment, credentials);
-                    } catch (final InvalidCredentialsException icx) {
-                        xmppSession.logout();
-                        throw icx;
-                    }
-                    // ensure environment integrity
-                    final Token localToken = readToken();
-                    final Token remoteToken = xmppSession.readToken(localUserId());
-                    if (localToken.equals(remoteToken)) {
+            notifyProcessBegin(monitor);
+            final Credentials credentials = readCredentials();
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                // check that the credentials match
+                final Credentials localCredentials = readCredentials();
+                Assert.assertTrue(
+                        localCredentials.getUsername().equals(credentials.getUsername()) &&
+                        localCredentials.getPassword().equals(credentials.getPassword()),
+                        "Credentials {0} do not match local credentials {1}.",
+                        credentials, localCredentials);
+                credentials.setResource(localCredentials.getResource());
+                // register xmpp event listeners
+                new SessionModelEventDispatcher(workspace, modelFactory, xmppSession);
+                // login
+                try {
+                    xmppSession.login(environment, credentials);
+                } catch (final InvalidCredentialsException icx) {
+                    xmppSession.logout();
+                    throw icx;
+                }
+                // ensure environment integrity
+                final Token localToken = readToken();
+                final Token remoteToken = xmppSession.readToken(localUserId());
+                if (localToken.equals(remoteToken)) {
+                    /* if the latest release is newer than this software, start a
+                     * download */
+                    final Release latestRelease = readMigratorLatestRelease(
+                            Constants.Product.NAME, OSUtil.getOS());
+                    if (latestRelease.getName().equals(Constants.Release.NAME)) {
                         // process queued events
                         xmppSession.processEventQueue(monitor, localUserId());
                         xmppSession.registerQueueListener();
                     } else {
-                        xmppSession.logout();
-                        throw new InvalidLocationException();
+                        getMigratorModel().startDownloadRelease();
                     }
+                } else {
+                    xmppSession.logout();
+                    throw new InvalidLocationException();
                 }
-            } else {
-                notifyClientMaintenance();
-                getMigratorModel().startDownloadRelease();
             }
         } catch (final InvalidCredentialsException icx) {
             throw icx;
@@ -922,7 +924,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#processQueue(com.thinkparity.ophelia.model.util.ProcessMonitor)
      * 
      */
@@ -937,7 +939,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#publish(com.thinkparity.codebase.model.container.ContainerVersion,
      *      java.util.Map, java.util.List,
      *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
@@ -1114,7 +1116,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
+    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
             final JabberId userId, final UUID uniqueId,
             final Long compareVersionId, final Long compareToVersionId) {
         logger.logApiId();
@@ -1132,8 +1134,8 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-    
-    /**
+
+	/**
      * Read the archived document versions.
      * 
      * @param userId
@@ -1177,7 +1179,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
+    
     /**
      * Read the archive team.
      * 
@@ -1260,7 +1262,6 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-
     /**
      * Read the backup containers.
      * 
@@ -1288,6 +1289,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
+
 
     /**
      * Read the backup document versions.
@@ -1473,12 +1475,21 @@ public final class SessionModelImpl extends Model<SessionListener>
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                authenticateAsSystem(xmppSession);
+                final boolean didAuthenticate;
+                if (xmppSession.isOnline()) {
+                    didAuthenticate = false;
+                } else {
+                    authenticateAsSystem(xmppSession);
+                    didAuthenticate = true;
+                }
                 try {
                     return xmppSession.readMigratorLatestRelease(
-                            User.THINKPARITY.getId(), productName, os);
+                            didAuthenticate ? User.THINKPARITY.getId()
+                                    : localUserId(), productName, os);
                 } finally {
-                    unauthenticate(xmppSession);
+                    if (didAuthenticate) {
+                        unauthenticate(xmppSession);
+                    }
                 }
             }
         } catch (final Throwable t) {
@@ -1501,7 +1512,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorProductFeatures(java.lang.String)
      *
      */
@@ -1523,7 +1534,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readMigratorRelease(java.lang.String,
      *      java.lang.String, com.thinkparity.codebase.OS)
      * 
@@ -1604,7 +1615,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readProfileEMails()
      * 
      */
@@ -1619,7 +1630,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readProfileFeatures(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
@@ -1950,6 +1961,21 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
         synchronized (offlineCodes) {
             offlineCodes.clear();
+        }
+    }
+
+    /**
+     * Determine whether or not we are currently performing client maintenance.
+     * 
+     * @return True if we are performing client maintenance.
+     */
+    private boolean isClientMaintenance() {
+        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES)) { 
+            return ((List) workspace
+                    .getAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES))
+                    .contains(OfflineCode.CLIENT_MAINTENANCE);
+        } else {
+            return false;
         }
     }
 

@@ -9,18 +9,22 @@ import java.util.Map;
 
 import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.ThinkParityException;
+import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
+import com.thinkparity.ophelia.model.Constants;
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookNames;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookPriorities;
+import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
@@ -260,7 +264,8 @@ public class WorkspaceModel {
             }
             notifyStepEnd(monitor, InitializeStep.SESSION_LOGIN);
             // initialize migrator
-            modelFactory.getMigratorModel().initialize(monitor);
+            final InternalMigratorModel migratorModel = modelFactory.getMigratorModel();
+            migratorModel.initialize(monitor);
             // create the profile
             notifyStepBegin(monitor, InitializeStep.PROFILE_CREATE);
             modelFactory.getProfileModel().initialize();
@@ -273,11 +278,18 @@ public class WorkspaceModel {
             notifyStepBegin(monitor, InitializeStep.CONTAINER_RESTORE_BACKUP);
             modelFactory.getContainerModel().restoreBackup(monitor);
             notifyStepEnd(monitor, InitializeStep.CONTAINER_RESTORE_BACKUP);
-            // process events
-            notifyStepBegin(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
-            sessionModel.processQueue(monitor);
-            sessionModel.registerQueueListener();
-            notifyStepEnd(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
+            // start download of new release if required
+            final Release latestRelease = sessionModel.readMigratorLatestRelease(
+                    Constants.Product.NAME, OSUtil.getOS());
+            if (latestRelease.getName().equals(Constants.Release.NAME)) {
+                // process events
+                notifyStepBegin(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
+                sessionModel.processQueue(monitor);
+                sessionModel.registerQueueListener();
+                notifyStepEnd(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
+            } else {
+                migratorModel.startDownloadRelease();
+            }
             // finish initialization
             workspaceImpl.finishInitialize();
             notifyProcessEnd(monitor);

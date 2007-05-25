@@ -18,6 +18,8 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.ContainerModelImpl;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.document.DocumentModelImpl;
+import com.thinkparity.ophelia.model.help.HelpModel;
+import com.thinkparity.ophelia.model.help.HelpModelImpl;
 import com.thinkparity.ophelia.model.index.IndexModel;
 import com.thinkparity.ophelia.model.index.IndexModelImpl;
 import com.thinkparity.ophelia.model.migrator.MigratorModel;
@@ -155,6 +157,16 @@ public final class ModelFactory {
     public final DocumentModel getDocumentModel() {
         return (DocumentModel) newModelProxy(
                 DocumentModel.class, DocumentModelImpl.class);
+    }
+
+    /**
+     * Obtain a help model.
+     * 
+     * @return An instance of <code>HelpModel</code>.
+     */
+    public final HelpModel getHelpModel() {
+        return (HelpModel) newModelProxy(
+                HelpModel.class, HelpModelImpl.class);
     }
 
     /**

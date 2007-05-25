@@ -18,6 +18,8 @@ import com.thinkparity.ophelia.model.container.ContainerModelImpl;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModelImpl;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
+import com.thinkparity.ophelia.model.help.HelpModelImpl;
+import com.thinkparity.ophelia.model.help.InternalHelpModel;
 import com.thinkparity.ophelia.model.index.IndexModelImpl;
 import com.thinkparity.ophelia.model.index.InternalIndexModel;
 import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
@@ -144,6 +146,16 @@ public final class InternalModelFactory {
     public final InternalDocumentModel getDocumentModel() {
         return (InternalDocumentModel) newModelProxy(
                 InternalDocumentModel.class, DocumentModelImpl.class);
+    }
+
+    /**
+     * Obtain an internal help model.
+     * 
+     * @return An instance of <code>InternalHelpModel</code>.
+     */
+    public final InternalHelpModel getHelpModel() {
+        return (InternalHelpModel) newModelProxy(
+                InternalHelpModel.class, HelpModelImpl.class);
     }
 
     /**

@@ -3,8 +3,6 @@
  */
 package com.thinkparity.ophelia.model.help;
 
-import java.util.List;
-
 import com.thinkparity.ophelia.OpheliaTestUser;
 
 
@@ -15,10 +13,10 @@ import com.thinkparity.ophelia.OpheliaTestUser;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ReadTopicsTest extends HelpTestCase {
+public final class ReadTopicTest extends HelpTestCase {
 
     /** A test case name <code>String</code>. */
-    private static final String NAME = "Help read topics test";
+    private static final String NAME = "Help read topic test";
 
     /** The test datum <code>Fixture</code>. */
     private Fixture datum;
@@ -27,7 +25,7 @@ public final class ReadTopicsTest extends HelpTestCase {
      * Create TestRead.
      *
      */
-    public ReadTopicsTest() {
+    public ReadTopicTest() {
         super(NAME);
     }
 
@@ -35,13 +33,12 @@ public final class ReadTopicsTest extends HelpTestCase {
      * Test the help read api.
      *
      */
-    public void testReadTopics() {
-        final List<HelpTopic> topics = getHelpModel(datum.junit).readTopics();
-        assertNotNull("Help topics is null.", topics);
-        assertEquals("Help topics size does not match expectation.", 1, topics.size());
-        for (final HelpTopic topic : topics) {
-            assertNotNull("Help topic is null.", topic);
-        }
+    public void testReadTopic() {
+        final HelpTopic topic = getHelpModel(datum.junit).readTopic(1000L);
+        assertNotNull("Help topic is null.", topic);
+
+        final HelpTopic nullTopic = getHelpModel(datum.junit).readTopic(-1L);
+        assertNull("Help topic is not null.", nullTopic);
     }
 
     /**

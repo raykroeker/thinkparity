@@ -16,7 +16,6 @@ import java.util.StringTokenizer;
 import com.thinkparity.codebase.PropertiesUtil;
 import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.StringUtil;
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.config.ConfigFactory;
 
 import com.thinkparity.codebase.model.session.Environment;
@@ -98,15 +97,19 @@ public final class HelpModelImpl extends Model implements HelpModel,
     public HelpTopic readTopic(final Long id) {
         try {
             final Properties topicConfig = ConfigFactory.newInstance(resolveTopicPath(id));
-            PropertiesUtil.verify(topicConfig, CFG_KEY_TOPIC_ID);
-            PropertiesUtil.verify(topicConfig, CFG_KEY_TOPIC_NAME);
+            if (topicConfig.containsKey(CFG_KEY_TOPIC_ID)) {
+                PropertiesUtil.verify(topicConfig, CFG_KEY_TOPIC_ID);
+                PropertiesUtil.verify(topicConfig, CFG_KEY_TOPIC_NAME);
 
-            final HelpTopic topic = new HelpTopic();
-            topic.setId(Long.parseLong(topicConfig.getProperty(CFG_KEY_TOPIC_ID)));
-            if (topicConfig.containsKey(CFG_KEY_TOPIC_MOVIE))
-                topic.setMovie(new URL(topicConfig.getProperty(CFG_KEY_TOPIC_MOVIE)));
-            topic.setName(topicConfig.getProperty(CFG_KEY_TOPIC_NAME));
-            return topic;
+                final HelpTopic topic = new HelpTopic();
+                topic.setId(Long.parseLong(topicConfig.getProperty(CFG_KEY_TOPIC_ID)));
+                if (topicConfig.containsKey(CFG_KEY_TOPIC_MOVIE))
+                    topic.setMovie(new URL(topicConfig.getProperty(CFG_KEY_TOPIC_MOVIE)));
+                topic.setName(topicConfig.getProperty(CFG_KEY_TOPIC_NAME));
+                return topic;
+            } else {
+                return null;
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -130,12 +133,18 @@ public final class HelpModelImpl extends Model implements HelpModel,
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.help.InternalHelpModel#rebuildIndex()
+     * @see com.thinkparity.ophelia.model.help.InternalHelpModel#index()
      *
      */
-    public void rebuildIndex() {
-        // NOCOMMIT HelpModelImpl.rebuildIndex NYI raymond@thinkparity.com 28-May-07
-        throw Assert.createNotYetImplemented("");
+    public void index() {
+        try {
+            final List<HelpTopic> topics = readTopics();
+            for (final HelpTopic topic : topics) {
+                getIndexModel().indexHelpTopic(topic.getId());
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -143,8 +152,11 @@ public final class HelpModelImpl extends Model implements HelpModel,
      *
      */
     public List<Long> searchTopics(final String expression) {
-        // NOCOMMIT HelpModelImpl.searchTopics NYI raymond@thinkparity.com 28-May-07
-        throw Assert.createNotYetImplemented("");
+        try {
+            return getIndexModel().searchHelpTopics(expression);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**

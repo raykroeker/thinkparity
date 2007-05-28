@@ -117,7 +117,15 @@ public interface InternalIndexModel extends IndexModel {
      *            A document id <code>Long</code>.
      */
 	public void indexDocument(final Long containerId, final Long documentId);
-    
+
+    /**
+     * Index a help topic.
+     * 
+     * @param helpTopicId
+     *            A help topic id <code>Long</code>.
+     */
+    public void indexHelpTopic(final Long helpTopicId);
+
     /**
      * Index an incoming invitation.
      * 
@@ -125,7 +133,7 @@ public interface InternalIndexModel extends IndexModel {
      *            An invitation id <code>Long</code>.
      */
     public void indexIncomingEMailInvitation(final Long invitationId);
-
+    
     /**
      * Index an incoming invitation.
      * 
@@ -192,6 +200,15 @@ public interface InternalIndexModel extends IndexModel {
      * @return A list of documents.
      */
     public List<Long> searchDocuments(final String expression);
+
+    /**
+     * Search the help topics.
+     * 
+     * @param expression
+     *            A search expression <code>String</code>.
+     * @return A <code>List<Long></code> of help topic ids.
+     */
+    public List<Long> searchHelpTopics(final String expression);
 
     /**
      * Search the index for incoming e-mail invitations.

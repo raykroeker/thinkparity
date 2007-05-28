@@ -3,6 +3,9 @@
  */
 package com.thinkparity.ophelia.model.help;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
+
 /**
  * <b>Title:</b>thinkParity OpheliaModel Internal Help Model<br>
  * <b>Description:</b><br>
@@ -10,11 +13,12 @@ package com.thinkparity.ophelia.model.help;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
+@ThinkParityTransaction(TransactionType.REQUIRED)
 public interface InternalHelpModel extends HelpModel {
 
     /**
-     * Rebuild the help index.
+     * Build the help index.
      *
      */
-    public void rebuildIndex();
+    public void index();
 }

@@ -481,7 +481,8 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
         logger.logVariable("sqlStatements", sqlStatements);
         migratorIO.execute(sqlStatements);
 
-        migratorIO.createProduct(Constants.Product.NAME, Constants.Release.NAME);
+        // re-build help index
+        getHelpModel().index();
     }
 
     /**

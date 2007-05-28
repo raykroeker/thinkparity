@@ -57,6 +57,7 @@ import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
+import com.thinkparity.ophelia.model.help.InternalHelpModel;
 import com.thinkparity.ophelia.model.index.InternalIndexModel;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ConfigurationIOHandler;
@@ -871,6 +872,15 @@ public abstract class Model<T extends EventListener> extends
 	protected final InternalDocumentModel getDocumentModel() {
 		return modelFactory.getDocumentModel();
 	}
+
+    /**
+     * Obtain an internal help model.
+     * 
+     * @return An instance of <code>InternalHelpModel</code>.
+     */
+    protected final InternalHelpModel getHelpModel() {
+        return modelFactory.getHelpModel();
+    }
 
     /**
      * Obtain an internal index model.

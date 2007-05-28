@@ -18,7 +18,7 @@ import com.thinkparity.ophelia.OpheliaTestUser;
 public final class ReadContentTest extends HelpTestCase {
 
     /** A test case name <code>String</code>. */
-    private static final String NAME = "Help read test";
+    private static final String NAME = "Help read content test";
 
     /** The test datum <code>Fixture</code>. */
     private Fixture datum;

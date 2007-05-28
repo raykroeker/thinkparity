@@ -3,19 +3,23 @@
  */
 package com.thinkparity.ophelia.model.help;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
 import com.thinkparity.codebase.PropertiesUtil;
+import com.thinkparity.codebase.ResourceUtil;
+import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.config.ConfigFactory;
 
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -42,15 +46,11 @@ public final class HelpModelImpl extends Model implements HelpModel,
     /** Help configuration key for the topic ids. */
     private static final String CFG_KEY_TOPIC_NAME;
 
-    /** An instance of <code>XStreamUtil</code>. */
-    private static final XStreamUtil XSTREAM_UTIL;
-
     static {
         CFG_KEY_TOPIC_ID = "id";
         CFG_KEY_TOPIC_IDS = "topic-ids";
         CFG_KEY_TOPIC_NAME = "name";
         CFG_KEY_TOPIC_MOVIE = "movie";
-        XSTREAM_UTIL = XStreamUtil.getInstance();
     }
 
     /** A help configuration file. */
@@ -68,9 +68,27 @@ public final class HelpModelImpl extends Model implements HelpModel,
      * @see com.thinkparity.ophelia.model.help.HelpModel#readContent(java.lang.Long)
      *
      */
-    public HelpContent readContent(Long id) {
-        // NOCOMMIT HelpModelImpl.readContent NYI raymond@thinkparity.com 28-May-07
-        throw Assert.createNotYetImplemented("");
+    public HelpContent readContent(final Long id) {
+        try {
+            final InputStream inputStream = ResourceUtil.getInputStream(resolveContentPath(id));
+            final Reader reader = new BufferedReader(new InputStreamReader(
+                    inputStream, StringUtil.Charset.ISO_8859_1.getCharset()));
+            final StringBuilder buffer = new StringBuilder(2048);
+            try {
+                int character;
+                while (-1 != (character = reader.read())) {
+                    buffer.append((char) character);
+                }
+            } finally {
+                inputStream.close();
+            }
+            final HelpContent content = new HelpContent();
+            content.setContent(buffer.toString());
+            content.setId(id);
+            return content;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -80,13 +98,13 @@ public final class HelpModelImpl extends Model implements HelpModel,
     public HelpTopic readTopic(final Long id) {
         try {
             final Properties topicConfig = ConfigFactory.newInstance(resolveTopicPath(id));
-            PropertiesUtil.verify(helpConfig, CFG_KEY_TOPIC_ID);
-            PropertiesUtil.verify(helpConfig, CFG_KEY_TOPIC_MOVIE);
-            PropertiesUtil.verify(helpConfig, CFG_KEY_TOPIC_NAME);
+            PropertiesUtil.verify(topicConfig, CFG_KEY_TOPIC_ID);
+            PropertiesUtil.verify(topicConfig, CFG_KEY_TOPIC_NAME);
 
             final HelpTopic topic = new HelpTopic();
             topic.setId(Long.parseLong(topicConfig.getProperty(CFG_KEY_TOPIC_ID)));
-            topic.setMovie(new URL(topicConfig.getProperty(CFG_KEY_TOPIC_MOVIE)));
+            if (topicConfig.containsKey(CFG_KEY_TOPIC_MOVIE))
+                topic.setMovie(new URL(topicConfig.getProperty(CFG_KEY_TOPIC_MOVIE)));
             topic.setName(topicConfig.getProperty(CFG_KEY_TOPIC_NAME));
             return topic;
         } catch (final Throwable t) {
@@ -140,6 +158,11 @@ public final class HelpModelImpl extends Model implements HelpModel,
         PropertiesUtil.verify(helpConfig, CFG_KEY_TOPIC_IDS);
     }
 
+    /**
+     * Read the help topic ids from the index.
+     * 
+     * @return A <code>List<Long></code> containing help topic ids.
+     */
     private List<Long> readTopicIds() {
         final StringTokenizer tokenizer = new StringTokenizer(
                 helpConfig.getProperty(CFG_KEY_TOPIC_IDS));
@@ -150,8 +173,28 @@ public final class HelpModelImpl extends Model implements HelpModel,
         return ids;
     }
 
-    private String resolveTopicPath(final Long id) {
-        return MessageFormat.format("help/HelpTopic_1000.properties", id);
+    /**
+     * Resolve the help topic path for an id.
+     * 
+     * @param id
+     *            A help topic id <code>Long</code>.
+     * @return A help topic resource path <code>String</code>.
+     */
+    private String resolveContentPath(final Long id) {
+        return new StringBuilder(18).append("help/HelpContent_")
+            .append(id).toString();
     }
 
+    /**
+     * Resolve the help topic path for an id.
+     * 
+     * @param id
+     *            A help topic id <code>Long</code>.
+     * @return A help topic resource path <code>String</code>.
+     */
+    private String resolveTopicPath(final Long id) {
+        return new StringBuilder(29).append("help/HelpTopic_")
+            .append(id).append(".properties")
+            .toString();
+    }
 }

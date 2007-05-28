@@ -4,10 +4,12 @@
 package com.thinkparity.codebase;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.Locale;
 
 /**
  * <b>Title:</b>  ResourceUtil
@@ -61,6 +63,40 @@ public abstract class ResourceUtil {
 		return ResourceUtil.class.getClassLoader().getResourceAsStream(
 				resourcePath);
 	}
+
+    /**
+     * Obtain an open an inputstream for a localized resource.
+     * 
+     * @param baseName
+     *            A resource base name <code>String</code>.
+     * @param locale
+     *            A <code>Locale</code>.
+     * @return An <code>InputStream</code>.
+     */
+    public static InputStream getLocalizedInputStream(final String baseName,
+            final Locale locale) {
+        URL resourceURL = getURL(new StringBuilder(baseName.toString())
+                .append("_").append(locale.getLanguage())
+                .append("_").append(locale.getCountry())
+                .append("_").append(locale.getVariant()).toString());
+        if (null == resourceURL) {
+            resourceURL = getURL(new StringBuilder(baseName.toString())
+                .append("_").append(locale.getLanguage())
+                .append("_").append(locale.getCountry()).toString());
+        }
+        if (null == resourceURL) {
+            resourceURL = getURL(new StringBuilder(baseName.toString())
+                .append("_").append(locale.getLanguage()).toString());
+        }
+        if (null == resourceURL) {
+            resourceURL = ResourceUtil.getURL(baseName.toString());
+        }
+        try {
+            return resourceURL.openStream();
+        } catch (final IOException iox) {
+            return null;
+        }
+    }
 
     /**
 	 * Obtain the url for a resource

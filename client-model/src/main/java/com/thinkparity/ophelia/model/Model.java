@@ -13,6 +13,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -101,6 +102,10 @@ public abstract class Model<T extends EventListener> extends
     static {
         ARTIFACT_UTIL = ArtifactUtil.getInstance();
         USER_UTILS = UserUtils.getInstance();
+    }
+
+    protected static ResourceBundle getLocalizationBundle(final String baseName) {
+        return ResourceBundle.getBundle(baseName);
     }
 
     /**

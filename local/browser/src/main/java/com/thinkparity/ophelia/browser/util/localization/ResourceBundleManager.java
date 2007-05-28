@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.browser.util.localization;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -73,30 +72,7 @@ public class ResourceBundleManager {
      * @return The resource bundle.
      */
     private InputStream doOpenResource(final String name) {
-        final StringBuilder baseName = new StringBuilder("localization")
-            .append("/").append(name);
-        final Locale locale = getLocale();
-        URL resourceURL = ResourceUtil.getURL(new StringBuilder(baseName.toString())
-                .append("_").append(locale.getLanguage())
-                .append("_").append(locale.getCountry())
-                .append("_").append(locale.getVariant()).toString());
-        if (null == resourceURL) {
-            resourceURL = ResourceUtil.getURL(new StringBuilder(baseName.toString())
-                .append("_").append(locale.getLanguage())
-                .append("_").append(locale.getCountry()).toString());
-        }
-        if (null == resourceURL) {
-            resourceURL = ResourceUtil.getURL(new StringBuilder(baseName.toString())
-                .append("_").append(locale.getLanguage()).toString());
-        }
-        if (null == resourceURL) {
-            resourceURL = ResourceUtil.getURL(baseName.toString());
-        }
-        try {
-            return resourceURL.openStream();
-        } catch (final IOException iox) {
-            return null;
-        }
+        return ResourceUtil.getLocalizedInputStream("localization/" + name, getLocale());
     }
 
 	/**

@@ -62,6 +62,7 @@ import org.jivesoftware.smack.util.StringUtils;
  *
  * @author Matt Tucker
  */
+@SuppressWarnings("unchecked")
 public class XMPPConnection {
 
     /**

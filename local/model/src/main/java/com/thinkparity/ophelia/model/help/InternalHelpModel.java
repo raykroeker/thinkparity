@@ -10,4 +10,11 @@ package com.thinkparity.ophelia.model.help;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public interface InternalHelpModel extends HelpModel {}
+public interface InternalHelpModel extends HelpModel {
+
+    /**
+     * Rebuild the help index.
+     *
+     */
+    public void rebuildIndex();
+}

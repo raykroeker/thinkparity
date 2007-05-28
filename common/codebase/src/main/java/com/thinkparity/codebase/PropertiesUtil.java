@@ -22,7 +22,7 @@ import com.thinkparity.codebase.StringUtil.Separator;
  */
 public class PropertiesUtil {
 
-	/**
+    /**
 	 * Simple format for the date.
 	 */
 	private static final SimpleDateFormat simpleDateFormat;
@@ -80,6 +80,19 @@ public class PropertiesUtil {
 				.append(Separator.SystemNewLine);
 		}
 	}
+
+	/**
+     * Verify that a named property exists.
+     * 
+     * @param properties
+     *            A <code>Properties</code>.
+     * @param name
+     *            A property name <code>String</code>.
+     */
+    public static void verify(final Properties properties, final String name) {
+        if (!properties.containsKey(name))
+            throw new IllegalArgumentException("Properties must contain \"" + name + "\".");
+    }
 
 	/**
 	 * Create a default comment of the current date\time.

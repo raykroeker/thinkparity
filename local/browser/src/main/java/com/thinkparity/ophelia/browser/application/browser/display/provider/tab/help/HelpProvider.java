@@ -43,7 +43,7 @@ public class HelpProvider extends ContentProvider {
      * @return A <code>HelpTopic</code>.
      */
     public HelpTopic readHelpTopic(final Long id) {
-        return helpModel.readHelpTopic(id);
+        return helpModel.readTopic(id);
     }
 
     /**
@@ -54,7 +54,8 @@ public class HelpProvider extends ContentProvider {
      * @return A <code>List</code> of <code>HelpTopic</code>s.
      */
     public List<HelpTopic> readHelpTopics(final Boolean readContent) {
-        return helpModel.readHelpTopics(readContent);
+        // NOCOMMIT
+        return helpModel.readTopics();
     }
 
     /**
@@ -65,6 +66,6 @@ public class HelpProvider extends ContentProvider {
      * @return A <code>List&lt;Long&gt;</code>.
      */
     public List<Long> search(final String expression) {
-        return helpModel.search(expression);
+        return helpModel.searchTopics(expression);
     }
 }

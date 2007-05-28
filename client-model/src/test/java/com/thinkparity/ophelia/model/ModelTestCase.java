@@ -50,6 +50,7 @@ import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentNameGenerator;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerListener;
+import com.thinkparity.ophelia.model.help.InternalHelpModel;
 import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.script.InternalScriptModel;
@@ -1020,6 +1021,17 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     protected final InternalDocumentModel getDocumentModel(
             final OpheliaTestUser testUser) {
         return testUser.getModelFactory().getDocumentModel();
+    }
+
+    /**
+     * Obtain an internal help model.
+     * 
+     * @param testUser
+     *            An <code>OpheliaTestUser</code>.
+     * @return An instance of <code>InternalHelpModel</code>.
+     */
+    protected final InternalHelpModel getHelpModel(final OpheliaTestUser testUser) {
+        return testUser.getModelFactory().getHelpModel();
     }
 
     /**

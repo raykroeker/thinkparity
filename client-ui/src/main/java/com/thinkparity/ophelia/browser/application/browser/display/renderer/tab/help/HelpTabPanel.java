@@ -123,7 +123,8 @@ public class HelpTabPanel extends DefaultTabPanel {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#isSetExpandedData()
      */
     public Boolean isSetExpandedData() {
-        return isSetHelpTopic() && getHelpTopic().isSetContent();
+        // NOCOMMIT
+        return isSetHelpTopic();// && getHelpTopic().isSetContent();
     }
 
     /**
@@ -155,7 +156,8 @@ public class HelpTabPanel extends DefaultTabPanel {
         this.helpTopic = helpTopic;
         reload(collapsedTextJLabel, helpTopic.getName());
         reload(expandedTextJLabel, helpTopic.getName());
-        helpContentModel.initialize(helpTopic.getContent());
+        // NOCOMMIT
+        helpContentModel.initialize(null);
         collapsedMovieJLabel.setVisible(helpTopic.isSetMovie());
         expandedMovieJLabel.setVisible(helpTopic.isSetMovie());
     }

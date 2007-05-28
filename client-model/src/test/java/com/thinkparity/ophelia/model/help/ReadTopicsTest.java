@@ -15,7 +15,7 @@ import com.thinkparity.ophelia.OpheliaTestUser;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ReadTest extends HelpTestCase {
+public final class ReadTopicsTest extends HelpTestCase {
 
     /** A test case name <code>String</code>. */
     private static final String NAME = "Help read test";
@@ -23,14 +23,11 @@ public final class ReadTest extends HelpTestCase {
     /** The test datum <code>Fixture</code>. */
     private Fixture datum;
 
-    /** An instance of <code>InternalHelpModel</code>. */
-    private InternalHelpModel helpModel;
-
     /**
      * Create TestRead.
      *
      */
-    public ReadTest() {
+    public ReadTopicsTest() {
         super(NAME);
     }
 
@@ -38,8 +35,13 @@ public final class ReadTest extends HelpTestCase {
      * Test the help read api.
      *
      */
-    public void testRead() {
-        final List<HelpTopic> helpTopics = getHelpModel(datum.junit).readHelpTopics();
+    public void testReadTopics() {
+        final List<HelpTopic> topics = getHelpModel(datum.junit).readTopics();
+        assertNotNull("Help topics is null.", topics);
+        assertEquals("Help topics size does not match expectation.", 1, topics.size());
+        for (final HelpTopic topic : topics) {
+            assertNotNull("Help topic is null.", topic);
+        }
     }
 
     /**
@@ -60,6 +62,8 @@ public final class ReadTest extends HelpTestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
+
+        datum = null;
     }
 
     /**

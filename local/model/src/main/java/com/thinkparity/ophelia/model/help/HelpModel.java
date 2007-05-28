@@ -5,6 +5,9 @@ package com.thinkparity.ophelia.model.help;
 
 import java.util.List;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
+
 /**
  * <b>Title:</b>thinkParity OpheliaModel Help Model<br>
  * <b>Description:</b><br>
@@ -12,11 +15,14 @@ import java.util.List;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
+@ThinkParityTransaction(TransactionType.NEVER)
 public interface HelpModel {
 
-    public HelpTopic readHelpTopic(final Long id);
+    public HelpContent readContent(final Long id);
 
-    public List<HelpTopic> readHelpTopics();
+    public HelpTopic readTopic(final Long id);
 
-    public List<Long> search(final String expression);
+    public List<HelpTopic> readTopics();
+
+    public List<Long> searchTopics(final String expression);
 }

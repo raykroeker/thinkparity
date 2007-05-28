@@ -90,7 +90,7 @@ public final class Scenario {
         super();
         this.credentials = new HashMap<Script, Credentials>(7, 0.75F);
         this.environment = environment;
-        this.profileFileSystem = ProfileManager.initProfileFileSystem();
+        this.profileFileSystem = ProfileManager.initProfileFileSystem(environment);
         this.profiles = new HashMap<Script, File>();
         this.scripts = new ArrayList<Script>();
         this.workspaces = new HashMap<Script, Workspace>();

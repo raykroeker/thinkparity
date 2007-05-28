@@ -13,6 +13,8 @@ import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.codebase.model.session.Environment;
+
 import com.thinkparity.ophelia.browser.Constants.DirectoryNames;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -24,22 +26,59 @@ public class ProfileManager {
      * 
      * @return A <code>FileSystem</code>.
      */
-    public static FileSystem initProfileFileSystem() {
+    public static FileSystem initProfileFileSystem(final Environment environment) {
         final File fileSystemRoot;
         if (null != System.getProperty("thinkparity.profile.root")) {
             fileSystemRoot = new File(System.getProperty("thinkparity.profile.root"));
         } else {
+            final String suffix;
+            switch (environment) {
+            case DEMO:
+                suffix = "Demo";
+                break;
+            case DEMO_LOCALHOST:
+                suffix = "Demo-Localhost";
+                break;
+            case DEVELOPMENT_LOCALHOST:
+                suffix = "Development-Localhost";
+                break;
+            case DEVELOPMENT_RAYMOND:
+            case DEVELOPMENT_ROBERT:
+                suffix = "Development";
+                break;
+            case PRODUCTION:
+                suffix = null;
+                break;
+            case TESTING:
+                suffix = "Testing";
+                break;
+            case TESTING_LOCALHOST:
+                suffix = "Testing Localhost";
+                break;
+            default:
+                throw Assert.createUnreachable("Unknown environment {0}.", environment);
+            }
             switch(OSUtil.getOS()) {
                 case WINDOWS_XP:
                     final StringBuffer win32Path = new StringBuffer()
                             .append(System.getenv("APPDATA"))
                             .append(File.separatorChar).append("thinkParity");
+                    if (null != suffix) {
+                        win32Path.append(' ')
+                            .append(suffix);
+                    }
+
                     fileSystemRoot = new File(win32Path.toString());
                     break;
                 case LINUX:
                     final StringBuffer linuxPath = new StringBuffer()
                             .append(System.getenv("HOME"))
                             .append(File.separatorChar).append(".thinkParity");
+                    if (null != suffix) {
+                        linuxPath.append(' ')
+                            .append(suffix);
+                    }
+
                     fileSystemRoot = new File(linuxPath.toString());
                     break;
                 default:
@@ -56,18 +95,22 @@ public class ProfileManager {
     /** The profile manager dialog. */
     private ProfileManagerDialog dialog;
 
+    /** The <code>Environment</code>. */
+    private final Environment environment;
+
     /** The profile manager avatar. */
     private ProfileManagerAvatar managerAvatar;
 
-    /** A thinkParity <code>Mode</code>. */
+    /** The <code>Mode</code>. */
     private final Mode mode;
 
     /** The profile manager window. */
     private ProfileManagerWindow window;
 
     /** Create ProfileManager. */
-    public ProfileManager(final Mode mode) {
+    public ProfileManager(final Mode mode, final Environment environment) {
         super();
+        this.environment = environment;
         this.mode = mode;
     }
 
@@ -112,7 +155,7 @@ public class ProfileManager {
         // create the profile
         final String profileName = avatar.getProfileName();
         if(null != profileName) {
-            final File profileRoot = new File(initProfileFileSystem().getRoot(), avatar.getProfileName());
+            final File profileRoot = new File(initProfileFileSystem(environment).getRoot(), avatar.getProfileName());
             Assert.assertTrue(
                     "[LBROWSER] [PROFILE MANAGER] [CREATE] [CANNOT CREATE PROFILE ROOT]",
                     profileRoot.mkdir());
@@ -185,7 +228,7 @@ public class ProfileManager {
      * @return The default profile.
      */
     private Profile readDefaultProfile() {
-        final File defaultRoot = new File(initProfileFileSystem().getRoot(), DirectoryNames.DEFAULT_PROFILE);
+        final File defaultRoot = new File(initProfileFileSystem(environment).getRoot(), DirectoryNames.DEFAULT_PROFILE);
         if(!defaultRoot.exists()) {
             Assert.assertTrue("[LBROWSER] [PROFILE MANAGER] [CANNOT CREATE DEFAULT PROFILE]",
                     defaultRoot.mkdir());
@@ -201,7 +244,7 @@ public class ProfileManager {
      * @return A list of profiles.
      */
     private List<Profile> readProfiles() {
-        final FileSystem fileSystem = initProfileFileSystem();
+        final FileSystem fileSystem = initProfileFileSystem(environment);
         final File[] profileDirectories = fileSystem.listDirectories("/");
         final List<Profile> profiles = new ArrayList<Profile>();
         Profile profile;

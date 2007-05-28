@@ -64,6 +64,18 @@ public final class HelpModelImpl extends Model implements HelpModel,
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.help.InternalHelpModel#deleteIndex()
+     *
+     */
+    public void deleteIndex() {
+        try {
+            configurationIO.delete(ConfigurationKeys.IS_INDEXED);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.help.HelpModel#readContent(java.lang.Long)
      *
      */
@@ -133,26 +145,27 @@ public final class HelpModelImpl extends Model implements HelpModel,
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.help.InternalHelpModel#index()
-     *
-     */
-    public void index() {
-        try {
-            final List<HelpTopic> topics = readTopics();
-            for (final HelpTopic topic : topics) {
-                getIndexModel().indexHelpTopic(topic.getId());
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.help.HelpModel#searchTopics(java.lang.String)
      *
      */
     public List<Long> searchTopics(final String expression) {
         try {
+            // build the index if requried
+            final String isIndexed = configurationIO.read(ConfigurationKeys.IS_INDEXED);
+            if (null == isIndexed) {
+                // re-build help index
+                index();
+                configurationIO.create(ConfigurationKeys.IS_INDEXED,
+                        Boolean.TRUE.toString());
+            } else {
+                if (!Boolean.parseBoolean(isIndexed)) {
+                    // re-build help index
+                    index();
+                    configurationIO.update(ConfigurationKeys.IS_INDEXED,
+                            Boolean.TRUE.toString());
+                }
+            }
+
             return getIndexModel().searchHelpTopics(expression);
         } catch (final Throwable t) {
             throw panic(t);
@@ -168,6 +181,21 @@ public final class HelpModelImpl extends Model implements HelpModel,
             final Workspace workspace) {
         helpConfig = ConfigFactory.newInstance("help/index.properties");
         PropertiesUtil.verify(helpConfig, CFG_KEY_TOPIC_IDS);
+    }
+
+    /**
+     * Build the help index.
+     *
+     */
+    private void index() {
+        try {
+            final List<HelpTopic> topics = readTopics();
+            for (final HelpTopic topic : topics) {
+                getIndexModel().indexHelpTopic(topic.getId());
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -208,5 +236,9 @@ public final class HelpModelImpl extends Model implements HelpModel,
         return new StringBuilder(29).append("help/HelpTopic_")
             .append(id).append(".properties")
             .toString();
+    }
+
+    private static class ConfigurationKeys {
+        public static final String IS_INDEXED = "thinkparity.help.is-indexed";
     }
 }

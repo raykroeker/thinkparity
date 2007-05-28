@@ -37,7 +37,7 @@ public class Browser {
             new DemoManager().execute();
         } else {
             final Environment environment = new EnvironmentManager().select();
-            final Profile profile = new ProfileManager(mode).select();
+            final Profile profile = new ProfileManager(mode, environment).select();
             if (null != mode && null != environment && null != profile) {
                 BrowserPlatform.create(mode, environment, profile).start();
             }

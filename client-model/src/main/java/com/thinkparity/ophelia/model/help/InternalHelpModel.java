@@ -17,8 +17,8 @@ import com.thinkparity.codebase.model.util.jta.TransactionType;
 public interface InternalHelpModel extends HelpModel {
 
     /**
-     * Build the help index.
+     * Delete the help index.
      *
      */
-    public void index();
+    public void deleteIndex();
 }

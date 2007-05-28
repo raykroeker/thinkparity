@@ -337,7 +337,7 @@ public abstract class StringUtil {
         else {
             while (-1 != nextIndex) {
                 list.add(string.substring(currentIndex, nextIndex));
-                currentIndex = nextIndex + 1;
+                currentIndex = nextIndex + delimiter.length();
                 nextIndex = string.indexOf(delimiter, currentIndex);
             }
             if (currentIndex < string.length()) {
@@ -489,6 +489,11 @@ public abstract class StringUtil {
 		 */
 		public static final Separator OpenSquareBracket =
 			new Separator("[");
+
+        /**
+         * Paragraph tag
+         */
+        public static final Separator Paragraph = new Separator("<p>");
 
 		/**
 		 * Question mark

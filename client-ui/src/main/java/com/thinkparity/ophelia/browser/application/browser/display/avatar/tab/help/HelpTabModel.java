@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.ophelia.model.help.HelpContent;
 import com.thinkparity.ophelia.model.help.HelpTopic;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterBy;
@@ -100,7 +101,7 @@ public final class HelpTabModel extends TabPanelModel<Long> implements
     protected void initialize() {
         debug();
         clearPanels();
-        final List<HelpTopic> helpTopics = readHelpTopics(Boolean.FALSE);
+        final List<HelpTopic> helpTopics = readHelpTopics();
         for (final HelpTopic helpTopic : helpTopics) {
             addPanel(helpTopic);
         }
@@ -130,8 +131,8 @@ public final class HelpTabModel extends TabPanelModel<Long> implements
      */
     @Override
     protected void readExpandedPanelData(final TabPanel tabPanel) {
-        final HelpTopic helpTopic = ((HelpProvider) contentProvider).readHelpTopic(lookupId(tabPanel));
-        ((HelpTabPanel)tabPanel).setPanelData(helpTopic);
+        final HelpContent helpContent = ((HelpProvider) contentProvider).readHelpContent(lookupId(tabPanel));
+        ((HelpTabPanel)tabPanel).setPanelData(helpContent);
     }
 
     /**
@@ -187,12 +188,10 @@ public final class HelpTabModel extends TabPanelModel<Long> implements
     /**
      * Read the help topics from the provider.
      * 
-     * @param readContent
-     *            A <code>Boolean</code> indicating to read content or not.
      * @return A list of <code>HelpTopic</code>s.
      */
-    private List<HelpTopic> readHelpTopics(final Boolean readContent) {
-        return ((HelpProvider) contentProvider).readHelpTopics(readContent);
+    private List<HelpTopic> readHelpTopics() {
+        return ((HelpProvider) contentProvider).readHelpTopics();
     }
 
     /**

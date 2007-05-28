@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.ophelia.model.help.HelpContent;
 import com.thinkparity.ophelia.model.help.HelpTopic;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -30,6 +31,9 @@ public class HelpTabPanel extends DefaultTabPanel {
 
     /** The help tab's <code>ActionDelegate</code>. */
     private ActionDelegate actionDelegate;
+
+    /** A <code>HelpContent</code>. */
+    private HelpContent helpContent;
 
     /* The <code>HelpContentModel</code>. */
     private final HelpContentModel helpContentModel;
@@ -123,17 +127,16 @@ public class HelpTabPanel extends DefaultTabPanel {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#isSetExpandedData()
      */
     public Boolean isSetExpandedData() {
-        // NOCOMMIT
-        return isSetHelpTopic();// && getHelpTopic().isSetContent();
+        return isSetHelpContent();
     }
 
     /**
-     * Determine if the help topic is set.
+     * Determine if the help content is set.
      * 
-     * @return True if the help topic is set.
+     * @return True if the help content is set.
      */
-    public Boolean isSetHelpTopic() {
-        return null != helpTopic;
+    public Boolean isSetHelpContent() {
+        return null != helpContent;
     }
 
     /**
@@ -149,6 +152,17 @@ public class HelpTabPanel extends DefaultTabPanel {
     /**
      * Set the panel data.
      * 
+     * @param helpContent
+     *            A <code>HelpContent</code>.
+     */
+    public void setPanelData(final HelpContent helpContent) {
+        this.helpContent = helpContent;
+        helpContentModel.initialize(helpContent.getContent());
+    }
+
+    /**
+     * Set the panel data.
+     * 
      * @param helpTopic
      *            A <code>HelpTopic</code>.
      */
@@ -156,8 +170,6 @@ public class HelpTabPanel extends DefaultTabPanel {
         this.helpTopic = helpTopic;
         reload(collapsedTextJLabel, helpTopic.getName());
         reload(expandedTextJLabel, helpTopic.getName());
-        // NOCOMMIT
-        helpContentModel.initialize(null);
         collapsedMovieJLabel.setVisible(helpTopic.isSetMovie());
         expandedMovieJLabel.setVisible(helpTopic.isSetMovie());
     }

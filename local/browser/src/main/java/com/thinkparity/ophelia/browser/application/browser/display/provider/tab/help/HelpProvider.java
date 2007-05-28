@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider.tab
 
 import java.util.List;
 
+import com.thinkparity.ophelia.model.help.HelpContent;
 import com.thinkparity.ophelia.model.help.HelpModel;
 import com.thinkparity.ophelia.model.help.HelpTopic;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
@@ -36,6 +37,17 @@ public class HelpProvider extends ContentProvider {
     }
 
     /**
+     * Read help content for one topic.
+     * 
+     * @param id
+     *            A <code>Long</code> help id.
+     * @return A <code>HelpContent</code>.
+     */
+    public HelpContent readHelpContent(final Long id) {
+        return helpModel.readContent(id);
+    }
+
+    /**
      * Read a help topic.
      * 
      * @param id
@@ -49,12 +61,9 @@ public class HelpProvider extends ContentProvider {
     /**
      * Read help topics.
      * 
-     * @param readContent
-     *            A <code>Boolean</code> indicating to read content or not.
      * @return A <code>List</code> of <code>HelpTopic</code>s.
      */
-    public List<HelpTopic> readHelpTopics(final Boolean readContent) {
-        // NOCOMMIT
+    public List<HelpTopic> readHelpTopics() {
         return helpModel.readTopics();
     }
 

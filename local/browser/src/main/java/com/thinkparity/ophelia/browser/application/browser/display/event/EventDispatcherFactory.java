@@ -7,6 +7,7 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.help.HelpModel;
 import com.thinkparity.ophelia.model.migrator.MigratorModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
@@ -15,6 +16,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Avatar
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.archive.ArchiveTabDispatcher;
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.contact.ContactTabDispatcher;
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.container.ContainerTabDispatcher;
+import com.thinkparity.ophelia.browser.application.browser.display.event.tab.help.HelpTabDispatcher;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.EventDispatcher;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
 
@@ -51,6 +53,9 @@ public class EventDispatcherFactory {
     /** An instance of <code>ContactModel</code>. */
     private final ContactModel contactModel;
 
+    /** An instance of <code>HelpModel</code>. */
+    private final HelpModel helpModel;
+
     /** An instance of <code>MigratorModel</code>. */
     private final MigratorModel migratorModel;
 
@@ -69,6 +74,7 @@ public class EventDispatcherFactory {
         final ModelFactory modelFactory = ModelFactory.getInstance();
         this.contactModel = modelFactory.getContactModel(getClass());
         this.containerModel = modelFactory.getContainerModel(getClass());
+        this.helpModel = modelFactory.getHelpModel(getClass());
         this.migratorModel = modelFactory.getMigratorModel(getClass());
         this.profileModel = modelFactory.getProfileModel(getClass());
         this.sessionModel = modelFactory.getSessionModel(getClass());
@@ -92,6 +98,9 @@ public class EventDispatcherFactory {
             break;
         case TAB_CONTAINER:
             eventDispatcher = new ContainerTabDispatcher(containerModel);
+            break;
+        case TAB_HELP:
+            eventDispatcher = new HelpTabDispatcher(helpModel);
             break;
         case MAIN_STATUS:
             eventDispatcher = new MainStatusDispatcher(contactModel,

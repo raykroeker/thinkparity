@@ -108,7 +108,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     @Override
     protected void debug() {
         checkThread();
-        logger.logDebug("{0} container panels.", panels.size());
+        logger.logDebug("{0} contact panels.", panels.size());
         logger.logDebug("{0} filtered panels.", filteredPanels.size());
         logger.logDebug("{0} visible panels.", visiblePanels.size());
         logger.logDebug("{0} model elements.", listModel.size());
@@ -195,6 +195,13 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             throw Assert.createUnreachable("Unknown contact panel id type.");
         }
         return -1 == panelIndex ? null : panels.get(panelIndex);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readExpandedPanelData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    @Override
+    protected void readExpandedPanelData(final TabPanel tabPanel) {
     }
 
     /**

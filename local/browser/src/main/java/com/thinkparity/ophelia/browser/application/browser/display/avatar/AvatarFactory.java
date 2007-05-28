@@ -23,6 +23,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.archive.ArchiveTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.help.HelpTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.event.EventDispatcherFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ProviderFactory;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
@@ -138,6 +139,11 @@ public final class AvatarFactory {
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             avatar.setEventDispatcher(EventDispatcherFactory.getDispatcher(id));
 			break;
+        case TAB_HELP:
+            avatar = newAvatar(HelpTabAvatar.class);
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
+            avatar.setEventDispatcher(EventDispatcherFactory.getDispatcher(id));
+            break;
 
         case DIALOG_CONFIRM:
             avatar = newAvatar(ConfirmAvatar.class);

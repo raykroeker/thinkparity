@@ -67,9 +67,9 @@ final class ContactTabPopupDelegate extends DefaultBrowserPopupDelegate
             final Data deleteData = new Data(1);
             deleteData.set(Delete.DataKey.CONTACT_ID, contact.getId());
             add(ActionId.CONTACT_DELETE, deleteData);
-        }
 
-        show();
+            show();
+        }
     }
 
     /**
@@ -154,9 +154,9 @@ final class ContactTabPopupDelegate extends DefaultBrowserPopupDelegate
             final Data updateProfileData = new Data(1);
             updateProfileData.set(UpdatePassword.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
             addWithExpand(ActionId.PROFILE_UPDATE_PASSWORD, updateProfileData, profile.getId());
+            
+            show();
         }
-
-        show();
     }
 
     /**
@@ -175,7 +175,7 @@ final class ContactTabPopupDelegate extends DefaultBrowserPopupDelegate
         actionIds.clear();
         dataList.clear();
         
-        final Data expandData = new Data(2);
+        final Data expandData = new Data(1);
         expandData.set(Expand.DataKey.CONTACT_ID, contactId);
         actionIds.add(ActionId.CONTACT_EXPAND);
         dataList.add(expandData);

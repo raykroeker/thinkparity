@@ -232,7 +232,14 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
         else
             return panels.get(panelIndex);
     }
-    
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readExpandedPanelData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    @Override
+    protected void readExpandedPanelData(final TabPanel tabPanel) {
+    }
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readSearchResults()
      * 

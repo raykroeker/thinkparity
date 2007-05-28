@@ -14,9 +14,9 @@ import com.thinkparity.ophelia.browser.util.localization.Localization;
  * @version $Revision$
  */
 public class PanelCellListManager {
-       
+
     /** The complete list of <code>Cell</code>. */
-    private List<? extends Cell> cells;
+    private List<? extends Object> cells;
     
     /** The list model. */
     private final PanelCellListModel listModel;
@@ -109,7 +109,7 @@ public class PanelCellListManager {
      * @param cells
      *            The complete list of <code>Cell</code>.
      */
-    public void initialize(final List<? extends Cell> cells) {
+    public void initialize(final List<? extends Object> cells) {
         this.cells = cells;
         if (null == cells) {
             numberPages = 0;

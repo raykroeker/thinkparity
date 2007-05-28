@@ -12,6 +12,7 @@ import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
+import com.thinkparity.ophelia.model.help.HelpModel;
 import com.thinkparity.ophelia.model.migrator.MigratorModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
@@ -104,7 +105,18 @@ public class ModelFactory {
 	public final DocumentModel getDocumentModel(final Class clasz) {
 		return modelFactory.getDocumentModel();
 	}
-    
+
+    /**
+     * Obtain a help model.
+     * 
+     * @param clasz
+     *            The name of clasz will be used to obtain an appropriate model.
+     * @return An instance of <code>HelpModel</code>.
+     */
+    public final HelpModel getHelpModel(final Class clasz) {
+        return modelFactory.getHelpModel();
+    }
+
     /**
      * Obtain a migrator model.
      * 

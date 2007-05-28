@@ -256,7 +256,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     public void toggleExpansion(final TabPanel tabPanel) {
         toggleExpansion(tabPanel, Boolean.TRUE);
     }
-    
+
     /**
      * Toggle expansion of a panel.
      * 
@@ -267,6 +267,9 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      */
     public void toggleExpansion(final TabPanel tabPanel, final Boolean animate) {
         checkThread();
+        if (!tabPanel.isSetExpandedData()) {
+            readExpandedPanelData(tabPanel);
+        }
         doToggleExpansion(tabPanel, animate);
         synchronize();
     }
@@ -430,7 +433,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      * @return A panel id <code>T</code>.
      */
     protected abstract T lookupId(final TabPanel tabPanel);
-        
+
     /**
      * Lookup the panel for the corresponding id.
      * 
@@ -439,7 +442,15 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      * @return A <code>TabPanel</code>.
      */
     protected abstract TabPanel lookupPanel(final T panelId);
-    
+
+    /**
+     * Read additional data that a panel needs when expanded.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     */
+    protected abstract void readExpandedPanelData(final TabPanel tabPanel);
+
     /**
      * Search for a list of ids through the content provider.
      * 

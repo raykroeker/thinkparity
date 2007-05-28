@@ -226,9 +226,16 @@ public class ActionFactory extends AbstractFactory {
             action = new com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft(getBrowser());
             break;
 
-		case PLATFORM_BROWSER_ICONIFY:
-		    action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.Iconify(getPlatform());
-		    break;
+        case HELP_EXPAND:
+            action = new com.thinkparity.ophelia.browser.platform.action.help.Expand(getBrowser());
+            break;
+        case HELP_SHOW_MOVIE:
+            action = new com.thinkparity.ophelia.browser.platform.action.help.ShowMovie(getBrowser());
+            break;
+
+        case PLATFORM_BROWSER_ICONIFY:
+            action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.Iconify(getPlatform());
+            break;
         case PLATFORM_BROWSER_MOVE_TO_FRONT:
             action = new com.thinkparity.ophelia.browser.platform.action.platform.browser.MoveToFront(getPlatform());
             break;

@@ -69,6 +69,24 @@ public final class HelpTopic {
     }
 
     /**
+     * Determine whether or not the content is set.
+     * 
+     * @return True if the content is set; false otherwise.
+     */
+    public Boolean isSetContent() {
+        return null != content;
+    }
+
+    /**
+     * Determine whether or not the movie is set.
+     * 
+     * @return True if the movie is set; false otherwise.
+     */
+    public Boolean isSetMovie() {
+        return null != movie;
+    }
+
+    /**
      * Set content.
      *
      * @param content

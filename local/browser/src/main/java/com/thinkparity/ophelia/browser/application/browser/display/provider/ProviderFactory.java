@@ -10,6 +10,7 @@ import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
+import com.thinkparity.ophelia.model.help.HelpModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.UserModel;
@@ -26,6 +27,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.dial
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.archive.ArchiveTabProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.help.HelpProvider;
 import com.thinkparity.ophelia.browser.platform.firstrun.SignupProvider;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
 
@@ -69,6 +71,9 @@ public class ProviderFactory {
     /** An instance of <code>DocumentModel</code>. */
 	protected final DocumentModel documentModel;
 
+    /** An instance of <code>HelpModel</code>. */
+    protected final HelpModel helpModel;
+
     /** An apache logger. */
 	protected final Logger logger;
     
@@ -93,6 +98,7 @@ public class ProviderFactory {
 		this.contactModel = modelFactory.getContactModel(getClass());
         this.containerModel = modelFactory.getContainerModel(getClass());
 		this.documentModel = modelFactory.getDocumentModel(getClass());
+        this.helpModel = modelFactory.getHelpModel(getClass());
         this.profileModel = modelFactory.getProfileModel(getClass());
 		this.sessionModel = modelFactory.getSessionModel(getClass());
         this.userModel = modelFactory.getUserModel(getClass());
@@ -156,6 +162,9 @@ public class ProviderFactory {
             break;
         case TAB_CONTAINER:
             provider = new ContainerProvider(profileModel, contactModel, containerModel, documentModel, userModel);
+            break;
+        case TAB_HELP:
+            provider = new HelpProvider(profileModel, helpModel);
             break;
         default:
             throw Assert.createUnreachable("[UNKNOWN AVATAR ID]");

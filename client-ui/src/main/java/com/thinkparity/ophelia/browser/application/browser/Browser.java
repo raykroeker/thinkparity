@@ -53,6 +53,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.archive.ArchiveTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.help.HelpTabAvatar;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.*;
@@ -149,12 +150,15 @@ public class Browser extends AbstractApplication {
 	    setInput(AvatarId.TAB_ARCHIVE, data);
 	    setInput(AvatarId.TAB_CONTACT, data);
 	    setInput(AvatarId.TAB_CONTAINER, data);
+        setInput(AvatarId.TAB_HELP, data);
         switch(getMainTitleAvatarTab()) {
         case ARCHIVE:
             break;
         case CONTACT:
             break;
         case CONTAINER:
+            break;
+        case HELP:
             break;
         default:
             Assert.assertUnreachable("Unknown main title tab id.");
@@ -434,6 +438,14 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Display the help tab avatar.
+     *
+     */
+    public void displayHelpTabAvatar() {
+        displayTab(AvatarId.TAB_HELP);
+    }
+
+    /**
      * Display the "publish container" dialog.
      * If the user presses OK, the CONTAINER_PUBLISH action is invoked.
      * 
@@ -620,6 +632,16 @@ public class Browser extends AbstractApplication {
         } else {
             getTabContainerAvatar().expandContainer(containerId);
         }
+    }
+
+    /**
+     * Expand the help topic.
+     * 
+     * @param helpTopicId
+     *            The help topic id.   
+     */
+    public void expandHelpTopic(final Long helpTopicId) {
+        getTabHelpAvatar().expandHelpTopic(helpTopicId);
     }
 
     /**
@@ -1976,6 +1998,8 @@ public class Browser extends AbstractApplication {
             return getTabContactAvatar();
         case CONTAINER:
             return getTabContainerAvatar();
+        case HELP:
+            return getTabHelpAvatar();
         default:
             Assert.assertUnreachable("Unknown main title tab id.");
         }
@@ -1998,6 +2022,15 @@ public class Browser extends AbstractApplication {
      */
     private ContainerTabAvatar getTabContainerAvatar() {
         return (ContainerTabAvatar) getAvatar(AvatarId.TAB_CONTAINER);
+    }
+
+    /**
+     * Obtain the help tab avatar.
+     * 
+     * @return The help tab avatar.
+     */
+    private HelpTabAvatar getTabHelpAvatar() {
+        return (HelpTabAvatar) getAvatar(AvatarId.TAB_HELP);
     }
 
     private void invoke(final ActionId actionId, final Data data) {

@@ -134,13 +134,15 @@ public class DefaultPopupDelegate implements PopupDelegate {
      * 
      */
     public void show() {
-        logger.logApiId();
-        logger.logVariable("invoker", invoker);
-        logger.logVariable("x", x);
-        logger.logVariable("y", y);
-        jPopupMenu.show(invoker, x, y);
-        invoker = jPopupMenu = null;
-        submenus.clear();
-        x = y = -1;
+        if (jPopupMenu.getComponentCount() > 0) {
+            logger.logApiId();
+            logger.logVariable("invoker", invoker);
+            logger.logVariable("x", x);
+            logger.logVariable("y", y);
+            jPopupMenu.show(invoker, x, y);
+            invoker = jPopupMenu = null;
+            submenus.clear();
+            x = y = -1;
+        }
     }
 }

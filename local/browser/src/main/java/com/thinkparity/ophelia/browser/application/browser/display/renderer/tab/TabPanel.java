@@ -24,17 +24,55 @@ public interface TabPanel {
 	public Object getId();
 
     /**
+     * Determine if data required for the expanded panel has been set.
+     * 
+     * @return true if data required for the expanded panel has been set, false otherwise.
+     */
+    public Boolean isSetExpandedData();
+
+    /**
      * Obtain the popup delegate for the panel.
      * 
      * @return A <code>PopupDelegate</code>.
      */
     public PopupDelegate getPopupDelegate();
 
+    /**
+     * Collapse the panel.
+     * 
+     * @param animate
+     *            Animate <code>boolean</code>.
+     */
     public void collapse(final boolean animate);
 
+    /**
+     * Expand the panel.
+     * 
+     * @param animate
+     *            Animate <code>boolean</code>.
+     */
     public void expand(final boolean animate);
 
+    /**
+     * Determine if the panel is currently expanded.
+     * 
+     * @return True if the panel is currently expanded.
+     */
+    public Boolean isExpanded();
+
+    /**
+     * Expand or collapse the panel without animation.
+     * 
+     * @param expanded
+     *            Expanded <code>Boolean</code>.
+     */
     public void setExpanded(final Boolean expanded);
 
+    /**
+     * Set selected.
+     * 
+     * @param selected
+     *            Selected <code>Boolean</code>.
+     */
     public void setSelected(final Boolean selected);
 }

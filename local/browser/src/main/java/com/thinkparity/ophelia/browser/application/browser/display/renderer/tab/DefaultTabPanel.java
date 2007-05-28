@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.util.Calendar;
 
@@ -59,6 +60,12 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
         IMAGE_CACHE = new MainPanelImageCache();
     }
+
+    /** The panel's animating state. */
+    private boolean animating;
+
+    /** The panel's expanded state. */
+    private boolean expanded;
 
     /**
      * Format a calendar as a fuzzy date.
@@ -176,6 +183,13 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#isExpanded()
+     */
+    public Boolean isExpanded() {
+        return Boolean.valueOf(expanded);
+    }
+
+    /**
      * Handle a mouse press on a panel cell.
      * 
      * @param cell
@@ -220,6 +234,17 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#setExpanded(java.lang.Boolean)
+     */
+    public void setExpanded(final Boolean expanded) {
+        if (expanded.booleanValue()) {
+            expand(false);
+        } else {
+            collapse(false);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#setSelected(java.lang.Boolean)
      */
     public void setSelected(final Boolean selected) {
@@ -256,5 +281,115 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
                 ((BottomBorder)BORDER_COLLAPSED).setColor(Colors.Browser.Panel.PANEL_COLLAPSED_BORDER);
             }
         }
+    }
+
+    /**
+     * Collapse the panel.
+     * 
+     * @param animate
+     *            Whether or not to animate.
+     * @param collapsedJPanel
+     *            The collapsed <code>javax.swing.JPanel</code>.
+     * @param expandedJPanel
+     *            The expanded <code>javax.swing.JPanel</code>.
+     */
+    protected void doCollapse(final boolean animate,
+            final javax.swing.JPanel collapsedJPanel,
+            final javax.swing.JPanel expandedJPanel) {
+        if (animate) {
+            final Dimension expandedPreferredSize = getPreferredSize();
+            expandedPreferredSize.height = ANIMATION_MAXIMUM_HEIGHT;
+            setPreferredSize(expandedPreferredSize);
+            animating = true;
+            animator.collapse(ANIMATION_HEIGHT_ADJUSTMENT,
+                    ANIMATION_MINIMUM_HEIGHT, new Runnable() {
+                        public void run() {
+                            animating = false;
+                            expanded = false;
+
+                            if (isAncestorOf(expandedJPanel))
+                                remove(expandedJPanel);
+                            if (isAncestorOf(collapsedJPanel))
+                                remove(collapsedJPanel);
+                            add(collapsedJPanel, constraints.clone());
+                            
+                            revalidate();
+                            repaint();
+                            firePropertyChange("expanded", !expanded, expanded);
+                        }
+            });
+        } else {
+            expanded = false;
+
+            if (isAncestorOf(expandedJPanel))
+                remove(expandedJPanel);
+            if (isAncestorOf(collapsedJPanel))
+                remove(collapsedJPanel);
+            add(collapsedJPanel, constraints.clone());
+            
+            final Dimension preferredSize = getPreferredSize();
+            preferredSize.height = ANIMATION_MINIMUM_HEIGHT;
+            setPreferredSize(preferredSize);
+
+            revalidate();
+            repaint();
+            firePropertyChange("expanded", !expanded, expanded);
+        }
+    }
+
+    /**
+     * Expand the panel.
+     * 
+     * @param animate
+     *            Whether or not to animate.
+     * @param collapsedJPanel
+     *            The collapsed <code>javax.swing.JPanel</code>.
+     * @param expandedJPanel
+     *            The expanded <code>javax.swing.JPanel</code>.
+     */
+    protected void doExpand(final boolean animate,
+            final javax.swing.JPanel collapsedJPanel,
+            final javax.swing.JPanel expandedJPanel) {
+        if (isAncestorOf(expandedJPanel))
+            remove(expandedJPanel);
+        if (isAncestorOf(collapsedJPanel))
+            remove(collapsedJPanel);
+        add(expandedJPanel, constraints.clone());
+
+        if (animate) {
+            final Dimension preferredSize = getPreferredSize();
+            preferredSize.height = ANIMATION_MINIMUM_HEIGHT;
+            setPreferredSize(preferredSize);
+            animating = true;
+            animator.expand(ANIMATION_HEIGHT_ADJUSTMENT,
+                    ANIMATION_MAXIMUM_HEIGHT, new Runnable() {
+                        public void run() {
+                            expanded = true;
+                            animating = false;
+
+                            revalidate();
+                            repaint();
+                            firePropertyChange("expanded", !expanded, expanded);
+                        }
+            });
+        } else {
+            expanded = true;
+            final Dimension preferredSize = getPreferredSize();
+            preferredSize.height = ANIMATION_MAXIMUM_HEIGHT;
+            setPreferredSize(preferredSize);
+
+            revalidate();
+            repaint();
+            firePropertyChange("expanded", !expanded, expanded);
+        }
+    }
+
+    /**
+     * Determine if the panel is currently animating.
+     * 
+     * @return True if the panel is currently animating.
+     */
+    protected Boolean isAnimating() {
+        return Boolean.valueOf(animating);
     }
 }

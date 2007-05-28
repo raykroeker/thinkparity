@@ -184,6 +184,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         archiveJLabel = createTab(TabId.ARCHIVE, Boolean.FALSE).jLabel;
         contactJLabel = createTab(TabId.CONTACT, Boolean.FALSE).jLabel;
 
+        helpJLabel = createTab(TabId.HELP, Boolean.FALSE).jLabel;
         fillTopJLabel = new javax.swing.JLabel();
         fillRightJLabel = new javax.swing.JLabel();
 
@@ -208,9 +209,16 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 0);
         add(contactJLabel, gridBagConstraints);
+
+        helpJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_Tab.png")));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 0);
+        add(helpJLabel, gridBagConstraints);
 
         fillTopJLabel.setFont(Fonts.DefaultFontBold);
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -228,7 +236,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         fillRightJLabel.setMinimumSize(new java.awt.Dimension(100, 18));
         fillRightJLabel.setPreferredSize(new java.awt.Dimension(100, 18));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
@@ -275,6 +283,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     private javax.swing.JLabel containerJLabel;
     private javax.swing.JLabel fillRightJLabel;
     private javax.swing.JLabel fillTopJLabel;
+    private javax.swing.JLabel helpJLabel;
     // End of variables declaration//GEN-END:variables
 
     /** A tab definition. */

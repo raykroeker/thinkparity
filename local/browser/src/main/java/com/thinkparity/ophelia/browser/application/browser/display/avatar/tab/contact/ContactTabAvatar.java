@@ -83,7 +83,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
     public void firePublished(final ContainerEvent e) {
         // HACK - ContactTabAvatar#firePublished
         for (final OutgoingEMailInvitation oei : e.getOutgoingEMailInvitations()) {
-            ensureDispatchThread(new Runnable() {
+            SwingUtil.ensureDispatchThread(new Runnable() {
                 public void run() {
                     model.syncOutgoingEMailInvitation(oei.getId(), e.isRemote());
                 }
@@ -236,16 +236,6 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
                 model.syncProfile(remote);
             }
         });
-    }
-
-    /**
-     * Ensure the runnable executes on the swing dispatch thread.
-     * 
-     * @param runnable
-     *            A <code>Runnable</code>.
-     */
-    private void ensureDispatchThread(final Runnable runnable) {
-        SwingUtil.ensureDispatchThread(runnable);
     }
 
     /**

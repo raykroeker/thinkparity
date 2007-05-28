@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact;
 
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.Point;
@@ -79,14 +78,8 @@ public class ContactTabPanel extends DefaultTabPanel {
     /** The contact tab's <code>DefaultActionDelegate</code>. */
     private ActionDelegate actionDelegate;
 
-    /** The panel's animating state. */
-    private boolean animating;
-
     /** A <code>Contact</code>. */
     private Contact contact;
-
-    /** The panel's expanded state. */
-    private boolean expanded;
 
     /** A contact <code>IncomingEMailInvitation</code>. */
     private IncomingEMailInvitation incomingEMail;
@@ -252,30 +245,20 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /**
-     * Determine if the panel is animating a collapse or expand operation.
-     * 
-     * @return True if the panel is in the process of expanding or collapsing.
-     */
-    public Boolean isAnimating() {
-        return animating;
-    }
-
-    /**
-     * Determine if the panel is expanded.
-     * 
-     * @return True if the panel is expanded.
-     */
-    public Boolean isExpanded() {
-        return Boolean.valueOf(expanded);
-    }
-
-    /**
      * Determine if the contact is set.
      * 
      * @return True if the contact is set.
      */
     public Boolean isSetContact() {
         return null != contact;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#isSetExpandedData()
+     */
+    public Boolean isSetExpandedData() {
+        // panels on the contact tab are always popuplated with all data required when expanded.
+        return Boolean.TRUE;
     }
 
     /**
@@ -341,23 +324,10 @@ public class ContactTabPanel extends DefaultTabPanel {
      * Set actionDelegate.
      *
      * @param actionDelegate
-     *      A ContainerTabActionDelegate.
+     *      An ActionDelegate.
      */
     public void setActionDelegate(final ActionDelegate actionDelegate) {
         this.actionDelegate = actionDelegate;
-    }
-
-    /**
-     * Makes the panel expanded or not.
-     * 
-     * @param expanded
-     *            Whether to expand the panel.
-     */
-    public void setExpanded(final Boolean expanded) {
-        if (expanded.booleanValue())
-            expand(false);
-        else
-            collapse(false);
     }
 
     /**
@@ -526,8 +496,8 @@ public class ContactTabPanel extends DefaultTabPanel {
         super.paintComponent(g);
         final int height = getHeight() - getBorder().getBorderInsets(this).top
                 - getBorder().getBorderInsets(this).bottom;
-        adjustBorderColor(expanded);
-        if (expanded || animating) {
+        adjustBorderColor(isExpanded());
+        if (isExpanded() || isAnimating()) {
             renderer.paintExpandedBackground(g, this);
             final Point location = SwingUtilities.convertPoint(expandedDataValuesJPanel, new Point(0,0), this);
             renderer.paintExpandedBackgroundFields(g, location.x,
@@ -581,50 +551,12 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     private void doCollapse(final boolean animate) {
         collapsedJPanel.removeAll();
-        if (isSetIncomingEMail() || isSetIncomingUser())
+        if (isSetIncomingEMail() || isSetIncomingUser()) {
             collapsedJPanel.add(collapsedIncomingInvitationJPanel, innerJPanelConstraints.clone());
-        else 
-            collapsedJPanel.add(collapsedContactJPanel, innerJPanelConstraints.clone());
-
-        if (animate) {
-            final Dimension expandedPreferredSize = getPreferredSize();
-            expandedPreferredSize.height = ANIMATION_MAXIMUM_HEIGHT;
-            setPreferredSize(expandedPreferredSize);
-            animating = true;
-            animator.collapse(ANIMATION_HEIGHT_ADJUSTMENT,
-                    ANIMATION_MINIMUM_HEIGHT, new Runnable() {
-                        public void run() {
-                            animating = false;
-                            expanded = false;
-
-                            if (isAncestorOf(expandedJPanel))
-                                remove(expandedJPanel);
-                            if (isAncestorOf(collapsedJPanel))
-                                remove(collapsedJPanel);
-                            add(collapsedJPanel, constraints.clone());
-                            
-                            revalidate();
-                            repaint();
-                            firePropertyChange("expanded", !expanded, expanded);
-                        }
-            });
         } else {
-            expanded = false;
-
-            if (isAncestorOf(expandedJPanel))
-                remove(expandedJPanel);
-            if (isAncestorOf(collapsedJPanel))
-                remove(collapsedJPanel);
-            add(collapsedJPanel, constraints.clone());
-            
-            final Dimension preferredSize = getPreferredSize();
-            preferredSize.height = ANIMATION_MINIMUM_HEIGHT;
-            setPreferredSize(preferredSize);
-
-            revalidate();
-            repaint();
-            firePropertyChange("expanded", !expanded, expanded);
+            collapsedJPanel.add(collapsedContactJPanel, innerJPanelConstraints.clone());
         }
+        doCollapse(animate, collapsedJPanel, expandedJPanel);
     }
 
     /**
@@ -634,45 +566,12 @@ public class ContactTabPanel extends DefaultTabPanel {
      *            Whether or not to animate.
      */
     private void doExpand(final boolean animate) {
-        selectPanel();
         expandedJPanel.removeAll();
         if (isSetContact() || isSetProfile())
             expandedJPanel.add(expandedContactJPanel, innerJPanelConstraints.clone());
         else
             Assert.assertUnreachable("Inconsistent contact tab panel state.");
-
-        if (isAncestorOf(expandedJPanel))
-            remove(expandedJPanel);
-        if (isAncestorOf(collapsedJPanel))
-            remove(collapsedJPanel);
-        add(expandedJPanel, constraints.clone());
-
-        if (animate) {
-            final Dimension preferredSize = getPreferredSize();
-            preferredSize.height = ANIMATION_MINIMUM_HEIGHT;
-            setPreferredSize(preferredSize);
-            animating = true;
-            animator.expand(ANIMATION_HEIGHT_ADJUSTMENT,
-                    ANIMATION_MAXIMUM_HEIGHT, new Runnable() {
-                        public void run() {
-                            expanded = true;
-                            animating = false;
-
-                            revalidate();
-                            repaint();
-                            firePropertyChange("expanded", !expanded, expanded);
-                        }
-            });
-        } else {
-            expanded = true;
-            final Dimension preferredSize = getPreferredSize();
-            preferredSize.height = ANIMATION_MAXIMUM_HEIGHT;
-            setPreferredSize(preferredSize);
-
-            revalidate();
-            repaint();
-            firePropertyChange("expanded", !expanded, expanded);
-        }
+        doExpand(animate, collapsedJPanel, expandedJPanel);
     }
 
     private void expandedContactJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedContactJPanelMousePressed
@@ -696,6 +595,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     }//GEN-LAST:event_expandIconJLabelMouseExited
 
     private void expandIconJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMousePressed
+        selectPanel();
         expandIconMousePressed(e);
     }//GEN-LAST:event_expandIconJLabelMousePressed
 
@@ -1200,14 +1100,14 @@ public class ContactTabPanel extends DefaultTabPanel {
      * 
      * @return True if the panel is expandable.
      */
-    public Boolean isExpandable() {
+    private Boolean isExpandable() {
         return (isSetContact() || isSetProfile());
     }
 
     /**
      * Handle the mouse pressed event for any one of the jpanels in this tab.
      * Depending on whether or not the event is a popup trigger the popup
-     * appropriate to the state of the panel will be dislpayed.
+     * appropriate to the state of the panel will be displayed.
      * 
      * @param jPanel
      *            A <code>JPanel</code>.
@@ -1245,7 +1145,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     /**
      * Handle the mouse released event for any one of the jpanels in this tab.
      * Depending on whether or not the event is a popup trigger the popup
-     * appropriate to the state of the panel will be dislpayed.
+     * appropriate to the state of the panel will be displayed.
      * 
      * @param jPanel
      *            A <code>JPanel</code>.

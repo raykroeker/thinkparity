@@ -126,9 +126,6 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The container tab's <code>DefaultActionDelegate</code>. */
     private ActionDelegate actionDelegate;
 
-    /** The panel's animating indicator. */
-    private boolean animating;
-
     /** The clipped additional text */
     private String clippedAdditionalText;
 
@@ -152,9 +149,6 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /** The visible east list model. */
     private final PanelCellListModel eastListModel;
-
-    /** The expanded <code>Boolean</code> state. */
-    private boolean expanded;
 
     /** A  <code>FileIconReader</code>. */
     private final FileIconReader fileIconReader;
@@ -194,7 +188,6 @@ public class ContainerPanel extends DefaultTabPanel {
         super(session);            
         this.documentViews = new HashMap<ContainerVersion, List<DocumentView>>();
         this.eastCellPanels = new ArrayList<PanelCellRenderer>();
-        this.expanded = Boolean.FALSE;
         this.fileIconReader = new FileIconReader();
         this.localization = new BrowserLocalization("ContainerPanel");
         this.team = new ArrayList<TeamMember>();
@@ -326,30 +319,12 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * Determine if the panel is currently animating.
-     * 
-     * @return True if the panel is currently animating.
-     */
-    public Boolean isAnimating() {
-        return Boolean.valueOf(animating);
-    }
-
-    /**
      * Determine if the container has been distributed.
      * 
      * @return True if the container has been distributed, false otherwise.
      */
     public Boolean isDistributed() {
         return null != latestVersion;
-    }
-    
-    /**
-     * Determine the expanded state.
-     * 
-     * @return A <code>Boolean</code> expanded state.
-     */
-    public Boolean isExpanded() {
-        return Boolean.valueOf(expanded);
     }
 
     /**
@@ -368,6 +343,14 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     public Boolean isSetDraft() {
         return null != draft && draft.isSetDraft();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#isSetExpandedData()
+     */
+    public Boolean isSetExpandedData() {
+        // container panels are always popuplated with all data required when expanded.
+        return Boolean.TRUE;
     }
 
     /**
@@ -447,19 +430,6 @@ public class ContainerPanel extends DefaultTabPanel {
                 container.getId());
         westListModel.showFirstPage();
         westListModel.setSelectedCell(westCells.get(1));
-    }
-
-    /**
-     * Set the expanded state.
-     * 
-     * @param expanded
-     *            A <code>Boolean</code> expanded state.
-     */
-    public void setExpanded(final Boolean expanded) {
-        if (expanded.booleanValue())
-            expand(false);
-        else
-            collapse(false);
     }
 
     /**
@@ -561,8 +531,8 @@ public class ContainerPanel extends DefaultTabPanel {
                 + getBorder().getBorderInsets(this).bottom;
         final int height = getHeight() - borderHeight;
         final int finalHeight = ANIMATION_MAXIMUM_HEIGHT - borderHeight;
-        adjustBorderColor(expanded);
-        if (expanded || animating) {
+        adjustBorderColor(isExpanded());
+        if (isExpanded() || isAnimating()) {
             renderer.paintExpandedBackground(g, this);
             if (!westListModel.isSelectionEmpty()) {
                 final int westSelectionIndex = westListModel.getSelectedIndex();
@@ -649,45 +619,7 @@ public class ContainerPanel extends DefaultTabPanel {
      *            Whether or not to animate.
      */
     private void doCollapse(final boolean animate) {
-        if (animate) {
-            final Dimension expandedPreferredSize = getPreferredSize();
-            expandedPreferredSize.height = ANIMATION_MAXIMUM_HEIGHT;
-            setPreferredSize(expandedPreferredSize);
-            animating = true;
-            animator.collapse(ANIMATION_HEIGHT_ADJUSTMENT,
-                    ANIMATION_MINIMUM_HEIGHT, new Runnable() {
-                        public void run() {
-                            animating = false;
-                            expanded = false;
-
-                            if (isAncestorOf(expandedJPanel))
-                                remove(expandedJPanel);
-                            if (isAncestorOf(collapsedJPanel))
-                                remove(collapsedJPanel);
-                            add(collapsedJPanel, constraints.clone());
-                            
-                            revalidate();
-                            repaint();
-                            firePropertyChange("expanded", !expanded, expanded);
-                        }
-            });
-        } else {
-            expanded = false;
-
-            if (isAncestorOf(expandedJPanel))
-                remove(expandedJPanel);
-            if (isAncestorOf(collapsedJPanel))
-                remove(collapsedJPanel);
-            add(collapsedJPanel, constraints.clone());
-            
-            final Dimension preferredSize = getPreferredSize();
-            preferredSize.height = ANIMATION_MINIMUM_HEIGHT;
-            setPreferredSize(preferredSize);
-
-            revalidate();
-            repaint();
-            firePropertyChange("expanded", !expanded, expanded);
-        }
+        doCollapse(animate, collapsedJPanel, expandedJPanel);
     }
 
     /**
@@ -697,38 +629,7 @@ public class ContainerPanel extends DefaultTabPanel {
      *            Whether or not to animate.
      */
     private void doExpand(final boolean animate) {
-        if (isAncestorOf(expandedJPanel))
-            remove(expandedJPanel);
-        if (isAncestorOf(collapsedJPanel))
-            remove(collapsedJPanel);
-        add(expandedJPanel, constraints.clone());
-
-        if (animate) {
-            final Dimension preferredSize = getPreferredSize();
-            preferredSize.height = ANIMATION_MINIMUM_HEIGHT;
-            setPreferredSize(preferredSize);
-            animating = true;
-            animator.expand(ANIMATION_HEIGHT_ADJUSTMENT,
-                    ANIMATION_MAXIMUM_HEIGHT, new Runnable() {
-                        public void run() {
-                            expanded = true;
-                            animating = false;
-
-                            revalidate();
-                            repaint();
-                            firePropertyChange("expanded", !expanded, expanded);
-                        }
-            });
-        } else {
-            expanded = true;
-            final Dimension preferredSize = getPreferredSize();
-            preferredSize.height = ANIMATION_MAXIMUM_HEIGHT;
-            setPreferredSize(preferredSize);
-
-            revalidate();
-            repaint();
-            firePropertyChange("expanded", !expanded, expanded);
-        }
+        doExpand(animate, collapsedJPanel, expandedJPanel);
     }
 
     private void eastJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJPanelMousePressed
@@ -827,7 +728,7 @@ public class ContainerPanel extends DefaultTabPanel {
      * @return A <code>Font</code>.
      */
     private Font getContainerTextFont() {
-        if (!expanded && !container.isSeen().booleanValue()) {
+        if (!isExpanded() && !container.isSeen().booleanValue()) {
             return Fonts.DefaultFontBold;
         } else {
             return Fonts.DefaultFont;
@@ -993,6 +894,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 0);
@@ -1012,6 +914,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         westJPanel.add(westPreviousJLabel, gridBagConstraints);
 
+        westCountJLabel.setFont(Fonts.DialogFont);
         westCountJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.countJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
@@ -1180,6 +1083,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 0);
@@ -1199,6 +1103,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         eastJPanel.add(eastPreviousJLabel, gridBagConstraints);
 
+        eastCountJLabel.setFont(Fonts.DialogFont);
         eastCountJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.countJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
@@ -1217,7 +1122,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         eastJPanel.add(eastLastJLabel, gridBagConstraints);
 
         eastContentJPanel.add(eastJPanel, "eastJPanel");

@@ -288,7 +288,7 @@ public class HelpTabPanel extends DefaultTabPanel {
         final javax.swing.JLabel expandedFillerJLabel = new javax.swing.JLabel();
         final javax.swing.JPanel expandedContentJPanel = new javax.swing.JPanel();
         final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
-        fillerJPanel = new javax.swing.JPanel();
+        final javax.swing.JPanel fillerJPanel = new javax.swing.JPanel();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -631,7 +631,6 @@ public class HelpTabPanel extends DefaultTabPanel {
     private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel expandedMovieJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JLabel expandedTextJLabel = new javax.swing.JLabel();
-    private javax.swing.JPanel fillerJPanel;
     private final javax.swing.JLabel firstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JTextArea helpContentJTextArea = new javax.swing.JTextArea();
     private final javax.swing.JLabel lastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);

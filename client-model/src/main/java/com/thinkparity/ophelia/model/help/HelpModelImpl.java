@@ -158,20 +158,8 @@ public final class HelpModelImpl extends Model implements HelpModel,
      */
     public List<Long> searchTopics(final String expression) {
         try {
-            // build the index if requried
-            final String isIndexed = configurationIO.read(ConfigurationKeys.IS_INDEXED);
-            if (null == isIndexed) {
-                // re-build help index
+            if (!isIndexed()) {
                 index();
-                configurationIO.create(ConfigurationKeys.IS_INDEXED,
-                        Boolean.TRUE.toString());
-            } else {
-                if (!Boolean.parseBoolean(isIndexed)) {
-                    // re-build help index
-                    index();
-                    configurationIO.update(ConfigurationKeys.IS_INDEXED,
-                            Boolean.TRUE.toString());
-                }
             }
 
             return getIndexModel().searchHelpTopics(expression);
@@ -197,12 +185,34 @@ public final class HelpModelImpl extends Model implements HelpModel,
      */
     private void index() {
         try {
+            final boolean wasIndexed = isIndexed();
+
             final List<HelpTopic> topics = readTopics();
             for (final HelpTopic topic : topics) {
                 getIndexModel().indexHelpTopic(topic.getId());
             }
+
+            if (!wasIndexed) {
+                configurationIO.create(ConfigurationKeys.IS_INDEXED,
+                        Boolean.TRUE.toString());
+            }
         } catch (final Throwable t) {
             throw panic(t);
+        }
+    }
+
+    /**
+     * Determine whether or not the help is indexed.
+     * 
+     * @return True if the help is indexed.
+     */
+    private boolean isIndexed() {
+        // build the index if requried
+        final String isIndexed = configurationIO.read(ConfigurationKeys.IS_INDEXED);
+        if (null == isIndexed) {
+            return false;
+        } else {
+            return Boolean.parseBoolean(isIndexed);
         }
     }
 

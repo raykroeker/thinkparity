@@ -20,31 +20,42 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtensio
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
-
 /**
+ * <b>Title:</b>thinkParity OpheliaUI Main Title Avatar<br>
+ * <b>Description:</b>The main title avatar contains a search panel and a tab
+ * panel.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
+ * 
+ * NOTE:  Follow the instantiation of the main title avatar to find the error
+ * with the netbeans RAD ui.
  */
-public class MainTitleAvatar extends Avatar {
-
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
+public final class MainTitleAvatar extends Avatar {
 
     /** A <code>MainTitleAvatarSearchPanel</code>.*/
-    private final MainTitleAvatarSearchPanel searchPanel = new MainTitleAvatarSearchPanel();
+    private final MainTitleAvatarSearchPanel searchPanel;
 
     /** A <code>MainTitleAvatarTabPanel</code>.*/
-    private final MainTitleAvatarTabPanel tabPanel = new MainTitleAvatarTabPanel();
+    private final MainTitleAvatarTabPanel tabPanel;
 
-    /** Creates MainTitleAvatar. */
+    /**
+     * Create MainTitleAvatar.
+     * 
+     */
     public MainTitleAvatar() {
         super("BrowserTitle");
+        this.searchPanel = new MainTitleAvatarSearchPanel();
+        this.searchPanel.setMainTitleAvatar(this);
+        this.tabPanel = new MainTitleAvatarTabPanel();
+        this.tabPanel.setMainTitleAvatar(this);
+
         initComponents();
         installResizer();
         installMoveListener();
         new BrowserPopupHelper().addPopupListener(this);
-        
-        // Double click to maximize the browser window
+
+        // double click to maximize the browser window
         this.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(final java.awt.event.MouseEvent e) {
                 if (e.getButton()==MouseEvent.BUTTON1) {

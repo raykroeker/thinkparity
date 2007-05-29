@@ -109,7 +109,7 @@ public final class HelpIndexImpl extends
      * 
      */
     public void index(final HelpIndexEntry o) throws IOException {
-        final DocumentBuilder indexBuilder = new DocumentBuilder(3)
+        final DocumentBuilder indexBuilder = new DocumentBuilder(5)
             .append(IDX_TOPIC_ID.setValue(o.getTopic().getId()).toField())
             .append(IDX_TOPIC_NAME.setValue(o.getTopic().getName()).toField())
             .append(IDX_TOPIC_NAME_REV.setValue(reverse(IDX_TOPIC_NAME)).toField())

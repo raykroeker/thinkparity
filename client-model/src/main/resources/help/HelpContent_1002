@@ -1,0 +1,1 @@
+When you start Windows, thinkParity starts automatically and connects to the server to download any waiting packages. When you close the thinkParity window, thinkParity will stay connected so that you can be alerted if important information arrives. Thinkparity can be re-opened at any time by clicking on the thinkParity icon in the taskbar.

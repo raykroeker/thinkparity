@@ -223,7 +223,7 @@ public final class HelpModelImpl extends Model implements HelpModel,
      */
     private List<Long> readTopicIds() {
         final StringTokenizer tokenizer = new StringTokenizer(
-                helpConfig.getProperty(CFG_KEY_TOPIC_IDS));
+                helpConfig.getProperty(CFG_KEY_TOPIC_IDS), " ,");
         final List<Long> ids = new ArrayList<Long>(tokenizer.countTokens());
         while (tokenizer.hasMoreTokens()) {
             ids.add(Long.valueOf(tokenizer.nextToken()));

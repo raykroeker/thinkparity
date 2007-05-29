@@ -1,1 +1,10 @@
-Help content.
+A package is a collection of related documents and their recipients. The package is organized as a list of versions, with the most recent version displayed at the top.
+
+Each version is a snapshot of the package at the time it was published, including the documents, an accompanying note, information about the publisher and a list of its recipients. The list of recipients also includes a digital receipt that confirms if and when each document was received.
+
+<p>When you open thinkParity, you are presented with the list of your packages. Packages can be:
+   Bold, indicating that the package contains a new version
+   Grayed out, indicating that you no longer have the latest version of the package *
+   Normal text, indicating a package that has already been read
+
+(*) You need the latest version of a package in order to update and publish its documents.

@@ -462,7 +462,7 @@ public class HelpTabPanel extends DefaultTabPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(5, 49, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(5, 49, 0, 30);
         expandedContentJPanel.add(helpContentJTextArea, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -523,8 +523,8 @@ public class HelpTabPanel extends DefaultTabPanel {
         expandedJPanel.setLayout(expandedJPanelLayout);
         expandedJPanelLayout.setHorizontalGroup(
             expandedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(fixedSizeJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 556, Short.MAX_VALUE)
-            .add(fillerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 556, Short.MAX_VALUE)
+            .add(fixedSizeJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .add(fillerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE)
         );
         expandedJPanelLayout.setVerticalGroup(
             expandedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)

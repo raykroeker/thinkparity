@@ -71,6 +71,7 @@ public class VerifyEMailAvatar extends Avatar {
      */
     @Override
     public void reload() {
+        keyJTextField.setText("");
         this.emails = readEMails();
         validateInput();
     }

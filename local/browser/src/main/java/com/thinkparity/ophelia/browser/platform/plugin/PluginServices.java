@@ -3,12 +3,11 @@
  */
 package com.thinkparity.ophelia.browser.platform.plugin;
 
-import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import com.thinkparity.codebase.StackUtil;
-import com.thinkparity.codebase.log4j.Log4JHelper;
+import com.thinkparity.codebase.ErrorHelper;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.ophelia.model.events.SessionAdapter;
 
@@ -17,8 +16,6 @@ import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
-
-import org.apache.log4j.Logger;
 
 /**
  * <b>Title:</b>thinkParity Browser Platform Plugin Services<br>
@@ -37,8 +34,8 @@ public final class PluginServices {
     /** The plugin's resource bundle. */
     private final PluginLoader loader;
 
-    /** The plugin's logger. */
-    private final Logger logger;
+    /** The plugin's <code>Log4JWrapper</code>. */
+    private final Log4JWrapper logger;
 
     /** The plugin's model factory. */
     private final PluginModelFactory modelFactory;
@@ -53,7 +50,7 @@ public final class PluginServices {
     PluginServices(final Platform platform, final PluginWrapper wrapper) {
         super();
         this.loader = new PluginRegistry().getLoader(wrapper);
-        this.logger = Logger.getLogger(getClass());
+        this.logger = new Log4JWrapper(getClass());
         this.modelFactory = new PluginModelFactory(platform);
         this.modelFactory.getSessionModel().addListener(new SessionAdapter() {
             @Override
@@ -98,84 +95,19 @@ public final class PluginServices {
     }
 
     /**
-     * Log a trace statement.
-     * 
-     * @param tracePattern
-     *            A trace pattern.
-     * @param traceArguments
-     *            Trace pattern arguments.
-     */
-    public void logTrace(final String tracePattern,
-            final Object... traceArguments) {
-        if (logger.isTraceEnabled()) {
-            logger.warn(Log4JHelper.renderAndFormat(logger, tracePattern,
-                    traceArguments));
-        }
-    }
-
-    /**
-     * Log a variable.
-     * 
-     * @param <V>
-     *            A variable type.
-     * @param name
-     *            A variable name.
-     * @param value
-     *            A variable.
-     * @return The variable.
-     */
-    public <V> V logVariable(final String name, final V value) {
-        if (logger.isDebugEnabled()) {
-            logger.warn(Log4JHelper.renderAndFormat(logger, "{0}:{1}", name,
-                    value));
-        }
-        return value;
-    }
-
-    /**
-     * Log a warning.
-     * 
-     * @param warnPattern
-     *            A warning text pattern.
-     * @param warnArguments
-     *            Warning text pattern arguments.
-     */
-    public void logWarning(final String warnPattern,
-            final Object... warnArguments) {
-        logger.warn(Log4JHelper.renderAndFormat(logger, warnPattern,
-                warnArguments));
-    }
-
-    /**
-     * Log a warning.
-     * 
-     * @param t
-     *            A throwable.
-     * @param warnPattern
-     *            A warning text pattern.
-     * @param warnArguments
-     *            Warning text pattern arguments.
-     */
-    public void logWarning(final Throwable t, final String warnPattern,
-            final Object... warnArguments) {
-        logger.warn(Log4JHelper.renderAndFormat(logger, warnPattern,
-                warnArguments), t);
-    }
-
-    /**
      * Translate an error into a plugin error.
      * 
      * @param cause
      *            The cause <code>Throwable</code> of the error.
      * @return A <code>PluginException</code>.
      */
-    public PluginException translateError(final Throwable cause) {
-        if (PluginException.class.isAssignableFrom(cause.getClass())) {
-            return (PluginException) cause;
+    public PluginException translateError(final Throwable t) {
+        if (PluginException.class.isAssignableFrom(t.getClass())) {
+            return (PluginException) t;
         } else {
-            final Object errorId = getErrorId(cause);
-            logger.error(errorId, cause);
-            return PluginException.translate(errorId.toString(), cause);
+            final String errorId = new ErrorHelper().getErrorId(t);
+            logger.logError(t, "{0}", errorId);
+            return PluginException.translate(errorId, t);
         }
     }
 
@@ -210,21 +142,5 @@ public final class PluginServices {
      */
     TabPanelExtension getTabPanelExtension(final String name) {
         return (TabPanelExtension) wrapper.getExtension(name);
-    }
-
-    /**
-     * Obtain an error id.
-     * 
-     * @param cause
-     *            The cause of the error.
-     * @return The error id.
-     */
-    private Object getErrorId(final Throwable cause) {
-        return MessageFormat.format("{0} - {2} - {3}.{4}({5}:{6})",
-                cause.getLocalizedMessage(),
-                StackUtil.getFrameClassName(2),
-                StackUtil.getFrameMethodName(2),
-                StackUtil.getFrameFileName(2),
-                StackUtil.getFrameLineNumber(2));
     }
 }

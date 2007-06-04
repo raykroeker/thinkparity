@@ -419,9 +419,10 @@ public class SwingUtil {
         final Window window = javax.swing.SwingUtilities.getWindowAncestor(component);
         if (null != window) {
             doSetCursor(window, cursor);
-        } else {
-            component.setCursor(cursor);
         }
+        // NOTE Setting the cursor on the window does not always set the cursor on
+        // all subcomponents, so explicitly set the cursor on the component.
+        component.setCursor(cursor);
     }
 
     private void doSetCursor(final java.awt.Window window, final Cursor cursor) {

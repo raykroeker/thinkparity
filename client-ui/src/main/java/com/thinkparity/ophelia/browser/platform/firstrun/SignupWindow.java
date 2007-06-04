@@ -37,6 +37,7 @@ public final class SignupWindow extends OpheliaJFrame {
         super("SignupWindow");
         windowPanel = new WindowPanel();
         windowPanel.getWindowTitle().setBorderType(WindowTitle.BorderType.WINDOW_BORDER2);
+        setTitle(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupWindow.Title"));
         initSignupAvatar();
         initComponents(signupAvatar);
         pack();

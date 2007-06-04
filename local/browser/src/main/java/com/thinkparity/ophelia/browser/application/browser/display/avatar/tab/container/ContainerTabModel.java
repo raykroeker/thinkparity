@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
 
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -216,6 +217,14 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#deletePanel(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    @Override
+    protected void deletePanel(final TabPanel tabPanel) {
+        browser.runDeleteContainer(lookupId(tabPanel));
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#importData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.datatransfer.Transferable)
      *
      */
@@ -291,14 +300,6 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     protected List<Long> readSearchResults() {
         checkThread();
         return ((ContainerProvider) contentProvider).search(searchExpression);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#requestFocusInWindow(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
-     */
-    @Override
-    protected void requestFocusInWindow(final TabPanel tabPanel) {
-        ((ContainerPanel)tabPanel).requestFocusInWindow();
     }
 
     /**
@@ -861,6 +862,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      */
     private void syncContainerImpl(final Long containerId, final Boolean remote) {
         debug();
+        boolean requestFocus = false;
         final Container container = read(containerId);
         // remove the container from the panel list
         if (null == container) {
@@ -871,6 +873,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
                 // if the reload is the result of a remote event add the container
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
+                requestFocus = ((Component)lookupPanel(containerId)).hasFocus();
                 removeContainerPanel(containerId, false);
                 if (remote) {
                     addContainerPanel(0, container);
@@ -881,9 +884,10 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
                 addContainerPanel(0, container);
             }
         }
-        
         synchronize();
-        
+        if (requestFocus) {
+            requestFocusInWindow(lookupPanel(containerId));
+        }
         debug();
     }
 

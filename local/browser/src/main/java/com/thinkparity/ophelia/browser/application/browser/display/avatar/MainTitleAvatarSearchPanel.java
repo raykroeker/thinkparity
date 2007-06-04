@@ -10,7 +10,10 @@ import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
@@ -75,17 +78,33 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     /** The filter popup delegate. */
     private final FilterPopupDelegate filterPopupDelegate;
 
-    /** Flag indicating the user pressed the mouse in the text area */
-    private Boolean userActivated = Boolean.FALSE;
-
     /** Creates new form BrowserTitleSearch */
     public MainTitleAvatarSearchPanel() {
         super();
         this.filterPopupDelegate = new FilterPopupDelegate();
         initComponents();
         addMoveListener(this);
+        addRequestFocusListener(this);
         new BrowserPopupHelper().addPopupListener(this);
         new Resizer(getBrowser(), this, Boolean.FALSE, Resizer.ResizeEdges.RIGHT);     
+
+        // TODO clean this up
+        getBrowser().getMainWindow().addPropertyChangeListener("showPopup", new PropertyChangeListener() {
+            public void propertyChange(final PropertyChangeEvent e) {
+                if (searchJTextField.hasFocus() && isFilterActive() && !MenuFactory.isPopupMenu()) {
+                    showFilterMenu();
+                }
+            }
+        });
+    }
+
+    /**
+     * Determine if the search control has focus.
+     * 
+     * @return true if the search control has focus.
+     */
+    public boolean hasFocus() {
+        return searchJTextField.hasFocus();
     }
 
     /**
@@ -100,6 +119,13 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     }
 
     /**
+     * Request focus.
+     */
+    public void requestFocus() {
+        searchJTextField.requestFocusInWindow();
+    }
+
+    /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
     @Override
@@ -107,7 +133,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         super.paintComponent(g);
         final Graphics2D g2 = (Graphics2D) g.create();
         try {
-            if (userActivated) {
+            if (searchJTextField.isFocusOwner()) {
                 final Point leftLocation = leftJLabel.getLocation();
                 g2.drawImage(HALO, leftLocation.x - 1, leftLocation.y - 1, null);
             } else {
@@ -258,9 +284,9 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     }                                                                          
 
     private void searchJTextFieldMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_searchJTextFieldMousePressed
-        userActivated = Boolean.TRUE;
-        searchJTextField.getCaret().setVisible(true);
-        repaint();
+        if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON3 && isFilterActive() && !MenuFactory.isPopupMenu()) {
+            showFilterMenu();
+        }
     }//GEN-LAST:event_searchJTextFieldMousePressed
 
     private void searchJTextFieldMouseExited(final java.awt.event.MouseEvent e) {// GEN-FIRST:event_searchJTextFieldMouseExited
@@ -278,17 +304,11 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     }// GEN-LAST:event_searchJTextFieldMouseEntered
 
     private void searchJTextFieldFocusLost(final java.awt.event.FocusEvent e) {//GEN-FIRST:event_searchJTextFieldFocusLost
-        userActivated = Boolean.FALSE;
-        if (null != getParent()) {
-            // Note that repaint(), or getParent().repaint() on bounds, causes visible flicker drawing rectangle.
-            getParent().repaint();
-        }
+        repaint();
     }//GEN-LAST:event_searchJTextFieldFocusLost
 
     private void searchJTextFieldFocusGained(final java.awt.event.FocusEvent e) {//GEN-FIRST:event_searchJTextFieldFocusGained
-        // Only show the caret if the user actually mouse-pressed in the JTextField.
-        // NOTE Perhaps reconsider this approach if we need to tab to this control.
-        searchJTextField.getCaret().setVisible(userActivated);
+        repaint();
     }//GEN-LAST:event_searchJTextFieldFocusGained
 
     /**

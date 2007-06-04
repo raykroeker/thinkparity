@@ -62,8 +62,8 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     /** A user search expression <code>String</code>. */
     protected String searchExpression;
     
-    /** The selected panel. */
-    protected TabPanel selectedPanel;
+    /** The selected panel id. */
+    private T selectedPanelId;
     
     /** A search result list of unique id <code>T</code>s. */
     protected final List<T> searchResults;
@@ -104,6 +104,17 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
         final TabPanel tabPanel = (TabPanel)lookupPanel(panelId);
         if (isExpanded(tabPanel)) {
             toggleExpansion(tabPanel, animate);
+        }
+    }
+
+    /**
+     * Delete the selected panel (run appropriate action).
+     */
+    public void deleteSelectedPanel() {
+        checkThread();
+        final TabPanel selectedPanel = getSelectedPanel();
+        if (null != selectedPanel) {
+            deletePanel(selectedPanel);
         }
     }
 
@@ -191,6 +202,66 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     }
 
     /**
+     * Select the first panel.
+     */
+    public void selectFirstPanel() {
+        checkThread();
+        if (visiblePanels.size() > 0) {
+            selectPanel(visiblePanels.get(0), Boolean.TRUE);
+        }
+    }
+
+    /**
+     * Select the last panel.
+     */
+    public void selectLastPanel() {
+        checkThread();
+        if (visiblePanels.size() > 0) {
+            selectPanel(visiblePanels.get(visiblePanels.size()-1), Boolean.TRUE);
+        }
+    }
+
+    /**
+     * Select the next panel, or the first panel if none are selected.
+     */
+    public void selectNextPanel() {
+        checkThread();
+        if (visiblePanels.size() > 0) {
+            final TabPanel oldSelectedPanel = getSelectedPanel();
+            if (null == oldSelectedPanel) {
+                selectPanel(visiblePanels.get(0), Boolean.TRUE);
+            } else {
+                final int visibleIndex = visiblePanels.indexOf(oldSelectedPanel);
+                if (visibleIndex < 0) {
+                    selectPanel(visiblePanels.get(0), Boolean.TRUE);
+                } else if (visibleIndex < visiblePanels.size()-1) {
+                    selectPanel(visiblePanels.get(visibleIndex+1), Boolean.TRUE);
+                }
+            }
+        }
+    }
+
+    /**
+     * Select the previous panel, or the first panel if none are selected.
+     */
+    public void selectPreviousPanel() {
+        checkThread();
+        if (visiblePanels.size() > 0) {
+            final TabPanel oldSelectedPanel = getSelectedPanel();
+            if (null == oldSelectedPanel) {
+                selectPanel(visiblePanels.get(0), Boolean.TRUE);
+            } else {
+                final int visibleIndex = visiblePanels.indexOf(oldSelectedPanel);
+                if (visibleIndex < 0) {
+                    selectPanel(visiblePanels.get(0), Boolean.TRUE);
+                } else if (visibleIndex > 0) {
+                    selectPanel(visiblePanels.get(visibleIndex-1), Boolean.TRUE);
+                }
+            }
+        }
+    }
+
+    /**
      * Select the panel.
      * 
      * @param panelId
@@ -210,23 +281,32 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate#selectPanel(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
      */
     public void selectPanel(final TabPanel tabPanel) {
+        selectPanel(tabPanel, Boolean.FALSE);
+    }
+
+    /**
+     * Select the panel.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>. 
+     * @param scrollPanelToVisible
+     *            A <code>Boolean</code>, scroll the panel so it is visible or not. 
+     */
+    public void selectPanel(final TabPanel tabPanel, final Boolean scrollPanelToVisible) {
         checkThread();
         requestFocusInWindow(tabPanel);
         if (isSelected(tabPanel)) {
             return;
         }
-        if (null != selectedPanel) {
-            // Note that the panel may have been replaced since it was set.
-            // The selectedPanel id can be trusted.
-            // Also note the selected panel may have been deleted.
-            final T oldPanelId = lookupId(selectedPanel);
-            final TabPanel oldPanel = lookupPanel(oldPanelId);
-            if (null != oldPanel) {
-                oldPanel.setSelected(Boolean.FALSE);
-            }
+        final TabPanel oldSelectedPanel = getSelectedPanel();
+        if (null != oldSelectedPanel) {
+            oldSelectedPanel.setSelected(Boolean.FALSE);
         }
-        selectedPanel = tabPanel;
-        selectedPanel.setSelected(Boolean.TRUE);
+        selectedPanelId = lookupId(tabPanel);
+        tabPanel.setSelected(Boolean.TRUE);
+        if (scrollPanelToVisible) {
+            scrollPanelToVisible(selectedPanelId);
+        }
     }
 
     /**
@@ -322,6 +402,14 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
         checkThread();
         panels.clear();
     }
+
+    /**
+     * Delete the panel (run appropriate action).
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     */
+    protected abstract void deletePanel(final TabPanel tabPanel);
 
     /**
      * Toggle the expansion of a single panel.
@@ -422,7 +510,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      * @return True if the panel is selected; false otherwise.
      */
     protected boolean isSelected(final TabPanel tabPanel) {
-        return (null != selectedPanel && lookupId(tabPanel).equals(lookupId(selectedPanel)));
+        return (null != selectedPanelId && lookupId(tabPanel).equals(selectedPanelId));
     }
 
     /**
@@ -459,12 +547,24 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     protected abstract List<T> readSearchResults();
 
     /**
+     * Request focus on the selected panel, if there is one.
+     */
+    protected void requestFocusInSelectedPanel() {
+        final TabPanel selectedPanel = getSelectedPanel();
+        if (null != selectedPanel) {
+            requestFocusInWindow(selectedPanel);
+        }
+    }
+
+    /**
      * Request focus.
      * 
      * @param tabPanel
      *            A <code>TabPanel</code>.
      */
-    protected abstract void requestFocusInWindow(final TabPanel tabPanel);
+    protected void requestFocusInWindow(final TabPanel tabPanel) {
+        ((JComponent)tabPanel).requestFocusInWindow();
+    }
 
     /**
      * Remove the search.
@@ -544,5 +644,20 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      */
     private void checkThread() {
         Assert.assertTrue(EventQueue.isDispatchThread(), "Tab panel model not on the AWT event dispatch thread.");
+    }
+
+    /**
+     * Get the selected panel.
+     * Returns null if no panel is selected.
+     * Also returns null if a panel is selected and later deleted.
+     * 
+     * @return The selected <code>TabPanel</code>, or null if there is none.
+     */
+    private TabPanel getSelectedPanel() {
+        if (null == selectedPanelId) {
+            return null;
+        } else {
+            return lookupPanel(selectedPanelId);
+        }
     }
 }

@@ -186,7 +186,6 @@ public final class Window extends AbstractJDialog {
      */
 	protected void initComponents(final Avatar avatar) {
 		avatar.reload();
-        avatar.bindF1Key();
 
         windowPanel = new WindowPanel();
         windowPanel.addPanel(avatar);

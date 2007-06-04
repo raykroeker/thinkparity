@@ -6,6 +6,7 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.help;
 
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 
@@ -56,7 +57,7 @@ public class HelpTabPanel extends DefaultTabPanel {
     public HelpTabPanel(final BrowserSession session) {
         super(session);
         this.localization = new BrowserLocalization("HelpTabPanel");
-        this.helpContentModel = new HelpContentModel(helpContentJTextArea);
+        this.helpContentModel = new HelpContentModel(this, helpContentJTextArea);
         new PanelListManager(helpContentModel, localization, firstJLabel,
                 previousJLabel, countJLabel, nextJLabel, lastJLabel);
         initComponents();
@@ -250,6 +251,10 @@ public class HelpTabPanel extends DefaultTabPanel {
         doExpand(animate, collapsedJPanel, expandedJPanel);
     }
 
+    private void expandedContentJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedContentJPanelMousePressed
+        jPanelMousePressed((javax.swing.JPanel) e.getSource(), e);
+    }//GEN-LAST:event_expandedContentJPanelMousePressed
+
     private void expandedJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMousePressed
         jPanelMousePressed((javax.swing.JPanel) e.getSource(), e);
     }//GEN-LAST:event_expandedJPanelMousePressed
@@ -274,6 +279,10 @@ public class HelpTabPanel extends DefaultTabPanel {
         expandIconMousePressed(e);
     }//GEN-LAST:event_expandIconJLabelMousePressed
 
+    private void helpContentJTextAreaMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_helpContentJTextAreaMousePressed
+        jPanelMousePressed((Component) e.getSource(), e);
+    }//GEN-LAST:event_helpContentJTextAreaMousePressed
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -284,9 +293,7 @@ public class HelpTabPanel extends DefaultTabPanel {
         java.awt.GridBagConstraints gridBagConstraints;
 
         final javax.swing.JLabel collapsedFillerJLabel = new javax.swing.JLabel();
-        final javax.swing.JPanel fixedSizeJPanel = new javax.swing.JPanel();
         final javax.swing.JLabel expandedFillerJLabel = new javax.swing.JLabel();
-        final javax.swing.JPanel expandedContentJPanel = new javax.swing.JPanel();
         final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
         final javax.swing.JPanel fillerJPanel = new javax.swing.JPanel();
 
@@ -449,12 +456,24 @@ public class HelpTabPanel extends DefaultTabPanel {
         expandedContentJPanel.setLayout(new java.awt.GridBagLayout());
 
         expandedContentJPanel.setOpaque(false);
+        expandedContentJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                expandedContentJPanelMousePressed(evt);
+            }
+        });
+
         helpContentJTextArea.setEditable(false);
         helpContentJTextArea.setFont(Fonts.DialogTextEntryFont);
         helpContentJTextArea.setLineWrap(true);
         helpContentJTextArea.setWrapStyleWord(true);
         helpContentJTextArea.setFocusable(false);
         helpContentJTextArea.setOpaque(false);
+        helpContentJTextArea.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                helpContentJTextAreaMousePressed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -550,16 +569,16 @@ public class HelpTabPanel extends DefaultTabPanel {
      * Depending on whether or not the event is a popup trigger the popup
      * appropriate to the state of the panel will be displayed.
      * 
-     * @param jPanel
-     *            A <code>JPanel</code>.
+     * @param component
+     *            A <code>Component</code>.
      * @param e
      *            A <code>MouseEvent</code>.
      */
-    private void jPanelMousePressed(final javax.swing.JPanel jPanel,
+    private void jPanelMousePressed(final Component component,
             final java.awt.event.MouseEvent e) {
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
             selectPanel();
-            popupDelegate.initialize(jPanel, e.getX(), e.getY());
+            popupDelegate.initialize(component, e.getX(), e.getY());
             popupDelegate.showForHelpTopic(helpTopic);
         } else if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
             selectPanel();
@@ -627,11 +646,13 @@ public class HelpTabPanel extends DefaultTabPanel {
     private final javax.swing.JLabel collapsedTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel countJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel expandIconJLabel = new javax.swing.JLabel();
+    private final javax.swing.JPanel expandedContentJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel expandedIconJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel expandedMovieJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JLabel expandedTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel firstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JPanel fixedSizeJPanel = new javax.swing.JPanel();
     private final javax.swing.JTextArea helpContentJTextArea = new javax.swing.JTextArea();
     private final javax.swing.JLabel lastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JLabel nextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);

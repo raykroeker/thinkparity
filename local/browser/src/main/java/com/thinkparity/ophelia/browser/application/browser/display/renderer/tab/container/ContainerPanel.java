@@ -4,7 +4,11 @@
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -12,8 +16,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -35,6 +42,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
@@ -45,6 +53,8 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.PublishedToView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.*;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.util.localization.BrowserLocalization;
 import com.thinkparity.ophelia.browser.util.localization.Localization;
 
@@ -68,12 +78,6 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The Y location of the container text. */
     private static final int CONTAINER_TEXT_Y;
 
-    /** The default east selected row. */
-    private static final int DEFAULT_SELECTED_ROW_EAST;
-
-    /** The default east selected row. */
-    private static final int DEFAULT_SELECTED_ROW_WEST;
-
     /** The east data card name. */
     private static final String EAST_DATA_CARD_NAME;
 
@@ -88,8 +92,6 @@ public class ContainerPanel extends DefaultTabPanel {
         CONTAINER_TEXT_SPACE_END = 20;
         CONTAINER_TEXT_X = 56;
         CONTAINER_TEXT_Y = 5;
-        DEFAULT_SELECTED_ROW_EAST = 0;
-        DEFAULT_SELECTED_ROW_WEST = 0;
         EAST_DATA_CARD_NAME = "eastJPanel";
         EAST_SUMMARY_CARD_NAME = "eastSummaryJPanel";
         NUMBER_VISIBLE_ROWS = 6;
@@ -204,13 +206,13 @@ public class ContainerPanel extends DefaultTabPanel {
         }
 
         this.eastListModel = new PanelCellListModel(this, "eastList",
-                localization, NUMBER_VISIBLE_ROWS, DEFAULT_SELECTED_ROW_EAST,
-                eastFirstJLabel, eastPreviousJLabel, eastCountJLabel,
-                eastNextJLabel, eastLastJLabel);
+                localization, NUMBER_VISIBLE_ROWS, eastFirstJLabel,
+                eastPreviousJLabel, eastCountJLabel, eastNextJLabel,
+                eastLastJLabel);
         this.westListModel = new PanelCellListModel(this, "westList",
-                localization, NUMBER_VISIBLE_ROWS, DEFAULT_SELECTED_ROW_WEST,
-                westFirstJLabel, westPreviousJLabel, westCountJLabel,
-                westNextJLabel, westLastJLabel);
+                localization, NUMBER_VISIBLE_ROWS, westFirstJLabel,
+                westPreviousJLabel, westCountJLabel, westNextJLabel,
+                westLastJLabel);
         initComponents();
     }
 
@@ -240,6 +242,15 @@ public class ContainerPanel extends DefaultTabPanel {
     public void expandIconMousePressed(final MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
             selectPanel();
+            // request focus after the expand or collapse, otherwise the
+            // focus will not be gained as it should be
+            addPropertyChangeListener("expanded",
+                    new PropertyChangeListener() {
+                public void propertyChange(final PropertyChangeEvent e) {
+                    removePropertyChangeListener("expanded", this);
+                    requestFocusInWindow();
+                }
+            });
             tabDelegate.toggleExpansion(this);
         }
     }
@@ -503,7 +514,7 @@ public class ContainerPanel extends DefaultTabPanel {
 
         // Initialize the list model
         westListModel.initialize(westCells);
-        
+
         iconJLabel.setIcon(container.isBookmarked()
                 ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK)
                 : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));
@@ -518,6 +529,124 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     public void setPopupDelegate(final PopupDelegate popupDelegate) {
         this.popupDelegate = popupDelegate;
+    }
+
+    /**
+     * Bind or unbind temporary key bindings.
+     * 
+     * When expanded, the keys are bound to actions. When collapsed,
+     * the key binding is removed so it can be interpreted elsewhere.
+     * 
+     * @param enable
+     *            The enable <code>Boolean</code>.
+     */
+    private void bindTemporaryKeys(final Boolean enable) {
+        if (enable) {
+            bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0));
+            bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0));
+            bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0));
+            bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_END, 0));
+            bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0));
+            bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0));
+        } else {
+            unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0));
+            unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0));
+            unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0));
+            unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_END, 0));
+            unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0));
+            unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0));
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#bindKeys()
+     */
+    @Override
+    protected void bindKeys() {
+        super.bindKeys();
+        bindTemporaryKeys(isExpanded());
+
+        // cursor left: focus on west list
+        bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0),
+                new AbstractAction() {
+                    public void actionPerformed(final ActionEvent e) {
+                        if (isExpanded()) {
+                            PanelFocusHelper.setFocus(PanelFocusHelper.Focus.WEST);
+                            repaint();
+                        }
+                    }
+                });
+        // cursor right: focus on east list
+        bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0),
+                new AbstractAction() {
+                    public void actionPerformed(final ActionEvent e) {
+                        if (isExpanded()) {
+                            PanelFocusHelper.setFocus(PanelFocusHelper.Focus.EAST);
+                            if (eastListModel.getListModel().size() > 1) {
+                                eastListModel.setSelectedIndex(1);
+                            }
+                            repaint();
+                        }
+                    }
+                });
+
+        // TODO move this somewhere else
+        final ApplicationRegistry applicationRegistry = new ApplicationRegistry();
+        final Browser browser = (Browser)applicationRegistry.get(ApplicationId.BROWSER);
+        browser.getMainWindow().addPropertyChangeListener("showPopup", new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (ContainerPanel.this.hasFocus()) {
+                    if (!isExpanded()) {
+                        selectPanel();
+                        popupDelegate.initialize(ContainerPanel.this, ContainerPanel.this.getWidth()/4, ContainerPanel.this.getHeight()/2);
+                        popupDelegate.showForContainer(container, getDraft());
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#doCollapse(boolean, javax.swing.JPanel, javax.swing.JPanel)
+     */
+    @Override
+    protected void doCollapse(boolean animate, JPanel collapsedJPanel, JPanel expandedJPanel) {
+        super.doCollapse(animate, collapsedJPanel, expandedJPanel);
+        bindTemporaryKeys(Boolean.FALSE);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#doExpand(boolean, javax.swing.JPanel, javax.swing.JPanel)
+     */
+    @Override
+    protected void doExpand(boolean animate, JPanel collapsedJPanel, JPanel expandedJPanel) {
+        super.doExpand(animate, collapsedJPanel, expandedJPanel);
+        bindTemporaryKeys(Boolean.TRUE);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#invokeAction()
+     */
+    @Override
+    protected void invokeAction() {
+        super.invokeAction();
+        if (isExpanded()) {
+            if (PanelFocusHelper.Focus.EAST == PanelFocusHelper.getFocus()) {
+                if (!eastListModel.isSelectionEmpty()) {
+                    final Cell cell = eastListModel.getSelectedCell();
+                    if (cell.isActionAvailable()) {
+                        cell.invokeAction();
+                    }
+                }
+            } else {
+                if (!westListModel.isSelectionEmpty()) {
+                    final Cell cell = westListModel.getSelectedCell();
+                    if (cell.isActionAvailable()) {
+                        cell.invokeAction();
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -570,6 +699,26 @@ public class ContainerPanel extends DefaultTabPanel {
     protected void repaintLists() {
         eastListJPanel.repaint();
         westListJPanel.repaint();
+    }
+
+    /**
+     * Bind a keystroke destined for the east and west lists.
+     * 
+     * @param keyStroke
+     *            A <code>KeyStroke</code>.
+     */
+    private void bindKeyStrokeToLists(final KeyStroke keyStroke) {
+        bindKey(keyStroke, new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                if (isExpanded()) {
+                    if (PanelFocusHelper.Focus.EAST == PanelFocusHelper.getFocus()) {
+                        eastListModel.processKeyStroke(keyStroke);
+                    } else {
+                        westListModel.processKeyStroke(keyStroke);
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -760,7 +909,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private void iconJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseExited
         SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
     }//GEN-LAST:event_iconJLabelMouseExited
-    
+
     private void iconJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMousePressed
         if (e.getButton() == MouseEvent.BUTTON1) {
             selectPanel();

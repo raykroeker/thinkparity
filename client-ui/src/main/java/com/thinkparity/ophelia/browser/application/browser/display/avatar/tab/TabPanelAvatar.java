@@ -7,13 +7,19 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.event.ListDataEvent;
@@ -123,7 +129,11 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
         };
     	installDataListener();
         initComponents();
+        initScrollPane();
         installResizer();
+        installRequestFocusListener();
+        addRequestFocusListener(tabJPanel);
+        installFocusListeners();
         final BrowserPopupHelper browserPopupHelper = new BrowserPopupHelper();
         browserPopupHelper.addPopupListener(this);
         browserPopupHelper.addPopupListener(tabJScrollPane);
@@ -154,6 +164,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
         });
         tabJScrollPane.getVerticalScrollBar().setUnitIncrement(Constants.ScrollBar.UNIT_INCREMENT);
         new Resizer(getController(), tabJScrollPane, Boolean.FALSE, Resizer.ResizeEdges.MIDDLE);
+        bindKeys();
     }
 
     /**
@@ -182,6 +193,13 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
     @Override
 	public void reload() {
     	super.reload();
+    }
+
+    /**
+     * Request focus in the tab.
+     */
+    public void requestFocusInTab() {
+        requestFocusInWindow();
     }
 
     /**
@@ -303,6 +321,47 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
         tabPanelMouseMotionListeners.put(panel, mouseAdapter);
     }
 
+    /**
+     * Bind keys to the appropriate actions.
+     */
+    private void bindKeys() {
+        // home: select the first panel
+        bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0),
+                new AbstractAction() {
+                    public void actionPerformed(final ActionEvent e) {
+                        model.selectFirstPanel();
+                    }
+                });
+        // end: select the last panel
+        bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_END, 0),
+                new AbstractAction() {
+                    public void actionPerformed(final ActionEvent e) {
+                        model.selectLastPanel();
+                    }
+                });
+        // cursor down: select the next panel
+        bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),
+                new AbstractAction() {
+                    public void actionPerformed(final ActionEvent e) {
+                        model.selectNextPanel();
+                    }
+                });
+        // cursor up: select the previous panel
+        bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),
+                new AbstractAction() {
+                    public void actionPerformed(final ActionEvent e) {
+                        model.selectPreviousPanel();
+                    }
+                });
+        // delete: delete panel
+        bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0),
+                new AbstractAction() {
+                    public void actionPerformed(final ActionEvent e) {
+                        model.deleteSelectedPanel();
+                    }
+                });
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -357,6 +416,16 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
     }// </editor-fold>//GEN-END:initComponents
 
     /**
+     * Initialize the scroll pane.
+     */
+    private void initScrollPane() {
+        // uninstall keyboard actions since this is handled manually elsewhere
+        SwingUtilities.replaceUIActionMap(tabJScrollPane, null);
+        SwingUtilities.replaceUIInputMap(tabJScrollPane, JComponent.
+                   WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, null);
+    }
+
+    /**
      * Install the a data listener on the list model. This will translate the
      * model's data events into UI component events.
      * 
@@ -405,7 +474,25 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
                 reloadPanels();
             } 
         });
-    }        
+    }
+
+    /**
+     * Install focus listeners.
+     * 
+     * Focus on the tab is forwarded to focus on the selected
+     * panel if possible.
+     */
+    private void installFocusListeners() {
+        final FocusListener focusListener = new FocusListener() {
+            public void focusGained(final FocusEvent e) {
+                model.requestFocusInSelectedPanel();
+            }
+            public void focusLost(final FocusEvent e) {}
+        };
+        this.addFocusListener(focusListener);
+        tabJPanel.addFocusListener(focusListener);
+    }
+
     /**
      * Redispatch events to the destination component.
      * 

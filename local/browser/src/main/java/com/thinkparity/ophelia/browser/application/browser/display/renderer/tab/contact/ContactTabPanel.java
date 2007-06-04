@@ -488,6 +488,14 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#isExpandable()
+     */
+    @Override
+    protected Boolean isExpandable() {
+        return (isSetContact() || isSetProfile());
+    }
+
+    /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      *
      */
@@ -1094,15 +1102,6 @@ public class ContactTabPanel extends DefaultTabPanel {
 
         setBorder(BORDER_COLLAPSED);
     }// </editor-fold>//GEN-END:initComponents
-
-    /**
-     * Determine if the panel is expandable.
-     * 
-     * @return True if the panel is expandable.
-     */
-    private Boolean isExpandable() {
-        return (isSetContact() || isSetProfile());
-    }
 
     /**
      * Handle the mouse pressed event for any one of the jpanels in this tab.

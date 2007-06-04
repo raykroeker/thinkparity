@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,6 +120,21 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         }
         logger.logDebug("Search expression:  {0}", searchExpression);
         logger.logDebug("{0} search result hits.", searchResults.size());
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#deletePanel(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    @Override
+    protected void deletePanel(final TabPanel tabPanel) {
+        final ContactTabPanel panel = (ContactTabPanel) tabPanel;
+        if (panel.isSetContact()) {
+            browser.runDeleteContact(lookupId(tabPanel).getContactId());
+        } else if (panel.isSetOutgoingEMail()) {
+            browser.runDeleteOutgoingEMailInvitation(lookupId(tabPanel).getInvitationId());
+        } else if (panel.isSetOutgoingUser()) {
+            browser.runDeleteOutgoingUserInvitation(lookupId(tabPanel).getInvitationId());
+        }
     }
 
     /**
@@ -239,14 +255,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#requestFocusInWindow(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
-     */
-    @Override
-    protected void requestFocusInWindow(final TabPanel tabPanel) {
-        ((ContactTabPanel)tabPanel).requestFocusInWindow();
-    }
-
-    /**
      * Obtain the popup delegate.
      * 
      * @return A <code>ContainerTabPopupDelegate</code>.
@@ -271,6 +279,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     void syncContact(final JabberId contactId, final Boolean remote) {
         checkThread();
         debug();
+        boolean requestFocus = false;
         final Contact contact = read(contactId);
         // remove the container from the panel list
         if (null == contact) {
@@ -281,6 +290,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
                 // if the reload is the result of a remote event add the panel
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
+                requestFocus = ((Component)lookupPanel(new ContactPanelId(contactId))).hasFocus();
                 removePanel(contactId, false);
                 if (remote) {
                     addPanel(0, contact);
@@ -292,12 +302,16 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             }
         }
         synchronize();
+        if (requestFocus) {
+            requestFocusInWindow(lookupPanel(new ContactPanelId(contactId)));
+        }
         debug();
     }
 
     void syncIncomingEMailInvitation(final Long invitationId, final Boolean remote) {
         checkThread();
         debug();
+        boolean requestFocus = false;
         final IncomingEMailInvitation invitation = readIncomingEMailInvitation(invitationId);
         // remove the container from the panel list
         if (null == invitation) {
@@ -308,6 +322,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
                 // if the reload is the result of a remote event add the panel
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
+                requestFocus = ((Component)lookupPanel(new ContactPanelId(invitationId))).hasFocus();
                 removePanel(invitationId, false);
                 if (remote) {
                     addPanel(0, invitation);
@@ -319,11 +334,15 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             }
         }
         synchronize();
+        if (requestFocus) {
+            requestFocusInWindow(lookupPanel(new ContactPanelId(invitationId)));
+        }
         debug();
     }
     void syncIncomingUserInvitation(final Long invitationId, final Boolean remote) {
         checkThread();
         debug();
+        boolean requestFocus = false;
         final IncomingUserInvitation invitation = readIncomingUserInvitation(invitationId);
         // remove the container from the panel list
         if (null == invitation) {
@@ -334,6 +353,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
                 // if the reload is the result of a remote event add the panel
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
+                requestFocus = ((Component)lookupPanel(new ContactPanelId(invitationId))).hasFocus();
                 removePanel(invitationId, false);
                 if (remote) {
                     addPanel(0, invitation);
@@ -345,12 +365,16 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             }
         }
         synchronize();
+        if (requestFocus) {
+            requestFocusInWindow(lookupPanel(new ContactPanelId(invitationId)));
+        }
         debug();
     }
 
     void syncOutgoingEMailInvitation(final Long invitationId, final Boolean remote) {
         checkThread();
         debug();
+        boolean requestFocus = false;
         final OutgoingEMailInvitation invitation = readOutgoingEMailInvitation(invitationId);
         // remove the invitation from the panel list
         if (null == invitation) {
@@ -361,6 +385,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
                 // if the reload is the result of a remote event add the panel
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
+                requestFocus = ((Component)lookupPanel(new ContactPanelId(invitationId))).hasFocus();
                 removePanel(invitationId, false);
                 if (remote) {
                     addPanel(0, invitation);
@@ -372,6 +397,9 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             }
         }
         synchronize();
+        if (requestFocus) {
+            requestFocusInWindow(lookupPanel(new ContactPanelId(invitationId)));
+        }
         debug();
 
     }
@@ -379,6 +407,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     void syncOutgoingUserInvitation(final Long invitationId, final Boolean remote) {
         checkThread();
         debug();
+        boolean requestFocus = false;
         final OutgoingUserInvitation invitation = readOutgoingUserInvitation(invitationId);
         // remove the invitation from the panel list
         if (null == invitation) {
@@ -389,6 +418,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
                 // if the reload is the result of a remote event add the panel
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
+                requestFocus = ((Component)lookupPanel(new ContactPanelId(invitationId))).hasFocus();
                 removePanel(invitationId, false);
                 if (remote) {
                     addPanel(0, invitation);
@@ -400,6 +430,9 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             }
         }
         synchronize();
+        if (requestFocus) {
+            requestFocusInWindow(lookupPanel(new ContactPanelId(invitationId)));
+        }
         debug();
 
     }
@@ -407,12 +440,14 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     void syncProfile(final Boolean remote) {
         checkThread();
         debug();
+        boolean requestFocus = false;
         final Profile profile = readProfile();
         final int panelIndex = lookupIndex(profile.getId());
         if (-1 < panelIndex) {
             // if the reload is the result of a remote event add the panel
             // at the top of the list; otherwise add it in the same location
             // it previously existed
+            requestFocus = ((Component)lookupPanel(new ContactPanelId(profile.getId()))).hasFocus();
             removePanel(profile.getId(), false);
             if (remote) {
                 addPanel(0, profile);
@@ -423,6 +458,9 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             addPanel(0, profile);
         }
         synchronize();
+        if (requestFocus) {
+            requestFocusInWindow(lookupPanel(new ContactPanelId(profile.getId())));
+        }
         debug();
     }
 

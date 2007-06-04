@@ -9,19 +9,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 /**
- * An abstraction of a swing JPanel.  Used by all thinkParity panels as a root
+ * An abstraction of a swing JPanel. Used by all thinkParity panels as a root
  * class.
  * 
  * @author raykroeker@gmail.com
@@ -29,17 +23,16 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
  */
 public class AbstractJPanel extends JPanel {
 
-	/** Default background color. */
-	private static final Color DEFAULT_BACKGROUND;
+    /** Default background color. */
+    private static final Color DEFAULT_BACKGROUND;
 
-	static {
-		// COLOR 249, 249, 249, 255
-		DEFAULT_BACKGROUND = new Color(249, 249, 249, 255);
-	}
+    static {
+        DEFAULT_BACKGROUND = new Color(249, 249, 249, 255);
+    }
 
     /**
      * Obtain the enter key stroke.
-     *
+     * 
      * @return A key stroke.
      */
     private static KeyStroke getEnterKeyStroke() {
@@ -48,7 +41,7 @@ public class AbstractJPanel extends JPanel {
 
     /**
      * Obtain the escape key stroke.
-     *
+     * 
      * @return A key stroke.
      */
     private static KeyStroke getEscapeKeyStroke() {
@@ -57,18 +50,18 @@ public class AbstractJPanel extends JPanel {
 
     /**
      * Obtain the F1 key stroke.
-     *
+     * 
      * @return A key stroke.
      */
     private static KeyStroke getF1KeyStroke() {
         return KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0);
     }
 
-	/** An apache logger. */
-	protected final Log4JWrapper logger;
+    /** An apache logger. */
+    protected final Log4JWrapper logger;
 
     /** Swing container tools. */
-	private final ContainerTools containerTools;
+    private final ContainerTools containerTools;
 
     /**
      * The debug mouse adapter for a jpanel. This mouse adapter will print the
@@ -85,44 +78,47 @@ public class AbstractJPanel extends JPanel {
         }
     };
 
-	/** A helper class dedicated to encapsulation of a move visitor. */
+    /** A helper class dedicated to encapsulation of a move visitor. */
     private JComponentMoveHelper moveHelper;
 
-	/**
-	 * Create a AbstractJPanel.
-	 * 
-	 * @param l18nContext
-	 *            The localization context.
-	 */
-	protected AbstractJPanel() {
+    /** A helper class for requesting focus. */
+    private JComponentRequestFocusHelper requestFocusHelper;
+
+    /**
+     * Create a AbstractJPanel.
+     * 
+     * @param l18nContext
+     *            The localization context.
+     */
+    protected AbstractJPanel() {
         this(null);
-	}
+    }
 
-	/**
-	 * Create a AbstractJPanel.
-	 * 
-	 * @param l18nContext
-	 *            The localization context.
-	 * @param background
-	 *            The background.
-	 */
-	protected AbstractJPanel(final Color background) {
-		super();
-		this.containerTools = new ContainerTools(this);
+    /**
+     * Create a AbstractJPanel.
+     * 
+     * @param l18nContext
+     *            The localization context.
+     * @param background
+     *            The background.
+     */
+    protected AbstractJPanel(final Color background) {
+        super();
+        this.containerTools = new ContainerTools(this);
         this.logger = new Log4JWrapper(getClass());
-		addMouseListener(debugMouseAdapter);
-		setOpaque(true);
-		setBackground(background);
-	}
+        addMouseListener(debugMouseAdapter);
+        setOpaque(true);
+        setBackground(background);
+    }
 
-	/**
-	 * Debug the list of components attached to this JPanel. This api is
-	 * recursive if the component is an AbstractJPanel implementation.
-	 * 
-	 */
-	public void debug() {
+    /**
+     * Debug the list of components attached to this JPanel. This api is
+     * recursive if the component is an AbstractJPanel implementation.
+     * 
+     */
+    public void debug() {
         containerTools.debug();
-	}
+    }
 
     /**
      * Add a move listener to the component for the panel. A move listener will
@@ -140,6 +136,20 @@ public class AbstractJPanel extends JPanel {
     }
 
     /**
+     * Add a request focus listener to the component. This will request focus on
+     * the component when the mouse is clicked.
+     * 
+     * @param jComponent
+     *            A <code>JComponent</code>.
+     */
+    protected final void addRequestFocusListener(final JComponent jComponent) {
+        if (null == requestFocusHelper) {
+            requestFocusHelper = new JComponentRequestFocusHelper(this);
+        }
+        requestFocusHelper.addListener(jComponent);
+    }
+
+    /**
      * Add a resize listener to the component for the panel. A resize listener
      * will allow the user to resize the underlying window ancestor by grabbing
      * an edge within the panel dragging.
@@ -153,9 +163,9 @@ public class AbstractJPanel extends JPanel {
 
     /**
      * Bind the enter key to the action.
-     *
+     * 
      * @param action
-     *      The action to perform when enter is pressed.
+     *            The action to perform when enter is pressed.
      */
     protected void bindEnterKey(final String command, final Action action) {
         bindKey(getEnterKeyStroke(), command, action);
@@ -163,9 +173,9 @@ public class AbstractJPanel extends JPanel {
 
     /**
      * Bind the escape key to an action.
-     *
+     * 
      * @param action
-     *      The action to perform when escape is pressed.
+     *            The action to perform when escape is pressed.
      */
     protected void bindEscapeKey(final String command, final Action action) {
         bindKey(getEscapeKeyStroke(), command, action);
@@ -173,12 +183,49 @@ public class AbstractJPanel extends JPanel {
 
     /**
      * Bind the F1 key to an action.
-     *
+     * 
      * @param action
-     *      The action to perform when F1 is pressed.
+     *            The action to perform when F1 is pressed.
      */
     protected void bindF1Key(final String command, final Action action) {
         bindKey(getF1KeyStroke(), command, action);
+    }
+
+    /**
+     * Bind a key stroke to an action through a binding.
+     * 
+     * @param keyStroke
+     *            A <code>KeyStroke</code>.
+     * @param action
+     *            A <code>Action</code>.
+     */
+    protected void bindKey(final KeyStroke keyStroke, final Action action) {
+        final StringBuffer command = new StringBuffer(AbstractJPanel.class
+                .getName()).append("-").append(
+                new Integer(keyStroke.getKeyCode())).append("-").append(
+                new Integer(keyStroke.getModifiers()));
+        bindKey(keyStroke, command.toString(), action);
+    }
+
+    /**
+     * Bind a key stroke to an action through a binding.
+     * 
+     * @param keyStroke
+     *            A <code>KeyStroke</code>.
+     * @param command
+     *            A command <code>String</code>.
+     * @param action
+     *            A <code>Action</code>.
+     */
+    protected void bindKey(final KeyStroke keyStroke, final String command,
+            final Action action) {
+        final ActionMap actionMap = getActionMap();
+        final InputMap inputMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+        actionMap.remove(command);
+        actionMap.put(command, action);
+        inputMap.remove(keyStroke);
+        inputMap.put(keyStroke, command);
     }
 
     /**
@@ -189,11 +236,11 @@ public class AbstractJPanel extends JPanel {
         SwingUtilities.getWindowAncestor(this).dispose();
     }
 
-	/**
+    /**
      * Remove a move listener from a component for the panel.
      * 
      * @param jComponent
-     *            A <code>JPanel</code>.
+     *            A <code>JComponent</code>.
      * @see AbstractJPanel#addMoveListener(JComponent)
      */
     protected final void removeMoveListener(final JComponent jComponent) {
@@ -202,7 +249,20 @@ public class AbstractJPanel extends JPanel {
         moveHelper.removeListener(jComponent);
     }
 
-	/**
+    /**
+     * Remove a request focus listener from a component.
+     * 
+     * @param jComponent
+     *            A <code>JComponent</code>.
+     * @see AbstractJPanel#addFocusListener(JComponent)
+     */
+    protected final void removeRequestFocusListener(final JComponent jComponent) {
+        if (null == requestFocusHelper)
+            return;
+        requestFocusHelper.removeListener(jComponent);
+    }
+
+    /**
      * Remove a resize listener from a component for the panel.
      * 
      * @param jComponent
@@ -212,28 +272,28 @@ public class AbstractJPanel extends JPanel {
         throw Assert.createNotYetImplemented("");
     }
 
-	/**
-	 * Set a default background color. 
-	 *
-	 */
-	protected void setDefaultBackground() {
-		setBackground(DEFAULT_BACKGROUND);
-	}
+    /**
+     * Set a default background color.
+     * 
+     */
+    protected void setDefaultBackground() {
+        setBackground(DEFAULT_BACKGROUND);
+    }
 
     /**
-     * Bind a key stroke to an action through a binding.
-     *
+     * Unbind a key stroke to an action.
+     * 
      * @param keyStroke
-     *      A key stroke.
-     * @param action
-     *      An action.
+     *            A <code>KeyStroke</code>.
      */
-    private void bindKey(final KeyStroke keyStroke, final String command, final Action action) {
+    protected void unbindKey(final KeyStroke keyStroke) {
         final ActionMap actionMap = getActionMap();
         final InputMap inputMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-    
-        actionMap.put(command, action);
-        inputMap.put(keyStroke, command);
+        final Object key = inputMap.get(keyStroke);
+        if (null != key) {
+            actionMap.remove(key);
+        }
+        inputMap.remove(keyStroke);
     }
 
     /** An enumerated definition of a panel edge. */

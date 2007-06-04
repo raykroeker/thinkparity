@@ -37,6 +37,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Avatar
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatarLink;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar.TabId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ConfirmAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.FileChooserAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.StatusAvatar;
@@ -58,7 +59,6 @@ import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.*;
 import com.thinkparity.ophelia.browser.platform.action.contact.*;
-import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
@@ -106,6 +106,9 @@ public class Browser extends AbstractApplication {
 	/** The browser's event dispatcher. */
 	private EventDispatcher ed;
 
+    /** The browser controller's keyboard helper. */
+    private final BrowserKeyboardHelper keyboardHelper;
+
     /** The thinkParity browser application window. */
 	private BrowserWindow mainWindow;
 
@@ -114,7 +117,7 @@ public class Browser extends AbstractApplication {
 
 	/** The browser's session implementation. */
 	private final BrowserSessionImpl sessionImpl;
-    
+
     /**
 	 * Create Browser.
 	 * 
@@ -124,6 +127,7 @@ public class Browser extends AbstractApplication {
 		this.actionRegistry = new ActionRegistry();
 		this.avatarInputMap = new Hashtable<AvatarId, Object>(AvatarId.values().length, 1.0F);
         this.displayHelper = new BrowserDisplayHelper(this);
+        this.keyboardHelper = new BrowserKeyboardHelper(this);
         this.persistence = PersistenceFactory.getPersistence(getClass());
 		this.sessionImpl = new BrowserSessionImpl();
 	}
@@ -751,6 +755,16 @@ public class Browser extends AbstractApplication {
 	public Object getSelectedSystemMessage() { return null; }
 
     /**
+     * Get the selected tab id.
+     * 
+     * @return The selected tab id <code>MainTitleAvatar.TabId</code>.
+     */
+    public MainTitleAvatar.TabId getSelectedTabId() {
+        final Data data = (Data) ((Data) getMainTitleAvatar().getInput());
+        return (TabId) data.get(MainTitleAvatar.DataKey.TAB_ID);
+    }
+
+    /**
      * Obtain a session for an avatar type; and if one does not already exist
      * for the type create one.
      * 
@@ -820,6 +834,18 @@ public class Browser extends AbstractApplication {
             }
             mainWindow.setExtendedState(state);
         }
+    }
+
+    /**
+     * Determine if the component is an ancestor of the avatar.
+     * 
+     * @param id
+     *            An <code>AvatarId</code>.
+     * @param component
+     *            A <code>Component</code>.
+     */
+    public Boolean isAncestorOf(final AvatarId id, final java.awt.Component component) {
+        return getAvatar(id).isAncestorOf(component);
     }
 
     /**
@@ -916,6 +942,20 @@ public class Browser extends AbstractApplication {
      */
     public void removeBusyIndicator() {
         mainWindow.removeBusyIndicator();
+    }
+
+    /**
+     * Request focus in the search control.
+     */
+    public void requestFocusInSearch() {
+        getMainTitleAvatar().requestFocusInSearch();
+    }
+
+    /**
+     * Request focus in the current tab.
+     */
+    public void requestFocusInTab() {
+        getTabAvatar(getSelectedTabId()).requestFocusInTab();
     }
 
     /**
@@ -1168,16 +1208,47 @@ public class Browser extends AbstractApplication {
     public void runDeleteContact(final JabberId contactId) {
         Assert.assertNotNull("Cannot delete null contact.", contactId);
         final Data data = new Data(1);
-        data.set(Delete.DataKey.CONTACT_ID, contactId);
+        data.set(com.thinkparity.ophelia.browser.platform.action.contact.Delete.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_DELETE, data);        
     }
 
     /**
-     * Run the action associated with the F1 key.
+     * Run the delete container action.
      * 
+     * @param containerId
+     *            The container id.
      */
-    public void runF1Action() {
-        runPlatformBrowserOpenHelp();
+    public void runDeleteContainer(final Long containerId) {
+        Assert.assertNotNull("Cannot delete null container.", containerId);
+        final Data data = new Data(1);
+        data.set(com.thinkparity.ophelia.browser.platform.action.container.Delete.DataKey.CONTAINER_ID, containerId);
+        invoke(ActionId.CONTAINER_DELETE, data);        
+    }
+
+    /**
+     * Run the delete outgoing email invitation action.
+     * 
+     * @param invitationId
+     *            The invitation id <code>Long</code>.
+     */
+    public void runDeleteOutgoingEMailInvitation(final Long invitationId) {
+        Assert.assertNotNull("Cannot delete null email invitation.", invitationId);
+        final Data data = new Data(1);
+        data.set(DeleteOutgoingEMailInvitation.DataKey.INVITATION_ID, invitationId);
+        invoke(ActionId.CONTACT_DELETE_OUTGOING_EMAIL_INVITATION, data);   
+    }
+
+    /**
+     * Run the delete outgoing user invitation action.
+     * 
+     * @param invitationId
+     *            The invitation id <code>Long</code>.
+     */
+    public void runDeleteOutgoingUserInvitation(final Long invitationId) {
+        Assert.assertNotNull("Cannot delete null user invitation.", invitationId);
+        final Data data = new Data(1);
+        data.set(DeleteOutgoingUserInvitation.DataKey.INVITATION_ID, invitationId);
+        invoke(ActionId.CONTACT_DELETE_OUTGOING_USER_INVITATION, data);   
     }
 
     /**
@@ -1211,14 +1282,6 @@ public class Browser extends AbstractApplication {
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
 	}
-
-    /**
-     * Run the platform browser open help action.
-     *
-     */
-    public void runPlatformBrowserOpenHelp() {
-        invoke(ActionId.PLATFORM_BROWSER_OPEN_HELP, Data.emptyData());
-    }
 
     /**
      * Run the platform browser restore action.
@@ -1531,7 +1594,7 @@ public class Browser extends AbstractApplication {
         }
         invoke(ActionId.PROFILE_VERIFY_EMAIL, data);
     }
-    
+
     /**
      * Select a tab. This displays the tab and also causes the tab buttons to
      * update.
@@ -1984,7 +2047,7 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Obtain the selected tab avatar.
+     * Obtain a tab avatar.
      * 
      * @param tabId
      *            A <code>MainTitleAvatar.TabId</code>.
@@ -2067,12 +2130,14 @@ public class Browser extends AbstractApplication {
 	private void openMainWindow() {
 		mainWindow = new BrowserWindow(this);
 		displayHelper.setBrowserWindow(mainWindow);
+        keyboardHelper.bindKeys();
 		mainWindow.open();
 	}
 
 	private void reOpenMainWindow() {
         mainWindow = new BrowserWindow(this);
         displayHelper.setBrowserWindow(mainWindow);
+        keyboardHelper.bindKeys();
         mainWindow.reOpen();
     }
 

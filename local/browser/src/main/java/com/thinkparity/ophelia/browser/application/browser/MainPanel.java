@@ -12,6 +12,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import javax.swing.Action;
+import javax.swing.KeyStroke;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJPanel;
@@ -50,6 +51,18 @@ public class MainPanel extends AbstractJPanel {
 
 		initComponents();
 	}
+
+    /**
+     * Bind a key stroke to an action through a binding.
+     *
+     * @param keyStroke
+     *            A <code>KeyStroke</code>.
+     * @param action
+     *            A <code>Action</code>.
+     */
+    public void bindKey(final KeyStroke keyStroke, final Action action) {
+        super.bindKey(keyStroke, action);
+    }
 
     /**
      * Bind the F1 key to an action.

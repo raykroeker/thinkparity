@@ -7,13 +7,11 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
 import java.lang.reflect.InvocationTargetException;
 
-import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.SwingUtilities;
@@ -102,7 +100,7 @@ public class BrowserWindow extends AbstractJFrame {
 
     /** An boolean indicating whether the "busy" indicator is applied. */
     private boolean busyIndicator;
- 
+
     /**
 	 * Create BrowserWindow.
 	 * 
@@ -141,7 +139,6 @@ public class BrowserWindow extends AbstractJFrame {
         setMinimumSize(Dimensions.BrowserWindow.MIN_SIZE);
         setSize(getMainWindowSize());
 		initComponents();
-        bindF1Key();
         installWindowStateListener();
 
         new Resizer(browser, this, Boolean.FALSE, Resizer.ResizeEdges.ALL_EDGES);
@@ -164,6 +161,24 @@ public class BrowserWindow extends AbstractJFrame {
 	 * @return The displays in the main window.
 	 */
 	public Display[] getDisplays() { return mainPanel.getDisplays(); }
+
+    /**
+     * Obtain the main panel.
+     * 
+     * @return The <code>MainPanel</code>.
+     */
+    public MainPanel getMainPanel() {
+        return mainPanel;
+    }
+
+    /**
+     * Send a popup event that components can check to see if they need
+     * to show a popup.
+     */
+    public void notifyShowPopup() {
+        // NOTE There is no showPopup flag. This is a somewhat nasty way to generate an event.
+        firePropertyChange("showPopup", false, true);
+    }
 
     /**
      * @see java.awt.Window#setCursor(java.awt.Cursor)
@@ -320,34 +335,27 @@ public class BrowserWindow extends AbstractJFrame {
      * @return The main window.
      */
     void reOpen() {
-        setVisible(true);
-        applyRenderingHints();
-        debug();
-
         browser.displayMainTitleAvatar();
         browser.displayMainStatusAvatar();
         browser.displayContainerTabAvatar();
+
+        setVisible(true);
+        // set initial focus
+        browser.requestFocusInTab();
+        applyRenderingHints();
+        debug();
     }
 
     /**
-     * Bind the F1 key to the appropriate action.
-     * 
+     * Initialize components.
      */
-    private void bindF1Key() {
-        mainPanel.bindF1Key(new AbstractAction() {
-            public void actionPerformed(final ActionEvent e) {
-                browser.runF1Action();
-            }
-        });
-    }
-
-    /**
-	 * Add the main panel to the window.
-	 * 
-	 */
 	private void initComponents() {
 		mainPanel = new MainPanel();
 		add(mainPanel);
+        // NOTE Set the focus cycle root to the content area. This prevents
+        // the search control from momentarily getting focus when (for example)
+        // a panel is expanded, which is visually distracting.
+        getDisplay(DisplayId.CONTENT).setFocusCycleRoot(true);
 	}
 
     /**
@@ -356,6 +364,7 @@ public class BrowserWindow extends AbstractJFrame {
     private void initMenu(final Boolean maximized) {
         final JMenuBar menuBar = new BrowserMenuBar(browser, this, maximized);
         addMoveListener(menuBar);
+        addRequestFocusListener(menuBar);
         new BrowserPopupHelper().addPopupListener(menuBar);
         setJMenuBar(menuBar);
     }

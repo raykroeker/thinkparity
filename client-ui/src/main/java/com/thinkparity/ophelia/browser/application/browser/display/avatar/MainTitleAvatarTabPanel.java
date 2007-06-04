@@ -68,6 +68,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         this.pluginTabs = new HashMap<PluginExtension, Tab>();
         initComponents();
         addMoveListener(this);
+        addRequestFocusListener(this);
         new BrowserPopupHelper().addPopupListener(this);
         new Resizer(getBrowser(), this, Boolean.FALSE, Resizer.ResizeEdges.LEFT);
         new Resizer(getBrowser(), containerJLabel, Boolean.FALSE, Resizer.ResizeEdges.LEFT);

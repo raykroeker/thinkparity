@@ -95,6 +95,13 @@ public final class HelpTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#deletePanel(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    @Override
+    protected void deletePanel(final TabPanel tabPanel) {
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#initialize()
      */
     @Override
@@ -142,14 +149,6 @@ public final class HelpTabModel extends TabPanelModel<Long> implements
     protected List<Long> readSearchResults() {
         checkThread();
         return ((HelpProvider) contentProvider).search(searchExpression);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#requestFocusInWindow(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
-     */
-    @Override
-    protected void requestFocusInWindow(final TabPanel tabPanel) {
-        ((HelpTabPanel)tabPanel).requestFocusInWindow();
     }
 
     /**

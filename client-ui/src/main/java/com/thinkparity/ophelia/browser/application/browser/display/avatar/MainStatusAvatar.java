@@ -86,6 +86,7 @@ public class MainStatusAvatar extends Avatar {
         super(AvatarId.MAIN_STATUS);
         initComponents();
         installResizer();
+        installRequestFocusListener();
         installAncestorWindowStateListener();
         addPropertyChangeListener("eventDispatcher", new PropertyChangeListener() {
             public void propertyChange(final PropertyChangeEvent evt) {

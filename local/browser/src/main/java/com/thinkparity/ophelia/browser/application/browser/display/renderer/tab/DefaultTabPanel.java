@@ -5,8 +5,13 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.Calendar;
 
+import javax.swing.AbstractAction;
+import javax.swing.KeyStroke;
 import javax.swing.border.Border;
 
 import com.thinkparity.codebase.FuzzyDateFormat;
@@ -38,7 +43,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
 
     /** The minimum height of a panel. */
     protected static final int ANIMATION_MINIMUM_HEIGHT;
-    
+
 	/** The collapsed panel <code>Border</code>. */
     protected static final Border BORDER_COLLAPSED;
 
@@ -60,12 +65,6 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
         IMAGE_CACHE = new MainPanelImageCache();
     }
-
-    /** The panel's animating state. */
-    private boolean animating;
-
-    /** The panel's expanded state. */
-    private boolean expanded;
 
     /**
      * Format a calendar as a fuzzy date.
@@ -96,6 +95,12 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     /** A <code>TabDelegate</code>. */
     protected TabDelegate tabDelegate;
 
+    /** The panel's animating state. */
+    private boolean animating;
+
+    /** The panel's expanded state. */
+    private boolean expanded;
+
     /** A panel's <code>JVMUniqueId</code>. */
 	private final JVMUniqueId id;
 
@@ -116,6 +121,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
         this.renderer = new TabRenderer();
 		this.id = JVMUniqueId.nextId();
         this.session = session;
+        bindKeys();
 	}
 
     /**
@@ -210,7 +216,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
      */
     public void panelCellSelectionChanged(final Cell cell) {
     }
-    
+
     /**
      * Remove a session attribute.
      * 
@@ -263,11 +269,6 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     }
 
     /**
-     * Repaint the lists.
-     */
-    protected abstract void repaintLists();
-
-    /**
      * Adjust the border color.
      * 
      * @param expanded
@@ -284,6 +285,50 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     }
 
     /**
+     * Bind keys to actions.
+     */
+    protected void bindKeys() {
+        // plus to expand
+        bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, InputEvent.SHIFT_DOWN_MASK),
+            new AbstractAction() {
+                public void actionPerformed(final ActionEvent e) {
+                    if (!isExpanded() && isExpandable()) {
+                        tabDelegate.toggleExpansion(DefaultTabPanel.this);
+                    }
+                }
+            });
+        // minus to collapse
+        bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0),
+            new AbstractAction() {
+                public void actionPerformed(final ActionEvent e) {
+                    if (isExpanded()) {
+                        tabDelegate.toggleExpansion(DefaultTabPanel.this);
+                    }
+                }
+            });
+        // enter to expand
+        bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),
+                new AbstractAction() {
+                    public void actionPerformed(final ActionEvent e) {
+                        if (isExpanded()) {
+                            invokeAction();
+                        } else if (isExpandable()) {
+                            tabDelegate.toggleExpansion(DefaultTabPanel.this);
+                        }
+                    }
+                });
+        // escape to collapse
+        bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+            new AbstractAction() {
+                public void actionPerformed(final ActionEvent e) {
+                    if (isExpanded()) {
+                        tabDelegate.toggleExpansion(DefaultTabPanel.this);
+                    }
+                }
+            });
+    }
+
+    /**
      * Collapse the panel.
      * 
      * @param animate
@@ -296,6 +341,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     protected void doCollapse(final boolean animate,
             final javax.swing.JPanel collapsedJPanel,
             final javax.swing.JPanel expandedJPanel) {
+        final boolean requestFocus = hasFocus();
         if (animate) {
             final Dimension expandedPreferredSize = getPreferredSize();
             expandedPreferredSize.height = ANIMATION_MAXIMUM_HEIGHT;
@@ -314,6 +360,9 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
                             add(collapsedJPanel, constraints.clone());
                             
                             revalidate();
+                            if (requestFocus) {
+                                requestFocusInWindow();
+                            }
                             repaint();
                             firePropertyChange("expanded", !expanded, expanded);
                         }
@@ -332,6 +381,9 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
             setPreferredSize(preferredSize);
 
             revalidate();
+            if (requestFocus) {
+                requestFocusInWindow();
+            }
             repaint();
             firePropertyChange("expanded", !expanded, expanded);
         }
@@ -350,6 +402,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     protected void doExpand(final boolean animate,
             final javax.swing.JPanel collapsedJPanel,
             final javax.swing.JPanel expandedJPanel) {
+        final boolean requestFocus = hasFocus();
         if (isAncestorOf(expandedJPanel))
             remove(expandedJPanel);
         if (isAncestorOf(collapsedJPanel))
@@ -368,6 +421,9 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
                             animating = false;
 
                             revalidate();
+                            if (requestFocus) {
+                                requestFocusInWindow();
+                            }
                             repaint();
                             firePropertyChange("expanded", !expanded, expanded);
                         }
@@ -379,8 +435,20 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
             setPreferredSize(preferredSize);
 
             revalidate();
+            if (requestFocus) {
+                requestFocusInWindow();
+            }
             repaint();
             firePropertyChange("expanded", !expanded, expanded);
+        }
+    }
+
+    /**
+     * Invoke the action as appropriate for the current focus.
+     */
+    protected void invokeAction() {
+        if (!isExpanded() && isExpandable()) {
+            tabDelegate.toggleExpansion(DefaultTabPanel.this);
         }
     }
 
@@ -392,4 +460,18 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     protected Boolean isAnimating() {
         return Boolean.valueOf(animating);
     }
+
+    /**
+     * Determine if the panel is expandable.
+     * 
+     * @return True if the panel is expandable.
+     */
+    protected Boolean isExpandable() {
+        return Boolean.TRUE;
+    }
+
+    /**
+     * Repaint the lists.
+     */
+    protected abstract void repaintLists();
 }

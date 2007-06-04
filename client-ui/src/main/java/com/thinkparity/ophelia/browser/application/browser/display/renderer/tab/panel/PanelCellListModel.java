@@ -8,6 +8,7 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
+import javax.swing.KeyStroke;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
@@ -21,24 +22,29 @@ import com.thinkparity.ophelia.browser.util.localization.Localization;
  */
 public class PanelCellListModel implements PanelSelectionManager{
 
+    /** The default selected row when the content changes. */
+    private static final int DEFAULT_SELECTED_ROW_PAGING;
+
+    /** The default selected row when the content changes. */
+    private static final int DEFAULT_SELECTED_ROW_START;
+
     /** A session key pattern for the list's selected index. */
     private static final String SK_LIST_SELECTED_INDEX_PATTERN;
 
     static {
+        DEFAULT_SELECTED_ROW_PAGING = 1;
+        DEFAULT_SELECTED_ROW_START = 0;
         SK_LIST_SELECTED_INDEX_PATTERN = "PanelCellListModel#List.getSelectedIndex({0}:{1})";
     }
-
-    /** The default selection. */
-    private final int defaultSelectedIndex;
-
-    /** The list key */
-    private final String listKey;
 
     /** The list manager. */
     private final PanelCellListManager listManager;
 
     /** The list model <code>DefaultListModel</code>. */
     private final DefaultListModel listModel;
+
+    /** The list name */
+    private final String listName;
 
     /** The selection. */
     private int selectedIndex;
@@ -55,14 +61,12 @@ public class PanelCellListModel implements PanelSelectionManager{
      * 
      * @param tabPanel
      *            A <code>DefaultTabPanel</code> invoker.
-     * @param listKey
-     *            A list key <code>String</code>.         
+     * @param listName
+     *            A list name <code>String</code>.         
      * @param localization
      *            A <code>Localization</code>.          
      * @param visibleRows
      *            The number of visible rows.
-     * @param defaultSelectedIndex
-     *            The default selected index <code>int</code>.
      * @param firstJLabel
      *            The first <code>JLabel</code>.
      * @param previousJLabel
@@ -75,11 +79,10 @@ public class PanelCellListModel implements PanelSelectionManager{
      *            The last <code>JLabel</code>.                                                  
      */
     public PanelCellListModel(
-        final DefaultTabPanel tabPanel,
-        final String listKey,
+        final DefaultTabPanel tabPanel,       
+        final String listName,
         final Localization localization,
         final int visibleRows,
-        final int defaultSelectedIndex,
         final javax.swing.JLabel firstJLabel,
         final javax.swing.JLabel previousJLabel,
         final javax.swing.JLabel countJLabel,
@@ -87,8 +90,7 @@ public class PanelCellListModel implements PanelSelectionManager{
         final javax.swing.JLabel lastJLabel) {
         super();
         this.tabPanel = tabPanel;
-        this.listKey = listKey;
-        this.defaultSelectedIndex = defaultSelectedIndex;
+        this.listName = listName;
         listModel = new DefaultListModel();
         listManager = new PanelCellListManager(this, localization,
                 visibleRows, firstJLabel, previousJLabel, countJLabel,
@@ -97,14 +99,31 @@ public class PanelCellListModel implements PanelSelectionManager{
         installDataListener();
     }
 
+    /**
+     * Get the index of the cell in the list model.
+     * 
+     * @param cell
+     *            A <code>Cell</code>. 
+     * @return The index of the cell in the list model.
+     */
     public int getIndexOf(final Cell cell) {
         return listModel.indexOf(cell);
     }
 
+    /**
+     * Get the list model.
+     * 
+     * @return The <code>DefaultListModel</code>. 
+     */
     public DefaultListModel getListModel() {
         return listModel;
     }
 
+    /**
+     * Get the selected cell.
+     * 
+     * @return The selected <code>Cell</code>. 
+     */
     public Cell getSelectedCell() {
         if (isSelectionEmpty()) {
             return null;
@@ -113,6 +132,11 @@ public class PanelCellListModel implements PanelSelectionManager{
         }
     }
 
+    /**
+     * Get the selected index.
+     * 
+     * @return The selected index <code>int</code>. 
+     */
     public int getSelectedIndex() {
         return selectedIndex;
     }
@@ -121,14 +145,14 @@ public class PanelCellListModel implements PanelSelectionManager{
      * Initialize the list model with a list of cells.
      * 
      * @param cells
-     *            A List of  <code>Cell</code>.  
+     *            A List of <code>Cell</code>.  
      */
     public void initialize(final List<? extends Cell> cells) {
         int initialSelectedIndex;
         if (isSavedSelectedIndex()) {
             initialSelectedIndex = getSavedSelectedIndex();
         } else {
-            initialSelectedIndex = defaultSelectedIndex;
+            initialSelectedIndex = DEFAULT_SELECTED_ROW_START;
         }
         // The selected index may not exist, for example, if the
         // draft is deleted and there are no versions.            
@@ -146,8 +170,23 @@ public class PanelCellListModel implements PanelSelectionManager{
         return (!isSelectionEmpty() && selectedIndex == getIndexOf(cell));
     }
 
+    /**
+     * Determine if the selection is empty.
+     * 
+     * @return true if the selection is empty.
+     */
     public Boolean isSelectionEmpty() {
         return (selectedIndex < 0);
+    }
+
+    /**
+     * Process a key stroke.
+     * 
+     * @param keyStroke
+     *            A <code>KeyStroke</code>. 
+     */
+    public void processKeyStroke(final KeyStroke keyStroke) {
+        listManager.processKeyStroke(keyStroke);
     }
 
     /**
@@ -160,17 +199,45 @@ public class PanelCellListModel implements PanelSelectionManager{
         setSelectedIndex(listModel.indexOf(cell));
     }
 
+    /**
+     * Select the cell by index.
+     * NOTE All cell selection goes through this method.
+     * 
+     * @param selectedIndex
+     *            The selected index <code>int</code>.  
+     */
+    public void setSelectedIndex(final int selectedIndex) {
+        final int oldSelectedIndex = this.selectedIndex;
+        this.selectedIndex = selectedIndex;
+        if (oldSelectedIndex != selectedIndex && !isSelectionEmpty()) {
+            tabPanel.panelCellSelectionChanged(getSelectedCell());
+            saveSelectedIndex(selectedIndex);
+        }
+        selectPanel();
+    }
+
+    /**
+     * Show the first page.
+     */
     public void showFirstPage() {
         listManager.showFirstPage();
     }
 
+    /**
+     * Get the saved selected index.
+     * 
+     * @return The saved selected index <code>Integer</code>. 
+     */
     private Integer getSavedSelectedIndex() {
         final Integer selectedIndex =
             (Integer) tabPanel.getAttribute(MessageFormat.format(
-                    SK_LIST_SELECTED_INDEX_PATTERN, tabPanel.getId(), listKey));
+                    SK_LIST_SELECTED_INDEX_PATTERN, tabPanel.getId(), listName));
         return selectedIndex;
     }
 
+    /**
+     * Install the data listener.
+     */
     private void installDataListener() {
         listModel.addListDataListener(new ListDataListener() {
             /**
@@ -194,16 +261,30 @@ public class PanelCellListModel implements PanelSelectionManager{
         });
     }
 
+    /**
+     * Determine if there is a saved selected index.
+     * 
+     * @return true if there is a saved selected index.
+     */
     private Boolean isSavedSelectedIndex() {
         return (null != getSavedSelectedIndex());
     }
 
+    /**
+     * Save the selected index.
+     * 
+     * @param selectedIndex
+     *            The selected index <code>int</code>.  
+     */
     private void saveSelectedIndex(final int selectedIndex) {
         tabPanel.setAttribute(MessageFormat.format(
-                SK_LIST_SELECTED_INDEX_PATTERN, tabPanel.getId(), listKey),
+                SK_LIST_SELECTED_INDEX_PATTERN, tabPanel.getId(), listName),
                 Integer.valueOf(selectedIndex));
     }
 
+    /**
+     * Select the panel.
+     */
     private void selectPanel() {
         // This is done so other panels will deselect when there is activity in
         // the expanded panel. Note also that the null check is because this method
@@ -214,28 +295,14 @@ public class PanelCellListModel implements PanelSelectionManager{
         }
     }
 
+    /**
+     * Set the default selected index (for paging).
+     */
     private void setDefaultSelectedIndex() {
-        int initialSelectedIndex = defaultSelectedIndex;
+        int initialSelectedIndex = DEFAULT_SELECTED_ROW_PAGING;
         if (initialSelectedIndex >= listModel.size()) {
             initialSelectedIndex = 0;
         }
         setSelectedIndex(initialSelectedIndex);
-    }
-
-    /**
-     * Select the cell by index.
-     * NOTE All cell selection goes through this method.
-     * 
-     * @param selectedIndex
-     *            The selected index <code>int</code>.  
-     */
-    private void setSelectedIndex(final int selectedIndex) {
-        final int oldSelectedIndex = this.selectedIndex;
-        this.selectedIndex = selectedIndex;
-        if (oldSelectedIndex != selectedIndex && !isSelectionEmpty()) {
-            tabPanel.panelCellSelectionChanged(getSelectedCell());
-            saveSelectedIndex(selectedIndex);
-        }
-        selectPanel();
     }
 }

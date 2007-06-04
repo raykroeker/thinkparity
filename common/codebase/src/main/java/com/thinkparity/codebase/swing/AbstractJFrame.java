@@ -46,6 +46,9 @@ public abstract class AbstractJFrame extends JFrame {
     /** A helper class dedicated to encapsulation of a move visitor. */
     private JComponentMoveHelper moveHelper;
 
+    /** A helper class for requesting focus. */
+    private JComponentRequestFocusHelper requestFocusHelper;
+
     /**
 	 * Create a AbstractJFrame.
 	 * 
@@ -151,6 +154,20 @@ public abstract class AbstractJFrame extends JFrame {
     }
 
     /**
+     * Add a request focus listener to the component. This will request focus on
+     * the component when the mouse is clicked.
+     * 
+     * @param jComponent
+     *            A <code>JComponent</code>.
+     */
+    protected final void addRequestFocusListener(final JComponent jComponent) {
+        if (null == requestFocusHelper) {
+            requestFocusHelper = new JComponentRequestFocusHelper(this);
+        }
+        requestFocusHelper.addListener(jComponent);
+    }
+
+    /**
      * Add a move listener to the component for the panel. A move listener will
      * allow the user will be able to click on and drag the component in order
      * to move the underlying window ancestor.
@@ -215,6 +232,19 @@ public abstract class AbstractJFrame extends JFrame {
 	protected void debug() {
         containerTools.debug();
 	}
+
+    /**
+     * Remove a request focus listener from a component.
+     * 
+     * @param jComponent
+     *            A <code>JComponent</code>.
+     * @see AbstractJFrame#addFocusListener(JComponent)
+     */
+    protected final void removeRequestFocusListener(final JComponent jComponent) {
+        if (null == requestFocusHelper)
+            return;
+        requestFocusHelper.removeListener(jComponent);
+    }
 
 	/**
      * Remove a move listener from a component for the panel.

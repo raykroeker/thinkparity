@@ -4,8 +4,11 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.util.List;
+
+import javax.swing.KeyStroke;
 
 import com.thinkparity.ophelia.browser.util.localization.Localization;
 
@@ -17,43 +20,43 @@ public class PanelCellListManager {
 
     /** The complete list of <code>Cell</code>. */
     private List<? extends Object> cells;
-    
-    /** The list model. */
-    private final PanelCellListModel listModel;
-    
-    /** The panel localization. */
-    private final Localization localization;
-    
-    /** The number of visible rows. */
-    private final int visibleRows;
-    
-    /** The first JLabel */
-    private final javax.swing.JLabel firstJLabel;
-    
-    /** The previous JLabel */
-    private final javax.swing.JLabel previousJLabel;
-    
+
     /** The count JLabel */
     private final javax.swing.JLabel countJLabel;
-    
-    /** The next JLabel */
-    private final javax.swing.JLabel nextJLabel;
-    
-    /** The last JLabel */
-    private final javax.swing.JLabel lastJLabel;
-    
-    /** Flag indicating if row 0 stays at the top, & is in the cells list */
-    private final Boolean fixedFirstRow;
-            
-    /** Number of rows per page */
-    private final int perPage;
-    
-    /** The number of pages */
-    private int numberPages;
-    
+
     /** The current page */
     private int currentPage;
-    
+
+    /** The first JLabel */
+    private final javax.swing.JLabel firstJLabel;
+
+    /** Flag indicating if row 0 stays at the top, & is in the cells list */
+    private final Boolean fixedFirstRow;
+
+    /** The last JLabel */
+    private final javax.swing.JLabel lastJLabel;
+
+    /** The list model. */
+    private final PanelCellListModel listModel;
+
+    /** The panel localization. */
+    private final Localization localization;
+
+    /** The next JLabel */
+    private final javax.swing.JLabel nextJLabel;
+
+    /** The number of pages */
+    private int numberPages;
+
+    /** Number of rows per page */
+    private final int perPage;
+
+    /** The previous JLabel */
+    private final javax.swing.JLabel previousJLabel;
+
+    /** The number of visible rows. */
+    private final int visibleRows;
+
     /**
      * Create a PanelCellListManager.
      * This handles the paging up and down through a Cell list
@@ -101,7 +104,7 @@ public class PanelCellListManager {
         perPage = fixedFirstRow ? visibleRows-1 : visibleRows;
         initializeMouseListeners();
     }
-    
+
     /**
      * Initialize with the cells list.
      * Called after the cells list is populated or changed.
@@ -121,18 +124,149 @@ public class PanelCellListManager {
         updateModel();
         reloadControls();
     }
-    
+
+    /**
+     * Process a key stroke.
+     * 
+     * @param keyStroke
+     *            A <code>KeyStroke</code>. 
+     */
+    public void processKeyStroke(final KeyStroke keyStroke) {
+        switch(keyStroke.getKeyCode()) {
+        case KeyEvent.VK_PAGE_DOWN:
+            if (isNextAvailable()) {
+                goNext();
+                selectTopRow();
+            }
+            break;
+        case KeyEvent.VK_PAGE_UP:
+            if (isPreviousAvailable()) {
+                goPrevious();
+                selectTopRow();
+            }
+            break;
+        case KeyEvent.VK_HOME:
+            goFirst();
+            selectTopRow();
+            break;
+        case KeyEvent.VK_END:
+            goLast();
+            selectBottomRow();
+            break;
+        case KeyEvent.VK_DOWN:
+            cursorDown();
+            break;
+        case KeyEvent.VK_UP:
+            cursorUp();
+            break;
+        default:
+            break;
+        }
+    }
+
     /**
      * Show the first page.
      */
     public void showFirstPage() {
         if (0 != currentPage) {
-            currentPage = 0;
-            updateModel();
-            reloadControls();
+            goFirst();
         }
     }
-    
+
+    /**
+     * Determine the number of rows on this page.
+     */
+    private int countRowsThisPage() {
+        if (null == cells) {
+            return 0;
+        } else if (currentPage+1 < numberPages) {
+            return visibleRows;
+        } else {
+            return cells.size() - (numberPages-1)*perPage;
+        }
+    }
+
+    /**
+     * Cursor down.
+     */
+    private void cursorDown() {
+        if (listModel.getSelectedIndex() < countRowsThisPage() - 1) {
+            listModel.setSelectedIndex(listModel.getSelectedIndex() + 1);
+        } else if (isNextAvailable()) {
+            goNext();
+            selectTopRow();
+        }
+    }
+
+    /**
+     * Cursor down.
+     */
+    private void cursorUp() {
+        if (listModel.getSelectedIndex() > (fixedFirstRow ? 1 : 0)) {
+            listModel.setSelectedIndex(listModel.getSelectedIndex() - 1);
+        } else if (isPreviousAvailable()) {
+            goPrevious();
+            selectBottomRow();
+        }
+    }
+
+    /**
+     * Go to the first page.
+     */
+    private void goFirst() {
+        currentPage = 0;
+        updateModel();
+        reloadControls();
+    }
+
+    /**
+     * Go to the last page.
+     */
+    private void goLast() {
+        currentPage = numberPages - 1;
+        updateModel();
+        reloadControls();
+    }
+
+    /**
+     * Go to the next page.
+     */
+    private void goNext() {
+        currentPage++;
+        updateModel();
+        reloadControls();
+    }
+
+    /**
+     * Go to the previous page.
+     */
+    private void goPrevious() {
+        currentPage--;
+        updateModel();
+        reloadControls();
+    }
+
+    /**
+     * Handle a mouse press.
+     * 
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    private void iconJLabelMousePressed(final java.awt.event.MouseEvent e) {
+        if (e.getSource().equals(firstJLabel)) {
+            goFirst();
+        } else if (e.getSource().equals(previousJLabel)) {
+            goPrevious();
+        } else if (e.getSource().equals(nextJLabel)) {
+            goNext();
+        } else if (e.getSource().equals(lastJLabel)) {
+            goLast();
+        }
+    }
+
+    /**
+     * Initialize mouse listeners.
+     */
     private void initializeMouseListeners() {
         MouseAdapter mouseAdapter = new java.awt.event.MouseAdapter() {
             public void mousePressed(final java.awt.event.MouseEvent e) {
@@ -144,7 +278,46 @@ public class PanelCellListManager {
         this.nextJLabel.addMouseListener(mouseAdapter);
         this.lastJLabel.addMouseListener(mouseAdapter);
     }
-    
+
+    /**
+     * Determine if "first" is available.
+     * 
+     * @return true if "first" is available.
+     */
+    private boolean isFirstAvailable() {
+        return currentPage > 1;
+    }
+
+    /**
+     * Determine if "last" is available.
+     * 
+     * @return true if "last" is available.
+     */
+    private boolean isLastAvailable() {
+        return currentPage+2 < numberPages;
+    }
+
+    /**
+     * Determine if "next" is available.
+     * 
+     * @return true if "next" is available.
+     */
+    private boolean isNextAvailable() {
+        return currentPage+1 < numberPages;
+    }
+
+    /**
+     * Determine if "previous" is available.
+     * 
+     * @return true if "previous" is available.
+     */
+    private boolean isPreviousAvailable() {
+        return currentPage > 0;
+    }
+
+    /**
+     * Reload controls.
+     */
     private void reloadControls() {
         reloadFirst();
         reloadPrevious();
@@ -152,15 +325,10 @@ public class PanelCellListManager {
         reloadNext();
         reloadLast();
     }
-    
-    private void reloadFirst() {
-        firstJLabel.setVisible(currentPage > 1);
-    }
-    
-    private void reloadPrevious() {
-        previousJLabel.setVisible(currentPage > 0);
-    }
-    
+
+    /**
+     * Reload the count.
+     */
     private void reloadCount() {
         if (numberPages > 1) {
             countJLabel.setText(localization.getString("countJLabel", new Object[] {currentPage+1, numberPages}));
@@ -169,40 +337,56 @@ public class PanelCellListManager {
             countJLabel.setVisible(false);
         }
     }
-    
-    private void reloadNext() {
-        nextJLabel.setVisible(currentPage+1 < numberPages);
+
+    /**
+     * Reload the "first" link.
+     */
+    private void reloadFirst() {
+        firstJLabel.setVisible(isFirstAvailable());
     }
-    
+
+    /**
+     * Reload the "last" link.
+     */
     private void reloadLast() {
-        lastJLabel.setVisible(currentPage+2 < numberPages);
+        lastJLabel.setVisible(isLastAvailable());
     }
-    
-    private void iconJLabelMousePressed(final java.awt.event.MouseEvent e) {
-        if (e.getSource().equals(firstJLabel)) {
-            currentPage = 0;
-        } else if (e.getSource().equals(previousJLabel)) {
-            currentPage--;
-        } else if (e.getSource().equals(nextJLabel)) {
-            currentPage++;
-        } else if (e.getSource().equals(lastJLabel)) {
-            currentPage = numberPages - 1;
-        }
-        updateModel();
-        reloadControls();
+
+    /**
+     * Reload the "next" link.
+     */
+    private void reloadNext() {
+        nextJLabel.setVisible(isNextAvailable());
     }
-    
+
+    /**
+     * Reload the "previous" link.
+     */
+    private void reloadPrevious() {
+        previousJLabel.setVisible(isPreviousAvailable());
+    }
+
+    /**
+     * Select the bottom row.
+     */
+    private void selectBottomRow() {
+        listModel.setSelectedIndex(countRowsThisPage() - 1);
+    }
+
+    /**
+     * Select the top row.
+     */
+    private void selectTopRow() {
+        listModel.setSelectedIndex(fixedFirstRow ? 1 : 0);
+    }
+
+    /**
+     * Update the model.
+     */
     private void updateModel() {
-        final int rowsThisPage;
-        if (null == cells) {
-            rowsThisPage = 0;
-        } else if (currentPage+1 < numberPages) {
-            rowsThisPage = visibleRows;
-        } else {
-            rowsThisPage = cells.size() - (numberPages-1)*perPage;
-        }
+        final int rowsThisPage = countRowsThisPage();
         final int offset = currentPage * perPage;
-        
+
         // Repopulate the list model
         listModel.getListModel().clear();
         if (rowsThisPage > 0) {

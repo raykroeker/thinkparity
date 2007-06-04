@@ -38,11 +38,11 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
         setFilterDelegate(model);
         addPropertyChangeListener("eventDispatcher",
                 new PropertyChangeListener() {
-                    public void propertyChange(final PropertyChangeEvent evt) {
-                        ((ContainerTabDispatcher) getEventDispatcher())
-                                .addListeners(ContainerTabAvatar.this);
-                    }
-                });
+            public void propertyChange(final PropertyChangeEvent evt) {
+                ((ContainerTabDispatcher) getEventDispatcher())
+                        .addListeners(ContainerTabAvatar.this);
+            }
+        });
     }
 
     /**

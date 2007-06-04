@@ -53,6 +53,7 @@ public final class MainTitleAvatar extends Avatar {
         initComponents();
         installResizer();
         installMoveListener();
+        installRequestFocusListener();
         new BrowserPopupHelper().addPopupListener(this);
 
         // double click to maximize the browser window
@@ -85,6 +86,13 @@ public final class MainTitleAvatar extends Avatar {
     @Override
     public void reload() {
         reloadTab();
+    }
+
+    /**
+     * Request focus in the search control.
+     */
+    public void requestFocusInSearch() {
+        searchPanel.requestFocus();
     }
 
     /**

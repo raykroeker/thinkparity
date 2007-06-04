@@ -8,10 +8,11 @@ import java.beans.PropertyChangeListener;
 
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.ophelia.model.events.ContainerEvent;
+
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.archive.ArchiveTabDispatcher;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * <b>Title:</b>thinkParity Container Tab Avatar<br>
@@ -35,11 +36,11 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
         setFilterDelegate(model);
         addPropertyChangeListener("eventDispatcher",
                 new PropertyChangeListener() {
-                    public void propertyChange(final PropertyChangeEvent evt) {
-                        ((ArchiveTabDispatcher) getEventDispatcher())
-                                .addListeners(ArchiveTabAvatar.this);
-                    }
-                });
+            public void propertyChange(final PropertyChangeEvent evt) {
+                ((ArchiveTabDispatcher) getEventDispatcher())
+                        .addListeners(ArchiveTabAvatar.this);
+            }
+        });
     }
 
     /**

@@ -12,6 +12,8 @@ import javax.swing.text.JTextComponent;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelListManager;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelListModel;
 
@@ -20,6 +22,9 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  * @version $Revision$
  */
 public class HelpContentModel implements PanelListModel {
+
+    /** The <code>JTextComponent</code>. */
+    private final JTextComponent jTextComponent;
 
     /** The <code>List</code> of <code>String</code> pages. */
     private List<String> pages;
@@ -30,18 +35,22 @@ public class HelpContentModel implements PanelListModel {
     /** The selected page <code>int</code>. */
     private int selectedPage;
 
-    /** The <code>JTextComponent</code>. */
-    private final JTextComponent jTextComponent;
+    /** The <code>DefaultTabPanel</code>. */
+    private final DefaultTabPanel tabPanel;
 
     /**
      * Create a HelpContentModel.
      * 
+     * @param tabPanel
+     *            A <code>DefaultTabPanel</code>.
      * @param jTextComponent
      *            A <code>JTextComponent</code>.
      */
-    HelpContentModel(final JTextComponent jTextComponent) {
+    HelpContentModel(final DefaultTabPanel tabPanel,
+            final JTextComponent jTextComponent) {
         super();
         this.jTextComponent = jTextComponent;
+        this.tabPanel = tabPanel;
         setSelectedPage(-1);
     }
 
@@ -87,11 +96,22 @@ public class HelpContentModel implements PanelListModel {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelListModel#setSelectedPage(int)
      */
     public void setSelectedPage(final int selectedPage) {
+        selectPanel();
         this.selectedPage = selectedPage;
         if (-1 == selectedPage) {
             jTextComponent.setText(" ");
         } else {
             jTextComponent.setText(pages.get(selectedPage));
+        }
+    }
+
+    private void selectPanel() {
+        // This is done so other panels will deselect when there is activity in
+        // the expanded panel. Note also that the null check is because this method
+        // may get called during initialization before the delegate is set up.
+        final TabDelegate delegate = tabPanel.getTabDelegate();
+        if (null != delegate) {
+            delegate.selectPanel(tabPanel);
         }
     }
 }

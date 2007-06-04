@@ -7,15 +7,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
@@ -73,9 +70,6 @@ public abstract class Avatar extends AbstractJPanel {
 	/** An avatar's <code>EventDispatcher</code>. */
     private EventDispatcher eventDispatcher;
 
-    /** The F1 action. */
-    private Action F1Action;
-    
     /** A list of the avatar's input error messages. */
     private final List<String> inputErrors;
     
@@ -155,20 +149,6 @@ public abstract class Avatar extends AbstractJPanel {
 	}
 
     /**
-     * Bind the F1 key to the appropriate action.
-     */
-    public void bindF1Key() {
-        if (!isBoundF1Key()) {
-            F1Action = new AbstractAction() {
-                public void actionPerformed(final ActionEvent e) {
-                    getController().runF1Action();
-                }
-            };
-            bindF1Key("F1-action", F1Action);
-        }
-    }
-
-    /**
      * Get the avatar title, used for dialogs.
      * 
      * @return the avatar title
@@ -245,6 +225,14 @@ public abstract class Avatar extends AbstractJPanel {
      *            The thinkParity <code>Platform</code>.
      */
     public void initialize(final Platform platform) {
+    }
+
+    /**
+     * Install the request focus listener so the avatar gets focus when
+     * the user clicks on it.
+     */
+    public void installRequestFocusListener() {
+        addRequestFocusListener(this);
     }
 
     /**
@@ -621,15 +609,6 @@ public abstract class Avatar extends AbstractJPanel {
      */
     protected void validateInput() {
         clearInputErrors();
-    }
-
-    /**
-     * Determine if the F1 key is bound.
-     * 
-     * @return true if the F1 key is bound, false otherwise.
-     */
-    private Boolean isBoundF1Key() {
-        return (null != F1Action);
     }
 
     private void setIsNotWorking() {

@@ -20,8 +20,8 @@ import com.thinkparity.ophelia.browser.util.localization.Localization;
  */
 public class PanelCellListManager {
 
-    /** The complete list of <code>Cell</code>. */
-    private List<? extends Object> cells;
+    /** The complete list of <code>? extends Cell</code>. */
+    private List<? extends Cell> cells;
 
     /** The count JLabel */
     private final javax.swing.JLabel countJLabel;
@@ -108,6 +108,15 @@ public class PanelCellListManager {
     }
 
     /**
+     * Get the list of cells.
+     * 
+     * @return The <code>List</code> of <code>? extends Cell</code> cells.
+     */
+    public List<? extends Cell> getCells() {
+        return cells;
+    }
+
+    /**
      * Get the page that has this cell.
      * 
      * @param cell
@@ -130,9 +139,9 @@ public class PanelCellListManager {
      * Called after the cells list is populated or changed.
      * 
      * @param cells
-     *            The complete list of <code>Cell</code>.
+     *            The complete list of <code>? extends Cell</code>.
      */
-    public void initialize(final List<? extends Object> cells) {
+    public void initialize(final List<? extends Cell> cells) {
         this.cells = cells;
         if (null == cells) {
             numberPages = 0;

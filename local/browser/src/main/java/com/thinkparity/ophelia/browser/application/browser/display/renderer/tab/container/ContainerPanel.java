@@ -1453,6 +1453,9 @@ public class ContainerPanel extends DefaultTabPanel {
             else
                 return IMAGE_CACHE.read(TabPanelIcon.CONTAINER);
         }
+        public String getId() {
+            return "container";
+        }
         @Override
         public String getText() {
             return container.getName();
@@ -1508,6 +1511,10 @@ public class ContainerPanel extends DefaultTabPanel {
             return IMAGE_CACHE.read(TabPanelIcon.DRAFT);
         }
         @Override
+        public String getId() {
+            return "draft";
+        }
+        @Override
         public String getText() {
             if (isLocalDraft()) {
                 return localization.getString("Draft");
@@ -1515,7 +1522,6 @@ public class ContainerPanel extends DefaultTabPanel {
                 return localization.getString("DraftNotLocal", new Object[] {getDraft().getOwner().getName()});
             }
         }
-        
         @Override
         public void showPopup() {
             popupDelegate.showForDraft(container, getDraft());
@@ -1544,19 +1550,17 @@ public class ContainerPanel extends DefaultTabPanel {
             setText(document.getName());
         }
         @Override
+        public String getId() {
+            return new StringBuffer("draftDocument-").append(document.getId()).toString();
+        }
+        @Override
         public void invokeAction() {
             actionDelegate.invokeForDocument(getDraft(), document);
         }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#isActionAvailable()
-         */
         @Override
         public Boolean isActionAvailable() {
             return (getDraft().getState(document) != ArtifactState.REMOVED);
         }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
-         */
         @Override
         public void showPopup() {
             popupDelegate.showForDocument(getDraft(), document);
@@ -1575,7 +1579,13 @@ public class ContainerPanel extends DefaultTabPanel {
             super(parent);
             this.popupAvailable = popupAvailable;
         }
-
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#getId()
+         */
+        @Override
+        public String getId() {
+            return "empty";
+        }
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#isActionAvailable()
          */
@@ -1583,7 +1593,6 @@ public class ContainerPanel extends DefaultTabPanel {
         public Boolean isActionAvailable() {
             return Boolean.FALSE;
         }
-        
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#isPopupAvailable()
          */
@@ -1781,6 +1790,10 @@ public class ContainerPanel extends DefaultTabPanel {
             }
         }
         @Override
+        public String getId() {
+            return new StringBuffer("version-").append(version.getVersionId()).toString();
+        }
+        @Override
         public String getText() {
             if (version.isSetName()) {
                 return version.getName();
@@ -1840,6 +1853,13 @@ public class ContainerPanel extends DefaultTabPanel {
             setText(version.getArtifactName());
         }
         /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#getId()
+         */
+        @Override
+        public String getId() {
+            return new StringBuffer("versionDocument-").append(version.getArtifactId()).toString();
+        }
+        /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#invokeAction()
          */
         @Override
@@ -1875,6 +1895,9 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     private final class PublishedToEMailCell extends AbstractEastCell {
 
+        /** A <code>PublishedToEMail</code>. */
+        private final PublishedToEMail publishedTo;
+
         /**
          * Create PublishedToEMailCell.
          * 
@@ -1886,8 +1909,16 @@ public class ContainerPanel extends DefaultTabPanel {
         private PublishedToEMailCell(final WestCell parent,
                 final PublishedToEMail publishedTo) {
             super(parent);
+            this.publishedTo = publishedTo;
             setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
             setText(publishedTo.getEMail().toString());
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#getId()
+         */
+        @Override
+        public String getId() {
+            return new StringBuffer("email-").append(publishedTo.getEMail()).toString();
         }
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#isActionAvailable()
@@ -1950,6 +1981,13 @@ public class ContainerPanel extends DefaultTabPanel {
                 setAdditionalText(localization.getString("UserReceived",
                         new Object[] {formatFuzzy(receipt.getReceivedOn())}));
             }                   
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#getId()
+         */
+        @Override
+        public String getId() {
+            return new StringBuffer("user-").append(user.getId()).toString();
         }
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#invokeAction()

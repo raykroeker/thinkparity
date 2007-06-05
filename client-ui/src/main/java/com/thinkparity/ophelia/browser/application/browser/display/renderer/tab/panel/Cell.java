@@ -30,6 +30,13 @@ public interface Cell {
     public Icon getIcon();
 
     /**
+     * Obtain the id.
+     * 
+     * @return The <code>String</code> id.
+     */
+    public String getId();
+
+    /**
      * Obtain the text for the cell.
      * 
      * @return The text <code>String</code>.

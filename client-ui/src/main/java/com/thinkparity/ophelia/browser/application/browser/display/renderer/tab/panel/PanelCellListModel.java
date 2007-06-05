@@ -28,13 +28,17 @@ public class PanelCellListModel implements PanelSelectionManager{
     /** The default selected row when the content changes. */
     private static final int DEFAULT_SELECTED_ROW_START;
 
+    /** A session key pattern for the data listener. */
+    private static final String SK_LIST_DATA_LISTENER_PATTERN;
+
     /** A session key pattern for the list's selected index. */
-    private static final String SK_LIST_SELECTED_INDEX_PATTERN;
+    private static final String SK_LIST_SELECTED_CELL_PATTERN;
 
     static {
         DEFAULT_SELECTED_ROW_PAGING = 1;
         DEFAULT_SELECTED_ROW_START = 0;
-        SK_LIST_SELECTED_INDEX_PATTERN = "PanelCellListModel#List.getSelectedIndex({0}:{1})";
+        SK_LIST_DATA_LISTENER_PATTERN = "PanelCellListModel#getSavedListDataListener({0}:{1})";
+        SK_LIST_SELECTED_CELL_PATTERN = "PanelCellListModel#getSavedSelectedCell({0}:{1})";
     }
 
     /** The list manager. */
@@ -96,7 +100,6 @@ public class PanelCellListModel implements PanelSelectionManager{
                 visibleRows, firstJLabel, previousJLabel, countJLabel,
                 nextJLabel, lastJLabel, Boolean.TRUE);
         selectedIndex = -1;
-        installDataListener();
     }
 
     /**
@@ -145,22 +148,21 @@ public class PanelCellListModel implements PanelSelectionManager{
      * Initialize the list model with a list of cells.
      * 
      * @param cells
-     *            A List of <code>Cell</code>.  
+     *            A List of <code>? extends Cell</code>.  
      */
     public void initialize(final List<? extends Cell> cells) {
-        int initialSelectedIndex;
-        if (isSavedSelectedIndex()) {
-            initialSelectedIndex = getSavedSelectedIndex();
-        } else {
-            initialSelectedIndex = DEFAULT_SELECTED_ROW_START;
-        }
-        // The selected index may not exist, for example, if the
-        // draft is deleted and there are no versions.            
-        if (initialSelectedIndex >= cells.size()) {
-            initialSelectedIndex = 0;
-        }
         listManager.initialize(cells);
-        setSelectedIndex(initialSelectedIndex);
+        installDataListener();
+        installDataListener();
+        if (isSavedSelectedCell()) {
+            setSelectedCell(getSavedSelectedCell());
+        } else {
+            int initialSelectedIndex = DEFAULT_SELECTED_ROW_START;
+            if (initialSelectedIndex >= cells.size()) {
+                initialSelectedIndex = 0;
+            }
+            setSelectedIndex(initialSelectedIndex);
+        }
     }
 
     /**
@@ -214,8 +216,9 @@ public class PanelCellListModel implements PanelSelectionManager{
         final int oldSelectedIndex = this.selectedIndex;
         this.selectedIndex = selectedIndex;
         if (oldSelectedIndex != selectedIndex && !isSelectionEmpty()) {
-            tabPanel.panelCellSelectionChanged(getSelectedCell());
-            saveSelectedIndex(selectedIndex);
+            final Cell selectedCell = getSelectedCell();
+            tabPanel.panelCellSelectionChanged(selectedCell);
+            saveSelectedCell(selectedCell);
         }
         selectPanel();
     }
@@ -228,62 +231,93 @@ public class PanelCellListModel implements PanelSelectionManager{
     }
 
     /**
-     * Get the saved selected index.
+     * Get the saved list data listener.
      * 
-     * @return The saved selected index <code>Integer</code>. 
+     * @return The saved <code>ListDataListener</code>. 
      */
-    private Integer getSavedSelectedIndex() {
-        final Integer selectedIndex =
-            (Integer) tabPanel.getAttribute(MessageFormat.format(
-                    SK_LIST_SELECTED_INDEX_PATTERN, tabPanel.getId(), listName));
-        return selectedIndex;
+    private ListDataListener getSavedListDataListener() {
+        return (ListDataListener) tabPanel.getAttribute(MessageFormat.format(
+                SK_LIST_DATA_LISTENER_PATTERN, tabPanel.getId(), listName));
+    }
+
+    /**
+     * Get the saved selected cell.
+     * 
+     * @return The saved selected <code>Cell</code>. 
+     */
+    private Cell getSavedSelectedCell() {
+        final String selectedCellId =
+            (String) tabPanel.getAttribute(MessageFormat.format(
+                    SK_LIST_SELECTED_CELL_PATTERN, tabPanel.getId(), listName));
+        for (final Cell cell : listManager.getCells()) {
+            if (cell.getId().equals(selectedCellId)) {
+                return cell;
+            }
+        }
+        return null;
     }
 
     /**
      * Install the data listener.
      */
     private void installDataListener() {
-        listModel.addListDataListener(new ListDataListener() {
-            /**
-             * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
-             */
-            public void contentsChanged(final ListDataEvent e) {
-                setDefaultSelectedIndex();
-            }
-            /**
-             * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
-             */
-            public void intervalAdded(final ListDataEvent e) {
-                setDefaultSelectedIndex();
-            }
-            /**
-             * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
-             */
-            public void intervalRemoved(final ListDataEvent e) {
-                setSelectedIndex(-1);
-            } 
-        });
+        if (null == getSavedListDataListener()) {
+            final ListDataListener listener = new ListDataListener() {
+                /**
+                 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
+                 */
+                public void contentsChanged(final ListDataEvent e) {
+                    setDefaultSelectedIndex();
+                }
+                /**
+                 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
+                 */
+                public void intervalAdded(final ListDataEvent e) {
+                    setDefaultSelectedIndex();
+                }
+                /**
+                 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
+                 */
+                public void intervalRemoved(final ListDataEvent e) {
+                    setSelectedIndex(-1);
+                } 
+            };
+            listModel.addListDataListener(listener);
+            saveListDataListener(listener);
+        }
     }
 
     /**
-     * Determine if there is a saved selected index.
+     * Determine if there is a saved selected cell.
      * 
-     * @return true if there is a saved selected index.
+     * @return true if there is a saved selected cell.
      */
-    private Boolean isSavedSelectedIndex() {
-        return (null != getSavedSelectedIndex());
+    private Boolean isSavedSelectedCell() {
+        return (null != getSavedSelectedCell());
     }
 
     /**
-     * Save the selected index.
+     * Save the list data listener.
      * 
-     * @param selectedIndex
-     *            The selected index <code>int</code>.  
+     * @param listDataListener
+     *            The <code>ListDataListener</code>.  
      */
-    private void saveSelectedIndex(final int selectedIndex) {
+    private void saveListDataListener(final ListDataListener listDataListener) {
         tabPanel.setAttribute(MessageFormat.format(
-                SK_LIST_SELECTED_INDEX_PATTERN, tabPanel.getId(), listName),
-                Integer.valueOf(selectedIndex));
+                SK_LIST_DATA_LISTENER_PATTERN, tabPanel.getId(), listName),
+                listDataListener);
+    }
+
+    /**
+     * Save the selected cell.
+     * 
+     * @param selectedCell
+     *            The selected <code>Cell</code>.  
+     */
+    private void saveSelectedCell(final Cell selectedCell) {
+        tabPanel.setAttribute(MessageFormat.format(
+                SK_LIST_SELECTED_CELL_PATTERN, tabPanel.getId(), listName),
+                selectedCell.getId());
     }
 
     /**

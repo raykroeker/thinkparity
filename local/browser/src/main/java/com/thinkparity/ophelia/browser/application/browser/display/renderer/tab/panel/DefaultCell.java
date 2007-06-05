@@ -52,6 +52,13 @@ public class DefaultCell implements Cell {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#getId()
+     */
+    public String getId() {
+        return "cell";
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.VersionsCell#getText()
      *
      */

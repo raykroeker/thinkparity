@@ -370,8 +370,9 @@ public final class SystemApplication extends AbstractApplication {
      *            A <code>ContainerEvent</code>.
      */
     void fireContainerPublished(final ContainerEvent e) {
-        final Data data = new Data(1);
+        final Data data = new Data(2);
         data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.CONTAINER_ID, e.getContainer().getId());
+        data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.VERSION_ID, e.getVersion().getVersionId());
         if (null == e.getPreviousVersion() && null == e.getNextVersion()) {
             // this is the first publish event
             impl.fireNotification(new DefaultNotification() {

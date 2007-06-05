@@ -639,6 +639,25 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Expand the container with a version selected.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param archiveTab
+     *            true for archive tab, false for container tab.  
+     */
+    public void expandContainer(final Long containerId, final Long versionId,
+            final Boolean archiveTab) {
+        if (archiveTab) {
+            getTabArchiveAvatar().expandContainer(containerId, versionId);
+        } else {
+            getTabContainerAvatar().expandContainer(containerId, versionId);
+        }
+    }
+
+    /**
      * Expand the help topic.
      * 
      * @param helpTopicId

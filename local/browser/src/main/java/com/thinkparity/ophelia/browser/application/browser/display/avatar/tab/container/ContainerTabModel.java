@@ -393,7 +393,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Set the draft to be selected for the container.
+     * Select the draft in a container.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
@@ -403,6 +403,22 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         final TabPanel tabPanel = lookupPanel(containerId);
         if (isExpanded(tabPanel)) {
             ((ContainerPanel) tabPanel).setDraftSelection();
+        }
+    }
+
+    /**
+     * Select a version in a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     */
+    void setVersionSelection(final Long containerId, final Long versionId) {
+        checkThread();
+        final TabPanel tabPanel = lookupPanel(containerId);
+        if (isExpanded(tabPanel)) {
+            ((ContainerPanel) tabPanel).setVersionSelection(versionId);
         }
     }
 

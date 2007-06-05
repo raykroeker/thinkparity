@@ -10,6 +10,8 @@ import java.util.List;
 
 import javax.swing.KeyStroke;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.ophelia.browser.util.localization.Localization;
 
 /**
@@ -106,6 +108,24 @@ public class PanelCellListManager {
     }
 
     /**
+     * Get the page that has this cell.
+     * 
+     * @param cell
+     *            A <code>Cell</code>.
+     * @return The <code>int</code> page index with this cell, or -1 if not found.
+     */
+    public int getPageContainingCell(final Cell cell) {
+        final int index = cells.indexOf(cell);
+        if (index < 0) {
+            return -1;
+        } else if (fixedFirstRow) {
+            return (index-1) / perPage;
+        } else {
+            return index / perPage;
+        }
+    }
+
+    /**
      * Initialize with the cells list.
      * Called after the cells list is populated or changed.
      * 
@@ -165,11 +185,17 @@ public class PanelCellListManager {
     }
 
     /**
-     * Show the first page.
+     * Show the specified page.
+     * 
+     * @param page
+     *            A page index <code>int</code>. 
      */
-    public void showFirstPage() {
-        if (0 != currentPage) {
-            goFirst();
+    public void showPage(final int page) {
+        Assert.assertTrue("Invalid page index", (page>=0 && page<numberPages));
+        if (page != currentPage) {
+            currentPage = page;
+            updateModel();
+            reloadControls();
         }
     }
 

@@ -196,6 +196,10 @@ public class PanelCellListModel implements PanelSelectionManager{
      *            A <code>Cell</code>.  
      */
     public void setSelectedCell(final Cell cell) {
+        final int page = listManager.getPageContainingCell(cell);
+        if (0 <= page) {
+            listManager.showPage(page);
+        }
         setSelectedIndex(listModel.indexOf(cell));
     }
 
@@ -220,7 +224,7 @@ public class PanelCellListModel implements PanelSelectionManager{
      * Show the first page.
      */
     public void showFirstPage() {
-        listManager.showFirstPage();
+        listManager.showPage(0);
     }
 
     /**

@@ -68,6 +68,19 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
     }
 
     /**
+     * Expand the container with version selected.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     */
+    public void expandContainer(final Long containerId, final Long versionId) {
+        showPanel(containerId);
+        setVersionSelection(containerId, versionId);
+    }
+
+    /**
      * Fire an archived container event.
      * 
      * @param e
@@ -146,6 +159,22 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 model.selectPanel(containerId);
+            }
+        });
+    }
+
+    /**
+     * Select a version for a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     */
+    private void setVersionSelection(final Long containerId, final Long versionId) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.setVersionSelection(containerId, versionId);
             }
         });
     }

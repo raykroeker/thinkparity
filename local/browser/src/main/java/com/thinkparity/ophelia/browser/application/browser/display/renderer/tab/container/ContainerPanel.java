@@ -532,6 +532,23 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * Select a version.
+     * 
+     * @param versionId
+     *            The version id <code>Long</code>.
+     */
+    public void setVersionSelection(final Long versionId) {
+        for (final Cell cell : westCells) {
+            if (cell instanceof VersionCell) {
+                if (((VersionCell)cell).getVersionId().equals(versionId)) {
+                    westListModel.setSelectedCell(cell);
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
      * Bind or unbind temporary key bindings.
      * 
      * When expanded, the keys are bound to actions. When collapsed,
@@ -1770,6 +1787,9 @@ public class ContainerPanel extends DefaultTabPanel {
             } else {
                 return formatFuzzy(version.getCreatedOn());
             }
+        }
+        public Long getVersionId() {
+            return version.getVersionId();
         }
         @Override
         public void invokeAction() {

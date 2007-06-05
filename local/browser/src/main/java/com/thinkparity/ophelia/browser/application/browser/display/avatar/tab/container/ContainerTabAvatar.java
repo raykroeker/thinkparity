@@ -70,6 +70,19 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     }
 
     /**
+     * Expand the container with version selected.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     */
+    public void expandContainer(final Long containerId, final Long versionId) {
+        showPanel(containerId);
+        setVersionSelection(containerId, versionId);
+    }
+
+    /**
      * Notify the avatar that a container has been archived.
      * 
      * @param e
@@ -254,10 +267,8 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      * Show the container (expand the panel and scroll so it
      * is visible).
      * 
-     * @param containerIds
-     *            A list of container id <code>Long</code>.
-     * @param displayIndex
-     *            The index of the container to show (0 indicates the container displayed at top). 
+     * @param container
+     *            A <code>Container</code>.
      */
     public void showContainer(final Container container) {
         SwingUtil.ensureDispatchThread(new Runnable() {
@@ -361,6 +372,22 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 model.setDraftSelection(e.getContainer().getId());
+            }
+        });
+    }
+
+    /**
+     * Select a version for a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     */
+    private void setVersionSelection(final Long containerId, final Long versionId) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.setVersionSelection(containerId, versionId);
             }
         });
     }

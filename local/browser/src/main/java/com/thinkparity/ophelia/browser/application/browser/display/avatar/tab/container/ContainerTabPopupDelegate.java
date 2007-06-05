@@ -379,6 +379,8 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         if (model.isDevelopmentMode()) {
             addSeparator();
             add(MessageFormat.format(
+                    "getVersionId():{0,number,#}", version.getVersionId()));
+            add(MessageFormat.format(
                     "createdOn():{0,date,yyyy-MM-dd HH:mm:ss.SSS Z}",
                     version.getCreatedOn().getTime()));
             add(MessageFormat.format(

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
+import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
@@ -96,6 +97,7 @@ public final class PublishContainerAvatar extends Avatar implements
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerSwingDisplay#dispose()
      */
     public void dispose() {
+        showBusyIndicators(Boolean.FALSE);
         disposeWindow();
     }
 
@@ -176,7 +178,7 @@ public final class PublishContainerAvatar extends Avatar implements
             namesJScrollPane.getViewport().setViewPosition(new Point(0,0));
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerSwingDisplay#resetProgressBar(java.lang.Long)
      * 
@@ -184,6 +186,7 @@ public final class PublishContainerAvatar extends Avatar implements
     public void resetProgressBar(final Long containerId) {
         reloadProgressBar();
         publishJButton.setEnabled(isInputValid());
+        showBusyIndicators(Boolean.FALSE);
     }
 
     /**
@@ -256,6 +259,17 @@ public final class PublishContainerAvatar extends Avatar implements
 
     private ThinkParitySwingMonitor createMonitor() {
         return new PublishContainerSwingMonitor(this, getInputContainerId());
+    }
+
+    /**
+     * Enable or disable text entry in the dialog.
+     * 
+     * @param enable
+     *            The enable <code>Boolean</code>.
+     */
+    private void enableTextEntry(final Boolean enable) {
+        emailsJTextField.setEnabled(enable);
+        versionNameJTextField.setEnabled(enable);
     }
 
     /**
@@ -517,14 +531,16 @@ public final class PublishContainerAvatar extends Avatar implements
     }
 
     private void namesJListMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_namesJListMousePressed
-        if (e.getButton() == MouseEvent.BUTTON1 && !namesListModel.isEmpty()) {
-            PublishContainerAvatarUser user = (PublishContainerAvatarUser)((JList) e.getSource()).getSelectedValue();
-            user.toggleSelected();
-            final int listModelIndex = namesListModel.indexOf(user);
-            if (listModelIndex >= 0) {
-                namesListModel.set(listModelIndex, user);
+        if (Cursor.WAIT_CURSOR != e.getComponent().getCursor().getType()) {
+            if (e.getButton() == MouseEvent.BUTTON1 && !namesListModel.isEmpty()) {
+                PublishContainerAvatarUser user = (PublishContainerAvatarUser)((JList) e.getSource()).getSelectedValue();
+                user.toggleSelected();
+                final int listModelIndex = namesListModel.indexOf(user);
+                if (listModelIndex >= 0) {
+                    namesListModel.set(listModelIndex, user);
+                }
+                publishJButton.setEnabled(isInputValid());
             }
-            publishJButton.setEnabled(isInputValid());
         }
     }//GEN-LAST:event_namesJListMousePressed
 
@@ -543,10 +559,12 @@ public final class PublishContainerAvatar extends Avatar implements
         // Publish
         switch (publishType) {
         case PUBLISH:
+            showBusyIndicators(Boolean.TRUE);
             getController().runPublishContainer(createMonitor(), containerId,
                     versionName, emails, contacts, teamMembers);
             break;
         case PUBLISH_VERSION:
+            showBusyIndicators(Boolean.TRUE);
             final Long versionId = getInputVersionId();
             getController().runPublishContainerVersion(createMonitor(),
                     containerId, versionId, emails, contacts, teamMembers);
@@ -696,6 +714,32 @@ public final class PublishContainerAvatar extends Avatar implements
         default:
             Assert.assertUnreachable("Unknown publish type.");
         }
+    }
+
+    /**
+     * Show or remove a busy cursor.
+     * 
+     * @param busy
+     *            The busy <code>Boolean</code>.
+     */
+    private void showBusyCursor(final Boolean busy) {
+        final java.awt.Cursor cursor = Cursor.getPredefinedCursor(busy ? Cursor.WAIT_CURSOR : Cursor.DEFAULT_CURSOR);
+        SwingUtil.setCursor(this, cursor);
+        // NOTE Setting the cursor on the Avatar does not automatically
+        // set the cursor on these subcomponents
+        SwingUtil.setCursor(emailsJTextField, cursor);
+        SwingUtil.setCursor(versionNameJTextField, cursor);
+    }
+
+    /**
+     * Show or remove busy indicators for the dialog.
+     * 
+     * @param busy
+     *            The busy <code>Boolean</code>.
+     */
+    private void showBusyIndicators(final Boolean busy) {
+        showBusyCursor(busy);
+        enableTextEntry(!busy);
     }
 
     public enum DataKey { CONTAINER_ID, PUBLISH_TYPE, VERSION_ID }

@@ -627,9 +627,15 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
                 listModel.removeElement(invisiblePanels[i]);
             }
         }
+        // if there is no selection, or if the selection is not visible,
+        // select the first panel.
+        if (!isSelectedPanel() ||
+                (isSelectedPanel() && !visiblePanels.contains(getSelectedPanel()))) {
+            selectFirstPanel();
+        }
         debug();
     }
-    
+
     /**
      * Apply the search results.
      *
@@ -659,5 +665,14 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
         } else {
             return lookupPanel(selectedPanelId);
         }
+    }
+
+    /**
+     * Determine if there is a selected panel.
+     * 
+     * @return true if there is a selected panel.
+     */
+    private Boolean isSelectedPanel() {
+        return (null != getSelectedPanel());
     }
 }

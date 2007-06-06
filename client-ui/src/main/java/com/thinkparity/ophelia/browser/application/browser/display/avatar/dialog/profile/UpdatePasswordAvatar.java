@@ -97,15 +97,22 @@ public class UpdatePasswordAvatar extends Avatar {
         final String password = extractPassword();
         final String newPassword = extractNewPassword();
         final String confirmNewPassword = extractConfirmNewPassword();
+        final int minimumPasswordLength = profileConstraints.getPassword().getMinLength();
+
         if (null == password)
             addInputError(Separator.Space.toString());
-        if (null == newPassword)
+
+        if (null == newPassword) {
             addInputError(Separator.Space.toString());
-        if (null == confirmNewPassword)
+        } else if (newPassword.length() < minimumPasswordLength) {
+            addInputError(getString("ErrorPasswordTooShort", new Object[] {minimumPasswordLength}));
+        }
+
+        if (null == confirmNewPassword) {
             addInputError(Separator.Space.toString());
-        if (null != newPassword && null != confirmNewPassword &&
-                !newPassword.equals(confirmNewPassword))
+        } else if (null != newPassword && !newPassword.equals(confirmNewPassword)) {
             addInputError(getString("ErrorPasswordsDoNotMatch"));
+        }
 
         errorMessageJLabel.setText(" ");
         if (containsInputErrors())

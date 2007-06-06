@@ -10,12 +10,15 @@ import java.util.List;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.AbstractDocument;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.text.JTextComponentLengthFilter;
 
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.profile.ProfileConstraints;
 import com.thinkparity.codebase.model.session.Credentials;
 
 import com.thinkparity.ophelia.model.workspace.InitializeMediator;
@@ -39,9 +42,13 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
     /** The list of <code>Feature</code>. */
     private List<Feature> features;
 
+    /** An instance of <code>ProfileConstraints</code>. */
+    private final ProfileConstraints profileConstraints;
+
     /** Creates new form SignupCredentialsAvatar */
     public SignupCredentialsAvatar() {
         super("SignupAvatar.Credentials", BrowserConstants.DIALOGUE_BACKGROUND);
+        this.profileConstraints = ProfileConstraints.getInstance();
         initComponents();
         initDocumentHandlers();
         SignupLoginHelper.getInstance().setLoginCredentialsDisplay(this);
@@ -242,11 +249,13 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
         usernameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Credentials.Username"));
 
         usernameJTextField.setFont(Fonts.DialogTextEntryFont);
+        ((AbstractDocument) usernameJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getUsername()));
 
         passwordJLabel.setFont(Fonts.DialogFont);
         passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Credentials.Password"));
 
         passwordJPasswordField.setFont(Fonts.DialogTextEntryFont);
+        ((AbstractDocument) passwordJPasswordField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPassword()));
 
         forgotPasswordExplanationJLabel.setFont(Fonts.DialogFont);
         forgotPasswordExplanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Credentials.ExplanationForgetPassword"));

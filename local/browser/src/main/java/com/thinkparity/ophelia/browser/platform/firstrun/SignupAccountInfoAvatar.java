@@ -50,18 +50,10 @@ import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
  */
 public class SignupAccountInfoAvatar extends DefaultSignupPage {
 
-    /** The minimum password length. */
-    private static final int MINIMUM_PASSWORD_LENGTH;
-
-    /** The minimum username length. */
-    private static final int MINIMUM_USERNAME_LENGTH;
-
     /** The number of security questions. */
     private static final int NUMBER_SECURITY_QUESTIONS;
 
     static {
-        MINIMUM_PASSWORD_LENGTH = 6;
-        MINIMUM_USERNAME_LENGTH = 6;
         NUMBER_SECURITY_QUESTIONS = 5;
     }
 
@@ -736,20 +728,22 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
             addInputError(getString("ErrorEMailTaken"));
         }
 
+        final int minimumUsernameLength = profileConstraints.getUsername().getMinLength();
         if (null == username) {
             addInputError(Separator.Space.toString());
-        } else if (username.length() < MINIMUM_USERNAME_LENGTH) {
-            addInputError(getString("ErrorUsernameTooShort", new Object[] {MINIMUM_USERNAME_LENGTH}));
+        } else if (username.length() < minimumUsernameLength) {
+            addInputError(getString("ErrorUsernameTooShort", new Object[] {minimumUsernameLength}));
         }
         if (null != username && null != unacceptableUsername
                 && username.equalsIgnoreCase(unacceptableUsername)) {
             addInputError(getString("ErrorUsernameTaken", new Object[] {username}));
         }
 
+        final int minimumPasswordLength = profileConstraints.getPassword().getMinLength();
         if (null == password) {
             addInputError(Separator.Space.toString());
-        } else if (password.length() < MINIMUM_PASSWORD_LENGTH) {
-            addInputError(getString("ErrorPasswordTooShort", new Object[] {MINIMUM_PASSWORD_LENGTH}));
+        } else if (password.length() < minimumPasswordLength) {
+            addInputError(getString("ErrorPasswordTooShort", new Object[] {minimumPasswordLength}));
         }
 
         if (null == confirmPassword) {

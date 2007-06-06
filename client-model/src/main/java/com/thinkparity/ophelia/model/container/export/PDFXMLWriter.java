@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,17 +18,15 @@ import javax.xml.transform.TransformerException;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FuzzyDateFormat;
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
-import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -180,8 +177,9 @@ final class PDFXMLWriter {
             final Map<ContainerVersion, Map<DocumentVersion, Delta>> deltas,
             final List<TeamMember> teamMembers)
             throws IOException, TransformerException {
+        Assert.assertTrue(versions.size()>0, "Unable to export container with zero versions.");
         this.container = container;
-        this.firstVersion = getFirstVersion(versions);
+        this.firstVersion = versions.get(versions.size()-1);
         this.latestVersion = latestVersion;
         this.deltas.clear();
         this.deltas.putAll(deltas);
@@ -526,22 +524,6 @@ final class PDFXMLWriter {
             this.statistics.usersPerVersion.put(version, publishedTo.get(version).size());
             this.statistics.usersSum += publishedTo.get(version).size();
         }
-    }
-
-    /**
-     * Get the first container version.
-     * 
-     * @param versions
-     *            A <code>List</code> of <code>ContainerVersion</code>.
-     * @return The first <code>ContainerVersion</code>.
-     */
-    private ContainerVersion getFirstVersion(final List<ContainerVersion> versions) {
-        ModelSorter.sortContainerVersions(versions, new Comparator<ArtifactVersion>() {
-            public int compare(final ArtifactVersion o1, final ArtifactVersion o2) {
-                return o1.getCreatedOn().compareTo(o2.getCreatedOn());
-            }
-        });
-        return versions.get(0);
     }
 
     /**

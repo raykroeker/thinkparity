@@ -11,9 +11,13 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.AbstractDocument;
 import javax.swing.text.Document;
 
 import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.text.JTextComponentLengthFilter;
+
+import com.thinkparity.codebase.model.container.ContainerConstraints;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -36,9 +40,13 @@ public class CreateContainerAvatar extends Avatar {
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
+    /** An instance of <code>ContainerConstraints</code>. */
+    private final ContainerConstraints containerConstraints;
+
     /** Creates new form CreateContainerAvatar */
     public CreateContainerAvatar() {
         super("CreateContainerAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
+        this.containerConstraints = ContainerConstraints.getInstance();
         initComponents();
         initDocumentHandler();
         bindEscapeKey("Cancel", new AbstractAction() {
@@ -108,6 +116,7 @@ public class CreateContainerAvatar extends Avatar {
         nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("CreateContainerAvatar.Name"));
 
         nameJTextField.setFont(Fonts.DialogTextEntryFont);
+        ((AbstractDocument) nameJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(containerConstraints.getContainerName()));
         nameJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 nameJTextFieldActionPerformed(evt);

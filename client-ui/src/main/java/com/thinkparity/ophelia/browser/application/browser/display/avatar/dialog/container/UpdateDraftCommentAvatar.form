@@ -99,7 +99,7 @@
             <Property name="wrapStyleWord" type="boolean" value="true"/>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) noteJTextArea.getDocument()).setDocumentFilter(new JTextAreaLengthFilter(containerConstraints.getDraftComment()));"/>
+            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) noteJTextArea.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(containerConstraints.getDraftComment()));"/>
           </AuxValues>
         </Component>
       </SubComponents>

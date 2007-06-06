@@ -26,8 +26,8 @@
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="licenseAgreementJScrollPane" alignment="0" pref="456" max="32767" attributes="0"/>
-                  <Component id="explanationJLabel" alignment="0" pref="456" max="32767" attributes="0"/>
+                  <Component id="licenseAgreementJScrollPane" alignment="0" pref="455" max="32767" attributes="0"/>
+                  <Component id="explanationJLabel" alignment="0" pref="455" max="32767" attributes="0"/>
                   <Component id="acceptJRadioButton" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="declineJRadioButton" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>

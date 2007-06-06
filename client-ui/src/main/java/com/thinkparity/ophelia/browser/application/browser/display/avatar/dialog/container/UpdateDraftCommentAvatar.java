@@ -9,7 +9,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialo
 import javax.swing.text.AbstractDocument;
 
 import com.thinkparity.codebase.swing.SwingUtil;
-import com.thinkparity.codebase.swing.text.JTextAreaLengthFilter;
+import com.thinkparity.codebase.swing.text.JTextComponentLengthFilter;
 
 import com.thinkparity.codebase.model.container.ContainerConstraints;
 
@@ -110,7 +110,7 @@ public class UpdateDraftCommentAvatar extends Avatar {
         noteJTextArea.setLineWrap(true);
         noteJTextArea.setRows(5);
         noteJTextArea.setWrapStyleWord(true);
-        ((AbstractDocument) noteJTextArea.getDocument()).setDocumentFilter(new JTextAreaLengthFilter(containerConstraints.getDraftComment()));
+        ((AbstractDocument) noteJTextArea.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(containerConstraints.getDraftComment()));
         noteJScrollPane.setViewportView(noteJTextArea);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

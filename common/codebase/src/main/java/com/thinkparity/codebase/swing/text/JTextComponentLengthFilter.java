@@ -10,37 +10,37 @@ import javax.swing.text.DocumentFilter;
 import com.thinkparity.codebase.constraint.StringConstraint;
 
 /**
- * <b>Title:</b>thinkParity CommonCodebase Swing JTextArea Length Filter<br>
+ * <b>Title:</b>thinkParity CommonCodebase Swing JTextComponent Length Filter<br>
  * <b>Description:</b>A document filter used to limit text length within a
- * swing text area.<br>
+ * swing text component (eg. JTextArea, JTextField).<br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class JTextAreaLengthFilter extends DocumentFilter {
+public final class JTextComponentLengthFilter extends DocumentFilter {
 
     /** The maximum length the text area can support. */
     private final int maxLength;
 
     /**
-     * Create JTextAreaLengthFilter.
+     * Create JTextComponentLengthFilter.
      * 
      * @param maxLength
      *            The maximum length <code>Integer</code> to allow.
      */
-    public JTextAreaLengthFilter(final Integer maxLength) {
+    public JTextComponentLengthFilter(final Integer maxLength) {
         super();
         this.maxLength = maxLength.intValue();
     }
 
     /**
-     * Create JTextAreaLengthFilter.
+     * Create JTextComponentLengthFilter.
      * 
      * @param constraint
      *            A <code>StringConstraint</code> indicating the maximum
      *            length to allow.
      */
-    public JTextAreaLengthFilter(final StringConstraint constraint) {
+    public JTextComponentLengthFilter(final StringConstraint constraint) {
         super();
         this.maxLength = constraint.getMaxLength().intValue();
     }

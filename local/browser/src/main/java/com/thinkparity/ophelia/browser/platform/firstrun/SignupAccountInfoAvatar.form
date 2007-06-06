@@ -28,9 +28,9 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="securityTitleJLabel" alignment="0" pref="438" max="32767" attributes="0"/>
-                          <Component id="accountTypeTitleJLabel" alignment="0" pref="438" max="32767" attributes="0"/>
-                          <Component id="loginInfoTitleJLabel" alignment="0" pref="438" max="32767" attributes="0"/>
+                          <Component id="securityTitleJLabel" alignment="0" pref="455" max="32767" attributes="0"/>
+                          <Component id="accountTypeTitleJLabel" alignment="0" pref="455" max="32767" attributes="0"/>
+                          <Component id="loginInfoTitleJLabel" alignment="0" pref="455" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="1" max="-2" attributes="0">
@@ -41,10 +41,10 @@
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="emailJTextField" max="32767" attributes="1"/>
-                                  <Component id="passwordJPasswordField" alignment="0" pref="254" max="32767" attributes="1"/>
-                                  <Component id="confirmPasswordJPasswordField" alignment="0" pref="254" max="32767" attributes="1"/>
-                                  <Component id="usernameJTextField" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="emailJTextField" linkSize="2" alignment="0" min="-2" pref="269" max="-2" attributes="1"/>
+                                  <Component id="usernameJTextField" linkSize="2" alignment="0" min="-2" max="-2" attributes="1"/>
+                                  <Component id="passwordJPasswordField" linkSize="2" alignment="0" min="-2" max="-2" attributes="1"/>
+                                  <Component id="confirmPasswordJPasswordField" linkSize="2" alignment="0" min="-2" max="-2" attributes="1"/>
                               </Group>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
@@ -55,10 +55,9 @@
                               </Group>
                               <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="securityAnswerJTextField" max="32767" attributes="1"/>
-                                  <Component id="securityQuestionJComboBox" alignment="0" min="-2" pref="254" max="-2" attributes="1"/>
+                                  <Component id="securityAnswerJTextField" linkSize="2" min="-2" max="-2" attributes="1"/>
+                                  <Component id="securityQuestionJComboBox" linkSize="2" alignment="0" min="-2" pref="268" max="-2" attributes="1"/>
                               </Group>
-                              <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -76,7 +75,7 @@
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace min="-2" pref="36" max="-2" attributes="0"/>
-                      <Component id="errorMessageJLabel" pref="412" max="32767" attributes="1"/>
+                      <Component id="errorMessageJLabel" pref="429" max="32767" attributes="1"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -121,13 +120,13 @@
               <Component id="securityTitleJLabel" min="-2" pref="37" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="securityQuestionJComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="securityQuestionJLabel" alignment="3" min="-2" pref="19" max="-2" attributes="0"/>
+                  <Component id="securityQuestionJComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="securityAnswerJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="securityAnswerJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="securityAnswerJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
               <Component id="errorMessageJLabel" min="-2" max="-2" attributes="0"/>
@@ -250,6 +249,7 @@
         </Property>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getEmail()));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -275,6 +275,7 @@
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) usernameJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getUsername()));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -300,6 +301,7 @@
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.createPassword();"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) passwordJPasswordField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPassword()));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -325,6 +327,7 @@
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.createPassword();"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) confirmPasswordJPasswordField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPassword()));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -367,6 +370,7 @@
         </Property>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="if (null != getSecurityQuestionDocument()) {&#xa;    ((AbstractDocument) getSecurityQuestionDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getSecurityQuestion()));&#xa;}"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -391,6 +395,7 @@
         </Property>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) securityAnswerJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getSecurityAnswer()));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>

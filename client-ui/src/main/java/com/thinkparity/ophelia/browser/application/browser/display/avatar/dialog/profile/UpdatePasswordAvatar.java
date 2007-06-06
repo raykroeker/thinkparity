@@ -8,10 +8,13 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.AbstractDocument;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.text.JTextComponentLengthFilter;
 
+import com.thinkparity.codebase.model.profile.ProfileConstraints;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
@@ -34,6 +37,9 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  */
 public class UpdatePasswordAvatar extends Avatar {
 
+    /** An instance of <code>ProfileConstraints</code>. */
+    private final ProfileConstraints profileConstraints;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPasswordField confirmNewPasswordJPasswordField = new javax.swing.JPasswordField();
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
@@ -49,6 +55,7 @@ public class UpdatePasswordAvatar extends Avatar {
      */
     public UpdatePasswordAvatar() {
         super("UpdatePasswordAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
+        this.profileConstraints = ProfileConstraints.getInstance();
         initComponents();
         initDocumentHandlers();
         bindEscapeKey("Cancel", new AbstractAction() {
@@ -190,10 +197,13 @@ public class UpdatePasswordAvatar extends Avatar {
         confirmNewPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdatePasswordAvatar.ConfirmNewPassword"));
 
         oldPasswordJPasswordField.setFont(Fonts.DialogTextEntryFont);
+        ((AbstractDocument) oldPasswordJPasswordField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPassword()));
 
         newPasswordJPasswordField.setFont(Fonts.DialogTextEntryFont);
+        ((AbstractDocument) newPasswordJPasswordField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPassword()));
 
         confirmNewPasswordJPasswordField.setFont(Fonts.DialogTextEntryFont);
+        ((AbstractDocument) confirmNewPasswordJPasswordField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPassword()));
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);

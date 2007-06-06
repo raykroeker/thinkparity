@@ -68,6 +68,12 @@ public final class ProfileConstraints {
     /** The profile province <code>StringConstraint</code>. */
     private final StringConstraint province;
 
+    /** The profile security answer <code>StringConstraint</code>. */
+    private final StringConstraint securityAnswer;
+
+    /** The profile security question <code>StringConstraint</code>. */
+    private final StringConstraint securityQuestion;
+
     /** The profile time zone <code>TimeZoneConstraint</code>. */
     private final TimeZoneConstraint timeZone;
 
@@ -154,6 +160,18 @@ public final class ProfileConstraints {
         this.province.setMinLength(1);
         this.province.setName("Province");
         this.province.setNullable(Boolean.TRUE);
+
+        this.securityAnswer = new StringConstraint();
+        this.securityAnswer.setMaxLength(64);
+        this.securityAnswer.setMinLength(1);
+        this.securityAnswer.setName("Security Answer");
+        this.securityAnswer.setNullable(Boolean.FALSE);
+
+        this.securityQuestion = new StringConstraint();
+        this.securityQuestion.setMaxLength(64);
+        this.securityQuestion.setMinLength(1);
+        this.securityQuestion.setName("Security Question");
+        this.securityQuestion.setNullable(Boolean.FALSE);
 
         this.timeZone = new TimeZoneConstraint();
         this.timeZone.setName("Time zone");
@@ -287,6 +305,24 @@ public final class ProfileConstraints {
      */
     public StringConstraint getProvince() {
         return province;
+    }
+
+    /**
+     * Obtain security answer.
+     *
+     * @return A StringConstraint.
+     */
+    public StringConstraint getSecurityAnswer() {
+        return securityAnswer;
+    }
+
+    /**
+     * Obtain security question.
+     *
+     * @return A StringConstraint.
+     */
+    public StringConstraint getSecurityQuestion() {
+        return securityQuestion;
     }
 
     /**

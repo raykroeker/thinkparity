@@ -442,24 +442,36 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         emailJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.EmailLabel"));
 
         emailJTextField.setFont(Fonts.DialogTextEntryFont);
+        emailJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
+        emailJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
+        emailJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
         ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getEmail()));
 
         usernameJLabel.setFont(Fonts.DialogFont);
         usernameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.UsernameLabel"));
 
         usernameJTextField.setFont(Fonts.DialogTextEntryFont);
+        usernameJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
+        usernameJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
+        usernameJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
         ((AbstractDocument) usernameJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getUsername()));
 
         passwordJLabel.setFont(Fonts.DialogFont);
         passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.PasswordLabel"));
 
         passwordJPasswordField.setFont(Fonts.DialogTextEntryFont);
+        passwordJPasswordField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
+        passwordJPasswordField.setMinimumSize(new java.awt.Dimension(275, 20));
+        passwordJPasswordField.setPreferredSize(new java.awt.Dimension(275, 20));
         ((AbstractDocument) passwordJPasswordField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPassword()));
 
         confirmPasswordJLabel.setFont(Fonts.DialogFont);
         confirmPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.ConfirmPasswordLabel"));
 
         confirmPasswordJPasswordField.setFont(Fonts.DialogTextEntryFont);
+        confirmPasswordJPasswordField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
+        confirmPasswordJPasswordField.setMinimumSize(new java.awt.Dimension(275, 20));
+        confirmPasswordJPasswordField.setPreferredSize(new java.awt.Dimension(275, 20));
         ((AbstractDocument) confirmPasswordJPasswordField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPassword()));
 
         securityTitleJLabel.setFont(Fonts.DialogFont);
@@ -471,6 +483,9 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         securityQuestionJComboBox.setEditable(true);
         securityQuestionJComboBox.setFont(Fonts.DialogTextEntryFont);
         securityQuestionJComboBox.setModel(securityQuestionModel);
+        securityQuestionJComboBox.setMaximumSize(new java.awt.Dimension(275, 32767));
+        securityQuestionJComboBox.setMinimumSize(new java.awt.Dimension(275, 18));
+        securityQuestionJComboBox.setPreferredSize(new java.awt.Dimension(275, 20));
         if (null != getSecurityQuestionDocument()) {
             ((AbstractDocument) getSecurityQuestionDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getSecurityQuestion()));
         }
@@ -479,6 +494,9 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         securityAnswerJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.SecurityAnswer"));
 
         securityAnswerJTextField.setFont(Fonts.DialogTextEntryFont);
+        securityAnswerJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
+        securityAnswerJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
+        securityAnswerJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
         ((AbstractDocument) securityAnswerJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getSecurityAnswer()));
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
@@ -506,7 +524,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
                                     .addComponent(confirmPasswordJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(emailJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(emailJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(usernameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(passwordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(confirmPasswordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -736,7 +754,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         }
         if (null != username && null != unacceptableUsername
                 && username.equalsIgnoreCase(unacceptableUsername)) {
-            addInputError(getString("ErrorUsernameTaken", new Object[] {username}));
+            addInputError(getString("ErrorUsernameTaken"));
         }
 
         final int minimumPasswordLength = profileConstraints.getPassword().getMinLength();

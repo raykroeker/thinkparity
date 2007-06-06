@@ -185,48 +185,72 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
         nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.ProfileInfo.Name"));
 
         nameJTextField.setFont(Fonts.DialogTextEntryFont);
+        nameJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
+        nameJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
+        nameJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
         ((AbstractDocument) nameJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getName()));
 
         userTitleJLabel.setFont(Fonts.DialogFont);
         userTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.ProfileInfo.UserTitle"));
 
         userTitleJTextField.setFont(Fonts.DialogTextEntryFont);
+        userTitleJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
+        userTitleJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
+        userTitleJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
         ((AbstractDocument) userTitleJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getTitle()));
 
         organizationJLabel.setFont(Fonts.DialogFont);
         organizationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.ProfileInfo.Organization"));
 
         organizationJTextField.setFont(Fonts.DialogTextEntryFont);
+        organizationJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
+        organizationJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
+        organizationJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
         ((AbstractDocument) organizationJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getOrganization()));
 
         phoneJLabel.setFont(Fonts.DialogFont);
         phoneJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.ProfileInfo.Phone"));
 
         phoneJTextField.setFont(Fonts.DialogTextEntryFont);
+        phoneJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
+        phoneJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
+        phoneJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
         ((AbstractDocument) phoneJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPhone()));
 
         mobilePhoneJLabel.setFont(Fonts.DialogFont);
         mobilePhoneJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.ProfileInfo.MobilePhone"));
 
         mobilePhoneJTextField.setFont(Fonts.DialogTextEntryFont);
+        mobilePhoneJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
+        mobilePhoneJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
+        mobilePhoneJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
         ((AbstractDocument) mobilePhoneJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getMobilePhone()));
 
         addressJLabel.setFont(Fonts.DialogFont);
         addressJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.ProfileInfo.Address"));
 
         addressJTextField.setFont(Fonts.DialogTextEntryFont);
+        addressJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
+        addressJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
+        addressJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
         ((AbstractDocument) addressJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getAddress()));
 
         cityJLabel.setFont(Fonts.DialogFont);
         cityJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.ProfileInfo.City"));
 
         cityJTextField.setFont(Fonts.DialogTextEntryFont);
+        cityJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
+        cityJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
+        cityJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
         ((AbstractDocument) cityJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getCity()));
 
         provinceJLabel.setFont(Fonts.DialogFont);
         provinceJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.ProfileInfo.Province"));
 
         provinceJTextField.setFont(Fonts.DialogTextEntryFont);
+        provinceJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
+        provinceJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
+        provinceJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
         ((AbstractDocument) provinceJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getProvince()));
 
         countryJLabel.setFont(Fonts.DialogFont);
@@ -234,12 +258,18 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
 
         countryJComboBox.setFont(Fonts.DialogTextEntryFont);
         countryJComboBox.setModel(countryModel);
+        countryJComboBox.setMaximumSize(new java.awt.Dimension(275, 32767));
+        countryJComboBox.setMinimumSize(new java.awt.Dimension(275, 18));
+        countryJComboBox.setPreferredSize(new java.awt.Dimension(275, 20));
         countryJComboBox.setRenderer(new LocaleRenderer(platform.getLocale()));
 
         postalCodeJLabel.setFont(Fonts.DialogFont);
         postalCodeJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.ProfileInfo.PostalCode"));
 
         postalCodeJTextField.setFont(Fonts.DialogTextEntryFont);
+        postalCodeJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
+        postalCodeJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
+        postalCodeJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
         ((AbstractDocument) postalCodeJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPostalCode()));
 
         starExplanationjLabel.setFont(Fonts.DialogFont);
@@ -275,18 +305,18 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
                                     .addComponent(countryJLabel))
                                 .addGap(34, 34, 34)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(cityJTextField)
-                                    .addComponent(addressJTextField)
-                                    .addComponent(mobilePhoneJTextField)
-                                    .addComponent(phoneJTextField)
-                                    .addComponent(organizationJTextField)
-                                    .addComponent(nameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE)
-                                    .addComponent(countryJComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(userTitleJTextField)
-                                    .addComponent(provinceJTextField)
-                                    .addComponent(postalCodeJTextField)))
+                                    .addComponent(cityJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(addressJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(mobilePhoneJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(phoneJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(organizationJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(countryJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(userTitleJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(provinceJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(postalCodeJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(nameJTextField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addComponent(starExplanationjLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(37, 37, 37)
                         .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE)))

@@ -238,6 +238,9 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
         betaActivationCodeJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.PaymentInfo.BetaActivationCode"));
 
         betaActivationCodeJTextField.setFont(Fonts.DialogTextEntryFont);
+        betaActivationCodeJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
+        betaActivationCodeJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
+        betaActivationCodeJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
 
         betaActivationLearnMoreJLabel.setFont(Fonts.DialogFont);
         betaActivationLearnMoreJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.PaymentInfo.BetaActivationLearnMore"));
@@ -255,11 +258,11 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(betaExplanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 420, Short.MAX_VALUE))
+                        .addComponent(betaExplanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(explanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 420, Short.MAX_VALUE)
+                            .addComponent(explanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(28, 28, 28)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -276,17 +279,17 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(cardYearJComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                     .addComponent(cardTypeJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE))))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 57, Short.MAX_VALUE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(40, 40, 40)
                         .addComponent(betaActivationCodeJLabel)
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(betaActivationLearnMoreJLabel)
-                            .addComponent(betaActivationCodeJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(betaActivationCodeJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(38, 38, 38)
-                        .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)))
+                        .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(

@@ -101,7 +101,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         }
 
         // add document
-        if (null != draft) {
+        if (isLocalDraft(draft)) {
             final Data addDocumentData = new Data(2);
             addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, draft.getContainerId());
             addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);

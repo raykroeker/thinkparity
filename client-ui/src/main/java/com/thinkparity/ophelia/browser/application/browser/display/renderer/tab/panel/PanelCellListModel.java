@@ -162,6 +162,7 @@ public class PanelCellListModel implements PanelSelectionManager{
             }
             setSelectedIndex(initialSelectedIndex);
         }
+        tabPanel.panelCellSelectionChanged(getSelectedCell());
     }
 
     /**

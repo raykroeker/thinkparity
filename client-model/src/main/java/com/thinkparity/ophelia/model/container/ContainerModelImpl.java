@@ -1104,9 +1104,20 @@ public final class ContainerModelImpl extends
                     containerId, compareVersionId, compareToVersionId);
             for (final ContainerVersionArtifactVersionDelta artifactDelta :
                 delta.getDeltas()) {
-                deltas.put(documentIO.getVersion(artifactDelta.getArtifactId(),
-                        artifactDelta.getArtifactVersionId()),
-                        artifactDelta.getDelta());
+                // if a document was removed and then re-added it is considered modified
+                final Delta existingDelta = deltas.get(documentIO.getVersion(artifactDelta.getArtifactId(),
+                        artifactDelta.getArtifactVersionId()));
+                if ((null != existingDelta) &&
+                        ((Delta.REMOVED==existingDelta && Delta.ADDED==artifactDelta.getDelta()) ||
+                        (Delta.ADDED==existingDelta && Delta.REMOVED==artifactDelta.getDelta()))) {
+                    deltas.put(documentIO.getVersion(artifactDelta.getArtifactId(),
+                            artifactDelta.getArtifactVersionId()),
+                            Delta.MODIFIED);
+                } else {
+                    deltas.put(documentIO.getVersion(artifactDelta.getArtifactId(),
+                            artifactDelta.getArtifactVersionId()),
+                            artifactDelta.getDelta());
+                }
             }
             return deltas;
         } catch (final Throwable t) {

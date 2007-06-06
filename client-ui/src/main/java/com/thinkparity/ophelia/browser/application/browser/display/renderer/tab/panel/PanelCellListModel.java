@@ -153,7 +153,6 @@ public class PanelCellListModel implements PanelSelectionManager{
     public void initialize(final List<? extends Cell> cells) {
         listManager.initialize(cells);
         installDataListener();
-        installDataListener();
         if (isSavedSelectedCell()) {
             setSelectedCell(getSavedSelectedCell());
         } else {

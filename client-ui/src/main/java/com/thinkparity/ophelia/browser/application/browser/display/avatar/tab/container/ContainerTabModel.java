@@ -286,13 +286,6 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readExpandedPanelData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
-     */
-    @Override
-    protected void readExpandedPanelData(final TabPanel tabPanel) {
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readSearchResults()
      *
      */
@@ -300,6 +293,35 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     protected List<Long> readSearchResults() {
         checkThread();
         return ((ContainerProvider) contentProvider).search(searchExpression);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#setExpandedPanelData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    @Override
+    protected void setExpandedPanelData(final TabPanel tabPanel) {
+        final ContainerPanel containerPanel = (ContainerPanel)tabPanel;
+        final Container container = containerPanel.getContainer();
+        final List<ContainerVersion> versions = readVersions(container.getId());
+        final Map<ContainerVersion, List<DocumentView>> documentViews =
+            new HashMap<ContainerVersion, List<DocumentView>>(versions.size(), 1.0F);
+        final Map<ContainerVersion, PublishedToView> publishedTo =
+            new HashMap<ContainerVersion, PublishedToView>(versions.size(), 1.0F);
+        final Map<ContainerVersion, User> publishedBy = new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
+        List<DocumentView> versionDocumentViews;
+        for (final ContainerVersion version : versions) {
+            versionDocumentViews = readDocumentViews(version.getArtifactId(),
+                    version.getVersionId());
+            for (final DocumentView versionDocumentView : versionDocumentViews) {
+                containerIdLookup.put(versionDocumentView.getDocumentId(), container.getId());
+            }
+            documentViews.put(version, versionDocumentViews);
+            publishedTo.put(version, readPublishedTo(version.getArtifactId(),
+                    version.getVersionId()));
+            publishedBy.put(version, readUser(version.getUpdatedBy()));
+        }
+        containerPanel.setPanelData(versions, documentViews, publishedTo,
+                publishedBy, readTeam(container.getId()));
     }
 
     /**
@@ -499,8 +521,8 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Add a container panel. This will read the container's versions and add the
-     * appropriate version panel as well.
+     * Add a container panel. This will read the container's data and add the
+     * container panel.
      * 
      * @param index
      *            An <code>Integer</code> index.
@@ -511,32 +533,22 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
             final Container container) {
         final DraftView draftView = readDraftView(container.getId());
         final ContainerVersion latestVersion = readLatestVersion(container.getId());
+        final ContainerVersion earliestVersion;
+        if (null == latestVersion) {
+            earliestVersion = null;
+        } else {
+            earliestVersion = readEarliestVersion(container.getId());
+        }
         if (draftView.isLocal()) {
             for (final Document document : draftView.getDocuments()) {
                 containerIdLookup.put(document.getId(), container.getId());
             }
         }
-        final List<ContainerVersion> versions = readVersions(container.getId());
-        final Map<ContainerVersion, List<DocumentView>> documentViews =
-            new HashMap<ContainerVersion, List<DocumentView>>(versions.size(), 1.0F);
-        final Map<ContainerVersion, PublishedToView> publishedTo =
-            new HashMap<ContainerVersion, PublishedToView>(versions.size(), 1.0F);
-        final Map<ContainerVersion, User> publishedBy = new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
-        List<DocumentView> versionDocumentViews;
-        for (final ContainerVersion version : versions) {
-            versionDocumentViews = readDocumentViews(version.getArtifactId(),
-                    version.getVersionId());
-            for (final DocumentView versionDocumentView : versionDocumentViews) {
-                containerIdLookup.put(versionDocumentView.getDocumentId(), container.getId());
-            }
-            documentViews.put(version, versionDocumentViews);
-            publishedTo.put(version, readPublishedTo(version.getArtifactId(),
-                    version.getVersionId()));
-            publishedBy.put(version, readUser(version.getUpdatedBy()));
+        final TabPanel tabPanel = toDisplay(container, draftView, earliestVersion, latestVersion);
+        panels.add(index, tabPanel);
+        if (isExpanded(tabPanel)) {
+            setExpandedPanelData(tabPanel);
         }
-        panels.add(index, toDisplay(container, draftView, latestVersion,
-                versions, documentViews, publishedTo, publishedBy,
-                readTeam(container.getId())));
     }
 
     /**
@@ -687,16 +699,16 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Read the draft for a container.
+     * Read the draft view for a container.
      *
      * @param containerId
      *      A container id <code>Long</code>.
-     * @return A <code>ContainerDraft</code>.
+     * @return A <code>DraftView</code>.
      */
     private DraftView readDraftView(final Long containerId) {
         return ((ContainerProvider) contentProvider).readDraftView(containerId);
     }
-    
+
     /**
      * Determine if the draft document has been modified.
      * 
@@ -729,6 +741,17 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
             }
         }
         return Boolean.FALSE;
+    }
+
+    /**
+     * Read the earliest version for a container.
+     * 
+     * @param containerId
+     *      A container id <code>Long</code>.
+     * @return A <code>ContainerVersion</code>.
+     */
+    private ContainerVersion readEarliestVersion(final Long containerId) {
+        return ((ContainerProvider) contentProvider).readEarliestVersion(containerId);
     }
 
     /**
@@ -912,23 +935,23 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      * 
      * @param container
      *            A <code>Container</code>.
+     * @param draftView
+     *            A <code>DraftView</code>.
+     * @param earliestVersion
+     *            The earliest <code>ContainerVersion</code>.
+     * @param latestVersion
+     *            The latest <code>ContainerVersion</code>.
      * @return A <code>TabPanel</code>.
      */
     private TabPanel toDisplay(
             final Container container,
             final DraftView draftView,
-            final ContainerVersion latestVersion,
-            final List<ContainerVersion> versions,
-            final Map<ContainerVersion, List<DocumentView>> documentViews,
-            final Map<ContainerVersion, PublishedToView> publishedTo,
-            final Map<ContainerVersion, User> publishedBy,
-            final List<TeamMember> team) {
+            final ContainerVersion earliestVersion,
+            final ContainerVersion latestVersion) {
         final ContainerPanel panel = new ContainerPanel(session);
         panel.setActionDelegate(actionDelegate);
-        panel.setPanelData(container, readUser(container.getCreatedBy()),
-                draftView, latestVersion, versions, documentViews, publishedTo,
-                publishedBy, team);
         panel.setPopupDelegate(popupDelegate);
+        panel.setPanelData(container, draftView, earliestVersion, latestVersion);
         panel.setExpanded(isExpanded(panel));
         panel.setSelected(isSelected(panel));
         panel.setTabDelegate(this);

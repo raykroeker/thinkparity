@@ -6,8 +6,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.a
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.*;
 
 import javax.swing.AbstractAction;
@@ -26,15 +24,11 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
-import com.thinkparity.ophelia.model.events.ContainerDraftListener;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
-
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.archive.ArchiveTabProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.archive.ArchiveTabActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.archive.ArchiveTabPanel;
@@ -43,8 +37,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.PublishedToView;
-import com.thinkparity.ophelia.browser.platform.application.Application;
-import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
 
 /**
  * <b>Title:</b>thinkParity Archive Tab Model<br>
@@ -55,14 +47,6 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
  */
 public final class ArchiveTabModel extends TabPanelModel<Long> implements
         TabAvatarFilterDelegate {
-
-    /** A session key for the draft monitor. */
-    private static final String SK_DRAFT_MONITOR;
-
-    static {
-        SK_DRAFT_MONITOR = new StringBuffer(ArchiveTabModel.class.getName())
-            .append("#ContainerDraftMonitor").toString();
-    }
 
     /** A <code>ArchiveTabActionDelegate</code>. */
     private final ArchiveTabActionDelegate actionDelegate;
@@ -88,7 +72,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
         this.actionDelegate = new ArchiveTabActionDelegateImpl(this);
         this.containerIdLookup = new HashMap<Long, Long>();
         this.popupDelegate = new ArchiveTabPopupDelegateImpl(this);
-        addApplicationListener();
     }
 
     /**
@@ -243,13 +226,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readExpandedPanelData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
-     */
-    @Override
-    protected void readExpandedPanelData(final TabPanel tabPanel) {
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readSearchResults()
      * 
      */
@@ -257,6 +233,35 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     protected List<Long> readSearchResults() {
         checkThread();
         return getProvider().search(searchExpression);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#setExpandedPanelData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    @Override
+    protected void setExpandedPanelData(final TabPanel tabPanel) {
+        final ContainerPanel containerPanel = (ContainerPanel)tabPanel;
+        final Container container = containerPanel.getContainer();
+        final List<ContainerVersion> versions = readVersions(container.getId());
+        final Map<ContainerVersion, List<DocumentView>> documentViews =
+            new HashMap<ContainerVersion, List<DocumentView>>(versions.size(), 1.0F);
+        final Map<ContainerVersion, PublishedToView> publishedTo =
+            new HashMap<ContainerVersion, PublishedToView>(versions.size(), 1.0F);
+        final Map<ContainerVersion, User> publishedBy = new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
+        List<DocumentView> versionDocumentViews;
+        for (final ContainerVersion version : versions) {
+            versionDocumentViews = readDocumentViews(version.getArtifactId(),
+                    version.getVersionId());
+            for (final DocumentView versionDocumentView : versionDocumentViews) {
+                containerIdLookup.put(versionDocumentView.getDocumentId(), container.getId());
+            }
+            documentViews.put(version, versionDocumentViews);
+            publishedTo.put(version, readPublishedTo(version.getArtifactId(),
+                    version.getVersionId()));
+            publishedBy.put(version, readUser(version.getUpdatedBy()));
+        }
+        containerPanel.setPanelData(versions, documentViews, publishedTo,
+                publishedBy, readTeam(container.getId()));
     }
 
     /**
@@ -330,21 +335,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Add an application listener. The session draft monitor is
-     * stopped before the application ends.
-     */
-    private void addApplicationListener() {
-        browser.addListener(new ApplicationListener() {
-            public void notifyEnd(Application application) {
-                stopSessionDraftMonitor();
-            }
-            public void notifyHibernate(Application application) {}
-            public void notifyRestore(Application application) {}
-            public void notifyStart(Application application) {}           
-        });
-    }
-
-    /**
      * Add a container panel. This will read the container's versions and add
      * the appropriate version panel as well.
      * 
@@ -356,8 +346,8 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Add a container panel. This will read the container's versions and add the
-     * appropriate version panel as well.
+     * Add a container panel. This will read the container's data and add the
+     * container panel.
      * 
      * @param index
      *            An <code>Integer</code> index.
@@ -368,32 +358,22 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
             final Container container) {
         final DraftView draftView = readDraftView(container.getId());
         final ContainerVersion latestVersion = readLatestVersion(container.getId());
-        if (draftView.isLocal().booleanValue()) {
+        final ContainerVersion earliestVersion;
+        if (null == latestVersion) {
+            earliestVersion = null;
+        } else {
+            earliestVersion = readEarliestVersion(container.getId());
+        }
+        if (draftView.isLocal()) {
             for (final Document document : draftView.getDocuments()) {
                 containerIdLookup.put(document.getId(), container.getId());
             }
         }
-        final List<ContainerVersion> versions = readVersions(container.getId());
-        final Map<ContainerVersion, List<DocumentView>> documentViews =
-            new HashMap<ContainerVersion, List<DocumentView>>(versions.size(), 1.0F);
-        final Map<ContainerVersion, PublishedToView> publishedTo =
-            new HashMap<ContainerVersion, PublishedToView>(versions.size(), 1.0F);
-        final Map<ContainerVersion, User> publishedBy = new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
-        List<DocumentView> versionDocumentViews;
-        for (final ContainerVersion version : versions) {
-            versionDocumentViews = readDocumentViews(version.getArtifactId(),
-                    version.getVersionId());
-            for (final DocumentView versionDocumentView : versionDocumentViews) {
-                containerIdLookup.put(versionDocumentView.getDocumentId(), container.getId());
-            }
-            documentViews.put(version, versionDocumentViews);
-            publishedTo.put(version, readPublishedTo(version.getArtifactId(),
-                    version.getVersionId()));
-            publishedBy.put(version, readUser(version.getUpdatedBy()));
+        final TabPanel tabPanel = toDisplay(container, draftView, earliestVersion, latestVersion);
+        panels.add(index, tabPanel);
+        if (isExpanded(tabPanel)) {
+            setExpandedPanelData(tabPanel);
         }
-        panels.add(index, toDisplay(container, draftView, latestVersion,
-                versions, documentViews, publishedTo, publishedBy,
-                readTeam(container.getId())));
     }
 
     /**
@@ -436,20 +416,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Obtain a container draft monitor created by the model.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param listener
-     *            A <code>ContainerDraftListener</code>.
-     * @return A <code>ContainerDraftMonitor</code>.
-     */
-    private ContainerDraftMonitor getDraftMonitor(final Long containerId,
-            final ContainerDraftListener listener) {
-        return getProvider().getDraftMonitor(containerId, listener);
-    }
-
-    /**
      * Obtain the provider.
      * 
      * @return An instance of <code>ArchiveTabProvider</code>.
@@ -469,15 +435,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Obtain the session draft monitor.
-     * 
-     * @return The session draft monitor; or null if no draft monitor is set.
-     */
-    private ContainerDraftMonitor getSessionDraftMonitor() {
-        return (ContainerDraftMonitor) session.getAttribute(SK_DRAFT_MONITOR);        
-    }
-
-    /**
      * Obtain a localized string for a filter.
      * 
      * @param filterBy
@@ -486,19 +443,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      */
     private String getString(final FilterBy filterBy) {
         return localization.getString(filterBy);
-    }
-
-    /**
-     * Determine if the session draft monitor is set for the container.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @return True if the session draft monitor is not null and is monitoring
-     *         the container.
-     */
-    private boolean isSetSessionDraftMonitor(final Long containerId) {
-        final ContainerDraftMonitor monitor = getSessionDraftMonitor();
-        return null != monitor && monitor.getContainerId().equals(containerId);
     }
     
     /**
@@ -553,48 +497,25 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Read the draft for a container.
+     * Read the draft view for a container.
      *
      * @param containerId
      *      A container id <code>Long</code>.
-     * @return A <code>ContainerDraft</code>.
+     * @return A <code>DraftView</code>.
      */
     private DraftView readDraftView(final Long containerId) {
         return getProvider().readDraftView(containerId);
     }
 
     /**
-     * Determine if the draft document has been modified.
+     * Read the earliest version for a container.
      * 
-     * @param documentId
-     *            A document id.
-     * @return True if the draft document has been modified; false otherwise.
+     * @param containerId
+     *      A container id <code>Long</code>.
+     * @return A <code>ContainerVersion</code>.
      */
-    private boolean readIsDraftDocumentModified(final Long documentId) {
-        return getProvider().isDraftDocumentModified(documentId).booleanValue();
-    }
-    
-    /**
-     * Read to see if any draft document ArtifactState has become out of date.
-     * This can happen during the time that the session draft monitor is disabled.
-     * 
-     * @param draft
-     *      A <code>ContainerDraft</code>.
-     * @return True if the a draft document state has changed; false otherwise.
-     */
-    private Boolean readIsDraftDocumentStateChanged(final ContainerDraft draft) {
-        for (final Document document : draft.getDocuments()) {
-            final ContainerDraft.ArtifactState state = draft.getState(document);
-            if (ContainerDraft.ArtifactState.NONE == state ||
-                ContainerDraft.ArtifactState.MODIFIED == state ) {
-                final Boolean documentModified =
-                    ContainerDraft.ArtifactState.NONE == state ? Boolean.FALSE : Boolean.TRUE;
-                if (readIsDraftDocumentModified(document.getId()) != documentModified) {
-                    return Boolean.TRUE;
-                }
-            }
-        }
-        return Boolean.FALSE;
+    private ContainerVersion readEarliestVersion(final Long containerId) {
+        return ((ContainerProvider) contentProvider).readEarliestVersion(containerId);
     }
 
     /**
@@ -691,46 +612,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
                 expandedState.remove(containerPanel);
             }
         }
-        if (isSetSessionDraftMonitor(containerId)) {
-            stopSessionDraftMonitor();
-        }
-    }
-
-    /**
-     * Start a draft monitor for a container.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    private void startSessionDraftMonitor(final Long containerId) {
-        // if the current draft monitor is set for this container; do nothing
-        if (isSetSessionDraftMonitor(containerId))
-            return;
-        // if a current draft monitor exists stop it
-        ContainerDraftMonitor monitor = getSessionDraftMonitor();
-        if (null != monitor) {
-            stopSessionDraftMonitor();
-        }
-        // create a new monitor and start it
-        monitor = getDraftMonitor(containerId, new ContainerDraftListener() {
-            public void documentModified(final ContainerEvent e) {
-                syncContainer(containerId, Boolean.FALSE);
-            }
-        });
-        session.setAttribute(SK_DRAFT_MONITOR, monitor);
-        monitor.start();
-    }
-
-    /**
-     * Stop the session draft monitor.
-     *
-     */
-    private void stopSessionDraftMonitor() {
-        final ContainerDraftMonitor monitor = getSessionDraftMonitor();
-        if (null != monitor) {
-            monitor.stop();
-            session.removeAttribute(SK_DRAFT_MONITOR);
-        }
     }
 
     /**
@@ -777,51 +658,28 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      * 
      * @param container
      *            A <code>Container</code>.
+     * @param draftView
+     *            A <code>DraftView</code>.
+     * @param earliestVersion
+     *            The earliest <code>ContainerVersion</code>.
+     * @param latestVersion
+     *            The latest <code>ContainerVersion</code>.
      * @return A <code>TabPanel</code>.
      */
     private TabPanel toDisplay(
             final Container container,
             final DraftView draftView,
-            final ContainerVersion latestVersion,
-            final List<ContainerVersion> versions,
-            final Map<ContainerVersion, List<DocumentView>> documentViews,
-            final Map<ContainerVersion, PublishedToView> publishedTo,
-            final Map<ContainerVersion, User> publishedBy,
-            final List<TeamMember> team) {
+            final ContainerVersion earliestVersion,
+            final ContainerVersion latestVersion) {
         final ArchiveTabPanel panel = new ArchiveTabPanel(session);
         panel.setActionDelegate(actionDelegate);
-        panel.setPanelData(container, readUser(container.getCreatedBy()),
-                draftView, latestVersion, versions, documentViews, publishedTo,
-                publishedBy, team);
         panel.setPopupDelegate(popupDelegate);
+        panel.setPanelData(container, draftView, earliestVersion, latestVersion);
         panel.setExpanded(isExpanded(panel));
+        panel.setSelected(isSelected(panel));
         panel.setTabDelegate(this);
         if (isExpanded(panel)) {
             browser.runApplyContainerFlagSeen(panel.getContainer().getId());
-        }
-        // the session will maintain the single draft monitor for the tab
-        if (draftView.isLocal().booleanValue()) {
-            if (isExpanded(panel)) {
-                startSessionDraftMonitor(panel.getContainer().getId());
-            }
-            panel.addPropertyChangeListener(new PropertyChangeListener() {
-                public void propertyChange(final PropertyChangeEvent evt) {
-                    if ("expanded".equals(evt.getPropertyName())) {
-                        if (panel.isExpanded()) {
-                            // Check if the DocumentDraft become out of date while
-                            // the draft monitor was off, if it has then syncContainer()
-                            // will result in startSessionDraftMonitor() being called above.
-                            if (readIsDraftDocumentStateChanged(draftView.getDraft())) {
-                                syncContainer(container.getId(), Boolean.FALSE);
-                            } else {
-                                startSessionDraftMonitor(panel.getContainer().getId());
-                            }
-                        } else {
-                            stopSessionDraftMonitor();
-                        }
-                    }
-                }
-            });
         }
         return panel;
     }

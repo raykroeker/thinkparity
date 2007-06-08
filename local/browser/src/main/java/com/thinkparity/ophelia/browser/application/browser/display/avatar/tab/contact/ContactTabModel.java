@@ -214,13 +214,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readExpandedPanelData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
-     */
-    @Override
-    protected void readExpandedPanelData(final TabPanel tabPanel) {
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readSearchResults()
      *
      */
@@ -252,6 +245,13 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         for (final JabberId profileId : profileIds)
             panelIds.add(new ContactPanelId(profileId));
         return panelIds;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#setExpandedPanelData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    @Override
+    protected void setExpandedPanelData(final TabPanel tabPanel) {
     }
 
     /**

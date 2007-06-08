@@ -134,21 +134,21 @@ public final class HelpTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readExpandedPanelData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
-     */
-    @Override
-    protected void readExpandedPanelData(final TabPanel tabPanel) {
-        final HelpContent helpContent = ((HelpProvider) contentProvider).readHelpContent(lookupId(tabPanel));
-        ((HelpTabPanel)tabPanel).setPanelData(helpContent);
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readSearchResults()
      */
     @Override
     protected List<Long> readSearchResults() {
         checkThread();
         return ((HelpProvider) contentProvider).search(searchExpression);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#setExpandedPanelData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    @Override
+    protected void setExpandedPanelData(final TabPanel tabPanel) {
+        final HelpContent helpContent = readHelpContent(lookupId(tabPanel));
+        ((HelpTabPanel)tabPanel).setPanelData(helpContent);
     }
 
     /**
@@ -182,6 +182,17 @@ public final class HelpTabModel extends TabPanelModel<Long> implements
                     .getId().equals(helpTopicId))
                 return i;
         return -1;
+    }
+
+    /**
+     * Read help content.
+     * 
+     * @param helpTopicId
+     *            A help topic id <code>Long</code>.
+     * @return A <code>HelpContent</code>.
+     */
+    private HelpContent readHelpContent(final Long helpTopicId) {
+        return ((HelpProvider) contentProvider).readHelpContent(helpTopicId);
     }
 
     /**

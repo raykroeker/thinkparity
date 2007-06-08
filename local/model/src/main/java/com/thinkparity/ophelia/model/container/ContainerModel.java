@@ -434,6 +434,15 @@ public interface ContainerModel {
             final Filter<? super Artifact> filter);
 
     /**
+     * Read the earliest container version.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container version.
+     */
+    public ContainerVersion readEarliestVersion(final Long containerId);
+
+    /**
      * Read the latest container version.
      * 
      * @param containerId

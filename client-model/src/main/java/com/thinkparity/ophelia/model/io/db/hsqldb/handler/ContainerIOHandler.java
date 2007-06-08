@@ -1374,6 +1374,20 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readVersion(java.lang.Long,
+     *      java.lang.Long)
+     * 
+     */
+    public ContainerVersion readEarliestVersion(final Long containerId) {
+        final Session session = openSession();
+        try {
+            return readVersion(containerId, artifactIO.getEarliestVersionId(session, containerId));
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readForPublishedToEMail(com.thinkparity.codebase.email.EMail)
      * 
      */

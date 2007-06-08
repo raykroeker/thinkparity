@@ -18,6 +18,7 @@ import javax.swing.JComponent;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -348,7 +349,9 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     public void toggleExpansion(final TabPanel tabPanel, final Boolean animate) {
         checkThread();
         if (!tabPanel.isSetExpandedData()) {
-            readExpandedPanelData(tabPanel);
+            SwingUtil.setCursor((java.awt.Component)tabPanel, java.awt.Cursor.WAIT_CURSOR);
+            setExpandedPanelData(tabPanel);
+            SwingUtil.setCursor((java.awt.Component)tabPanel, java.awt.Cursor.DEFAULT_CURSOR);
         }
         doToggleExpansion(tabPanel, animate);
         synchronize();
@@ -532,19 +535,19 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     protected abstract TabPanel lookupPanel(final T panelId);
 
     /**
-     * Read additional data that a panel needs when expanded.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     */
-    protected abstract void readExpandedPanelData(final TabPanel tabPanel);
-
-    /**
      * Search for a list of ids through the content provider.
      * 
      * @return A list of ids.
      */
     protected abstract List<T> readSearchResults();
+
+    /**
+     * Set additional data that a panel needs when expanded.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     */
+    protected abstract void setExpandedPanelData(final TabPanel tabPanel);
 
     /**
      * Request focus on the selected panel, if there is one.

@@ -51,6 +51,18 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
 		.toString();
 
+    /**
+     * Sql to read the earliest version id.
+     */
+    private static final String GET_EARLIEST_VERSION_ID =
+        new StringBuffer("select MIN(ARTIFACT_VERSION_ID) EARLIEST_VERSION_ID ")
+        .append("from ARTIFACT_VERSION ")
+        .append("where ARTIFACT_ID=?")
+        .toString();
+
+    /**
+     * Sql to read the latest version id.
+     */
     private static final String GET_LATEST_VERSION_ID =
 		new StringBuffer("select MAX(ARTIFACT_VERSION_ID) LATEST_VERSION_ID ")
 		.append("from ARTIFACT_VERSION ")
@@ -704,6 +716,24 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         } finally {
             session.close();
         }
+    }
+
+    /**
+     * Obtain the earliest version id for the given artifact.
+     * 
+     * @param session
+     *            The database session.
+     * @param artifactId
+     *            The artifact id.
+     * @return The earliest version id.
+     */
+    protected Long getEarliestVersionId(final Session session,
+            final Long artifactId) {
+        session.prepareStatement(GET_EARLIEST_VERSION_ID);
+        session.setLong(1, artifactId);
+        session.executeQuery();
+        if(session.nextResult()) { return session.getLong("EARLIEST_VERSION_ID"); }
+        else { return null; }
     }
 
 	/**

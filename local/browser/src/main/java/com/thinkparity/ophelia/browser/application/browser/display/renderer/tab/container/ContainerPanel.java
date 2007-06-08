@@ -146,17 +146,20 @@ public class ContainerPanel extends DefaultTabPanel {
     /** A <code>DraftView</code>. */
     private DraftView draft;
 
+    /** The earliest <code>ContainerVersion</code>. */
+    private ContainerVersion earliestVersion;
+
     /** The east list of <code>PanelCellRenderer</code>.*/
     private final List<PanelCellRenderer> eastCellPanels;
 
     /** The visible east list model. */
     private final PanelCellListModel eastListModel;
 
+    /** A <code>Boolean</code> flagging that expanded data has been set. */
+    private Boolean expandedData;
+
     /** A  <code>FileIconReader</code>. */
     private final FileIconReader fileIconReader;
-
-    /** The first <code>ContainerVersion</code>. */
-    private ContainerVersion firstVersion;
 
     /** The most recent <code>ContainerVersion</code>. */
     private ContainerVersion latestVersion;
@@ -214,6 +217,7 @@ public class ContainerPanel extends DefaultTabPanel {
                 westPreviousJLabel, westCountJLabel, westNextJLabel,
                 westLastJLabel);
         initComponents();
+        expandedData = Boolean.FALSE;
     }
 
     /**
@@ -283,7 +287,7 @@ public class ContainerPanel extends DefaultTabPanel {
         if (!isDistributed()) {
             return container.getCreatedOn();
         } else {
-            return firstVersion.getCreatedOn();  
+            return earliestVersion.getCreatedOn();  
         }
     }
 
@@ -360,8 +364,7 @@ public class ContainerPanel extends DefaultTabPanel {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#isSetExpandedData()
      */
     public Boolean isSetExpandedData() {
-        // container panels are always popuplated with all data required when expanded.
-        return Boolean.TRUE;
+        return expandedData;
     }
 
     /**
@@ -445,6 +448,7 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /**
      * Set the panel data.
+     * This version is appropriate when a document is added to the panel.
      * 
      * @param container
      *            A <code>Container</code>.
@@ -470,42 +474,66 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /**
      * Set the panel data.
+     * This version is appropriate for collapsed panels.
      * 
      * @param container
      *            A <code>Container</code>.
-     * @param draft
-     *            A <code>ContainerDraft</code>.
+     * @param draftView
+     *            A <code>DraftView</code>.
+     * @param earliestVersion
+     *            The earliest <code>ContainerVersion</code>.
      * @param latestVersion
      *            The latest <code>ContainerVersion</code>.
      */
+    public void setPanelData(final Container container,
+            final DraftView draftView, final ContainerVersion earliestVersion,
+            final ContainerVersion latestVersion) {
+        this.container = container;
+        this.draft = draftView;
+        this.earliestVersion = earliestVersion;
+        this.latestVersion = latestVersion;
+        iconJLabel.setIcon(container.isBookmarked()
+                ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK)
+                : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));
+        reloadText();
+    }
+
+    /**
+     * Set the panel data.
+     * This version is appropriate for expanded panels and should
+     * be called after the version for collapsed panels.
+     * 
+     * @param versions
+     *            The <code>List</code> of <code>ContainerVersion</code>s.
+     * @param documentViews
+     *            A <code>Map</code> of <code>ContainerVersion</code> to the <code>List</code> of <code>DocumentView</code>s.
+     * @param publishedTo
+     *            A <code>Map</code> of <code>ContainerVersion</code> to <code>PublishedToView</code>.
+     * @param publishedBy
+     *            A <code>Map</code> of <code>ContainerVersion</code> to <code>User</code>.
+     * @param versions
+     *            A <code>List</code> of <code>TeamMember</code>s.
+     */
     public void setPanelData(
-            final Container container,
-            final User containerCreatedBy,
-            final DraftView draftView,
-            final ContainerVersion latestVersion,
             final List<ContainerVersion> versions,
             final Map<ContainerVersion, List<DocumentView>> documentViews,
             final Map<ContainerVersion, PublishedToView> publishedTo,
             final Map<ContainerVersion, User> publishedBy,
             final List<TeamMember> team) {
-        this.container = container;
+        Assert.assertNotNull("Container is null, setting panel data.", container);
+        Assert.assertNotNull("Draft view is null, setting panel data.", draft);
         this.documentViews.clear();
         this.documentViews.putAll(documentViews);
-        this.draft = draftView;
-        this.latestVersion = latestVersion;
         this.team.clear();
         this.team.addAll(team);
         this.versions.clear();
         this.versions.addAll(versions);
-        if (versions.size() > 0) {
-            this.firstVersion = versions.get(versions.size()-1);
-        }
 
         // Build the west list
-        westCells.add(new ContainerCell(draftView, latestVersion, versions,
+        westCells.add(new ContainerCell(draft, latestVersion, versions,
                 documentViews, team));
         if (isLocalDraft()) {
-            westCells.add(new DraftCell(draftView));
+            westCells.add(new DraftCell(draft));
         }
         for (final ContainerVersion version : versions) {
             westCells.add(new VersionCell(version, documentViews.get(version),
@@ -519,6 +547,7 @@ public class ContainerPanel extends DefaultTabPanel {
                 ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK)
                 : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));
         reloadText();
+        expandedData = Boolean.TRUE;
     }
 
     /**
@@ -829,7 +858,9 @@ public class ContainerPanel extends DefaultTabPanel {
     }//GEN-LAST:event_expandIconJLabelMouseExited
 
     private void expandIconJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMousePressed
+        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.WAIT_CURSOR);
         expandIconMousePressed(e);
+        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
     }//GEN-LAST:event_expandIconJLabelMousePressed
 
     /**

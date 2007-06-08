@@ -1278,6 +1278,23 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Read the earliest container version.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container version.
+     */
+    public ContainerVersion readEarliestVersion(final Long containerId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        if (doesExistEarliestVersion(containerId)) {
+            return containerIO.readEarliestVersion(containerId);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.container.InternalContainerModel#readForDocument(java.lang.Long)
      *
      */

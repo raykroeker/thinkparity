@@ -25,6 +25,7 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.contact.ContactModel;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
@@ -260,7 +261,23 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
         });
         return views;
     }
-    
+
+    /**
+     * Read a container draft.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A <code>ContainerDraft</code>.
+     */
+    public ContainerDraft readDraft(final Long containerId) {
+        final Comparator<Artifact> comparator = new Comparator<Artifact>() {
+            public int compare(final Artifact o1, final Artifact o2) {
+                return o1.getCreatedOn().compareTo(o2.getCreatedOn());
+            }
+        };
+        return containerModel.readDraft(containerId, comparator);
+    }
+
     /**
 	 * Read a container draft view.
 	 * 
@@ -270,12 +287,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 	 */
     public DraftView readDraftView(final Long containerId) {
         final DraftView draftView = new DraftView();
-        final Comparator<Artifact> comparator = new Comparator<Artifact>() {
-            public int compare(final Artifact o1, final Artifact o2) {
-                return o1.getCreatedOn().compareTo(o2.getCreatedOn());
-            }
-        };
-        draftView.setDraft(containerModel.readDraft(containerId, comparator));
+        draftView.setDraft(readDraft(containerId));
         DocumentVersion firstVersion;
         if (draftView.isSetDraft()) {
             for (final Document document : draftView.getDraft().getDocuments()) {
@@ -287,7 +299,18 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
         }
         return draftView;
     }
-    
+
+    /**
+     * Read a the earliest container version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A <code>ContainerVersion</code>.
+     */
+    public ContainerVersion readEarliestVersion(final Long containerId) {
+        return containerModel.readEarliestVersion(containerId);
+    }
+
     /**
      * Read a the latest container version.
      * 

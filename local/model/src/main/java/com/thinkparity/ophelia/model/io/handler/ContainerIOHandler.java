@@ -343,6 +343,15 @@ public interface ContainerIOHandler {
             final Long documentId);
 
     /**
+     * Read the earliest container version.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container version.
+     */
+    public ContainerVersion readEarliestVersion(final Long containerId);
+
+    /**
      * Read a list of containers for a published to e-mail.
      * 
      * @param publishedTo

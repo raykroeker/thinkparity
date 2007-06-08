@@ -649,6 +649,17 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
+     * Determine whether or not a earliest version exists.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @return True if a version exists; false otherwise.
+     */
+    protected Boolean doesExistEarliestVersion(final Long artifactId) {
+        return getArtifactModel().doesVersionExist(artifactId);
+    }
+
+    /**
      * Determine whether or not a latest version exists.
      * 
      * @param artifactId

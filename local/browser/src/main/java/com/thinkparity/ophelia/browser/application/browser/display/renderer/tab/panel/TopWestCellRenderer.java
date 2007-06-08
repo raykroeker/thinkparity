@@ -62,6 +62,7 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
     }//GEN-LAST:event_collapseIconJLabelMouseExited
 
     private void collapseIconJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_collapseIconJLabelMousePressed
+        SwingUtil.setCursor(TopWestCellRenderer.this, java.awt.Cursor.DEFAULT_CURSOR);
         tabPanel.panelCellMousePressed(cell, Boolean.TRUE, evt);
         tabPanel.expandIconMousePressed(evt);
     }//GEN-LAST:event_collapseIconJLabelMousePressed

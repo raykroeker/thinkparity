@@ -200,7 +200,6 @@ public abstract class TabModel implements TabDelegate {
                     }
                 });
                 initialized = Boolean.TRUE;
-                synchronize();
             }
         }
     }

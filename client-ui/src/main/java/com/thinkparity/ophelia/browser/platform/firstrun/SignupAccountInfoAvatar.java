@@ -698,6 +698,8 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      */
     private void reloadAccountTypeRadioButtons() {
         accountTypeStandardJRadioButton.setSelected(true);
+        // TODO Guest button is temporarily disabled. Enable it again later.
+        accountTypeGuestJRadioButton.setEnabled(false);
     }
 
     /**

@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.browser.platform.window;
 import java.awt.AWTException;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
@@ -17,7 +16,7 @@ import javax.swing.AbstractAction;
 import com.thinkparity.codebase.swing.AbstractJDialog;
 import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.JFrameAlphaPanel;
-import com.thinkparity.codebase.swing.border.MovableDropShadowBorder;
+import com.thinkparity.codebase.swing.border.WindowDropShadowBorder;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants;
@@ -53,7 +52,7 @@ public final class Window extends AbstractJDialog {
 	protected WindowPanel windowPanel;
 
     /** The border. */
-    private MovableDropShadowBorder border = null;
+    private WindowDropShadowBorder border = null;
 
     /** The owner <code>AbstractJFrame</code>. */
     private final AbstractJFrame owner;
@@ -106,36 +105,6 @@ public final class Window extends AbstractJDialog {
         initBorder();
         setVisible(true);
 	}
-
-    /**
-     * @see java.awt.Component#setBounds(java.awt.Rectangle)
-     * 
-     */
-    @Override
-    public void setBounds(final Rectangle r) {
-        getBorder().settingBounds(r);
-        super.setBounds(r);
-    }
-
-    /**
-     * @see java.awt.Component#setLocation(int, int)
-     * 
-     */
-    @Override
-    public void setLocation(final int x, final int y) {
-        getBorder().settingLocation(x, y);    
-        super.setLocation(x, y);
-    }
-
-    /**
-     * @see java.awt.Component#setSize(int, int)
-     * 
-     */
-    @Override
-    public void setSize(int width, int height) {
-        getBorder().settingSize(width, height);
-        super.setSize(width, height);
-    }
 
     /**
      * Bind the escape key to dispose.
@@ -197,12 +166,12 @@ public final class Window extends AbstractJDialog {
      * Obtain the border for the window. If the border does not yet exist it
      * will be created.
      * 
-     * @return A <code>MovableDropShadowBorder</code>.
+     * @return A <code>WindowDropShadowBorder</code>.
      */
-    private MovableDropShadowBorder getBorder() {
+    private WindowDropShadowBorder getBorder() {
         if (null == border) {
             try {
-                border = new MovableDropShadowBorder(this,
+                border = new WindowDropShadowBorder(this,
                         Colors.Browser.Window.BORDER_TOP, Colors.Browser.Window.BORDER_BOTTOM,
                         Colors.Browser.Window.BORDER_TOP_LEFT, Colors.Browser.Window.BORDER_BOTTOM_LEFT,
                         Colors.Browser.Window.BORDER_TOP_RIGHT, Colors.Browser.Window.BORDER_BOTTOM_RIGHT);

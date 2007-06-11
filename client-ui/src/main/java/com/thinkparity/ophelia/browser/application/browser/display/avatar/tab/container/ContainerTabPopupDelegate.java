@@ -96,7 +96,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             final Data publishData = new Data(2);
             publishData.set(Publish.DataKey.CONTAINER_ID, draft.getContainerId());
             publishData.set(Publish.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-            add(ActionId.CONTAINER_PUBLISH, publishData);
+            addWithExpand(ActionId.CONTAINER_PUBLISH, publishData, container);
             needSeparator = true;
         }
 
@@ -105,7 +105,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             final Data addDocumentData = new Data(2);
             addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, draft.getContainerId());
             addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
-            add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
+            addWithExpand(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData, container);
             needSeparator = true;
         }
 

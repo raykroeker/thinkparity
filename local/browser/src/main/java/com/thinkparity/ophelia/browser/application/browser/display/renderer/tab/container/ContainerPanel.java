@@ -1429,7 +1429,6 @@ public class ContainerPanel extends DefaultTabPanel {
          */
         private AbstractEastCell(final WestCell parent) {
             super();
-            setEnabled(isLatest());
         }
     }
 
@@ -1443,7 +1442,6 @@ public class ContainerPanel extends DefaultTabPanel {
          */
         private AbstractWestCell(final Boolean emptyEastCellPopupAvailable) {
             super();
-            setEnabled(isLatest());
             add(new EmptyEastCell(this, emptyEastCellPopupAvailable));
         }
     }

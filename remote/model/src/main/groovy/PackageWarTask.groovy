@@ -85,7 +85,7 @@ class PackageWarTask {
             // war
             def warFile = new File(packageDir,configuration["thinkparity.war-name"])
             def webxmlFile = new File(classesDir,"WEB-INF/web-${configuration["thinkparity.environment"].name()}.xml")
-            ant.delete(file:warFile)
+            delete(file:warFile)
             war(destfile:warFile,duplicate:"fail",update:"true",whenempty:"fail",webxml:webxmlFile) {
                 classes(dir:warClassesDir)
                 lib(dir:warLibDir)

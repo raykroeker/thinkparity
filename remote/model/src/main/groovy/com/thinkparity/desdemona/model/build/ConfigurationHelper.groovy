@@ -67,6 +67,7 @@ class ConfigurationHelper {
         configuration["thinkparity.target.classes-dir"] = extractTargetClassesDir()
         configuration["thinkparity.target.package-dir"] = extractTargetPackageDir()
         configuration["thinkparity.war-name"] = extractWarName()
+        configuration["thinkparity.zip-name"] = extractZipName()
 
         return configuration
     }
@@ -184,5 +185,15 @@ class ConfigurationHelper {
      */
     String extractWarName() {
         return properties["thinkparity.war-name"]
+    }
+
+    /**
+     * Extract the plugin name.  Look at the
+     * <code>"thinkparity.plugin-name"</code> property.
+     *
+     * @return A product name <code>String</code>.
+     */
+    String extractZipName() {
+        return properties["thinkparity.zip-name"]
     }
 }

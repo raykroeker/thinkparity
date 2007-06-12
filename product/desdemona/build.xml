@@ -485,15 +485,16 @@ Examples:
 
     <!-- package -->   
     <target name="package" depends="compile">
-        <property name="thinkparity.war-name" value="services.war"/>
         <property name="thinkparity.target.classes-dir" value="${target.classes.dir}"/>
         <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
-        <property name="thinkparity.war-name" value="${thinkparity.product-name}-${thinkparity.release-name}.war"/>
+        <property name="thinkparity.war-name" value="services.war"/>
+        <property name="thinkparity.zip-name" value="${thinkparity.product-name}-${thinkparity.release-name}.zip"/>
         <delete file="${target.package.dir}/${thinkparity.plugin-name}.MD5"/>
         <delete file="${target.package.dir}/${thinkparity.plugin-name}.SHA"/>
         <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy"
             classpathref="groovy.classpath"/>
         <groovy src="${basedir}/remote/model/src/main/groovy/PackageWarTask.groovy"/>
+        <groovy src="${basedir}/remote/model/src/main/groovy/PackageZipTask.groovy"/>
     </target>
 
     <!-- install package -->   

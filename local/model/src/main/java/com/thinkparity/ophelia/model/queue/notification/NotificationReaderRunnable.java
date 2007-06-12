@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.model.queue.notification;
 import java.io.IOException;
 import java.util.Observable;
 
+import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.queue.notification.NotificationReader;
 import com.thinkparity.codebase.model.queue.notification.NotificationSession;
 
@@ -22,6 +24,9 @@ public final class NotificationReaderRunnable extends Observable implements
     /** A notification reader. */
     private final NotificationReader reader;
 
+    /** A log4j wrapper. */
+    private final Log4JWrapper logger;
+
     /**
      * Create NotificationReaderRunnable.
      * 
@@ -32,6 +37,7 @@ public final class NotificationReaderRunnable extends Observable implements
     public NotificationReaderRunnable(final NotificationSession session)
             throws IOException {
         super();
+        this.logger = new Log4JWrapper(getClass());
         this.reader = new NotificationReader(session);
         this.reader.open();
     }
@@ -45,7 +51,11 @@ public final class NotificationReaderRunnable extends Observable implements
             reader.waitForNotification();
             if (reader.didNotify()) {
                 setChanged();
-                notifyObservers(Boolean.TRUE);
+                try {
+                    notifyObservers(Boolean.TRUE);
+                } catch (final Throwable t) {
+                    logger.logError(t, "An error occured firing notification.");
+                }
             }
         }
     }
